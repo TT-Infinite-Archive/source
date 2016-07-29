@@ -1,0 +1,275 @@
+from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.guilds import IconGlobals
+
+# Limits
+GUILD_MAX_MEMBER_COUNT = 50
+
+# Instance constants
+INSTANCE_ID_TO_GP = {
+    ToontownGlobals.SellbotFactoryInt: 20,
+    ToontownGlobals.CashbotMintIntA: 30,
+    ToontownGlobals.CashbotMintIntB: 35,
+    ToontownGlobals.CashbotMintIntC: 40,
+    ToontownGlobals.LawbotStageIntA: 35,
+    ToontownGlobals.LawbotStageIntB: 40,
+    ToontownGlobals.LawbotStageIntC: 45,
+    ToontownGlobals.LawbotStageIntD: 50,
+    ToontownGlobals.BossbotCountryClubIntA: 45,
+    ToontownGlobals.BossbotCountryClubIntB: 50,
+    ToontownGlobals.BossbotCountryClubIntC: 55
+}
+
+BOSS_DEPT_TO_GP = {
+    'c': 150,   # BossBot
+    'l': 125,   # LawBot
+    'm': 100,   # CashBot
+    's': 75    # SellBot
+}
+
+TIMED_GP_INTERVAL = 3600  # In seconds
+TIMED_GP_POINTS = 10  # Points for playing TIMED_GP_INTERVAL seconds
+
+GUILD_BONUS_MULTIPLIER = [0.0, 0.2, 1.0, 1.125, 1.375, 1.625, 1.75, 1.875, 2.0]
+
+# Names
+GUILD_NAME_NONE = 0
+GUILD_NAME_PENDING = 1
+GUILD_NAME_ACCEPTED = 2
+GUILD_NAME_REJECTED = 3
+
+# Fields
+GUILD_FIELD_NAME_STATUS = 'NAME_STATUS'
+GUILD_FIELD_NAME = 'NAME'
+GUILD_FIELD_PENDING_NAME = 'PENDING_NAME'
+GUILD_FIELD_MEMBERS = 'MEMBERS'
+GUILD_FIELD_ICON_ID = 'ICON_ID'
+GUILD_FIELD_GUILD_POINTS = 'GUILD_POINTS'
+GUILD_FIELD_RANK_POINTS = 'RANK_POINTS'
+GUILD_FIELD_PLAYGROUND_ID = 'PLAYGROUND_ID'
+GUILD_FIELD_QUEST = 'QUEST'
+GUILD_FIELD_BUFFS = 'BUFFS'
+GUILD_FIELD_ROLES = 'ROLES'
+GUILD_FIELD_BOSS_TIMINGS = 'BOSS_TIMINGS'
+GUILD_FIELD_QUEST_CONTRIBUTIONS = 'QUEST_CONTRIBUTIONS'
+GUILD_FIELD_QUEST_NUM = 'QUEST_NUMBER'
+GUILD_FIELD_UNLOCKED_ITEMS = 'UNLOCKED_ITEMS'
+
+# Guild Info
+GUILD_NAME = 0
+GUILD_MEMBERS = 1
+GUILD_ICON = 2
+GUILD_GUILD_POINTS = 3
+GUILD_RANK_POINTS = 4
+GUILD_BUFFS = 5
+GUILD_QUEST = 6
+GUILD_ROLES = 7
+GUILD_BOSS_TIMINGS = 8
+
+# Member Indexes (for struct)
+GUILD_MEMBER_ENTRY_ID = 0
+GUILD_MEMBER_ENTRY_ROLE = 1
+GUILD_MEMBER_ENTRY_CONTRIBUTION = 2
+
+GUILD_MEMBER_ID = 0
+GUILD_MEMBER_NAME = 1
+GUILD_MEMBER_DNA = 2
+GUILD_MEMBER_PET = 3
+GUILD_MEMBER_ROLE = 4
+GUILD_MEMBER_LAFF = 5
+GUILD_MEMBER_ONLINE = 6
+GUILD_MEMBER_CONTRIBUTION = 7
+
+# Member Permissions
+# Owner-only permissions
+GUILD_PERMISSION_MODIFY_ROLES = 0
+GUILD_PERMISSION_TOGGLE_PLAYGROUND_VISIBILITY = 1
+GUILD_PERMISSION_EDIT_ICON = 2
+
+# Toggle-able permissions
+GUILD_PERMISSION_INVITE_MEMBERS = 3
+GUILD_PERMISSION_KICK_MEMBERS = 4
+GUILD_PERMISSION_EDIT_PLAYGROUND = 5
+GUILD_PERMISSION_SPEND_GUILD_POINTS = 6
+GUILD_PERMISSION_MODIFY_MEMBER_ROLE = 7
+
+GUILD_PERMISSION_TO_STRING = {
+    GUILD_PERMISSION_MODIFY_ROLES: TTLocalizer.GuildPermissionModifyRoles,
+    GUILD_PERMISSION_TOGGLE_PLAYGROUND_VISIBILITY: TTLocalizer.GuildPermissionTogglePlaygroundVisibility,
+    GUILD_PERMISSION_EDIT_ICON: TTLocalizer.GuildPermissionEditIcon,
+    
+    GUILD_PERMISSION_INVITE_MEMBERS: TTLocalizer.GuildPermissionInviteMembers,
+    GUILD_PERMISSION_KICK_MEMBERS: TTLocalizer.GuildPermissionKickMembers,
+    GUILD_PERMISSION_EDIT_PLAYGROUND: TTLocalizer.GuildPermissionEditPlayground,
+    GUILD_PERMISSION_SPEND_GUILD_POINTS: TTLocalizer.GuildPermissionSpendGuildPoints,
+    GUILD_PERMISSION_MODIFY_MEMBER_ROLE: TTLocalizer.GuildPermissionModifyMemberRole
+}
+
+# Guild Roles
+# Struct info
+GUILD_ROLE_ID = 0
+GUILD_ROLE_NAME = 1
+GUILD_ROLE_SORT_INDEX = 2
+GUILD_ROLE_PERMISSIONS = 3
+
+# Pre-defined roles
+GUILD_ROLE_ID_OWNER = 0
+GUILD_ROLE_ID_ADMIN = 1
+GUILD_ROLE_ID_MEMBER = 2
+
+GUILD_ROLE_DEFAULT_OWNER = [
+    # Id
+    GUILD_ROLE_ID_OWNER,
+    
+    # Name
+    TTLocalizer.GuildRoleOwner, 
+    
+    # Sorting
+    0,
+    
+    # Permissions
+    [
+        # Admin-only permissions
+        GUILD_PERMISSION_MODIFY_ROLES,
+        GUILD_PERMISSION_TOGGLE_PLAYGROUND_VISIBILITY,
+        GUILD_PERMISSION_EDIT_ICON,
+        
+        # Toggle-able permissions
+        GUILD_PERMISSION_INVITE_MEMBERS,
+        GUILD_PERMISSION_KICK_MEMBERS,
+        GUILD_PERMISSION_EDIT_PLAYGROUND,
+        GUILD_PERMISSION_SPEND_GUILD_POINTS,
+        GUILD_PERMISSION_MODIFY_MEMBER_ROLE
+    ]
+]
+
+GUILD_ROLE_DEFAULT_ADMIN = [
+    # Id
+    GUILD_ROLE_ID_ADMIN, 
+    
+    # Name
+    TTLocalizer.GuildRoleAdmin, 
+    
+    # Sorting
+    1,
+    
+    # Permissions
+    [
+        GUILD_PERMISSION_INVITE_MEMBERS,
+        GUILD_PERMISSION_KICK_MEMBERS,
+        GUILD_PERMISSION_EDIT_PLAYGROUND,
+        GUILD_PERMISSION_SPEND_GUILD_POINTS
+    ]
+]
+
+GUILD_ROLE_DEFAULT_MEMBER = [
+    # Id
+    GUILD_ROLE_ID_MEMBER,
+    
+    # Name
+    TTLocalizer.GuildRoleMember,
+    
+    # Sorting
+    2,
+    
+    # Permissions
+    []
+]
+
+GUILD_ROLE_DEFAULTS = [
+    GUILD_ROLE_DEFAULT_OWNER,
+    GUILD_ROLE_DEFAULT_ADMIN,
+    GUILD_ROLE_DEFAULT_MEMBER
+]
+
+# Guild Errors
+GUILD_ALREADY_IN_GUILD_ERROR = 0
+GUILD_NOT_ENOUGH_JB = 1
+GUILD_BAD_NAME_ERROR = 2
+GUILD_NAME_TAKEN_ERROR = 3
+GUILD_FULL_OF_MEMBERS = 4
+GUILD_CANT_LEAVE_ERROR = 6
+GUILD_FATAL_ERROR = 7
+GUILD_NO_GUILD_ERROR = 8
+GUILD_BAD_PERMISSIONS_ERROR = 9
+GUILD_TARGET_BUSY_ERROR = 10
+GUILD_TARGET_NO_GUILD_ERROR = 11
+GUILD_CANT_PROCESS_ERROR = 12
+
+GUILD_ERRORS_TO_STRING = {
+    GUILD_ALREADY_IN_GUILD_ERROR: TTLocalizer.GuildAlreadyInGuildError,
+    GUILD_NOT_ENOUGH_JB: TTLocalizer.GuildNotEnoughJB,
+    GUILD_BAD_NAME_ERROR: TTLocalizer.GuildBadNameError,
+    GUILD_NAME_TAKEN_ERROR: TTLocalizer.GuildNameTakenError,
+    GUILD_FULL_OF_MEMBERS: TTLocalizer.GuildFullOfMembers,
+    GUILD_CANT_LEAVE_ERROR: TTLocalizer.GuildCantLeaveError,
+    GUILD_FATAL_ERROR: TTLocalizer.GuildFatalError,
+    GUILD_NO_GUILD_ERROR: TTLocalizer.GuildNoGuildError,
+    GUILD_BAD_PERMISSIONS_ERROR: TTLocalizer.GuildBadPermissionsError,
+    GUILD_TARGET_BUSY_ERROR: TTLocalizer.GuildTargetBusyError,
+    GUILD_TARGET_NO_GUILD_ERROR: TTLocalizer.GuildTargetNoGuildError,
+    GUILD_CANT_PROCESS_ERROR: TTLocalizer.GuildCantProcessError
+}
+
+# Guild Invite Responses
+
+GUILD_INVITE_RESPONSE_REJECTED = 0
+GUILD_INVITE_RESPONSE_ACCEPTED = 1
+GUILD_INVITE_RESPONSE_ALREADY_IN_GUILD = 2
+GUILD_INVITE_RESPONSE_MAYBE = 3
+GUILD_INVITE_RESPONSE_CANT_PROCESS = 4
+GUILD_INVITE_RESPONSE_FULL = 5
+GUILD_INVITE_RESPONSE_IM_STAFF = 6
+GUILD_INVITE_RESPONSE_CANT_INVITE_STAFF = 7
+
+GUILD_POSSIBLE_ICONS = [
+    IconGlobals.ICON_TEN_DOLLAR,
+    IconGlobals.ICON_ONE_DOLLAR,
+    IconGlobals.ICON_FIVE_DOLLAR,
+    IconGlobals.ICON_ANVIL,
+    IconGlobals.ICON_AOOGAH,
+    IconGlobals.ICON_BAMBOO_CANE,
+    IconGlobals.ICON_BANANA_PEEL,
+    IconGlobals.ICON_BIG_MAGNET,
+    IconGlobals.ICON_BIKE_HORN,
+    IconGlobals.ICON_BUGLE,
+    IconGlobals.ICON_CAKE,
+    IconGlobals.ICON_CREAM_PIE,
+    IconGlobals.ICON_CREAM_PIE_SLICE,
+    IconGlobals.ICON_CUPCAKE,
+    IconGlobals.ICON_ELEPHANT,
+    IconGlobals.ICON_FEATHER,
+    IconGlobals.ICON_FIREHOSE,
+    IconGlobals.ICON_FLOWER_POT,
+    IconGlobals.ICON_FOG_HORN,
+    IconGlobals.ICON_FRUIT_PIE,
+    IconGlobals.ICON_FRUIT_PIE_SLICE,
+    IconGlobals.ICON_GLASS_OF_WATER,
+    IconGlobals.ICON_HYPNO_GOGGLES,
+    IconGlobals.ICON_JUGGLING_CUBES,
+    IconGlobals.ICON_LIPSTICK,
+    IconGlobals.ICON_MARBLES,
+    IconGlobals.ICON_MEGAPHONE,
+    IconGlobals.ICON_PIANO,
+    IconGlobals.ICON_PIXIEDUST,
+    IconGlobals.ICON_QUICKSAND,
+    IconGlobals.ICON_RAKE,
+    IconGlobals.ICON_SAFE,
+    IconGlobals.ICON_SANDBAG,
+    IconGlobals.ICON_SELTZER_BOTTLE,
+    IconGlobals.ICON_SMALL_MAGNET,
+    IconGlobals.ICON_SQUIRT_FLOWER,
+    IconGlobals.ICON_STORM_CLOUD,
+    IconGlobals.ICON_TART,
+    IconGlobals.ICON_TNT,
+    IconGlobals.ICON_TRAP_DOOR,
+    IconGlobals.ICON_WATER_GUN,
+    IconGlobals.ICON_WHISTLE,
+    IconGlobals.ICON_BIG_WEIGHT,
+    IconGlobals.ICON_WEDDING_CAKE,
+    IconGlobals.ICON_TRAIN_TRACKS,
+    IconGlobals.ICON_PRESENTATION,
+    IconGlobals.ICON_OPERA_SINGER,
+    IconGlobals.ICON_LADDER,
+    IconGlobals.ICON_GEYSER,
+    IconGlobals.ICON_SHIP
+]

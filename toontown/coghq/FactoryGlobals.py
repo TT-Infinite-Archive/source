@@ -1,0 +1,1 @@
+MaxMerits = 294  # We should probably control this anyways
