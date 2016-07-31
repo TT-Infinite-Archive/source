@@ -152,10 +152,10 @@ class ClickToStart(DirectObject):
         )
         self.labelPosTrack.start()
 
-        self.acceptOnce('enter', self.begin)
+        self.acceptOnce('mouse1', self.begin)
 
     def stop(self):
-        self.ignore('enter')
+        self.ignore('mouse1')
 
         if self.labelPosTrack is not None:
             self.labelPosTrack.finish()
