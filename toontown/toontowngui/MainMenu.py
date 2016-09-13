@@ -33,22 +33,24 @@ class MainMenu(DirectObject, FSM):
         self.mpButtons = []
         self.spButtons = []
         self.optionButtons = []
-        buttonScale = (-0.9, 0.9, 0.9)
+        buttonScale = (-1.1, 1.1, 1.1)
 
-        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.1),
+        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.3),
                                                    text="Single Player",
                                                    wantArrows=False,
                                                    image_scale=buttonScale, image2_scale=buttonScale,
-                                                   image1_scale=buttonScale, text_scale=0.07,
+                                                   image1_scale=buttonScale, text_scale=0.09,
                                                    command=lambda: self.request('SinglePlayer'))
         self.buttons.append(self.singlePlayerButton)
 
+        """
         self.multiPlayerButton = MATShuffleButton(pos=(0, 0, -0.35), text="Multiplayer",
                                                   wantArrows=False,
                                                   image_scale=buttonScale, image2_scale=buttonScale,
                                                   image1_scale=buttonScale, text_scale=0.07,
                                                   command=lambda: self.request('MultiPlayer'))
         self.buttons.append(self.multiPlayerButton)
+
 
         if config.GetBool('want-multiplayer', True):
             self.bossyBusinessButton = MATShuffleButton(pos=(0, 0, -0.35), text="Bossy Business",
@@ -74,6 +76,7 @@ class MainMenu(DirectObject, FSM):
                                               image_scale=buttonScale, image2_scale=buttonScale,
                                               image1_scale=buttonScale, text_scale=0.07)
         self.buttons.append(self.optionsButton)
+        """
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -91,6 +94,7 @@ class MainMenu(DirectObject, FSM):
 
         self.hide()
 
+
     def enterIdle(self):
         self.backgroundNodePath.show()
         for button in self.buttons:
@@ -104,6 +108,7 @@ class MainMenu(DirectObject, FSM):
     def enterSinglePlayer(self):
         base.connectToServer('localhost')
 
+    """
     def enterMultiPlayer(self):
         self.backgroundNodePath.show()
         for mpButton in self.mpButtons:
@@ -127,6 +132,7 @@ class MainMenu(DirectObject, FSM):
 
     def enterOptions(self):
         pass
+    """
 
     def enterOff(self):
         self.hide()

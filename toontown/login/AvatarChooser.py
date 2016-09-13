@@ -58,8 +58,8 @@ class AvatarChooser(StateData.StateData):
         base.disableMouse()
         self.title.reparentTo(aspect2d)
         self.quitButton.show()
-        if base.cr.loginInterface.supportsRelogin():
-            self.logoutButton.show()
+        # if base.cr.loginInterface.supportsRelogin():
+            # self.logoutButton.show()
         self.pickAToonBG.setBin('background', 1)
         self.pickAToonBG.reparentTo(aspect2d)
         base.setBackgroundColor(Vec4(0.145, 0.368, 0.78, 1))
@@ -79,7 +79,7 @@ class AvatarChooser(StateData.StateData):
         self.ignoreAll()
         self.title.reparentTo(hidden)
         self.quitButton.hide()
-        self.logoutButton.hide()
+        # self.logoutButton.hide()
         self.backButton.hide()
         self.pickAToonBG.reparentTo(hidden)
         base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
@@ -120,6 +120,7 @@ class AvatarChooser(StateData.StateData):
             pos=(-0.25, 0, 0.075), command=self.__handleQuit)
         self.quitButton.reparentTo(base.a2dBottomRight)
 
+        """
         self.logoutButton = DirectButton(
             relief=None, image=(quitHover, quitHover, quitHover),
             text=TTLocalizer.OptionsPageLogout,
@@ -131,6 +132,7 @@ class AvatarChooser(StateData.StateData):
             command=self.__handleLogoutWithoutConfirm)
         self.logoutButton.reparentTo(base.a2dBottomLeft)
         self.logoutButton.hide()
+        """
 
         self.backButton = DirectButton(
             image=(quitHover, quitHover, quitHover), relief=None,
@@ -252,8 +254,8 @@ class AvatarChooser(StateData.StateData):
         del self.title
         self.quitButton.destroy()
         del self.quitButton
-        self.logoutButton.destroy()
-        del self.logoutButton
+        # self.logoutButton.destroy()
+        # del self.logoutButton
         self.pickAToonBG.removeNode()
         del self.pickAToonBG
         unload()
