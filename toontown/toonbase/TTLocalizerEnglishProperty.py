@@ -88,6 +88,7 @@ ACdeleteWithPasswordFrame = 0.06
 ACstatusText = 1.0
 ACtitle = 0.15
 ACquitButton = 0.1
+ACbackButton = 0.09
 AClogoutButton = 0.1
 ACquitButtonPos = (0, -0.035)
 MASPscoreText = 0.1
