@@ -1,29 +1,17 @@
 #!/usr/bin/env python2
-# This is the "main" module that will start a production copy of
-# Toontown Infinite.
-
-# This is a temp patch.
-# It should really be done by the runtime (e.g. infinite.exe):
-import sys
-sys.path = ['.']
-
-# Replace some modules that do exec:
-import collections
-collections.namedtuple = lambda *x: tuple
-
-# This is included in the package by the prepare_client script. It contains the
-# PRC file data, and (stripped) DC file:
-import game_data
+""""Entry point for a compiled build of Toontown Infinite."""
 import __builtin__
+import game_data
+from panda3d.core import loadPrcFileData, VirtualFileSystem, \
+    ConfigVariableList, Filename, StringStream
 
-# Load all of the packaged PRC config page(s):
-from pandac.PandaModules import *
 for i, config in enumerate(game_data.CONFIG):
-    name = 'GameData config page #' + str(i)
-    loadPrcFileData(name, config)
+    name = 'game_data config page #' + str(i)
+    loadPrcFileData(name, game_data.deobfuscate(config))
 
-# The VirtualFileSystem, which has already initialized, doesn't see the mount
-# directives in the config(s) yet. We have to force it to load them manually:
+# Because the VFS has already been initialized, it hasn't loaded the mount
+# directives defined in the game_data config pages. Therefore, we must force it
+# to do so manually:
 vfs = VirtualFileSystem.getGlobalPtr()
 mounts = ConfigVariableList('vfs-mount')
 for mount in mounts:
@@ -33,8 +21,6 @@ for mount in mounts:
     mountPoint = Filename(mountPoint)
     vfs.mount(mountFile, mountPoint, 0)
 
-# Next, let's get the DC stream:
-__builtin__.dcStream = StringStream(game_data.DC)
+__builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
 
-# Finally, start the game:
 import toontown.toonbase.ClientStart
