@@ -1,13 +1,13 @@
 import string
 from otp.otpbase.OTPLocalizerEnglishProperty import *
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'Daisy Gardens'
-lDonaldsDock = "Donald's Dock"
-lDonaldsDreamland = "Donald's Dreamland"
-lMinniesMelodyland = "Minnie's Melodyland"
+lDaisyGardens = 'The Gardens'
+lDonaldsDock = "The Docks"
+lDonaldsDreamland = "Dreamland"
+lMinniesMelodyland = "Melodyland"
 lToontownCentral = 'Toontown Central'
-lGoofySpeedway = 'Goofy Speedway'
-lOutdoorZone = "Chip 'n Dale's Acorn Acres"
+lGoofySpeedway = 'The Speedway'
+lOutdoorZone = "Acorn Acres"
 lGolfZone = "Chip 'n Dale's MiniGolf"
 lCancel = 'Cancel'
 lClose = 'Close'
@@ -1824,7 +1824,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30100: "Happy April Toons' Week!",
  30101: "Welcome to my April Toons' Week party!",
  30102: 'The Silly Meter is back in Toon Hall!',
- 30110: 'Mickey is in Daisy Gardens.',
+ 30110: 'Mickey is in The Gardens.',
  30111: 'Daisy is in Toontown Central.',
  30112: 'Minnie is in The Brrrgh.',
  30113: 'Pluto is in Melodyland.',
