@@ -10,9 +10,12 @@ from toontown.guilds import GuildInviter
 FLPPets = 1
 FLPOnline = 2
 FLPAll = 3
-FLPGuildOnline = 4
-FLPGuildAll = 5
-FLPEnemies = 6
+if base.wantGuilds:
+    FLPGuildOnline = 4
+    FLPGuildAll = 5
+    FLPEnemies = 6
+else:
+    FLPEnemies = 4
 globalFriendsList = None
 
 def determineFriendName(friendTuple):
@@ -111,7 +114,6 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
     def __init__(self):
         self.leftmostPanel = FLPPets
 
-        self.rightmostPanel = FLPGuildAll
         self.rightmostPanel = FLPEnemies
         DirectFrame.__init__(self, relief=None)
         self.listScrollIndex = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -336,7 +338,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
 
     def __newFriend(self):
         messenger.send('wakeup')
-        if self.panelType in (FLPGuildOnline, FLPGuildAll):
+        if base.wantGuilds and self.panelType in (FLPGuildOnline, FLPGuildAll):
             GuildInviter.showGuildInviter(None, None, None)
         else:
             messenger.send('friendAvatar', [None, None, None])
@@ -496,13 +498,13 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                     if friendInfo.onlineYesNo:
                         newFriends.insert(0, (friendId, 0, playerId, 0))
 
-        if self.panelType == FLPGuildAll:
+        if base.wantGuilds and self.panelType == FLPGuildAll:
             myGuild = base.cr.guildManager.guild
             if myGuild is not None:
                 for member in myGuild.members:
                     if member.doId != base.localAvatar.doId:
                         guildMembers.append((member.doId, member.name))
-        elif self.panelType == FLPGuildOnline:
+        elif base.wantGuilds and self.panelType == FLPGuildOnline:
             myGuild = base.cr.guildManager.guild
             if myGuild is not None:
                 for member in myGuild.members:
@@ -631,9 +633,9 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             self.title['text'] = TTLocalizer.FriendsListPanelAllFriends
         elif self.panelType == FLPPets:
             self.title['text'] = TTLocalizer.FriendsListPanelPets
-        elif self.panelType == FLPGuildAll:
+        elif base.wantGuilds and self.panelType == FLPGuildAll:
             self.title['text'] = TTLocalizer.FriendsListPanelGuildAll
-        elif self.panelType == FLPGuildOnline:
+        elif base.wantGuilds and self.panelType == FLPGuildOnline:
             self.title['text'] = TTLocalizer.FriendsListPanelGuildOnline
         else:
             self.title['text'] = TTLocalizer.FriendsListPanelIgnoredFriends
@@ -650,7 +652,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             self.right['state'] = 'normal'
 
     def __updateButtons(self):
-        if self.panelType in (FLPGuildOnline, FLPGuildAll):
+        if base.wantGuilds and self.panelType in (FLPGuildOnline, FLPGuildAll):
             # New friend will now be new guildie
             self.newFriend['text'] = ('', TTLocalizer.FriendsListPanelNewGuildie, TTLocalizer.FriendsListPanelNewGuildie, '')
             self.newFriend.setText()
@@ -674,7 +676,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             self.__updateScrollList()
 
     def __guildListChanged(self):
-        if self.panelType in (FLPGuildOnline, FLPGuildAll):
+        if base.wantGuilds and self.panelType in (FLPGuildOnline, FLPGuildAll):
             self.__updateScrollList()
 
     def __ignoreListChanged(self):

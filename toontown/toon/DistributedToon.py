@@ -529,7 +529,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
         newText, scrubbed = self.scrubTalk(chat, mods)
         newText = newText.strip()
-        if Modifiers[channel] == GuildModifier:
+        if Modifiers[channel] == GuildModifier and base.wantGuilds:
             if base.localAvatar.doId == self.getDoId():
                 if base.cr.guildManager.guild is None:
                     base.localAvatar.displayWhisper(0, TTLocalizer.GuildChatWarning, WTSystem)

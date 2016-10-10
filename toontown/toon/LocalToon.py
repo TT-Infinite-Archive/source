@@ -412,9 +412,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.addEventsPage()
         if WantNewsPage:
             self.addNewsPage()
-        self.socialPage = SocialPage.SocialPage()
-        self.socialPage.load()
-        self.book.addPage(self.socialPage, pageName=TTLocalizer.SocialPageTitle)
+        if base.wantGuilds:
+            self.socialPage = SocialPage.SocialPage()
+            self.socialPage.load()
+            self.book.addPage(self.socialPage, pageName=TTLocalizer.SocialPageTitle)
         self.book.setPage(self.mapPage, enterPage=False)
         self.laffMeter = LaffMeter.LaffMeter(self.style, self.hp, self.maxHp)
         self.laffMeter.setAvatar(self)

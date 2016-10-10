@@ -52,13 +52,14 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
         self.chatEntry.bind(DGG.OVERFLOW, self.chatOverflow)
         self.chatEntry.bind(DGG.TYPE, self.typeCallback)
         self.trueFriendChat = 0
-        self.channelLabel = OnscreenText(parent=self.chatFrame,
-                                         text='',
-                                         scale=0.055,
-                                         align=TextNode.ACenter,
-                                         font=OTPGlobals.getInterfaceFont(),
-                                         fg=(1.0, 1.0, 0.0, 1.0),
-                                         pos=(0.02, -0.225, 0.0))
+        if base.wantGuilds:
+            self.channelLabel = OnscreenText(parent=self.chatFrame,
+                                             text='',
+                                             scale=0.055,
+                                             align=TextNode.ACenter,
+                                             font=OTPGlobals.getInterfaceFont(),
+                                             fg=(1.0, 1.0, 0.0, 1.0),
+                                             pos=(0.02, -0.225, 0.0))
         if base.config.GetBool('whisper-to-nearby-true-friends', 1):
             self.accept(self.TFToggleKey, self.shiftPressed)
         return
@@ -152,9 +153,10 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
 
     def activate(self):
         ChatInputWhiteListFrame.activate(self)
-        channel = base.talkAssistant.channel
-        channelName = ChatGlobals.Modifiers[channel].upper()
-        self.channelLabel['text'] = 'Talking in %s chat' % channelName
+        if base.wantGuilds:
+            channel = base.talkAssistant.channel
+            channelName = ChatGlobals.Modifiers[channel].upper()
+            self.channelLabel['text'] = 'Talking in %s chat' % channelName
 
     def enterAllChat(self):
         ChatInputWhiteListFrame.enterAllChat(self)

@@ -1464,7 +1464,6 @@ class Toon(Avatar.Avatar, ToonHead):
         return
 
     def exitSad(self):
-        print self.wasGoofy
         if self.wasGoofy:
             self.aboutToBeGoofy = 1
             self.applyCheesyEffect(CollectibleInventoryGlobals.CheesyEffectGoofy, 0.5)

@@ -177,6 +177,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantNewSpecies = self.config.GetBool('want-new-species', 0)
         self.wantAchievements = self.config.GetBool('want-achievements', 1)
         self.wantGroupTracker = self.config.GetBool('want-grouptracker', 0)
+        self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:

@@ -567,7 +567,7 @@ class TalkAssistant(DirectObject.DirectObject):
             chatFlags = CFSpeech | CFTimeout
             if isThought(message):
                 chatFlags = CFThought
-            elif isModifier(message):
+            elif isModifier(message) and base.wantGuilds:
                 channel = getModifierType(message)
                 if channel is not None:
                     self.channel = Modifiers.index(channel)

@@ -34,8 +34,8 @@ class OZHoodAI(HoodAI.HoodAI):
         self.createPicnicTables()
         if simbase.config.GetBool('want-game-tables', True):
             self.createGameTables()
-
-        self.createLowdenClear()
+        if self.air.wantGuilds:
+            self.createLowdenClear()
 
     def createLowdenClear(self):
         self.npc = NPCToons.createNPC(self.air, 91920, NPCToons.NPCToonDict[91920], self.zoneId)

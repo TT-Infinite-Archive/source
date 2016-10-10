@@ -135,7 +135,8 @@ def createNPC(air, npcId, desc, zoneId, posIndex = 0, questCallback = None):
         if simbase.air.wantYinYang:
             npc = DistributedNPCYangAI.DistributedNPCYangAI(air, npcId)
     elif type == NPC_RESISTANCE:
-        npc = DistributedNPCLowdenClearAI.DistributedNPCLowdenClearAI(air, npcId)
+        if simbase.air.wantGuilds:
+            npc = DistributedNPCLowdenClearAI.DistributedNPCLowdenClearAI(air, npcId)
     else:
         print 'createNPC() error!!!'
 
