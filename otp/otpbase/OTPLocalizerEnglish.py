@@ -6,9 +6,9 @@ lDonaldsDock = "The Docks"
 lDonaldsDreamland = "Dreamland"
 lMinniesMelodyland = "Melodyland"
 lToontownCentral = 'Toontown Central'
-lGoofySpeedway = 'The Speedway'
+lGoofySpeedway = 'Toontown Speedway'
 lOutdoorZone = "Acorn Acres"
-lGolfZone = "Chip 'n Dale's MiniGolf"
+lGolfZone = "Toontown MiniGolf"
 lCancel = 'Cancel'
 lClose = 'Close'
 lOK = 'OK'
@@ -1828,7 +1828,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30111: 'Daisy is in Toontown Central.',
  30112: 'Minnie is in The Brrrgh.',
  30113: 'Pluto is in Melodyland.',
- 30114: 'Donald is sleepwalking at the Speedway.',
+ 30114: 'Donald is sleepwalking at the Toontown Speedway.',
  30115: 'Goofy is in Dreamland.',
  30120: 'Mickey is acting like Daisy!',
  30121: 'Daisy is acting like Mickey!',
