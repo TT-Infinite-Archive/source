@@ -11,7 +11,7 @@ class DistributedLibraryInterior(DistributedObject):
     def announceGenerate(self):
         DistributedObject.announceGenerate(self)
 
-        self.interior = loader.loadModel('phase_4/models/modules/ttc_library_interior.bam')
+        self.interior = loader.loadModel('phase_3.5/models/modules/toon_interior_T.bam')
         self.interior.reparentTo(render)
 
         generator = random.Random()
