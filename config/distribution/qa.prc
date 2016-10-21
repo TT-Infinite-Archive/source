@@ -14,8 +14,8 @@ want-storm-event #t
 want-pets #t
 want-parties #f
 want-achievements #f
-want-grouptracker #t
-want-game-tables #t
+want-grouptracker #f
+want-game-tables #f
 
 # Chat:
 want-whitelist #f

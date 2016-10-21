@@ -214,6 +214,8 @@ class DistributedBankInterior(DistributedObject):
         doorFrame = doorNP.find('door_*_flat')
         doorFrame.wrtReparentTo(self.interior)
         doorFrame.setColor(doorColor)
+        sign = render.find('**/hanging_sign')
+        sign.hide()
 
         del self.colors
         del self.dnaStore
