@@ -251,12 +251,8 @@ class ToonAvatarDetailPanel(DirectFrame):
         if online:
             shardName = base.cr.getShardName(av.defaultShard)
             hoodName = base.cr.hoodMgr.getFullnameFromId(av.lastHood)
-            guildName = av.getGuildName()
-            
             if ZoneUtil.isWelcomeValley(av.lastHood):
                 shardName = '%s (%s)' % (TTLocalizer.WelcomeValley[-1], shardName)
-            if guildName == '':
-                guildName = TTLocalizer.AvatarDetailPanelNoGuild
             if self.playerInfo:
                 guiButton = loader.loadModel('phase_3/models/gui/quit_button')
                 self.gotoAvatarButton = DirectButton(parent=self, relief=None, image=(guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR')), image_scale=1.1, text=TTLocalizer.AvatarShowPlayer, text_scale=0.07, text_pos=(0.0, -0.02), textMayChange=0, pos=(0.44, 0, 0.41), command=self.__showAvatar)
@@ -265,8 +261,7 @@ class ToonAvatarDetailPanel(DirectFrame):
                                                                     'player': self.playerInfo.playerName}
             else:
                 text = TTLocalizer.AvatarDetailPanelOnline % {'district': shardName,
-                                                              'location': hoodName,
-                                                              'guildName': guildName}
+                                                              'location': hoodName}
         else:
             text = TTLocalizer.AvatarDetailPanelOffline
         self.dataText['text'] = text

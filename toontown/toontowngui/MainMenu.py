@@ -4,6 +4,7 @@ from direct.showbase.DirectObject import DirectObject
 from panda3d.core import TransparencyAttrib, Point3, Vec4, Vec3, TextNode
 from toontown.toonbase import ToontownGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from otp.otpbase import OTPLocalizer
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.BossyBusinessMenu import BossyBusinessMenu
 from direct.interval.IntervalGlobal import *
@@ -106,6 +107,7 @@ class MainMenu(DirectObject, FSM):
             button.hide()
 
     def enterSinglePlayer(self):
+        OTPLocalizer.SpeedChatStaticText[30500] = 'Welcome to Toontown Infinite!'
         base.connectToServer('localhost')
 
     """

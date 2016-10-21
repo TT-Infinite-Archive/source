@@ -8,8 +8,8 @@ shard-mid-pop 150
 client-agents 8
 
 # Core features:
-want-grouptracker #t
-want-game-tables #t
+want-grouptracker #f
+want-game-tables #f
 want-true-friends #f
 want-achievements #f
 want-parties #f
