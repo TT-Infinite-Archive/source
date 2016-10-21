@@ -1,6 +1,7 @@
 from panda3d.core import Fog, Vec4
 
 from toontown.safezone.OZSafeZoneLoader import OZSafeZoneLoader
+from toontown.town.OZTownLoader import OZTownLoader
 from toontown.toonbase import ToontownGlobals
 from toontown.hood.ToonHood import ToonHood
 from toontown.toonbase.ContentPacksManager import ContentPackError
@@ -10,6 +11,7 @@ class OZHood(ToonHood):
 
     ID = ToontownGlobals.OutdoorZone
     SAFEZONELOADER_CLASS = OZSafeZoneLoader
+    TOWNLOADER_CLASS = OZTownLoader
     STORAGE_DNA = 'phase_6/dna/storage_OZ.pdna'
     SKY_FILE = 'phase_3.5/models/props/TT_sky'
     SPOOKY_SKY_FILE = 'phase_3.5/models/props/BR_sky'

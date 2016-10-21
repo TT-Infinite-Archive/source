@@ -188,6 +188,7 @@ TenorTerrace = 4300
 ElmStreet = 5100
 MapleStreet = 5200
 OakStreet = 5300
+GloomyForest = 6100
 LullabyLane = 9100
 PajamaPlace = 9200
 ToonHall = 2513
@@ -198,6 +199,7 @@ HoodHierarchy = {
     MinniesMelodyland: (AltoAvenue, BaritoneBoulevard, TenorTerrace),
     DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
     DonaldsDreamland: (LullabyLane, PajamaPlace),
+    OutdoorZone: (GloomyForest,),
     ResistanceGrounds: (),
     GoofySpeedway: ()
 }
@@ -544,7 +546,7 @@ streetPhaseMap = {
     DaisyGardens: 8,
     FunnyFarm: 8,
     DonaldsDreamland: 8,
-    OutdoorZone: 8,
+    OutdoorZone: 6,
     BossbotHQ: 12,
     SellbotHQ: 9,
     CashbotHQ: 10,
