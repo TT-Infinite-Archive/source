@@ -78,7 +78,7 @@ want-resistance-grounds #f
 
 # Safe zone settings:
 want-treasure-planners #f
-want-suit-planners #f
+want-suit-planners #t
 
 # Classic characters:
 want-classic-chars #f
@@ -100,10 +100,10 @@ want-travel-game #f
 want-game-tables #f
 
 # Cog headquarters:
-want-cog-headquarters #f
-want-sellbot-headquarters #t
-want-cashbot-headquarters #t
-want-lawbot-headquarters #t
+want-cog-headquarters #t
+want-sellbot-headquarters #f
+want-cashbot-headquarters #f
+want-lawbot-headquarters #f
 want-bossbot-headquarters #t
 
 # Cashbot boss:

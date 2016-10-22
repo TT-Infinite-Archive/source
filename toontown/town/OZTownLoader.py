@@ -7,7 +7,7 @@ class OZTownLoader(TownLoader.TownLoader):
     def __init__(self, hood, parentFSM, doneEvent):
         TownLoader.TownLoader.__init__(self, hood, parentFSM, doneEvent)
         self.streetClass = OZStreet.OZStreet
-        self.musicFile = 'phase_6/audio/bgm/OZ_nbrhood.ogg'
+        self.musicFile = 'phase_12/audio/bgm/Bossbot_Entry_v3.ogg'
         self.activityMusicFile = self.musicFile
         # self.gloomyForestMusic = 'phase_12/audio/bgm/Bossbot_Entry_v3.ogg'
         self.townStorageDNAFile = 'phase_6/dna/storage_OZ_town.pdna'
