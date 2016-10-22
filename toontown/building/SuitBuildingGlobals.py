@@ -291,6 +291,8 @@ buildingMinMax = {
                                   config.GetInt('lullaby-lane-building-max', 12)],
     ToontownGlobals.PajamaPlace: [config.GetInt('pajama-place-building-min', 6),
                                   config.GetInt('pajama-place-building-max', 12)],
+    ToontownGlobals.GloomyForest: [config.GetInt('gloomy-forest-building-min', 6),
+                                   config.GetInt('gloomy-forest-building-max', 12)],
     ToontownGlobals.SellbotHQ: [0, 0],
     ToontownGlobals.SellbotFactoryExt: [0, 0],
     ToontownGlobals.CashbotHQ: [0, 0],
