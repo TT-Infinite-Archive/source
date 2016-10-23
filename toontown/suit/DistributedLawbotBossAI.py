@@ -298,7 +298,7 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         self.__resetLawyers()
 
     def enterElevator(self):
-        self.notify.debug('enterElevatro')
+        self.notify.debug('enterElevator')
         DistributedBossCogAI.DistributedBossCogAI.enterElevator(self)
         self.b_setBossDamage(ToontownGlobals.LawbotBossInitialDamage, 0, 0)
 
