@@ -1,39 +1,34 @@
-from panda3d.core import Point3, VBase3, VBase4, Vec3, Vec4, BitMask32
-from panda3d.core import NodePath, Plane, CollisionSphere, CollisionNode, CollisionPlane, CollisionPolygon
-from panda3d.core import RigidBodyCombiner
-from panda3d.direct import ShowInterval
-from panda3d.physics import PhysicsManager, LinearEulerIntegrator, ForceNode, LinearVectorForce
-
-from direct.directnotify import DirectNotifyGlobal
-from direct.fsm import FSM
-from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func, Track
-from direct.interval.IntervalGlobal import ActorInterval, SoundInterval, LerpColorScaleInterval
-from direct.interval.IntervalGlobal import Sequence, Parallel
-from direct.interval.IntervalGlobal import LerpPosHprInterval
 from direct.showbase import PythonUtil
 from direct.task.Task import Task
-
-from otp.otpbase import OTPGlobals
-from toontown.battle import MovieToonVictory, RewardPanel, SuitBattleGlobals
 from toontown.building import ElevatorConstants, ElevatorUtils
 from toontown.chat import ResistanceChat
-from toontown.chat.ChatGlobals import CFSpeech
-from toontown.chat.ChatGlobals import CFTimeout
-from toontown.coghq import CogDisguiseGlobals
-from toontown.distributed import DelayDelete
 from toontown.nametag import NametagGlobals
-from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer, ToontownGlobals, BulkLoader
+from toontown.toonbase import BulkLoader
 
 from BossBattleLeaderboard import BossBattleLeaderboard
 from BossBattleTimer import BossBattleTimer
 from BossBattleHealthBar import BossBattleHealthBar
-import DistributedBossCog
 import DistributedCashbotBossGoon
-import SuitDNA
 
+from direct.fsm import FSM
+from direct.gui.DirectGui import *
+from direct.interval.IntervalGlobal import *
+from direct.task import Task
 import math
-import random
+
+import DistributedBossCog
+import SuitDNA
+from toontown.battle import MovieToonVictory
+from toontown.battle import RewardPanel
+from toontown.battle import SuitBattleGlobals
+from toontown.battle.BattleProps import *
+from toontown.chat.ChatGlobals import *
+from toontown.coghq import CogDisguiseGlobals
+from toontown.distributed import DelayDelete
+from toontown.nametag.NametagGlobals import *
+from toontown.toon import NPCToons
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownGlobals
 
 from toontown.debug.DebugTools import timeFunc
 OneBossCog = None
@@ -77,6 +72,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.bossBattleLeaderboard = None
         self.bossBattleHealthBar = None
         base.boss = self
+        self.titleText = None
         self.bulkLoader = BulkLoader.BulkLoader(ModelAssets)
         return
 
@@ -95,6 +91,8 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.safe = self.bulkLoader.getModel('phase_10/models/cogHQ/CBSafe.bam')
         self.eyes = self.bulkLoader.getModel('phase_10/models/cogHQ/CashBotBossEyes.bam')
         self.setName(TTLocalizer.CashbotBossName)
+        self.titleText = OnscreenText(TTLocalizer.CashbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
+        self.titleText.hide()
         nameInfo = TTLocalizer.BossCogNameWithDept % {'name': self.name,
          'dept': SuitDNA.getDeptFullname(self.style.dept)}
         self.setDisplayName(nameInfo)
@@ -141,6 +139,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         aspect2d.setColorScale(1, 1, 1, 1)
 
         if self.bossBattleTimer:
+            self.bossBattleTimer.destroy()
             self.bossBattleTimer.destroy()
 
         if self.bossBattleLeaderboard:
@@ -407,8 +406,10 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         t.append(Sequence(Wait(3), goonTrack))
         track = Sequence(
             Func(base.camera.setPosHpr, 68.55, -222.21, 7, 267, 0, 0),
+            Parallel(
+            Func(self.titleText.show),
             Func(rToon.setChatAbsolute, TTLocalizer.ResistanceToonWelcome, CFSpeech),
-            Wait(3),
+            Wait(3)),
             Parallel(
                 base.camera.posHprInterval(4, Point3(108, -244, 4), VBase3(211.5, 0, 0)),
                 Sequence(
@@ -419,7 +420,8 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                         rToon.posInterval(3, VBase3(120, -255, 0)),
                         Sequence(
                             Wait(2),
-                            Func(rToon.clearChat)
+                            Func(rToon.clearChat),
+                            LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0))
                         )
                     ),
                     Func(rToon.suit.loop, 'neutral'),
@@ -959,6 +961,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.endVault.stash()
         self.midVault.unstash()
         self.__hideResistanceToon()
+        aspect2d.show()
 
     def exitBattleOne(self):
         DistributedBossCog.DistributedBossCog.exitBattleOne(self)

@@ -86,6 +86,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.bonusWeight = 0
         self.numJurorsLocalToonSeated = 0
         self.cannonIndex = -1
+        self.titleText = None
         base.boss = self
         return
 
@@ -94,6 +95,8 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- announceGenerate')
         DistributedBossCog.DistributedBossCog.announceGenerate(self)
         self.setName(TTLocalizer.LawbotBossName)
+        self.titleText = OnscreenText(TTLocalizer.LawbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
+        self.titleText.hide()
         nameInfo = TTLocalizer.BossCogNameWithDept % {'name': self.name,
          'dept': SuitDNA.getDeptFullname(self.style.dept)}
         self.setDisplayName(nameInfo)
@@ -407,6 +410,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.promotionMusic = base.loadMusic('phase_7/audio/bgm/encntr_suit_winning_indoor.ogg')
         self.betweenBattleMusic = base.loadMusic('phase_9/audio/bgm/encntr_toon_winning.ogg')
         self.battleTwoMusic = base.loadMusic('phase_11/audio/bgm/LB_juryBG.ogg')
+        self.battleThreeMusic = base.loadMusic('phase_11/audio/bgm/encntr_cj_boss.ogg')
         floor = self.geom.find('**/MidVaultFloor1')
         if floor.isEmpty():
             floor = self.geom.find('**/CR3_Floor')
@@ -967,7 +971,9 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stickBossToFloor()
         self.setPosHpr(*ToontownGlobals.LawbotBossBattleThreePosHpr)
         self.bossMaxDamage = ToontownGlobals.LawbotBossMaxDamage
+
         base.playMusic(self.battleThreeMusic, looping=1, volume=0.9)
+
         self.__showWitnessToon()
         #diffSettings = ToontownGlobals.LawbotBossDifficultySettings[self.battleDifficulty]
         #if diffSettings[4]:
@@ -1412,8 +1418,10 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 self.podium.posInterval(5.0, finalPodiumPos),
                 self.reflectedPodium.posInterval(5.0, finalReflectedPodiumPos),
                 self.posInterval(5.0, battlePos),
+                Func(self.titleText.show),
             ),
             Wait(5.0),
+            LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)),
             rollTrack
         )
 
