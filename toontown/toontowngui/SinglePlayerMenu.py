@@ -37,6 +37,7 @@ class SinglePlayerMenu(DirectFrame, FSM):
 
     def destroy(self):
         DirectFrame.destroy(self)
+        self.ignoreAll()
 
         if self.label:
             self.label.destroy()
@@ -74,6 +75,7 @@ class SinglePlayerMenu(DirectFrame, FSM):
     
     def enterOff(self):
         self.destroy()
+        self.killThreads()
     
     def enterBack(self):
         self.demand('Off')

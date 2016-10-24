@@ -142,7 +142,7 @@ class AvatarChooser(StateData.StateData):
             text_pos=TTLocalizer.ACquitButtonPos,
             text_scale=TTLocalizer.ACbackButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command = lambda: base.cr.loginFSM.request('mainMenu'))
+            pos=(0.25, 0, 0.075), command = self.__back)
         self.backButton.reparentTo(base.a2dBottomLeft)
 
         self.panelList = []
@@ -324,3 +324,7 @@ class AvatarChooser(StateData.StateData):
 
     def __handleLogoutWithoutConfirm(self):
         base.cr.loginFSM.request('login')
+    
+    def __back(self):
+        base.cr.loginFSM.request('mainMenu')
+        base.cr.mainMenu.singlePlayerMenu.demand('Off')
