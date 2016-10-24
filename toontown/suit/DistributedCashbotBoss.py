@@ -140,7 +140,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
 
         if self.bossBattleTimer:
             self.bossBattleTimer.destroy()
-            self.bossBattleTimer.destroy()
 
         if self.bossBattleLeaderboard:
             self.bossBattleLeaderboard.destroy()
@@ -961,7 +960,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.endVault.stash()
         self.midVault.unstash()
         self.__hideResistanceToon()
-        aspect2d.show()
 
     def exitBattleOne(self):
         DistributedBossCog.DistributedBossCog.exitBattleOne(self)
