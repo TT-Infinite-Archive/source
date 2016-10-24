@@ -7,6 +7,7 @@ from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from otp.otpbase import OTPLocalizer
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.BossyBusinessMenu import BossyBusinessMenu
+from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
 from direct.interval.IntervalGlobal import *
 
 
@@ -17,6 +18,7 @@ class MainMenu(DirectObject, FSM):
         DirectObject.__init__(self)
         FSM.__init__(self, 'MainMenu')
 
+        self.singlePlayerMenu = None
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.backgroundNodePath.hide()
 
@@ -108,7 +110,12 @@ class MainMenu(DirectObject, FSM):
 
     def enterSinglePlayer(self):
         OTPLocalizer.SpeedChatStaticText[30500] = 'Welcome to Toontown Infinite!'
-        base.connectToServer('localhost')
+
+        self.hide()
+        self.backgroundNodePath.show()
+
+        self.singlePlayerMenu = SinglePlayerMenu(self)
+        self.singlePlayerMenu.request('Start')
 
     """
     def enterMultiPlayer(self):
@@ -139,7 +146,13 @@ class MainMenu(DirectObject, FSM):
     def enterOff(self):
         self.hide()
 
+    def destroySPMenu(self):
+        if self.singlePlayerMenu:
+            self.singlePlayerMenu.removeNode()
+            self.singlePlayerMenu = None
+
     def hide(self):
+        self.destroySPMenu()
         self.backgroundNodePath.hide()
         for button in self.buttons:
             button.hide()

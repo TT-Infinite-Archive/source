@@ -10658,3 +10658,16 @@ ClickToStartHalloweenLabel = '\x01shadow\x01Click anywhere to begin\n...if you d
 Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
+
+StartingServer = 'Starting %s...'
+StartingGame = 'Starting the game momentarily...'
+StartingFailed = 'The %s has failed to start.\n\nPlease make sure the "astron" folder is not missing from your game installation.'
+StartingQuestion = 'Seems like the single player server is already running!\n\nWould you like to restart the server, or join it with a new user?'
+StartingJoin = 'Join'
+StartingRestart = 'Restart'
+MongoDB = 'MongoDB Server'
+Astron = 'Astron Server'
+District = 'District'
+Uberdog = 'Uberdog Server'
+
+ServerDown = 'Oops! The %s has gone down! A game restart is highly recommended.'
