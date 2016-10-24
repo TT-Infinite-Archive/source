@@ -36,11 +36,11 @@ class ShtikerBook(DirectFrame, StateData.StateData):
         self.setPos(0, 0, 0.1)
         self.pageOrder = [
             TTLocalizer.OptionsPageTitle,
-            TTLocalizer.ShardPageTitle,
+            # TTLocalizer.ShardPageTitle,
             TTLocalizer.MapPageTitle,
             TTLocalizer.InventoryPageTitle,
             TTLocalizer.QuestPageToonTasks,
-            TTLocalizer.TrackPageShortTitle,
+            # TTLocalizer.TrackPageShortTitle,
             TTLocalizer.SuitPageTitle,
             TTLocalizer.FishPageTitle,
             TTLocalizer.KartPageTitle,
@@ -222,10 +222,10 @@ class ShtikerBook(DirectFrame, StateData.StateData):
             iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
             iconGeom = iconModels.find('**/switch')
             iconModels.detachNode()
-        elif pageName == TTLocalizer.ShardPageTitle:
-            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-            iconGeom = iconModels.find('**/district')
-            iconModels.detachNode()
+        # elif pageName == TTLocalizer.ShardPageTitle:
+            # iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            # iconGeom = iconModels.find('**/district')
+            # iconModels.detachNode()
         elif pageName == TTLocalizer.MapPageTitle:
             iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
             iconGeom = iconModels.find('**/teleportIcon')
@@ -240,11 +240,11 @@ class ShtikerBook(DirectFrame, StateData.StateData):
             iconGeom = iconModels.find('**/questCard')
             iconScale = 0.9
             iconModels.detachNode()
-        elif pageName == TTLocalizer.TrackPageShortTitle:
-            iconGeom = iconModels = loader.loadModel('phase_3.5/models/gui/filmstrip')
-            iconScale = 1.1
-            iconColor = Vec4(0.7, 0.7, 0.7, 1)
-            iconModels.detachNode()
+        # elif pageName == TTLocalizer.TrackPageShortTitle:
+            # iconGeom = iconModels = loader.loadModel('phase_3.5/models/gui/filmstrip')
+            # iconScale = 1.1
+            # iconColor = Vec4(0.7, 0.7, 0.7, 1)
+            # iconModels.detachNode()
         elif pageName == TTLocalizer.SuitPageTitle:
             iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
             iconGeom = iconModels.find('**/gui_gear')
