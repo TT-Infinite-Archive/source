@@ -135,7 +135,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.swingClubSfx = loader.loadSfx('phase_5/audio/sfx/SA_hardball.ogg')
         self.moveBossTaskName = 'CEOMoveTask'
 
-        self.titleText = OnscreenText(TTLocalizer.BossbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
+        self.titleText = OnscreenText(TTLocalizer.BossbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.8), scale=0.16, drawOrder=0, mayChange=1)
         self.titleText.hide()
         return
 
@@ -313,10 +313,10 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                          Func(base.camera.setPosHpr, *elevCamPosHpr),
                          LerpPosHprInterval(base.camera, 3, closeUpRTCamPos, closeUpRTCamHpr),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome2, CFSpeech),
+                         LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)),
                          Wait(4),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome3, CFSpeech),
                          Wait(4),
-                         LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome4, CFSpeech),
                          Wait(3),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome5, CFSpeech),
