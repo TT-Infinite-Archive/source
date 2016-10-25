@@ -57,7 +57,6 @@ class AvatarChooser(StateData.StateData):
             self.load()
         base.disableMouse()
         self.title.reparentTo(aspect2d)
-        self.quitButton.show()
         # if base.cr.loginInterface.supportsRelogin():
             # self.logoutButton.show()
         self.pickAToonBG.setBin('background', 1)
@@ -78,9 +77,8 @@ class AvatarChooser(StateData.StateData):
 
         self.ignoreAll()
         self.title.reparentTo(hidden)
-        self.quitButton.hide()
         # self.logoutButton.hide()
-        self.backButton.hide()
+        self.disconnectButton.hide()
         self.pickAToonBG.reparentTo(hidden)
         base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
 
@@ -109,16 +107,16 @@ class AvatarChooser(StateData.StateData):
             fg=(1, 0.9, 0.1, 1), pos=(0.0, 0.82))
 
         quitHover = gui.find('**/QuitBtn_RLVR')
-        self.quitButton = DirectButton(
+        self.disconnectButton = DirectButton(
             image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.AvatarChooserQuit,
+            text=TTLocalizer.OptionsDisconnect,
             text_font=ToontownGlobals.getSignFont(),
             text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACquitButtonPos,
-            text_scale=TTLocalizer.ACquitButton, image_scale=1,
+            text_pos=TTLocalizer.ACdisconnectButtonPos,
+            text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-0.25, 0, 0.075), command=self.__handleQuit)
-        self.quitButton.reparentTo(base.a2dBottomRight)
+            pos=(-0.25, 0, 0.075), command = self.__back)
+        self.disconnectButton.reparentTo(base.a2dBottomRight)
 
         """
         self.logoutButton = DirectButton(
@@ -133,17 +131,6 @@ class AvatarChooser(StateData.StateData):
         self.logoutButton.reparentTo(base.a2dBottomLeft)
         self.logoutButton.hide()
         """
-
-        self.backButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.OptionsGoBack,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACquitButtonPos,
-            text_scale=TTLocalizer.ACbackButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command = self.__back)
-        self.backButton.reparentTo(base.a2dBottomLeft)
 
         self.panelList = []
         used_position_indexs = []
@@ -252,8 +239,8 @@ class AvatarChooser(StateData.StateData):
         del self.panelList
         self.title.removeNode()
         del self.title
-        self.quitButton.destroy()
-        del self.quitButton
+        self.disconnectButton.destroy()
+        del self.disconnectButton
         # self.logoutButton.destroy()
         # del self.logoutButton
         self.pickAToonBG.removeNode()

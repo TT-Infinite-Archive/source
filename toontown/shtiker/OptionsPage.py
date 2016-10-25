@@ -343,8 +343,10 @@ class OptionsTabPage(DirectFrame):
         self.speedChatStyleText.setScale(self.speed_chat_scale)
         self.speedChatStyleText.setPos(0.37, 0, buttonbase_ycoord - textRowHeight * 6 + 0.03)
         self.speedChatStyleText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
-        self.exitButton = OptionButton(parent=self, image_scale=1.15, text=TTLocalizer.OptionsPageExitToontown,
-                                       pos=(0.45, 0, -0.6), command=self.__handleExitShowWithConfirm)
+        self.exitButton = OptionButton(parent=self, image_scale=1.15, text=TTLocalizer.OptionsDisconnect,
+                                       pos=(0.45, 0, -0.6), command=self.__handleExitServerShowWithConfirm)
+        self.toonselectButton = OptionButton(parent=self, image_scale=1.15, text=TTLocalizer.OptionsReturnToToonSelect,
+                                       pos=(-0.45, 0, -0.6), command=self.__handleExitToToonSelectShowWithConfirm)
         gui.removeNode()
 
     def enter(self):
@@ -362,8 +364,10 @@ class OptionsTabPage(DirectFrame):
         self.updateSpeedChatStyle()
         if self.parent.book.safeMode:
             self.exitButton.hide()
+            self.toonselectButton.hide()
         else:
             self.exitButton.show()
+            self.toonselectButton.show()
 
     def exit(self):
         self.ignore('confirmDone')
@@ -383,6 +387,7 @@ class OptionsTabPage(DirectFrame):
             self.displaySettings.unload()
         self.displaySettings = None
         self.exitButton.destroy()
+        self.toonselectButton.destroy()
         self.Music_toggleButton.destroy()
         self.SoundFX_toggleButton.destroy()
         self.Friends_toggleButton.destroy()
@@ -391,6 +396,7 @@ class OptionsTabPage(DirectFrame):
         self.speedChatStyleLeftArrow.destroy()
         self.speedChatStyleRightArrow.destroy()
         del self.exitButton
+        del self.toonselectButton
         del self.SoundFX_Label
         del self.Music_Label
         del self.Friends_Label
@@ -593,7 +599,7 @@ class OptionsTabPage(DirectFrame):
         settings['fullscreen'] = self.displaySettingsFullscreen
         return Task.done
 
-    def __handleExitShowWithConfirm(self):
+    def __handleExitServerShowWithConfirm(self):
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent='confirmDone',
             message=TTLocalizer.OptionsPageExitConfirm,
@@ -602,6 +608,16 @@ class OptionsTabPage(DirectFrame):
         self.parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'closeShard'}
         self.accept('confirmDone', self.__handleConfirm)
+
+    def __handleExitToToonSelectShowWithConfirm(self):
+        self.confirm = TTDialog.TTGlobalDialog(
+            doneEvent='confirmDone',
+            message=TTLocalizer.OptionsPagePickAToonConfirm,
+            style=TTDialog.TwoChoice)
+        self.confirm.show()
+        self.parent.doneStatus = {'mode': 'exit',
+                                  'exitTo': 'closeShard'}
+        self.accept('confirmDone', self.__back)
 
     def __handleConfirm(self):
         status = self.confirm.doneStatus
@@ -612,6 +628,18 @@ class OptionsTabPage(DirectFrame):
             base.cr._userLoggingOut = True
             messenger.send(self.parent.doneEvent)
 
+    def __back(self):
+        status = self.confirm.doneStatus
+        self.ignore('confirmDone')
+        self.confirm.cleanup()
+        del self.confirm
+        if status == 'ok':
+            base.cr._userLoggingOut = True
+            messenger.send(self.parent.doneEvent)
+
+            # TODO: Have this button disconnect you and bring you all the way back to the main menu like the one of the Toon Select screen
+            base.cr.loginFSM.request('mainMenu')
+            base.cr.mainMenu.singlePlayerMenu.demand('Off')
 
 class CodesTabPage(DirectFrame):
     notify = directNotify.newCategory('CodesTabPage')
