@@ -45,7 +45,3 @@ want-leak-graph-client #f
 want-unlock-timer #t
 unlock-time Sun Dec 6 19:20:00 2015
 unlock-text Toontown Infinite will open in:
-
-# Toon patches:
-toon-patch-version 1
-
