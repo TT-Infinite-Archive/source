@@ -10676,3 +10676,14 @@ District = 'District'
 Uberdog = 'Uberdog Server'
 
 ServerDown = 'Oops! The %s has gone down! A game restart is highly recommended.'
+
+EffectName = {
+ 0: 'None',
+ 1: 'Heal +5',
+ 2: 'Heal +1'
+}
+
+BehaviorName = {
+ 0: 'None',
+ 1: 'Having a picnic'
+}

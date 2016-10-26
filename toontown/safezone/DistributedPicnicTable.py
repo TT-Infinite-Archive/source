@@ -18,8 +18,8 @@ from toontown.toonbase import ToontownGlobals
 from direct.showbase import PythonUtil
 from otp.otpbase import OTPGlobals
 
-class DistributedPicnicTable(DistributedNode.DistributedNode):
 
+class DistributedPicnicTable(DistributedNode.DistributedNode):
     def __init__(self, cr):
         self.cr = cr
         NodePath.__init__(self, 'DistributedPicnicTable')
