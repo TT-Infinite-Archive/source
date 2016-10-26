@@ -615,7 +615,7 @@ class DistributedToonHallInterior(DistributedToonInterior):
          1)
         # self.setupCollisions(2.5)
         self.firstEnter = 1
-        self.accept('CamChangeColl' + '-into', self.handleCloseToWall)
+        #self.accept('CamChangeColl' + '-into', self.handleCloseToWall)
 
     def exitToon(self):
         pass
@@ -706,10 +706,10 @@ class DistributedToonHallInterior(DistributedToonInterior):
             base.localAvatar.setCameraPositionByIndex(self.oldView)
 
     def disable(self):
-        self.setUpToonHallCam()
-        base.localAvatar.removeCameraPosition()
-        base.localAvatar.resetCameraPosition()
-        self.restoreCam()
+        #self.setUpToonHallCam()
+        #base.localAvatar.removeCameraPosition()
+        #base.localAvatar.resetCameraPosition()
+        #self.restoreCam()
         self.ignoreAll()
         # self.cleanUpCollisions()
         if hasattr(self, 'sillyFSM'):
