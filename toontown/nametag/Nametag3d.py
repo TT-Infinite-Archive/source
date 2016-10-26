@@ -246,6 +246,7 @@ class Nametag3d(Nametag, Clickable3d):
             self.chatBalloonAnimTrack.finish()
             self.chatBalloonAnimTrack = None
 
+        self.chatBalloon.setScale(0.0)
         self.chatBalloonAnimTrack = Sequence(
             Parallel(
                 LerpScaleInterval(self.chatBalloon, 0.25, 1.25, startScale=0, blendType='easeIn'),
