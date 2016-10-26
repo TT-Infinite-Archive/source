@@ -3,10 +3,11 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM, State
-from direct.fsm import State
 from direct.showbase import RandomNumGen
 from direct.task import Task
 from otp.ai.AIBase import *
+
+from toontown.battle.BehaviorGlobals import BehaviorPicnicHeal
 from toontown.golf import GolfGlobals
 from toontown.golf import GolfManagerAI
 from toontown.minigame import MinigameCreatorAI
@@ -26,7 +27,7 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
         self.seed = RandomNumGen.randHash(globalClock.getRealTime())
         self.accepting = 0
         self.numPlayersExiting = 0
-        self.trolleyCountdownTime = simbase.config.GetFloat('picnic-countdown-time', ToontownGlobals.PICNIC_COUNTDOWN_TIME)
+        self.picnicCountdownTime = simbase.config.GetFloat('picnic-countdown-time', ToontownGlobals.PICNIC_COUNTDOWN_TIME)
         self.fsm = ClassicFSM.ClassicFSM(
             'DistributedPicnicBasketAI',
             [
@@ -35,7 +36,6 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
                 State.State('waitCountdown', self.enterWaitCountdown, self.exitWaitCountdown, ['waitEmpty'])
             ], 'off', 'off')
         self.fsm.enterInitialState()
-
 
     def delete(self):
         self.fsm.requestFinalState()
@@ -75,19 +75,26 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug('acceptBoarder %d' % avId)
         if self.findAvatar(avId) is not None:
             return None
+        av = self.air.doId2do.get(avId)
+        if av is None:
+            return None
+
+        # Apply the heal buff to this toon
+        self.air.behaviorManager.applyBehavior(BehaviorPicnicHeal, avId)
         self.seats[seatIndex] = avId
-        self.acceptOnce(
-            self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit,
-            extraArgs=[avId])
+        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
         self.timeOfBoarding = globalClock.getRealTime()
         self.sendUpdate('fillSlot' + str(seatIndex), [avId])
         self.waitCountdown()
 
-    def _DistributedPicnicBasketAI__handleUnexpectedExit(self, avId):
+    def __handleUnexpectedExit(self, avId):
         self.notify.warning('Avatar: ' + str(avId) + ' has exited unexpectedly')
         seatIndex = self.findAvatar(avId)
-        if seatIndex == None:
+        if seatIndex is None:
             return
+
+        # Remove the healing buff from this toon
+        self.air.behaviorManager.removeBehavior(BehaviorPicnicHeal, avId)
         self.clearFullNow(seatIndex)
         self.clearEmptyNowUnexpected(seatIndex)
         if self.countFullSeats() == 0:
@@ -107,8 +114,11 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
 
     def acceptExiter(self, avId):
         seatIndex = self.findAvatar(avId)
-        if seatIndex == None:
+        if seatIndex is None:
             return
+
+        # Remove the healing buff from this toon
+        self.air.behaviorManager.removeBehavior(BehaviorPicnicHeal, avId)
         self.clearFullNow(seatIndex)
         self.sendUpdate('emptySlot' + str(seatIndex), [avId, globalClockDelta.getRealNetworkTime()])
         taskMgr.doMethodLater(
@@ -149,7 +159,7 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
                 self.notify.debug('rejecting boarder %d' % avId)
                 self.rejectingBoardersHandler(avId, si)
         else:
-            self.notify.warning('avid: %s does not exist, but tried to board a trolley' % avId)
+            self.notify.warning('avid: %s does not exist, but tried to board a picnic table' % avId)
 
     def requestExit(self, *args):
         self.notify.debug('requestExit')
@@ -166,7 +176,7 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
             else:
                 self.notify.debug('Player tried to exit after AI already kicked everyone out')
         else:
-            self.notify.warning('avId: %s does not exist, but tried to exit a trolley' % avId)
+            self.notify.warning('avId: %s does not exist, but tried to exit a picnic table' % avId)
 
     def doneExit(self):
         if self.numPlayersExiting > 0:
@@ -211,13 +221,13 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debugStateCall(self)
         self.d_setState('waitCountdown', self.seed)
         self.accepting = 1
-        taskMgr.doMethodLater(self.trolleyCountdownTime, self.timeToGoTask, self.uniqueName('countdown-timer'))
+        taskMgr.doMethodLater(self.picnicCountdownTime, self.timeToGoTask, self.uniqueName('countdown-timer'))
 
     def timeToGoTask(self, task):
         self.accepting = 0
         if self.countFullSeats() > 0:
             for x in xrange(len(self.seats)):
-                if not self.seats[x] == None:
+                if self.seats[x] is not None:
                     self.sendUpdateToAvatarId(self.seats[x], 'setPicnicDone', [])
                     self.acceptExiter(self.seats[x])
                     self.numPlayersExiting += 1

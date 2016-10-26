@@ -17,6 +17,7 @@ from toontown.toon import ToonDNA
 from direct.showbase import RandomNumGen
 from toontown.battle.BattleSounds import *
 
+
 class DistributedPicnicBasket(DistributedObject.DistributedObject):
     seatState = Enum('Empty, Full, Eating')
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPicnicBasket')
@@ -28,18 +29,24 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
         self.random = None
         self.picnicCountdownTime = base.config.GetFloat('picnic-countdown-time', ToontownGlobals.PICNIC_COUNTDOWN_TIME)
         self.picnicBasketTrack = None
-        self.fsm = ClassicFSM.ClassicFSM('DistributedTrolley', [State.State('off', self.enterOff, self.exitOff, ['waitEmpty', 'waitCountdown']), State.State('waitEmpty', self.enterWaitEmpty, self.exitWaitEmpty, ['waitCountdown']), State.State('waitCountdown', self.enterWaitCountdown, self.exitWaitCountdown, ['waitEmpty'])], 'off', 'off')
+        states = [
+            State.State('off', self.enterOff, self.exitOff, ['waitEmpty', 'waitCountdown']),
+            State.State('waitEmpty', self.enterWaitEmpty, self.exitWaitEmpty, ['waitCountdown']),
+            State.State('waitCountdown', self.enterWaitCountdown, self.exitWaitCountdown, ['waitEmpty'])
+        ]
+        self.fsm = ClassicFSM.ClassicFSM('DistributedTrolley', states, 'off', 'off')
         self.fsm.enterInitialState()
         self.__toonTracks = {}
-        return
 
     def generate(self):
         DistributedObject.DistributedObject.generate(self)
         self.loader = self.cr.playGame.hood.loader
-        self.foodLoader = ['phase_6/models/golf/picnic_sandwich.bam',
-         'phase_6/models/golf/picnic_apple.bam',
-         'phase_6/models/golf/picnic_cupcake.bam',
-         'phase_6/models/golf/picnic_chocolate_cake.bam']
+        self.foodLoader = [
+            'phase_6/models/golf/picnic_sandwich.bam',
+            'phase_6/models/golf/picnic_apple.bam',
+            'phase_6/models/golf/picnic_cupcake.bam',
+            'phase_6/models/golf/picnic_chocolate_cake.bam'
+        ]
         self.fullSeat = []
         self.food = []
         for i in xrange(4):
