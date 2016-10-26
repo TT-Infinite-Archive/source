@@ -15,8 +15,18 @@ want-achievements #f
 want-parties #f
 force-skip-tutorial #t
 
-# Safezones:
+# Safe zones:
+want-safe-zones #t
+want-toontown-central #t
+want-donalds-dock #f
+want-daisys-garden #f
+want-minnies-melodyland #f
+want-the-burrrgh #f
+want-donalds-dreamland #f
 want-goofy-speedway #f
+want-outdoor-zone #f
+want-golf-zone #f
+want-resistance-grounds #f
 
 # Chat:
 want-whitelist #t
