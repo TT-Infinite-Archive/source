@@ -10,7 +10,7 @@ class DistributedBankCollectableAI(DistributedObjectAI):
             return
 
         self.sendUpdate('grab', [avId])
-        av.addMoney(100)
+        av.addMoney(60)
 
         taskName = self.uniqueName('deleteBankCollectable')
         taskMgr.doMethodLater(5, self.__handleDeleteBankCollectable, taskName)

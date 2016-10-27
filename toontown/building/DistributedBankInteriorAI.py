@@ -8,6 +8,8 @@ from toontown.building.DistributedBankCollectableAI import DistributedBankCollec
 
 
 class DistributedBankInteriorAI(DistributedObjectAI):
+    doorInterval = 600
+
     def __init__(self, block, air, zoneId):
         DistributedObjectAI.__init__(self, air)
 
@@ -21,7 +23,7 @@ class DistributedBankInteriorAI(DistributedObjectAI):
 
         self.sendUpdate('setState', ['vaultClosed', 0])
 
-        delay = 3600 - (int(time.time()) % 3600)  # Time until the next hour.
+        delay = self.doorInterval - (int(time.time()) % self.doorInterval)  # Time until the next vault event.
         taskMgr.doMethodLater(delay, self.createBankCollectable, 'createBankCollectable')
 
     def getZoneIdAndBlock(self):
@@ -44,7 +46,7 @@ class DistributedBankInteriorAI(DistributedObjectAI):
         self.sendUpdate('setState', ['vaultOpening', globalClockDelta.getRealNetworkTime()])
         taskMgr.doMethodLater(5, self.openedTask, self.uniqueName('openedTask'))
 
-        taskMgr.doMethodLater(3600, self.createBankCollectable, 'createBankCollectable')
+        taskMgr.doMethodLater(self.doorInterval, self.createBankCollectable, 'createBankCollectable')
         taskMgr.doMethodLater(60, self.__handleDeleteBankCollectable, 'deleteBankCollectable')
 
         if task is not None:
