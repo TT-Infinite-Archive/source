@@ -74,6 +74,7 @@ want-donalds-dreamland #f
 want-goofy-speedway #f
 want-outdoor-zone #f
 want-golf-zone #f
+want-lost-acre #f
 want-resistance-grounds #f
 
 # Safe zone settings:

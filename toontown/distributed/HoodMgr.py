@@ -145,6 +145,15 @@ class HoodMgr(DirectObject.DirectObject):
             [-21, -65, 0.335, -18, 0, 0],
             [23, 68.5, 4.51, -22.808, 0, 0]
         ),
+        ToontownGlobals.TheLostAcre: (
+            [-165.8, 108, 0.025, 252, 0, 0],
+            [21, 130, 0.16, 170, 0, 0],
+            [93, 78.5, 0.23, 112, 0, 0],
+            [79, -1.6, 0.75, 163, 0, 0],
+            [10, 33, 5.32, 130.379, 0, 0],
+            [-200, -42, 0.025, 317.543, 0, 0],
+            [-21, -65, 0.335, -18, 0, 0],
+            [23, 68.5, 4.51, -22.808, 0, 0]),
         # TODO: Add legitimate drop points
         ToontownGlobals.ResistanceGrounds: (
             [0, 0, 0, 0, 0, 0],
@@ -189,7 +198,7 @@ class HoodMgr(DirectObject.DirectObject):
         'mm': ToontownGlobals.MinniesMelodyland,
         'dg': ToontownGlobals.DaisyGardens,
         'oz': ToontownGlobals.OutdoorZone,
-        'ff': ToontownGlobals.FunnyFarm,
+        'tla': ToontownGlobals.TheLostAcre,
         'gs': ToontownGlobals.GoofySpeedway,
         'dl': ToontownGlobals.DonaldsDreamland,
         'bosshq': ToontownGlobals.BossbotHQ,
@@ -207,7 +216,7 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.MinniesMelodyland: 'mm',
         ToontownGlobals.DaisyGardens: 'dg',
         ToontownGlobals.OutdoorZone: 'oz',
-        ToontownGlobals.FunnyFarm: 'ff',
+        ToontownGlobals.TheLostAcre: 'tla',
         ToontownGlobals.GoofySpeedway: 'gs',
         ToontownGlobals.DonaldsDreamland: 'dl',
         ToontownGlobals.BossbotHQ: 'bosshq',

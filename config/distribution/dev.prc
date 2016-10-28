@@ -78,8 +78,9 @@ want-minnies-melodyland #f
 want-the-burrrgh #f
 want-donalds-dreamland #f
 want-goofy-speedway #f
-want-outdoor-zone #f
+want-outdoor-zone #t
 want-golf-zone #f
+want-lost-acre #t
 want-resistance-grounds #f
 
 # Cog headquarters:
