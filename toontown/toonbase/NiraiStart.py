@@ -24,7 +24,7 @@ for mount in mounts:
     vfs.mount(mountFile, mountPoint, 0)
 
 __builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
-__builtin__.builtFile = 'infinite.exe'
+__builtin__.builtFile = 'infinite'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--base-channel', help='The base channel that the server may use.')
