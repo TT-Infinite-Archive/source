@@ -1,8 +1,11 @@
 from toontown.toonbase import TTLocalizer
 import sys, os
 
-# TODO: Add check for Nirai
-PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
+try:
+    PythonPath = os.path.join(os.getcwd(), builtFile)
+except:
+    PythonPath = os.path.join(os.getcwd(), 'python')
+
 Processes = [
     [
         ['mongod', '--dbpath', 'databases'],

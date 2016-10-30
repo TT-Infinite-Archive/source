@@ -2,6 +2,8 @@
 """"Entry point for a compiled build of Toontown Infinite."""
 import __builtin__
 import game_data
+import argparse
+from toontown.singleplayer import SinglePlayerGlobals
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
@@ -22,5 +24,16 @@ for mount in mounts:
     vfs.mount(mountFile, mountPoint, 0)
 
 __builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
+__builtin__.builtFile = 'infinite.exe'
 
-import toontown.toonbase.ClientStart
+parser = argparse.ArgumentParser()
+parser.add_argument('--base-channel', help='The base channel that the server may use.')
+parser.add_argument('--district-name', help="What this AI Server's district will be named.")
+args = parser.parse_args()
+
+if args.district_name:
+    import toontown.ai.ServiceStart
+elif args.base_channel:
+    import toontown.uberdog.ServiceStart
+else:
+    import toontown.toonbase.ClientStart
