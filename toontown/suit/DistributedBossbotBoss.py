@@ -273,6 +273,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.resistanceToon.suit.loop('neutral')
         base.camera.setPos(0, 21, 7)
         self.reparentTo(render)
+        self.setBlend(frameBlend=True)
         self.setPosHpr(*ToontownGlobals.BossbotBossBattleOnePosHpr)
         self.loop('Ff_neutral')
         base.camLens.setMinFov(ToontownGlobals.CEOElevatorFov / (4. / 3.))

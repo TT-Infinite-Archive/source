@@ -703,6 +703,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.setCageIndex(0)
         self.reparentTo(render)
         self.setPosHpr(*ToontownGlobals.SellbotBossBattleOnePosHpr)
+        self.setBlend(frameBlend=True)
         self.happy = 1
         self.raised = 1
         self.forward = 1

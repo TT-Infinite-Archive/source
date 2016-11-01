@@ -941,6 +941,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stopAnimate()
         self.endVault.unstash()
         self.evWalls.stash()
+        self.setBlend(frameBlend=True)
         self.midVault.unstash()
         self.__showResistanceToon(True)
         base.playMusic(self.stingMusic, looping=1, volume=0.9)

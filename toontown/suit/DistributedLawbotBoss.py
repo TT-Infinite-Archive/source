@@ -702,6 +702,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.raised = 1
         self.forward = 1
         self.doAnimate()
+        self.setBlend(frameBlend=True)
         self.__hideWitnessToon()
         if not self.mainDoor.isEmpty():
             self.mainDoor.stash()
