@@ -23,6 +23,11 @@ NAME_SUBMISSION_ERROR = 2
 
 accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 
+# If this config variable is set. All accounts new and old will use
+# the specified access level.  It is meant to be used temporarily.
+# NOTE: It doesn't replace the old account's access level, except for new ones.
+forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
+
 accessLevelClamp = ConfigVariableString(
     'access-level-clamp', '100 700',
     "Specifies the range in which every user's access level will be confined to.").getValue()
@@ -206,7 +211,7 @@ class LoginAccountFSM(OperationFSM):
 
         self.userId = result.get('userId', 0)
         self.accountId = result.get('accountId', 0)
-        self.accessLevel = result.get('accessLevel', 0)
+        self.accessLevel = forceAccessLevel if forceAccessLevel else result.get('accessLevel', 0)
         if self.accountId:
             self.demand('RetrieveAccount')
         else:
@@ -271,7 +276,7 @@ class LoginAccountFSM(OperationFSM):
 
     def enterSetAccount(self):
         # If necessary, update their account information:
-        if self.accessLevel:
+        if self.accessLevel and not forceAccessLevel:
             self.csm.air.dbInterface.updateObject(
                 self.csm.air.dbId,
                 self.accountId,
@@ -915,7 +920,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
         # Activate the avatar on the DBSS:
         self.csm.air.sendActivate(
             self.avId, 0, 0, self.csm.air.dclassesByName['DistributedToonUD'],
-            {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)],
+            {'setAdminAccess': [forceAccessLevel if forceAccessLevel else self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
              'setChatMode': [self.account.get('CHAT_MODE', 1)]})
 

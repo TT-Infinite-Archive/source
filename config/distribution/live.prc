@@ -7,6 +7,10 @@ shard-low-pop 100
 shard-mid-pop 150
 client-agents 8
 
+# Temporary configuration for SP Alpha
+# until we get our web account API up and running.
+force-access-level 100
+
 # Core features:
 want-grouptracker #f
 want-game-tables #f
