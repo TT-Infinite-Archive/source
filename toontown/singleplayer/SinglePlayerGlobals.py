@@ -4,7 +4,7 @@ import sys, os
 try:
     PythonPath = os.path.join(os.getcwd(), builtFile)
 except:
-    PythonPath = os.path.join(os.getcwd(), 'python')
+    PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
 
 Processes = [
     [
