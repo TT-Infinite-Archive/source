@@ -14,7 +14,7 @@ from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toonbase import ToontownLoader
 from toontown.toonbase.Preloader import Preloader
 from otp.otpbase import OTPBase
@@ -126,7 +126,8 @@ class ToonBase(OTPBase.OTPBase):
         self.camLens.setMinFov(ToontownGlobals.DefaultCameraFov / (4. / 3.))
         self.camLens.setNearFar(ToontownGlobals.DefaultCameraNear,
                                 ToontownGlobals.DefaultCameraFar)
-        self.musicManager.setVolume(0.65)
+        self.musicManager.setVolume(settings.get(SettingsGlobals.MusicVolume, 0.6))
+        self.setSfxVolume(settings.get(SettingsGlobals.SoundVolume, 0.6))
         self.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
         tpm = TextPropertiesManager.getGlobalPtr()
         candidateActive = TextProperties()
@@ -683,3 +684,19 @@ class ToonBase(OTPBase.OTPBase):
         '''
 
         taskMgr.doMethodLater(15, self.__tick, 'proctick')
+
+    def enableSoundEffects(self, bEnableSoundEffects):
+        # Ensure toggling the active state of the sound audio managers don't keep looping sounds
+        OTPBase.OTPBase.enableSoundEffects(self, bEnableSoundEffects)
+        self.stopAllSfxSounds()
+
+    def setSfxVolume(self, volume):
+        for i in range(len(self.sfxManagerList)):
+            if self.sfxManagerIsValidList[i]:
+                self.sfxManagerList[i].setVolume(volume)
+
+    def stopAllSfxSounds(self):
+        for i in range(len(self.sfxManagerList)):
+            if self.sfxManagerIsValidList[i]:
+                self.sfxManagerList[i].stopAllSounds()
+
