@@ -40,7 +40,7 @@ from toontown.login import DateObject
 from toontown.login import AvatarChooser
 from toontown.makeatoon import MakeAToon
 from toontown.pets import DistributedPet, PetDetail, PetHandle
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizer, SettingsGlobals
 from toontown.toontowngui import TTDialog
 from toontown.toon import LocalToon
 from toontown.toon import ToonDNA
@@ -216,10 +216,6 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                 self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme_halloween.ogg')
             else:
                 self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
-            if self.music is not None:
-                self.music.setLoop(1)
-                self.music.setVolume(0.9)
-                self.music.play()
         base.playMusic(self.music, looping=1, volume=0.9, interrupt=None)
         self.handler = self.handleMessageType
         self.avChoiceDoneEvent = 'avatarChooserDone'
