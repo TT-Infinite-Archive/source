@@ -83,7 +83,7 @@ want-golf-zone #f
 want-resistance-grounds #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 
 # Heartbeat
 want-heartbeat #f

@@ -6,7 +6,6 @@ from toontown.toonbase import ToontownGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from otp.otpbase import OTPLocalizer
 from toontown.toonbase import TTLocalizer
-from toontown.toontowngui.BossyBusinessMenu import BossyBusinessMenu
 from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
 from direct.interval.IntervalGlobal import *
 
@@ -36,13 +35,13 @@ class MainMenu(DirectObject, FSM):
         self.mpButtons = []
         self.spButtons = []
         self.optionButtons = []
-        buttonScale = (-1.1, 1.1, 1.1)
+        buttonScale = (-1.1, 1.1, 1.1) # (-0.9, 0.9, 0.9)
 
-        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.3),
+        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.3), # (0, 0, -0.1),
                                                    text="Single Player",
                                                    wantArrows=False,
                                                    image_scale=buttonScale, image2_scale=buttonScale,
-                                                   image1_scale=buttonScale, text_scale=0.09,
+                                                   image1_scale=buttonScale, text_scale=0.09, # text_scale=0.07
                                                    command=lambda: self.request('SinglePlayer'))
         self.buttons.append(self.singlePlayerButton)
 
@@ -53,19 +52,6 @@ class MainMenu(DirectObject, FSM):
                                                   image1_scale=buttonScale, text_scale=0.07,
                                                   command=lambda: self.request('MultiPlayer'))
         self.buttons.append(self.multiPlayerButton)
-
-
-        if config.GetBool('want-multiplayer', True):
-            self.bossyBusinessButton = MATShuffleButton(pos=(0, 0, -0.35), text="Bossy Business",
-                                                      wantArrows=False,
-                                                      image_scale=buttonScale, image2_scale=buttonScale,
-                                                      image1_scale=buttonScale, text_scale=0.06,
-                                                      command=lambda : self.request('BossyBusiness'))
-            self.bossyBusinessButton.setScale(1.5)
-
-            self.bossyBusinessMenu = BossyBusinessMenu()
-
-            self.mpButtons.append(self.bossyBusinessButton)
 
         self.charSelectButton = MATShuffleButton(pos=(0, 0, -0.6), text="Toon Select",
                                                  wantArrows=False,
@@ -96,7 +82,6 @@ class MainMenu(DirectObject, FSM):
         self.buttons.append(self.quitButton)
 
         self.hide()
-
 
     def enterIdle(self):
         self.backgroundNodePath.show()
