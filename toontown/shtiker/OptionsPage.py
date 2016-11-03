@@ -11,8 +11,8 @@ from otp.speedchat import SCStaticTextTerminal
 from otp.speedchat import SpeedChat
 from toontown.shtiker.OptionsPageGUI import OptionTab, OptionButton, OptionLabel
 from toontown.shtiker import ControlRemapDialog
-from toontown.toonbase import TTLocalizer
-from toontown.toontowngui import TTDialog
+from toontown.toonbase import TTLocalizer, EventGlobals, SettingsGlobals
+from toontown.toontowngui import TTDialog, TTCheckBox, TTButton, TTSlider, TTLabel, TTClickableLabel
 
 
 speedChatStyles = (
@@ -224,7 +224,6 @@ class OptionsPage(ShtikerPage.ShtikerPage):
             self.moreOptionsTabPage.exit()
             self.codesTab['state'] = DGG.DISABLED
             self.codesTabPage.enter()
-
         elif mode == PageMode.MoreOptions:
             self.title['text'] = TTLocalizer.MoreOptionsPageTitle
             self.optionsTab['state'] = DGG.NORMAL
@@ -233,6 +232,8 @@ class OptionsPage(ShtikerPage.ShtikerPage):
             self.codesTabPage.exit()
             self.moreOptionsTab['state'] = DGG.DISABLED
             self.moreOptionsTabPage.enter()
+        else:
+            self.notify.warning('Invalid mode for options page %s' % mode)
 
 
 class OptionsTabPage(DirectFrame):
@@ -241,15 +242,24 @@ class OptionsTabPage(DirectFrame):
     DisplaySettingsDelay = 60
     ChangeDisplaySettings = base.config.GetBool('change-display-settings', 1)
     ChangeDisplayAPI = base.config.GetBool('change-display-api', 0)
+    VideoState = 0
+    SoundState = 1
+    GameplayState = 2
+    SocialState = 3
 
     def __init__(self, parent=aspect2d):
+        DirectFrame.__init__(self, parent=parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
+
         self.parent = parent
         self.currentSizeIndex = None
+        self.displaySettingsChanged = 0
+        self.displaySettingsSize = (None, None)
+        self.displaySettingsFullscreen = None
+        self.displaySettingsApi = None
+        self.displaySettingsApiChanged = 0
+        self.displaySettings = None
 
-        DirectFrame.__init__(
-            self, parent=self.parent, relief=None, pos=(
-                0.0, 0.0, 0.0), scale=(
-                1.0, 1.0, 1.0))
+        self.speed_chat_scale = 0.055
 
         self.load()
 
@@ -259,35 +269,177 @@ class OptionsTabPage(DirectFrame):
         DirectFrame.destroy(self)
 
     def load(self):
-        self.displaySettings = None
-        self.displaySettingsChanged = 0
-        self.displaySettingsSize = (None, None)
-        self.displaySettingsFullscreen = None
-        self.displaySettingsApi = None
-        self.displaySettingsApiChanged = 0
-        self.speed_chat_scale = 0.055
-        buttonbase_ycoord = 0.45
-        textRowHeight = 0.145
-        textStartHeight = 0.45
-        self.Music_Label = OptionLabel(parent=self)
-        self.SoundFX_Label = OptionLabel(parent=self, z=textStartHeight - textRowHeight)
-        self.Friends_Label = OptionLabel(parent=self, z=textStartHeight - 3 * textRowHeight)
-        self.Whispers_Label = OptionLabel(parent=self, z=textStartHeight - 4 * textRowHeight)
-        self.DisplaySettings_Label = OptionLabel(parent=self, text_wordwrap=10, z=textStartHeight - 5 * textRowHeight)
-        self.SpeedChatStyle_Label = OptionLabel(parent=self, text=TTLocalizer.OptionsPageSpeedChatStyleLabel,
-                                                text_wordwrap=10, z=textStartHeight - 6 * textRowHeight)
-        self.ToonChatSounds_Label = OptionLabel(parent=self, z=textStartHeight - 2 * textRowHeight + 0.025)
-        self.ToonChatSounds_Label.setScale(0.9)
-        self.Music_toggleButton = OptionButton(parent=self, command=self.__doToggleMusic)
-        self.SoundFX_toggleButton = OptionButton(parent=self, z=buttonbase_ycoord - textRowHeight,
-                                                 command=self.__doToggleSfx)
-        self.Friends_toggleButton = OptionButton(parent=self, z=buttonbase_ycoord - textRowHeight * 3,
-                                                 command=self.__doToggleAcceptFriends)
-        self.Whispers_toggleButton = OptionButton(parent=self, z=buttonbase_ycoord - textRowHeight * 4,
-                                                  command=self.__doToggleAcceptWhispers)
-        self.DisplaySettingsButton = OptionButton(parent=self, image3_color=Vec4(0.5, 0.5, 0.5, 0.5),
-                                                  text=TTLocalizer.OptionsPageChange, z=buttonbase_ycoord - textRowHeight * 5,
-                                                  command=self.__doDisplaySettings)
+        rightXBase = -0.4
+        rightYBase = 0.4
+        leftXBase = 0.05
+        textRowHeight = 0.1
+        row = 0
+
+        leftFrameGeom = loader.loadModel('phase_3/models/gui/tt_m_gui_ups_panelBg')
+
+        self.leftFrame = DirectFrame(
+            parent=self, relief=None, pos=(-0.5, 0.0, 0.0), frameSize=(-0.3, 0.4, -0.5, 0.5), geom=leftFrameGeom,
+            geom_scale=(0.75, 0.75, 0.75),
+            geom_pos=(0.05, 0, 0.2)
+        )
+        self.rightFrame = DirectFrame(
+            parent=self, relief=None, pos=(0.5, 0.0, 0.0), frameSize=(-0.4, 0.3, -0.5, 0.5)
+        )
+
+        self.videoButton = TTClickableLabel.TTClickableLabel(
+            self.leftFrame,
+            text='Video',
+            pos=(leftXBase, 0.0, 0.35),
+            command=self.setOptionsState,
+            extraArgs=[self.VideoState]
+        )
+        self.soundButton = TTClickableLabel.TTClickableLabel(
+            self.leftFrame,
+            text='Sound',
+            pos=(leftXBase, 0.0, 0.24),
+            command=self.setOptionsState,
+            extraArgs=[self.SoundState]
+        )
+        self.gameplayButton = TTClickableLabel.TTClickableLabel(
+            self.leftFrame,
+            text='Gameplay',
+            pos=(leftXBase, 0.0, 0.13),
+            command=self.setOptionsState,
+            extraArgs=[self.GameplayState]
+        )
+        self.socialButton = TTClickableLabel.TTClickableLabel(
+            self.leftFrame,
+            text='Social',
+            pos=(leftXBase, 0.0, 0.02),
+            command=self.setOptionsState,
+            extraArgs=[self.SocialState]
+        )
+
+        # -- Video
+
+        # Display Button
+        # TODO: Bring this stuff from there into this gui
+        self.displaySettingsButton = TTButton.TTButton(
+            parent=self.rightFrame,
+            text=TTLocalizer.OptionsPageChange,
+            pos=(-0.1, 0.0, rightYBase + textRowHeight * row),
+            command=self.__doDisplaySettings
+        )
+
+        # -- Sound
+
+        # Volume
+        self.volumeTitle = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            text_size=TTLabel.TTLabel.MediumSize,
+            pos=(rightXBase + 0.02, 0, rightYBase + 0.1),
+            text='Volume'
+        )
+
+        # Music
+        row = 0
+        self.musicLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text_align=TextNode.ALeft,
+            text='Enable Music',
+        )
+        self.musicCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.musicActive,
+            command=self.__doToggleMusic
+        )
+        self.musicSlider = TTSlider.TTSlider(
+            parent=self.rightFrame,
+            value=self.getMusicVolume(),
+            pos=(-0.1, 0, rightYBase - textRowHeight * row - 0.07),
+            enabled=base.musicActive,
+            command=self.setMusicVolume
+        )
+
+        # Sound
+        row += 1.5
+        self.soundLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text='Sound',
+            text_align=TextNode.ALeft,
+        )
+        self.soundCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.sfxActive,
+            command=self.__doToggleSfx
+        )
+        self.soundSlider = TTSlider.TTSlider(
+            parent=self.rightFrame,
+            value=self.getSoundVolume(),
+            pos=(-0.1, 0, rightYBase - textRowHeight * row - 0.07),
+            enabled=base.sfxActive,
+            command=self.setSoundVolume
+        )
+
+        # -- Social
+        row = 0
+
+        # - Chat
+        self.chatTitle = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            text_size=TTLabel.TTLabel.MediumSize,
+            pos=(rightXBase - 0.02, 0, rightYBase + 0.1),
+            text='Chat'
+        )
+
+        # Whisper Settings
+        self.whispersLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text='Accepting Whispers',
+            text_align=TextNode.ALeft
+        )
+        self.whispersCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.localAvatar.wantWhispers,
+            command=self.__doToggleWantWhispers
+        )
+        row += 0.75
+        self.whispersAnyoneLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text='From Strangers',
+            text_align=TextNode.ALeft,
+            text_size=TTLabel.TTLabel.SmallSize
+        )
+        self.whispersAnyoneCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
+            disable=not base.localAvatar.wantWhispers,
+            checked=base.localAvatar.wantNonFriendWhispers,
+            command=self.__doToggleWantNonFriendWhispers
+        )
+        row += 0.75
+        self.whispersFriendsLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text='From Friends',
+            text_align=TextNode.ALeft,
+            text_size=TTLabel.TTLabel.SmallSize
+        )
+        self.whispersFriendsCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
+            disable=not base.localAvatar.wantWhispers,
+            checked=base.localAvatar.wantFriendWhispers,
+            command=self.__doToggleWantFriendWhispers
+        )
+        row += 1
+        self.speedChatStyleLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text=TTLocalizer.OptionsPageSpeedChatStyleLabel,
+            text_align=TextNode.ALeft
+        )
+        row += 1
 
         gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
         self.speedChatStyleLeftArrow = DirectButton(
@@ -298,19 +450,9 @@ class OptionsTabPage(DirectFrame):
                 gui.find('**/Horiz_Arrow_DN'),
                 gui.find('**/Horiz_Arrow_Rllvr'),
                 gui.find('**/Horiz_Arrow_UP')),
-            image3_color=Vec4(
-                1,
-                1,
-                1,
-                0.5),
-            scale=(
-                -1.0,
-                1.0,
-                1.0),
-            pos=(
-                0.25,
-                0,
-                buttonbase_ycoord - textRowHeight * 6),
+            image3_color=Vec4(1, 1, 1, 0.5),
+            scale=(-1.0, 1.0, 1.0),
+            pos=(0.25, 0, rightYBase - textRowHeight * row),
             command=self.__doSpeedChatStyleLeft)
         self.speedChatStyleRightArrow = DirectButton(
             parent=self,
@@ -320,45 +462,60 @@ class OptionsTabPage(DirectFrame):
                 gui.find('**/Horiz_Arrow_DN'),
                 gui.find('**/Horiz_Arrow_Rllvr'),
                 gui.find('**/Horiz_Arrow_UP')),
-            image3_color=Vec4(
-                1,
-                1,
-                1,
-                0.5),
-            pos=(
-                0.65,
-                0,
-                buttonbase_ycoord -
-                textRowHeight *
-                6),
+            image3_color=Vec4(1, 1, 1, 0.5),
+            pos=(0.65, 0, rightYBase - textRowHeight * row),
             command=self.__doSpeedChatStyleRight)
-        self.ToonChatSounds_toggleButton = OptionButton(parent=self, image3_color=Vec4(0.5, 0.5, 0.5, 0.5),
-                                                        z=buttonbase_ycoord - textRowHeight * 2 + 0.025,
-                                                        command=self.__doToggleToonChatSounds)
-        self.ToonChatSounds_toggleButton.setScale(0.8)
         self.speedChatStyleText = SpeedChat.SpeedChat(name='OptionsPageStyleText',
             structure=[2000],
             backgroundModelName='phase_3/models/gui/ChatPanel',
             guiModelName='phase_3.5/models/gui/speedChatGui')
         self.speedChatStyleText.setScale(self.speed_chat_scale)
-        self.speedChatStyleText.setPos(0.37, 0, buttonbase_ycoord - textRowHeight * 6 + 0.03)
+        self.speedChatStyleText.setPos(0.37, 0, rightYBase - textRowHeight * row + 0.03)
         self.speedChatStyleText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
-        self.exitButton = OptionButton(parent=self, image_scale=1.15, text=TTLocalizer.OptionsDisconnect,
-                                       pos=(0.45, 0, -0.6), command=self.__handleExitServerShowWithConfirm)
-        self.toonselectButton = OptionButton(parent=self, image_scale=1.15, text=TTLocalizer.OptionsReturnToToonSelect,
-                                       pos=(-0.45, 0, -0.6), command=self.__handleExitToToonSelectShowWithConfirm)
+
+        row += 2
+        # - Friends
+        self.friendsTitle = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            text_size=TTLabel.TTLabel.MediumSize,
+            pos=(rightXBase + 0.01, 0, rightYBase - textRowHeight * row),
+            text='Friends'
+        )
+        row += 1
+        self.acceptingFriendsLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text='Accepting Friends',
+            text_align=TextNode.ALeft
+        )
+        self.acceptingFriendsCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.localAvatar.wantFriends,
+            command=self.__doToggleWantFriends
+        )
+
+        self.exitButton = OptionButton(
+            parent=self,
+            image_scale=1.15,
+            text=TTLocalizer.OptionsDisconnect,
+            pos=(0.45, 0, -0.6), command=self.__handleExitServerShowWithConfirm
+        )
+        self.toonselectButton = OptionButton(
+            parent=self,
+            image_scale=1.15,
+            text=TTLocalizer.OptionsReturnToToonSelect,
+            pos=(-0.45, 0, -0.6),
+            command=self.__handleExitToToonSelectShowWithConfirm
+        )
         gui.removeNode()
+
+        self.setOptionsState(self.VideoState)
 
     def enter(self):
         self.show()
         taskMgr.remove(self.DisplaySettingsTaskName)
         self.settingsChanged = 0
-        self.__setMusicButton()
-        self.__setSoundFXButton()
-        self.__setAcceptFriendsButton()
-        self.__setAcceptWhispersButton()
-        self.__setDisplaySettings()
-        self.__setToonChatSoundsButton()
         self.speedChatStyleText.enter()
         self.speedChatStyleIndex = base.localAvatar.getSpeedChatStyleIndex()
         self.updateSpeedChatStyle()
@@ -377,7 +534,8 @@ class OptionsTabPage(DirectFrame):
             taskMgr.doMethodLater(
                 self.DisplaySettingsDelay,
                 self.writeDisplaySettings,
-                self.DisplaySettingsTaskName)
+                self.DisplaySettingsTaskName
+            )
 
     def unload(self):
         self.writeDisplaySettings()
@@ -388,136 +546,197 @@ class OptionsTabPage(DirectFrame):
         self.displaySettings = None
         self.exitButton.destroy()
         self.toonselectButton.destroy()
-        self.Music_toggleButton.destroy()
-        self.SoundFX_toggleButton.destroy()
-        self.Friends_toggleButton.destroy()
-        self.Whispers_toggleButton.destroy()
-        self.DisplaySettingsButton.destroy()
-        self.speedChatStyleLeftArrow.destroy()
-        self.speedChatStyleRightArrow.destroy()
         del self.exitButton
         del self.toonselectButton
-        del self.SoundFX_Label
-        del self.Music_Label
-        del self.Friends_Label
-        del self.Whispers_Label
-        del self.SpeedChatStyle_Label
-        del self.SoundFX_toggleButton
-        del self.Music_toggleButton
-        del self.Friends_toggleButton
-        del self.Whispers_toggleButton
-        del self.speedChatStyleLeftArrow
-        del self.speedChatStyleRightArrow
         self.speedChatStyleText.exit()
         self.speedChatStyleText.destroy()
         del self.speedChatStyleText
         self.currentSizeIndex = None
+        self.leftFrame.destroy()
+        self.rightFrame.destroy()
+
+    def setOptionsState(self, state):
+        messenger.send(EventGlobals.WakeUp)
+        self.videoButton.setActive(0)
+        self.soundButton.setActive(0)
+        self.gameplayButton.setActive(0)
+        self.socialButton.setActive(0)
+        self.hideVideoGui()
+        self.hideSoundGui()
+        self.hideGameplayGui()
+        self.hideSocialGui()
+
+        if state == self.VideoState:
+            self.videoButton.setActive(1)
+            self.showVideoGui()
+        elif state == self.SoundState:
+            self.soundButton.setActive(1)
+            self.showSoundGui()
+        elif state == self.GameplayState:
+            self.gameplayButton.setActive(1)
+            self.showGameplayGui()
+        elif state == self.SocialState:
+            self.socialButton.setActive(1)
+            self.showSocialGui()
+
+    def showVideoGui(self):
+        self.displaySettingsButton.show()
+
+    def hideVideoGui(self):
+        self.displaySettingsButton.hide()
+
+    def showSoundGui(self):
+        self.volumeTitle.show()
+        self.musicCheckBox.show()
+        self.musicLabel.show()
+        self.musicSlider.show()
+        self.soundCheckBox.show()
+        self.soundLabel.show()
+        self.soundSlider.show()
+
+    def hideSoundGui(self):
+        self.volumeTitle.hide()
+        self.musicCheckBox.hide()
+        self.musicLabel.hide()
+        self.musicSlider.hide()
+        self.soundCheckBox.hide()
+        self.soundLabel.hide()
+        self.soundSlider.hide()
+
+    def showGameplayGui(self):
+        pass
+
+    def hideGameplayGui(self):
+        pass
+
+    def showSocialGui(self):
+        self.friendsTitle.show()
+        self.chatTitle.show()
+        self.whispersCheckBox.show()
+        self.whispersLabel.show()
+        self.whispersAnyoneCheckBox.show()
+        self.whispersAnyoneLabel.show()
+        self.whispersFriendsCheckBox.show()
+        self.whispersFriendsLabel.show()
+        self.acceptingFriendsLabel.show()
+        self.acceptingFriendsCheckBox.show()
+        self.speedChatStyleLabel.show()
+        self.speedChatStyleLeftArrow.show()
+        self.speedChatStyleRightArrow.show()
+        self.speedChatStyleText.show()
+
+    def hideSocialGui(self):
+        self.friendsTitle.hide()
+        self.chatTitle.hide()
+        self.whispersCheckBox.hide()
+        self.whispersLabel.hide()
+        self.whispersAnyoneCheckBox.hide()
+        self.whispersAnyoneLabel.hide()
+        self.whispersFriendsCheckBox.hide()
+        self.whispersFriendsLabel.hide()
+        self.acceptingFriendsLabel.hide()
+        self.acceptingFriendsCheckBox.hide()
+        self.speedChatStyleLabel.hide()
+        self.speedChatStyleLeftArrow.hide()
+        self.speedChatStyleRightArrow.hide()
+        self.speedChatStyleText.hide()
+
+    def getMusicVolume(self):
+        # We want it as a value between 0-100
+        return settings.get(SettingsGlobals.MusicVolume, 1) * 100
+
+    def setMusicVolume(self, volume=None):
+        messenger.send(EventGlobals.WakeUp)
+        if volume is None:
+            volume = self.musicSlider.getValue()
+        else:
+            self.musicSlider.setValue(volume)
+        # We store it as a value between 0 - 1
+        base.musicManager.setVolume(volume/100)
+        settings[SettingsGlobals.MusicVolume] = volume/100
+
+    def getSoundVolume(self):
+        # We want it as a value between 0-100
+        return settings.get(SettingsGlobals.SoundVolume, 1) * 100
+
+    def setSoundVolume(self, volume=None):
+        messenger.send(EventGlobals.WakeUp)
+        if volume is None:
+            volume = self.soundSlider.getValue()
+        else:
+            self.soundSlider.setValue(volume)
+        base.setSfxVolume(volume/100)
+        settings[SettingsGlobals.SoundVolume] = volume/100
 
     def __doToggleMusic(self):
-        messenger.send('wakeup')
+        messenger.send(EventGlobals.WakeUp)
         if base.musicActive:
             base.enableMusic(0)
-            settings['music'] = False
+            settings[SettingsGlobals.Music] = False
+            self.musicSlider.disable()
         else:
             base.enableMusic(1)
-            settings['music'] = True
-        self.settingsChanged = 1
-        self.__setMusicButton()
-
-    def __setMusicButton(self):
-        if base.musicActive:
-            self.Music_Label['text'] = TTLocalizer.OptionsPageMusicOnLabel
-            self.Music_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
-        else:
-            self.Music_Label['text'] = TTLocalizer.OptionsPageMusicOffLabel
-            self.Music_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
+            settings[SettingsGlobals.Music] = True
+            self.musicSlider.enable()
 
     def __doToggleSfx(self):
-        messenger.send('wakeup')
+        messenger.send(EventGlobals.WakeUp)
         if base.sfxActive:
             base.enableSoundEffects(0)
-            settings['sfx'] = False
+            settings[SettingsGlobals.Sound] = False
+            self.soundSlider.disable()
         else:
             base.enableSoundEffects(1)
-            settings['sfx'] = True
-        self.settingsChanged = 1
-        self.__setSoundFXButton()
+            settings[SettingsGlobals.Sound] = True
+            self.soundSlider.enable()
 
-    def __doToggleToonChatSounds(self):
-        messenger.send('wakeup')
-        if base.toonChatSounds:
-            base.toonChatSounds = 0
-            settings['toonChatSounds'] = False
+    def __doToggleWantFriends(self):
+        messenger.send(EventGlobals.WakeUp)
+        wantFriends = settings.get(SettingsGlobals.WantFriends, {})
+        if base.localAvatar.wantFriends:
+            base.localAvatar.wantFriends = 0
+            wantFriends[str(base.localAvatar.doId)] = False
         else:
-            base.toonChatSounds = 1
-            settings['toonChatSounds'] = True
-        self.settingsChanged = 1
-        self.__setToonChatSoundsButton()
+            base.localAvatar.wantFriends = 1
+            wantFriends[str(base.localAvatar.doId)] = True
+        settings[SettingsGlobals.WantFriends] = wantFriends
 
-    def __setSoundFXButton(self):
-        if base.sfxActive:
-            self.SoundFX_Label['text'] = TTLocalizer.OptionsPageSFXOnLabel
-            self.SoundFX_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
+    def __doToggleWantWhispers(self):
+        messenger.send(EventGlobals.WakeUp)
+        wantWhispers = settings.get(SettingsGlobals.WantWhispers, {})
+        if base.localAvatar.wantWhispers:
+            base.localAvatar.wantWhispers = False
+            wantWhispers[str(base.localAvatar.doId)] = False
+            self.whispersAnyoneCheckBox.disable()
+            self.whispersFriendsCheckBox.disable()
         else:
-            self.SoundFX_Label['text'] = TTLocalizer.OptionsPageSFXOffLabel
-            self.SoundFX_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
-        self.__setToonChatSoundsButton()
+            base.localAvatar.wantWhispers = True
+            wantWhispers[str(base.localAvatar.doId)] = True
+            self.whispersAnyoneCheckBox.enable()
+            self.whispersFriendsCheckBox.enable()
+        settings[SettingsGlobals.WantWhispers] = wantWhispers
 
-    def __setToonChatSoundsButton(self):
-        if base.toonChatSounds:
-            self.ToonChatSounds_Label['text'] = TTLocalizer.OptionsPageToonChatSoundsOnLabel
-            self.ToonChatSounds_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
+    def __doToggleWantNonFriendWhispers(self):
+        messenger.send(EventGlobals.WakeUp)
+        wantNonFriendWhispers = settings.get(SettingsGlobals.WantNonFriendWhispers, {})
+        if base.localAvatar.wantNonFriendWhispers:
+            base.localAvatar.wantNonFriendWhispers = 0
+            wantNonFriendWhispers[str(base.localAvatar.doId)] = False
         else:
-            self.ToonChatSounds_Label['text'] = TTLocalizer.OptionsPageToonChatSoundsOffLabel
-            self.ToonChatSounds_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
-        if base.sfxActive:
-            self.ToonChatSounds_Label.setColorScale(1.0, 1.0, 1.0, 1.0)
-            self.ToonChatSounds_toggleButton['state'] = DGG.NORMAL
-        else:
-            self.ToonChatSounds_Label.setColorScale(0.5, 0.5, 0.5, 0.5)
-            self.ToonChatSounds_toggleButton['state'] = DGG.DISABLED
+            base.localAvatar.wantNonFriendWhispers = 1
+            wantNonFriendWhispers[str(base.localAvatar.doId)] = True
+        settings[SettingsGlobals.WantNonFriendWhispers] = wantNonFriendWhispers
 
-    def __doToggleAcceptFriends(self):
-        messenger.send('wakeup')
-        acceptingNewFriends = settings.get('acceptingNewFriends', {})
-        if base.localAvatar.acceptingNewFriends:
-            base.localAvatar.acceptingNewFriends = 0
-            acceptingNewFriends[str(base.localAvatar.doId)] = False
+    def __doToggleWantFriendWhispers(self):
+        messenger.send(EventGlobals.WakeUp)
+        wantFriendWhispers = settings.get(SettingsGlobals.WantFriendWhispers, {})
+        if base.localAvatar.wantFriendWhispers:
+            base.localAvatar.wantFriendWhispers = False
+            wantFriendWhispers[str(base.localAvatar.doId)] = False
         else:
-            base.localAvatar.acceptingNewFriends = 1
-            acceptingNewFriends[str(base.localAvatar.doId)] = True
-        settings['acceptingNewFriends'] = acceptingNewFriends
-        self.settingsChanged = 1
-        self.__setAcceptFriendsButton()
-
-    def __doToggleAcceptWhispers(self):
-        messenger.send('wakeup')
-        acceptingNonFriendWhispers = settings.get('acceptingNonFriendWhispers', {})
-        if base.localAvatar.acceptingNonFriendWhispers:
-            base.localAvatar.acceptingNonFriendWhispers = 0
-            acceptingNonFriendWhispers[str(base.localAvatar.doId)] = False
-        else:
-            base.localAvatar.acceptingNonFriendWhispers = 1
-            acceptingNonFriendWhispers[str(base.localAvatar.doId)] = True
-        settings['acceptingNonFriendWhispers'] = acceptingNonFriendWhispers
-        self.settingsChanged = 1
-        self.__setAcceptWhispersButton()
-
-    def __setAcceptFriendsButton(self):
-        if base.localAvatar.acceptingNewFriends:
-            self.Friends_Label['text'] = TTLocalizer.OptionsPageFriendsEnabledLabel
-            self.Friends_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
-        else:
-            self.Friends_Label['text'] = TTLocalizer.OptionsPageFriendsDisabledLabel
-            self.Friends_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
-
-    def __setAcceptWhispersButton(self):
-        if base.localAvatar.acceptingNonFriendWhispers:
-            self.Whispers_Label['text'] = TTLocalizer.OptionsPageWhisperEnabledLabel
-            self.Whispers_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
-        else:
-            self.Whispers_Label['text'] = TTLocalizer.OptionsPageWhisperDisabledLabel
-            self.Whispers_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
+            base.localAvatar.wantFriendWhispers = True
+            wantFriendWhispers[str(base.localAvatar.doId)] = True
+        settings[SettingsGlobals.WantFriendWhispers] = wantFriendWhispers
 
     def __doDisplaySettings(self):
         if self.displaySettings is None:
@@ -640,6 +859,7 @@ class OptionsTabPage(DirectFrame):
             # TODO: Have this button disconnect you and bring you all the way back to the main menu like the one on the Toon Select screen
             base.cr.loginFSM.request('mainMenu')
             base.cr.mainMenu.singlePlayerMenu.demand('Off')
+
 
 class CodesTabPage(DirectFrame):
     notify = directNotify.newCategory('CodesTabPage')
