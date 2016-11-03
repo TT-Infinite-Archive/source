@@ -59,8 +59,7 @@ from toontown.toon import ElevatorNotifier
 from toontown.toon import ToonDNA
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
 from toontown.toon.ToonAvatarDetailPanel import preloadGagGui
-from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, TTLocalizer, SettingsGlobals
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toontowngui import NewsPageButtonManager
 from toontown.friends.FriendHandle import FriendHandle
@@ -176,8 +175,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             if not hasattr(base.cr, 'lastLoggedIn'):
                 base.cr.lastLoggedIn = self.cr.toontownTimeManager.convertStrToToontownTime('')
             self.setLastTimeReadNews(base.cr.lastLoggedIn)
-            self.acceptingNewFriends = True
-            self.acceptingNonFriendWhispers = True
+            self.wantFriends = True
+            self.wantWhispers = True
+            self.wantNonFriendWhispers = True
+            self.wantFriendsWhispers = True
             self.physControls.event.addAgainPattern('again%in')
             self.oldPos = None
             self.questMap = None
@@ -272,17 +273,29 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.nametag.manage(base.marginManager)
 
         DistributedToon.DistributedToon.announceGenerate(self)
+        self.loadSettings()
 
-        acceptingNewFriends = settings.get('acceptingNewFriends', {})
-        acceptingNonFriendWhispers = settings.get('acceptingNonFriendWhispers', {})
-        if str(self.doId) not in acceptingNewFriends:
-            acceptingNewFriends[str(self.doId)] = True
-            settings['acceptingNewFriends'] = acceptingNewFriends
-        if str(self.doId) not in acceptingNonFriendWhispers:
-            acceptingNonFriendWhispers[str(self.doId)] = True
-            settings['acceptingNonFriendWhispers'] = acceptingNonFriendWhispers
-        self.acceptingNewFriends = acceptingNewFriends[str(self.doId)]
-        self.acceptingNonFriendWhispers = acceptingNonFriendWhispers[str(self.doId)]
+    def loadSettings(self):
+        wantFriends = settings.get(SettingsGlobals.WantFriends, {})
+        wantWhispers = settings.get(SettingsGlobals.WantWhispers, {})
+        wantNonFriendWhispers = settings.get(SettingsGlobals.WantNonFriendWhispers, {})
+        wantFriendWhispers = settings.get(SettingsGlobals.WantFriendWhispers, {})
+        if str(self.doId) not in wantFriends:
+            wantFriends[str(self.doId)] = True
+            settings[SettingsGlobals.WantFriends] = wantFriends
+        if str(self.doId) not in wantWhispers:
+            wantWhispers[str(self.doId)] = True
+            settings[SettingsGlobals.WantWhispers] = wantWhispers
+        if str(self.doId) not in wantNonFriendWhispers:
+            wantNonFriendWhispers[str(self.doId)] = True
+            settings[SettingsGlobals.WantNonFriendWhispers] = wantNonFriendWhispers
+        if str(self.doId) not in wantFriendWhispers:
+            wantFriendWhispers[str(self.doId)] = True
+            settings[SettingsGlobals.WantFriendWhispers] = wantFriendWhispers
+        self.wantFriends = wantFriends[str(self.doId)]
+        self.wantWhispers = wantWhispers[str(self.doId)]
+        self.wantNonFriendWhispers = wantNonFriendWhispers[str(self.doId)]
+        self.wantFriendWhispers = wantFriendWhispers[str(self.doId)]
 
     def disable(self):
         self.laffMeter.destroy()
