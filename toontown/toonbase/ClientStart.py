@@ -54,10 +54,10 @@ if 'music' not in settings:
     settings['music'] = True
 if 'sfx' not in settings:
     settings['sfx'] = True
-if 'musicVol' not in settings:
-    settings['musicVol'] = 1.0
-if 'sfxVol' not in settings:
-    settings['sfxVol'] = 1.0
+if 'music-volume' not in settings:
+    settings['music-volume'] = 1.0
+if 'sound-volume' not in settings:
+    settings['sound-volume'] = 1.0
 if 'loadDisplay' not in settings:
     settings['loadDisplay'] = 'pandagl'
 if 'toonChatSounds' not in settings:
@@ -83,9 +83,9 @@ loadPrcFileData('Settings: music', 'audio-music-active %s' % settings['music'])
 loadPrcFileData('Settings: sfx',
                 'audio-sfx-active %s' % settings['sfx'])
 loadPrcFileData('Settings: musicVol',
-                'audio-master-music-volume %s' % settings['musicVol'])
+                'audio-master-music-volume %s' % settings.get('music-volume', 1.0))
 loadPrcFileData('Settings: sfxVol',
-                'audio-master-sfx-volume %s' % settings['sfxVol'])
+                'audio-master-sfx-volume %s' % settings['sound-volume'])
 loadPrcFileData('Settings: loadDisplay',
                 'load-display %s' % settings['loadDisplay'])
 loadPrcFileData('Settings: toonChatSounds',
@@ -187,14 +187,11 @@ clickToStart.setColorScale(0, 0, 0, 0)
 music = None
 if base.musicManagerIsValid:
     if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
-        music = base.loadMusic('phase_3/audio/bgm/tti_theme_halloween.ogg')
+        music = loader.loadMusic('phase_3/audio/bgm/tti_theme_halloween.ogg')
     if ToontownGlobals.WACKY_WINTER_DECORATIONS in base.clientHolidayIdList:
-        music = base.loadMusic('phase_3/audio/bgm/tti_theme_christmas.ogg')
+        music = loader.loadMusic('phase_3/audio/bgm/tti_theme_christmas.ogg')
     else:
-        music = base.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
-    if music is not None:
-        music.setLoop(1)
-        music.setVolume(0.9)
+        music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
 
 
 from toontown.toonbase import TTLocalizer
@@ -298,7 +295,7 @@ __builtin__.loader = base.loader
 
 disclaimerTrack.start()
 if music is not None:
-    music.play()
+    base.playMusic(music, looping=1, volume=0.9)
 
 
 def skip():
