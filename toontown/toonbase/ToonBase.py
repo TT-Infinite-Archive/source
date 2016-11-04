@@ -264,7 +264,7 @@ class ToonBase(OTPBase.OTPBase):
             if holidayId:
                 self.clientHolidayIdList.append(int(holidayId.strip()))
         
-        self.wantCustomControls = settings.get('wantCustomControls', False)
+        self.wantCustomControls = settings.get('want-custom-controls', False)
 
         self.MOVE_UP = 'arrow_up'   
         self.MOVE_DOWN = 'arrow_down'

@@ -119,7 +119,7 @@ speedChatStyles = (
         (210 / 255.0, 200 / 255.0, 180 / 255.0)
     )
 )
-PageMode = PythonUtil.Enum('Options, Codes, MoreOptions')
+PageMode = PythonUtil.Enum('Options, Codes')
 
 
 class OptionsPage(ShtikerPage.ShtikerPage):
@@ -130,11 +130,9 @@ class OptionsPage(ShtikerPage.ShtikerPage):
 
         self.optionsTabPage = None
         self.codesTabPage = None
-        self.moreOptionsTabPage = None
         self.title = None
         self.optionsTab = None
         self.codesTab = None
-        self.moreOptionsTab = None
 
     def load(self):
         ShtikerPage.ShtikerPage.load(self)
@@ -143,8 +141,6 @@ class OptionsPage(ShtikerPage.ShtikerPage):
         self.optionsTabPage.hide()
         self.codesTabPage = CodesTabPage(self)
         self.codesTabPage.hide()
-        self.moreOptionsTabPage = MoreOptionsTabPage(self)
-        self.moreOptionsTabPage.hide()
 
         self.title = DirectLabel(
             parent=self, relief=None, text=TTLocalizer.OptionsPageTitle,
@@ -152,18 +148,13 @@ class OptionsPage(ShtikerPage.ShtikerPage):
 
         self.optionsTab = OptionTab(
             parent=self, tabType=1, text=TTLocalizer.OptionsPageTitle, text_scale=TTLocalizer.OPoptionsTab,
-            text_pos=(0.01, 0.0, 0.0), image_pos=(0.55, 1, -0.91), pos=(-0.64, 0, 0.77),
+            text_pos=(0.01, 0.0, 0.0), image_pos=(0.55, 1, -0.91), pos=(-0.4, 0, 0.77),
             command=self.setMode, extraArgs=[PageMode.Options])
 
         self.codesTab = OptionTab(
             parent=self, text=TTLocalizer.OptionsPageCodesTab, text_scale=TTLocalizer.OPoptionsTab,
-            text_pos=(-0.035, 0.0, 0.0), image_pos=(0.12, 1, -0.91), pos=(-0.12, 0, 0.77),
+            text_pos=(-0.035, 0.0, 0.0), image_pos=(0.12, 1, -0.91), pos=(0.2, 0, 0.77),
             command=self.setMode, extraArgs=[PageMode.Codes])
-
-        self.moreOptionsTab = OptionTab(
-            parent=self, relief=None, text=TTLocalizer.MoreOptionsPageTitle, text_scale=TTLocalizer.OPmoreOptionsTab,
-            text_pos=(-0.045, 0.0, 0.0), image_pos=(0.12, 1, -0.91), pos=(0.42, 0, 0.77),
-            command=self.setMode, extraArgs=[PageMode.MoreOptions])
 
     def enter(self):
         self.setMode(PageMode.Options, updateAnyways=1)
@@ -214,24 +205,12 @@ class OptionsPage(ShtikerPage.ShtikerPage):
             self.optionsTabPage.enter()
             self.codesTab['state'] = DGG.NORMAL
             self.codesTabPage.exit()
-            self.moreOptionsTab['state'] = DGG.NORMAL
-            self.moreOptionsTabPage.exit()
         elif mode == PageMode.Codes:
             self.title['text'] = TTLocalizer.CdrPageTitle
             self.optionsTab['state'] = DGG.NORMAL
             self.optionsTabPage.exit()
-            self.moreOptionsTab['state'] = DGG.NORMAL
-            self.moreOptionsTabPage.exit()
             self.codesTab['state'] = DGG.DISABLED
             self.codesTabPage.enter()
-        elif mode == PageMode.MoreOptions:
-            self.title['text'] = TTLocalizer.MoreOptionsPageTitle
-            self.optionsTab['state'] = DGG.NORMAL
-            self.optionsTabPage.exit()
-            self.codesTab['state'] = DGG.NORMAL
-            self.codesTabPage.exit()
-            self.moreOptionsTab['state'] = DGG.DISABLED
-            self.moreOptionsTabPage.enter()
         else:
             self.notify.warning('Invalid mode for options page %s' % mode)
 
@@ -258,6 +237,7 @@ class OptionsTabPage(DirectFrame):
         self.displaySettingsApi = None
         self.displaySettingsApiChanged = 0
         self.displaySettings = None
+        self.customControlDialog = None
 
         self.speed_chat_scale = 0.055
 
@@ -478,13 +458,14 @@ class OptionsTabPage(DirectFrame):
         self.friendsTitle = TTLabel.TTLabel(
             parent=self.rightFrame,
             text_size=TTLabel.TTLabel.MediumSize,
-            pos=(rightXBase + 0.01, 0, rightYBase - textRowHeight * row),
-            text='Friends'
+            pos=(rightXBase - 0.08, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text='Friends',
+            text_align=TextNode.ALeft
         )
         row += 1
         self.acceptingFriendsLabel = TTLabel.TTLabel(
             parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
             text='Accepting Friends',
             text_align=TextNode.ALeft
         )
@@ -507,6 +488,41 @@ class OptionsTabPage(DirectFrame):
             text=TTLocalizer.OptionsReturnToToonSelect,
             pos=(-0.45, 0, -0.6),
             command=self.__handleExitToToonSelectShowWithConfirm
+        )
+
+        # -- Gameplay
+
+        row = 0
+        # - Controls
+        self.controlsTitle = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            text_size=TTLabel.TTLabel.MediumSize,
+            pos=(rightXBase - 0.08, 0, rightYBase + 0.1),
+            text='Controls',
+            text_align=TextNode.ALeft
+        )
+
+        # Custom Controls
+        self.wantCustomControlsLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            text_size=TTLabel.TTLabel.NormalSize,
+            text='Custom Controls',
+            text_align=TextNode.ALeft,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row)
+        )
+        self.wantCustomControls = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.wantCustomControls,
+            command=self.__doToggleWantCustomControls
+        )
+        row += 1
+        self.configureControlsButton = TTButton.TTButton(
+            parent=self.rightFrame,
+            text='Configure',
+            pos=(rightXBase + 0.2, 0.0, rightYBase - textRowHeight * row),
+            disable=not base.wantCustomControls,
+            command=self.__openKeyRemapDialog
         )
         gui.removeNode()
 
@@ -604,10 +620,16 @@ class OptionsTabPage(DirectFrame):
         self.soundSlider.hide()
 
     def showGameplayGui(self):
-        pass
+        self.controlsTitle.show()
+        self.wantCustomControlsLabel.show()
+        self.wantCustomControls.show()
+        self.configureControlsButton.show()
 
     def hideGameplayGui(self):
-        pass
+        self.controlsTitle.hide()
+        self.wantCustomControlsLabel.hide()
+        self.wantCustomControls.hide()
+        self.configureControlsButton.hide()
 
     def showSocialGui(self):
         self.friendsTitle.show()
@@ -738,6 +760,20 @@ class OptionsTabPage(DirectFrame):
             wantFriendWhispers[str(base.localAvatar.doId)] = True
         settings[SettingsGlobals.WantFriendWhispers] = wantFriendWhispers
 
+    def __doToggleWantCustomControls(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantCustomControls:
+            base.wantCustomControls = settings[SettingsGlobals.WantCustomControls] = False
+            self.configureControlsButton.disable()
+        else:
+            base.wantCustomControls = settings[SettingsGlobals.WantCustomControls] = True
+            self.configureControlsButton.enable()
+
+        base.reloadControls()
+        base.localAvatar.controlManager.reload()
+        base.localAvatar.chatMgr.reloadWASD()
+        base.localAvatar.controlManager.disable()
+
     def __doDisplaySettings(self):
         if self.displaySettings is None:
             self.displaySettings = DisplaySettingsDialog.DisplaySettingsDialog()
@@ -781,6 +817,10 @@ class OptionsTabPage(DirectFrame):
         if self.speedChatStyleIndex < len(speedChatStyles) - 1:
             self.speedChatStyleIndex = self.speedChatStyleIndex + 1
             self.updateSpeedChatStyle()
+
+    def __openKeyRemapDialog(self):
+        if base.wantCustomControls:
+            self.customControlDialog = ControlRemapDialog.ControlRemap()
 
     def updateSpeedChatStyle(self):
         nameKey, arrowColor, rolloverColor, frameColor = speedChatStyles[self.speedChatStyleIndex]
@@ -1103,132 +1143,3 @@ class CodesTabPage(DirectFrame):
         self.codeInput['state'] = DGG.NORMAL
         self.codeInput['focus'] = 1
         self.submitButton['state'] = DGG.NORMAL
-
-
-class MoreOptionsTabPage(DirectFrame):
-    notify = directNotify.newCategory('MoreOptionsTabPage')
-
-    def __init__(self, parent=aspect2d):
-        self.parent = parent
-        self.currentSizeIndex = None
-
-        DirectFrame.__init__(
-            self, parent=self.parent, relief=None, pos=(
-                0.0, 0.0, 0.0), scale=(
-                1.0, 1.0, 1.0))
-
-        self.load()
-
-    def destroy(self):
-        self.parent = None
-        DirectFrame.destroy(self)
-
-    def load(self):
-        guiButton = loader.loadModel('phase_3/models/gui/quit_button')
-        gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
-        titleHeight = 0.61
-        textStartHeight = 0.45
-        textRowHeight = 0.145
-        leftMargin = -0.72
-        buttonbase_xcoord = 0.16
-        buttonbase_ycoord = 0.45
-        button_image_scale = (0.7, 1, 1)
-        button_textpos = (0, -0.02)
-        options_text_scale = 0.052
-        disabled_arrow_color = Vec4(0.6, 0.6, 0.6, 1.0)
-        self.speed_chat_scale = 0.055
-        self.WASD_Label = DirectLabel(
-            parent=self,
-            relief=None,
-            text='',
-            text_align=TextNode.ALeft,
-            text_scale=options_text_scale,
-            text_wordwrap=16,
-            pos=(
-                leftMargin,
-                0,
-                textStartHeight))
-        self.WASD_toggleButton = DirectButton(
-            parent=self,
-            relief=None,
-            image=(
-                guiButton.find('**/QuitBtn_UP'),
-                guiButton.find('**/QuitBtn_DN'),
-                guiButton.find('**/QuitBtn_RLVR')),
-            image_scale=button_image_scale,
-            text='',
-            text_scale=options_text_scale,
-            text_pos=button_textpos,
-            pos=(
-                buttonbase_xcoord,
-                0.0,
-                buttonbase_ycoord),
-            command=self.__doToggleWASD)
-        self.keymapDialogButton = DirectButton(
-            parent=self,
-            relief=None,
-            image=(
-                guiButton.find('**/QuitBtn_UP'),
-                guiButton.find('**/QuitBtn_DN'),
-                guiButton.find('**/QuitBtn_RLVR')),
-            image_scale=button_image_scale,
-            text='Configure Keymap',
-            text_scale=(0.03, 0.05, 1),
-            text_pos=button_textpos,
-            pos=(
-                buttonbase_xcoord + 0.44,
-                0.0,
-                buttonbase_ycoord),
-            command=self.__openKeyRemapDialog)
-        self.keymapDialogButton.setScale(
-                1.55,
-                1.0,
-                1.0)
-        gui.removeNode()
-        guiButton.removeNode()
-
-    def enter(self):
-        self.show()
-        self.settingsChanged = 0
-        self.__setWASDButton()
-
-    def exit(self):
-        self.ignore('confirmDone')
-        self.hide()
-
-    def unload(self):
-        self.WASD_Label.destroy()
-        del self.WASD_Label
-        self.WASD_toggleButton.destroy()
-        del self.WASD_toggleButton
-        self.keymapDialogButton.destroy()
-        del self.keymapDialogButton
-
-    def __doToggleWASD(self):
-        messenger.send('wakeup')
-        if base.wantCustomControls:
-            base.wantCustomControls = False
-            settings['wantCustomControls'] = False
-        else:
-            base.wantCustomControls = True
-            settings['wantCustomControls'] = True
-        base.reloadControls()
-        base.localAvatar.controlManager.reload()
-        base.localAvatar.chatMgr.reloadWASD()
-        base.localAvatar.controlManager.disable()
-        self.settingsChanged = 1
-        self.__setWASDButton()
-
-    def __setWASDButton(self):
-        if base.wantCustomControls:
-            self.WASD_Label['text'] = 'Custom Keymapping is on.'
-            self.WASD_toggleButton['text'] = TTLocalizer.OptionsPageToggleOff
-            self.keymapDialogButton.show()
-        else:
-            self.WASD_Label['text'] = 'Custom Keymapping is off.'
-            self.WASD_toggleButton['text'] = TTLocalizer.OptionsPageToggleOn
-            self.keymapDialogButton.hide()
-    
-    def __openKeyRemapDialog(self):
-        if base.wantCustomControls:
-            self.controlDialog = ControlRemapDialog.ControlRemap()

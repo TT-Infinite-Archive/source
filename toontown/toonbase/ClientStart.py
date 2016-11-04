@@ -62,8 +62,8 @@ if 'loadDisplay' not in settings:
     settings['loadDisplay'] = 'pandagl'
 if 'toonChatSounds' not in settings:
     settings['toonChatSounds'] = True
-if 'wantCustomControls' not in settings:
-    settings['wantCustomControls'] = False
+if 'want-custom-controls' not in settings:
+    settings['want-custom-controls'] = False
 if 'keymap' not in settings:
     settings['keymap'] = {
         "ACTION_BUTTON": "delete",
