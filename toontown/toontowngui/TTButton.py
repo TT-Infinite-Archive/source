@@ -1,9 +1,10 @@
 from direct.gui.DirectGui import DirectButton, DGG
 from panda3d.core import TextNode
+from toontown.toonbase.ColorGlobals import CGray, CDefault
 
 
 class TTButton(DirectButton):
-    def __init__(self, parent=aspect2d, text='', pos=(0.0, 0.0, 0.0), scale=1, active=0, command=None, extraArgs=None):
+    def __init__(self, parent=aspect2d, text='', pos=(0.0, 0.0, 0.0), scale=1, active=0, disable=False, command=None, extraArgs=None):
         DirectButton.__init__(self, parent)
         if extraArgs is None:
             extraArgs = []
@@ -21,6 +22,7 @@ class TTButton(DirectButton):
             guiButton.find('**/QuitBtn_DN'),
             guiButton.find('**/QuitBtn_RLVR')
         )
+        guiButton.removeNode()
         self.button = DirectButton(
             parent=self,
             relief=None,
@@ -36,10 +38,19 @@ class TTButton(DirectButton):
         if command:
             self.button.bind(DGG.B1CLICK, command=self.__handleClick, extraArgs=[self.button])
 
-        guiButton.removeNode()
+        if disable:
+            self.disable()
 
     def __handleClick(self, btn, e):
         self.command(*self.extraArgs)
+
+    def enable(self):
+        self.button['state'] = DGG.NORMAL
+        self.button['image_color'] = CDefault
+
+    def disable(self):
+        self.button['state'] = DGG.DISABLED
+        self.button['image_color'] = CGray
 
     def setActive(self, active):
         self.active = active
