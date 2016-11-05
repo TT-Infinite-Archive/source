@@ -9,7 +9,7 @@ audio-library-name null
 
 # Graphics:
 # aux-display pandagl
-aux-display pandadx9
+load-display pandagl
 aux-display p3tinydisplay
 
 # Models:
