@@ -3,7 +3,6 @@
 import __builtin__
 import game_data
 import argparse
-from toontown.singleplayer import SinglePlayerGlobals
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
