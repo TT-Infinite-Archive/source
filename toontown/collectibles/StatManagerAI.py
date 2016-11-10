@@ -155,8 +155,6 @@ class StatManagerAI:
         self.handleObjectiveCompleted(av, category, StatGlobals.TreasureAny)
         if treasure.treasureType == TreasureGlobals.TreasurePD:
             self.handleObjectiveCompleted(av, category, StatGlobals.TreasurePatrickDay)
-        elif treasure.treasureType == TreasureGlobals.TreasureAF:
-            self.handleObjectiveCompleted(av, category, StatGlobals.TreasureAprilFools)
         av.stats.saveStat(category)
 
     # Utilities

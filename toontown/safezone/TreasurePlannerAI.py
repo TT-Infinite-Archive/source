@@ -6,7 +6,7 @@ from direct.task import Task
 from toontown.toonbase.HolidayGlobals import SAINT_PATRICKS_DAY, APRIL_FOOLS_DAY
 from toontown.toonbase.ToontownGlobals import Hoods
 from toontown.safezone.DistributedTreasureAI import DistributedTreasureAI
-from toontown.safezone.TreasureGlobals import TreasurePD, TreasureAF
+from toontown.safezone.TreasureGlobals import TreasurePD
 import random
 
 
@@ -81,8 +81,6 @@ class TreasurePlannerAI(DirectObject.DirectObject):
         treasureType = self.treasureType
         if simbase.air.holidayManager.isHolidayRunning(SAINT_PATRICKS_DAY) and self.zoneId in Hoods and random.randint(0, 20) == 0:
             treasureType = TreasurePD
-        elif simbase.air.holidayManager.isHolidayRunning(APRIL_FOOLS_DAY) and self.zoneId in Hoods and random.randint(0, 1) == 0:
-            treasureType = TreasureAF
         treasure = DistributedTreasureAI(simbase.air, self, treasureType, spawnPoint[0], spawnPoint[1], spawnPoint[2])
         treasure.generateWithRequired(self.zoneId)
         self.treasures[index] = treasure

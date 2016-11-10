@@ -112,6 +112,48 @@ CollectibleRewardAprilFools = CollectibleReward.CollectibleItemReward(
     category=CICategoryCheesyEffect,
     itemId=CheesyEffectGoofy
 )
+CollectibleRewardBigHead = CollectibleReward.CollectibleItemReward(
+    id=16,
+    name='Big Head',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectBigHead
+)
+CollectibleRewardSmallHead = CollectibleReward.CollectibleItemReward(
+    id=17,
+    name='Small Head',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectSmallHead
+)
+CollectibleRewardBigLegs = CollectibleReward.CollectibleItemReward(
+    id=18,
+    name='Big Legs',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectBigLegs
+)
+CollectibleRewardSmallLegs = CollectibleReward.CollectibleItemReward(
+    id=19,
+    name='Small Legs',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectSmallLegs
+)
+CollectibleRewardBigToon = CollectibleReward.CollectibleItemReward(
+    id=20,
+    name='Big Toon',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectBigToon
+)
+CollectibleRewardSmallToon = CollectibleReward.CollectibleItemReward(
+    id=21,
+    name='Small Toon',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectSmallToon
+)
+CollectibleRewardFlatPortrait = CollectibleReward.CollectibleItemReward(
+    id=22,
+    name='Flat Portrait',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectFlatPortrait
+)
 
 # Items
 CollectibleFishing01 = CollectibleItem.CollectibleModelItem(
@@ -311,17 +353,6 @@ CollectibleSeasonal02 = CollectibleItem.CollectibleImageItem(
     filepath='phase_3.5/maps/st_patricks_day.png',
     scale=0.001
 )
-CollectibleSeasonal03 = CollectibleItem.CollectibleImageItem(
-    name='Gooby Dolls',
-    reward=CollectibleRewardAprilFools,
-    category=StatCategoryTreasure,
-    objective=TreasureAprilFools,
-    goal=20,
-    desc='Participate in the April Toons\' 2016 event by collecting twenty Gooby dolls!',
-    flavorText='%d/%d Gooby Dolls Found',
-    filepath='phase_3.5/maps/april_fools_gooby_dolls.png',
-    scale=0.001
-)
 
 # Categories
 CCFishingId = 0
@@ -361,21 +392,22 @@ CCRacing = CollectibleItem.CollectibleCategory(
         2: CollectibleRacing03
     }
 )
+# Hide this category until we are ready to introduce seasonal collectibles
+"""
 CCSeasonal = CollectibleItem.CollectibleCategory(
     CCSeasonalId,
     'Seasonal',
     {
         0: CollectibleSeasonal01,
-        1: CollectibleSeasonal02,
-        2: CollectibleSeasonal03
+        1: CollectibleSeasonal02
     }
 )
-
+"""
 CollectibleCategories = {
     CCGolfId: CCGolf,
     CCFishingId: CCFishing,
     CCRacingId: CCRacing,
-    CCSeasonalId: CCSeasonal
+    # CCSeasonalId: CCSeasonal
 }
 
 # Un-lockable Item Definitions
@@ -750,12 +782,14 @@ CollectibleCheesyEffectNone = CollectibleItem.CheesyEffectItem(
     id=CheesyEffectNone,
     desc='Equip this to hide your current cheesy effect.',
     flavorText='Acquired when your Toon is created',
+    filepath='phase_3.5/maps/default_ce.png',
+    scale=0.001,
 )
 CollectibleCheesyEffectGreenToon = CollectibleItem.CheesyEffectItem(
     name='Green Toon',
     category=CICategoryCheesyEffect,
     id=CheesyEffectGreenToon,
-    desc='Equip this to make your entire toon Green!',
+    desc='Equip this to make your entire Toon green!',
     flavorText='Acquired via the Saint Patrick Event',
     filepath='phase_3.5/maps/green_toon.png',
     scale=0.001,
@@ -765,8 +799,71 @@ CollectibleCheesyEffectGoofy = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectGoofy,
     desc='Equip this to replace your Toon\'s body with Gooby\'s!',
-    flavorText='Acquired via the April Toons Event',
-    filepath='phase_3.5/maps/april_fools_gooby_ce.png',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/gooby_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectBigHead = CollectibleItem.CheesyEffectItem(
+    name='Big Head',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectBigHead,
+    desc='Equip this to make your Toon\'s head big!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/big_head_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectSmallHead = CollectibleItem.CheesyEffectItem(
+    name='Small Head',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectSmallHead,
+    desc='Equip this to make your Toon\'s head small!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/small_head_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectBigLegs = CollectibleItem.CheesyEffectItem(
+    name='Big Legs',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectBigLegs,
+    desc='Equip this to make your Toon\'s legs big!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/big_legs_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectSmallLegs = CollectibleItem.CheesyEffectItem(
+    name='Small Legs',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectSmallLegs,
+    desc='Equip this to make your Toon\'s legs small!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/small_legs_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectBigToon = CollectibleItem.CheesyEffectItem(
+    name='Big Toon',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectBigToon,
+    desc='Equip this to make your Toon big!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/big_toon_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectSmallToon = CollectibleItem.CheesyEffectItem(
+    name='Small Toon',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectSmallToon,
+    desc='Equip this to make your Toon small!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/small_toon_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectFlatPortrait = CollectibleItem.CheesyEffectItem(
+    name='Flat Portrait',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectFlatPortrait,
+    desc='Equip this to make your Toon flat!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/flat_portrait_ce_icon.png',
     scale=0.001,
 )
 
@@ -834,6 +931,13 @@ CICheesyEffect = CollectibleItem.CollectibleCategory(
     'Cheesy Effect',
     {
         CheesyEffectNone: CollectibleCheesyEffectNone,
+        CheesyEffectBigHead: CollectibleCheesyEffectBigHead,
+        CheesyEffectSmallHead: CollectibleCheesyEffectSmallHead,
+        CheesyEffectBigLegs: CollectibleCheesyEffectBigLegs,
+        CheesyEffectSmallLegs: CollectibleCheesyEffectSmallLegs,
+        CheesyEffectBigToon: CollectibleCheesyEffectBigToon,
+        CheesyEffectSmallToon: CollectibleCheesyEffectSmallToon,
+        CheesyEffectFlatPortrait: CollectibleCheesyEffectFlatPortrait,
         CheesyEffectGreenToon: CollectibleCheesyEffectGreenToon,
         CheesyEffectGoofy: CollectibleCheesyEffectGoofy
     }
