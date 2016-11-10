@@ -1,6 +1,6 @@
 from RegenTreasurePlannerAI import RegenTreasurePlannerAI
 from direct.directnotify import DirectNotifyGlobal
-from toontown.safezone.TreasureGlobals import TreasurePD, TreasureAF
+from toontown.safezone.TreasureGlobals import TreasurePD
 
 
 class SZTreasurePlannerAI(RegenTreasurePlannerAI):
@@ -24,7 +24,7 @@ class SZTreasurePlannerAI(RegenTreasurePlannerAI):
 
     def validAvatar(self, treasure, av):
         # Avatars can only heal if they are missing some health, but aren't sad.
-        if treasure.treasureType in (TreasurePD, TreasureAF):
+        if treasure.treasureType in (TreasurePD):
             simbase.air.statManager.handleTreasureObtained(av, treasure)
             return True
         elif 0 < av.getHp() < av.getMaxHp():

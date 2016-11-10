@@ -41,7 +41,6 @@ CogVirtual = 8
 # StatCategoryTreasure
 TreasureAny = 0
 TreasurePatrickDay = 1
-TreasureAprilFools = 2
 
 CogDeptToObjective = {
     'c': CogBossbot,
@@ -65,5 +64,5 @@ CollectibleCategoryToObjective = {
         CogValentines,
         CogVirtual
     ),
-    StatCategoryTreasure: (TreasureAny, TreasurePatrickDay, TreasureAprilFools)
+    StatCategoryTreasure: (TreasureAny, TreasurePatrickDay)
 }

@@ -9,7 +9,6 @@ TreasureDL = 5
 TreasureOZ = 6
 TreasureE = 7
 TreasurePD = 8
-TreasureAF = 9
 
 TreasureModels = {
     TreasureTT: (
@@ -47,10 +46,6 @@ TreasureModels = {
     TreasurePD: (
         'phase_6/models/props/clover_treasure',
         'phase_4/audio/sfx/SZ_DD_treasure.ogg',
-    ),
-    TreasureAF: (
-        'phase_6/models/char/TT_G-500',
-        'phase_6/audio/dial/goofy.ogg',
     ),
 }
 

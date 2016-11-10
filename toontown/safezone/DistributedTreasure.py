@@ -67,10 +67,6 @@ class DistributedTreasure(DistributedObject.DistributedObject):
             self.treasure.getChildren().detach()
         model = loader.loadModel(modelPath)
         model.instanceTo(self.treasure)
-        if self.treasureType == TreasureGlobals.TreasureAF:
-            # Scale Gooby down a bit so it'll make more like a doll.
-            model.setScale(0.5)
-            self.dropShadow.setScale(0.4 * 0.5)
         return
 
     def makeNodePath(self):
