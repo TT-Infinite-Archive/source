@@ -480,13 +480,13 @@ class OptionsTabPage(DirectFrame):
             parent=self,
             image_scale=1.15,
             text=TTLocalizer.OptionsDisconnect,
-            pos=(0.45, 0, -0.6), command=self.__handleExitServerShowWithConfirm
+            pos=(-0.45, 0, -0.53), command=self.__handleExitServerShowWithConfirm
         )
         self.toonselectButton = OptionButton(
             parent=self,
             image_scale=1.15,
             text=TTLocalizer.OptionsReturnToToonSelect,
-            pos=(-0.45, 0, -0.6),
+            pos=(-0.45, 0, -0.33),
             command=self.__handleExitToToonSelectShowWithConfirm
         )
 
