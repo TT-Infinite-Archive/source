@@ -202,12 +202,7 @@ class CollectibleCategory:
     def getOrderedItems(self, minId=0, maxId=None):
         if maxId is None:
             maxId = len(self.items.values())
-        items = []
-        for index, item in enumerate(sorted(self.items.values(), key=lambda item: item.id)):
-            if index in xrange(minId, maxId):
-                items.append(item)
-            elif index > maxId:
-                break
-            else:
-                continue
-        return items
+        # Sort our items by id
+        sortedItems = sorted(self.items.values(), key=lambda item: item.id)
+        # Return the range of items we want
+        return sortedItems[minId:maxId]
