@@ -865,7 +865,7 @@ class OptionsTabPage(DirectFrame):
             style=TTDialog.TwoChoice)
         self.confirm.show()
         self.parent.doneStatus = {'mode': 'exit',
-                                  'exitTo': 'closeShard'}
+                                  'exitTo': 'disconnect'}
         self.accept('confirmDone', self.__handleConfirm)
 
     def __handleExitToToonSelectShowWithConfirm(self):
@@ -876,7 +876,7 @@ class OptionsTabPage(DirectFrame):
         self.confirm.show()
         self.parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'closeShard'}
-        self.accept('confirmDone', self.__back)
+        self.accept('confirmDone', self.__handleConfirm)
 
     def __handleConfirm(self):
         status = self.confirm.doneStatus
