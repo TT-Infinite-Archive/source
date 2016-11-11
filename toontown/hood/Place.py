@@ -397,7 +397,10 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         if base.cr.timeManager:
             base.cr.timeManager.setDisconnectReason(ToontownGlobals.DisconnectBookExit)
         base.transitions.fadeScreen(1.0)
-        base.cr.gameFSM.request(self.exitTo)
+        if self.exitTo == 'disconnect':
+            base.cr.gameFSM.request('closeShard', ['mainMenu'])
+        else:
+            base.cr.gameFSM.request(self.exitTo)
 
     def goHomeNow(self, curZoneId):
         if localAvatar.hasActiveBoardingGroup():

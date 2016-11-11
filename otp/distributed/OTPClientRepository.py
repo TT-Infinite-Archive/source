@@ -299,14 +299,16 @@ class OTPClientRepository(ClientRepositoryBase):
                       'shutdown',
                       'afkTimeout',
                       'periodTimeout',
-                      'noShards']),
+                      'noShards',
+                      'mainMenu']),
             State('mainMenu',
                   self.enterMainMenu,
                   self.exitMainMenu, [
                       'gameOff',
                       'waitForGameList',
                       'chooseAvatar',
-                      'connect'])],
+                      'connect',
+                      'shutdown'])],
             'loginOff', 'loginOff')
         self.gameFSM = ClassicFSM('gameFSM', [
             State('gameOff',
@@ -2075,6 +2077,8 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def enterMainMenu(self):
         self.mainMenu.request('Idle')
+        if self.isConnected():
+          self.mainMenu.singlePlayerMenu.demand('Off')
 
     def exitMainMenu(self):
         self.mainMenu.hide()

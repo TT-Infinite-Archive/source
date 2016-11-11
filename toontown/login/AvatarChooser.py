@@ -314,4 +314,3 @@ class AvatarChooser(StateData.StateData):
     
     def __back(self):
         base.cr.loginFSM.request('mainMenu')
-        base.cr.mainMenu.singlePlayerMenu.demand('Off')

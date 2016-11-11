@@ -606,7 +606,7 @@ class OptionsTabPage(DirectFrame):
             style=TTDialog.TwoChoice)
         self.confirm.show()
         self.parent.doneStatus = {'mode': 'exit',
-                                  'exitTo': 'closeShard'}
+                                  'exitTo': 'disconnect'}
         self.accept('confirmDone', self.__handleConfirm)
 
     def __handleExitToToonSelectShowWithConfirm(self):
@@ -617,7 +617,7 @@ class OptionsTabPage(DirectFrame):
         self.confirm.show()
         self.parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'closeShard'}
-        self.accept('confirmDone', self.__back)
+        self.accept('confirmDone', self.__handleConfirm)
 
     def __handleConfirm(self):
         status = self.confirm.doneStatus
@@ -627,19 +627,6 @@ class OptionsTabPage(DirectFrame):
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self.parent.doneEvent)
-
-    def __back(self):
-        status = self.confirm.doneStatus
-        self.ignore('confirmDone')
-        self.confirm.cleanup()
-        del self.confirm
-        if status == 'ok':
-            base.cr._userLoggingOut = True
-            messenger.send(self.parent.doneEvent)
-
-            # TODO: Have this button disconnect you and bring you all the way back to the main menu like the one on the Toon Select screen
-            base.cr.loginFSM.request('mainMenu')
-            base.cr.mainMenu.singlePlayerMenu.demand('Off')
 
 class CodesTabPage(DirectFrame):
     notify = directNotify.newCategory('CodesTabPage')

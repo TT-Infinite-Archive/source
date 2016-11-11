@@ -84,6 +84,16 @@ class MainMenu(DirectObject, FSM):
         self.hide()
 
     def enterIdle(self):
+        if (base.cr.music is None) and base.musicManagerIsValid:
+            if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
+                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme_halloween.ogg')
+            else:
+                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
+            if base.cr.music is not None:
+                base.cr.music.setLoop(1)
+                base.cr.music.setVolume(0.9)
+                base.cr.music.play()
+
         self.backgroundNodePath.show()
         for button in self.buttons:
           button.show()
