@@ -206,6 +206,8 @@ class CollectibleCategory:
         for index, item in enumerate(sorted(self.items.values(), key=lambda item: item.id)):
             if index in xrange(minId, maxId):
                 items.append(item)
-            else:
+            elif index > maxId:
                 break
+            else:
+                continue
         return items

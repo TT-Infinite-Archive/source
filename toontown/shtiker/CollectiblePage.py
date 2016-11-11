@@ -108,6 +108,7 @@ class CollectiblePage(ShtikerPage.ShtikerPage):
 
 
 class CategoryItemsDisplay(DirectFrame):
+    notify = directNotify.newCategory('CategoryItemsDisplay')
     itemPositions = [
         (-0.3, 0.0, 0.3),
         (0.0, 0.0, 0.3),
@@ -294,7 +295,9 @@ class CategoryItemsDisplay(DirectFrame):
             categoryItem.bind(DGG.WITHIN, self.__handleCategoryWithin, extraArgs=[categoryItem])
             categoryItem.bind(DGG.WITHOUT, self.__handleCategoryWithout, extraArgs=[categoryItem])
             categoryItem.bind(DGG.B1CLICK, self.__handleCategoryClicked, extraArgs=[category])
+            # Add element to a list for deletion later
             self.categories.append(categoryItem)
+            # Add element to our UI List
             self.categoryList.addItem(categoryItem)
 
     def unloadCategories(self):
@@ -305,6 +308,7 @@ class CategoryItemsDisplay(DirectFrame):
         self.categories = []
 
     def loadItems(self, category, page):
+        self.notify.debug('loadItems(%s, %s)' % (category, page))
         self.currentCat = category
         # Page limits
         if page < 0:
