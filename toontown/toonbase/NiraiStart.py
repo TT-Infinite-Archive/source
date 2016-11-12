@@ -2,7 +2,8 @@
 """"Entry point for a compiled build of Toontown Infinite."""
 import __builtin__
 import game_data
-import argparse
+import sys
+import _psutil_windows
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
@@ -25,14 +26,17 @@ for mount in mounts:
 __builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
 __builtin__.builtFile = 'infinite'
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--base-channel', help='The base channel that the server may use.')
-parser.add_argument('--district-name', help="What this AI Server's district will be named.")
-args = parser.parse_args()
 
-if args.district_name:
-    import toontown.ai.ServiceStart
-elif args.base_channel:
-    import toontown.uberdog.ServiceStart
-else:
-    import toontown.toonbase.ClientStart
+class PsutilHook:
+    def find_module(self, fullname, path):
+        if fullname == 'psutil._psutil_windows':
+            return self
+
+    def load_module(self, fullname):
+        if fullname == 'psutil._psutil_windows':
+            return _psutil_windows
+
+
+sys.meta_path.append(PsutilHook())
+
+import toontown.toonbase.ClientStart
