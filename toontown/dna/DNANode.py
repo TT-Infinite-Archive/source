@@ -49,6 +49,8 @@ class DNANode(DNAGroup.DNAGroup):
     def traverse(self, nodePath, dnaStorage):
         node = nodePath.attachNewNode(self.name, 0)
         node.setPosHprScale(self.pos, self.hpr, self.scale)
+
         for child in self.children:
             child.traverse(node, dnaStorage)
+
         node.flattenMedium()

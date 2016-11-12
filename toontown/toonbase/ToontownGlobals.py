@@ -215,6 +215,16 @@ OakStreet = 5300
 LullabyLane = 9100
 PajamaPlace = 9200
 ToonHall = 2513
+EstateWakeWaterHeight = -.3
+ZoneIdToWakeHeight = {
+    ToontownCentral: -4.79,
+    DonaldsDock: 1.669,
+    TheBrrrgh: 0,
+    MinniesMelodyland: -16,
+    DaisyGardens: -1,
+    DonaldsDreamland: -19,
+    OutdoorZone: -0.5,
+}
 HoodHierarchy = {
     ToontownCentral: (SillyStreet, LoopyLane, PunchlinePlace),
     DonaldsDock: (BarnacleBoulevard, SeaweedStreet, LighthouseLane),
@@ -985,10 +995,6 @@ CashbotBossSafeKnockImpact = 0.5
 CashbotBossSafeNewImpact = 0.0
 CashbotBossGoonImpact = 0.1
 CashbotBossKnockoutDamage = 15
-TTWakeWaterHeight = -4.79
-DDWakeWaterHeight = 1.669
-EstateWakeWaterHeight = -.3
-OZWakeWaterHeight = -0.5
 WakeRunDelta = 0.1
 WakeWalkDelta = 0.2
 NoItems = 0

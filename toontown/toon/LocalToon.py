@@ -7,10 +7,8 @@ import time
 
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
-from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from direct.showbase import PythonUtil
 from direct.showbase.PythonUtil import *
 from direct.task import Task
 
@@ -20,7 +18,6 @@ from . import Toon
 from otp.avatar import DistributedPlayer
 from otp.avatar import LocalAvatar
 from otp.avatar import PositionExaminer
-from otp.login import LeaveToPayDialog
 from otp.otpbase import OTPGlobals
 from toontown.achievements import AchievementGui
 from toontown.battle import Fanfare
@@ -42,7 +39,6 @@ from toontown.shtiker import EventsPage
 from toontown.shtiker import FishPage
 from toontown.shtiker import GardenPage
 from toontown.shtiker import GolfPage
-from toontown.shtiker import GroupTrackerPage
 from toontown.shtiker import InventoryPage
 from toontown.shtiker import KartPage
 from toontown.shtiker import MapPage
@@ -57,14 +53,14 @@ from toontown.shtiker import TIPPage
 from toontown.shtiker import TrackPage
 from toontown.shtiker import CollectiblePage
 from toontown.toon import ElevatorNotifier
-from toontown.toon import ToonDNA
-from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
 from toontown.toon.ToonAvatarDetailPanel import preloadGagGui
-from toontown.toonbase import ToontownGlobals, TTLocalizer, SettingsGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toontowngui import NewsPageButtonManager
 from toontown.friends.FriendHandle import FriendHandle
 import sys
+from toontown.hood import ZoneUtil
+from toontown.suit import SuitGlobals
 
 WantNewsPage = ConfigVariableBool('want-news-page', ToontownGlobals.DefaultWantNewsPageSetting).getValue()
 if WantNewsPage:
@@ -122,6 +118,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             Toon.loadDialog()
             self.soundRun = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
             self.soundWalk = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+            self.oldRunSfx = self.soundRun
+            self.oldWalkSfx = self.soundWalk
             self.isIt = 0
             self.cantLeaveGame = 0
             self.tunnelX = 0.0
@@ -2078,6 +2076,26 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
         DistributedToon.DistributedToon.setAchievements(self, achievements)
 
+    def putOnSuit(self, suitType, setDisplayName=True, rental=False):
+        DistributedToon.DistributedToon.putOnSuit(self, suitType, setDisplayName, rental)
+
+        # Update Footstep noise
+        filePrefix = 'phase_3.5/audio/sfx/AV_footstep_'
+        if self.suit.style.name in SuitGlobals.FatSuits:
+            runLoopSfx = preloader.getSfx(filePrefix + 'walkloop_fatcog.ogg')
+            walkLoopSfx = preloader.getSfx(filePrefix + 'walkloop_fatcog.ogg')
+        else:
+            runLoopSfx = preloader.getSfx(filePrefix + 'walkloop_broadcog.ogg')
+            walkLoopSfx = preloader.getSfx(filePrefix + 'walkloop_broadcog.ogg')
+
+        if runLoopSfx is None:
+            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
+        if walkLoopSfx is None:
+            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+
+        self.updateRunSound(runLoopSfx)
+        self.updateWalkSound(walkLoopSfx)
+
     def updateRunSound(self, sfx):
         if self.soundRun == sfx:
             return
@@ -2103,19 +2121,95 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             base.playSfx(self.soundWalk, looping=1)
 
     def handleOnFloor(self, collEntry):
-        intoNode = collEntry.getIntoNode()
-        # print 'DEBUG: onFloor:', intoNode.getName()
-        footstepCode = intoNode.getTag('footstepCode')
         filePrefix = 'phase_3.5/audio/sfx/AV_footstep_'
-        runloopSfx = preloader.getSfx(
-            filePrefix + 'runloop_' + footstepCode + '.ogg')
-        if runloopSfx is None:
-            runloopSfx = preloader.getSfx(
-                'phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-        walkloopSfx = preloader.getSfx(
-            filePrefix + 'walkloop_' + footstepCode + '.ogg')
-        if walkloopSfx is None:
-            walkloopSfx = preloader.getSfx(
-                'phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
-        self.updateRunSound(runloopSfx)
-        self.updateWalkSound(walkloopSfx)
+
+        if self.isDisguised:
+            return
+        elif collEntry is not None:
+            intoNode = collEntry.getIntoNode()
+            # print 'DEBUG: onFloor:', intoNode.getName()
+            if intoNode.getName() == 'donalds_dock_floor_collisions' and self.getZ(render) > 5.0:
+                footstepCode = 'wood'
+            else:
+                footstepCode = intoNode.getTag('footstepCode')
+
+            runLoopSfx = preloader.getSfx(filePrefix + 'runloop_' + footstepCode + '.ogg')
+            walkLoopSfx = preloader.getSfx(filePrefix + 'walkloop_' + footstepCode + '.ogg')
+        else:
+            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
+            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+
+        if runLoopSfx is None:
+            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
+        if walkLoopSfx is None:
+            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+
+        self.oldRunSfx = runLoopSfx
+        self.oldWalkSfx = walkLoopSfx
+
+        self.updateRunSound(runLoopSfx)
+        self.updateWalkSound(walkLoopSfx)
+
+    def setSpeed(self, forwardSpeed, rotateSpeed):
+        if ZoneUtil.getWakeInfo()[1] > self.getZ(render):
+            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop_water.ogg')
+            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop_water.ogg')
+            if runLoopSfx is None:
+                runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
+            if walkLoopSfx is None:
+                walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+        else:
+            runLoopSfx = self.oldRunSfx
+            walkLoopSfx = self.oldWalkSfx
+        if not self.isDisguised:
+            self.updateRunSound(runLoopSfx)
+            self.updateWalkSound(walkLoopSfx)
+
+        self.forwardSpeed = forwardSpeed
+        self.rotateSpeed = rotateSpeed
+
+        action = None
+        if self.standWalkRunReverse is not None:
+            if forwardSpeed >= ToontownGlobals.RunCutOff:
+                action = OTPGlobals.RUN_INDEX
+            elif forwardSpeed > ToontownGlobals.WalkCutOff:
+                action = OTPGlobals.WALK_INDEX
+            elif forwardSpeed < -ToontownGlobals.WalkCutOff:
+                action = OTPGlobals.REVERSE_INDEX
+            elif rotateSpeed != 0.0:
+                action = OTPGlobals.WALK_INDEX
+            else:
+                action = OTPGlobals.STAND_INDEX
+            anim, rate = self.standWalkRunReverse[action]
+            self.motion.enter()
+            self.motion.setState(anim, rate)
+            if anim != self.playingAnim:
+                self.playingAnim = anim
+                self.playingRate = rate
+                self.stop()
+                self.loop(anim)
+                self.setPlayRate(rate, anim)
+                if self.isDisguised:
+                    rightHand = self.suit.rightHand
+                    numChildren = rightHand.getNumChildren()
+                    if numChildren > 0:
+                        anim = 'tray-' + anim
+                        if anim == 'tray-run':
+                            anim = 'tray-walk'
+                    self.suit.stop()
+                    self.suit.loop(anim)
+                    self.suit.setPlayRate(rate, anim)
+            elif rate != self.playingRate:
+                self.playingRate = rate
+                if not self.isDisguised:
+                    self.setPlayRate(rate, anim)
+                else:
+                    self.suit.setPlayRate(rate, anim)
+            showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
+            if showWake and self.getZ(render) < wakeWaterHeight and abs(forwardSpeed) > ToontownGlobals.WalkCutOff:
+                currT = globalClock.getFrameTime()
+                deltaT = currT - self.lastWakeTime
+                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownGlobals.WakeRunDelta or deltaT > ToontownGlobals.WakeWalkDelta:
+                    self.getWake().createRipple(wakeWaterHeight, rate=1, startFrame=4)
+                    self.lastWakeTime = currT
+        return action

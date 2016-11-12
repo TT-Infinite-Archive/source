@@ -49,11 +49,34 @@ class DNAProp(DNANode.DNANode):
             for np in npc:
                 if 'snow' in np.getName():
                     np.setTag('footstepCode', 'snow')
+        elif self.code == 'donalds_dock':
+            npc = node.findAllMatches('**/+CollisionNode')
+            for np in npc:
+                if 'pier' in np.getName() or 'donalds_boat_floor' in np.getName():
+                    np.setTag('footstepCode', 'wood')
+        elif self.code == 'daisys_garden':
+            npc = node.findAllMatches('**/+CollisionNode')
+            for np in npc:
+                if 'street_floor_collisions' == np.getName():
+                    np.setTag('footstepCode', 'dirt')
         elif self.code in ('prop_snow_pile_full', 'prop_snow_pile_half',
-                         'prop_snow_pile_quarter'):
+                           'prop_snow_pile_quarter'):
             node.find('**/+CollisionNode').setTag('footstepCode', 'snow')
+        elif self.code in ('prop_crate', 'prop_trolley_station'):
+            npc = node.findAllMatches('**/+CollisionNode')
+            for np in npc:
+                np.setTag('footstepCode', 'wood')
         elif self.code == 'prop_snowman':
             node.find('**/floor').setTag('footstepCode', 'snow')
+        elif self.code == 'prop_DD_street_water':
+            node.find('**/DD_street_water_floor_collisions').setTag('footstepCode', 'wood')
+            node.find('**/floor').setTag('footstepCode', 'water')
+        elif self.code == 'fishing_spot':
+            node.find('**/floor_collision').setTag('footstepCode', 'wood')
+        elif self.code == 'daisys_garden_ext':
+            npc = node.findAllMatches('**/+CollisionNode')
+            for np in npc:
+                np.setTag('footstepCode', 'dirt')
 
         for child in self.children:
             child.traverse(node, dnaStorage)
