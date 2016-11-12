@@ -2199,6 +2199,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                     self.suit.stop()
                     self.suit.loop(anim)
                     self.suit.setPlayRate(rate, anim)
+                elif self.isGoofy:
+                    self.goofy.stop()
+                    self.goofy.loop(anim)
+                    self.goofy.setPlayRate(rate, anim)
             elif rate != self.playingRate:
                 self.playingRate = rate
                 if not self.isDisguised:
