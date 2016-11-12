@@ -75,6 +75,7 @@ class SinglePlayerMenu(DirectFrame, FSM):
     
     def enterOff(self):
         self.destroy()
+        base.cr.sendDisconnect()
         self.killThreads()
     
     def enterBack(self):
