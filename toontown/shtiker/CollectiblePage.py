@@ -2,8 +2,9 @@ from pandac.PandaModules import *
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectScrolledList, DGG, DirectButton
 from toontown.collectibles import CollectibleGlobals
 from toontown.collectibles.CollectibleInventoryGlobals import DefaultItems
-from toontown.toonbase import TTLocalizer, ToontownGlobals, EventGlobals
+from toontown.toonbase import TTLocalizer, EventGlobals
 from toontown.shtiker import ShtikerPage
+from toontown.util import TTCardMaker
 
 
 class CollectiblePage(ShtikerPage.ShtikerPage):
@@ -152,14 +153,7 @@ class CategoryItemsDisplay(DirectFrame):
         incButtonScale = (1.3, 1.3, -1.3)
         decButtonScale = (1.3, 1.3, 1.3)
 
-        filepath = 'phase_3/maps/curved-gui-square.png'
-        tex = loader.loadTexture(filepath)
-        cm = CardMaker(filepath + ' card')
-        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
-
-        background = NodePath(cm.generate())
-        background.setTexture(tex)
-        background.setTransparency(TransparencyAttrib.MAlpha)
+        background = TTCardMaker.makeCard('phase_3/maps/curved-gui-square.png')
 
         # Main
         self.mainFrame = DirectFrame(
@@ -318,13 +312,8 @@ class CategoryItemsDisplay(DirectFrame):
             if page > pageCount:
                 page = pageCount
         self.currentPage = page
-        filepath = 'phase_3/maps/gui-circle.png'
-        tex = loader.loadTexture(filepath)
-        cm = CardMaker(filepath + ' card')
-        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
-        background = NodePath(cm.generate())
-        background.setTexture(tex)
-        background.setTransparency(TransparencyAttrib.MAlpha)
+
+        background = TTCardMaker.makeCard('phase_3/maps/gui-circle.png')
 
         self.itemsHeading['text'] = category.name
         items = category.getOrderedItems(page*self.maxPerPage, (page+1)*self.maxPerPage)
@@ -618,14 +607,7 @@ class ItemTooltip(DirectFrame):
 
         DirectFrame.__init__(self, parent, relief=None, pos=pos)
 
-        filepath = 'phase_3/maps/curved-gui-square.png'
-        tex = loader.loadTexture(filepath)
-        cm = CardMaker(filepath + ' card')
-        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
-
-        background = NodePath(cm.generate())
-        background.setTexture(tex)
-        background.setTransparency(TransparencyAttrib.MAlpha)
+        background = TTCardMaker.makeCard('phase_3/maps/curved-gui-square.png')
 
         self.mainFrame = DirectFrame(
             self,

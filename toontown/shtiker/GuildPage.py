@@ -4,6 +4,7 @@ from panda3d.core import TextNode, Vec4, CardMaker, NodePath, TransparencyAttrib
 from toontown.toontowngui import ConfirmDialog
 from toontown.toonbase import EventGlobals, FontAwesomeGlobals
 from toontown.toonbase.ToontownGlobals import getInterfaceFont, getMinnieFont
+from toontown.util import TTCardMaker
 from toontown.guilds.GuildGlobals import *
 from toontown.guilds import GuildQuestGlobals
 from toontown.guilds.IconGlobals import *
@@ -50,14 +51,8 @@ class GuildPage(DirectFrame):
         secondaryColor = (0.5, 0.6, 1, 1)
         tertiaryColor = (0.2, 0.5, 0.8, 1)
         self.buttonColor = secondaryColor
-        filepath = 'phase_3/maps/curved-gui-square.png'
-        tex = loader.loadTexture(filepath)
-        cm = CardMaker(filepath + ' card')
-        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
 
-        background = NodePath(cm.generate())
-        background.setTexture(tex)
-        background.setTransparency(TransparencyAttrib.MAlpha)
+        background = TTCardMaker.makeCard('phase_3/maps/curved-gui-square.png')
 
         self.mainFrame = DirectFrame(self.parent, relief=None, image=background, image_scale=(0.0011, 1, 0.0008), image_color=primaryColor, scale=(0.85, 1.0, 0.73))
 
@@ -93,30 +88,32 @@ class GuildPage(DirectFrame):
         self.leaderboardButton.bind(DGG.WITHIN, self.__handleEnter, extraArgs=[self.leaderboardButton])
         self.leaderboardButton.bind(DGG.WITHOUT, self.__handleExit, extraArgs=[self.leaderboardButton])
 
-        self.memberList = DirectScrolledList(parent=self.mainFrame,
-                                             relief=None,
-                                             pos=(0.3, 0.0, 0.0),
-                                             numItemsVisible=10,
-                                             forceHeight=0.11,
-                                             items=self.memberObjects,
-                                             frameSize= (-0.55, 0.55, -0.6, 0.6),
+        self.memberList = DirectScrolledList(
+            parent=self.mainFrame,
+            relief=None,
+            pos=(0.3, 0.0, 0.0),
+            numItemsVisible=10,
+            forceHeight=0.11,
+            items=self.memberObjects,
+            frameSize= (-0.55, 0.55, -0.6, 0.6),
 
-                                             incButton_image=arrowButton,
-                                             incButton_relief=None,
-                                             incButton_scale=incButtonScale,
-                                             incButton_pos=(0.0, 0.0, -0.65),
-                                             incButton_image3_color=Vec4(1, 1, 1, 0.2),
+            incButton_image=arrowButton,
+            incButton_relief=None,
+            incButton_scale=incButtonScale,
+            incButton_pos=(0.0, 0.0, -0.65),
+            incButton_image3_color=Vec4(1, 1, 1, 0.2),
 
-                                             decButton_image=arrowButton,
-                                             decButton_relief=None,
-                                             decButton_scale=decButtonScale,
-                                             decButton_pos=(0.0, 0.0, 0.65),
-                                             decButton_image3_color=Vec4(1, 1, 1, 0.2),
+            decButton_image=arrowButton,
+            decButton_relief=None,
+            decButton_scale=decButtonScale,
+            decButton_pos=(0.0, 0.0, 0.65),
+            decButton_image3_color=Vec4(1, 1, 1, 0.2),
 
-                                             itemFrame_relief=DGG.SUNKEN,
-                                             itemFrame_frameSize=(-0.55, 0.55, -0.6, 0.5),
-                                             itemFrame_frameColor=(0.85, 0.95, 1, 1),
-                                             itemFrame_borderWidth=(0.0025, 0.0025))
+            itemFrame_relief=DGG.SUNKEN,
+            itemFrame_frameSize=(-0.55, 0.55, -0.6, 0.5),
+            itemFrame_frameColor=(0.85, 0.95, 1, 1),
+            itemFrame_borderWidth=(0.0025, 0.0025)
+        )
 
         self.showOfflineButton = DirectButton(
             parent=self.mainFrame,

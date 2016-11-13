@@ -180,6 +180,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGroupTracker = self.config.GetBool('want-grouptracker', 0)
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
+        self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)

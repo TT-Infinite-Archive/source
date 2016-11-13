@@ -1,17 +1,15 @@
-from math import pi, sin, cos
-from direct.task import Task
-from direct.fsm.FSM import FSM
-from direct.gui.DirectGui import OnscreenImage
-from direct.showbase.DirectObject import DirectObject
-from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-from otp.otpbase import OTPLocalizer
-from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
-from toontown.toonbase.ColorGlobals import CGray, CDefault
-
 from pandac.PandaModules import *
-from direct.gui.DirectGui import DGG, DirectButton
+from direct.fsm.FSM import FSM
+from direct.gui.DirectGui import OnscreenImage, DGG, DirectButton
+from direct.showbase.DirectObject import DirectObject
+from otp.otpbase import OTPLocalizer
+
+from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from toontown.toonbase.ColorGlobals import CGray, CDefault
 from toontown.toonbase import TTLocalizer, ToontownGlobals
-from direct.filter.CommonFilters import CommonFilters
+from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
+from toontown.util import TTCardMaker
+
 
 class MainMenu(DirectObject, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -30,39 +28,44 @@ class MainMenu(DirectObject, FSM):
         self.backgroundNodePath.setScale(1, 1, 1)
 
         self.logo = OnscreenImage(
-            parent=self.backgroundNodePath, image='phase_3/maps/toontown-logo.png',
-            scale=(0.40, 0.65, 0.35), pos=(0, 0, 0.4))
+            parent=self.backgroundNodePath, 
+            image='phase_3/maps/toontown-logo.png',
+            scale=(0.40, 0.65, 0.35), pos=(0, 0, 0.4)
+        )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         self.buttons = []
         self.mpButtons = []
         self.spButtons = []
         self.optionButtons = []
-        buttonScale = (-1.1, 1.1, 1.1) # (-0.9, 0.9, 0.9)
+        buttonScale = (-1.1, 1.1, 1.1)  # (-0.9, 0.9, 0.9)
 
-        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.25), # (0, 0, -0.1),
-                                                   text="Single Player",
-                                                   wantArrows=False,
-                                                   image_scale=buttonScale, image2_scale=buttonScale,
-                                                   image1_scale=buttonScale, text_scale=0.09, # text_scale=0.07
-                                                   command=lambda: self.request('SinglePlayer'))
+        self.singlePlayerButton = MATShuffleButton(
+            pos=(0, 0, -0.25),  # (0, 0, -0.1),
+            text="Single Player",
+            wantArrows=False,
+            image_scale=buttonScale, 
+            image2_scale=buttonScale,
+            image1_scale=buttonScale, 
+            text_scale=0.09, # text_scale=0.07
+            command=lambda: self.request('SinglePlayer')
+        )
         self.buttons.append(self.singlePlayerButton)
 
-        self.multiPlayerButton = MATShuffleButton(pos=(0, 0, -0.6), text="Multiplayer",
-                                                  wantArrows=False,
-                                                  image_scale=buttonScale, image2_scale=buttonScale,
-                                                  image1_scale=buttonScale, text_scale=0.09,
-                                                  command=lambda: self.request('MultiPlayer'))
+        self.multiPlayerButton = MATShuffleButton(
+            pos=(0, 0, -0.6), 
+            text="Multiplayer",
+            wantArrows=False,
+            image_scale=buttonScale, 
+            image2_scale=buttonScale,
+            image1_scale=buttonScale, 
+            text_scale=0.09,
+            command=lambda: self.request('MultiPlayer')
+        )
         self.buttons.append(self.multiPlayerButton)
-
-        filepath = 'phase_3/maps/lock_icon.png'
-        tex = loader.loadTexture(filepath)
-        cm = CardMaker(filepath + ' card')
-        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
-        lockImage = NodePath(cm.generate())
-        lockImage.setTexture(tex)
-        lockImage.setTransparency(TransparencyAttrib.MAlpha)
-
+        
+        lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
+        
         self.lockIcon = DirectButton(
             parent=aspect2d,
             relief=None,
@@ -78,7 +81,7 @@ class MainMenu(DirectObject, FSM):
         self.multiPlayerButton['state'] = DGG.DISABLED
         self.multiPlayerButton.setColorScale(CGray)
 
-        if base.config.GetBool('want-multiplayer', False):
+        if base.wantMultiplayer:
             self.lockIcon.destroy()
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
@@ -126,14 +129,14 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.play()
 
         self.backgroundNodePath.show()
-        if not base.config.GetBool('want-multiplayer', False):
+        if not base.wantMultiplayer:
             self.lockIcon.show()
         for button in self.buttons:
           button.show()
 
     def exitIdle(self):
         self.backgroundNodePath.hide()
-        if not base.config.GetBool('want-multiplayer', False):
+        if not base.wantMultiplayer:
             self.lockIcon.hide()
         for button in self.buttons:
             button.hide()
