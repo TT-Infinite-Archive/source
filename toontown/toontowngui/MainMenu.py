@@ -1,14 +1,17 @@
+from math import pi, sin, cos
+from direct.task import Task
 from direct.fsm.FSM import FSM
-from direct.gui.DirectGui import OnscreenImage, OnscreenText, DirectButton
+from direct.gui.DirectGui import OnscreenImage
 from direct.showbase.DirectObject import DirectObject
-from panda3d.core import TransparencyAttrib, Point3, Vec4, Vec3, TextNode
-from toontown.toonbase import ToontownGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from otp.otpbase import OTPLocalizer
-from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
-from direct.interval.IntervalGlobal import *
+from toontown.toonbase.ColorGlobals import CGray, CDefault
 
+from pandac.PandaModules import *
+from direct.gui.DirectGui import DGG, DirectButton
+from toontown.toonbase import TTLocalizer, ToontownGlobals
+from direct.filter.CommonFilters import CommonFilters
 
 class MainMenu(DirectObject, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -28,7 +31,7 @@ class MainMenu(DirectObject, FSM):
 
         self.logo = OnscreenImage(
             parent=self.backgroundNodePath, image='phase_3/maps/toontown-logo.png',
-            scale=(0.35, 0.60, 0.30), pos=(0, 0, 0.4))
+            scale=(0.40, 0.65, 0.35), pos=(0, 0, 0.4))
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         self.buttons = []
@@ -37,7 +40,7 @@ class MainMenu(DirectObject, FSM):
         self.optionButtons = []
         buttonScale = (-1.1, 1.1, 1.1) # (-0.9, 0.9, 0.9)
 
-        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.3), # (0, 0, -0.1),
+        self.singlePlayerButton = MATShuffleButton(pos=(0, 0, -0.25), # (0, 0, -0.1),
                                                    text="Single Player",
                                                    wantArrows=False,
                                                    image_scale=buttonScale, image2_scale=buttonScale,
@@ -45,26 +48,54 @@ class MainMenu(DirectObject, FSM):
                                                    command=lambda: self.request('SinglePlayer'))
         self.buttons.append(self.singlePlayerButton)
 
-        """
-        self.multiPlayerButton = MATShuffleButton(pos=(0, 0, -0.35), text="Multiplayer",
+        self.multiPlayerButton = MATShuffleButton(pos=(0, 0, -0.6), text="Multiplayer",
                                                   wantArrows=False,
                                                   image_scale=buttonScale, image2_scale=buttonScale,
-                                                  image1_scale=buttonScale, text_scale=0.07,
+                                                  image1_scale=buttonScale, text_scale=0.09,
                                                   command=lambda: self.request('MultiPlayer'))
         self.buttons.append(self.multiPlayerButton)
 
-        self.charSelectButton = MATShuffleButton(pos=(0, 0, -0.6), text="Toon Select",
+        filepath = 'phase_3/maps/lock_icon.png'
+        tex = loader.loadTexture(filepath)
+        cm = CardMaker(filepath + ' card')
+        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
+        lockImage = NodePath(cm.generate())
+        lockImage.setTexture(tex)
+        lockImage.setTransparency(TransparencyAttrib.MAlpha)
+
+        self.lockIcon = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.0007, 0.0007, 0.0007),
+            pos=(0.35, 0, -0.58),
+            suppressMouse=True,
+            state=DGG.DISABLED
+        )
+        lockImage.removeNode()
+
+        self.lockIcon.hide()
+        self.multiPlayerButton['state'] = DGG.DISABLED
+        self.multiPlayerButton.setColorScale(CGray)
+
+        if base.config.GetBool('want-multiplayer', False):
+            self.lockIcon.destroy()
+            self.multiPlayerButton['state'] = DGG.NORMAL
+            self.multiPlayerButton.setColorScale(CDefault)
+
+        """
+        self.emptyButton = MATShuffleButton(pos=(0, 0, -0.6), text="Empty",
                                                  wantArrows=False,
                                                  image_scale=buttonScale, image2_scale=buttonScale,
                                                  image1_scale=buttonScale, text_scale=0.07,
-                                                 command=lambda: self.request('CharSelect'))
-        self.buttons.append(self.charSelectButton)
+                                                 command=lambda: self.request('Empty'))
+        self.buttons.append(self.emptyButton)
 
-        self.optionsButton = MATShuffleButton(pos=(0, 0, -0.85), text="Options",
+        self.emptyButton = MATShuffleButton(pos=(0, 0, -0.85), text="Empty",
                                               wantArrows=False,
                                               image_scale=buttonScale, image2_scale=buttonScale,
                                               image1_scale=buttonScale, text_scale=0.07)
-        self.buttons.append(self.optionsButton)
+        self.buttons.append(self.emptyButton)
         """
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -95,11 +126,15 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.play()
 
         self.backgroundNodePath.show()
+        if not base.config.GetBool('want-multiplayer', False):
+            self.lockIcon.show()
         for button in self.buttons:
           button.show()
 
     def exitIdle(self):
         self.backgroundNodePath.hide()
+        if not base.config.GetBool('want-multiplayer', False):
+            self.lockIcon.hide()
         for button in self.buttons:
             button.hide()
 
@@ -123,18 +158,13 @@ class MainMenu(DirectObject, FSM):
         for mpButton in self.mpButtons:
             mpButton.hide()
 
-    def enterBossyBusiness(self):
-        base.transitions.fadeOut()
-        self.bossyBusinessMenu.load()
-        self.bossyBusinessMenu.show()
-
-    def enterCharSelect(self):
+    def enterEmpty(self):
         base.cr.loginFSM.request('chooseAvatar', [base.cr.avList])
 
-    def exitCharSelect(self):
+    def exitEmpty(self):
         pass
 
-    def enterOptions(self):
+    def enterEmpty(self):
         pass
     """
 

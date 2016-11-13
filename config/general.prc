@@ -57,6 +57,7 @@ egg-object-type-model <Model> { 1 }
 egg-object-type-dcs <DCS> { 1 }
 
 # Core features:
+want-multiplayer #f
 want-guilds #f
 want-guild-quests #f
 want-emblems #f

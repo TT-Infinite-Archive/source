@@ -42,6 +42,7 @@ dc-file astron/dclass/toon.dc
 dc-file astron/dclass/otp.dc
 
 # Core features:
+want-multiplayer #f
 want-pets #f
 want-parties #f
 want-achievements #f
