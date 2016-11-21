@@ -34,7 +34,7 @@ class JarGui(DirectLabel):
         self.listen()
         self.update()
 
-    def update(self):
+    def update(self, e=None):
         self.moneyDisplay['text'] = str(base.localAvatar.getMoney())
 
     def listen(self):
