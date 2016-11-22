@@ -49,14 +49,12 @@ class NewsManager(DistributedObject.DistributedObject):
                 try:
                     self.decorationHolidayIds.append(decorationHolidays[int(HID)])
                 except:
-                    print 'holidayId value error: "%s"... skipping' %HID
+                    self.notify.warning('holidayId value error: "%s"... skipping' % HID)
 
         self.holidayDecorator = None
         self.holidayIdList = []
         self.stormEnabled = False
         base.cr.newsManager = self
-        if hasattr(base, 'localAvatar') and base.localAvatar is not None:
-            base.localAvatar.inventory.setInvasionCreditMultiplier(1)
         self.weeklyCalendarHolidays = []
         return
 
@@ -160,7 +158,6 @@ class NewsManager(DistributedObject.DistributedObject):
         multiplier = 1
         if self.invading:
             multiplier = ToontownBattleGlobals.getInvasionMultiplier()
-        base.localAvatar.inventory.setInvasionCreditMultiplier(multiplier)
 
         track = Sequence(name='newsManagerWait', autoPause=1)
         for i, message in enumerate(messages):
