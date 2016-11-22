@@ -11,7 +11,7 @@ import time
 import re
 
 import Experience
-import InventoryBase
+import GagInventoryBase
 import ModuleListAI
 from NPCToons import npcFriends
 import ToonDNA
@@ -532,50 +532,21 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def b_setInventory(self, inventory):
         self.setInventory(inventory)
-        self.d_setInventory(self.getInventory())
+        self.d_setInventory(self.inventory.toList())
 
     def d_setInventory(self, inventory):
         self.sendUpdate('setInventory', [inventory])
 
-    def setInventory(self, inventoryNetString):
-        if self.inventory:
-            self.inventory.updateInvString(inventoryNetString)
-        else:
-            self.inventory = InventoryBase.InventoryBase(self, inventoryNetString)
-        emptyInv = InventoryBase.InventoryBase(self)
-        emptyString = emptyInv.makeNetString()
-        lengthMatch = len(inventoryNetString) - len(emptyString)
-        if lengthMatch != 0:
-            if len(inventoryNetString) == 42:
-                oldTracks = 7
-                oldLevels = 6
-            elif len(inventoryNetString) == 49:
-                oldTracks = 7
-                oldLevels = 7
-            else:
-                oldTracks = 0
-                oldLevels = 0
-            if oldTracks == 0 and oldLevels == 0:
-                self.notify.warning('reseting invalid inventory to MAX on toon: %s' % self.doId)
-                self.inventory.zeroInv()
-                self.inventory.maxOutInv(1, 1)
-            else:
-                newInventory = InventoryBase.InventoryBase(self)
-                oldList = emptyInv.makeFromNetStringForceSize(inventoryNetString, oldTracks, oldLevels)
-                for indexTrack in xrange(0, oldTracks):
-                    for indexGag in xrange(0, oldLevels):
-                        newInventory.addItems(indexTrack, indexGag, oldList[indexTrack][indexGag])
-                self.inventory.unload()
-                self.inventory = newInventory
-            self.d_setInventory(self.getInventory())
+    def setInventory(self, netList):
+        if not self.inventory:
+            self.inventory = GagInventoryBase.GagInventoryBase(self)
 
-    def getInventory(self):
-        return self.inventory.makeNetString()
+        self.inventory.fromList(netList)
 
     def doRestock(self, noUber = 1, noPaid = 1):
         self.inventory.zeroInv()
         self.inventory.maxOutInv(noUber, noPaid)
-        self.d_setInventory(self.inventory.makeNetString())
+        self.d_setInventory(self.inventory.toList())
 
     def setDefaultShard(self, shard):
         self.defaultShard = shard
@@ -1987,7 +1958,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if fixed:
             self.inventory.zeroInv()
             self.inventory.maxOutInv()
-            self.d_setInventory(self.inventory.makeNetString())
+            self.d_setInventory(self.inventory.toList())
             self.notify.info('fixed tracks: %s' % self.trackArray)
         return fixed
 
@@ -2171,7 +2142,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
         self.inventory.calcTotalProps()
         if inventoryChanged:
-            self.d_setInventory(self.inventory.makeNetString())
+            self.d_setInventory(self.inventory.toList())
             anyChanged = 1
         if len(self.quests) > self.questCarryLimit:
             self.notify.info('Changed avatar %d to throw out %d quests; too many quests.' % (self.doId, len(self.quests) - self.questCarryLimit))
@@ -2726,7 +2697,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             self.notify.debug('Toon-up for ' + self.name)
         elif msgType == ResistanceChat.RESISTANCE_RESTOCK:
             self.inventory.NPCMaxOutInv(msgValue)
-            self.d_setInventory(self.inventory.makeNetString())
+            self.d_setInventory(self.inventory.toList())
             self.notify.debug('Restock for ' + self.name)
         elif msgType == ResistanceChat.RESISTANCE_MONEY:
             if msgValue == -1:
@@ -4513,6 +4484,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if av is not None:
             av.d_setSystemMessage(0, OTPLocalizer.WhisperIgnored % self.getName())
 
+    def requestEquipGag(self, gagId):
+        self.inventory.equipGag(gagId)
+        self.d_setInventory(self.inventory.toList())
+
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[str, int, int])
 def cheesyEffect(value, hood=0, expire=0):
@@ -5024,7 +4999,7 @@ def inventory(a, b=None, c=None):
         for track in xrange(0, len(ToontownBattleGlobals.Tracks)):
             if (targetTrack == -1) or (track == targetTrack):
                 inventory.inventory[track][:maxLevelIndex + 1] = [0] * (maxLevelIndex+1)
-        invoker.b_setInventory(inventory.makeNetString())
+        invoker.b_setInventory(inventory.toList())
         if targetTrack == -1:
             return 'Inventory reset.'
         else:
@@ -5039,7 +5014,7 @@ def inventory(a, b=None, c=None):
         if (targetTrack != -1) and (not invoker.hasTrackAccess(targetTrack)):
             return "You don't have target track index: " + str(targetTrack)
         inventory.NPCMaxOutInv(targetTrack=targetTrack, maxLevelIndex=maxLevelIndex)
-        invoker.b_setInventory(inventory.makeNetString())
+        invoker.b_setInventory(inventory.toList())
         if targetTrack == -1:
             return 'Inventory restocked.'
         else:
@@ -5056,7 +5031,7 @@ def inventory(a, b=None, c=None):
             return 'Invalid max level index: ' + str(maxLevelIndex)
         for _ in xrange(c):
             inventory.addItem(targetTrack, maxLevelIndex)
-        invoker.b_setInventory(inventory.makeNetString())
+        invoker.b_setInventory(inventory.toList())
         return 'Restored %d Gags to: %d, %d' % (c, targetTrack, maxLevelIndex)
 
 @magicWord(category=CATEGORY_CREATIVE, types=[str, str])
@@ -5477,3 +5452,16 @@ def warn(reason):
     target.sendUpdate('warnToon', [reason])
     return 'Warned %s for %s!' % (target.getName(), reason)
 
+@magicWord(category=CATEGORY_PROGRAMMER, types=[int, int])
+def addGag(gagId, amount=1):
+    invoker = spellbook.getInvoker()
+    invoker.inventory.addItems(gagId, amount)
+    invoker.b_setInventory(invoker.inventory.toList())
+    return 'Added %s of %s gag(s)' % (amount, gagId)
+
+@magicWord(category=CATEGORY_PROGRAMMER, types=[int])
+def equipGag(gagId):
+    invoker = spellbook.getInvoker()
+    invoker.inventory.equipGag(gagId)
+    invoker.d_setInventory(invoker.inventory.toList())
+    return 'Equipping gag %s' % gagId

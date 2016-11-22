@@ -16,6 +16,7 @@ import zlib
 import DistributedToon
 import LaffMeter
 import Toon
+from toontown.toon.GagInventoryGui import GagInventoryGui
 from otp.avatar import DistributedPlayer
 from otp.avatar import LocalAvatar
 from otp.avatar import PositionExaminer
@@ -185,6 +186,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.prevToonIdx = 0
             self.toonNameCache = []
             self.switchingShards = False
+            self.laffMeter = None
+            self.gagPanel = None
 
     def setDefaultShard(self, shard):
         if shard not in self.cr.activeDistrictMap:
@@ -439,6 +442,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         else:
             self.laffMeter.setPos(0.133, 0.0, 0.13)
         self.laffMeter.stop()
+        self.gagPanel = GagInventoryGui(self)
+        self.gagPanel.hide()
         self.questMap = QuestMap.QuestMap(self)
         self.questMap.stop()
         self.accept('time-insert', self.__beginTossPie)
@@ -1847,7 +1852,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.golfPage.setAvatar(self)
             self.golfPage.load()
             self.book.addPage(self.golfPage, pageName=TTLocalizer.GolfPageTitle)
-        return
 
     def addEventsPage(self):
         if hasattr(self, 'eventsPage') and self.eventsPage != None:
@@ -1858,7 +1862,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.eventsPage = EventsPage.EventsPage()
         self.eventsPage.load()
         self.book.addPage(self.eventsPage, pageName=TTLocalizer.EventsPageName)
-        return
 
     def addNewsPage(self):
         self.newsPage = NewsPage.NewsPage()
@@ -1872,7 +1875,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def setPinkSlips(self, pinkSlips):
         DistributedToon.DistributedToon.setPinkSlips(self, pinkSlips)
-        self.inventory.updateTotalPropsText()
 
     def getAccountDays(self):
         days = 0

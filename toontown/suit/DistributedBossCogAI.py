@@ -4,7 +4,7 @@ from otp.avatar import DistributedAvatarAI
 from toontown.battle import BattleExperienceAI
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals
-from toontown.toon import InventoryBase
+from toontown.toon import GagInventoryBase
 from toontown.battle import DistributedBattleFinalAI
 from toontown.building import SuitPlannerInteriorAI
 from toontown.battle import BattleBase
@@ -148,8 +148,8 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
         toon.takeDamage(deduction)
         if toon.getHp() <= 0:
             self.sendUpdate('toonDied', [toon.doId])
-            empty = InventoryBase.InventoryBase(toon)
-            toon.b_setInventory(empty.makeNetString())
+            toon.inventory.empty()
+            toon.b_setInventory(toon.inventory)
             self.removeToon(toon.doId)
 
     def healToon(self, toon, increment):

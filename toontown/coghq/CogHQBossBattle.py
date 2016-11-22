@@ -113,19 +113,16 @@ class CogHQBossBattle(BattlePlace.BattlePlace):
             self.bossCog.d_avatarEnter()
         self._telemLimiter = TLGatherAllAvs('CogHQBossBattle', RotationLimitToH)
         NametagGlobals.setWant2dNametags(True)
-        base.localAvatar.inventory.setRespectInvasions(0)
         self.fsm.request(requestStatus['how'], [requestStatus])
 
     def exit(self):
         self.fsm.requestFinalState()
-        base.localAvatar.inventory.setRespectInvasions(1)
         if self.bossCog:
             self.bossCog.d_avatarExit()
         self.bossCog = None
         self._telemLimiter.destroy()
         del self._telemLimiter
         BattlePlace.BattlePlace.exit(self)
-        return
 
     def enterBattle(self, event):
         mult = 1

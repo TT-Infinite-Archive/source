@@ -321,10 +321,6 @@ class RewardPanel(DirectFrame):
          'avName': toon.getName()}
         self.congratsLeft['text'] = ''
         self.congratsRight['text'] = ''
-        gagOriginal = base.localAvatar.inventory.buttonLookup(track, level)
-        self.newGagIcon = gagOriginal.copyTo(self.newGagFrame)
-        self.newGagIcon.setPos(0, 0, -0.25)
-        self.newGagIcon.setScale(1.5)
 
     def newGag(self, toon, track, level):
         self.endTrackFrame.hide()
@@ -338,10 +334,6 @@ class RewardPanel(DirectFrame):
          'avName': toon.getName()}
         self.congratsLeft['text'] = ''
         self.congratsRight['text'] = ''
-        gagOriginal = base.localAvatar.inventory.buttonLookup(track, level)
-        self.newGagIcon = gagOriginal.copyTo(self.newGagFrame)
-        self.newGagIcon.setPos(0, 0, -0.25)
-        self.newGagIcon.setScale(1.5)
 
     def cleanupNewGag(self):
         self.endTrackFrame.hide()
@@ -404,10 +396,6 @@ class RewardPanel(DirectFrame):
         self.endTrackFrame.show()
         self.endTrackFrame['text'] = TTLocalizer.RewardPanelEndTrack % {'gagName': ToontownBattleGlobals.Tracks[track].capitalize(),
          'avName': toon.getName()}
-        gagLast = base.localAvatar.inventory.buttonLookup(track, ToontownBattleGlobals.UBER_GAG_LEVEL_INDEX)
-        self.gagIcon = gagLast.copyTo(self.endTrackFrame)
-        self.gagIcon.setPos(0, 0, -0.25)
-        self.gagIcon.setScale(1.5)
 
     def cleanIcon(self):
         self.gagIcon.removeNode()

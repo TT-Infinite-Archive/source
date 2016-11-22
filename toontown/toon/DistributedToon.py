@@ -15,7 +15,7 @@ import random
 import time
 
 import Experience
-import InventoryNew
+from toontown.toon.GagInventory import GagInventory
 import TTEmote
 import Toon
 from otp.ai.MagicWordGlobal import *
@@ -337,13 +337,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def setExperience(self, experience):
         self.experience = Experience.Experience(experience, self)
-        if self.inventory:
-            self.inventory.updateGUI()
 
-    def setInventory(self, inventoryNetString):
+    def setInventory(self, netList):
         if not self.inventory:
-            self.inventory = InventoryNew.InventoryNew(self, inventoryNetString)
-        self.inventory.updateInvString(inventoryNetString)
+            self.inventory = GagInventory(self)
+        self.inventory.fromList(netList)
 
     def setLastHood(self, lastHood):
         self.lastHood = lastHood
@@ -738,8 +736,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def setMaxHp(self, hitPoints):
         DistributedPlayer.DistributedPlayer.setMaxHp(self, hitPoints)
-        if self.inventory:
-            self.inventory.updateGUI()
 
     def died(self):
         messenger.send(self.uniqueName('died'))
@@ -1125,8 +1121,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def setMaxCarry(self, maxCarry):
         self.maxCarry = maxCarry
-        if self.inventory:
-            self.inventory.updateGUI()
 
     def getMaxCarry(self):
         return self.maxCarry
@@ -1366,8 +1360,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def setTrackAccess(self, trackArray):
         self.trackArray = trackArray
-        if self.inventory:
-            self.inventory.updateGUI()
 
     def getTrackAccess(self):
         return self.trackArray
@@ -2132,8 +2124,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def setTrackBonusLevel(self, trackArray):
         self.trackBonusLevel = trackArray
-        if self.inventory:
-            self.inventory.updateGUI()
 
     def getTrackBonusLevel(self, track = None):
         if track is None:
@@ -2872,6 +2862,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         reason = 'You have been warned by a moderator for: %s' % reason
         self.setSystemMessage(base.localAvatar.doId, reason)
 
+    def d_requestEquipGag(self, gagId):
+        self.sendUpdate('requestEquipGag', [gagId])
+
 @magicWord(category=CATEGORY_COMMUNITY_MANAGER)
 def globalTeleport():
     """
@@ -2909,3 +2902,7 @@ def autoboard():
     base.cr.doFind('Boarding').sendUpdate('requestLeave',[invoker.doId])
     base.cr.doFind('Boarding').sendUpdate('requestInvite',[invoker.doId])
     base.cr.doFind('Boarding').sendUpdate('requestGoToSecondTime',[base.cr.doFind('Elevator').doId])
+
+@magicWord(category=CATEGORY_PROGRAMMER, types=[])
+def getEquippedGags():
+    return 'Gags: %s' % (base.localAvatar.inventory.getEquippedItems())

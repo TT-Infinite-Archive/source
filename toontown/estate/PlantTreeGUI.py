@@ -13,8 +13,8 @@ class PlantTreeGUI(StateData.StateData):
         self.doneEvent = doneEvent
         self.oldActivateMode = base.localAvatar.inventory.activateMode
         self._teaserPanel = None
-        base.localAvatar.inventory.setActivateMode('plantTree')
-        base.localAvatar.inventory.show()
+        #base.localAvatar.inventory.setActivateMode('plantTree')
+        base.localAvatar.gagPanel.show()
         self.accept('inventory-selection', self.__handleInventory)
         self.accept('inventory-pass', self.__handleCancel)
         return

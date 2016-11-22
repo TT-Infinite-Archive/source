@@ -79,7 +79,6 @@ class MintInterior(BattlePlace.BattlePlace):
     def enter(self, requestStatus):
         self.fsm.enterInitialState()
         base.transitions.fadeOut(t=0)
-        base.localAvatar.inventory.setRespectInvasions(0)
         base.cr.forbidCheesyEffects(1)
         self._telemLimiter = TLGatherAllAvs('MintInterior', RotationLimitToH)
 
@@ -109,7 +108,6 @@ class MintInterior(BattlePlace.BattlePlace):
         self._telemLimiter.destroy()
         del self._telemLimiter
         base.cr.forbidCheesyEffects(0)
-        base.localAvatar.inventory.setRespectInvasions(1)
         self.fsm.requestFinalState()
         self.loader.music.stop()
         self.music.stop()
@@ -145,8 +143,6 @@ class MintInterior(BattlePlace.BattlePlace):
         base.localAvatar.setTeleportAvailable(0)
 
     def enterTownBattle(self, event):
-        mult = ToontownBattleGlobals.getMintCreditMultiplier(self.zoneId)
-        base.localAvatar.inventory.setBattleCreditMultiplier(mult)
         self.loader.townBattle.enter(event, self.fsm.getStateNamed('battle'), bldg=1, creditMultiplier=mult)
 
     def exitBattle(self):

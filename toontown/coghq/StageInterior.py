@@ -82,7 +82,6 @@ class StageInterior(BattlePlace.BattlePlace):
         self.fsm.enterInitialState()
         base.transitions.fadeOut(t=0)
         self._telemLimiter = TLGatherAllAvs('StageInterior', RotationLimitToH)
-        base.localAvatar.inventory.setRespectInvasions(0)
         base.cr.forbidCheesyEffects(1)
 
         def commence(self = self):
@@ -111,7 +110,6 @@ class StageInterior(BattlePlace.BattlePlace):
         del self._telemLimiter
         bboard.remove(DistributedStage.DistributedStage.ReadyPost)
         base.cr.forbidCheesyEffects(0)
-        base.localAvatar.inventory.setRespectInvasions(1)
         self.fsm.requestFinalState()
         self.loader.music.stop()
         self.music.stop()
@@ -147,8 +145,6 @@ class StageInterior(BattlePlace.BattlePlace):
         base.localAvatar.setTeleportAvailable(0)
 
     def enterTownBattle(self, event):
-        mult = ToontownBattleGlobals.getStageCreditMultiplier(bboard.get(DistributedStage.DistributedStage.FloorNum))
-        base.localAvatar.inventory.setBattleCreditMultiplier(mult)
         self.loader.townBattle.enter(event, self.fsm.getStateNamed('battle'), bldg=1, creditMultiplier=mult)
 
     def exitBattle(self):
