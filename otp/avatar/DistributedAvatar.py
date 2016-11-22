@@ -108,7 +108,7 @@ class DistributedAvatar(DistributedActor, Avatar):
         return
 
     def takeDamage(self, hpLost, bonus = 0):
-        if self.hp == None or hpLost < 0:
+        if self.hp is None or hpLost < 0:
             return
         oldHp = self.hp
         self.hp = max(self.hp - hpLost, 0)
