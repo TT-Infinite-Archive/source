@@ -12,6 +12,7 @@ from toontown.toon import NPCToons
 from toontown.toon import NPCFriendPanel
 from toontown.toonbase import ToontownBattleGlobals
 
+
 class TownBattleSOSPanel(DirectFrame, StateData.StateData):
     notify = DirectNotifyGlobal.directNotify.newCategory('TownBattleSOSPanel')
 

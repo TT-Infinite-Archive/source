@@ -3,29 +3,20 @@ from direct.fsm import StateData
 from direct.fsm import ClassicFSM, State
 import TownBattleWaitPanel
 import TownBattleChooseAvatarPanel
-import TownBattleSOSPanel
-import TownBattleSOSPetSearchPanel
-import TownBattleSOSPetInfoPanel
 import TownBattleToonPanel
 from toontown.toontowngui import TTDialog
-from direct.directnotify import DirectNotifyGlobal
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from toontown.battle import BattleBase
 from toontown.toonbase import ToontownTimer, EventGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.pets import PetConstants
 from direct.gui.DirectGui import DGG
-from toontown.battle import FireCogPanel
 from toontown.toon import InventoryGlobals
 
 
 class TownBattle(StateData.StateData):
-    notify = DirectNotifyGlobal.directNotify.newCategory('TownBattle')
-    evenPos = (
-        0.75,
-        0.25,
-        -0.25,
-        -0.75
-    )
+    notify = directNotify.newCategory('TownBattle')
+    evenPos = (0.75, 0.25, -0.25, -0.75)
     oddPos = (0.5, 0, -0.5)
 
     def __init__(self, doneEvent):
@@ -61,23 +52,12 @@ class TownBattle(StateData.StateData):
             State.State('Fire', self.enterFire, self.exitFire, ['Attack', 'AttackWait'])
         ], 'Off', 'Off')
         self.runPanel = TTDialog.TTDialog(
-            dialogName='TownBattleRunPanel',
-            text=TTLocalizer.TownBattleRun,
-            style=TTDialog.TwoChoice,
-            command=self.__handleRunPanelDone
+            dialogName='TownBattleRunPanel', text=TTLocalizer.TownBattleRun,
+            style=TTDialog.TwoChoice,command=self.__handleRunPanelDone
         )
         self.runPanel.hide()
         self.waitPanel = TownBattleWaitPanel.TownBattleWaitPanel()
         self.choosePanel = TownBattleChooseAvatarPanel.TownBattleChooseAvatarPanel()
-        self.SOSPanelDoneEvent = 'SOS-panel-done'
-        self.SOSPanel = TownBattleSOSPanel.TownBattleSOSPanel(self.SOSPanelDoneEvent)
-        self.SOSPetSearchPanelDoneEvent = 'SOSPetSearch-panel-done'
-        self.SOSPetSearchPanel = TownBattleSOSPetSearchPanel.TownBattleSOSPetSearchPanel(self.SOSPetSearchPanelDoneEvent)
-        self.SOSPetInfoPanelDoneEvent = 'SOSPetInfo-panel-done'
-        self.SOSPetInfoPanel = TownBattleSOSPetInfoPanel.TownBattleSOSPetInfoPanel(self.SOSPetInfoPanelDoneEvent)
-        self.fireCogPanelDoneEvent = 'fire-cog-panel-done'
-        self.FireCogPanel = FireCogPanel.FireCogPanel(self.fireCogPanelDoneEvent)
-        self.cogFireCosts = [None, None, None, None]
         self.toonPanels = (
             TownBattleToonPanel.TownBattleToonPanel(0),
             TownBattleToonPanel.TownBattleToonPanel(1),
@@ -96,10 +76,6 @@ class TownBattle(StateData.StateData):
         self.choosePanel.unload()
         del self.runPanel
         del self.waitPanel
-        del self.SOSPanel
-        del self.FireCogPanel
-        del self.SOSPetSearchPanel
-        del self.SOSPetInfoPanel
         for toonPanel in self.toonPanels:
             toonPanel.cleanup()
 
@@ -124,33 +100,16 @@ class TownBattle(StateData.StateData):
         self.creditLevel = None
         self.creditMultiplier = creditMultiplier
         self.tutorialFlag = tutorialFlag
-        self.SOSPanel.bldg = bldg
 
     def exit(self):
         base.localAvatar.laffMeter.stop()
         self.parentFSMState.removeChild(self.fsm)
         del self.parentFSMState
 
-    def load(self):
-        if self.isLoaded:
-            return
-        self.SOSPanel.load()
-        if hasattr(base, 'wantPets') and base.wantPets:
-            self.SOSPetSearchPanel.load()
-            self.SOSPetInfoPanel.load()
-        self.isLoaded = 1
-
     def unload(self):
-        if not self.isLoaded:
-            return
+        StateData.StateData.unload(self)
         self.waitPanel.unload()
         self.choosePanel.unload()
-        self.FireCogPanel.unload()
-        self.SOSPanel.unload()
-        if hasattr(base, 'wantPets') and base.wantPets:
-            self.SOSPetSearchPanel.unload()
-            self.SOSPetInfoPanel.unload()
-        self.isLoaded = 0
 
     def setState(self, state):
         if hasattr(self, 'fsm'):
