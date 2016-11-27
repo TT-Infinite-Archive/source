@@ -42,7 +42,7 @@ class GagInventoryBase(DirectObject):
         return [item for item in self.getItems() if item.equipped]
 
     def isEquipped(self, gagId):
-        return gagId in [item.uid for item in self.getEquippedItems()]
+        return gagId in [item.gag.uid for item in self.getEquippedItems()]
 
     def getGagSlotAtSlot(self, slot):
         gagSlot = self.getEquippedItems()[slot]
