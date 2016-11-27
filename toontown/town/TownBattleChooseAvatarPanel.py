@@ -1,6 +1,6 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import *
-from direct.showbase import DirectObject
+from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase import TTLocalizer, EventGlobals
 from toontown.toon.InventoryGlobals import TargettedGagItem
 from panda3d.core import Vec4
@@ -19,6 +19,7 @@ class TownBattleChooseAvatarPanel(DirectObject):
     )
 
     def __init__(self, battle):
+        DirectObject.__init__(self)
         self.notify.debug('Initializing...')
         self.attack = None
         self.battle = battle
