@@ -2,10 +2,14 @@ from direct.gui.DirectGui import *
 from direct.showbase.DirectObject import DirectObject
 from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer, EventGlobals
+from direct.directnotify.DirectNotifyGlobal import directNotify
 
 
 class TownBattleWaitPanel(DirectObject):
+    notify = directNotify.newCategory('TownBattleWaitPanel')
+
     def __init__(self):
+        self.notify.debug('Initializing...')
         DirectObject.__init__(self)
         self.frame = None
         self.battle = None
@@ -14,6 +18,7 @@ class TownBattleWaitPanel(DirectObject):
         self.hide()
 
     def load(self):
+        self.notify.debug('Loading...')
         gui = loader.loadModel('phase_3.5/models/gui/battle_gui')
         self.frame = DirectFrame(
             relief=None, image=gui.find('**/Waiting4Others'), text_align=TextNode.ALeft, pos=(0, 0, 0), scale=0.65
@@ -27,21 +32,26 @@ class TownBattleWaitPanel(DirectObject):
         gui.removeNode()
 
     def hide(self):
+        self.notify.debug('Hiding...')
         self.frame.hide()
 
     def show(self):
+        self.notify.debug('Showing...')
         self.frame.show()
         self.updateText()
 
     def unload(self):
+        self.notify.debug('Unloading...')
         self.frame.destroy()
         self.frame = None
         self.battle = None
 
     def setBattle(self, battle):
+        self.notify.debug('Setting battle')
         self.battle = battle
 
     def updateText(self):
+        self.notify.debug('Updating text')
         if self.battle is None:
             return
 
@@ -56,4 +66,5 @@ class TownBattleWaitPanel(DirectObject):
             self.frame['text_scale'] = 0.13
 
     def __handleBack(self):
+        self.notify.debug('Clicked back!')
         messenger.send(EventGlobals.WaitPanelBack)
