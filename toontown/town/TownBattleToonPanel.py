@@ -1,16 +1,14 @@
-from pandac.PandaModules import *
-from toontown.toonbase import ToontownGlobals
-from toontown.toonbase.ToontownBattleGlobals import *
-from direct.directnotify import DirectNotifyGlobal
-import string
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from toontown.toon import LaffMeter
-from toontown.battle import BattleBase
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
+from toontown.toontowngui.TTLabel import TTLabel
+from panda3d.core import Vec4
+
+
 
 class TownBattleToonPanel(DirectFrame):
-    notify = DirectNotifyGlobal.directNotify.newCategory('TownBattleToonPanel')
+    notify = directNotify.newCategory('TownBattleToonPanel')
 
     def __init__(self, id):
         gui = loader.loadModel('phase_3.5/models/gui/battle_gui')
@@ -18,16 +16,16 @@ class TownBattleToonPanel(DirectFrame):
         self.setScale(0.8)
         self.initialiseoptions(TownBattleToonPanel)
         self.avatar = None
-        self.sosText = DirectLabel(parent=self, relief=None, pos=(0.1, 0, 0.015), text=TTLocalizer.TownBattleToonSOS, text_scale=0.06)
+        self.sosText = TTLabel(self, TTLabel.MediumSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleToonSOS)
+        self.fireText = TTLabel(self, TTLabel.MediumSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleToonFire)
+        self.undecidedText = TTLabel(self, TTLabel.GiantSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleUndecided)
+        self.healthText = TTLabel(self, TTLabel.NormalSize, (-0.06, 0, -0.075))
         self.sosText.hide()
-        self.fireText = DirectLabel(parent=self, relief=None, pos=(0.1, 0, 0.015), text=TTLocalizer.TownBattleToonFire, text_scale=0.06)
         self.fireText.hide()
-        self.undecidedText = DirectLabel(parent=self, relief=None, pos=(0.1, 0, 0.015), text=TTLocalizer.TownBattleUndecided, text_scale=0.1)
-        self.healthText = DirectLabel(parent=self, text='', pos=(-0.06, 0, -0.075), text_scale=0.055)
         self.hpChangeEvent = None
         self.gagNode = self.attachNewNode('gag')
         self.gagNode.setPos(0.1, 0, 0.03)
-        self.hasGag = 0
+        self.gagImage = None
         passGui = gui.find('**/tt_t_gui_bat_pass')
         passGui.detachNode()
         self.passNode = self.attachNewNode('pass')
@@ -39,13 +37,12 @@ class TownBattleToonPanel(DirectFrame):
         self.whichText = DirectLabel(parent=self, text='', pos=(0.1, 0, -0.08), text_scale=0.05)
         self.hide()
         gui.removeNode()
-        return
 
     def setLaffMeter(self, avatar):
         self.notify.debug('setLaffMeter: new avatar %s' % avatar.doId)
         if self.avatar == avatar:
             messenger.send(self.avatar.uniqueName('hpChange'), [avatar.hp, avatar.maxHp, 1])
-            return None
+            return
         else:
             if self.avatar:
                 self.cleanupLaffMeter()
@@ -59,11 +56,9 @@ class TownBattleToonPanel(DirectFrame):
             self.setHealthText(avatar.hp, avatar.maxHp)
             self.hpChangeEvent = self.avatar.uniqueName('hpChange')
             self.accept(self.hpChangeEvent, self.setHealthText)
-        return None
 
-    def setHealthText(self, hp, maxHp, quietly = 0):
-        self.healthText['text'] = TTLocalizer.TownBattleHealthText % {'hitPoints': hp,
-         'maxHit': maxHp}
+    def setHealthText(self, hp, maxHp, quietly=0):
+        self.healthText['text'] = TTLocalizer.TownBattleHealthText % {'hitPoints': hp, 'maxHit': maxHp}
 
     def show(self):
         DirectFrame.show(self)
@@ -78,63 +73,54 @@ class TownBattleToonPanel(DirectFrame):
     def updateLaffMeter(self, hp):
         if self.laffMeter:
             self.laffMeter.adjustFace(hp, self.avatar.maxHp)
-        self.setHealthText(hp, maxHp)
+        self.setHealthText(hp, self.avatar.maxHp)
 
-    def setValues(self, index, track, level = None, numTargets = None, targetIndex = None, localNum = None):
-        self.notify.debug('Toon Panel setValues: index=%s track=%s level=%s numTargets=%s targetIndex=%s localNum=%s' % (index,
-         track,
-         level,
-         numTargets,
-         targetIndex,
-         localNum))
+    def setGagImage(self, image):
+        self.gagImage = image.instanceUnderNode(self.gagNode, 'gag')
+        self.gagImage.setScale(0.8)
+        self.gagImage.setPos(0, 0, 0.02)
+
+    def unsetGagImage(self):
+        if self.gagImage is None:
+            return
+        self.gagImage.removeNode()
+        self.gagImage = None
+
+    def setValues(self, index, gag, numTargets=None, targetIndex=None, localNum=None):
+        self.notify.debug('setValues(%s, %s, %s, %s, %s' % (index, gag, numTargets, targetIndex, localNum))
         self.undecidedText.hide()
         self.sosText.hide()
         self.fireText.hide()
         self.gagNode.hide()
         self.whichText.hide()
         self.passNode.hide()
-        if self.hasGag:
-            self.gag.removeNode()
-            self.hasGag = 0
-        if track == BattleBase.NO_ATTACK or track == BattleBase.UN_ATTACK:
+        self.unsetGagImage()
+        if gag is None:
             self.undecidedText.show()
-        elif track == BattleBase.PASS_ATTACK:
-            self.passNode.show()
-        elif track == BattleBase.FIRE:
-            self.fireText.show()
-            self.whichText.show()
-            self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, localNum, index)
-        elif track == BattleBase.SOS or track == BattleBase.NPCSOS or track == BattleBase.PETSOS:
-            self.sosText.show()
-        elif track >= MIN_TRACK_INDEX and track <= MAX_TRACK_INDEX:
+        else:
             self.undecidedText.hide()
-            self.passNode.hide()
             self.gagNode.show()
-            invButton = base.localAvatar.inventory.buttonLookup(track, level)
-            self.gag = invButton.instanceUnderNode(self.gagNode, 'gag')
-            self.gag.setScale(0.8)
-            self.gag.setPos(0, 0, 0.02)
-            self.hasGag = 1
+            self.setGagImage(gag.getDisplayObject().getButtonIcon())
             if numTargets is not None and targetIndex is not None and localNum is not None:
                 self.whichText.show()
-                self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, localNum, index)
-        else:
-            self.notify.error('Bad track value: %s' % track)
-        return
+                self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, index)
 
-    def determineWhichText(self, numTargets, targetIndex, localNum, index):
+    def determineWhichText(self, numTargets, targetIndex, index):
         returnStr = ''
         targetList = range(numTargets)
         targetList.reverse()
         for i in targetList:
             if targetIndex == -1:
+                # Everyone
                 returnStr += 'X'
             elif targetIndex == -2:
+                # Everyone except me
                 if i == index:
                     returnStr += '-'
                 else:
                     returnStr += 'X'
-            elif targetIndex >= 0 and targetIndex <= 3:
+            elif targetIndex in xrange(0, 4):
+                # Specific targets
                 if i == targetIndex:
                     returnStr += 'X'
                 else:
@@ -147,11 +133,11 @@ class TownBattleToonPanel(DirectFrame):
     def cleanup(self):
         self.ignoreAll()
         self.cleanupLaffMeter()
-        if self.hasGag:
-            self.gag.removeNode()
-            del self.gag
+        if self.gagImage is not None:
+            self.gagImage.removeNode()
+            self.gagImage = None
         self.gagNode.removeNode()
-        del self.gagNode
+        self.gagNode = None
         DirectFrame.destroy(self)
 
     def cleanupLaffMeter(self):
@@ -160,4 +146,3 @@ class TownBattleToonPanel(DirectFrame):
         if self.laffMeter:
             self.laffMeter.destroy()
             self.laffMeter = None
-        return
