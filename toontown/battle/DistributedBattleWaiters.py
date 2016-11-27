@@ -2,7 +2,7 @@ import random
 from pandac.PandaModules import VBase3, Point3
 from direct.interval.IntervalGlobal import Sequence, Wait, Func, Parallel, Track
 from direct.directnotify import DirectNotifyGlobal
-from toontown.battle import DistributedBattleFinal
+from toontown.battle import DistributedBattleFinal, BattleGlobals
 from toontown.suit import SuitTimings
 from toontown.toonbase import ToontownGlobals
 
@@ -42,7 +42,7 @@ class DistributedBattleWaiters(DistributedBattleFinal.DistributedBattleFinal):
         self.storeInterval(track, name)
 
     def moveSuitsToInitialPos(self):
-        battlePts = self.suitPoints[len(self.suitPendingPoints) - 1]
+        battlePts = BattleGlobals.SuitPoints[len(BattleGlobals.SuitPendingPoints) - 1]
         for i in xrange(len(self.suits)):
             suit = self.suits[i]
             suit.reparentTo(self)
@@ -63,7 +63,7 @@ class DistributedBattleWaiters(DistributedBattleFinal.DistributedBattleFinal):
                 suit.setPos(0, 0, 0)
             if suit in self.joiningSuits:
                 i = len(self.pendingSuits) + self.joiningSuits.index(suit)
-                destPos, h = self.suitPendingPoints[i]
+                destPos, h = BattleGlobals.SuitPendingPoints[i]
                 destHpr = VBase3(h, 0, 0)
             else:
                 destPos, destHpr = self.getActorPosHpr(suit, self.suits)

@@ -118,145 +118,148 @@ def __throwBouncePoint(startPoint, endPoint):
 
 def doSuitAttack(attack):
     notify.debug('building suit attack in doSuitAttack: %s' % attack['name'])
-    name = attack['id']
-    if name == AUDIT:
-        suitTrack = doAudit(attack)
-    elif name == BITE:
-        suitTrack = doBite(attack)
-    elif name == BOUNCE_CHECK:
-        suitTrack = doBounceCheck(attack)
-    elif name == BRAIN_STORM:
-        suitTrack = doBrainStorm(attack)
-    elif name == BUZZ_WORD:
-        suitTrack = doBuzzWord(attack)
-    elif name == CALCULATE:
-        suitTrack = doCalculate(attack)
-    elif name == CANNED:
-        suitTrack = doCanned(attack)
-    elif name == CHOMP:
-        suitTrack = doChomp(attack)
-    elif name == CIGAR_SMOKE:
-        suitTrack = doDefault(attack)
-    elif name == CLIPON_TIE:
-        suitTrack = doClipOnTie(attack)
-    elif name == CRUNCH:
-        suitTrack = doCrunch(attack)
-    elif name == DEMOTION:
-        suitTrack = doDemotion(attack)
-    elif name == DOUBLE_TALK:
-        suitTrack = doDoubleTalk(attack)
-    elif name == DOWNSIZE:
-        suitTrack = doDownsize(attack)
-    elif name == EVICTION_NOTICE:
-        suitTrack = doEvictionNotice(attack)
-    elif name == EVIL_EYE:
-        suitTrack = doEvilEye(attack)
-    elif name == FILIBUSTER:
-        suitTrack = doFilibuster(attack)
-    elif name == FILL_WITH_LEAD:
-        suitTrack = doFillWithLead(attack)
-    elif name == FINGER_WAG:
-        suitTrack = doFingerWag(attack)
-    elif name == FIRED:
-        suitTrack = doFired(attack)
-    elif name == FIVE_O_CLOCK_SHADOW:
-        suitTrack = doDefault(attack)
-    elif name == FLOOD_THE_MARKET:
-        suitTrack = doDefault(attack)
-    elif name == FOUNTAIN_PEN:
-        suitTrack = doFountainPen(attack)
-    elif name == FREEZE_ASSETS:
-        suitTrack = doFreezeAssets(attack)
-    elif name == GAVEL:
-        suitTrack = doDefault(attack)
-    elif name == GLOWER_POWER:
-        suitTrack = doGlowerPower(attack)
-    elif name == GUILT_TRIP:
-        suitTrack = doGuiltTrip(attack)
-    elif name == HALF_WINDSOR:
-        suitTrack = doHalfWindsor(attack)
-    elif name == HANG_UP:
-        suitTrack = doHangUp(attack)
-    elif name == HEAD_SHRINK:
-        suitTrack = doHeadShrink(attack)
-    elif name == HOT_AIR:
-        suitTrack = doHotAir(attack)
-    elif name == JARGON:
-        suitTrack = doJargon(attack)
-    elif name == LEGALESE:
-        suitTrack = doLegalese(attack)
-    elif name == LIQUIDATE:
-        suitTrack = doLiquidate(attack)
-    elif name == MARKET_CRASH:
-        suitTrack = doMarketCrash(attack)
-    elif name == MUMBO_JUMBO:
-        suitTrack = doMumboJumbo(attack)
-    elif name == PARADIGM_SHIFT:
-        suitTrack = doParadigmShift(attack)
-    elif name == PECKING_ORDER:
-        suitTrack = doPeckingOrder(attack)
-    elif name == PICK_POCKET:
-        suitTrack = doPickPocket(attack)
-    elif name == PINK_SLIP:
-        suitTrack = doPinkSlip(attack)
-    elif name == PLAY_HARDBALL:
-        suitTrack = doPlayHardball(attack)
-    elif name == POUND_KEY:
+    attackId = attack.attackId
+    if attackId:
         suitTrack = doPoundKey(attack)
-    elif name == POWER_TIE:
+    elif attackId == AUDIT:
+        suitTrack = doAudit(attack)
+    elif attackId == BITE:
+        suitTrack = doBite(attack)
+    elif attackId == BOUNCE_CHECK:
+        suitTrack = doBounceCheck(attack)
+    elif attackId == BRAIN_STORM:
+        suitTrack = doBrainStorm(attack)
+    elif attackId == BUZZ_WORD:
+        suitTrack = doBuzzWord(attack)
+    elif attackId == CALCULATE:
+        suitTrack = doCalculate(attack)
+    elif attackId == CANNED:
+        suitTrack = doCanned(attack)
+    elif attackId == CHOMP:
+        suitTrack = doChomp(attack)
+    elif attackId == CIGAR_SMOKE:
+        suitTrack = doDefault(attack)
+    elif attackId == CLIPON_TIE:
+        suitTrack = doClipOnTie(attack)
+    elif attackId == CRUNCH:
+        suitTrack = doCrunch(attack)
+    elif attackId == DEMOTION:
+        suitTrack = doDemotion(attack)
+    elif attackId == DOUBLE_TALK:
+        suitTrack = doDoubleTalk(attack)
+    elif attackId == DOWNSIZE:
+        suitTrack = doDownsize(attack)
+    elif attackId == EVICTION_NOTICE:
+        suitTrack = doEvictionNotice(attack)
+    elif attackId == EVIL_EYE:
+        suitTrack = doEvilEye(attack)
+    elif attackId == FILIBUSTER:
+        suitTrack = doFilibuster(attack)
+    elif attackId == FILL_WITH_LEAD:
+        suitTrack = doFillWithLead(attack)
+    elif attackId == FINGER_WAG:
+        suitTrack = doFingerWag(attack)
+    elif attackId == FIRED:
+        suitTrack = doFired(attack)
+    elif attackId == FIVE_O_CLOCK_SHADOW:
+        suitTrack = doDefault(attack)
+    elif attackId == FLOOD_THE_MARKET:
+        suitTrack = doDefault(attack)
+    elif attackId == FOUNTAIN_PEN:
+        suitTrack = doFountainPen(attack)
+    elif attackId == FREEZE_ASSETS:
+        suitTrack = doFreezeAssets(attack)
+    elif attackId == GAVEL:
+        suitTrack = doDefault(attack)
+    elif attackId == GLOWER_POWER:
+        suitTrack = doGlowerPower(attack)
+    elif attackId == GUILT_TRIP:
+        suitTrack = doGuiltTrip(attack)
+    elif attackId == HALF_WINDSOR:
+        suitTrack = doHalfWindsor(attack)
+    elif attackId == HANG_UP:
+        suitTrack = doHangUp(attack)
+    elif attackId == HEAD_SHRINK:
+        suitTrack = doHeadShrink(attack)
+    elif attackId == HOT_AIR:
+        suitTrack = doHotAir(attack)
+    elif attackId == JARGON:
+        suitTrack = doJargon(attack)
+    elif attackId == LEGALESE:
+        suitTrack = doLegalese(attack)
+    elif attackId == LIQUIDATE:
+        suitTrack = doLiquidate(attack)
+    elif attackId == MARKET_CRASH:
+        suitTrack = doMarketCrash(attack)
+    elif attackId == MUMBO_JUMBO:
+        suitTrack = doMumboJumbo(attack)
+    elif attackId == PARADIGM_SHIFT:
+        suitTrack = doParadigmShift(attack)
+    elif attackId == PECKING_ORDER:
+        suitTrack = doPeckingOrder(attack)
+    elif attackId == PICK_POCKET:
+        suitTrack = doPickPocket(attack)
+    elif attackId == PINK_SLIP:
+        suitTrack = doPinkSlip(attack)
+    elif attackId == PLAY_HARDBALL:
+        suitTrack = doPlayHardball(attack)
+    elif attackId == POUND_KEY:
+        suitTrack = doPoundKey(attack)
+    elif attackId == POWER_TIE:
         suitTrack = doPowerTie(attack)
-    elif name == POWER_TRIP:
+    elif attackId == POWER_TRIP:
         suitTrack = doPowerTrip(attack)
-    elif name == QUAKE:
+    elif attackId == QUAKE:
         suitTrack = doQuake(attack)
-    elif name == RAZZLE_DAZZLE:
+    elif attackId == RAZZLE_DAZZLE:
         suitTrack = doRazzleDazzle(attack)
-    elif name == RED_TAPE:
+    elif attackId == RED_TAPE:
         suitTrack = doRedTape(attack)
-    elif name == RE_ORG:
+    elif attackId == RE_ORG:
         suitTrack = doReOrg(attack)
-    elif name == RESTRAINING_ORDER:
+    elif attackId == RESTRAINING_ORDER:
         suitTrack = doRestrainingOrder(attack)
-    elif name == ROLODEX:
+    elif attackId == ROLODEX:
         suitTrack = doRolodex(attack)
-    elif name == RUBBER_STAMP:
+    elif attackId == RUBBER_STAMP:
         suitTrack = doRubberStamp(attack)
-    elif name == RUB_OUT:
+    elif attackId == RUB_OUT:
         suitTrack = doRubOut(attack)
-    elif name == SACKED:
+    elif attackId == SACKED:
         suitTrack = doSacked(attack)
-    elif name == SANDTRAP:
+    elif attackId == SANDTRAP:
         suitTrack = doDefault(attack)
-    elif name == SCHMOOZE:
+    elif attackId == SCHMOOZE:
         suitTrack = doSchmooze(attack)
-    elif name == SHAKE:
+    elif attackId == SHAKE:
         suitTrack = doShake(attack)
-    elif name == SHRED:
+    elif attackId == SHRED:
         suitTrack = doShred(attack)
-    elif name == SONG_AND_DANCE:
+    elif attackId == SONG_AND_DANCE:
         suitTrack = doDefault(attack)
-    elif name == SPIN:
+    elif attackId == SPIN:
         suitTrack = doSpin(attack)
-    elif name == SYNERGY:
+    elif attackId == SYNERGY:
         suitTrack = doSynergy(attack)
-    elif name == TABULATE:
+    elif attackId == TABULATE:
         suitTrack = doTabulate(attack)
-    elif name == TEE_OFF:
+    elif attackId == TEE_OFF:
         suitTrack = doTeeOff(attack)
-    elif name == THROW_BOOK:
+    elif attackId == THROW_BOOK:
         suitTrack = doDefault(attack)
-    elif name == TREMOR:
+    elif attackId == TREMOR:
         suitTrack = doTremor(attack)
-    elif name == WATERCOOLER:
+    elif attackId == WATERCOOLER:
         suitTrack = doWatercooler(attack)
-    elif name == WITHDRAWAL:
+    elif attackId == WITHDRAWAL:
         suitTrack = doWithdrawal(attack)
-    elif name == WRITE_OFF:
+    elif attackId == WRITE_OFF:
         suitTrack = doWriteOff(attack)
     else:
-        notify.warning('unknown attack: %d substituting Finger Wag' % name)
+        notify.warning('unknown attack: %d substituting Finger Wag' % attackId)
         suitTrack = doDefault(attack)
-    camTrack = MovieCamera.chooseSuitShot(attack, suitTrack.getDuration())
+    #camTrack = MovieCamera.chooseSuitShot(attack, suitTrack.getDuration())
+    '''
     battle = attack['battle']
     target = attack['target']
     groupStatus = attack['group']
@@ -281,7 +284,8 @@ def doSuitAttack(attack):
         resetCamTrack = Sequence(waitTrack, camTrack)
         return (resetSuitTrack, resetCamTrack)
     else:
-        return (suitTrack, camTrack)
+    '''
+    return (suitTrack, None)
 
 
 def getResetTrack(suit, battle):
@@ -818,21 +822,36 @@ def doClipOnTie(attack):
 
 
 def doPoundKey(attack):
-    suit = attack['suit']
-    battle = attack['battle']
+    suit = base.cr.doId2do.get(attack.attackerId)
     phone = globalPropPool.getProp('phone')
     receiver = globalPropPool.getProp('receiver')
     BattleParticles.loadParticles()
     particleEffect = BattleParticles.createParticleEffect('PoundKey')
     BattleParticles.setEffectTexture(particleEffect, 'poundsign', color=Vec4(0, 0, 0, 1))
-    suitTrack = getSuitTrack(attack)
+    #suitTrack = getSuitTrack(attack)
     partTrack = getPartTrack(particleEffect, 2.1, 1.55, [particleEffect, suit, 0])
     phonePosPoints = [Point3(0.23, 0.17, -0.11), VBase3(5.939, 2.763, -177.591)]
     receiverPosPoints = [Point3(0.23, 0.17, -0.11), VBase3(5.939, 2.763, -177.591)]
-    propTrack = Sequence(Wait(0.3), Func(__showProp, phone, suit.getLeftHand(), phonePosPoints[0], phonePosPoints[1]), Func(__showProp, receiver, suit.getLeftHand(), receiverPosPoints[0], receiverPosPoints[1]), LerpScaleInterval(phone, 0.5, MovieUtil.PNT3_ONE, MovieUtil.PNT3_NEARZERO), Wait(0.74), Func(receiver.wrtReparentTo, suit.getRightHand()), LerpPosHprInterval(receiver, 0.0001, Point3(-0.45, 0.48, -0.62), VBase3(-87.47, -18.21, 7.82)), Wait(3.14), Func(receiver.wrtReparentTo, phone), Wait(0.62), LerpScaleInterval(phone, 0.5, MovieUtil.PNT3_NEARZERO), Func(MovieUtil.removeProps, [receiver, phone]))
-    toonTrack = getToonTrack(attack, 2.7, ['cringe'], 1.9, ['sidestep'])
+    '''
+    propTrack = Sequence(
+        Wait(0.3),
+        Func(__showProp, phone, suit.getLeftHand(), phonePosPoints[0], phonePosPoints[1]),
+        Func(__showProp, receiver, suit.getLeftHand(), receiverPosPoints[0], receiverPosPoints[1]),
+        LerpScaleInterval(phone, 0.5, MovieUtil.PNT3_ONE, MovieUtil.PNT3_NEARZERO),
+        Wait(0.74),
+        Func(receiver.wrtReparentTo, suit.getRightHand()),
+        LerpPosHprInterval(receiver, 0.0001, Point3(-0.45, 0.48, -0.62), VBase3(-87.47, -18.21, 7.82)),
+        Wait(3.14),
+        Func(receiver.wrtReparentTo, phone),
+        Wait(0.62),
+        LerpScaleInterval(phone, 0.5, MovieUtil.PNT3_NEARZERO),
+        Func(MovieUtil.removeProps, [receiver, phone])
+    )
+    '''
+    #toonTrack = getToonTrack(attack, 2.7, ['cringe'], 1.9, ['sidestep'])
     soundTrack = getSoundTrack('SA_hangup.ogg', delay=1.3, node=suit)
-    return Parallel(suitTrack, toonTrack, propTrack, partTrack, soundTrack)
+    #return Parallel(suitTrack, toonTrack, propTrack, partTrack, soundTrack)
+    return Parallel(soundTrack)
 
 
 def doShred(attack):

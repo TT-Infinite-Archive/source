@@ -3,7 +3,7 @@ from direct.interval.IntervalGlobal import *
 from BattleBase import *
 from BattleProps import *
 from BattleSounds import *
-from toontown.toon.ToonDNA import *
+from toontown.toon import InventoryGlobals
 from toontown.suit.SuitDNA import *
 from direct.directnotify import DirectNotifyGlobal
 import random
@@ -26,9 +26,54 @@ def addHit(dict, suitId, hitCount):
         dict[suitId] = hitCount
 
 
+def doAttacks(toonMovieAttacks, battle):
+    track = Sequence()
+    if len(toonMovieAttacks) == 0:
+        return None, None
+    for tma in toonMovieAttacks:
+        attack = InventoryGlobals.Gags.get(tma.attackId)
+        if attack is None:
+            continue
+        toon = base.cr.doId2do.get(tma.attackerId)
+        suit = base.cr.doId2do.get(tma.targetId)
+        if toon is None:
+            continue
+        if suit is None:
+            continue
+
+        origHpr = toon.getHpr(battle)
+        pie = globalPropPool.getProp('tart')
+        hand = toon.getRightHands()
+        splat = globalPropPool.getProp('splat-tart')
+        toonTrack = Sequence(
+            Func(toon.headsUp, battle, suit.getPos()),
+            ActorInterval(toon, 'throw'),
+            Func(toon.loop, 'neutral'),
+            Func(toon.setHpr, battle, origHpr)
+        )
+        throwTrack = Sequence(
+            Func(pie.reparentTo, hand),
+            LerpScaleInterval(pie, 1.0, pie.getScale(), 0.1),
+            Func(pie.lookAt, suit.getPos()),
+            LerpPosInterval(pie, 1.0, pos=suit.getPos()),
+            Func(splat.show),
+            Func(splat.setPos, suit.getPos()),
+            ActorInterval(splat, 'splat-tart'),
+            Func(splat.hide)
+        )
+        track = Parallel(
+            toonTrack,
+            throwTrack
+        )
+
+    camTrack = Sequence()
+    #camTrack = Sequence(MovieCamera.avatarCloseUpShot, MovieCamera.allGroupLowShot)
+    return track, camTrack
+
+
 def doThrows(throws):
     if len(throws) == 0:
-        return (None, None)
+        return None, None
     suitThrowsDict = {}
     for throw in throws:
         if attackAffectsGroup(throw['track'], throw['level']):
@@ -260,6 +305,9 @@ def __getSoundTrack(level, hitSuit, node = None):
         return Parallel(throwTrack, hitTrack)
     else:
         return throwTrack
+
+def __throwGag(attack, toon, suit, battle):
+    suitPos = suit.getPos(battle)
 
 
 def __throwPie(throw, delay, hitCount):

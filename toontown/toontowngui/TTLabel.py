@@ -3,11 +3,13 @@ from direct.gui.DirectGui import DirectLabel, DGG
 
 
 class TTLabel(DirectLabel):
+    GiantSize = 4
     LargeSize = 3
     MediumSize = 2
     NormalSize = 1
     SmallSize = 0
     Scales = {
+        GiantSize: 0.1,
         LargeSize: 0.072,
         MediumSize: 0.062,
         NormalSize: 0.052,

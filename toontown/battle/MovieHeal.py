@@ -24,9 +24,10 @@ healPos = Point3(0, 0, 0)
 healHpr = Vec3(180.0, 0, 0)
 runHealTime = 1.0
 
-def doHeals(heals, hasInteractivePropHealBonus):
+
+def doHeals(tmas):
     if len(heals) == 0:
-        return (None, None)
+        return None, None
     track = Sequence()
     for h in heals:
         ival = __doHealLevel(h, hasInteractivePropHealBonus)

@@ -6,7 +6,6 @@ from toontown.toontowngui.TTLabel import TTLabel
 from panda3d.core import Vec4
 
 
-
 class TownBattleToonPanel(DirectFrame):
     notify = directNotify.newCategory('TownBattleToonPanel')
 

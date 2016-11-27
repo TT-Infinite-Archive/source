@@ -8,6 +8,7 @@ from toontown.hood import QuietZoneState
 from toontown.hood import ZoneUtil
 from toontown.suit import Suit
 from toontown.town import TownBattle
+from toontown.toonbase import EventGlobals
 
 
 class CogHQLoader(StateData.StateData):
@@ -18,7 +19,6 @@ class CogHQLoader(StateData.StateData):
         self.hood = hood
         self.parentFSMState = parentFSMState
         self.placeDoneEvent = 'cogHQLoaderPlaceDone'
-        self.townBattleDoneEvent = 'town-battle-done'
         self.fsm = ClassicFSM.ClassicFSM('CogHQLoader', [State.State('start', None, None, ['quietZone', 'cogHQExterior', 'cogHQBossBattle']),
          State.State('cogHQExterior', self.enterCogHQExterior, self.exitCogHQExterior, ['quietZone', 'cogHQLobby']),
          State.State('cogHQLobby', self.enterCogHQLobby, self.exitCogHQLobby, ['quietZone', 'cogHQExterior', 'cogHQBossBattle']),
@@ -31,7 +31,7 @@ class CogHQLoader(StateData.StateData):
         self.parentFSMState.addChild(self.fsm)
         self.music = base.loadMusic(self.musicFile)
         self.battleMusic = base.loadMusic('phase_9/audio/bgm/encntr_suit_winning.ogg')
-        self.townBattle = TownBattle.TownBattle(self.townBattleDoneEvent)
+        self.townBattle = TownBattle.TownBattle(EventGlobals.TownBattleDone)
         self.townBattle.load()
         Suit.loadSuits(3)
         self.loadPlaceGeom(zoneId)

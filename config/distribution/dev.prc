@@ -47,6 +47,7 @@ want-pets #f
 want-parties #f
 want-achievements #f
 want-grouptracker #f
+want-suit-planners #t
 
 # Double progression:
 want-double-progression #t
@@ -73,7 +74,7 @@ want-leak-graph-client #f
 # Safe zones:
 want-safe-zones #t
 want-toontown-central #t
-want-donalds-dock #f
+want-donalds-dock #t
 want-daisys-garden #f
 want-minnies-melodyland #f
 want-the-burrrgh #f
@@ -88,3 +89,12 @@ want-cog-headquarters #f
 
 # Heartbeat
 want-heartbeat #f
+
+notify-level-GagInventory debug
+notify-level-GagInventoryBase debug
+notify-level-GagInventoryGui debug
+notify-level-TownBattle debug
+notify-level-BattleExprienceAI debug
+notify-level-DistributedBattleBaseAI debug
+notify-level-DistributedBattleBase debug
+

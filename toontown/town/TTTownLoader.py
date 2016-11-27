@@ -22,7 +22,7 @@ class TTTownLoader(TownLoader.TownLoader):
         dnaFile = 'phase_5/dna/toontown_central_' + str(self.canonicalBranchZone) + '.pdna'
         self.createHood(dnaFile)
 
-        if base.cr.newsManager.isStormEnabled():
+        if base.cr.newsManager is not None and base.cr.newsManager.isStormEnabled():
             self.rain = BattleParticles.loadParticleFile('rain.ptf')
             self.rain.setPos(0, 0, 5)
             self.rainRender = self.geom.attachNewNode('rainRender')
@@ -40,12 +40,12 @@ class TTTownLoader(TownLoader.TownLoader):
     def enter(self, requestStatus):
         TownLoader.TownLoader.enter(self, requestStatus)
 
-        if base.cr.newsManager.isStormEnabled():
+        if base.cr.newsManager is not None and base.cr.newsManager.isStormEnabled():
             self.rain.start(camera, self.rainRender)
 
     def exit(self):
         TownLoader.TownLoader.exit(self)
 
-        if base.cr.newsManager.isStormEnabled():
+        if base.cr.newsManager is not None and base.cr.newsManager.isStormEnabled():
             self.rain.cleanup()
             self.rainRender.removeNode()

@@ -3,18 +3,19 @@ from toontown.toonbase import ToontownBattleGlobals
 from toontown.suit import SuitDNA
 BattleExperienceAINotify = DirectNotifyGlobal.directNotify.newCategory('BattleExprienceAI')
 
+
 def getSkillGained(toonSkillPtsGained, toonId, track):
     exp = 0
     expList = toonSkillPtsGained.get(toonId, None)
-    if expList != None:
+    if expList is not None:
         exp = expList[track]
     return int(exp + 0.5)
 
+
 def getBattleExperience(numToons, activeToons, toonExp, toonSkillPtsGained, toonOrigQuests, toonItems, toonOrigMerits, toonMerits, toonParts, suitsKilled, helpfulToonsList = None):
-    if helpfulToonsList == None:
-        BattleExperienceAINotify.warning('=============\nERROR ERROR helpfulToons=None in assignRewards , tell Red')
+    #BattleExperienceAINotify.debug('getBattleExperience %s' % [numToons, activeToons, toonExp, toonSkillPtsGained, toonOrigQuests, toonItems, toonOrigMerits, toonMerits, toonParts, suitsKilled, helpfulToonsList])
     p = []
-    for k in xrange(numToons):
+    for k in xrange(0, numToons):
         toon = None
         if k < len(activeToons):
             toonId = activeToons[k]

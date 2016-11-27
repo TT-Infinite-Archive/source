@@ -1,26 +1,25 @@
 from pandac.PandaModules import *
-from toontown.toonbase.ToonBaseGlobal import *
-from direct.interval.IntervalGlobal import *
-from BattleBase import *
+from direct.actor import Actor
+from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
-from toontown.toonbase import ToontownBattleGlobals
 from direct.distributed import DistributedNode
 from direct.fsm import ClassicFSM
 from direct.fsm import State
+from direct.interval.IntervalGlobal import *
 from direct.task.Task import Task
-from direct.directnotify import DirectNotifyGlobal
-import Movie
-import MovieUtil
-from toontown.suit import Suit
-from direct.actor import Actor
-import BattleProps
-from direct.particles import ParticleEffect
-import BattleParticles
-from toontown.hood import ZoneUtil
-from toontown.distributed import DelayDelete
-from toontown.toon import TTEmote
 from otp.avatar import Emote
+from toontown.battle import BattleParticles
+from toontown.battle import BattleProps
+from toontown.battle import Movie
+from toontown.battle import MovieUtil
+from toontown.battle.BattleBase import *
+from toontown.distributed import DelayDelete
 from toontown.nametag import NametagGlobals
+from toontown.hood import ZoneUtil
+from toontown.suit import Suit
+from toontown.toonbase.ToonBaseGlobal import *
+from toontown.toonbase import ToontownBattleGlobals
+from toontown.toon import InventoryGlobals
 
 
 class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
@@ -262,13 +261,11 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
 
     def findToon(self, id):
         toon = self.getToon(id)
-        if toon == None:
-            return
+        if toon is None:
+            return None
         for t in self.toons:
             if t == toon:
                 return t
-
-        return
 
     def isSuitLured(self, suit):
         if self.luredSuits.count(suit) != 0:
@@ -296,7 +293,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             if actorList.count(actor) != 0:
                 numSuits = len(actorList) - 1
                 index = actorList.index(actor)
-                point = self.suitPoints[numSuits][index]
+                point = BattleGlobals.SuitPoints[numSuits][index]
                 return (Point3(point[0]), VBase3(point[1], 0.0, 0.0))
             else:
                 self.notify.warning('getActorPosHpr() - suit not active')
@@ -306,7 +303,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             if actorList.count(actor) != 0:
                 numToons = len(actorList) - 1
                 index = actorList.index(actor)
-                point = self.toonPoints[numToons][index]
+                point = BattleGlobals.ToonPoints[numToons][index]
                 return (Point3(point[0]), VBase3(point[1], 0.0, 0.0))
             else:
                 self.notify.warning('getActorPosHpr() - toon not active')
@@ -543,88 +540,60 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('adjust(%f) from server' % globalClockDelta.localElapsedTime(timestamp))
         self.adjustFsm.request('Adjusting', [globalClockDelta.localElapsedTime(timestamp)])
 
-    def setMovie(self, active, toons, suits, id0, tr0, le0, tg0, hp0, ac0, hpb0, kbb0, died0, revive0, id1, tr1, le1, tg1, hp1, ac1, hpb1, kbb1, died1, revive1, id2, tr2, le2, tg2, hp2, ac2, hpb2, kbb2, died2, revive2, id3, tr3, le3, tg3, hp3, ac3, hpb3, kbb3, died3, revive3, sid0, at0, stg0, dm0, sd0, sb0, st0, sid1, at1, stg1, dm1, sd1, sb1, st1, sid2, at2, stg2, dm2, sd2, sb2, st2, sid3, at3, stg3, dm3, sd3, sb3, st3):
+    def setMovie(self, active, toons, suits, toonAttacks, suitAttacks):
         if self.__battleCleanedUp:
             return
         self.notify.debug('setMovie()')
         if int(active) == 1:
             self.notify.debug('setMovie() - movie is active')
-            self.movie.genAttackDicts(toons, suits, id0, tr0, le0, tg0, hp0, ac0, hpb0, kbb0, died0, revive0, id1, tr1, le1, tg1, hp1, ac1, hpb1, kbb1, died1, revive1, id2, tr2, le2, tg2, hp2, ac2, hpb2, kbb2, died2, revive2, id3, tr3, le3, tg3, hp3, ac3, hpb3, kbb3, died3, revive3, sid0, at0, stg0, dm0, sd0, sb0, st0, sid1, at1, stg1, dm1, sd1, sb1, st1, sid2, at2, stg2, dm2, sd2, sb2, st2, sid3, at3, stg3, dm3, sd3, sb3, st3)
+            self.movie.genAttackDicts(toons, suits, toonAttacks, suitAttacks)
 
-    def setChosenToonAttacks(self, ids, tracks, levels, targets):
+    def setChosenToonAttacks(self, toonAttacks):
         if self.__battleCleanedUp:
             return
-        self.notify.debug('setChosenToonAttacks() - (%s), (%s), (%s), (%s)' % (ids,
-         tracks,
-         levels,
-         targets))
-        toonIndices = []
-        targetIndices = []
+        self.notify.debug('setChosenToonAttacks() - (%s)' % (toonAttacks))
+        toonIndices = [-1, -1, -1, -1]
+        targetIndices = [-1, -1, -1, -1]
+        newGagIds = [-1, -1, -1, -1]
         unAttack = 0
         localToonInList = 0
-        for i in xrange(len(ids)):
-            track = tracks[i]
-            level = levels[i]
-            toon = self.findToon(ids[i])
-            if toon == None or self.activeToons.count(toon) == 0:
-                self.notify.warning('setChosenToonAttacks() - toon gone or not in battle: %d!' % ids[i])
-                toonIndices.append(-1)
-                tracks.append(-1)
-                levels.append(-1)
-                targetIndices.append(-1)
+        for i, attack in enumerate(toonAttacks):
+            ta = BattleAttack.ToonBattleAttack()
+            ta.fromList(attack)
+            gag = InventoryGlobals.Gags.get(ta.attackId, None)
+            toon = self.findToon(ta.attackerId)
+            if toon is None or toon not in self.activeToons:
+                self.notify.warning('setChosenToonAttacks() - toon gone or not in battle: %s!' % ta.attackerId)
                 continue
             if toon == base.localAvatar:
                 localToonInList = 1
-            toonIndices.append(self.activeToons.index(toon))
-            if track == SOS:
+            toonIndices[i] = self.activeToons.index(toon)
+            # Default target index, does something automatic
+            targetIndex = -1
+            if ta.attackId == PASS:
                 targetIndex = -1
-            elif track == NPCSOS:
-                targetIndex = -1
-            elif track == PETSOS:
-                targetIndex = -1
-            elif track == PASS:
-                targetIndex = -1
-                tracks[i] = PASS_ATTACK
-            elif attackAffectsGroup(track, level):
-                targetIndex = -1
-            elif track == HEAL:
-                target = self.findToon(targets[i])
-                if target != None and self.activeToons.count(target) != 0:
+                newGagIds[i] = PASS_ATTACK
+            elif gag is not None and gag.targetsAlly():
+                target = self.findToon(ta.targetId)
+                if target is not None and target in self.activeToons:
                     targetIndex = self.activeToons.index(target)
-                else:
-                    targetIndex = -1
-            elif track == UN_ATTACK:
-                targetIndex = -1
-                tracks[i] = NO_ATTACK
+            elif ta.attackId == UN_ATTACK:
+                newGagIds[i] = NO_ATTACK
                 if toon == base.localAvatar:
                     unAttack = 1
                     self.choseAttackAlready = 0
-            elif track == NO_ATTACK:
-                targetIndex = -1
-            else:
-                target = self.findSuit(targets[i])
-                if target != None and self.activeSuits.count(target) != 0:
+            elif gag is not None and gag.targetsEnemy():
+                target = self.findSuit(ta.targetId)
+                if target is not None and target in self.activeSuits:
                     targetIndex = self.activeSuits.index(target)
-                else:
-                    targetIndex = -1
             targetIndices.append(targetIndex)
 
-        for i in xrange(4 - len(ids)):
-            toonIndices.append(-1)
-            tracks.append(-1)
-            levels.append(-1)
-            targetIndices.append(-1)
-
-        self.townBattleAttacks = (toonIndices,
-         tracks,
-         levels,
-         targetIndices)
+        self.townBattleAttacks = (toonIndices, newGagIds, targetIndices)
         if self.localToonActive() and localToonInList == 1:
             if unAttack == 1 and self.fsm.getCurrentState().getName() == 'WaitForInput':
                 if self.townBattle.fsm.getCurrentState().getName() != 'Attack':
                     self.townBattle.setState('Attack')
-            self.townBattle.updateChosenAttacks(self.townBattleAttacks[0], self.townBattleAttacks[1], self.townBattleAttacks[2], self.townBattleAttacks[3])
-        return
+            self.townBattle.updateChosenAttacks(self.townBattleAttacks[0], self.townBattleAttacks[1], self.townBattleAttacks[2])
 
     def setBattleExperience(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
         if self.__battleCleanedUp:
@@ -806,7 +775,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         spotIndex = len(self.pendingSuits) + len(self.joiningSuits)
         self.joiningSuits.append(suit)
         suit.setState('Battle')
-        openSpot = self.suitPendingPoints[spotIndex]
+        openSpot = BattleGlobals.SuitPendingPoints[spotIndex]
         pos = openSpot[0]
         hpr = VBase3(openSpot[1], 0.0, 0.0)
         trackName = self.taskName('to-pending-suit-%d' % suit.doId)
@@ -987,9 +956,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('network:joinDone(%d)' % avId)
         self.sendUpdate('joinDone', [avId])
 
-    def d_requestAttack(self, toonId, track, level, av):
-        self.notify.debug('network:requestAttack(%d, %d, %d)' % (track, level, av))
-        self.sendUpdate('requestAttack', [track, level, av])
+    def d_requestAttack(self, toonId, gagId, av):
+        self.notify.debug('network:requestAttack(%d, %d)' % (gagId, av))
+        self.sendUpdate('requestAttack', [gagId, av])
 
     def d_requestPetProxy(self, toonId, av):
         self.notify.debug('network:requestPetProxy(%s)' % av)
@@ -1081,27 +1050,23 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         noAttack = 0
         if mode == 'Attack':
             self.notify.debug('got an attack')
-            track = response['track']
-            level = response['level']
+            slot = response['slot']
             target = response['target']
+            gag = base.localAvatar.inventory.getGagAtSlot(slot)
             targetId = target
-            if track == HEAL and not levelAffectsGroup(HEAL, level):
-                if target >= 0 and target < len(self.activeToons):
+            if gag.targetsAlly() and gag.targetCount == 1:
+                if target in xrange(0, len(self.activeToons)):
                     targetId = self.activeToons[target].doId
                 else:
                     self.notify.warning('invalid toon target: %d' % target)
-                    track = -1
-                    level = -1
                     targetId = -1
-            elif track == HEAL and len(self.activeToons) == 1:
-                self.notify.warning('invalid group target for heal')
-                track = -1
-                level = -1
-            elif not attackAffectsGroup(track, level):
-                if target >= 0 and target < len(self.activeSuits):
+            elif gag.targetCount < 4:
+                if target in xrange(0, len(self.activeSuits)):
                     targetId = self.activeSuits[target].doId
                 else:
-                    target = -1
+                    self.notify.warning('invalid cog target: %d' % target)
+                    targetId = -1
+            '''
             if len(self.luredSuits) > 0:
                 if track == TRAP or track == LURE and not levelAffectsGroup(LURE, level):
                     if target != -1:
@@ -1128,7 +1093,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                             track = -1
                             level = -1
                             targetId = -1
-            self.d_requestAttack(base.localAvatar.doId, track, level, targetId)
+            '''
+            self.d_requestAttack(base.localAvatar.doId, gag.uid, targetId)
+        '''
         elif mode == 'Run':
             self.notify.debug('got a run')
             self.d_toonRequestRun(base.localAvatar.doId)
@@ -1169,6 +1136,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         else:
             self.notify.warning('unknown battle response')
             return
+        '''
         if noAttack == 1:
             self.choseAttackAlready = 0
         else:
@@ -1247,8 +1215,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('enterHasLocalToon()')
         if base.cr.playGame.getPlace() != None:
             base.cr.playGame.getPlace().setState('battle', self.localToonBattleEvent)
-            if localAvatar and hasattr(localAvatar, 'inventory') and localAvatar.inventory:
-                localAvatar.inventory.setInteractivePropTrackBonus(self.interactivePropTrackBonus)
         base.camera.wrtReparentTo(self)
         base.camLens.setMinFov(self.camFov/(4./3.))
         return
@@ -1256,8 +1222,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def exitHasLocalToon(self):
         self.ignore(self.localToonBattleEvent)
         self.__stopTimer()
-        if localAvatar and hasattr(localAvatar, 'inventory') and localAvatar.inventory:
-            localAvatar.inventory.setInteractivePropTrackBonus(-1)
         stateName = None
         place = base.cr.playGame.getPlace()
         if place:
@@ -1314,7 +1278,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             numSuits = len(self.pendingSuits) + len(self.activeSuits) - 1
             index = 0
             for suit in self.activeSuits:
-                point = self.suitPoints[numSuits][index]
+                point = BattleGlobals.SuitPoints[numSuits][index]
                 pos = suit.getPos(self)
                 destPos = point[0]
                 if self.isSuitLured(suit) == 1:
@@ -1325,7 +1289,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 index += 1
 
             for suit in self.pendingSuits:
-                point = self.suitPoints[numSuits][index]
+                point = BattleGlobals.SuitPoints[numSuits][index]
                 destPos = point[0]
                 destHpr = VBase3(point[1], 0.0, 0.0)
                 adjustTrack.append(self.createAdjustInterval(suit, destPos, destHpr))

@@ -1,18 +1,17 @@
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownBattleGlobals import *
 from direct.task.Timer import *
-import math
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
-TOON_ID_COL = 0
-TOON_TRACK_COL = 1
-TOON_LVL_COL = 2
-TOON_TGT_COL = 3
-TOON_HP_COL = 4
-TOON_ACCBONUS_COL = 5
-TOON_HPBONUS_COL = 6
-TOON_KBBONUS_COL = 7
+from toontown.battle import BattleGlobals, BattleAttack
+
+#TOON_ID_COL = 0
+#TOON_ATTACK_COL = 1
+#TOON_TGT_COL = 2
+#TOON_HP_COL = 3
+#TOON_ACCBONUS_COL = 4
+#TOON_HPBONUS_COL = 5
+#TOON_KBBONUS_COL = 6
 SUIT_DIED_COL = 8
 SUIT_REVIVE_COL = 9
 SUIT_ID_COL = 0
@@ -57,10 +56,12 @@ TOON_FIRE_SUIT_DELAY = 1.0
 REWARD_TIMEOUT = 120
 FLOOR_REWARD_TIMEOUT = 4
 BUILDING_REWARD_TIMEOUT = 300
+
 try:
     CLIENT_INPUT_TIMEOUT = base.config.GetFloat('battle-input-timeout', TTLocalizer.BBbattleInputTimeout)
 except:
     CLIENT_INPUT_TIMEOUT = simbase.config.GetFloat('battle-input-timeout', TTLocalizer.BBbattleInputTimeout)
+
 
 def levelAffectsGroup(track, level):
     return attackAffectsGroup(track, level)
@@ -75,59 +76,19 @@ def attackAffectsGroup(track, level, type = None):
         return 0
 
 
-def getToonAttack(id, track = NO_ATTACK, level = -1, target = -1):
-    return [id,
-     track,
-     level,
-     target,
-     [],
-     0,
-     0,
-     [],
-     0,
-     0]
+def getToonAttack(toonId, attackId=0, targetId=0):
+    return BattleAttack.ToonBattleAttack(toonId, attackId, targetId)
 
 
 def getDefaultSuitAttacks():
-    suitAttacks = [[NO_ID,
-      NO_ATTACK,
-      -1,
-      [],
-      0,
-      0,
-      0],
-     [NO_ID,
-      NO_ATTACK,
-      -1,
-      [],
-      0,
-      0,
-      0],
-     [NO_ID,
-      NO_ATTACK,
-      -1,
-      [],
-      0,
-      0,
-      0],
-     [NO_ID,
-      NO_ATTACK,
-      -1,
-      [],
-      0,
-      0,
-      0]]
+    suitAttacks = []
+    for i in xrange(0, 4):
+        suitAttacks.append(BattleAttack.SuitBattleAttack())
     return suitAttacks
 
 
 def getDefaultSuitAttack():
-    return [NO_ID,
-     NO_ATTACK,
-     -1,
-     [],
-     0,
-     0,
-     0]
+    return BattleAttack.SuitBattleAttack()
 
 
 def findToonAttack(toons, attacks, track):
@@ -170,28 +131,10 @@ ELEVATOR_T = 4.0
 BATTLE_SMALL_VALUE = 1e-07
 MAX_EXPECTED_DISTANCE_FROM_BATTLE = 50.0
 
+
 class BattleBase:
     notify = DirectNotifyGlobal.directNotify.newCategory('BattleBase')
-    suitPoints = (((Point3(0, 5, 0), 179),),
-                  ((Point3(2, 5.3, 0), 170), (Point3(-2, 5.3, 0), 180)),
-                  ((Point3(4, 5.2, 0), 170), (Point3(0, 6, 0), 179), (Point3(-4, 5.2, 0), 190)),
-                  ((Point3(6, 4.4, 0), 160), (Point3(2, 6.3, 0), 170),
-                   (Point3(-2, 6.3, 0), 190),(Point3(-6, 4.4, 0), 200)))
-    suitPendingPoints = ((Point3(-4, 8.2, 0), 190),
-     (Point3(0, 9, 0), 179),
-     (Point3(4, 8.2, 0), 170),
-     (Point3(8, 3.2, 0), 160))
-    toonPoints = (((Point3(0, -6, 0), 0),),
-                  ((Point3(1.5, -6.5, 0), 5), (Point3(-1.5, -6.5, 0), -5)),
-                  ((Point3(3, -6.75, 0), 5), (Point3(0, -7, 0), 0), (Point3(-3, -6.75, 0), -5)),
-                  ((Point3(4.5, -7, 0), 10),
-                   (Point3(1.5, -7.5, 0), 5),
-                   (Point3(-1.5, -7.5, 0), -5),
-                   (Point3(-4.5, -7, 0), -10)))
-    toonPendingPoints = ((Point3(-3, -8, 0), -5),
-     (Point3(0, -9, 0), 0),
-     (Point3(3, -8, 0), 5),
-     (Point3(5.5, -5.5, 0), 20))
+
     posA = Point3(0, 10, 0)
     posB = Point3(-7.071, 7.071, 0)
     posC = Point3(-10, 0, 0)
@@ -200,32 +143,42 @@ class BattleBase:
     posF = Point3(7.071, -7.071, 0)
     posG = Point3(10, 0, 0)
     posH = Point3(7.071, 7.071, 0)
-    allPoints = (posA,
-     posB,
-     posC,
-     posD,
-     posE,
-     posF,
-     posG,
-     posH)
-    toonCwise = [posA,
-     posB,
-     posC,
-     posD,
-     posE]
-    toonCCwise = [posH,
-     posG,
-     posF,
-     posE]
-    suitCwise = [posE,
-     posF,
-     posG,
-     posH,
-     posA]
-    suitCCwise = [posD,
-     posC,
-     posB,
-     posA]
+    allPoints = (
+        posA,
+        posB,
+        posC,
+        posD,
+        posE,
+        posF,
+        posG,
+        posH
+    )
+    toonCwise = [
+        posA,
+        posB,
+        posC,
+        posD,
+        posE
+    ]
+    toonCCwise = [
+        posH,
+        posG,
+        posF,
+        posE
+    ]
+    suitCwise = [
+        posE,
+        posF,
+        posG,
+        posH,
+        posA
+    ]
+    suitCCwise = [
+        posD,
+        posC,
+        posB,
+        posA
+    ]
     suitSpeed = 4.8
     toonSpeed = 8.0
 
@@ -234,9 +187,6 @@ class BattleBase:
         self.hpr = Point3(0, 0, 0)
         self.initialSuitPos = Point3(0, 1, 0)
         self.timer = Timer()
-        self.resetLists()
-
-    def resetLists(self):
         self.suits = []
         self.pendingSuits = []
         self.joiningSuits = []

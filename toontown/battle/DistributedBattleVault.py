@@ -3,7 +3,7 @@ from toontown.battle.DistributedBattleWaiters import DistributedBattleWaiters
 import random
 from pandac.PandaModules import VBase3, Point3, Vec4
 from direct.interval.IntervalGlobal import Sequence, Func, Parallel, Track, Wait, SoundInterval, LerpColorScaleInterval
-from toontown.battle import DistributedBattleFinal, SuitBattleGlobals
+from toontown.battle import DistributedBattleFinal, SuitBattleGlobals, BattleGlobals
 from toontown.chat.ChatGlobals import CFSpeech, CFTimeout
 from toontown.suit import SuitTimings
 from toontown.toonbase import ToontownGlobals
@@ -34,7 +34,7 @@ class DistributedBattleVault(DistributedBattleWaiters):
                 suit.setPos(0, 0, 0)
             if suit in self.joiningSuits:
                 i = len(self.pendingSuits) + self.joiningSuits.index(suit)
-                destPos, h = self.suitPendingPoints[i]
+                destPos, h = BattleGlobals.SuitPendingPoints[i]
                 destHpr = VBase3(h, 0, 0)
             else:
                 destPos, destHpr = self.getActorPosHpr(suit, self.suits)

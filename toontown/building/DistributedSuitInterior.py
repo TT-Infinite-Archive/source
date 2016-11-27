@@ -110,7 +110,6 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
         del self.openSfx
         del self.closeSfx
         del self.fsm
-        base.localAvatar.inventory.setBattleCreditMultiplier(1)
         DistributedObject.DistributedObject.delete(self)
 
     def __cleanup(self):
@@ -307,8 +306,6 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
         self.setElevatorLights(self.elevatorModelIn)
         self.setElevatorLights(self.elevatorModelOut)
         self.__playElevator(ts, self.elevatorName, self.__handleElevatorDone)
-        mult = ToontownBattleGlobals.getGagCreditMultiplier(self.currentFloor, self.lvlPool)
-        base.localAvatar.inventory.setBattleCreditMultiplier(mult)
 
     def __handleElevatorDone(self):
         self.d_elevatorDone()

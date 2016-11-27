@@ -110,7 +110,7 @@ class DistributedBattleFinal(DistributedBattleBase.DistributedBattleBase):
             suit.setScale(3.8 / suit.height)
             if suit in self.joiningSuits:
                 i = len(self.pendingSuits) + self.joiningSuits.index(suit)
-                destPos, h = self.suitPendingPoints[i]
+                destPos, h = BattleGlobals.SuitPendingPoints[i]
                 destHpr = VBase3(h, 0, 0)
             else:
                 destPos, destHpr = self.getActorPosHpr(suit, self.suits)

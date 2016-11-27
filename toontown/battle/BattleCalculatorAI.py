@@ -5,6 +5,7 @@ import random
 from toontown.suit import DistributedSuitBaseAI
 import SuitBattleGlobals
 import BattleExperienceAI
+from toontown.toon import InventoryGlobals
 from toontown.suit.SuitBuffGlobals import SuitBuffStable
 from toontown.toon import NPCToons
 from toontown.pets import PetTricks, DistributedPetProxyAI
@@ -1025,48 +1026,36 @@ class BattleCalculatorAI:
                 if self.__suitIsLured(t.getDoId()) and t.getDoId() not in self.delayedUnlures and (self.__attackDamageForTgt(self.battle.toonAttacks[toonId], self.battle.activeSuits.index(t), suit=0) > 0 or ignoreDamageCheck):
                     self.delayedUnlures.append(t.getDoId())
 
-    def __calculateToonAttacks(self):
-        self.notify.debug('__calculateToonAttacks()')
-        self.__clearBonuses(hp=0)
-        currTrack = None
-        self.notify.debug('Traps: ' + str(self.traps))
-        maxSuitLevel = 0
-        for cog in self.battle.activeSuits:
-            maxSuitLevel = max(maxSuitLevel, cog.getActualLevel())
-
-        self.creditLevel = maxSuitLevel
-        for toonId in self.toonAtkOrder:
-            if self.__combatantDead(toonId, toon=1):
-                if self.notify.getDebug():
-                    self.notify.debug("Toon %d is dead and can't attack" % toonId)
+    def __doToonAttacks(self):
+        self.notify.debug('__doToonAttacks()')
+        for ta in self.battle.toonAttacks.values():
+            tma = BattleAttack.MovieAttack()
+            tma.fromList(ta.toList() + [False])
+            if ta.attackId == PASS:
+                self.battle.toonMovieAttacks.append(tma)
                 continue
-            attack = self.battle.toonAttacks[toonId]
-            atkTrack = self.__getActualTrack(attack)
-            if atkTrack != NO_ATTACK and atkTrack != SOS and atkTrack != NPCSOS:
-                if self.notify.getDebug():
-                    self.notify.debug('Calculating attack for toon: %d' % toonId)
-                if self.SUITS_UNLURED_IMMEDIATELY:
-                    if currTrack and atkTrack != currTrack:
-                        self.__clearLuredSuitsDelayed()
-                currTrack = atkTrack
-                self.__calcToonAtkHp(toonId)
-                attackIdx = self.toonAtkOrder.index(toonId)
-                self.__handleBonus(attackIdx, hp=0)
-                self.__handleBonus(attackIdx, hp=1)
-                lastAttack = self.toonAtkOrder.index(toonId) >= len(self.toonAtkOrder) - 1
-                unlureAttack = self.__attackHasHit(attack, suit=0) and self.__unlureAtk(toonId, toon=1)
-                if unlureAttack:
-                    if lastAttack:
-                        self.__clearLuredSuitsByAttack(toonId)
-                    else:
-                        self.__addLuredSuitsDelayed(toonId)
-                if lastAttack:
-                    self.__clearLuredSuitsDelayed()
-
-        self.__processBonuses(hp=0)
-        self.__processBonuses(hp=1)
-        self.__postProcessToonAttacks()
-        return
+            gag = InventoryGlobals.Gags.get(ta.attackId)
+            if gag is not None:
+                if gag.isTargetted() and gag.accuracy > random.randint(0, 99):
+                    tma.hit = True
+                self.battle.toonMovieAttacks.append(tma)
+                if not tma.hit:
+                    # Missed, don't apply effects
+                    continue
+                if gag.targetsAlly() and gag.targetCount == 4:
+                    for toon in self.battle.activeToons:
+                        gag.effect.applyToQuietly(toon)
+                elif gag.targetsAlly():
+                    toon = self.battle.findToon(ta.targetId)
+                    gag.effect.applyToQuietly(toon)
+                elif gag.targetsEnemy() and gag.targetCount == 4:
+                    for suit in self.battle.activeSuits:
+                        gag.effect.applyToQuietly(suit)
+                elif gag.targetsEnemy():
+                    suit = self.battle.findSuit(ta.targetId)
+                    gag.effect.applyToQuietly(suit)
+            else:
+                self.notify.warning('Unknown toon attack %s' % ta.attackId)
 
     def __knockBackAtk(self, attackIndex, toon = 1):
         if toon and (self.battle.toonAttacks[attackIndex][TOON_TRACK_COL] == THROW or self.battle.toonAttacks[attackIndex][TOON_TRACK_COL] == SQUIRT):
@@ -1235,63 +1224,31 @@ class BattleCalculatorAI:
         else:
             self.suitAtkStats[toonId] = 1
 
-    def __printSuitAtkStats(self):
-        self.notify.debug('Suit Atk Stats:')
-        for currTgt in self.suitAtkStats.keys():
-            if currTgt not in self.battle.activeToons:
-                continue
-            tgtPos = self.battle.activeToons.index(currTgt)
-            self.notify.debug(' toon ' + str(currTgt) + ' at position ' + str(tgtPos) + ' was attacked ' + str(self.suitAtkStats[currTgt]) + ' times')
+    def __doSuitAttacks(self):
+        for sa in self.battle.suitAttacks:
+            sma = BattleAttack.MovieAttack()
+            sma.fromList(sa.toList() + [False])
+            attack = BattleAttack.SuitAttacks.get(sa.attackId)
+            if attack is not None:
+                if attack.accuracy > random.randint(0, 99):
+                    sma.hit = True
 
-        self.notify.debug('\n')
-
-    def __calculateSuitAttacks(self):
-        for i in xrange(len(self.battle.suitAttacks)):
-            if i < len(self.battle.activeSuits):
-                suitId = self.battle.activeSuits[i].doId
-                self.battle.suitAttacks[i][SUIT_ID_COL] = suitId
-                if not self.__suitCanAttack(suitId):
-                    if self.notify.getDebug():
-                        self.notify.debug("Suit %d can't attack" % suitId)
+                if not sma.hit:
                     continue
-                if self.battle.pendingSuits.count(self.battle.activeSuits[i]) > 0 or self.battle.joiningSuits.count(self.battle.activeSuits[i]) > 0:
-                    continue
-                attack = self.battle.suitAttacks[i]
-                attack[SUIT_ID_COL] = self.battle.activeSuits[i].doId
-                attack[SUIT_ATK_COL] = self.__calcSuitAtkType(i)
-                attack[SUIT_TGT_COL] = self.__calcSuitTarget(i)
-                if attack[SUIT_TGT_COL] == -1:
-                    self.battle.suitAttacks[i] = getDefaultSuitAttack()
-                    attack = self.battle.suitAttacks[i]
-                    self.notify.debug('clearing suit attack, no avail targets')
-                self.__calcSuitAtkHp(i)
-                if attack[SUIT_ATK_COL] != NO_ATTACK:
-                    if self.__suitAtkAffectsGroup(attack):
-                        for currTgt in self.battle.activeToons:
-                            self.__updateSuitAtkStat(currTgt)
-
-                    else:
-                        tgtId = self.battle.activeToons[attack[SUIT_TGT_COL]]
-                        self.__updateSuitAtkStat(tgtId)
-                targets = self.__createSuitTargetList(i)
-                allTargetsDead = 1
-                for currTgt in targets:
-                    if self.__getToonHp(currTgt) > 0:
-                        allTargetsDead = 0
-                        break
-
-                if allTargetsDead:
-                    self.battle.suitAttacks[i] = getDefaultSuitAttack()
-                    if self.notify.getDebug():
-                        self.notify.debug('clearing suit attack, targets dead')
-                        self.notify.debug('suit attack is now ' + repr(self.battle.suitAttacks[i]))
-                        self.notify.debug('all attacks: ' + repr(self.battle.suitAttacks))
-                    attack = self.battle.suitAttacks[i]
-                if self.__attackHasHit(attack, suit=1):
-                    self.__applySuitAttackDamages(i)
-                if self.notify.getDebug():
-                    self.notify.debug('Suit attack: ' + str(self.battle.suitAttacks[i]))
-                attack[SUIT_BEFORE_TOONS_COL] = 0
+                if attack.targetsAlly() and attack.targetCount == 4:
+                    for suit in self.battle.activeSuits:
+                        suit.effect.applyToQuietly(suit)
+                elif attack.targetsAlly():
+                    suit = self.battle.findToon(sa.targetId)
+                    attack.effect.applyToQuietly(suit)
+                elif attack.targetsEnemy() and attack.targetCount == 4:
+                    for toon in self.battle.activeToons:
+                        attack.effect.applyToQuietly(toon)
+                elif attack.targetsEnemy():
+                    toon = self.battle.findSuit(sa.targetId)
+                    attack.effect.applyToQuietly(toon)
+            else:
+                self.notify.warning('Invalid suit attack %s' % sa.attackId)
 
     def __updateLureTimeouts(self):
         if self.notify.getDebug():
@@ -1367,41 +1324,9 @@ class BattleCalculatorAI:
         return (toonsHit, cogsMiss)
 
     def calculateRound(self):
-        longest = max(len(self.battle.activeToons), len(self.battle.activeSuits))
-        for t in self.battle.activeToons:
-            for j in xrange(longest):
-                self.battle.toonAttacks[t][TOON_HP_COL].append(-1)
-                self.battle.toonAttacks[t][TOON_KBBONUS_COL].append(-1)
-
-        for i in xrange(4):
-            for j in xrange(len(self.battle.activeToons)):
-                self.battle.suitAttacks[i][SUIT_HP_COL].append(-1)
-
-        toonsHit, cogsMiss = self.__initRound()
-        for suit in self.battle.activeSuits:
-            if suit.isGenerated():
-                suit.b_setHP(suit.getHP())
-
-        for suit in self.battle.activeSuits:
-            if not hasattr(suit, 'dna'):
-                self.notify.warning('a removed suit is in this battle!')
-                return None
-
-        self.__calculateToonAttacks()
-        self.__updateLureTimeouts()
-        self.__calculateSuitAttacks()
-        if toonsHit == 1:
-            BattleCalculatorAI.toonsAlwaysHit = 0
-        if cogsMiss == 1:
-            BattleCalculatorAI.suitsAlwaysMiss = 0
-        if self.notify.getDebug():
-            self.notify.debug('Toon skills gained after this round: ' + repr(self.toonSkillPtsGained))
-            self.__printSuitAtkStats()
-        return None
-
-    def __calculateFiredCogs():
-        import pdb
-        pdb.set_trace()
+        # Fill toon movie and suit movie attacks while performing the attacks to members of the battle quietly
+        self.__doToonAttacks()
+        self.__doSuitAttacks()
 
     def toonLeftBattle(self, toonId):
         if self.notify.getDebug():

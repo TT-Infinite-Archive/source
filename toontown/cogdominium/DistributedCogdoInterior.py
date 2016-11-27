@@ -219,7 +219,6 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         del self.openSfx
         del self.closeSfx
         del self.fsm
-        base.localAvatar.inventory.setBattleCreditMultiplier(1)
         DistributedObject.DistributedObject.delete(self)
         return
 
@@ -547,8 +546,6 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
                 self._movie.load()
                 self._movie.play()
         self.__playElevator(ts, self.elevatorName, self.__handleElevatorDone)
-        mult = ToontownBattleGlobals.getCreditMultiplier(self.currentFloor)
-        base.localAvatar.inventory.setBattleCreditMultiplier(mult)
 
     def __handleElevatorDone(self):
         self.d_elevatorDone()

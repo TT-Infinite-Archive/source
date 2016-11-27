@@ -5,7 +5,7 @@ from direct.directnotify import DirectNotifyGlobal
 from toontown.battle import DistributedBattleFinal
 from toontown.suit import SuitTimings
 from toontown.toonbase import ToontownGlobals
-from toontown.battle import BattleProps
+from toontown.battle import BattleProps, BattleGlobals
 
 class DistributedBattleDiners(DistributedBattleFinal.DistributedBattleFinal):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBattleDiners')
@@ -39,7 +39,7 @@ class DistributedBattleDiners(DistributedBattleFinal.DistributedBattleFinal):
         self.storeInterval(track, name)
 
     def moveSuitsToInitialPos(self):
-        battlePts = self.suitPoints[len(self.suitPendingPoints) - 1]
+        battlePts = BattleGlobals.SuitPoints[len(BattleGlobals.SuitPendingPoints) - 1]
         for i in xrange(len(self.suits)):
             suit = self.suits[i]
             suit.reparentTo(self)
@@ -59,7 +59,7 @@ class DistributedBattleDiners(DistributedBattleFinal.DistributedBattleFinal):
                 suit.setPos(0, 0, 0)
             if suit in self.joiningSuits:
                 i = len(self.pendingSuits) + self.joiningSuits.index(suit)
-                destPos, h = self.suitPendingPoints[i]
+                destPos, h = BattleGlobals.SuitPendingPoints[i]
                 destHpr = VBase3(h, 0, 0)
             else:
                 destPos, destHpr = self.getActorPosHpr(suit, self.suits)

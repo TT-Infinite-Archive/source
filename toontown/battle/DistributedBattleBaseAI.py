@@ -12,14 +12,16 @@ from direct.fsm import State
 from direct.task import Task
 from direct.directnotify import DirectNotifyGlobal
 from toontown.ai import DatabaseObject
+from toontown.battle import BattleGlobals
 from toontown.toon import DistributedToonAI
-from toontown.toon import InventoryBase
+from toontown.toon import GagInventoryBase, InventoryGlobals
 from toontown.toonbase import ToontownGlobals
 import random
 from toontown.toon import NPCToons
 from otp.ai.MagicWordGlobal import *
 if config.GetBool('want-pets', False):
     from toontown.pets.PetDNA import FIELD_LIST
+
 
 class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBattleBaseAI')
@@ -95,7 +97,8 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.startTime = globalClock.getRealTime()
         self.adjustingTimer = Timer()
         self.finalBattle = False
-        return
+        self.toonMovieAttacks = []
+        self.suitMovieAttacks = []
 
     def clearAttacks(self):
         self.toonAttacks = {}
@@ -325,91 +328,29 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         for s in self.activeSuits:
             suitIds.append(s.doId)
 
-        p = [self.movieHasBeenMade]
-        p.append(self.activeToons)
-        p.append(suitIds)
-        for t in self.activeToons:
-            if t in self.toonAttacks:
-                ta = self.toonAttacks[t]
-                index = -1
-                id = ta[TOON_ID_COL]
-                if id != -1:
-                    index = self.activeToons.index(id)
-                track = ta[TOON_TRACK_COL]
-                if (track == NO_ATTACK or attackAffectsGroup(track, ta[TOON_LVL_COL])) and track != NPCSOS and track != PETSOS:
-                    target = -1
-                    if track == HEAL:
-                        if ta[TOON_LVL_COL] == 1:
-                            ta[TOON_HPBONUS_COL] = random.randint(0, 10000)
-                elif track == SOS or track == NPCSOS or track == PETSOS:
-                    target = ta[TOON_TGT_COL]
-                elif track == HEAL:
-                    if self.activeToons.count(ta[TOON_TGT_COL]) != 0:
-                        target = self.activeToons.index(ta[TOON_TGT_COL])
-                    else:
-                        target = -1
-                elif suitIds.count(ta[TOON_TGT_COL]) != 0:
-                    target = suitIds.index(ta[TOON_TGT_COL])
-                else:
-                    target = -1
-                p = p + [index,
-                 track,
-                 ta[TOON_LVL_COL],
-                 target]
-                p = p + ta[4:]
-            else:
-                index = self.activeToons.index(t)
-                attack = getToonAttack(index)
-                p = p + attack
-
-        for i in xrange(4 - len(self.activeToons)):
-            p = p + getToonAttack(-1)
-
-        for sa in self.suitAttacks:
-            index = -1
-            id = sa[SUIT_ID_COL]
-            if id != -1:
-                index = suitIds.index(id)
-            if sa[SUIT_ATK_COL] == -1:
-                targetIndex = -1
-            else:
-                targetIndex = sa[SUIT_TGT_COL]
-                if targetIndex == -1:
-                    self.notify.debug('suit attack: %d must be group' % sa[SUIT_ATK_COL])
-                else:
-                    toonId = self.activeToons[targetIndex]
-            p = p + [index, sa[SUIT_ATK_COL], targetIndex]
-            sa[SUIT_TAUNT_COL] = 0
-            if sa[SUIT_ATK_COL] != -1:
-                suit = self.findSuit(id)
-                sa[SUIT_TAUNT_COL] = getAttackTauntIndexFromIndex(suit, sa[SUIT_ATK_COL])
-            p = p + sa[3:]
-
+        p = [
+            self.movieHasBeenMade,
+            self.activeToons,
+            suitIds,
+            self.toonMovieAttacks,
+            self.suitMovieAttacks
+        ]
         return p
 
     def d_setChosenToonAttacks(self):
         self.notify.debug('network:setChosenToonAttacks()')
-        self.sendUpdate('setChosenToonAttacks', self.getChosenToonAttacks())
+        self.sendUpdate('setChosenToonAttacks', [self.getChosenToonAttacks()])
 
     def getChosenToonAttacks(self):
-        ids = []
-        tracks = []
-        levels = []
-        targets = []
+        attacks = []
         for t in self.activeToons:
             if t in self.toonAttacks:
                 ta = self.toonAttacks[t]
             else:
                 ta = getToonAttack(t)
-            ids.append(t)
-            tracks.append(ta[TOON_TRACK_COL])
-            levels.append(ta[TOON_LVL_COL])
-            targets.append(ta[TOON_TGT_COL])
+            attacks.append(ta.toList())
 
-        return [ids,
-         tracks,
-         levels,
-         targets]
+        return attacks
 
     def d_setBattleExperience(self):
         self.notify.debug('network:setBattleExperience()')
@@ -664,14 +605,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         if self.pendingToons.count(toonId) == 1:
             self.pendingToons.remove(toonId)
         if self.activeToons.count(toonId) == 1:
-            activeToonIdx = self.activeToons.index(toonId)
-            self.notify.debug('removing activeToons[%d], updating suitAttacks SUIT_HP_COL to match' % activeToonIdx)
-            for i in xrange(len(self.suitAttacks)):
-                if activeToonIdx < len(self.suitAttacks[i][SUIT_HP_COL]):
-                    del self.suitAttacks[i][SUIT_HP_COL][activeToonIdx]
-                else:
-                    self.notify.warning("suitAttacks %d doesn't have an HP column for active toon index %d" % (i, activeToonIdx))
-
             self.activeToons.remove(toonId)
         if self.runningToons.count(toonId) == 1:
             self.runningToons.remove(toonId)
@@ -707,14 +640,13 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.notify.info('toon %d aborted non-street battle; clearing inventory and hp.' % toonId)
             toon = DistributedToonAI.DistributedToonAI(self.air)
             toon.doId = toonId
-            empty = InventoryBase.InventoryBase(toon)
-            toon.b_setInventory(empty.makeNetString())
+            toon.inventory.empty()
+            toon.b_setInventory(toon.inventory)
             toon.b_setHp(0)
             db = DatabaseObject.DatabaseObject(self.air, toonId)
             db.storeObject(toon, ['setInventory', 'setHp'])
             self.notify.info('killing mem leak from temporary DistributedToonAI %d' % toonId)
             toon.deleteDummy()
-        return
 
     def getToon(self, toonId):
         if toonId in self.air.doId2do:
@@ -765,7 +697,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             toon = self.getToon(toonId)
             if toon:
                 toon.hp = -1
-                toon.inventory.zeroInv(1)
+                toon.inventory.empty()
                 self.__handleSuddenExit(toonId, 0)
 
     def signupToon(self, toonId, x, y, z):
@@ -990,7 +922,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         if self.__allToonsRespondedJoin(avId):
             self.__makeAvPending(avId)
 
-    def requestAttack(self, track, level, av):
+    def requestAttack(self, attackId, targetId):
         toonId = self.air.getAvatarIdFromSender()
         if self.ignoreResponses == 1:
             self.notify.debug('requestAttack() - ignoring toon: %d' % toonId)
@@ -1001,84 +933,48 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         elif self.activeToons.count(toonId) == 0:
             self.notify.warning('requestAttack() - toon: %d not in toon list' % toonId)
             return
-        self.notify.debug('requestAttack(%d, %d, %d, %d)' % (toonId,
-         track,
-         level,
-         av))
+        self.notify.debug('requestAttack(%d, %d, %d)' % (toonId, attackId, targetId))
         toon = self.getToon(toonId)
-        if toon == None:
+        if toon is None:
             self.notify.warning('requestAttack() - no toon: %d' % toonId)
             return
-        if toonId == av:
+        if toonId == targetId:
             self.notify.warning('Toon %s tried to target themselves!' % toonId)
             return
         validResponse = 1
-        if track == SOS:
-            self.notify.debug('toon: %d calls for help' % toonId)
-            self.air.writeServerEvent('friendSOS', toonId, '%s' % av)
-            self.toonAttacks[toonId] = getToonAttack(toonId, track=SOS, target=av)
-        elif track == NPCSOS:
-            self.notify.debug('toon: %d calls for help' % toonId)
-            self.air.writeServerEvent('NPCSOS', toonId, '%s' % av)
-            toon = self.getToon(toonId)
-            if toon == None:
-                return
-            if av in toon.NPCFriendsDict:
-                npcCollision = 0
-                if av in self.npcAttacks:
-                    callingToon = self.npcAttacks[av]
-                    if self.activeToons.count(callingToon) == 1:
-                        self.toonAttacks[toonId] = getToonAttack(toonId, track=PASS)
-                        npcCollision = 1
-                if npcCollision == 0:
-                    self.toonAttacks[toonId] = getToonAttack(toonId, track=NPCSOS, level=5, target=av)
-                    self.numNPCAttacks += 1
-                    self.npcAttacks[av] = toonId
-        elif track == PETSOS:
-            self.notify.debug('toon: %d calls for pet: %d' % (toonId, av))
-            self.air.writeServerEvent('PETSOS', toonId, '%s' % av)
-            toon = self.getToon(toonId)
-            if toon == None:
-                return
-            if not self.validate(toonId, level in toon.petTrickPhrases, 'requestAttack: invalid pet trickId: %s' % level):
-                return
-            self.toonAttacks[toonId] = getToonAttack(toonId, track=PETSOS, level=level, target=av)
-        elif track == UN_ATTACK:
-            self.notify.debug('toon: %d changed its mind' % toonId)
-            self.toonAttacks[toonId] = getToonAttack(toonId, track=UN_ATTACK)
-            if toonId in self.responses:
-                self.responses[toonId] = 0
-            validResponse = 0
-        elif track == PASS:
-            self.toonAttacks[toonId] = getToonAttack(toonId, track=PASS)
-        elif track == FIRE:
-            self.toonAttacks[toonId] = getToonAttack(toonId, track=FIRE, target=av)
+        if attackId in (UN_ATTACK, PASS):
+            # This is not a true attack
+            self.toonAttacks[toonId] = getToonAttack(toonId, attackId)
+            if attackId == UN_ATTACK:
+                if toonId in self.responses:
+                    self.responses[toonId] = 0
+                validResponse = 0
+        elif not toon.inventory.isEquipped(attackId):
+            # This is a true attack, do we have it equipped?
+            self.notify.warning('Toon %s tried to use a move he doesnt have equipped' % toonId)
+            return
         else:
-            if not self.validate(toonId, track >= 0 and track <= MAX_TRACK_INDEX, 'requestAttack: invalid track %s' % track):
+            gag = InventoryGlobals.Gags.get(attackId)
+            if gag is None:
+                self.notify.warning('Toon %s tried to use an invalid gag %s' % (toonId, attackId))
                 return
-            if not self.validate(toonId, level >= 0 and level <= MAX_LEVEL_INDEX, 'requestAttack: invalid level %s' % level):
-                return
-            if toon.inventory.numItem(track, level) == 0:
-                self.notify.warning('requestAttack() - toon has no item track:                     %d level: %d' % (track, level))
-                self.toonAttacks[toonId] = getToonAttack(toonId)
-                return
-            if track == HEAL:
-                if self.runningToons.count(av) == 1 or attackAffectsGroup(track, level) and len(self.activeToons) < 2:
-                    self.toonAttacks[toonId] = getToonAttack(toonId, track=UN_ATTACK)
+            elif gag.targetsAlly():
+                if self.runningToons.count(targetId) == 1 or gag.targetCount == 4 and len(self.activeToons) < 2:
+                    self.toonAttacks[toonId] = getToonAttack(toonId, UN_ATTACK)
                     validResponse = 0
                 else:
-                    self.toonAttacks[toonId] = getToonAttack(toonId, track=track, level=level, target=av)
+                    self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
             else:
-                self.toonAttacks[toonId] = getToonAttack(toonId, track=track, level=level, target=av)
-                if av == -1 and not attackAffectsGroup(track, level):
+                self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
+                if targetId == -1 and not gag.targetCount == 4:
                     validResponse = 0
         self.d_setChosenToonAttacks()
         if validResponse == 1:
             self.responses[toonId] += 1
-        self.notify.debug('toon: %d chose an attack' % toonId)
+        self.notify.debug('Toon: %d chose an attack' % toonId)
         if self.__allActiveToonsResponded():
+            # All toons have attacked, play movie
             self.__requestMovie()
-        return
 
     def requestPetProxy(self, av):
         toonId = self.air.getAvatarIdFromSender()
@@ -1175,20 +1071,14 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             if t not in self.toonAttacks:
                 self.toonAttacks[t] = getToonAttack(t)
             attack = self.toonAttacks[t]
-            if attack[TOON_TRACK_COL] == PASS or attack[TOON_TRACK_COL] == UN_ATTACK:
-                self.toonAttacks[t] = getToonAttack(t)
-            if self.toonAttacks[t][TOON_TRACK_COL] != NO_ATTACK:
+            if attack.attackId == NO_ATTACK or attack.attackId == UN_ATTACK:
+                self.toonAttacks[t] = getToonAttack(t, PASS)
+            if self.toonAttacks[t].attackId != PASS:
                 self.addHelpfulToon(t)
 
+        self.toonMovieAttacks[:] = []
+        self.suitMovieAttacks[:] = []
         self.battleCalc.calculateRound()
-        for t in self.activeToons:
-            self.sendEarnedExperience(t)
-            toon = self.getToon(t)
-            if toon != None:
-                toon.hpOwnedByBattle = 1
-                if toon.immortalMode:
-                    toon.toonUp(toon.maxHp)
-
         self.d_setMovie()
         self.b_setState('PlayMovie')
         return Task.done
@@ -1627,7 +1517,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                     toon.takeDamage(-hpDelta, quietly=1)
                 if toon.hp <= 0:
                     self.notify.debug('movieDone() - toon: %d was killed' % activeToon)
-                    toon.inventory.zeroInv(1)
+                    toon.inventory.empty()
                     deadToons.append(activeToon)
                 self.notify.debug('AFTER ROUND: toon: %d setHp: %d' % (toon.doId, toon.hp))
 
@@ -1727,14 +1617,14 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         adjustTime = 0
         if len(self.pendingSuits) > 0 or self.suitGone == 1:
             self.suitGone = 0
-            pos0 = self.suitPendingPoints[0][0]
-            pos1 = self.suitPoints[0][0][0]
+            pos0 = BattleGlobals.SuitPendingPoints[0][0]
+            pos1 = BattleGlobals.SuitPoints[0][0][0]
             adjustTime = self.calcSuitMoveTime(pos0, pos1)
         if len(self.pendingToons) > 0 or self.toonGone == 1:
             self.toonGone = 0
             if adjustTime == 0:
-                pos0 = self.toonPendingPoints[0][0]
-                pos1 = self.toonPoints[0][0][0]
+                pos0 = BattleGlobals.ToonPendingPoints[0][0]
+                pos1 = BattleGlobals.ToonPoints[0][0][0]
                 adjustTime = self.calcToonMoveTime(pos0, pos1)
         return adjustTime
 

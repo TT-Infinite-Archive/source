@@ -18,7 +18,7 @@ class TownBattleChooseAvatarPanel(DirectObject):
         (0.6, 0.2, -0.2, -0.6)
     )
 
-    def __init__(self, battle):
+    def __init__(self):
         DirectObject.__init__(self)
         self.notify.debug('Initializing...')
         self.attack = None

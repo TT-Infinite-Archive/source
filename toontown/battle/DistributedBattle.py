@@ -7,6 +7,7 @@ from BattleBase import *
 import DistributedBattleBase
 import SuitBattleGlobals
 from otp.avatar import Emote
+from toontown.battle import BattleGlobals
 from toontown.chat.ChatGlobals import *
 from toontown.distributed import DelayDelete
 from toontown.nametag import NametagGlobals
@@ -76,11 +77,11 @@ class DistributedBattle(DistributedBattleBase.DistributedBattleBase):
             self.notify.warning('__faceOff(): no toons.')
             return
         suit = self.suits[0]
-        point = self.suitPoints[0][0]
+        point = BattleGlobals.SuitPoints[0][0]
         suitPos = point[0]
         suitHpr = VBase3(point[1], 0.0, 0.0)
         toon = self.toons[0]
-        point = self.toonPoints[0][0]
+        point = BattleGlobals.ToonPoints[0][0]
         toonPos = point[0]
         toonHpr = VBase3(point[1], 0.0, 0.0)
         p = toon.getPos(self)

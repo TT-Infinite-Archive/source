@@ -3,6 +3,7 @@ from toontown.battle.BattleProps import *
 from toontown.battle.BattleSounds import *
 from toontown.distributed.ToontownMsgTypes import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import EventGlobals
 from direct.gui.DirectGui import cleanupDialog
 from direct.directnotify import DirectNotifyGlobal
 from toontown.hood import Place
@@ -46,8 +47,6 @@ class TownLoader(StateData.StateData):
         self.branchZone = None
         self.canonicalBranchZone = None
         self.placeDoneEvent = 'placeDone'
-        self.townBattleDoneEvent = 'town-battle-done'
-        return
 
     def loadBattleAnims(self):
         Toon.loadBattleAnims()
@@ -64,7 +63,7 @@ class TownLoader(StateData.StateData):
         self.music = base.loadMusic(self.musicFile)
         self.activityMusic = base.loadMusic(self.activityMusicFile)
         self.battleMusic = base.loadMusic(self.zone2music.get(ZoneUtil.getHoodId(zoneId), 'phase_9/audio/bgm/encntr_suit_ttc.ogg'))#'phase_3.5/audio/bgm/encntr_general_bg.ogg'))
-        self.townBattle = TownBattle.TownBattle(self.townBattleDoneEvent)
+        self.townBattle = TownBattle.TownBattle(EventGlobals.TownBattleDone)
         self.townBattle.load()
 
     def unload(self):

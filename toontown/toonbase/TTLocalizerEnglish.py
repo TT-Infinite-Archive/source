@@ -5450,8 +5450,7 @@ HeadingToFriend = "Heading to %s's friend's estate..."
 HeadingToPlayground = 'Heading to the Neighborhood...'
 HeadingToStreet = 'Heading %(to)s %(street)s...'
 TownBattleRun = 'Run all the way back to the neighborhood?'
-TownBattleChooseAvatarToonTitle = 'WHICH TOON?'
-TownBattleChooseAvatarCogTitle = 'WHICH ' + Cog.upper() + '?'
+TownBattleChooseTitle = 'SELECT A TARGET'
 TownBattleChooseAvatarBack = 'BACK'
 FireCogTitle = 'PINK SLIPS LEFT:%s\nFIRE WHICH COG?'
 FireCogLowTitle = 'PINK SLIPS LEFT:%s\nNOT ENOUGH SLIPS!'
@@ -10676,12 +10675,6 @@ District = 'District'
 Uberdog = 'Uberdog Server'
 
 ServerDown = 'Oops! The %s has gone down! A game restart is highly recommended.'
-
-EffectName = {
- 0: 'None',
- 1: 'Heal +5',
- 2: 'Heal +1'
-}
 
 BehaviorName = {
  0: 'None',

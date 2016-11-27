@@ -27,7 +27,7 @@ from SuitBattleGlobals import *
 from toontown.chat.ChatGlobals import *
 from toontown.distributed import DelayDelete
 from toontown.toon import NPCToons
-from toontown.toon import Toon
+from toontown.toon import InventoryGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
@@ -43,6 +43,7 @@ class Movie(DirectObject.DirectObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('Movie')
 
     def __init__(self, battle):
+        DirectObject.DirectObject.__init__(self)
         self.battle = battle
         self.track = None
         self.rewardPanel = None
@@ -54,7 +55,6 @@ class Movie(DirectObject.DirectObject):
         self.reset()
         self.rewardHasBeenReset = 0
         self.resetReward()
-        return
 
     def cleanup(self):
         self.reset()
@@ -202,8 +202,8 @@ class Movie(DirectObject.DirectObject):
         self._deleteTrack()
         if finish == 1:
             self.restore()
-        self.toonAttackDicts = []
-        self.suitAttackDicts = []
+        self.toonMovieAttacks = []
+        self.suitMovieAttacks = []
         self.restoreColor = 0
         self.restoreHips = 0
         self.restoreHeadScale = 0
@@ -229,6 +229,7 @@ class Movie(DirectObject.DirectObject):
         return
 
     def play(self, ts, callback):
+        return None
         self.hasBeenReset = 0
         ptrack = Sequence()
         camtrack = Sequence()
@@ -271,7 +272,6 @@ class Movie(DirectObject.DirectObject):
         return None
 
     def playReward(self, ts, name, callback, noSkip = False):
-        print('Playing reward', ts, name, callback)
         self.rewardHasBeenReset = 0
         ptrack = Sequence()
         camtrack = Sequence()
@@ -411,61 +411,16 @@ class Movie(DirectObject.DirectObject):
         return
 
     def __doToonAttacks(self):
-        if base.config.GetBool('want-toon-attack-anims', 1):
-            track = Sequence(name='toon-attacks')
-            camTrack = Sequence(name='toon-attacks-cam')
-            ival, camIval = MovieFire.doFires(self.__findToonAttack(FIRE))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieSOS.doSOSs(self.__findToonAttack(SOS))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieNPCSOS.doNPCSOSs(self.__findToonAttack(NPCSOS))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MoviePetSOS.doPetSOSs(self.__findToonAttack(PETSOS))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            hasHealBonus = self.battle.getInteractivePropTrackBonus() == HEAL
-            ival, camIval = MovieHeal.doHeals(self.__findToonAttack(HEAL), hasHealBonus)
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieTrap.doTraps(self.__findToonAttack(TRAP))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieLure.doLures(self.__findToonAttack(LURE))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieSound.doSounds(self.__findToonAttack(SOUND))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieThrow.doThrows(self.__findToonAttack(THROW))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieSquirt.doSquirts(self.__findToonAttack(SQUIRT))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            ival, camIval = MovieDrop.doDrops(self.__findToonAttack(DROP))
-            if ival:
-                track.append(ival)
-                camTrack.append(camIval)
-            if len(track) == 0:
-                return (None, None)
-            else:
-                return (track, camTrack)
+        track = Sequence(name='toon-attacks')
+        camTrack = Sequence(name='toon-attacks-cam')
+        ival, camIval = MovieThrow.doAttacks(self.toonMovieAttacks, self.battle)
+        if ival:
+            track.append(ival)
+            camTrack.append(camIval)
+        if len(track) == 0:
+            return None, None
         else:
-            return (None, None)
-        return None
+            return track, camTrack
 
     def genRewardDicts(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
         self.deathList = deathList
@@ -513,406 +468,64 @@ class Movie(DirectObject.DirectObject):
          id3]
         self.uberList = uberList
 
-    def genAttackDicts(self, toons, suits, id0, tr0, le0, tg0, hp0, ac0, hpb0, kbb0, died0, revive0, id1, tr1, le1, tg1, hp1, ac1, hpb1, kbb1, died1, revive1, id2, tr2, le2, tg2, hp2, ac2, hpb2, kbb2, died2, revive2, id3, tr3, le3, tg3, hp3, ac3, hpb3, kbb3, died3, revive3, sid0, at0, stg0, dm0, sd0, sb0, st0, sid1, at1, stg1, dm1, sd1, sb1, st1, sid2, at2, stg2, dm2, sd2, sb2, st2, sid3, at3, stg3, dm3, sd3, sb3, st3):
+    def genAttackDicts(self, toons, suits, toonAttacks, suitAttacks):
         if self.track and self.track.isPlaying():
             self.notify.warning('genAttackDicts() - track is playing!')
-        toonAttacks = ((id0,
-          tr0,
-          le0,
-          tg0,
-          hp0,
-          ac0,
-          hpb0,
-          kbb0,
-          died0,
-          revive0),
-         (id1,
-          tr1,
-          le1,
-          tg1,
-          hp1,
-          ac1,
-          hpb1,
-          kbb1,
-          died1,
-          revive1),
-         (id2,
-          tr2,
-          le2,
-          tg2,
-          hp2,
-          ac2,
-          hpb2,
-          kbb2,
-          died2,
-          revive2),
-         (id3,
-          tr3,
-          le3,
-          tg3,
-          hp3,
-          ac3,
-          hpb3,
-          kbb3,
-          died3,
-          revive3))
-        self.__genToonAttackDicts(toons, suits, toonAttacks)
-        suitAttacks = ((sid0,
-          at0,
-          stg0,
-          dm0,
-          sd0,
-          sb0,
-          st0),
-         (sid1,
-          at1,
-          stg1,
-          dm1,
-          sd1,
-          sb1,
-          st1),
-         (sid2,
-          at2,
-          stg2,
-          dm2,
-          sd2,
-          sb2,
-          st2),
-         (sid3,
-          at3,
-          stg3,
-          dm3,
-          sd3,
-          sb3,
-          st3))
-        self.__genSuitAttackDicts(toons, suits, suitAttacks)
+        self.__genToonAttacks(toonAttacks)
+        self.__genSuitAttacks(suitAttacks)
 
-    def __genToonAttackDicts(self, toons, suits, toonAttacks):
+    def __genToonAttacks(self, toonAttacks):
         for ta in toonAttacks:
-            targetGone = 0
-            track = ta[TOON_TRACK_COL]
-            if track != NO_ATTACK:
-                adict = {}
-                toonIndex = ta[TOON_ID_COL]
-                toonId = toons[toonIndex]
-                toon = self.battle.findToon(toonId)
-                if toon == None:
-                    continue
-                level = ta[TOON_LVL_COL]
-                adict['toon'] = toon
-                adict['track'] = track
-                adict['level'] = level
-                hps = ta[TOON_HP_COL]
-                kbbonuses = ta[TOON_KBBONUS_COL]
-                if track == NPCSOS:
-                    adict['npcId'] = ta[TOON_TGT_COL]
-                    toonId = ta[TOON_TGT_COL]
-                    track, npc_level, npc_hp = NPCToons.getNPCTrackLevelHp(adict['npcId'])
-                    if track == None:
-                        track = NPCSOS
-                    adict['track'] = track
-                    adict['level'] = npc_level
-                elif track == PETSOS:
-                    petId = ta[TOON_TGT_COL]
-                    adict['toonId'] = toonId
-                    adict['petId'] = petId
-                if track == SOS:
-                    targetId = ta[TOON_TGT_COL]
-                    if targetId == base.localAvatar.doId:
-                        target = base.localAvatar
-                        adict['targetType'] = 'callee'
-                    elif toon == base.localAvatar:
-                        target = base.cr.identifyAvatar(targetId)
-                        adict['targetType'] = 'caller'
-                    else:
-                        target = None
-                        adict['targetType'] = 'observer'
-                    adict['target'] = target
-                elif track == NPCSOS or track == NPC_COGS_MISS or track == NPC_TOONS_HIT or track == NPC_RESTOCK_GAGS or track == PETSOS:
-                    adict['special'] = 1
-                    toonHandles = []
-                    for t in toons:
-                        if t != -1:
-                            target = self.battle.findToon(t)
-                            if target == None:
-                                continue
-                            if track == NPC_TOONS_HIT and t == toonId:
-                                continue
-                            toonHandles.append(target)
+            tma = BattleAttack.MovieAttack()
+            tma.fromList(ta)
+            self.toonMovieAttacks.append(tma)
 
-                    adict['toons'] = toonHandles
-                    suitHandles = []
-                    for s in suits:
-                        if s != -1:
-                            target = self.battle.findSuit(s)
-                            if target == None:
-                                continue
-                            suitHandles.append(target)
-
-                    adict['suits'] = suitHandles
-                    if track == PETSOS:
-                        del adict['special']
-                        targets = []
-                        for t in toons:
-                            if t != -1:
-                                target = self.battle.findToon(t)
-                                if target == None:
-                                    continue
-                                tdict = {}
-                                tdict['toon'] = target
-                                tdict['hp'] = hps[toons.index(t)]
-                                self.notify.debug('PETSOS: toon: %d healed for hp: %d' % (target.doId, hps[toons.index(t)]))
-                                targets.append(tdict)
-
-                        if len(targets) > 0:
-                            adict['target'] = targets
-                elif track == HEAL:
-                    if levelAffectsGroup(HEAL, level):
-                        targets = []
-                        for t in toons:
-                            if t != toonId and t != -1:
-                                target = self.battle.findToon(t)
-                                if target == None:
-                                    continue
-                                tdict = {}
-                                tdict['toon'] = target
-                                tdict['hp'] = hps[toons.index(t)]
-                                self.notify.debug('HEAL: toon: %d healed for hp: %d' % (target.doId, hps[toons.index(t)]))
-                                targets.append(tdict)
-
-                        if len(targets) > 0:
-                            adict['target'] = targets
-                        else:
-                            targetGone = 1
-                    else:
-                        targetIndex = ta[TOON_TGT_COL]
-                        if targetIndex < 0:
-                            targetGone = 1
-                        else:
-                            targetId = toons[targetIndex]
-                            target = self.battle.findToon(targetId)
-                            if target != None:
-                                tdict = {}
-                                tdict['toon'] = target
-                                tdict['hp'] = hps[targetIndex]
-                                adict['target'] = tdict
-                            else:
-                                targetGone = 1
-                elif attackAffectsGroup(track, level, ta[TOON_TRACK_COL]):
-                    targets = []
-                    for s in suits:
-                        if s != -1:
-                            target = self.battle.findSuit(s)
-                            if ta[TOON_TRACK_COL] == NPCSOS:
-                                if track == LURE and self.battle.isSuitLured(target) == 1:
-                                    continue
-                                elif track == TRAP and (self.battle.isSuitLured(target) == 1 or target.battleTrap != NO_TRAP):
-                                    continue
-                            targetIndex = suits.index(s)
-                            sdict = {}
-                            sdict['suit'] = target
-                            sdict['hp'] = hps[targetIndex]
-                            if ta[TOON_TRACK_COL] == NPCSOS and track == DROP and hps[targetIndex] == 0:
-                                continue
-                            sdict['kbbonus'] = kbbonuses[targetIndex]
-                            sdict['died'] = ta[SUIT_DIED_COL] & 1 << targetIndex
-                            sdict['revived'] = ta[SUIT_REVIVE_COL] & 1 << targetIndex
-                            if sdict['died'] != 0:
-                                pass
-                            sdict['leftSuits'] = []
-                            sdict['rightSuits'] = []
-                            targets.append(sdict)
-
-                    adict['target'] = targets
-                else:
-                    targetIndex = ta[TOON_TGT_COL]
-                    if targetIndex < 0:
-                        targetGone = 1
-                    else:
-                        targetId = suits[targetIndex]
-                        target = self.battle.findSuit(targetId)
-                        sdict = {}
-                        sdict['suit'] = target
-                        if self.battle.activeSuits.count(target) == 0:
-                            targetGone = 1
-                            suitIndex = 0
-                        else:
-                            suitIndex = self.battle.activeSuits.index(target)
-                        leftSuits = []
-                        for si in xrange(0, suitIndex):
-                            asuit = self.battle.activeSuits[si]
-                            if self.battle.isSuitLured(asuit) == 0:
-                                leftSuits.append(asuit)
-
-                        lenSuits = len(self.battle.activeSuits)
-                        rightSuits = []
-                        if lenSuits > suitIndex + 1:
-                            for si in xrange(suitIndex + 1, lenSuits):
-                                asuit = self.battle.activeSuits[si]
-                                if self.battle.isSuitLured(asuit) == 0:
-                                    rightSuits.append(asuit)
-
-                        sdict['leftSuits'] = leftSuits
-                        sdict['rightSuits'] = rightSuits
-                        sdict['hp'] = hps[targetIndex]
-                        sdict['kbbonus'] = kbbonuses[targetIndex]
-                        sdict['died'] = ta[SUIT_DIED_COL] & 1 << targetIndex
-                        sdict['revived'] = ta[SUIT_REVIVE_COL] & 1 << targetIndex
-                        if sdict['revived'] != 0:
-                            pass
-                        if sdict['died'] != 0:
-                            pass
-                        if track == DROP or track == TRAP:
-                            adict['target'] = [sdict]
-                        else:
-                            adict['target'] = sdict
-                adict['hpbonus'] = ta[TOON_HPBONUS_COL]
-                adict['sidestep'] = ta[TOON_ACCBONUS_COL]
-                if 'npcId' in adict:
-                    adict['sidestep'] = 0
-                adict['battle'] = self.battle
-                adict['playByPlayText'] = self.playByPlayText
-                if targetGone == 0:
-                    self.toonAttackDicts.append(adict)
-                else:
-                    self.notify.warning('genToonAttackDicts() - target gone!')
-
-        def compFunc(a, b):
-            alevel = a['level']
-            blevel = b['level']
-            if alevel > blevel:
-                return 1
-            elif alevel < blevel:
-                return -1
-            return 0
-
-        self.toonAttackDicts.sort(compFunc)
-        return
-
-    def __findToonAttack(self, track):
-        setCapture = 0
+    def __findToonAttack(self, type):
         tp = []
-        for ta in self.toonAttackDicts:
-            if ta['track'] == track or track == NPCSOS and 'sepcial' in ta:
-                tp.append(ta)
-                if track == SQUIRT:
-                    setCapture = 1
-
-        if track == TRAP:
-            sortedTraps = []
-            for attack in tp:
-                if 'npcId' not in attack:
-                    sortedTraps.append(attack)
-
-            for attack in tp:
-                if 'npcId' in attack:
-                    sortedTraps.append(attack)
-
-            tp = sortedTraps
-        if setCapture:
-            pass
+        for tma in self.toonMovieAttacks:
+            if tma.attackId == PASS:
+                continue
+            attack = InventoryGlobals.Gags.get(tma.attackId)
+            if attack is None:
+                continue
+            elif attack.targetsAlly() and type == HEAL:
+                tp.append(tma)
         return tp
 
-    def __genSuitAttackDicts(self, toons, suits, suitAttacks):
-        for sa in suitAttacks:
-            targetGone = 0
-            attack = sa[SUIT_ATK_COL]
-            if attack != NO_ATTACK:
-                suitIndex = sa[SUIT_ID_COL]
-                suitId = suits[suitIndex]
-                suit = self.battle.findSuit(suitId)
-                if suit == None:
-                    self.notify.warning('suit: %d not in battle!' % suitId)
-                    return
-                adict = getSuitAttack(suit.getStyleName(), suit.getLevel(), attack)
-                adict['suit'] = suit
-                adict['battle'] = self.battle
-                adict['playByPlayText'] = self.playByPlayText
-                adict['taunt'] = sa[SUIT_TAUNT_COL]
-                hps = sa[SUIT_HP_COL]
-                if adict['group'] == ATK_TGT_GROUP:
-                    targets = []
-                    for t in toons:
-                        if t != -1:
-                            target = self.battle.findToon(t)
-                            if target == None:
-                                continue
-                            targetIndex = toons.index(t)
-                            tdict = {}
-                            tdict['toon'] = target
-                            tdict['hp'] = hps[targetIndex]
-                            self.notify.debug('DAMAGE: toon: %d hit for hp: %d' % (target.doId, hps[targetIndex]))
-                            toonDied = sa[TOON_DIED_COL] & 1 << targetIndex
-                            tdict['died'] = toonDied
-                            targets.append(tdict)
-
-                    if len(targets) > 0:
-                        adict['target'] = targets
-                    else:
-                        targetGone = 1
-                elif adict['group'] == ATK_TGT_SINGLE:
-                    targetIndex = sa[SUIT_TGT_COL]
-                    targetId = toons[targetIndex]
-                    target = self.battle.findToon(targetId)
-                    if target == None:
-                        targetGone = 1
-                        break
-                    tdict = {}
-                    tdict['toon'] = target
-                    tdict['hp'] = hps[targetIndex]
-                    self.notify.debug('DAMAGE: toon: %d hit for hp: %d' % (target.doId, hps[targetIndex]))
-                    toonDied = sa[TOON_DIED_COL] & 1 << targetIndex
-                    tdict['died'] = toonDied
-                    toonIndex = self.battle.activeToons.index(target)
-                    rightToons = []
-                    for ti in xrange(0, toonIndex):
-                        rightToons.append(self.battle.activeToons[ti])
-
-                    lenToons = len(self.battle.activeToons)
-                    leftToons = []
-                    if lenToons > toonIndex + 1:
-                        for ti in xrange(toonIndex + 1, lenToons):
-                            leftToons.append(self.battle.activeToons[ti])
-
-                    tdict['leftToons'] = leftToons
-                    tdict['rightToons'] = rightToons
-                    adict['target'] = tdict
-                else:
-                    self.notify.warning('got suit attack not group or single!')
-                if targetGone == 0:
-                    self.suitAttackDicts.append(adict)
-                else:
-                    self.notify.warning('genSuitAttackDicts() - target gone!')
-
-        return
+    def __genSuitAttacks(self, suitMovieAttacks):
+        for sma in suitMovieAttacks:
+            suitMovieAttack = BattleAttack.MovieAttack()
+            suitMovieAttack.fromList(sma)
+            self.suitMovieAttacks.append(suitMovieAttack)
 
     def __doSuitAttacks(self):
         if base.config.GetBool('want-suit-anims', 1):
             track = Sequence(name='suit-attacks')
             camTrack = Sequence(name='suit-attacks-cam')
-            isLocalToonSad = False
-            for a in self.suitAttackDicts:
-                ival, camIval = MovieSuitAttacks.doSuitAttack(a)
+            #isLocalToonSad = False
+            for sma in self.suitMovieAttacks:
+                ival, camIval = MovieSuitAttacks.doSuitAttack(sma)
                 if ival:
                     track.append(ival)
                     camTrack.append(camIval)
-                targetField = a.get('target')
+                '''
+                targetField = sma.get('target')
                 if targetField is None:
                     continue
-                if a['group'] == ATK_TGT_GROUP:
+                if sma['group'] == ATK_TGT_GROUP:
                     for target in targetField:
                         if target['died'] and target['toon'].doId == base.localAvatar.doId:
                             isLocalToonSad = True
 
-                elif a['group'] == ATK_TGT_SINGLE:
+                elif sma['group'] == ATK_TGT_SINGLE:
                     if targetField['died'] and targetField['toon'].doId == base.localAvatar.doId:
                         isLocalToonSad = True
                 if isLocalToonSad:
                     break
+                '''
 
             if len(track) == 0:
                 return (None, None)
             return (track, camTrack)
         else:
             return (None, None)
-        return

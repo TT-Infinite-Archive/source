@@ -452,6 +452,19 @@ struct GagItemSlot {
     bool equipped;
 };
 
+struct BattleAttack {
+    uint32 attackerId;
+    uint32 attackId;
+    uint32 targetId;
+};
+
+struct MovieAttack {
+    uint32 attackerId;
+    uint32 attackId;
+    uint32 targetId;
+    bool hit;
+};
+
 dclass ToontownDistrict : DistributedDistrict {
   setParentingRules(string, string) broadcast ram;
 };
@@ -500,6 +513,7 @@ dclass DistributedToon : DistributedPlayer {
   setTrackProgress(int8 = -1, uint32 = 0) required ownrecv db;
   setTrackBonusLevel(int8[] = [-1,-1,-1,-1,-1,-1,-1]) required broadcast ownrecv db;
   setInventory(GagItemSlot[] = []) required ownrecv db;
+  requestEquipGag(uint32 gagId) ownsend airecv;
   setMaxNPCFriends(uint16 = 16) required ownrecv db;
   setNPCFriendsDict(FriendEntry[] = []) required ownrecv db;
   setDefaultShard(uint32 = 0) required ownrecv broadcast db;
@@ -974,8 +988,8 @@ dclass DistributedBattleBase : DistributedObject {
   setInitialSuitPos(int16/10, int16/10, int16/10) required broadcast ram;
   setMembers(uint32[], string, string, string, string, string, uint32[], string, string, string, string, int16) required broadcast ram;
   adjust(int16) broadcast;
-  setMovie(int8, uint32[], uint32[], int8, int8, int8, int32, int16[], int16, int16, int16[], int8, int8, int8, int8, int8, int32, int16[], int16, int16, int16[], int8, int8, int8, int8, int8, int32, int16[], int16, int16, int16[], int8, int8, int8, int8, int8, int32, int16[], int16, int16, int16[], int8, int8, int8, int8, int8, int16[], int8, int8, int8, int8, int8, int8, int16[], int8, int8, int8, int8, int8, int8, int16[], int8, int8, int8, int8, int8, int8, int16[], int8, int8, int8) required broadcast ram;
-  setChosenToonAttacks(uint32[], int16[], int16[], int32[]) broadcast ram;
+  setMovie(int8, uint32[], uint32[], MovieAttack[], MovieAttack[]) required broadcast ram;
+  setChosenToonAttacks(BattleAttack[]) broadcast ram;
   setBattleExperience(int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], int32, int16[], int16[], uint32[], int16[], int16[], int16[], int16[], uint32[], uint8[], int16[], uint32[]) required broadcast ram;
   denyLocalToonJoin();
   setBossBattle(uint8) required broadcast ram;
@@ -989,7 +1003,7 @@ dclass DistributedBattleBase : DistributedObject {
   movieDone() airecv clsend;
   rewardDone() airecv clsend;
   joinDone(uint32) airecv clsend;
-  requestAttack(int8, int8, int32) airecv clsend;
+  requestAttack(uint32 gagId, uint32 targetId) airecv clsend;
   requestPetProxy(uint32) airecv clsend;
 };
 

@@ -38,9 +38,12 @@ MAX_UNPAID_LEVEL_INDEX = 4
 LAST_REGULAR_GAG_LEVEL = 5
 UBER_GAG_LEVEL_INDEX = 6
 NUM_GAG_TRACKS = 7
-PropTypeToTrackBonus = {AnimPropTypes.Hydrant: SQUIRT_TRACK,
+PropTypeToTrackBonus = {
+ AnimPropTypes.Hydrant: SQUIRT_TRACK,
  AnimPropTypes.Mailbox: THROW_TRACK,
- AnimPropTypes.Trashcan: HEAL_TRACK}
+ AnimPropTypes.Trashcan: HEAL_TRACK
+}
+
 Levels = [[0,
   20,
   200,
@@ -722,6 +725,7 @@ AvPropTarget = (0,
  3,
  3)
 AvPropRoundsLured = [2, 2, 3, 3, 4, 4, 15]
+
 
 def getAvPropDamage(attackTrack, attackLevel, exp, organicBonus = False, propBonus = False, propAndOrganicBonusStack = False):
     minD = AvPropDamage[attackTrack][attackLevel][0][0]

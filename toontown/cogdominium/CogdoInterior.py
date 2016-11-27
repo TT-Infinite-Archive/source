@@ -7,8 +7,7 @@ from toontown.toonbase.ToonBaseGlobal import *
 from toontown.town import TownBattle
 from toontown.suit import Suit
 from toontown.building import Elevator
-from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import ToontownBattleGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals, ToontownBattleGlobals
 
 class CogdoInterior(Place.Place):
     notify = DirectNotifyGlobal.directNotify.newCategory('CogdoInterior')
@@ -74,7 +73,7 @@ class CogdoInterior(Place.Place):
     def load(self):
         Place.Place.load(self)
         self.parentFSM.getStateNamed('cogdoInterior').addChild(self.fsm)
-        self.townBattle = TownBattle.TownBattle('town-battle-done')
+        self.townBattle = TownBattle.TownBattle(EventGlobals.TownBattleDone)
         self.townBattle.load()
         for i in xrange(1, 3):
             Suit.loadSuits(i)
