@@ -252,15 +252,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         for s in self.luredSuits:
             luredSuits += str(suits.index(s.doId))
 
-        suitTraps = ''
-        for s in self.suits:
-            if s.battleTrap == NO_TRAP:
-                suitTraps += '9'
-            elif s.battleTrap == BattleCalculatorAI.TRAP_CONFLICT:
-                suitTraps += '9'
-            else:
-                suitTraps += str(s.battleTrap)
-
         toons = []
         for t in self.toons:
             toons.append(t)
@@ -281,12 +272,11 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         for t in self.runningToons:
             runningToons += str(toons.index(t))
 
-        self.notify.debug('getMembers() - suits: %s joiningSuits: %s pendingSuits: %s activeSuits: %s luredSuits: %s suitTraps: %s toons: %s joiningToons: %s pendingToons: %s activeToons: %s runningToons: %s' % (suits,
+        self.notify.debug('getMembers() - suits: %s joiningSuits: %s pendingSuits: %s activeSuits: %s luredSuits: %s toons: %s joiningToons: %s pendingToons: %s activeToons: %s runningToons: %s' % (suits,
          joiningSuits,
          pendingSuits,
          activeSuits,
          luredSuits,
-         suitTraps,
          toons,
          joiningToons,
          pendingToons,
@@ -297,7 +287,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
          pendingSuits,
          activeSuits,
          luredSuits,
-         suitTraps,
          toons,
          joiningToons,
          pendingToons,
@@ -376,7 +365,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.notify.debug('addSuit(%d)' % suit.doId)
         self.newSuits.append(suit)
         self.suits.append(suit)
-        suit.battleTrap = NO_TRAP
         self.numSuitsEver += 1
 
     def __joinSuit(self, suit):
@@ -676,7 +664,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                 if ta[TOON_TGT_COL] == toonId or track == HEAL and attackAffectsGroup(track, level) and len(self.activeToons) <= 2:
                     healerId = ta[TOON_ID_COL]
                     self.notify.debug('resetting toon: %ds attack' % healerId)
-                    self.toonAttacks[toon] = getToonAttack(toon, track=UN_ATTACK)
+                    self.toonAttacks[toon] = getToonAttack(toon, NO_ATTACK)
                     self.responses[healerId] = 0
                     updateAttacks = 1
 
@@ -942,32 +930,34 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.notify.warning('Toon %s tried to target themselves!' % toonId)
             return
         validResponse = 1
-        if attackId in (UN_ATTACK, PASS):
+        if attackId == NO_ATTACK:
             # This is not a true attack
-            self.toonAttacks[toonId] = getToonAttack(toonId, attackId)
-            if attackId == UN_ATTACK:
-                if toonId in self.responses:
-                    self.responses[toonId] = 0
-                validResponse = 0
-        elif not toon.inventory.isEquipped(attackId):
-            # This is a true attack, do we have it equipped?
+            self.toonAttacks[toonId] = getToonAttack(toonId, NO_ATTACK)
+            if toonId in self.responses:
+                self.responses[toonId] = 0
+            validResponse = 0
+        elif not toon.inventory.isEquipped(attackId) and attackId not in InventoryGlobals.AlwaysEquipped:
+            # This attack is not equipped, and needs to be equipped
             self.notify.warning('Toon %s tried to use a move he doesnt have equipped' % toonId)
             return
         else:
-            gag = InventoryGlobals.Gags.get(attackId)
-            if gag is None:
-                self.notify.warning('Toon %s tried to use an invalid gag %s' % (toonId, attackId))
+            # This attack is equipped or doesn't need to be
+            attack = InventoryGlobals.Gags.get(attackId)
+            if attack is None:
+                self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
                 return
-            elif gag.targetsAlly():
-                if self.runningToons.count(targetId) == 1 or gag.targetCount == 4 and len(self.activeToons) < 2:
-                    self.toonAttacks[toonId] = getToonAttack(toonId, UN_ATTACK)
+            elif attack.targetsAlly():
+                if self.runningToons.count(targetId) == 1 or attack.targetCount == 4 and len(self.activeToons) < 2:
+                    self.toonAttacks[toonId] = getToonAttack(toonId, NO_ATTACK)
                     validResponse = 0
                 else:
                     self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
+            elif attack.targetsEnemy():
+                self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
+                if targetId == -1 and not attack.targetCount == 4:
+                    validResponse = 0
             else:
                 self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
-                if targetId == -1 and not gag.targetCount == 4:
-                    validResponse = 0
         self.d_setChosenToonAttacks()
         if validResponse == 1:
             self.responses[toonId] += 1
@@ -1071,7 +1061,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             if t not in self.toonAttacks:
                 self.toonAttacks[t] = getToonAttack(t)
             attack = self.toonAttacks[t]
-            if attack.attackId == NO_ATTACK or attack.attackId == UN_ATTACK:
+            if attack.attackId == NO_ATTACK:
                 self.toonAttacks[t] = getToonAttack(t, PASS)
             if self.toonAttacks[t].attackId != PASS:
                 self.addHelpfulToon(t)
@@ -1187,348 +1177,25 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return None
 
     def __movieDone(self):
-        self.notify.debug('__movieDone() - movie is finished')
+        self.notify.debug('__movieDone')
         if self.movieHasPlayed == 1:
-            self.notify.debug('__movieDone() - movie had already finished')
+            self.notify.debug('__movieDone: movie had already finished')
             return
         self.movieHasBeenMade = 0
         self.movieHasPlayed = 1
         self.ignoreResponses = 1
-        needUpdate = 0
         toonHpDict = {}
         for toon in self.activeToons:
             toonHpDict[toon] = [0, 0, 0]
             actualToon = self.getToon(toon)
             self.notify.debug('BEFORE ROUND: toon: %d hp: %d' % (toon, actualToon.hp))
 
-        deadSuits = []
-        trapDict = {}
-        suitsLuredOntoTraps = []
-        npcTrapAttacks = []
-        for activeToon in self.activeToons + self.exitedToons:
-            if activeToon in self.toonAttacks:
-                attack = self.toonAttacks[activeToon]
-                track = attack[TOON_TRACK_COL]
-                npc_level = None
-                if track == NPCSOS:
-                    track, npc_level, npc_hp = NPCToons.getNPCTrackLevelHp(attack[TOON_TGT_COL])
-                    if track == None:
-                        track = NPCSOS
-                    elif track == TRAP:
-                        npcTrapAttacks.append(attack)
-                        toon = self.getToon(attack[TOON_ID_COL])
-                        av = attack[TOON_TGT_COL]
-                        if toon != None and av in toon.NPCFriendsDict:
-                            toon.NPCFriendsDict[av] -= 1
-                            if toon.NPCFriendsDict[av] <= 0:
-                                del toon.NPCFriendsDict[av]
-                            toon.d_setNPCFriendsDict(toon.NPCFriendsDict)
-                        continue
-                if track != NO_ATTACK:
-                    toonId = attack[TOON_ID_COL]
-                    level = attack[TOON_LVL_COL]
-                    if npc_level != None:
-                        level = npc_level
-                    if attack[TOON_TRACK_COL] == NPCSOS:
-                        toon = self.getToon(toonId)
-                        av = attack[TOON_TGT_COL]
-                        if toon != None and av in toon.NPCFriendsDict:
-                            toon.NPCFriendsDict[av] -= 1
-                            if toon.NPCFriendsDict[av] <= 0:
-                                del toon.NPCFriendsDict[av]
-                            toon.d_setNPCFriendsDict(toon.NPCFriendsDict)
-                    elif track == PETSOS:
-                        pass
-                    elif track == FIRE:
-                        pass
-                    elif track != SOS:
-                        toon = self.getToon(toonId)
-                        if toon != None:
-                            check = toon.inventory.useItem(track, level)
-                            if check == -1:
-                                self.air.writeServerEvent('suspicious', toonId, 'Toon generating movie for non-existant gag track %s level %s' % (track, level))
-                                self.notify.warning('generating movie for non-existant gag track %s level %s! avId: %s' % (track, level, toonId))
-                            toon.d_setInventory(toon.inventory.makeNetString())
-                    hps = attack[TOON_HP_COL]
-                    if track == SOS:
-                        self.notify.debug('toon: %d called for help' % toonId)
-                    elif track == NPCSOS:
-                        self.notify.debug('toon: %d called for help' % toonId)
-                    elif track == PETSOS:
-                        self.notify.debug('toon: %d called for pet' % toonId)
-                        for i in xrange(len(self.activeToons)):
-                            toon = self.getToon(self.activeToons[i])
-                            if toon != None:
-                                if i < len(hps):
-                                    hp = hps[i]
-                                    if hp > 0:
-                                        toonHpDict[toon.doId][0] += hp
-                                    self.notify.debug('pet heal: toon: %d healed for hp: %d' % (toon.doId, hp))
-                                else:
-                                    self.notify.warning('Invalid targetIndex %s in hps %s.' % (i, hps))
-
-                    elif track == NPC_RESTOCK_GAGS:
-                        for at in self.activeToons:
-                            toon = self.getToon(at)
-                            if toon != None:
-                                toon.inventory.NPCMaxOutInv(npc_level)
-                                toon.d_setInventory(toon.inventory.makeNetString())
-
-                    elif track == HEAL:
-                        if levelAffectsGroup(HEAL, level):
-                            for i in xrange(len(self.activeToons)):
-                                at = self.activeToons[i]
-                                if at != toonId or attack[TOON_TRACK_COL] == NPCSOS:
-                                    toon = self.getToon(at)
-                                    if toon != None:
-                                        if i < len(hps):
-                                            hp = hps[i]
-                                        else:
-                                            self.notify.warning('Invalid targetIndex %s in hps %s.' % (i, hps))
-                                            hp = 0
-                                        toonHpDict[toon.doId][0] += hp
-                                        self.notify.debug('HEAL: toon: %d healed for hp: %d' % (toon.doId, hp))
-
-                        else:
-                            targetId = attack[TOON_TGT_COL]
-                            toon = self.getToon(targetId)
-                            if toon != None and targetId in self.activeToons:
-                                targetIndex = self.activeToons.index(targetId)
-                                if targetIndex < len(hps):
-                                    hp = hps[targetIndex]
-                                else:
-                                    self.notify.warning('Invalid targetIndex %s in hps %s.' % (targetIndex, hps))
-                                    hp = 0
-                                toonHpDict[toon.doId][0] += hp
-                    elif attackAffectsGroup(track, level, attack[TOON_TRACK_COL]):
-                        for suit in self.activeSuits:
-                            targetIndex = self.activeSuits.index(suit)
-                            if targetIndex < 0 or targetIndex >= len(hps):
-                                self.notify.warning('Got attack (%s, %s) on target suit %s, but hps has only %s entries: %s' % (track,
-                                 level,
-                                 targetIndex,
-                                 len(hps),
-                                 hps))
-                            else:
-                                hp = hps[targetIndex]
-                                if hp > 0 and track == LURE:
-                                    if suit.battleTrap == UBER_GAG_LEVEL_INDEX:
-                                        pass
-                                    suit.battleTrap = NO_TRAP
-                                    needUpdate = 1
-                                    if suit.doId in trapDict:
-                                        del trapDict[suit.doId]
-                                    if suitsLuredOntoTraps.count(suit) == 0:
-                                        suitsLuredOntoTraps.append(suit)
-                                if track == TRAP:
-                                    targetId = suit.doId
-                                    if targetId in trapDict:
-                                        trapDict[targetId].append(attack)
-                                    else:
-                                        trapDict[targetId] = [attack]
-                                    needUpdate = 1
-                                died = attack[SUIT_DIED_COL] & 1 << targetIndex
-                                if died != 0:
-                                    if deadSuits.count(suit) == 0:
-                                        deadSuits.append(suit)
-
-                    else:
-                        targetId = attack[TOON_TGT_COL]
-                        target = self.findSuit(targetId)
-                        if target != None:
-                            targetIndex = self.activeSuits.index(target)
-                            if targetIndex < 0 or targetIndex >= len(hps):
-                                self.notify.warning('Got attack (%s, %s) on target suit %s, but hps has only %s entries: %s' % (track,
-                                 level,
-                                 targetIndex,
-                                 len(hps),
-                                 hps))
-                            else:
-                                hp = hps[targetIndex]
-                                if track == TRAP:
-                                    if targetId in trapDict:
-                                        trapDict[targetId].append(attack)
-                                    else:
-                                        trapDict[targetId] = [attack]
-                                if hp > 0 and track == LURE:
-                                    oldBattleTrap = target.battleTrap
-                                    if oldBattleTrap == UBER_GAG_LEVEL_INDEX:
-                                        pass
-                                    target.battleTrap = NO_TRAP
-                                    needUpdate = 1
-                                    if target.doId in trapDict:
-                                        del trapDict[target.doId]
-                                    if suitsLuredOntoTraps.count(target) == 0:
-                                        suitsLuredOntoTraps.append(target)
-                                    if oldBattleTrap == UBER_GAG_LEVEL_INDEX:
-                                        for otherSuit in self.activeSuits:
-                                            if not otherSuit == target:
-                                                otherSuit.battleTrap = NO_TRAP
-                                                if otherSuit.doId in trapDict:
-                                                    del trapDict[otherSuit.doId]
-
-                                died = attack[SUIT_DIED_COL] & 1 << targetIndex
-                                if died != 0:
-                                    if deadSuits.count(target) == 0:
-                                        deadSuits.append(target)
-
-        self.exitedToons = []
-        for suitKey in trapDict.keys():
-            attackList = trapDict[suitKey]
-            attack = attackList[0]
-            target = self.findSuit(attack[TOON_TGT_COL])
-            if attack[TOON_LVL_COL] == UBER_GAG_LEVEL_INDEX:
-                targetId = suitKey
-                target = self.findSuit(targetId)
-            if len(attackList) == 1:
-                if suitsLuredOntoTraps.count(target) == 0:
-                    self.notify.debug('movieDone() - trap set')
-                    target.battleTrap = attack[TOON_LVL_COL]
-                    needUpdate = 1
-                else:
-                    target.battleTrap = NO_TRAP
-            else:
-                self.notify.debug('movieDone() - traps collided')
-                if target != None:
-                    target.battleTrap = NO_TRAP
-
-        if self.battleCalc.trainTrapTriggered:
-            self.notify.debug('Train trap triggered, clearing all traps')
-            for otherSuit in self.activeSuits:
-                self.notify.debug('suit =%d, oldBattleTrap=%d' % (otherSuit.doId, otherSuit.battleTrap))
-                otherSuit.battleTrap = NO_TRAP
-
-        currLuredSuits = self.battleCalc.getLuredSuits()
-        if len(self.luredSuits) == len(currLuredSuits):
-            for suit in self.luredSuits:
-                if currLuredSuits.count(suit.doId) == 0:
-                    needUpdate = 1
-                    break
-
-        else:
-            needUpdate = 1
-        self.luredSuits = []
-        for i in currLuredSuits:
-            suit = self.air.doId2do[i]
-            self.luredSuits.append(suit)
-            self.notify.debug('movieDone() - suit: %d is lured' % i)
-
-        for attack in npcTrapAttacks:
-            track, level, hp = NPCToons.getNPCTrackLevelHp(attack[TOON_TGT_COL])
-            for suit in self.activeSuits:
-                if self.luredSuits.count(suit) == 0 and suit.battleTrap == NO_TRAP:
-                    suit.battleTrap = level
-
-            needUpdate = 1
-
-        for suit in deadSuits:
-            self.notify.debug('removing dead suit: %d' % suit.doId)
-            if suit.isDeleted():
-                self.notify.debug('whoops, suit %d is deleted.' % suit.doId)
-            else:
-                self.notify.debug('suit had revives? %d' % suit.getMaxSkeleRevives())
-                encounter = {
-                    'type': suit.dna.name,
-                    'level': suit.getActualLevel(),
-                    'track': suit.dna.dept,
-                    'isSkelecog': suit.getSkelecog(),
-                    'isForeman': suit.isForeman(),
-                    'isVP': 0,
-                    'isCFO': 0,
-                    'isSupervisor': suit.isSupervisor(),
-                    'isVirtual': suit.isVirtual(),
-                    'hasRevives': suit.getMaxSkeleRevives(),
-                    'buffIndex': suit.getBuff(),
-                    'activeToons': self.activeToons[:]
-                }
-                self.suitsKilled.append(encounter)
-                self.suitsKilledThisBattle.append(encounter)
-                self.air.suitInvasionManager.handleSuitDefeated()
-            self.__removeSuit(suit)
-            needUpdate = 1
-            suit.resume()
-
-        lastActiveSuitDied = 0
-        if len(self.activeSuits) == 0 and len(self.pendingSuits) == 0:
-            lastActiveSuitDied = 1
-        for i in xrange(4):
-            attack = self.suitAttacks[i][SUIT_ATK_COL]
-            if attack != NO_ATTACK:
-                suitId = self.suitAttacks[i][SUIT_ID_COL]
-                suit = self.findSuit(suitId)
-                if suit == None:
-                    self.notify.warning('movieDone() - suit: %d is gone!' % suitId)
-                    continue
-                if not (hasattr(suit, 'dna') and suit.dna):
-                    toonId = self.air.getAvatarIdFromSender()
-                    self.notify.warning('_movieDone avoiding crash, sender=%s but suit has no dna' % toonId)
-                    self.air.writeServerEvent('suspicious', toonId, '_movieDone avoiding crash, suit has no dna')
-                    continue
-                adict = getSuitAttack(suit.getStyleName(), suit.getLevel(), attack)
-                hps = self.suitAttacks[i][SUIT_HP_COL]
-                if adict['group'] == ATK_TGT_GROUP:
-                    for activeToon in self.activeToons:
-                        toon = self.getToon(activeToon)
-                        if toon != None:
-                            targetIndex = self.activeToons.index(activeToon)
-                            toonDied = self.suitAttacks[i][TOON_DIED_COL] & 1 << targetIndex
-                            if targetIndex >= len(hps):
-                                self.notify.warning('DAMAGE: toon %s is no longer in battle!' % activeToon)
-                            else:
-                                hp = hps[targetIndex]
-                                if hp > 0:
-                                    self.notify.debug('DAMAGE: toon: %d hit for dmg: %d' % (activeToon, hp))
-                                    if toonDied != 0:
-                                        toonHpDict[toon.doId][2] = 1
-                                    toonHpDict[toon.doId][1] += hp
-
-                elif adict['group'] == ATK_TGT_SINGLE:
-                    targetIndex = self.suitAttacks[i][SUIT_TGT_COL]
-                    if targetIndex >= len(self.activeToons):
-                        self.notify.warning('movieDone() - toon: %d gone!' % targetIndex)
-                        break
-                    toonId = self.activeToons[targetIndex]
-                    toon = self.getToon(toonId)
-                    toonDied = self.suitAttacks[i][TOON_DIED_COL] & 1 << targetIndex
-                    if targetIndex >= len(hps):
-                        self.notify.warning('DAMAGE: toon %s is no longer in battle!' % toonId)
-                    else:
-                        hp = hps[targetIndex]
-                        if hp > 0:
-                            self.notify.debug('DAMAGE: toon: %d hit for dmg: %d' % (toonId, hp))
-                            if toonDied != 0:
-                                toonHpDict[toon.doId][2] = 1
-                            toonHpDict[toon.doId][1] += hp
-
-        deadToons = []
-        for activeToon in self.activeToons:
-            hp = toonHpDict[activeToon]
-            toon = self.getToon(activeToon)
-            if toon != None:
-                self.notify.debug('AFTER ROUND: currtoonHP: %d toonMAX: %d hheal: %d damage: %d' % (toon.hp,
-                 toon.maxHp,
-                 hp[0],
-                 hp[1]))
-                toon.hpOwnedByBattle = 0
-                hpDelta = hp[0] - hp[1]
-                if hpDelta >= 0:
-                    toon.toonUp(hpDelta, quietly=1)
-                else:
-                    toon.takeDamage(-hpDelta, quietly=1)
-                if toon.hp <= 0:
-                    self.notify.debug('movieDone() - toon: %d was killed' % activeToon)
-                    toon.inventory.empty()
-                    deadToons.append(activeToon)
-                self.notify.debug('AFTER ROUND: toon: %d setHp: %d' % (toon.doId, toon.hp))
-
-        for deadToon in deadToons:
-            self.__removeToon(deadToon)
-            needUpdate = 1
+        # TODO: Do things after movie played
 
         self.clearAttacks()
         self.d_setMovie()
         self.d_setChosenToonAttacks()
-        self.localMovieDone(needUpdate, deadToons, deadSuits, lastActiveSuitDied)
+        #self.localMovieDone(needUpdate, deadToons, deadSuits, lastActiveSuitDied)
         return
 
     def enterResume(self):

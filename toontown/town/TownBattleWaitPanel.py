@@ -42,8 +42,9 @@ class TownBattleWaitPanel(DirectObject):
 
     def unload(self):
         self.notify.debug('Unloading...')
-        self.frame.destroy()
-        self.frame = None
+        if self.frame is not None:
+            self.frame.destroy()
+            self.frame = None
         self.battle = None
 
     def setBattle(self, battle):

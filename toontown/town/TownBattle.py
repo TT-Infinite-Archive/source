@@ -6,11 +6,8 @@ import TownBattleChooseAvatarPanel
 import TownBattleToonPanel
 from toontown.toontowngui import TTDialog
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from toontown.battle import BattleBase
 from toontown.toonbase import ToontownTimer, EventGlobals
 from toontown.toonbase import TTLocalizer
-from toontown.pets import PetConstants
-from direct.gui.DirectGui import DGG
 from toontown.toon import InventoryGlobals
 
 
@@ -42,20 +39,10 @@ class TownBattle(StateData.StateData):
         ]
         self.fsm = ClassicFSM.ClassicFSM('TownBattle', [
             State.State('Off', self.enterOff, self.exitOff, ['Attack']),
-            State.State('Attack', self.enterAttack, self.exitAttack, ['ChooseTarget', 'AttackWait', 'Run', 'Fire', 'SOS']),
+            State.State('Attack', self.enterAttack, self.exitAttack, ['ChooseTarget', 'AttackWait']),
             State.State('ChooseTarget', self.enterChooseTarget, self.exitChooseTarget, ['AttackWait', 'Attack']),
             State.State('AttackWait', self.enterAttackWait, self.exitAttackWait, ['ChooseTarget', 'Attack']),
-            State.State('Run', self.enterRun, self.exitRun, ['Attack']),
-            State.State('SOS', self.enterSOS, self.exitSOS, ['Attack', 'AttackWait', 'SOSPetSearch', 'SOSPetInfo']),
-            State.State('SOSPetSearch', self.enterSOSPetSearch, self.exitSOSPetSearch, ['SOS', 'SOSPetInfo']),
-            State.State('SOSPetInfo', self.enterSOSPetInfo, self.exitSOSPetInfo, ['SOS', 'AttackWait']),
-            State.State('Fire', self.enterFire, self.exitFire, ['Attack', 'AttackWait'])
         ], 'Off', 'Off')
-        self.runPanel = TTDialog.TTDialog(
-            dialogName='TownBattleRunPanel', text=TTLocalizer.TownBattleRun,
-            style=TTDialog.TwoChoice,command=self.__handleRunPanelDone
-        )
-        self.runPanel.hide()
         self.waitPanel = TownBattleWaitPanel.TownBattleWaitPanel()
         self.choosePanel = TownBattleChooseAvatarPanel.TownBattleChooseAvatarPanel()
         self.toonPanels = (
@@ -72,9 +59,7 @@ class TownBattle(StateData.StateData):
     def cleanup(self):
         self.unload()
         del self.fsm
-        self.runPanel.cleanup()
         self.choosePanel.unload()
-        del self.runPanel
         del self.waitPanel
         for toonPanel in self.toonPanels:
             toonPanel.cleanup()
@@ -124,6 +109,9 @@ class TownBattle(StateData.StateData):
         self.choosePanel.setBattle(battle)
         self.waitPanel.setBattle(battle)
 
+    def adjustCogsAndToons(self, activeSuits, luredSuits, activeToons):
+        pass
+
     def __enterPanels(self, num, localNum):
         self.notify.debug('enterPanels() num: %d localNum: %d' % (num, localNum))
         for toonPanel in self.toonPanels:
@@ -157,8 +145,8 @@ class TownBattle(StateData.StateData):
         else:
             self.notify.error('Bad number of toons: %s' % num)
 
-    def updateChosenAttacks(self, toonIndices, gagIds, targets):
-        self.notify.debug('updateChosenAttacks(%s, %s, %s)' % (toonIndices, gagIds, targets))
+    def updateChosenAttacks(self, toonIndices, attackIds, targets):
+        self.notify.debug('updateChosenAttacks(%s, %s, %s)' % (toonIndices, attackIds, targets))
         for i in xrange(4):
             if toonIndices[i] == -1:
                 # Toon is missing, continue
@@ -166,7 +154,7 @@ class TownBattle(StateData.StateData):
             else:
                 numTargets = 0
                 target = -2
-                gag = InventoryGlobals.Gags.get(gagIds[i], None)
+                gag = InventoryGlobals.Gags.get(attackIds[i], None)
                 if gag is not None and gag.targetsAlly():
                     numTargets = self.numToons
                     if gag.targetCount != 4:
@@ -177,7 +165,7 @@ class TownBattle(StateData.StateData):
                         target = -1
                     else:
                         target = targets[i]
-                self.toonPanels[toonIndices[i]].setValues(toonIndices[i], gag, numTargets, target, self.localNum)
+                self.toonPanels[toonIndices[i]].setValues(toonIndices[i], attackIds[i], numTargets, target, self.localNum)
 
     def updateLaffMeter(self, toonNum, hp):
         self.toonPanels[toonNum].updateLaffMeter(hp)
@@ -205,25 +193,31 @@ class TownBattle(StateData.StateData):
     def enterAttack(self):
         self.notify.debug('Enter Attack')
         base.localAvatar.gagPanel.show()
-        self.accept(EventGlobals.GagInventorySelection, self.__handleAttackSelected)
+        self.accept(EventGlobals.GagInventorySelection, self.__handleGagSelected)
 
     def exitAttack(self):
         self.notify.debug('Exit Attack')
         base.localAvatar.gagPanel.hide()
         self.ignore(EventGlobals.GagInventorySelection)
 
-    def __handleAttackSelected(self, slot):
-        self.notify.debug('attackSelected: %s' % slot)
-        self.slot = slot
-        self.chosenGag = base.localAvatar.inventory.getGagAtSlot(slot)
-        self.toonPanels[self.localNum].setValues(self.localNum, self.chosenGag)
-        if self.chosenGag.isTargetted():
+    def __handleGagSelected(self, slotIndex):
+        gag = base.localAvatar.inventory.getGagAtSlot(slotIndex)
+        if gag is None:
+            return
+        self.__handleAttackSelected(gag.uid)
+
+    def __handleAttackSelected(self, attackId):
+        self.notify.debug('attackSelected: %s' % attackId)
+        self.attackId = attackId
+        self.toonPanels[self.localNum].setValues(self.localNum, attackId)
+        gag = InventoryGlobals.Gags.get(attackId)
+        if gag is not None and gag.isTargeted():
             self.fsm.request('ChooseTarget')
         else:
             self.fsm.request('AttackWait')
             response = {
                 'mode': 'Attack',
-                'slot': slot,
+                'attackId': self.attackId,
                 'target': 0
             }
             messenger.send(self.battleEvent, [response])
@@ -231,7 +225,7 @@ class TownBattle(StateData.StateData):
     def enterChooseTarget(self):
         if self.choosePanel is None:
             return
-        self.choosePanel.setAttack(self.chosenGag)
+        self.choosePanel.setAttack(InventoryGlobals.Gags.get(self.attackId))
         self.accept(EventGlobals.ChooserPick, self.__handleChoosePanelPick)
         self.accept(EventGlobals.ChooserBack, self.__handleChoosePanelBack)
         self.choosePanel.show()
@@ -246,13 +240,19 @@ class TownBattle(StateData.StateData):
         self.fsm.request('AttackWait')
         response = {
             'mode': 'Attack',
-            'slot': self.slot,
+            'attackId': self.attackId,
             'target': self.target
         }
         messenger.send(self.battleEvent, [response])
 
     def __handleChoosePanelBack(self):
         self.fsm.request('Attack')
+        response = {
+            'mode': 'UnAttack'
+        }
+        localIndex = self.battle.activeToons.index(base.localAvatar)
+        self.toonPanels[localIndex].setValues(localIndex, None)
+        messenger.send(self.battleEvent, [response])
 
     def enterAttackWait(self):
         self.waitPanel.show()
@@ -263,7 +263,8 @@ class TownBattle(StateData.StateData):
         self.waitPanel.hide()
 
     def __handleAttackWaitBack(self):
-        if self.chosenGag.isTargetted():
+        gag = InventoryGlobals.Gags.get(self.attackId)
+        if gag and gag.isTargeted():
             self.fsm.request('ChooseTarget')
         else:
             self.fsm.request('Attack')
@@ -272,138 +273,3 @@ class TownBattle(StateData.StateData):
             'mode': 'UnAttack'
         }
         messenger.send(self.battleEvent, [response])
-
-    def enterRun(self):
-        self.runPanel.show()
-
-    def exitRun(self):
-        self.runPanel.hide()
-
-    def __handleRunPanelDone(self, doneStatus):
-        if doneStatus == DGG.DIALOG_OK:
-            response = {}
-            response['mode'] = 'Run'
-            messenger.send(self.battleEvent, [response])
-        else:
-            self.fsm.request('Attack')
-
-    def enterFire(self):
-        canHeal, canTrap, canLure = self.checkHealTrapLure()
-        self.FireCogPanel.enter(self.numCogs, luredIndices=self.luredIndices, trappedIndices=self.trappedIndices, track=self.track, fireCosts=self.cogFireCosts)
-        self.accept(self.fireCogPanelDoneEvent, self.__handleCogFireDone)
-        return None
-
-    def exitFire(self):
-        self.ignore(self.fireCogPanelDoneEvent)
-        self.FireCogPanel.exit()
-        return None
-
-    def __handleCogFireDone(self, doneStatus):
-        mode = doneStatus['mode']
-        if mode == 'Back':
-            self.fsm.request('Attack')
-        elif mode == 'Avatar':
-            self.cog = doneStatus['avatar']
-            self.target = self.cog
-            self.fsm.request('AttackWait')
-            response = {}
-            response['mode'] = 'Fire'
-            response['target'] = self.cog
-            messenger.send(self.battleEvent, [response])
-        else:
-            self.notify.warning('unknown mode: %s' % mode)
-
-    def enterSOS(self):
-        canHeal, canTrap, canLure = self.checkHealTrapLure()
-        self.SOSPanel.enter(canLure, canTrap)
-        self.accept(self.SOSPanelDoneEvent, self.__handleSOSPanelDone)
-        return None
-
-    def exitSOS(self):
-        self.ignore(self.SOSPanelDoneEvent)
-        self.SOSPanel.exit()
-        return None
-
-    def __handleSOSPanelDone(self, doneStatus):
-        mode = doneStatus['mode']
-        if mode == 'Friend':
-            doId = doneStatus['friend']
-            response = {}
-            response['mode'] = 'SOS'
-            response['id'] = doId
-            messenger.send(self.battleEvent, [response])
-            self.fsm.request('AttackWait')
-        elif mode == 'Pet':
-            self.petId = doneStatus['petId']
-            self.petName = doneStatus['petName']
-            self.fsm.request('SOSPetSearch')
-        elif mode == 'NPCFriend':
-            doId = doneStatus['friend']
-            response = {}
-            response['mode'] = 'NPCSOS'
-            response['id'] = doId
-            messenger.send(self.battleEvent, [response])
-            self.fsm.request('AttackWait')
-        elif mode == 'Back':
-            self.fsm.request('Attack')
-
-    def enterSOSPetSearch(self):
-        response = {}
-        response['mode'] = 'PETSOSINFO'
-        response['id'] = self.petId
-        self.SOSPetSearchPanel.enter(self.petId, self.petName)
-        self.proxyGenerateMessage = 'petProxy-%d-generated' % self.petId
-        self.accept(self.proxyGenerateMessage, self.__handleProxyGenerated)
-        self.accept(self.SOSPetSearchPanelDoneEvent, self.__handleSOSPetSearchPanelDone)
-        messenger.send(self.battleEvent, [response])
-        return None
-
-    def exitSOSPetSearch(self):
-        self.ignore(self.proxyGenerateMessage)
-        self.ignore(self.SOSPetSearchPanelDoneEvent)
-        self.SOSPetSearchPanel.exit()
-        return None
-
-    def __handleSOSPetSearchPanelDone(self, doneStatus):
-        mode = doneStatus['mode']
-        if mode == 'Back':
-            self.fsm.request('SOS')
-        else:
-            self.notify.error('invalid mode in handleSOSPetSearchPanelDone')
-
-    def __handleProxyGenerated(self):
-        self.fsm.request('SOSPetInfo')
-
-    def enterSOSPetInfo(self):
-        self.SOSPetInfoPanel.enter(self.petId)
-        self.accept(self.SOSPetInfoPanelDoneEvent, self.__handleSOSPetInfoPanelDone)
-        return None
-
-    def exitSOSPetInfo(self):
-        self.ignore(self.SOSPetInfoPanelDoneEvent)
-        self.SOSPetInfoPanel.exit()
-        return None
-
-    def __handleSOSPetInfoPanelDone(self, doneStatus):
-        mode = doneStatus['mode']
-        if mode == 'OK':
-            response = {}
-            response['mode'] = 'PETSOS'
-            response['id'] = self.petId
-            response['trickId'] = doneStatus['trickId']
-            messenger.send(self.battleEvent, [response])
-            self.fsm.request('AttackWait')
-            bboard.post(PetConstants.OurPetsMoodChangedKey, True)
-        elif mode == 'Back':
-            self.fsm.request('SOS')
-
-    def __isCogChoiceNecessary(self):
-        return self.numCogs > 1 and self.chosenGag.isTargetted()
-
-    def __isGroupAttack(self, trackNum, levelNum):
-        retval = BattleBase.attackAffectsGroup(trackNum, levelNum)
-        return retval
-
-    def __isGroupHeal(self, levelNum):
-        retval = BattleBase.attackAffectsGroup(HEAL_TRACK, levelNum)
-        return retval

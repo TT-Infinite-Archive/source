@@ -1,5 +1,5 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from toontown.toon import LaffMeter
+from toontown.toon import LaffMeter, InventoryGlobals
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel
@@ -85,8 +85,8 @@ class TownBattleToonPanel(DirectFrame):
         self.gagImage.removeNode()
         self.gagImage = None
 
-    def setValues(self, index, gag, numTargets=None, targetIndex=None, localNum=None):
-        self.notify.debug('setValues(%s, %s, %s, %s, %s' % (index, gag, numTargets, targetIndex, localNum))
+    def setValues(self, index, attackId, numTargets=None, targetIndex=None, localNum=None):
+        self.notify.debug('setValues(%s, %s, %s, %s, %s)' % (index, attackId, numTargets, targetIndex, localNum))
         self.undecidedText.hide()
         self.sosText.hide()
         self.fireText.hide()
@@ -94,7 +94,11 @@ class TownBattleToonPanel(DirectFrame):
         self.whichText.hide()
         self.passNode.hide()
         self.unsetGagImage()
+        gag = InventoryGlobals.Gags.get(attackId)
         if gag is None:
+            self.undecidedText.show()
+        elif gag.uid == 0:
+            # This is not an attack
             self.undecidedText.show()
         else:
             self.undecidedText.hide()

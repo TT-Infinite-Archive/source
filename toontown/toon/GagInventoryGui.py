@@ -75,6 +75,7 @@ class GagInventoryGui(DirectFrame):
         DirectFrame.destroy(self)
 
     def __handleSelection(self, slotIndex):
+        self.notify.debug('Selected gag at slot %d' % slotIndex)
         messenger.send(EventGlobals.GagInventorySelection, [slotIndex])
 
     def __handleEnterGagSlot(self, slotIndex):

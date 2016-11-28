@@ -5,27 +5,7 @@ from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
 from toontown.battle import BattleGlobals, BattleAttack
 
-#TOON_ID_COL = 0
-#TOON_ATTACK_COL = 1
-#TOON_TGT_COL = 2
-#TOON_HP_COL = 3
-#TOON_ACCBONUS_COL = 4
-#TOON_HPBONUS_COL = 5
-#TOON_KBBONUS_COL = 6
-SUIT_DIED_COL = 8
-SUIT_REVIVE_COL = 9
-SUIT_ID_COL = 0
-SUIT_ATK_COL = 1
-SUIT_TGT_COL = 2
-SUIT_HP_COL = 3
-TOON_DIED_COL = 4
-SUIT_BEFORE_TOONS_COL = 5
-SUIT_TAUNT_COL = 6
-NO_ID = -1
-NO_ATTACK = -1
-UN_ATTACK = -2
-PASS_ATTACK = -3
-NO_TRAP = -1
+NO_ATTACK = 0
 LURE_SUCCEEDED = -1
 PASS = 98
 SOS = 99

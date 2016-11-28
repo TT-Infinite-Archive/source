@@ -2,7 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import *
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase import TTLocalizer, EventGlobals
-from toontown.toon.InventoryGlobals import TargettedGagItem
+from toontown.toon.InventoryGlobals import TargetedGagItem
 from panda3d.core import Vec4
 
 
@@ -22,7 +22,7 @@ class TownBattleChooseAvatarPanel(DirectObject):
         DirectObject.__init__(self)
         self.notify.debug('Initializing...')
         self.attack = None
-        self.battle = battle
+        self.battle = None
         self.frame = None
         self.statusFrame = None
         self.textFrame = None
@@ -98,16 +98,22 @@ class TownBattleChooseAvatarPanel(DirectObject):
     def show(self):
         self.notify.debug('Showing...')
         self.frame.show()
+        self.updateButtons()
 
     def unload(self):
         self.notify.debug('Unloading...')
-        self.frame.destroy()
-        self.frame = None
+        if self.frame is not None:
+            self.frame.destroy()
+            self.frame = None
         self.battle = None
+
+    def hidePickerButtons(self):
+        for button in self.buttons:
+            button.hide()
 
     def setAttack(self, attack):
         self.notify.debug('Setting attack %s' % attack.uid)
-        if not attack.isTargetted():
+        if not attack.isTargeted():
             self.notify.warning('Cannot choose target for un-targeted attack')
             return
         self.attack = attack
@@ -133,7 +139,8 @@ class TownBattleChooseAvatarPanel(DirectObject):
             self.notify.warning('Invalid target %s' % index)
 
     def updateButtons(self):
-        if not self.attack.isTargetted():
+        self.hidePickerButtons()
+        if not self.attack.isTargeted():
             self.notify.warning('Attack un-targetable, ignoring request to updateButtons')
             return
         if self.battle is None:
@@ -143,8 +150,8 @@ class TownBattleChooseAvatarPanel(DirectObject):
         enemyCount = len(self.battle.activeSuits)
         allyCount = len(self.battle.activeToons)
 
-        if enemyCount > 0 and self.attack.targetType in (TargettedGagItem.TargetEnemy,):
-            positions = self.ButtonXPositions[enemyCount]
+        if enemyCount > 0 and self.attack.targetType in (TargetedGagItem.TargetEnemy,):
+            positions = self.ButtonXPositions[enemyCount - 1]
             for index in self.EnemyButtons:
                 position = positions[index]
                 if position is None:
@@ -152,8 +159,8 @@ class TownBattleChooseAvatarPanel(DirectObject):
                 else:
                     self.buttons[index].show()
                     self.buttons[index].setX(positions[index])
-        elif allyCount > 0 and self.attack.targetType in (TargettedGagItem.TargetAlly,):
-            positions = self.ButtonXPositions[allyCount]
+        elif allyCount > 0 and self.attack.targetType in (TargetedGagItem.TargetAlly,):
+            positions = self.ButtonXPositions[allyCount - 1]
             for index in self.AllyButtons:
                 position = positions[index]
                 if position is None:

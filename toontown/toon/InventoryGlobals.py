@@ -19,17 +19,20 @@ class GagItem:
     def getDisplayObject(self):
         return GagDisplay.get(self.uid, None)
 
-    def isTargetted(self):
+    def isTargeted(self):
         return False
 
     def targetsAlly(self):
         return False
 
+    def __str__(self):
+        return '%s' % self.name
+
     def targetsEnemy(self):
         return False
 
 
-class TargettedGagItem(GagItem):
+class TargetedGagItem(GagItem):
     TargetNone = 0
     TargetEnemy = 1
     TargetAlly = 2
@@ -62,7 +65,7 @@ class TargettedGagItem(GagItem):
     def getDisplayObject(self):
         return GagDisplay.get(self.uid, None)
 
-    def isTargetted(self):
+    def isTargeted(self):
         return True
 
     def targetsAlly(self):
@@ -139,17 +142,22 @@ class GagImageDisplay:
 
 Gags = {
     0: GagItem(0, 'Nothing but a chuckle', None),
-    1: TargettedGagItem(1, 'Cupcake', DamageEffect(0, 6), 0.6, TargettedGagItem.TargetEnemy, 1),
-    2: TargettedGagItem(2, 'Sliced Fruit Pie', DamageEffect(0, 12), 0.6, TargettedGagItem.TargetEnemy, 1),
-    3: TargettedGagItem(3, 'Golden Cupcake', DamageEffect(0, 999), 1, TargettedGagItem.TargetEnemy, 4)
+    1: TargetedGagItem(1, 'Cupcake', DamageEffect(0, 6), 0.6, TargetedGagItem.TargetEnemy, 1),
+    2: TargetedGagItem(2, 'Sliced Fruit Pie', DamageEffect(0, 12), 0.6, TargetedGagItem.TargetEnemy, 1),
+    3: TargetedGagItem(3, 'Golden Cupcake', DamageEffect(0, 999), 1, TargetedGagItem.TargetEnemy, 4),
+    99: GagItem(99, 'Pass', None),
 }
 
 GagDisplay = {
-    0: None,
+    0: GagImageDisplay(Gags[0].name, 'phase_3.5/models/gui/battle_gui', nodePathName='tt_t_gui_bat_pass', scale=0.2),
     1: GagImageDisplay(Gags[1].name, 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart'),
     2: GagImageDisplay(Gags[2].name, 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_fruit_pie_slice'),
     3: GagImageDisplay(Gags[3].name, 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart', color=(1, 0.84, 0.0, 1.0))
 }
+
+AlwaysEquipped = [
+    99
+]
 
 
 

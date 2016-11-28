@@ -1036,7 +1036,7 @@ class BattleCalculatorAI:
                 continue
             gag = InventoryGlobals.Gags.get(ta.attackId)
             if gag is not None:
-                if gag.isTargetted() and gag.accuracy > random.randint(0, 99):
+                if gag.isTargeted() and gag.accuracy > random.randint(0, 99):
                     tma.hit = True
                 self.battle.toonMovieAttacks.append(tma)
                 if not tma.hit:
