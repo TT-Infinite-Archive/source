@@ -90,11 +90,10 @@ want-cog-headquarters #f
 # Heartbeat
 want-heartbeat #f
 
-notify-level-GagInventory debug
-notify-level-GagInventoryBase debug
-notify-level-GagInventoryGui debug
 notify-level-TownBattle debug
-notify-level-BattleExprienceAI debug
-notify-level-DistributedBattleBaseAI debug
-notify-level-DistributedBattleBase debug
-
+notify-level-GagInventoryGui debug
+notify-level-DistributedBattleAI debug
+notify-level-DistributedBattle debug
+notify-level-ChooseAvatarPanel debug
+notify-level-GagInventoryBase debug
+notify-level-GagInventory debug
