@@ -37,6 +37,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.finishCallback = finishCallback
         self.avatarExitEvents = []
         self.responses = {}
+        self.movieResponses = {}
         self.adjustingResponses = {}
         self.joinResponses = {}
         self.adjustingSuits = []
@@ -727,12 +728,13 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return 1
 
     def __allActiveToonsResponded(self):
-        for t in self.activeToons:
-            if self.responses[t] == 0:
-                return 0
-
-        self.ignoreResponses = 1
-        return 1
+        if len(self.toonAttacks.keys()) != len(self.activeToons):
+            return False
+        for toonId, ta in self.toonAttacks.items():
+            if ta.attackId == 0:
+                # This attack isn't a response
+                return False
+        return True
 
     def __removeResponse(self, toonId):
         del self.responses[toonId]
@@ -851,22 +853,30 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
 
     def movieDone(self):
         toonId = self.air.getAvatarIdFromSender()
-        if self.ignoreResponses == 1:
-            self.notify.debug('movieDone() - ignoring toon: %d' % toonId)
-            return
-        elif self.fsm.getCurrentState().getName() != 'PlayMovie':
+        if self.fsm.getCurrentState().getName() != 'PlayMovie':
             self.notify.warning('movieDone() - in state %s' % self.fsm.getCurrentState().getName())
             return
         elif self.toons.count(toonId) == 0:
             self.notify.warning('movieDone() - toon: %d not in toon list' % toonId)
             return
-        self.responses[toonId] += 1
+        self.__toonMovieResponse(toonId)
         self.notify.debug('toon: %d done with movie' % toonId)
-        if self.__allPendingActiveToonsResponded():
+        if self.__allMovieReponsesDone():
             self.__movieDone()
         else:
             self.timer.stop()
             self.timer.startCallback(TIMEOUT_PER_USER, self.__serverMovieDone)
+
+    def __resetMovieResponses(self):
+        self.movieResponses = {}
+
+    def __toonMovieResponse(self, toonId):
+        self.movieResponses[toonId] = True
+
+    def __allMovieReponsesDone(self):
+        toonCount = len(self.pendingToons) + len(self.activeToons)
+        responsesLength = len(self.movieResponses)
+        return toonCount >= responsesLength
 
     def rewardDone(self):
         toonId = self.air.getAvatarIdFromSender()
@@ -912,10 +922,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
 
     def requestAttack(self, attackId, targetId):
         toonId = self.air.getAvatarIdFromSender()
-        if self.ignoreResponses == 1:
-            self.notify.debug('requestAttack() - ignoring toon: %d' % toonId)
-            return
-        elif self.fsm.getCurrentState().getName() != 'WaitForInput':
+        if self.fsm.getCurrentState().getName() != 'WaitForInput':
             self.notify.warning('requestAttack() - in state: %s' % self.fsm.getCurrentState().getName())
             return
         elif self.activeToons.count(toonId) == 0:
@@ -929,13 +936,11 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         if toonId == targetId:
             self.notify.warning('Toon %s tried to target themselves!' % toonId)
             return
-        validResponse = 1
         if attackId == NO_ATTACK:
             # This is not a true attack
             self.toonAttacks[toonId] = getToonAttack(toonId, NO_ATTACK)
             if toonId in self.responses:
                 self.responses[toonId] = 0
-            validResponse = 0
         elif not toon.inventory.isEquipped(attackId) and attackId not in InventoryGlobals.AlwaysEquipped:
             # This attack is not equipped, and needs to be equipped
             self.notify.warning('Toon %s tried to use a move he doesnt have equipped' % toonId)
@@ -946,76 +951,15 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             if attack is None:
                 self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
                 return
-            elif attack.targetsAlly():
-                if self.runningToons.count(targetId) == 1 or attack.targetCount == 4 and len(self.activeToons) < 2:
-                    self.toonAttacks[toonId] = getToonAttack(toonId, NO_ATTACK)
-                    validResponse = 0
-                else:
-                    self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
-            elif attack.targetsEnemy():
-                self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
-                if targetId == -1 and not attack.targetCount == 4:
-                    validResponse = 0
             else:
                 self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
         self.d_setChosenToonAttacks()
-        if validResponse == 1:
-            self.responses[toonId] += 1
-        self.notify.debug('Toon: %d chose an attack' % toonId)
+        self.notify.debug('Toon: %d chose attack %s' % (toonId, attackId))
         if self.__allActiveToonsResponded():
             # All toons have attacked, play movie
-            self.__requestMovie()
-
-    def requestPetProxy(self, av):
-        toonId = self.air.getAvatarIdFromSender()
-        if self.ignoreResponses == 1:
-            self.notify.debug('requestPetProxy() - ignoring toon: %d' % toonId)
-            return
-        elif self.fsm.getCurrentState().getName() != 'WaitForInput':
-            self.notify.warning('requestPetProxy() - in state: %s' % self.fsm.getCurrentState().getName())
-            return
-        elif self.activeToons.count(toonId) == 0:
-            self.notify.warning('requestPetProxy() - toon: %d not in toon list' % toonId)
-            return
-        self.notify.debug('requestPetProxy(%s, %s)' % (toonId, av))
-        toon = self.getToon(toonId)
-        if toon == None:
-            self.notify.warning('requestPetProxy() - no toon: %d' % toonId)
-            return
-        petId = toon.getPetId()
-        zoneId = self.zoneId
-        if petId == av:
-            if toonId not in self.pets:
-
-                def handleGetPetProxy(success, petProxy, petId = petId, zoneId = zoneId, toonId = toonId):
-                    if success:
-                        if petId not in simbase.air.doId2do:
-                            simbase.air.requestDeleteDoId(petId)
-                        else:
-                            petProxy = DistributedPetProxyAI.DistributedPetProxyAI(self.air)
-                            petDO = simbase.air.doId2do[petId]
-                            for field in FIELD_LIST:
-                                # Less ugly way to initialize the petProxy's fields.
-                                setter = petDO.getSetterName(field, 'set')
-                                getter = petDO.getSetterName(field, 'get')
-                                getattr(petProxy, setter)(getattr(petDO, getter)())                     
-                            petDO.requestDelete()
-
-                        def onDelete(task):
-                            petProxy.doNotDeallocateChannel = True
-                            petProxy.generateWithRequiredAndId(petId, self.air.districtId, self.zoneId)
-                            petProxy.broadcastDominantMood()
-                            self.pets[toonId] = petProxy
-                            return task.done
-
-                        self.acceptOnce(self.air.getAvatarExitEvent(petId),
-                                        lambda: taskMgr.doMethodLater(0,
-                                                onDelete, self.uniqueName('petdel-%d' % petId)))
-                    else:
-                        self.notify.warning('error generating petProxy: %s' % petId)
-
-                self.getPetProxyObject(petId, handleGetPetProxy)
-        return
+            self.battleCalc.calculateRound()
+            self.b_setState('PlayMovie')
+            #self.__requestMovie()
 
     def suitCanJoin(self):
         return len(self.suits) < self.maxSuits and self.isJoinable()
@@ -1181,22 +1125,31 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         if self.movieHasPlayed == 1:
             self.notify.debug('__movieDone: movie had already finished')
             return
+        self.__resetMovieResponses()
         self.movieHasBeenMade = 0
         self.movieHasPlayed = 1
-        self.ignoreResponses = 1
-        toonHpDict = {}
-        for toon in self.activeToons:
-            toonHpDict[toon] = [0, 0, 0]
-            actualToon = self.getToon(toon)
-            self.notify.debug('BEFORE ROUND: toon: %d hp: %d' % (toon, actualToon.hp))
-
-        # TODO: Do things after movie played
+        # Send all the attack changes
+        self.sendAvatarUpdates()
 
         self.clearAttacks()
         self.d_setMovie()
         self.d_setChosenToonAttacks()
+        self.b_setState('WaitForInput')
         #self.localMovieDone(needUpdate, deadToons, deadSuits, lastActiveSuitDied)
         return
+
+    def sendAvatarUpdates(self):
+        for toonId in self.activeToons:
+            toon = self.getToon(toonId)
+            if toon is not None:
+                toon.d_setHp(toon.hp)
+                if toon.hp <= 0:
+                    self.__removeToon(toonId)
+
+        for suit in self.activeSuits:
+            suit.d_setHp(suit.hp)
+            if suit.hp <= 0:
+                self.__removeSuit(suit)
 
     def enterResume(self):
         for suit in self.suits:

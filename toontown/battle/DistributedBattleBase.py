@@ -991,6 +991,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         return None
 
     def __handleLocalToonBattleEvent(self, response):
+        self.notify.debug('__handleLocalToonBattleEvent: %s' % response)
         mode = response['mode']
         if mode == 'UnAttack':
             self.d_requestAttack(base.localAvatar.doId, NO_ATTACK, 0)
@@ -1017,6 +1018,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def enterPlayMovie(self, ts):
         self.notify.debug('enterPlayMovie()')
         self.delayDeleteMembers()
+        self.d_movieDone(base.localAvatar.doId)
+        return
         if self.hasLocalToon():
             NametagGlobals.setWant2dNametags(False)
         if ToontownBattleGlobals.SkipMovie:
