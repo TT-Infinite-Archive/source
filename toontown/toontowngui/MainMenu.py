@@ -30,14 +30,13 @@ class MainMenu(DirectObject, FSM):
         self.logo = OnscreenImage(
             parent=self.backgroundNodePath, 
             image='phase_3/maps/toontown-logo.png',
-            scale=(0.40, 0.65, 0.35), pos=(0, 0, 0.4)
+            scale=(0.38, 0.63, 0.33), pos=(0, 0, 0.38)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         self.buttons = []
         self.mpButtons = []
         self.spButtons = []
-        self.optionButtons = []
         buttonScale = (-1.1, 1.1, 1.1)  # (-0.9, 0.9, 0.9)
 
         self.singlePlayerButton = MATShuffleButton(
@@ -47,7 +46,7 @@ class MainMenu(DirectObject, FSM):
             image_scale=buttonScale, 
             image2_scale=buttonScale,
             image1_scale=buttonScale, 
-            text_scale=0.09, # text_scale=0.07
+            text_scale=0.082, # text_scale=0.07
             command=lambda: self.request('SinglePlayer')
         )
         self.buttons.append(self.singlePlayerButton)
@@ -151,15 +150,15 @@ class MainMenu(DirectObject, FSM):
         self.singlePlayerMenu.request('Start')
 
     """
-    def enterMultiPlayer(self):
+    def enterEmptyButton(self):
         self.backgroundNodePath.show()
-        for mpButton in self.mpButtons:
-            mpButton.show()
+        for emButton in self.empButtons:
+            emButton.show()
 
-    def exitMultiPlayer(self):
+    def exitEmptyButton(self):
         self.backgroundNodePath.hide()
-        for mpButton in self.mpButtons:
-            mpButton.hide()
+        for emButton in self.emButtons:
+            emButton.hide()
 
     def enterEmpty(self):
         base.cr.loginFSM.request('chooseAvatar', [base.cr.avList])
