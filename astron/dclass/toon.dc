@@ -3752,3 +3752,12 @@ dclass GlobalGroupTracker : DistributedObjectGlobal {
     requestGroupsResponse(uint32[], BoardingGroup[]);
     informLeader(string senderName, uint8 informCode);
 };
+
+dclass DistributedJukebox : DistributedObject {
+  setQueue(uint32[]) required broadcast ram;
+  setMusic(uint32 songId) required broadcast ram;
+  setPosHpr(int16/10, int16/10, int16/10, int16/10, int16/10, int16/10) required broadcast ram;
+
+  // Client Request
+  requestPlaySong(uint32 songId) clsend airecv;
+};
