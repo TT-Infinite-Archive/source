@@ -2,7 +2,7 @@ from toontown.toonbase import TTLocalizer
 
 
 class ToontownSong:
-    def __init__(self, uid, name, path, length=None):
+    def __init__(self, uid, name, path, length):
         self.uid = uid
         self.name = name
         self.path = path
@@ -13,18 +13,15 @@ class ToontownSong:
         return music
 
     def getLength(self):
-        if self.length is None:
-            music = self.getAudioSound()
-            if music is None:
-                return 5
-            self.length = music.length()
-            loader.unloadSfx(music)
         return self.length
 
 Songs = {
     0: None,
-    1: ToontownSong(0, TTLocalizer.MusicTcNbrhood, 'phase_4/audio/bgm/TC_nbrhood.ogg'),
-    2: ToontownSong(1, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_SZ.ogg')
+    1: ToontownSong(0, TTLocalizer.MusicTcNbrhood, 'phase_4/audio/bgm/TC_nbrhood.ogg', 58),
+    2: ToontownSong(1, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_SZ.ogg', 32)
 }
+
+FadeTime = 3
+ServerBufferTime = 1
 
 

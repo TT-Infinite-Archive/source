@@ -19,6 +19,13 @@ class DistributedJukeboxAI(DistributedObjectAI):
 
     def delete(self):
         DistributedObjectAI.delete(self)
+        self.cleanupTask()
+
+    def songIsActive(self):
+        taskMgr.hasTaskNamed(self.getTaskName())
+
+    def cleanupTask(self):
+        # Stops next song task
         taskMgr.remove(self.getTaskName())
 
     def setPosHpr(self, x, y, z, h, p, r):
@@ -33,7 +40,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
 
     def addToQueue(self, songId):
         self.notify.debug('Adding song %s to queue' % songId)
-        if len(self.queue) == 0:
+        if not self.songIsActive():
             self.b_setMusic(songId)
         elif songId in self.queue:
             pass
@@ -42,6 +49,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
             self.d_setQueue(self.queue)
 
     def playNextSong(self):
+        self.cleanupTask()
         self.notify.debug('Playing next song')
         if len(self.queue) == 0:
             songId = self.defaultSong
@@ -51,11 +59,17 @@ class DistributedJukeboxAI(DistributedObjectAI):
         self.songId = songId
         self.b_setMusic(songId)
 
+    def playNextSongTask(self, task):
+        self.playNextSong()
+        return task.done
+
     def setMusic(self, songId):
         song = JukeboxGlobals.Songs.get(songId)
         if song is None:
             return
-        taskMgr.doMethodLater(song.getLength(), self.playNextSong, self.getTaskName(), extraArgs=[])
+        delay = song.getLength() + JukeboxGlobals.ServerBufferTime
+        self.notify.debug('Starting song timer for song %s set to %s seconds' % (songId, delay))
+        taskMgr.doMethodLater(delay, self.playNextSongTask, self.getTaskName())
 
     def getTaskName(self):
         return 'Jukebox-%d-task' % self.doId
