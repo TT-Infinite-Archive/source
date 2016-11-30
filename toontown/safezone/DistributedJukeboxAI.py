@@ -12,6 +12,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
         self.queue = []
         self.posHpr = [0, 0, 0, 0, 0, 0]
         self.songId = self.defaultSong
+        self.songIsActive = False
 
     def announceGenerate(self):
         DistributedObjectAI.announceGenerate(self)
@@ -20,9 +21,6 @@ class DistributedJukeboxAI(DistributedObjectAI):
     def delete(self):
         DistributedObjectAI.delete(self)
         self.cleanupTask()
-
-    def songIsActive(self):
-        taskMgr.hasTaskNamed(self.getTaskName())
 
     def cleanupTask(self):
         # Stops next song task
@@ -40,10 +38,12 @@ class DistributedJukeboxAI(DistributedObjectAI):
 
     def addToQueue(self, songId):
         self.notify.debug('Adding song %s to queue' % songId)
-        if not self.songIsActive():
+        if not self.songIsActive:
+            self.notify.debug('Song not active, playing this song now')
             self.b_setMusic(songId)
-        elif songId in self.queue:
-            pass
+            self.songIsActive = True
+        if songId in self.queue:
+            self.notify.debug('Song in queue, doing nothing')
         else:
             self.queue.append(songId)
             self.d_setQueue(self.queue)
@@ -54,7 +54,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
         if len(self.queue) == 0:
             songId = self.defaultSong
         else:
-            songId = self.queue.pop()
+            songId = self.queue.pop(0)
             self.d_setQueue(self.queue)
         self.songId = songId
         self.b_setMusic(songId)
