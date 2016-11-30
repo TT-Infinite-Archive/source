@@ -28,9 +28,11 @@ class DistributedJukeboxAI(DistributedObjectAI):
         return self.posHpr
 
     def requestPlaySong(self, songId):
+        self.notify.debug('Got request to play %s' % songId)
         self.addToQueue(songId)
 
     def addToQueue(self, songId):
+        self.notify.debug('Adding song %s to queue' % songId)
         if len(self.queue) == 0:
             self.b_setMusic(songId)
         elif songId in self.queue:
@@ -40,6 +42,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
             self.d_setQueue(self.queue)
 
     def playNextSong(self):
+        self.notify.debug('Playing next song')
         if len(self.queue) == 0:
             songId = self.defaultSong
         else:
