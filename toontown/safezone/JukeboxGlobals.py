@@ -17,8 +17,8 @@ class ToontownSong:
 
 Songs = {
     0: None,
-    1: ToontownSong(0, TTLocalizer.MusicTcNbrhood, 'phase_4/audio/bgm/TC_nbrhood.ogg', 58),
-    2: ToontownSong(1, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_SZ.ogg', 32)
+    1: ToontownSong(1, TTLocalizer.MusicTcNbrhood, 'phase_4/audio/bgm/TC_nbrhood.ogg', 58),
+    2: ToontownSong(2, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_SZ.ogg', 32)
 }
 
 FadeTime = 3
