@@ -270,6 +270,7 @@ from toontown.safezone import DistributedFindFour/AI
 from toontown.safezone import DistributedGameTable/AI
 from toontown.safezone import DistributedGolfKart/AI
 from toontown.safezone import DistributedPicnicBasket/AI
+from toontown.safezone import DistributedJukebox/AI
 from toontown.distributed import DistributedTimer/AI
 from toontown.suit import DistributedBossbotBoss/AI
 from toontown.coghq import DistributedCogKart/AI

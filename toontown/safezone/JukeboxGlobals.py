@@ -15,6 +15,8 @@ class ToontownSong:
     def getLength(self):
         if self.length is None:
             music = self.getAudioSound()
+            if music is None:
+                return 5
             self.length = music.length()
             loader.unloadSfx(music)
         return self.length

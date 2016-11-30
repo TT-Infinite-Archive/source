@@ -11,6 +11,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
         self.defaultSong = defaultSong
         self.queue = []
         self.posHpr = [0, 0, 0, 0, 0, 0]
+        self.songId = self.defaultSong
 
     def announceGenerate(self):
         DistributedObjectAI.announceGenerate(self)
@@ -44,6 +45,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
         else:
             songId = self.queue.pop()
             self.d_setQueue(self.queue)
+        self.songId = songId
         self.b_setMusic(songId)
 
     def setMusic(self, songId):
@@ -64,3 +66,9 @@ class DistributedJukeboxAI(DistributedObjectAI):
 
     def d_setQueue(self, queue):
         self.sendUpdate('setQueue', [queue])
+
+    def getMusic(self):
+        return self.songId
+
+    def getQueue(self):
+        return self.queue
