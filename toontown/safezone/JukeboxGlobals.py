@@ -21,7 +21,7 @@ Songs = {
     2: ToontownSong(2, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_SZ.ogg', 32)
 }
 
-FadeTime = 3
-ServerBufferTime = 1
+FadeTime = 5
+ServerBufferTime = 2
 
 

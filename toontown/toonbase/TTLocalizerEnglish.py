@@ -10676,6 +10676,9 @@ District = 'District'
 Uberdog = 'Uberdog Server'
 
 ServerDown = 'Oops! The %s has gone down! A game restart is highly recommended.'
+JukeboxQueueTitle = 'Queue'
+JukeboxSongSelectorTitle = 'Song Picker'
+JukeboxCurrentlyPlayingTitle = 'Currently Playing'
 
 EffectName = {
  0: 'None',

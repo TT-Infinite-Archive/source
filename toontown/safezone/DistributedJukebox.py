@@ -5,6 +5,7 @@ from toontown.toonbase import ToontownGlobals
 from toontown.safezone import JukeboxGlobals
 import random
 from toontown.util.VolumeInterval import VolumeInterval
+from toontown.toontowngui.JukeboxGui import JukeboxGui
 
 
 class DistributedJukebox(DistributedObject):
@@ -14,6 +15,7 @@ class DistributedJukebox(DistributedObject):
         self.notify.debug('Initializing...')
         DistributedObject.__init__(self, cr)
         self.music = None
+        self.songId = 0
         self.queue = []
         self.jukebox = None
         self.collNodePath = None
@@ -27,6 +29,8 @@ class DistributedJukebox(DistributedObject):
         DistributedObject.generate(self)
         self.load()
         self.activateCollision()
+        self.gui = JukeboxGui(self)
+        self.gui.hide()
 
     def load(self):
         self.notify.debug('Loading...')
@@ -45,6 +49,7 @@ class DistributedJukebox(DistributedObject):
 
     def delete(self):
         self.notify.debug('Deleting...')
+        self.exitGui()
         self.deactivateCollision()
         self.collNode.removeNode()
         self.collNodePath.removeNode()
@@ -55,6 +60,9 @@ class DistributedJukebox(DistributedObject):
         if self.music is not None:
             self.music.stop()
             self.music = None
+        if self.gui is not None:
+            self.gui.destroy()
+            self.gui = None
         DistributedObject.delete(self)
 
     def getCollisionName(self):
@@ -69,7 +77,15 @@ class DistributedJukebox(DistributedObject):
     def __handleEnterCollision(self, collisionEntry):
         # Play a random song for now
         self.notify.debug('Toon Collided')
-        self.d_requestPlaySong(random.choice(range(1, 3)))
+        self.enterGui()
+
+    def enterGui(self):
+        self.gui.show()
+        base.cr.playGame.getPlace().setState('purchase')
+
+    def exitGui(self):
+        self.gui.hide()
+        base.cr.playGame.getPlace().setState('walk')
 
     def d_requestPlaySong(self, songId):
         self.notify.debug('Sending request to play song %s' % songId)
@@ -77,17 +93,19 @@ class DistributedJukebox(DistributedObject):
 
     def setMusic(self, songId):
         self.notify.debug('Playing song %s' % songId)
+        self.songId = songId
         song = JukeboxGlobals.Songs.get(songId)
         if self.music is not None:
             self.stopMusic()
             self.music = song.getAudioSound()
         else:
             self.music = song.getAudioSound()
-            self.music.play()
+            self.playMusic()
 
     def setQueue(self, queue):
         self.notify.debug('Updating queue %s' % queue)
         self.queue = queue
+        self.gui.updateQueue(queue)
 
     def stopMusic(self):
         self.notify.debug('Stopping music')
@@ -99,8 +117,13 @@ class DistributedJukebox(DistributedObject):
 
     def handleVolumeIntervalDone(self):
         self.notify.debug('Volume interval done, playing next song')
+        self.volumeInterval = None
         if self.music is not None:
-            self.music.play()
+            self.playMusic()
+
+    def playMusic(self):
+        self.music.play()
+        self.gui.setSongId(self.songId)
 
     def setPosHpr(self, x, y, z, h, p, r):
         self.notify.debug('Setting position')
