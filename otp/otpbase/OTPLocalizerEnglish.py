@@ -1969,7 +1969,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30450: "It's easy to be green!",
  30451: 'Collect four leaf clovers and you can be green too!',
  30452: "You can find four leaf clovers scattered all across Toontown.",
- 30500: "Welcome to [SERVER NAME]'s Toontown Infinite server!", # If playing solo, have it say Welcome to Toontown Infinite!
+ 30500: "Welcome to [SERVER NAME]'s Toontown Infinite server!",
  30501: "The Possibilities are Infinite.",
  30502: "Are you livestreaming?",
  30503: "I'm livestreaming right now!",
@@ -1981,7 +1981,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30509: "I hope that bug gets fixed soon.",
  30510: "Those bugs can be obnoxious at times.",
  30511: "What types of bugs have you ran into so far?",
- 30512: "You can report bugs by emailing support@toontowninfinite.com."}
+ 30512: "You can report bugs in the Kaldron Interactive Discord channel."}
 SpeedChatStaticTextPirates = {50001: 'Aye',
  50002: 'Nay',
  50003: 'Yes',

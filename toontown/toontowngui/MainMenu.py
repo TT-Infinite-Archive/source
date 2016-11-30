@@ -35,9 +35,11 @@ class MainMenu(DirectObject, FSM):
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         self.buttons = []
-        self.mpButtons = []
         self.spButtons = []
-        buttonScale = (-1.1, 1.1, 1.1)  # (-0.9, 0.9, 0.9)
+        self.mpButtons = []
+
+        buttonScale = (-1.1, 1.1, 1.1)
+        buttonScale2 = (-1.4, 1.5, 1.5)# (-0.9, 0.9, 0.9)
 
         self.singlePlayerButton = MATShuffleButton(
             pos=(0, 0, -0.25),  # (0, 0, -0.1),
@@ -57,11 +59,36 @@ class MainMenu(DirectObject, FSM):
             wantArrows=False,
             image_scale=buttonScale, 
             image2_scale=buttonScale,
-            image1_scale=buttonScale, 
+            image1_scale=buttonScale,
             text_scale=0.09,
             command=lambda: self.request('MultiPlayer')
         )
         self.buttons.append(self.multiPlayerButton)
+
+        self.spOnlineButton = MATShuffleButton(
+            pos=(0, 0, -0.2),
+            text="Kaldron\nNetwork",
+            text_pos=(0,0.02,0),
+            wantArrows=False,
+            image_scale=buttonScale2,
+            image2_scale=buttonScale2,
+            image1_scale=buttonScale2,
+            text_scale=0.10,
+            command=lambda: self.request('MultiPlayer')
+        )
+
+        self.spOfflineButton = MATShuffleButton(
+            pos=(0, 0, -0.6),
+            text="Offline Play",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale,
+            image1_scale=buttonScale,
+            text_scale=0.09,
+            command=lambda: self.request('SinglePlayerOffline')
+        )
+        self.spButtons.append(self.spOnlineButton)
+        self.spButtons.append(self.spOfflineButton)
         
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
         
@@ -84,21 +111,6 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon.destroy()
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
-
-        """
-        self.emptyButton = MATShuffleButton(pos=(0, 0, -0.6), text="Empty",
-                                                 wantArrows=False,
-                                                 image_scale=buttonScale, image2_scale=buttonScale,
-                                                 image1_scale=buttonScale, text_scale=0.07,
-                                                 command=lambda: self.request('Empty'))
-        self.buttons.append(self.emptyButton)
-
-        self.emptyButton = MATShuffleButton(pos=(0, 0, -0.85), text="Empty",
-                                              wantArrows=False,
-                                              image_scale=buttonScale, image2_scale=buttonScale,
-                                              image1_scale=buttonScale, text_scale=0.07)
-        self.buttons.append(self.emptyButton)
-        """
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -141,34 +153,26 @@ class MainMenu(DirectObject, FSM):
             button.hide()
 
     def enterSinglePlayer(self):
+        self.backgroundNodePath.show()
+        for spButton in self.spButtons:
+            spButton.show()
+
+    def exitSinglePlayer(self):
+        self.backgroundNodePath.hide()
+        for spButton in self.spButtons:
+            spButton.hide()
+
+    def enterSinglePlayerOffline(self):
+
         OTPLocalizer.SpeedChatStaticText[30500] = 'Welcome to Toontown Infinite!'
+        OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open.'
+        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs in the Kaldron Interactive Discord channel.'
 
         self.hide()
         self.backgroundNodePath.show()
 
         self.singlePlayerMenu = SinglePlayerMenu(self)
         self.singlePlayerMenu.request('Start')
-
-    """
-    def enterEmptyButton(self):
-        self.backgroundNodePath.show()
-        for emButton in self.empButtons:
-            emButton.show()
-
-    def exitEmptyButton(self):
-        self.backgroundNodePath.hide()
-        for emButton in self.emButtons:
-            emButton.hide()
-
-    def enterEmpty(self):
-        base.cr.loginFSM.request('chooseAvatar', [base.cr.avList])
-
-    def exitEmpty(self):
-        pass
-
-    def enterEmpty(self):
-        pass
-    """
 
     def enterOff(self):
         self.hide()
@@ -183,6 +187,9 @@ class MainMenu(DirectObject, FSM):
         self.backgroundNodePath.hide()
         for button in self.buttons:
             button.hide()
+
+        for spButton in self.spButtons:
+            spButton.hide()
 
         for mpButton in self.mpButtons:
             mpButton.hide()
