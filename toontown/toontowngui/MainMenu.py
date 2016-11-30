@@ -1,14 +1,16 @@
-from pandac.PandaModules import *
 from direct.fsm.FSM import FSM
-from direct.gui.DirectGui import OnscreenImage, DGG, DirectButton
 from direct.showbase.DirectObject import DirectObject
 from otp.otpbase import OTPLocalizer
 
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.toonbase.ColorGlobals import CGray, CDefault
-from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
 from toontown.util import TTCardMaker
+
+from pandac.PandaModules import *
+from toontown.toonbase import ToontownGlobals
+from direct.gui.DirectGui import *
+from toontown.toonbase import TTLocalizer
 
 
 class MainMenu(DirectObject, FSM):
@@ -66,7 +68,7 @@ class MainMenu(DirectObject, FSM):
         self.buttons.append(self.multiPlayerButton)
 
         self.spOnlineButton = MATShuffleButton(
-            pos=(0, 0, -0.2),
+            pos=(0, 0, -0.25),
             text="Kaldron\nNetwork",
             text_pos=(0,0.02,0),
             wantArrows=False,
@@ -78,7 +80,7 @@ class MainMenu(DirectObject, FSM):
         )
 
         self.spOfflineButton = MATShuffleButton(
-            pos=(0, 0, -0.6),
+            pos=(0, 0, -0.65),
             text="Offline Play",
             wantArrows=False,
             image_scale=buttonScale,
@@ -128,6 +130,22 @@ class MainMenu(DirectObject, FSM):
 
         self.hide()
 
+        gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
+        quitHover = gui.find('**/QuitBtn_RLVR')
+
+        self.backButton = DirectButton(
+            image=(quitHover, quitHover, quitHover), relief=None,
+            text=TTLocalizer.OptionsGoBack,
+            text_font=ToontownGlobals.getSignFont(),
+            text_fg=(0.977, 0.816, 0.133, 1),
+            text_pos=TTLocalizer.ACquitButtonPos,
+            text_scale=TTLocalizer.ACbackButton, image_scale=1,
+            image1_scale=1.05, image2_scale=1.05, scale=1.05,
+            pos=(0.25, 0, 0.075), command=lambda: self.request('Idle'))
+
+        self.backButton.hide()
+        self.backButton.reparentTo(base.a2dBottomLeft)
+
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
             if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
@@ -154,11 +172,37 @@ class MainMenu(DirectObject, FSM):
 
     def enterSinglePlayer(self):
         self.backgroundNodePath.show()
+        self.backButton.show()
+        self.quitButton.show()
         for spButton in self.spButtons:
             spButton.show()
 
+        lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
+
+        self.lockIcon2 = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.0009, 0.0009, 0.0009),
+            pos=(0.44, 0, -0.23),
+            suppressMouse=True,
+            state=DGG.DISABLED
+        )
+        lockImage.removeNode()
+
+        self.spOnlineButton['state'] = DGG.DISABLED
+        self.spOnlineButton.setColorScale(CGray)
+
+        if base.wantKaldronNetwork:
+            self.lockIcon.destroy()
+            self.spOnlineButton['state'] = DGG.NORMAL
+            self.spOnlineButton.setColorScale(CDefault)
+
     def exitSinglePlayer(self):
         self.backgroundNodePath.hide()
+        self.backButton.hide()
+        if not base.wantKaldronNetwork:
+            self.lockIcon2.hide()
         for spButton in self.spButtons:
             spButton.hide()
 

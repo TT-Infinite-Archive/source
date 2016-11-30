@@ -12,6 +12,8 @@ client-agents 8
 force-access-level 100
 
 # Core features:
+want-kaldron-network #f
+want-multiplayer #f
 want-grouptracker #f
 want-game-tables #f
 want-true-friends #f
