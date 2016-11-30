@@ -51,8 +51,6 @@ class DistributedJukebox(DistributedObject):
         self.notify.debug('Deleting...')
         self.exitGui()
         self.deactivateCollision()
-        self.collNode.removeNode()
-        self.collNodePath.removeNode()
         self.jukebox.delete()
         if self.volumeInterval is not None:
             self.volumeInterval.cleanup()
