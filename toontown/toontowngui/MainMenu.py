@@ -79,18 +79,18 @@ class MainMenu(DirectObject, FSM):
             command=lambda: self.request('MultiPlayer')
         )
 
-        self.spOfflineButton = MATShuffleButton(
+        self.spLocalButton = MATShuffleButton(
             pos=(0, 0, -0.65),
-            text="Offline Play",
+            text="Local Play",
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale,
             image1_scale=buttonScale,
             text_scale=0.09,
-            command=lambda: self.request('SinglePlayerOffline')
+            command=lambda: self.request('SinglePlayerLocal')
         )
         self.spButtons.append(self.spOnlineButton)
-        self.spButtons.append(self.spOfflineButton)
+        self.spButtons.append(self.spLocalButton)
         
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
         
@@ -206,7 +206,7 @@ class MainMenu(DirectObject, FSM):
         for spButton in self.spButtons:
             spButton.hide()
 
-    def enterSinglePlayerOffline(self):
+    def enterSinglePlayerLocal(self):
 
         OTPLocalizer.SpeedChatStaticText[30500] = 'Welcome to Toontown Infinite!'
         OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open.'

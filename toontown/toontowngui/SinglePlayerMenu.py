@@ -129,9 +129,12 @@ class SinglePlayerMenu(DirectFrame, FSM):
     def __nextProcess(self):
         self.process = Processes[self.currentProcess]
         self.currentProcess += 1
-        
-        self.label['text'] = TTLocalizer.StartingServer % self.process[2]
-        
+
+        if base.wantDevDebug:
+            self.label['text'] = TTLocalizer.StartingServerDev % self.process[2]
+        else:
+            self.label['text'] = TTLocalizer.StartingServerLive
+
         thread = ProcessThread(self.path, self.process)
         thread.start()
         self.threads.append(thread)

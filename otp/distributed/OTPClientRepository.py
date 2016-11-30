@@ -452,7 +452,8 @@ class OTPClientRepository(ClientRepositoryBase):
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-            self.connectingBox.show()
+            # Show the connecting box only if you are connecting to an MP server
+            self.connectingBox.hide()
             self.renderFrame()
         self.handler = self.handleConnecting
         self.connect(self.serverList, successCallback=self._sendHello,
