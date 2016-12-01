@@ -200,12 +200,16 @@ class Playground(Place.Place):
         self.deathAckBox = None
         return
 
+    def playMusic(self):
+        if self.loader.music:
+            base.playMusic(self.loader.music, looping=1, volume=0.8)
+
     def enter(self, requestStatus):
         self.fsm.enterInitialState()
         messenger.send('enterPlayground')
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)
-        base.playMusic(self.loader.music, looping=1, volume=0.8)
+        self.playMusic()
         self.loader.geom.reparentTo(render)
         for i in self.loader.nodeList:
             self.loader.enterAnimatedProps(i)

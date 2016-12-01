@@ -4,6 +4,7 @@ from toontown.safezone import TTPlayground
 from toontown.toonbase import ToontownGlobals
 from toontown.battle import BattleParticles
 
+
 class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
     def __init__(self, hood, parentFSM, doneEvent):
         SafeZoneLoader.SafeZoneLoader.__init__(self, hood, parentFSM, doneEvent)
@@ -24,6 +25,7 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
             SafeZoneLoader.SafeZoneLoader.load(self)
         else:
             # Don't play music if we have a jukebox, but do the other things in the loader
+            self.activityMusic = base.loadMusic(self.activityMusicFile)
             self.createSafeZone(self.dnaFile)
             self.parentFSMState.addChild(self.fsm)
         self.birdSound = map(base.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
