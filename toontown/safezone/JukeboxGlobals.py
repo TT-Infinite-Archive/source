@@ -85,7 +85,7 @@ Songs = {
     66: ToontownSong(66, TTLocalizer.MusicCfoBattle3, 'phase_9/audio/bgm/encntr_cfo_boss.ogg', 66),
     67: ToontownSong(67, TTLocalizer.MusicLbCourtyard, 'phase_11/audio/bgm/LB_courtyard.ogg', 32),
     68: ToontownSong(68, TTLocalizer.MusicLbCourtyardEncounter, 'phase_11/audio/bgm/LB_courtyard_encntr.ogg', 54),
-    69: ToontownSong(69, TTLocalizer.MusicLbJurybg, 'phase_11/audio/bgm/LB_juryBG.ogg', 54),
+    69: ToontownSong(69, TTLocalizer.MusicLbJurybg, 'phase_11/audio/bgm/LB_juryBG.ogg', 29),
     70: ToontownSong(70, TTLocalizer.MusicLbCjFinale, 'phase_11/audio/bgm/encntr_cj_boss.ogg', 35),
     71: ToontownSong(71, TTLocalizer.MusicBossbotEntryV1, 'phase_12/audio/bgm/Bossbot_Entry_v1.ogg', 30),
     72: ToontownSong(72, TTLocalizer.MusicBossbotEntryV2, 'phase_12/audio/bgm/Bossbot_Entry_v2.ogg', 30),
