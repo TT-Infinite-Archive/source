@@ -204,6 +204,10 @@ class Playground(Place.Place):
         if self.loader.music:
             base.playMusic(self.loader.music, looping=1, volume=0.8)
 
+    def stopMusic(self):
+        if self.loader.music:
+            self.loader.music.stop()
+
     def enter(self, requestStatus):
         self.fsm.enterInitialState()
         messenger.send('enterPlayground')
@@ -307,7 +311,7 @@ class Playground(Place.Place):
             self.loader.exitAnimatedProps(i)
 
         self.loader.hood.stopSky()
-        self.loader.music.stop()
+        self.stopMusic()
 
     def load(self):
         Place.Place.load(self)
