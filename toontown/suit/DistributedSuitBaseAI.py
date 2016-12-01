@@ -1,7 +1,6 @@
 from otp.ai.AIBaseGlobal import *
-from otp.avatar import DistributedAvatarAI
-import SuitPlannerBase
-import SuitBase
+from otp.avatar.DistributedAvatarAI import DistributedAvatarAI
+from toontown.suit.SuitBase import SuitBase
 import SuitDNA
 from direct.directnotify import DirectNotifyGlobal
 from toontown.ai import NewsManagerGlobals
@@ -9,12 +8,13 @@ from toontown.battle import SuitBattleGlobals
 from toontown.suit import SuitBuffGlobals
 import random
 
-class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.SuitBase):
+
+class DistributedSuitBaseAI(DistributedAvatarAI, SuitBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedSuitBaseAI')
 
     def __init__(self, air, suitPlanner):
-        DistributedAvatarAI.DistributedAvatarAI.__init__(self, air)
-        SuitBase.SuitBase.__init__(self)
+        DistributedAvatarAI.__init__(self, air)
+        SuitBase.__init__(self)
         self.sp = suitPlanner
         self.maxHp = 10
         self.hp = 10
@@ -31,14 +31,14 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         self.deadAllies = []
 
     def generate(self):
-        DistributedAvatarAI.DistributedAvatarAI.generate(self)
+        DistributedAvatarAI.generate(self)
 
     def delete(self):
         self.sp = None
         del self.dna
 
-        DistributedAvatarAI.DistributedAvatarAI.delete(self)
-        SuitBase.SuitBase.delete(self)
+        DistributedAvatarAI.delete(self)
+        SuitBase.delete(self)
 
     def requestRemoval(self):
         if self.sp is not None:
@@ -126,32 +126,6 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
             self.reviveFlag = 0
         return returnValue
 
-    def getHP(self):
-        return self.hp
-
-    def setHp(self, hp):
-        if hp > self.maxHp:
-            self.hp = self.maxHp
-        else:
-            self.hp = hp
-
-    def b_setHp(self, hp):
-        self.setHp(hp)
-        self.d_setHp(hp)
-
-    def d_setHp(self, hp):
-        self.sendUpdate('setHp', [hp])
-
-    def b_setMaxHp(self, maxHp):
-        self.setMaxHp(maxHp)
-        self.d_setMaxHp(maxHp)
-
-    def setMaxHp(self, maxHp):
-        self.maxHp = maxHp
-
-    def d_setMaxHp(self, maxHp):
-        self.sendUpdate('setMaxHp', [maxHp])
-
     def releaseControl(self):
         return None
 
@@ -173,7 +147,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         self.d_setSkelecog(flag)
 
     def setSkelecog(self, flag):
-        SuitBase.SuitBase.setSkelecog(self, flag)
+        SuitBase.setSkelecog(self, flag)
 
     def d_setSkelecog(self, flag):
         self.sendUpdate('setSkelecog', [flag])
@@ -197,7 +171,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         return False
 
     def setWaiter(self, flag):
-        SuitBase.SuitBase.setWaiter(self, flag)
+        SuitBase.setWaiter(self, flag)
 
     def d_setWaiter(self, flag):
         self.sendUpdate('setWaiter', [flag])

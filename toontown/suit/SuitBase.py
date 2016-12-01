@@ -13,6 +13,7 @@ TIME_BUFFER_PER_WPT = 0.25
 TIME_DIVISOR = 100
 DISTRIBUTE_TASK_CREATION = 0
 
+
 class SuitBase:
     notify = DirectNotifyGlobal.directNotify.newCategory('SuitBase')
 
@@ -23,7 +24,6 @@ class SuitBase:
         self.hp = 10
         self.isSkelecog = 0
         self.isWaiter = 0
-        return
 
     def delete(self):
         if hasattr(self, 'legList'):

@@ -46,7 +46,7 @@ class DistributedAvatarAI(DistributedNodeAI.DistributedNodeAI):
         self.sendUpdate('setHp', [hp])
 
     def setHp(self, hp):
-        self.hp = hp
+        self.hp = min(self.maxHp, hp)
 
     def getHp(self):
         return self.hp
