@@ -88,3 +88,6 @@ want-cog-headquarters #f
 
 # Heartbeat
 want-heartbeat #f
+
+want-ttc-jukebox #t
+
