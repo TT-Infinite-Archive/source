@@ -28,8 +28,8 @@ class TTHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        self.createJukeBox()
-
+        if simbase.config.GetBool('want-ttc-jukebox', True):
+            self.createJukeBox()
         if simbase.config.GetBool('want-minigames', True):
             self.createTrolley()
         if simbase.config.GetBool('want-classic-chars', True):
