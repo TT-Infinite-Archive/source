@@ -19,7 +19,7 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_4/dna/storage_TT_sz.pdna'
 
     def load(self):
-        if base.config.getBool('want-ttc-jukebox', False):
+        if base.config.GetBool('want-ttc-jukebox', False):
             # The load method loads music, we dont want music if we have a jukebox that plays music for us
             SafeZoneLoader.SafeZoneLoader.load()
         else:
