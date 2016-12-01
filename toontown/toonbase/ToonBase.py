@@ -182,6 +182,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
         self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
+        self.wantMods = self.config.GetBool('want-mods', False)
         self.wantDevDebug = self.config.GetBool('want-dev-debug', False)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:

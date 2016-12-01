@@ -43,7 +43,7 @@ dc-file astron/dclass/otp.dc
 
 # Core features:
 want-kaldron-network #f
-want-multiplayer #f
+want-multiplayer #t
 want-pets #f
 want-parties #f
 want-achievements #f
@@ -90,6 +90,9 @@ want-cog-headquarters #f
 
 # Heartbeat
 want-heartbeat #f
-
+# Safezone Interactables
 want-ttc-jukebox #t
+
+# Mod Tools
+want-mods #f
 

@@ -40,8 +40,9 @@ class MainMenu(DirectObject, FSM):
         self.spButtons = []
         self.mpButtons = []
 
-        buttonScale = (-1.1, 1.1, 1.1)
-        buttonScale2 = (-1.4, 1.5, 1.5)# (-0.9, 0.9, 0.9)
+        buttonScale = (-1.1, 1.1, 1.1) # (-0.9, 0.9, 0.9)
+        buttonScale2 = (-1.4, 1.5, 1.5)
+        buttonScale3 = (-0.8, 0.8, 0.8)
 
         self.singlePlayerButton = MATShuffleButton(
             pos=(0, 0, -0.25),  # (0, 0, -0.1),
@@ -63,7 +64,7 @@ class MainMenu(DirectObject, FSM):
             image2_scale=buttonScale,
             image1_scale=buttonScale,
             text_scale=0.09,
-            command=lambda: self.request('MultiPlayer')
+            command=lambda: self.request('Multiplayer')
         )
         self.buttons.append(self.multiPlayerButton)
 
@@ -76,8 +77,22 @@ class MainMenu(DirectObject, FSM):
             image2_scale=buttonScale2,
             image1_scale=buttonScale2,
             text_scale=0.10,
-            command=lambda: self.request('MultiPlayer')
+            command=lambda: self.request('')
         )
+        self.spButtons.append(self.spOnlineButton)
+
+        self.mpOnlineButton = MATShuffleButton(
+            pos=(0, 0, -0.25),
+            text="Kaldron\nNetwork",
+            text_pos=(0,0.02,0),
+            wantArrows=False,
+            image_scale=buttonScale2,
+            image2_scale=buttonScale2,
+            image1_scale=buttonScale2,
+            text_scale=0.10,
+            command=lambda: self.request('')
+        )
+        self.mpButtons.append(self.mpOnlineButton)
 
         self.spLocalButton = MATShuffleButton(
             pos=(0, 0, -0.65),
@@ -89,8 +104,44 @@ class MainMenu(DirectObject, FSM):
             text_scale=0.09,
             command=lambda: self.request('SinglePlayerLocal')
         )
-        self.spButtons.append(self.spOnlineButton)
         self.spButtons.append(self.spLocalButton)
+
+        self.mpCustomPlay = MATShuffleButton(
+            pos=(0, 0, -0.65),
+            text="Custom Play",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale,
+            image1_scale=buttonScale,
+            text_scale=0.082,
+            command=lambda: self.request('MultiPlayerCP')
+        )
+
+        self.mpButtons.append(self.mpCustomPlay)
+
+        self.spMods = MATShuffleButton(
+            pos=(0, 0, -0.87),
+            text="Mods",
+            wantArrows=False,
+            image_scale=buttonScale3,
+            image2_scale=buttonScale3,
+            image1_scale=buttonScale3,
+            text_scale=0.09,
+            command=lambda: self.request('Mods')
+        )
+        self.spButtons.append(self.spMods)
+
+        self.mpMods = MATShuffleButton(
+            pos=(0, 0, -0.87),
+            text="Mods",
+            wantArrows=False,
+            image_scale=buttonScale3,
+            image2_scale=buttonScale3,
+            image1_scale=buttonScale3,
+            text_scale=0.09,
+            command=lambda: self.request('Mods')
+        )
+        self.mpButtons.append(self.mpMods)
         
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
         
@@ -188,21 +239,40 @@ class MainMenu(DirectObject, FSM):
             suppressMouse=True,
             state=DGG.DISABLED
         )
+        self.lockIcon3 = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.00045, 0.00045, 0.00045),
+            pos=(0.246, 0, -0.86),
+            suppressMouse=True,
+            state=DGG.DISABLED
+        )
         lockImage.removeNode()
 
         self.spOnlineButton['state'] = DGG.DISABLED
         self.spOnlineButton.setColorScale(CGray)
 
+        self.spMods['state'] = DGG.DISABLED
+        self.spMods.setColorScale(CGray)
+
         if base.wantKaldronNetwork:
-            self.lockIcon.destroy()
+            self.lockIcon2.destroy()
             self.spOnlineButton['state'] = DGG.NORMAL
             self.spOnlineButton.setColorScale(CDefault)
+
+        if base.wantMods:
+            self.lockIcon3.destroy()
+            self.spMods['state'] = DGG.NORMAL
+            self.spMods.setColorScale(CDefault)
 
     def exitSinglePlayer(self):
         self.backgroundNodePath.hide()
         self.backButton.hide()
         if not base.wantKaldronNetwork:
             self.lockIcon2.hide()
+        if not base.wantMods:
+            self.lockIcon3.hide()
         for spButton in self.spButtons:
             spButton.hide()
 
@@ -217,6 +287,61 @@ class MainMenu(DirectObject, FSM):
 
         self.singlePlayerMenu = SinglePlayerMenu(self)
         self.singlePlayerMenu.request('Start')
+
+    def enterMultiplayer(self):
+        self.backgroundNodePath.show()
+        self.backButton.show()
+        self.quitButton.show()
+        for mpButton in self.mpButtons:
+            mpButton.show()
+
+        lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
+
+        self.lockIcon4 = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.0009, 0.0009, 0.0009),
+            pos=(0.44, 0, -0.23),
+            suppressMouse=True,
+            state=DGG.DISABLED
+        )
+        self.lockIcon5 = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.00045, 0.00045, 0.00045),
+            pos=(0.246, 0, -0.86),
+            suppressMouse=True,
+            state=DGG.DISABLED
+        )
+        lockImage.removeNode()
+
+        self.mpOnlineButton['state'] = DGG.DISABLED
+        self.mpOnlineButton.setColorScale(CGray)
+
+        self.mpMods['state'] = DGG.DISABLED
+        self.mpMods.setColorScale(CGray)
+
+        if base.wantKaldronNetwork:
+            self.lockIcon4.destroy()
+            self.spOnlineButton['state'] = DGG.NORMAL
+            self.spOnlineButton.setColorScale(CDefault)
+
+        if base.wantMods:
+            self.lockIcon5.destroy()
+            self.spOnlineButton['state'] = DGG.NORMAL
+            self.spOnlineButton.setColorScale(CDefault)
+
+    def exitMultiplayer(self):
+        self.backgroundNodePath.hide()
+        self.backButton.hide()
+        if not base.wantKaldronNetwork:
+            self.lockIcon4.hide()
+        if not base.wantMods:
+            self.lockIcon5.hide()
+        for mpButton in self.mpButtons:
+            mpButton.hide()
 
     def enterOff(self):
         self.hide()

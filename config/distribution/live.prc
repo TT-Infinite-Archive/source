@@ -58,6 +58,9 @@ want-leak-graph-ai #f
 want-leak-graph-client #f
 want-dev-debug #f
 
+# Safezone Interactables
+want-ttc-jukebox #t
+
 # Unlock timer:
 want-unlock-timer #t
 unlock-time Sun Dec 6 19:20:00 2015
