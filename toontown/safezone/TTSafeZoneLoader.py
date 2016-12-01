@@ -21,7 +21,7 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
     def load(self):
         if base.config.GetBool('want-ttc-jukebox', False):
             # The load method loads music, we dont want music if we have a jukebox that plays music for us
-            SafeZoneLoader.SafeZoneLoader.load()
+            SafeZoneLoader.SafeZoneLoader.load(self)
         else:
             # Do the other things in the load function that isn't playing music, this has to be updated
             # if we change the overridden func
