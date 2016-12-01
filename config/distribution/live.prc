@@ -56,7 +56,6 @@ show-population #f
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
-want-dev-debug #f
 
 # Safezone Interactables
 want-ttc-jukebox #t
