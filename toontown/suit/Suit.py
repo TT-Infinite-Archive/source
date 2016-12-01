@@ -658,17 +658,17 @@ class Suit(Avatar.Avatar):
         self.healthCondition = 0
 
     def resetHealthBarForSkele(self):
-        self.currHP = self.maxHP
+        self.hp = self.maxHp
         self.healthBarReset = True
         self.healthBar.setPos(0.0, 0.1, 0.0)
         self.updateHealthBar(0, forceUpdate=1)
 
     def updateHealthBar(self, hp, forceUpdate=0):
-        if hp > self.currHP:
-            hp = self.currHP
-        self.currHP -= hp
+        if hp > self.hp:
+            hp = self.hp
+        self.hp -= hp
 
-        health = float(self.currHP) / float(self.maxHP)
+        health = float(self.hp) / float(self.maxHp)
         if health > 0.95:
             condition = 0
         elif health > 0.9:

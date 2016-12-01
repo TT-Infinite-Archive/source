@@ -498,7 +498,7 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
     def handleRoundDone(self, battle, suits, activeSuits, toonIds, totalHp, deadSuits):
         totalMaxHp = 0
         for suit in suits:
-            totalMaxHp += suit.maxHP
+            totalMaxHp += suit.maxHp
 
         for suit in deadSuits:
             activeSuits.remove(suit)

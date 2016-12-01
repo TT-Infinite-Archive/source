@@ -21,8 +21,8 @@ class DistributedBattleVaultAI(DistributedBattleWaitersAI):
         else:
             totalHp = 0
             for suit in self.suits:
-                if suit.currHP > 0:
-                    totalHp += suit.currHP
+                if suit.hp > 0:
+                    totalHp += suit.hp
 
             self.roundCallback(self.activeToons, totalHp, deadSuits, self.battleIndex)
 

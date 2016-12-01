@@ -142,15 +142,15 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
     def d_setHp(self, hp):
         self.sendUpdate('setHp', [hp])
 
-    def b_setMaxHP(self, maxHP):
-        self.setMaxHP(maxHP)
-        self.d_setMaxHP(maxHP)
+    def b_setMaxHp(self, maxHp):
+        self.setMaxHp(maxHp)
+        self.d_setMaxHp(maxHp)
 
-    def setMaxHP(self, maxHP):
-        self.maxHp = maxHP
+    def setMaxHp(self, maxHp):
+        self.maxHp = maxHp
 
-    def d_setMaxHP(self, maxHP):
-        self.sendUpdate('setMaxHp', [maxHP])
+    def d_setMaxHp(self, maxHp):
+        self.sendUpdate('setMaxHp', [maxHp])
 
     def releaseControl(self):
         return None
@@ -218,7 +218,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
             if self.buffIndex == SuitBuffGlobals.SuitBuffAvenger:
                 # Buff activates when an ally dies
                 bonusHP = int(round(self.maxHp * 0.25))
-                self.b_setMaxHP(self.maxHp + bonusHP)
+                self.b_setMaxHp(self.maxHp + bonusHP)
                 self.b_setHp(self.hp + bonusHP)
 
     def isImmuneToTrack(self, trackIndex):
@@ -255,5 +255,5 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
             level = self.getLevel()
             originalHp = attributes['hp'][level]
             newHp = originalHp * 2
-            self.b_setMaxHP(newHp)
+            self.b_setMaxHp(newHp)
             self.b_setHp(newHp)

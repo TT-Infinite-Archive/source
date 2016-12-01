@@ -311,7 +311,7 @@ class DistributedSuitInteriorAI(DistributedObjectAI.DistributedObjectAI):
     def __handleRoundDone(self, toonIds, totalHp, deadSuits):
         totalMaxHp = 0
         for suit in self.suits:
-            totalMaxHp += suit.maxHP
+            totalMaxHp += suit.maxHp
         for suit in deadSuits:
             self.activeSuits.remove(suit)
         if len(self.reserveSuits) > 0 and len(self.activeSuits) < 4:

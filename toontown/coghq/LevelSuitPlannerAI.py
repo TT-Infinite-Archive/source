@@ -140,7 +140,7 @@ class LevelSuitPlannerAI(DirectObject.DirectObject):
         level = self.level
         battle = self.battleMgr.cellId2battle[cellId]
         for suit in battle.suits:
-            totalMaxHp += suit.maxHP
+            totalMaxHp += suit.maxHp
 
         for suit in deadSuits:
             level.suits.remove(suit)
