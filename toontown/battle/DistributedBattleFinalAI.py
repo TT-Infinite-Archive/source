@@ -120,6 +120,6 @@ class DistributedBattleFinalAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
 
     def enterResume(self):
         self.joinableFsm.request('Unjoinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         DistributedBattleBaseAI.DistributedBattleBaseAI.enterResume(self)
         self.finishCallback(self.zoneId, self.activeToons)

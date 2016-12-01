@@ -38,7 +38,7 @@ class DistributedBattleFactoryAI(DistributedLevelBattleAI.DistributedLevelBattle
 
     def enterFactoryReward(self):
         self.joinableFsm.request('Unjoinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         taskMgr.doMethodLater(2.0, self.assignRewardsLater, name=self.uniqueName('assignRewardsLater'))
         return None
 

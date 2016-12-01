@@ -106,7 +106,7 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
     def enterFaceOff(self):
         self.notify.debug('DistributedLevelBattleAI.enterFaceOff()')
         self.joinableFsm.request('Joinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         self.suits[0].releaseControl()
         faceOffTime = self.calcToonMoveTime(self.pos, self.initialSuitPos) + FACEOFF_TAUNT_T + SERVER_BUFFER_TIME
         self.notify.debug('faceOffTime = %s' % faceOffTime)
@@ -147,7 +147,7 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
 
     def enterReward(self):
         self.joinableFsm.request('Unjoinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         self.timer.startCallback(FLOOR_REWARD_TIMEOUT, self.serverRewardDone)
         return None
 

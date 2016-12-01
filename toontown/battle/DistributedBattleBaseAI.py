@@ -90,8 +90,8 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
          State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])], 'Off', 'Off')
         self.joinableFsm = ClassicFSM.ClassicFSM('Joinable', [State.State('Joinable', self.enterJoinable, self.exitJoinable, ['Unjoinable']), State.State('Unjoinable', self.enterUnjoinable, self.exitUnjoinable, ['Joinable'])], 'Unjoinable', 'Unjoinable')
         self.joinableFsm.enterInitialState()
-        self.runableFsm = ClassicFSM.ClassicFSM('Runable', [State.State('Runable', self.enterRunable, self.exitRunable, ['Unrunable']), State.State('Unrunable', self.enterUnrunable, self.exitUnrunable, ['Runable'])], 'Unrunable', 'Unrunable')
-        self.runableFsm.enterInitialState()
+        self.runnableFsm = ClassicFSM.ClassicFSM('Runnable', [State.State('Runnable', self.enterRunnable, self.exitRunnable, ['Unrunnable']), State.State('Unrunnable', self.enterUnrunnable, self.exitUnrunnable, ['Runnable'])], 'Unrunnable', 'Unrunnable')
+        self.runnableFsm.enterInitialState()
         self.adjustFsm = ClassicFSM.ClassicFSM('Adjust', [State.State('Adjusting', self.enterAdjusting, self.exitAdjusting, ['NotAdjusting', 'Adjusting']), State.State('NotAdjusting', self.enterNotAdjusting, self.exitNotAdjusting, ['Adjusting'])], 'NotAdjusting', 'NotAdjusting')
         self.adjustFsm.enterInitialState()
         self.fsm.enterInitialState()
@@ -118,7 +118,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.__removeAllTasks()
         del self.fsm
         del self.joinableFsm
-        del self.runableFsm
+        del self.runnableFsm
         del self.adjustFsm
         self.__cleanupJoinResponses()
         self.timer.stop()
@@ -650,8 +650,8 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.notify.debug('ignoring response from toon: %d' % toonId)
             return
         self.notify.debug('toonRequestRun(%d)' % toonId)
-        if not self.isRunable():
-            self.notify.warning('toonRequestRun() - not runable')
+        if not self.isRunnable():
+            self.notify.warning('toonRequestRun() - not runnable')
             return
         updateAttacks = 0
         if self.activeToons.count(toonId) == 0:
@@ -1044,12 +1044,12 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return None
 
     def enterWaitForJoin(self):
-        self.notify.debug('enterWaitForJoin()')
+        self.notify.debug('STATE: WaitForJoin')
         if len(self.activeSuits) > 0:
             self.b_setState('WaitForInput')
         else:
             self.notify.debug('enterWaitForJoin() - no active suits')
-            self.runableFsm.request('Runable')
+            self.runnableFsm.request('Runnable')
             self.resetResponses()
             self.__requestAdjust()
         return None
@@ -1058,9 +1058,9 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return None
 
     def enterWaitForInput(self):
-        self.notify.debug('enterWaitForInput()')
+        self.notify.debug('STATE: WaitForInput')
         self.joinableFsm.request('Joinable')
-        self.runableFsm.request('Runable')
+        self.runnableFsm.request('Runnable')
         self.resetResponses()
         self.__requestAdjust()
         if not self.tutorialFlag:
@@ -1085,8 +1085,8 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.__requestMovie(timeout=1)
 
     def enterMakeMovie(self):
-        self.notify.debug('enterMakeMovie()')
-        self.runableFsm.request('Unrunable')
+        self.notify.debug('STATE: MakeMovie')
+        self.runnableFsm.request('Unrunnable')
         self.resetResponses()
         return None
 
@@ -1094,9 +1094,9 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return None
 
     def enterPlayMovie(self):
-        self.notify.debug('enterPlayMovie()')
+        self.notify.debug('STATE: PlayMovie')
         self.joinableFsm.request('Joinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         self.resetResponses()
         movieTime = TOON_ATTACK_TIME * (len(self.activeToons) + self.numNPCAttacks) + SUIT_ATTACK_TIME * len(self.activeSuits) + SERVER_BUFFER_TIME
         self.numNPCAttacks = 0
@@ -1141,17 +1141,25 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
     def sendAvatarUpdates(self):
         for toonId in self.activeToons:
             toon = self.getToon(toonId)
+            self.notify.debug('sendingAvatarUpdate for toon %s of id %s hp is: %s' % (toon, toon.doId, toon.getHp()))
             if toon is not None:
                 toon.d_setHp(toon.hp)
                 if toon.hp <= 0:
                     self.__removeToon(toonId)
+            else:
+                self.notify.warning('Attempted to update invalid toon %s in %s' % (toon, self.activeToons))
 
         for suit in self.activeSuits:
-            suit.d_setHp(suit.hp)
-            if suit.hp <= 0:
-                self.__removeSuit(suit)
+            self.notify.debug('sendingAvatarUpdate for suit %s of id %s hp is: %s' % (suit, suit.doId, suit.getHp()))
+            if suit is not None:
+                suit.d_setHp(suit.hp)
+                if suit.hp <= 0:
+                    self.__removeSuit(suit)
+            else:
+                self.notify.warning('Attempted to update invalid suit %s in %s' % (suit, self.activeSuits))
 
     def enterResume(self):
+        self.notify.debug('STATE: Resume')
         for suit in self.suits:
             self.notify.info('battle done, resuming suit: %d' % suit.doId)
             if suit.isDeleted():
@@ -1202,34 +1210,34 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return self.joinableFsm.getCurrentState().getName() == 'Joinable'
 
     def enterJoinable(self):
-        self.notify.debug('enterJoinable()')
+        self.notify.debug('STATE: Joinable')
         return None
 
     def exitJoinable(self):
         return None
 
     def enterUnjoinable(self):
-        self.notify.debug('enterUnjoinable()')
+        self.notify.debug('STATE: Unjoinable')
         return None
 
     def exitUnjoinable(self):
         return None
 
-    def isRunable(self):
-        return self.runableFsm.getCurrentState().getName() == 'Runable'
+    def isRunnable(self):
+        return self.runnableFsm.getCurrentState().getName() == 'Runnable'
 
-    def enterRunable(self):
-        self.notify.debug('enterRunable()')
+    def enterRunnable(self):
+        self.notify.debug('STATE: Runnable')
         return None
 
-    def exitRunable(self):
+    def exitRunnable(self):
         return None
 
-    def enterUnrunable(self):
-        self.notify.debug('enterUnrunable()')
+    def enterUnrunnable(self):
+        self.notify.debug('STATE: Unrunnable')
         return None
 
-    def exitUnrunable(self):
+    def exitUnrunnable(self):
         return None
 
     def __estimateAdjustTime(self):
@@ -1249,7 +1257,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         return adjustTime
 
     def enterAdjusting(self):
-        self.notify.debug('enterAdjusting()')
+        self.notify.debug('STATE: Adjusting')
         self.timer.stop()
         self.__resetAdjustingResponses()
         self.adjustingTimer.startCallback(self.__estimateAdjustTime() + SERVER_BUFFER_TIME, self.__serverAdjustingDone)
@@ -1317,7 +1325,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.__requestAdjust()
 
     def enterNotAdjusting(self):
-        self.notify.debug('enterNotAdjusting()')
+        self.notify.debug('STATE: NotAdjusting')
         if self.movieRequested == 1:
             if len(self.activeToons) > 0 and self.__allActiveToonsResponded():
                 self.__requestMovie()

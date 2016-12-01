@@ -69,7 +69,7 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
     def enterFaceOff(self):
         self.notify.debug('enterFaceOff()')
         self.joinableFsm.request('Joinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         self.timer.startCallback(self.calcToonMoveTime(self.pos, self.elevatorPos) + FACEOFF_TAUNT_T + SERVER_BUFFER_TIME, self.__serverFaceOffDone)
 
     def __serverFaceOffDone(self):
