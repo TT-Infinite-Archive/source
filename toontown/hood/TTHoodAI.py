@@ -82,7 +82,7 @@ class TTHoodAI(HoodAI.HoodAI):
         self.stormEvent.generateWithRequired(self.zoneId)
 
     def createJukeBox(self):
-        self.jukebox = DistributedJukeboxAI(self.air, 1)
+        self.jukebox = DistributedJukeboxAI(self.air, 5)
         self.jukebox.setPosHpr(-119.815, 79.913, 0.525, 39, 0, 0)
         self.jukebox.generateWithRequired(self.zoneId)
 
