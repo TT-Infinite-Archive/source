@@ -118,7 +118,7 @@ class DistributedJukebox(DistributedObject):
         self.notify.debug('Stopping music')
         if self.music is not None:
             if self.volumeInterval is not None:
-                self.volumeInterval.finish()
+                self.volumeInterval.cleanup()
                 self.volumeInterval = None
             self.volumeInterval = VolumeInterval(self.music, 0, JukeboxGlobals.FadeTime, self.handleVolumeIntervalDone)
 
