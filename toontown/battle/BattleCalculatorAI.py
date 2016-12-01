@@ -1,23 +1,20 @@
-from BattleBase import *
 from DistributedBattleAI import *
 from toontown.toonbase.ToontownBattleGlobals import *
-import random
-from toontown.suit import DistributedSuitBaseAI
 import SuitBattleGlobals
 import BattleExperienceAI
 from toontown.toon import InventoryGlobals
 from toontown.suit.SuitBuffGlobals import SuitBuffStable
 from toontown.toon import NPCToons
-from toontown.pets import PetTricks, DistributedPetProxyAI
+from toontown.pets import PetTricks
 from toontown.hood import ZoneUtil
 from direct.showbase.PythonUtil import lerp
-import sys
+from direct.directnotify.DirectNotifyGlobal import directNotify
+import random
+
 
 class BattleCalculatorAI:
-    AccuracyBonuses = [0,
-     20,
-     40,
-     60]
+    notify = directNotify.newCategory('BattleCalculatorAI')
+    AccuracyBonuses = [0, 20, 40, 60]
     DamageBonuses = [0,
      20,
      20,
@@ -38,7 +35,6 @@ class BattleCalculatorAI:
     CLEAR_MULTIPLE_TRAPS = 0
     KBBONUS_LURED_FLAG = 0
     KBBONUS_TGT_LURED = 1
-    notify = DirectNotifyGlobal.directNotify.newCategory('BattleCalculatorAI')
     toonsAlwaysHit = simbase.config.GetBool('toons-always-hit', 0)
     toonsAlwaysMiss = simbase.config.GetBool('toons-always-miss', 0)
     toonsAlways5050 = simbase.config.GetBool('toons-always-5050', 0)
@@ -1027,7 +1023,6 @@ class BattleCalculatorAI:
                     self.delayedUnlures.append(t.getDoId())
 
     def __doToonAttacks(self):
-        self.notify.debug('__doToonAttacks()')
         for ta in self.battle.toonAttacks.values():
             tma = BattleAttack.MovieAttack()
             tma.fromList(ta.toList() + [False])
@@ -1036,24 +1031,33 @@ class BattleCalculatorAI:
                 continue
             gag = InventoryGlobals.Gags.get(ta.attackId)
             if gag is not None:
-                if gag.isTargeted() and gag.accuracy > random.randint(0, 99):
+                if gag.isTargeted() and gag.accuracy > random.uniform(0, 1):
                     tma.hit = True
                 self.battle.toonMovieAttacks.append(tma)
                 if not tma.hit:
                     # Missed, don't apply effects
+                    self.notify.debug('Gag %d Missed!' % gag.uid)
                     continue
+                else:
+                    self.notify.debug('Gag %d hit!' % gag.uid)
                 if gag.targetsAlly() and gag.targetCount == 4:
+                    self.notify.debug('Applying %d to all toons' % gag.uid)
                     for toon in self.battle.activeToons:
                         gag.effect.applyToQuietly(toon)
                 elif gag.targetsAlly():
+                    self.notify.debug('Applying %d to toon %d' % (gag.uid, ta.targetId))
                     toon = self.battle.findToon(ta.targetId)
                     gag.effect.applyToQuietly(toon)
                 elif gag.targetsEnemy() and gag.targetCount == 4:
+                    self.notify.debug('Applying %d to all toons' % gag.uid)
                     for suit in self.battle.activeSuits:
                         gag.effect.applyToQuietly(suit)
                 elif gag.targetsEnemy():
+                    self.notify.debug('Applying %d to cog %d...' % (gag.uid, ta.targetId))
                     suit = self.battle.findSuit(ta.targetId)
+                    self.notify.debug('Cog hp was %d' % suit.hp)
                     gag.effect.applyToQuietly(suit)
+                    self.notify.debug('Cog hp is now %d' % suit.hp)
             else:
                 self.notify.warning('Unknown toon attack %s' % ta.attackId)
 
@@ -1324,6 +1328,7 @@ class BattleCalculatorAI:
         return (toonsHit, cogsMiss)
 
     def calculateRound(self):
+        self.notify.debug('Calculating round...')
         # Fill toon movie and suit movie attacks while performing the attacks to members of the battle quietly
         self.__doToonAttacks()
         self.__doSuitAttacks()

@@ -1216,8 +1216,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 luredSuits.append(self.activeSuits.index(suit))
 
             self.townBattle.adjustCogsAndToons(self.activeSuits, luredSuits, self.activeToons)
-            if hasattr(self, 'townBattleAttacks'):
-                self.townBattle.updateChosenAttacks(self.townBattleAttacks[0], self.townBattleAttacks[1], self.townBattleAttacks[2], self.townBattleAttacks[3])
         self.needAdjustTownBattle = 0
 
     def __adjustDone(self):
