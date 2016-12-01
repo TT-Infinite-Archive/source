@@ -1160,7 +1160,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             numToons = len(self.pendingToons) + len(self.activeToons) - 1
             index = 0
             for toon in self.activeToons:
-                point = self.toonPoints[numToons][index]
+                point = BattleGlobals.ToonPoints[numToons][index]
                 pos = toon.getPos(self)
                 destPos = point[0]
                 if pos != destPos:
@@ -1169,7 +1169,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 index += 1
 
             for toon in self.pendingToons:
-                point = self.toonPoints[numToons][index]
+                point = BattleGlobals.ToonPoints[numToons][index]
                 destPos = point[0]
                 destHpr = VBase3(point[1], 0.0, 0.0)
                 adjustTrack.append(self.createAdjustInterval(toon, destPos, destHpr))

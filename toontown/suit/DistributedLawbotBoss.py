@@ -14,6 +14,7 @@ import random
 
 import DistributedBossCog
 import SuitDNA
+from toontown.battle import BattleGlobals
 from toontown.battle import BattleBase
 from toontown.battle import MovieToonVictory
 from toontown.battle import RewardPanel
@@ -1201,7 +1202,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
 
     def __toonsToPromotionPosition(self, toonIds, battleNode):
         self.notify.debug('----- __toonsToPromotionPosition')
-        points = BattleBase.BattleBase.toonPoints[len(toonIds) - 1]
+        points = BattleGlobals.ToonPoints[len(toonIds) - 1]
         for i in xrange(len(toonIds)):
             toon = base.cr.doId2do.get(toonIds[i])
             if toon:
@@ -1476,7 +1477,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('walkToonsToBattlePosition-----------------------------------------------')
         self.notify.debug('toonIds=%s  battleNode=%s' % (toonIds, battleNode))
         ival = Parallel()
-        points = BattleBase.BattleBase.toonPoints[len(toonIds) - 1]
+        points = BattleGlobals.ToonPoints[len(toonIds) - 1]
         self.notify.debug('walkToonsToBattlePosition: points = %s' % points[0][0])
         for i in xrange(len(toonIds)):
             toon = base.cr.doId2do.get(toonIds[i])
@@ -1506,10 +1507,10 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('DistrutedLawbotBoss.toonsToBattlePosition----------------------------------------')
         self.notify.debug('toonIds=%s battleNode=%s' % (toonIds, battleNode))
         if len(toonIds) < 5:
-            points = BattleBase.BattleBase.toonPoints[len(toonIds) - 1]
+            points = BattleGlobals.ToonPoints[len(toonIds) - 1]
         else:
-            points = list(BattleBase.BattleBase.toonPoints[3])
-            points.extend(BattleBase.BattleBase.toonPoints[len(toonIds) - 5])
+            points = list(BattleGlobals.ToonPoints[3])
+            points.extend(BattleGlobals.ToonPoints[len(toonIds) - 5])
         self.notify.debug('toonsToBattlePosition: points = %s' % points[0][0])
         for i in xrange(len(toonIds)):
             toon = base.cr.doId2do.get(toonIds[i])

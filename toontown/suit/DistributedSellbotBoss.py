@@ -14,7 +14,7 @@ import random
 
 import DistributedBossCog
 import SuitDNA
-from toontown.battle import BattleBase
+from toontown.battle import BattleGlobals
 from toontown.battle import MovieToonVictory
 from toontown.battle import RewardPanel
 from toontown.battle import SuitBattleGlobals
@@ -1142,7 +1142,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 self.insidesBNodePath.stash()
 
     def __toonsToPromotionPosition(self, toonIds, battleNode):
-        points = BattleBase.BattleBase.toonPoints[len(toonIds) - 1]
+        points = BattleGlobals.ToonPoints[len(toonIds) - 1]
         for i in xrange(len(toonIds)):
             toon = base.cr.doId2do.get(toonIds[i])
             if toon:
@@ -1151,7 +1151,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 toon.setPosHpr(battleNode, pos[0], pos[1] + 10, pos[2], h, 0, 0)
 
     def __doobersToPromotionPosition(self, doobers, battleNode):
-        points = BattleBase.BattleBase.toonPoints[len(doobers) - 1]
+        points = BattleGlobals.ToonPoints[len(doobers) - 1]
         for i in xrange(len(doobers)):
             suit = doobers[i]
             suit.fsm.request('neutral')

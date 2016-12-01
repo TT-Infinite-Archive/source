@@ -14,7 +14,7 @@ from direct.task import Task
 
 from otp.avatar import DistributedAvatar
 
-from toontown.battle import BattleBase, BattleExperience
+from toontown.battle import BattleBase, BattleExperience, BattleGlobals
 from toontown.building import ElevatorUtils, ElevatorConstants
 from toontown.coghq import CogDisguiseGlobals
 from toontown.hood import ZoneUtil
@@ -677,7 +677,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         return
 
     def toonsToBattlePosition(self, toonIds, battleNode):
-        points = BattleBase.BattleBase.toonPoints[len(toonIds) - 1]
+        points = BattleGlobals.ToonPoints[len(toonIds) - 1]
         self.notify.debug('toonsToBattlePosition: points = %s' % points[0][0])
         for i in xrange(len(toonIds)):
             toon = base.cr.doId2do.get(toonIds[i])
@@ -886,7 +886,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
     def backupToonsToBattlePosition(self, toonIds, battleNode):
         self.notify.debug('backupToonsToBattlePosition:')
         ival = Parallel()
-        points = BattleBase.BattleBase.toonPoints[len(toonIds) - 1]
+        points = BattleGlobals.ToonPoints[len(toonIds) - 1]
         for i in xrange(len(toonIds)):
             toon = base.cr.doId2do.get(toonIds[i])
             if toon:
