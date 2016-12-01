@@ -894,7 +894,7 @@ CollectibleCheesyEffectSmallToon = CollectibleItem.CheesyEffectItem(
     scale=0.001,
 )
 CollectibleCheesyEffectFlatProfile = CollectibleItem.CheesyEffectItem(
-    name='Flat Portrait',
+    name='Flat Profile',
     category=CICategoryCheesyEffect,
     id=CheesyEffectFlatProfile,
     desc='Equip this to make your Toon flat vertically!',
