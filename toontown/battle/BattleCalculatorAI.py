@@ -534,7 +534,7 @@ class BattleCalculatorAI:
                                 numLeft = 0
                             toon.b_setPinkSlips(numLeft)
                             suit.skeleRevives = 0
-                            attackDamage = suit.getHP()
+                            attackDamage = suit.getHp()
                     else:
                         attackDamage = 0
                 else:
@@ -687,7 +687,7 @@ class BattleCalculatorAI:
                     totalDamages = totalDamages + damageDone
                     continue
                 currTarget = targets[position]
-                currTarget.setHP(currTarget.getHP() - damageDone)
+                currTarget.setHp(currTarget.getHp() - damageDone)
                 targetId = currTarget.getDoId()
                 if self.notify.getDebug():
                     if hpbonus:
@@ -697,7 +697,7 @@ class BattleCalculatorAI:
                     else:
                         self.notify.debug(str(targetId) + ': suit takes ' + str(damageDone) + ' damage')
                 totalDamages = totalDamages + damageDone
-                if currTarget.getHP() <= 0:
+                if currTarget.getHp() <= 0:
                     if currTarget.getSkeleRevives() >= 1:
                         currTarget.useSkeleRevive()
                         attack[SUIT_REVIVE_COL] = attack[SUIT_REVIVE_COL] | 1 << position
@@ -715,7 +715,7 @@ class BattleCalculatorAI:
                 return 1
         else:
             suit = self.battle.findSuit(avId)
-            if suit.getHP() <= 0:
+            if suit.getHp() <= 0:
                 return 1
         return 0
 
@@ -907,7 +907,7 @@ class BattleCalculatorAI:
                                 trapInfo = self.traps[currTgt.doId]
                                 currTgt.battleTrap = trapInfo[0]
                         targetDead = 0
-                        if currTgt.getHP() > 0:
+                        if currTgt.getHp() > 0:
                             allTargetsDead = 0
                         else:
                             targetDead = 1
@@ -1357,7 +1357,7 @@ class BattleCalculatorAI:
         self.__removeSuitTrap(suitId)
         self.__attemptGenerateMeritTreasure(suitId)
         for suit in self.battle.activeSuits:
-            if suit.getHP() > 0:
+            if suit.getHp() > 0:
                 if suit.doId != suitId:
                     suit.allyDied(suitId)
 

@@ -16,8 +16,8 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         DistributedAvatarAI.DistributedAvatarAI.__init__(self, air)
         SuitBase.SuitBase.__init__(self)
         self.sp = suitPlanner
-        self.maxHP = 10
-        self.currHP = 10
+        self.maxHp = 10
+        self.hp = 10
         self.zoneId = 0
         self.dna = SuitDNA.SuitDNA()
         self.virtual = 0
@@ -56,8 +56,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         if hasattr(self, 'doId'):
             self.d_setLevelDist(self.level)
         hp = attributes['hp'][self.level]
-        self.maxHP = hp
-        self.currHP = hp
+        self.maxHp = self.hp = hp
 
     def getLevelDist(self):
         return self.getLevel()
@@ -117,7 +116,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
 
     def useSkeleRevive(self):
         self.skeleRevives -= 1
-        self.currHP = self.maxHP
+        self.hp = self.maxHp
         self.reviveFlag = 1
 
     def reviveCheckAndClear(self):
@@ -128,30 +127,30 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         return returnValue
 
     def getHP(self):
-        return self.currHP
+        return self.hp
 
-    def setHP(self, hp):
-        if hp > self.maxHP:
-            self.currHP = self.maxHP
+    def setHp(self, hp):
+        if hp > self.maxHp:
+            self.hp = self.maxHp
         else:
-            self.currHP = hp
+            self.hp = hp
 
-    def b_setHP(self, hp):
-        self.setHP(hp)
-        self.d_setHP(hp)
+    def b_setHp(self, hp):
+        self.setHp(hp)
+        self.d_setHp(hp)
 
-    def d_setHP(self, hp):
-        self.sendUpdate('setHP', [hp])
+    def d_setHp(self, hp):
+        self.sendUpdate('setHp', [hp])
 
     def b_setMaxHP(self, maxHP):
         self.setMaxHP(maxHP)
         self.d_setMaxHP(maxHP)
 
     def setMaxHP(self, maxHP):
-        self.maxHP = maxHP
+        self.maxHp = maxHP
 
     def d_setMaxHP(self, maxHP):
-        self.sendUpdate('setMaxHP', [maxHP])
+        self.sendUpdate('setMaxHp', [maxHP])
 
     def releaseControl(self):
         return None
@@ -160,8 +159,8 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
         return 'cogDead-%s' % self.doId
 
     def resume(self):
-        self.notify.debug('resume, hp=%s' % self.currHP)
-        if self.currHP <= 0:
+        self.notify.debug('resume, hp=%s' % self.hp)
+        if self.hp <= 0:
             messenger.send(self.getDeathEvent())
             self.requestRemoval()
         return None
@@ -218,9 +217,9 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
             self.deadAllies.append(allyId)
             if self.buffIndex == SuitBuffGlobals.SuitBuffAvenger:
                 # Buff activates when an ally dies
-                bonusHP = int(round(self.maxHP * 0.25))
-                self.b_setMaxHP(self.maxHP + bonusHP)
-                self.b_setHP(self.currHP + bonusHP)
+                bonusHP = int(round(self.maxHp * 0.25))
+                self.b_setMaxHP(self.maxHp + bonusHP)
+                self.b_setHp(self.hp + bonusHP)
 
     def isImmuneToTrack(self, trackIndex):
         if trackIndex == SuitBattleGlobals.LURE:
@@ -257,4 +256,4 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
             originalHp = attributes['hp'][level]
             newHp = originalHp * 2
             self.b_setMaxHP(newHp)
-            self.b_setHP(newHp)
+            self.b_setHp(newHp)

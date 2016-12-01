@@ -811,8 +811,8 @@ dclass DistributedSuitBase : DistributedObject {
   setWaiter(uint8) broadcast ram;
   setSkelecog(uint8) required broadcast ram;
   setSkeleRevives(uint8) required broadcast ram;
-  setHP(int16) required broadcast ram;
-  setMaxHP(int16) broadcast ram;
+  setHp(int16) required broadcast ram;
+  setMaxHp(int16) broadcast ram;
   setBuff(uint32) broadcast ram;
 };
 

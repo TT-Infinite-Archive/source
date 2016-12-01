@@ -1,31 +1,21 @@
-import copy
 from direct.controls.ControlManager import CollisionHandlerRayStart
-from direct.directnotify import DirectNotifyGlobal
-from direct.directtools.DirectGeometry import CLAMP
 from direct.distributed.ClockDelta import *
-from direct.fsm import ClassicFSM
-from direct.fsm import State
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
 import math
 from pandac.PandaModules import *
 
-import DistributedSuitPlanner
 import Suit
 import SuitBase
-import SuitDNA
 import SuitDialog
 import SuitTimings
 from otp.avatar import DistributedAvatar
 from otp.otpbase import OTPGlobals
 from toontown.battle import BattleProps
-from toontown.battle import DistributedBattle
-from toontown.battle import SuitBattleGlobals
 from toontown.collectibles import CollectibleGlobals, CollectibleInventoryGlobals
 from toontown.chat.ChatGlobals import *
 from toontown.nametag.NametagGlobals import *
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.suit import SuitBuffGlobals
 
@@ -130,19 +120,19 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
     def setDNA(self, dna):
         Suit.Suit.setDNA(self, dna)
 
-    def getHP(self):
-        return self.currHP
+    def getHp(self):
+        return self.hp
 
-    def setHP(self, hp):
-        if hp > self.maxHP:
-            self.currHP = self.maxHP
+    def setHp(self, hp):
+        if hp > self.maxHp:
+            self.hp = self.maxHp
         else:
-            self.currHP = hp
+            self.hp = hp
 
         self.updateHealthBar(0, forceUpdate=1)
 
-    def setMaxHP(self, maxHP):
-        self.maxHP = maxHP
+    def setMaxHp(self, maxHp):
+        self.maxHp = maxHp
         self.updateHealthBar(0, forceUpdate=1)
 
     def getDialogueArray(self, *args):
@@ -358,13 +348,13 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
         self.disableBattleDetect()
         self.corpMedallion.hide()
         self.healthBar.show()
-        if self.currHP < self.maxHP:
+        if self.hp < self.maxHp:
             self.updateHealthBar(0, 1)
 
     def exitBattle(self):
         self.healthBar.hide()
         self.corpMedallion.show()
-        self.currHP = self.maxHP
+        self.hp = self.maxHp
         self.interactivePropTrackBonus = -1
 
     def enterWaitForBattle(self):

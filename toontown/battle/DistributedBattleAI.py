@@ -53,7 +53,7 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
     def enterFaceOff(self):
         self.notify.debug('enterFaceOff()')
         self.joinableFsm.request('Joinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         self.suits[0].releaseControl()
         timeForFaceoff = self.calcFaceoffTime(self.pos, self.initialSuitPos) + FACEOFF_TAUNT_T + SERVER_BUFFER_TIME
         if self.interactivePropTrackBonus >= 0:
@@ -108,7 +108,7 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
     def enterReward(self):
         self.notify.debug('enterReward()')
         self.joinableFsm.request('Unjoinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         self.resetResponses()
         self.assignRewards()
         self.startRewardTimer()
@@ -122,7 +122,7 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
     def enterResume(self):
         self.notify.debug('enterResume()')
         self.joinableFsm.request('Unjoinable')
-        self.runableFsm.request('Unrunable')
+        self.runnableFsm.request('Unrunnable')
         DistributedBattleBaseAI.DistributedBattleBaseAI.enterResume(self)
         if self.finishCallback:
             self.finishCallback(self.zoneId)

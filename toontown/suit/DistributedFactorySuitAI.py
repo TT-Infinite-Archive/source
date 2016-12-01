@@ -94,7 +94,7 @@ class DistributedFactorySuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
 
     def resume(self):
         self.notify.debug('Suit %s resume' % self.doId)
-        if self.currHP <= 0:
+        if self.hp <= 0:
             messenger.send(self.getDeathEvent())
             self.notify.debug('Suit %s dead after resume' % self.doId)
             self.requestRemoval()

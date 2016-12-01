@@ -118,7 +118,6 @@ class DistributedAvatar(DistributedActor, Avatar):
             self.hpChange(quietly=0)
             if self.hp <= 0 and oldHp > 0:
                 self.died()
-        return
 
     def setHp(self, hitPoints):
         justRanOutOfHp = (hitPoints is not None and self.hp is not None and self.hp - hitPoints > 0) and (hitPoints <= 0)

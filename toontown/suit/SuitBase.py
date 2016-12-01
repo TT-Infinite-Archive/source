@@ -19,8 +19,8 @@ class SuitBase:
     def __init__(self):
         self.dna = None
         self.level = 0
-        self.maxHP = 10
-        self.currHP = 10
+        self.maxHp = 10
+        self.hp = 10
         self.isSkelecog = 0
         self.isWaiter = 0
         return
@@ -55,8 +55,8 @@ class SuitBase:
          'level': self.getActualLevel()}
         self.setDisplayName(nameWLevel)
         attributes = SuitBattleGlobals.SuitAttributes[self.dna.name]
-        self.maxHP = attributes['hp'][self.level]
-        self.currHP = self.maxHP
+        self.maxHp = attributes['hp'][self.level]
+        self.hp = self.maxHp
 
     def getSkelecog(self):
         return self.isSkelecog
