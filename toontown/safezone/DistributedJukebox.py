@@ -25,6 +25,7 @@ class DistributedJukebox(DistributedObject):
         self.gui = None
         self.posHpr = [0, 0, 0, 0, 0, 0]
         self.volumeInterval = None
+        self.inGui = False
 
     def generate(self):
         self.notify.debug('Generating...')
@@ -80,6 +81,9 @@ class DistributedJukebox(DistributedObject):
         self.enterGui()
 
     def enterGui(self):
+        if self.inGui:
+            return
+        self.inGui = True
         self.gui.show()
         base.cr.playGame.getPlace().setState('purchase')
 
@@ -87,6 +91,9 @@ class DistributedJukebox(DistributedObject):
         filters.setBlurSharpen(0)
 
     def exitGui(self):
+        if not self.inGui:
+            return
+        self.inGui = False
         self.gui.hide()
         base.cr.playGame.getPlace().setState('walk')
 
