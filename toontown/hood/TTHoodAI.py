@@ -7,6 +7,8 @@ from toontown.safezone import DistributedTrolleyAI
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.safezone.DistributedJukeboxAI import DistributedJukeboxAI
+from toontown.safezone import JukeboxGlobals
 
 
 class TTHoodAI(HoodAI.HoodAI):
@@ -19,12 +21,15 @@ class TTHoodAI(HoodAI.HoodAI):
         self.classicChar = None
         self.stormEvent = None
         self.butterflies = []
+        self.jukebox = None
 
         self.startup()
 
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
+        if simbase.config.GetBool('want-ttc-jukebox', True):
+            self.createJukeBox()
         if simbase.config.GetBool('want-minigames', True):
             self.createTrolley()
         if simbase.config.GetBool('want-classic-chars', True):
@@ -75,4 +80,9 @@ class TTHoodAI(HoodAI.HoodAI):
     def createStormEvent(self):
         self.stormEvent = DistributedStormEventAI.DistributedStormEventAI(self.air)
         self.stormEvent.generateWithRequired(self.zoneId)
+
+    def createJukeBox(self):
+        self.jukebox = DistributedJukeboxAI(self.air, 5)
+        self.jukebox.setPosHpr(-119.815, 79.913, 0.525, 39, 0, 0)
+        self.jukebox.generateWithRequired(self.zoneId)
 

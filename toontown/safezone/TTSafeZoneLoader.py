@@ -4,6 +4,7 @@ from toontown.safezone import TTPlayground
 from toontown.toonbase import ToontownGlobals
 from toontown.battle import BattleParticles
 
+
 class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
     def __init__(self, hood, parentFSM, doneEvent):
         SafeZoneLoader.SafeZoneLoader.__init__(self, hood, parentFSM, doneEvent)
@@ -19,7 +20,14 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_4/dna/storage_TT_sz.pdna'
 
     def load(self):
-        SafeZoneLoader.SafeZoneLoader.load(self)
+        if not base.config.GetBool('want-ttc-jukebox', False):
+            # The load method loads music, we want music if don't we have a jukebox that plays music for us
+            SafeZoneLoader.SafeZoneLoader.load(self)
+        else:
+            # Don't play music if we have a jukebox, but do the other things in the loader
+            self.activityMusic = base.loadMusic(self.activityMusicFile)
+            self.createSafeZone(self.dnaFile)
+            self.parentFSMState.addChild(self.fsm)
         self.birdSound = map(base.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird2.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird3.ogg'])

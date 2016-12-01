@@ -16,6 +16,7 @@ from toontown.toonbase import ToontownGlobals
 
 import random
 
+
 class TTPlayground(Playground.Playground):
     def __init__(self, loader, parentFSM, doneEvent):
         Playground.Playground.__init__(self, loader, parentFSM, doneEvent)
