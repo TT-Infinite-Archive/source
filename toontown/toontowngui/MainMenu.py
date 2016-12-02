@@ -4,7 +4,7 @@ from otp.otpbase import OTPLocalizer
 
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.toonbase.ColorGlobals import CGray, CDefault
-from toontown.toontowngui.SinglePlayerMenu import SinglePlayerMenu
+from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import TTCardMaker
 
 from pandac.PandaModules import *
@@ -20,7 +20,7 @@ class MainMenu(DirectObject, FSM):
         DirectObject.__init__(self)
         FSM.__init__(self, 'MainMenu')
 
-        self.singlePlayerMenu = None
+        self.localSinglePlayerStart = None
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.backgroundNodePath.hide()
 
@@ -39,6 +39,8 @@ class MainMenu(DirectObject, FSM):
         self.buttons = []
         self.spButtons = []
         self.mpButtons = []
+        self.mpButtons2 = []
+        self.mpButtons3 = []
 
         buttonScale = (-1.1, 1.1, 1.1) # (-0.9, 0.9, 0.9)
         buttonScale2 = (-1.4, 1.5, 1.5)
@@ -114,7 +116,7 @@ class MainMenu(DirectObject, FSM):
             image2_scale=buttonScale,
             image1_scale=buttonScale,
             text_scale=0.082,
-            command=lambda: self.request('MultiPlayerCP')
+            command=lambda: self.request('MultiplayerCP')
         )
 
         self.mpButtons.append(self.mpCustomPlay)
@@ -142,6 +144,42 @@ class MainMenu(DirectObject, FSM):
             command=lambda: self.request('Mods')
         )
         self.mpButtons.append(self.mpMods)
+
+        self.mpCPJoin = MATShuffleButton(
+            pos=(-0.5, 0, -0.45),
+            text="Join",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale,
+            image1_scale=buttonScale,
+            text_scale=0.09,
+            command=lambda: self.request('MultiplayerCPJoin')
+        )
+        self.mpButtons2.append(self.mpCPJoin)
+
+        self.mpCPHost = MATShuffleButton(
+            pos=(0.5, 0, -0.45),
+            text="Host",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale,
+            image1_scale=buttonScale,
+            text_scale=0.09,
+            command=lambda: self.request('MultiplayerCPHost')
+        )
+        self.mpButtons2.append(self.mpCPHost)
+
+        self.mpCPConnect = MATShuffleButton(
+            pos=(0, 0, -0.75),
+            text="Connect",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale,
+            image1_scale=buttonScale,
+            text_scale=0.09,
+            command=lambda: self.request('MultiplayerCPConnect')
+        )
+        self.mpButtons3.append(self.mpCPConnect)
         
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
         
@@ -196,6 +234,32 @@ class MainMenu(DirectObject, FSM):
 
         self.backButton.hide()
         self.backButton.reparentTo(base.a2dBottomLeft)
+
+        self.backButton2 = DirectButton(
+            image=(quitHover, quitHover, quitHover), relief=None,
+            text=TTLocalizer.OptionsGoBack,
+            text_font=ToontownGlobals.getSignFont(),
+            text_fg=(0.977, 0.816, 0.133, 1),
+            text_pos=TTLocalizer.ACquitButtonPos,
+            text_scale=TTLocalizer.ACbackButton, image_scale=1,
+            image1_scale=1.05, image2_scale=1.05, scale=1.05,
+            pos=(0.25, 0, 0.075), command=lambda: self.request('Multiplayer'))
+
+        self.backButton2.hide()
+        self.backButton2.reparentTo(base.a2dBottomLeft)
+
+        self.backButton3 = DirectButton(
+            image=(quitHover, quitHover, quitHover), relief=None,
+            text=TTLocalizer.OptionsGoBack,
+            text_font=ToontownGlobals.getSignFont(),
+            text_fg=(0.977, 0.816, 0.133, 1),
+            text_pos=TTLocalizer.ACquitButtonPos,
+            text_scale=TTLocalizer.ACbackButton, image_scale=1,
+            image1_scale=1.05, image2_scale=1.05, scale=1.05,
+            pos=(0.25, 0, 0.075), command=lambda: self.request('MultiplayerCP'))
+
+        self.backButton3.hide()
+        self.backButton3.reparentTo(base.a2dBottomLeft)
 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
@@ -278,15 +342,17 @@ class MainMenu(DirectObject, FSM):
 
     def enterSinglePlayerLocal(self):
 
-        OTPLocalizer.SpeedChatStaticText[30500] = 'Welcome to Toontown Infinite!'
+        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing local play on Toontown Infinite!"
+        OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
+        OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
         OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open.'
         OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs in the Kaldron Interactive Discord channel.'
 
         self.hide()
         self.backgroundNodePath.show()
 
-        self.singlePlayerMenu = SinglePlayerMenu(self)
-        self.singlePlayerMenu.request('Start')
+        self.LocalSinglePlayerStart = LocalSinglePlayerStart(self)
+        self.LocalSinglePlayerStart.request('Start')
 
     def enterMultiplayer(self):
         self.backgroundNodePath.show()
@@ -343,16 +409,42 @@ class MainMenu(DirectObject, FSM):
         for mpButton in self.mpButtons:
             mpButton.hide()
 
+    def enterMultiplayerCP(self):
+        self.backgroundNodePath.show()
+        self.backButton2.show()
+        self.quitButton.show()
+        for mpButton2 in self.mpButtons2:
+            mpButton2.show()
+
+    def exitMultiplayerCP(self):
+        self.backgroundNodePath.hide()
+        self.backButton2.hide()
+        for mpButton2 in self.mpButtons2:
+            mpButton2.hide()
+
+    def enterMultiplayerCPJoin(self):
+        self.backgroundNodePath.show()
+        self.backButton3.show()
+        self.quitButton.show()
+        for mpButton3 in self.mpButtons3:
+            mpButton3.show()
+
+    def exitMultiplayerCPJoin(self):
+        self.backgroundNodePath.hide()
+        self.backButton3.hide()
+        for mpButton3 in self.mpButtons3:
+            mpButton3.hide()
+
     def enterOff(self):
         self.hide()
 
-    def destroySPMenu(self):
-        if self.singlePlayerMenu:
-            self.singlePlayerMenu.removeNode()
-            self.singlePlayerMenu = None
+    def destroySPLocalStart(self):
+        if self.localSinglePlayerStart:
+            self.localSinglePlayerStart.removeNode()
+            self.localSinglePlayerStart = None
 
     def hide(self):
-        self.destroySPMenu()
+        self.destroySPLocalStart()
         self.backgroundNodePath.hide()
         for button in self.buttons:
             button.hide()
@@ -362,6 +454,12 @@ class MainMenu(DirectObject, FSM):
 
         for mpButton in self.mpButtons:
             mpButton.hide()
+
+        for mpButton2 in self.mpButtons2:
+            mpButton2.hide()
+
+        for mpButton3 in self.mpButtons3:
+            mpButton3.hide()
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')

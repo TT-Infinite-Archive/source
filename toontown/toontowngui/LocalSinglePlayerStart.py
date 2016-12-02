@@ -8,12 +8,12 @@ from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 import psutil, os
 
-class SinglePlayerMenu(DirectFrame, FSM):
+class LocalSinglePlayerStart(DirectFrame, FSM):
 
     def __init__(self, mainMenu, **kwargs):
         DirectFrame.__init__(self, aspect2d, **kwargs)
-        FSM.__init__(self, 'SinglePlayerMenu')
-        self.initialiseoptions(SinglePlayerMenu)
+        FSM.__init__(self, 'LocalSinglePlayerStart')
+        self.initialiseoptions(LocalSinglePlayerStart)
         
         self.path = os.path.abspath('.')
         self.threads = []

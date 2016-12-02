@@ -2079,7 +2079,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def enterMainMenu(self):
         self.mainMenu.request('Idle')
         if self.isConnected():
-          self.mainMenu.singlePlayerMenu.demand('Off')
+          self.mainMenu.LocalSinglePlayerStart.demand('Off')
 
     def exitMainMenu(self):
         self.mainMenu.hide()
