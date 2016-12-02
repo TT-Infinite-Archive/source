@@ -144,6 +144,10 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.label['text'] = TTLocalizer.StartingServerLive
 
         thread = ProcessThread(self.path, self.process)
+        
+        if (not self.singlePlayer) and thread.processInfo[0].startswith('astrond'):
+            thread.processInfo.append('astrond_mp.yml')
+
         thread.start()
         self.threads.append(thread)
 
