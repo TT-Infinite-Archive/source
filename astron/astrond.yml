@@ -65,7 +65,7 @@ messagedirector:
 
 roles:
     - type: clientagent
-      bind: 0.0.0.0:7199
+      bind: 127.0.0.1:7199
       version: "dev"
       client:
         relocate: true
