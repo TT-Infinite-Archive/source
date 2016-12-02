@@ -34,6 +34,11 @@ want-outdoor-zone #f
 want-golf-zone #f
 want-resistance-grounds #f
 
+# Trolley minigames:
+want-photo-game #f
+want-travel-game #f
+want-ttc-trolley #f
+
 # Chat:
 want-whitelist #t
 want-blacklist #t

@@ -85,6 +85,11 @@ want-outdoor-zone #f
 want-golf-zone #f
 want-resistance-grounds #f
 
+# Trolley minigames:
+want-ttc-trolley #f
+want-photo-game #f
+want-travel-game #f
+
 # Cog headquarters:
 want-cog-headquarters #f
 

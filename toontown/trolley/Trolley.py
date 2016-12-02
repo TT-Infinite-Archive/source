@@ -21,7 +21,7 @@ class Trolley(StateData.StateData):
                 self.enterStart,
                 self.exitStart,
                 ['requestBoard',
-                 'trolleyCS',
+                 'trolleyCS',# trolleyCS = Under Construction
                  'trolleyHFA',
                  'trolleyTFA',]),
             State.State('trolleyCS',
@@ -90,14 +90,14 @@ class Trolley(StateData.StateData):
 
     def enter(self):
         self.fsm.enterInitialState()
-        # The Trolley Minigames are currently unavailable. Let's tell Toons that it's coming soon.
-        self.fsm.request('trolleyCS')
-
-        # if base.localAvatar.hp > 0:
-            # messenger.send('enterTrolleyOK')
-            # self.fsm.request('requestBoard')
-        # else:
-            # self.fsm.request('trolleyHFA')
+        # The Trolley Minigames are currently unavailable. Let's tell Toons that it's under construction.
+        if not base.wantTrolleyTTC:
+            self.fsm.request('trolleyCS')
+        elif base.localAvatar.hp > 0 and base.wantTrolleyTTC:
+            messenger.send('enterTrolleyOK')
+            self.fsm.request('requestBoard')
+        else:
+            self.fsm.request('trolleyHFA')
 
     def exit(self):
         self.ignoreAll()
