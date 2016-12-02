@@ -6,7 +6,7 @@ from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.singleplayer.SinglePlayerGlobals import *
 from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-import psutil, os
+import atexit, psutil, os
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
 
@@ -57,6 +57,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.joinButton = None
 
     def killThreads(self):
+        self.ignoreAll()
+        
         for thread in self.threads:
             thread.kill()
         
@@ -119,6 +121,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
+        
+        atexit.register(self.killThreads)
         base.connectToServer('localhost')
     
     def enterFailed(self):
