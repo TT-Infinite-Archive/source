@@ -445,7 +445,6 @@ class MainMenu(DirectObject, FSM):
     def destroySPLocalStart(self):
         if self.localSinglePlayerStart:
             self.localSinglePlayerStart.removeNode()
-            self.localSinglePlayerStart = None
 
     def hide(self):
         self.destroySPLocalStart()

@@ -111,6 +111,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterStarting(self):
         self.accept('processStarted', self.__processStarted)
         self.accept('processFailed', self.__processFailed)
+        atexit.register(self.killThreads)
+
         self.__nextProcess()
     
     def exitStarting(self):
@@ -121,8 +123,6 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        
-        atexit.register(self.killThreads)
         base.connectToServer('localhost')
     
     def enterFailed(self):
