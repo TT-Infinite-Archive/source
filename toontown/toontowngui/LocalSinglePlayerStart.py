@@ -77,7 +77,6 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterOff(self):
         self.destroy()
         base.cr.sendDisconnect()
-        self.killThreads()
     
     def enterBack(self):
         self.demand('Off')
