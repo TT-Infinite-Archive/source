@@ -123,7 +123,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('localhost')
+        base.connectToServer('localhost', 7200 if self.singlePlayer else 7199)
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]

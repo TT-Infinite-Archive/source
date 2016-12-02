@@ -521,21 +521,18 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='localhost'):
-        # Get the base port.
-        gameserverPort = 7199
-
+    def connectToServer(self, gameserver='localhost', port=7199):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
         # Get a new port.
-        gameserverPort += random.randint(0, clientagents) * 100
+        port += random.randint(0, clientagents) * 100
 
         gameserver = URLSpec(gameserver, 1)
         if base.config.GetBool('server-force-ssl', False):
             gameserver.setScheme('s')
         if not gameserver.hasPort():
-            gameserver.setPort(gameserverPort)
+            gameserver.setPort(port)
 
         base.cr.loginFSM.request('connect', [[gameserver]])
 
