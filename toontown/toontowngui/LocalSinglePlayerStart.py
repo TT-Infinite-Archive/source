@@ -6,7 +6,7 @@ from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.singleplayer.SinglePlayerGlobals import *
 from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-import atexit, psutil, os
+import atexit, socket, os
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
 
@@ -29,12 +29,6 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
 
         self.backButton = MATShuffleButton(parent=self, pos=(0, 0, -0.75), text=TTLocalizer.MakeAToonLast, wantArrows=False, image_scale=buttonScale, image2_scale=buttonScale, image1_scale=buttonScale, text_scale=0.09, command=lambda: self.request('Back'))
         self.backButton.hide()
-        
-        self.restartButton = MATShuffleButton(parent=self, pos=(-0.4, 0, -0.75), text=TTLocalizer.StartingRestart, wantArrows=False, image_scale=buttonScale, image2_scale=buttonScale, image1_scale=buttonScale, text_scale=0.09, command=lambda: self.request('StartingKill'))
-        self.restartButton.hide()
-
-        self.joinButton = MATShuffleButton(parent=self, pos=(0.4, 0, -0.75), text=TTLocalizer.StartingJoin, wantArrows=False, image_scale=buttonScale, image2_scale=buttonScale, image1_scale=buttonScale, text_scale=0.09, command=lambda: self.request('Begun'))
-        self.joinButton.hide()
 
     def destroy(self):
         DirectFrame.destroy(self)
@@ -47,20 +41,17 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         if self.backButton:
             self.backButton.destroy()
             self.backButton = None
-        
-        if self.restartButton:
-            self.restartButton.destroy()
-            self.restartButton = None
-        
-        if self.joinButton:
-            self.joinButton.destroy()
-            self.joinButton = None
     
     def getPort(self):
         return 7001 if self.singlePlayer else 7000
     
     def getPids(self):
         return [thread.getPid() for thread in self.threads if thread.hasPid()]
+    
+    def isServerAlive(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.33)
+        return sock.connect_ex(('127.0.0.1', self.getPort())) == 0
 
     def killThreads(self):
         self.ignoreAll()
@@ -76,31 +67,16 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.demand('Off')
         self.mainMenu.demand('Idle')
     
-    def enterQuestion(self):
-        self.label['text'] = TTLocalizer.StartingQuestion
-        self.restartButton.show()
-        self.joinButton.show()
-    
-    def exitQuestion(self):
-        self.restartButton.hide()
-        self.joinButton.hide()
-    
     def enterStart(self):
-        for subProcess in psutil.process_iter():
-            if subProcess.name().startswith('astrond'):
-                self.demand('ServerRunning' if self.singlePlayer else 'Question')
-                return
-        
-        self.demand('StartingKill')
-    
-    def enterStartingKill(self):
-        self.killThreads()
-        taskMgr.doMethodLater(0.25, lambda task: self.demand('Starting'), 'enterStart')
-    
-    def exitStartingKill(self):
-        taskMgr.remove('enterStart')
-    
-    def enterStarting(self):
+        if self.isServerAlive():
+            if self.singlePlayer:
+                self.demand('ServerRunning')
+            else:
+                self.destroy()
+                base.connectToServer('localhost', self.getPort())
+            
+            return
+
         self.accept('processStarted', self.__processStarted)
         self.accept('processFailed', self.__processFailed)
         atexit.register(self.killThreads)
@@ -165,7 +141,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.__nextProcess()
     
     def __processFailed(self, name):
-        if self.getCurrentOrNextState() == 'Starting':
+        if self.getCurrentOrNextState() == 'Start':
             self.request('Failed')
         else:
             message = TTLocalizer.ServerDown % name
