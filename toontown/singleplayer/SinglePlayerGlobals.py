@@ -8,7 +8,7 @@ except:
 
 Processes = [
     [
-        ['mongod', '--dbpath', 'databases'],
+        ['mongod'],
         'astron',
         TTLocalizer.MongoDB,
         'shutting down',

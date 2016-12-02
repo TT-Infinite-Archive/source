@@ -19,6 +19,7 @@ parser.add_argument('--max-channels', help='The number of channels the server ma
 parser.add_argument('--stateserver', help="The control channel of this UD's designated State Server.")
 parser.add_argument('--astron-ip', help="The IP address of the Astron Message Director to connect to.")
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
+parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
 parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
 __builtin__.args = parser.parse_args()
 
@@ -31,6 +32,7 @@ if args.max_channels: localconfig += 'air-channel-allocation %s\n' % args.max_ch
 if args.stateserver: localconfig += 'air-stateserver %s\n' % args.stateserver
 if args.astron_ip: localconfig += 'air-connect %s\n' % args.astron_ip
 if args.eventlogger_ip: localconfig += 'eventlog-host %s\n' % args.eventlogger_ip
+if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
 loadPrcFileData('Command-line', localconfig)
 
 

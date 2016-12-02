@@ -23,6 +23,19 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.mainMenu = mainMenu
         self.singlePlayer = singlePlayer
         
+        if self.singlePlayer:
+            self.mdPort = 7011
+            self.logPort = 7021
+            self.mongoPort = 7031
+            self.mongoPath = 'sp-database'
+            self.astronConfig = 'astrond.yml'
+        else:
+            self.mdPort = 7010
+            self.logPort = 7020
+            self.mongoPort = 7030
+            self.mongoPath = 'mp-database'
+            self.astronConfig = 'astrond_mp.yml'
+        
         buttonScale = (-1, 1, 1)
 
         self.label = DirectLabel(self, relief=None, text='', text_fg=(1, 1, 1, 1), text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25, pos=(0, 0, -0.2))
@@ -114,17 +127,11 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         thread = ProcessThread(self.path, self.process)
         
         if thread.processInfo[0].startswith('astrond'):
-            if not self.singlePlayer:
-                thread.processInfo.append('astrond_mp.yml')
+            thread.processInfo.append(self.astronConfig)
+        elif thread.processInfo[0].startswith('mongod'):
+            thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
         elif 'ServiceStart' in thread.processInfo[2]:
-            if self.singlePlayer:
-                mdPort = 7011
-                logPort = 7021
-            else:
-                mdPort = 7010
-                logPort = 7020
-            
-            thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % mdPort, '--eventlogger-ip', '127.0.0.1:%d' % logPort]
+            thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
 
         thread.start()
         self.threads.append(thread)

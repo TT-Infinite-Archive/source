@@ -84,7 +84,7 @@ roles:
         max: 399999999
       backend:
         type: mongodb
-        server: mongodb://127.0.0.1:27017/game
+        server: mongodb://127.0.0.1:7031/game
 
     - type: dbss
       database: 4003

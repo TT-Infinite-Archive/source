@@ -20,6 +20,7 @@ parser.add_argument('--stateserver', help="The control channel of this AI's desi
 parser.add_argument('--district-name', help="What this AI Server's district will be named.")
 parser.add_argument('--astron-ip', help="The IP address of the Astron Message Director to connect to.")
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
+parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
 parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
 __builtin__.args = parser.parse_args()
 
@@ -33,6 +34,7 @@ if args.stateserver: localconfig += 'air-stateserver %s\n' % args.stateserver
 if args.district_name: localconfig += 'district-name %s\n' % args.district_name
 if args.astron_ip: localconfig += 'air-connect %s\n' % args.astron_ip
 if args.eventlogger_ip: localconfig += 'eventlog-host %s\n' % args.eventlogger_ip
+if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
 
 loadPrcFileData('Command-line', localconfig)
 

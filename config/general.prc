@@ -32,9 +32,8 @@ backups-extension .json
 
 # Server:
 server-timezone EST/EDT/-5
-server-port 7199
+server-port 7000
 account-server-endpoint https://toontowninfinite.com/api/
-account-bridge-filename astron/databases/account-bridge.db
 
 # Performance:
 sync-video #f

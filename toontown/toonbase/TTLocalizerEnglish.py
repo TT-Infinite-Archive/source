@@ -10699,9 +10699,6 @@ StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 StartingGame = 'Starting the game momentarily...'
 StartingFailed = 'The %s has failed to start.\n\nPlease make sure the "astron" folder is not missing from your game installation.'
-StartingQuestion = 'It seems that the server is already running!\n\nWould you like to restart the server, or join it?'
-StartingJoin = 'Join'
-StartingRestart = 'Restart'
 
 # Debug for Dev Distribution
 MongoDB = 'MongoDB Server'
