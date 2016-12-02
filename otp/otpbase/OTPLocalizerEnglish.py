@@ -210,7 +210,7 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  151: "Your account details have been modified.",
  152: "There has been a reported violation of our Terms of Use connected to '%(name)s'. For more details, please review the message sent to the e-mail address associated with '%(name)s'.",
  153: 'The district you were playing on has been reset.  Everyone who was playing on that district has been disconnected.  However, you should be able to connect again and go right back into the game.',
- 154: 'Toontown Infinite has been temporarily closed for scheduled downtime. Everyone who was playing online has been disconnected from the game.\n\nIf you wish to continue playing, you may go into Offline play until maintenance is complete.\n\nFor more information, please visit the Toontown Infinite website.',
+ 154: 'Toontown Infinite has been temporarily closed for scheduled downtime. Everyone who was playing on the Kaldron Network has been disconnected from the game.\n\nIf you wish to continue playing, you may go into custom play until maintenance is complete.\n\nFor more information, please visit the Toontown Infinite website.',
  288: 'Sorry, you have used up all of your available minutes this month.',
  349: 'Sorry, you have used up all of your available minutes this month.'}
 CRBootedReasonUnknownCode = 'An unexpected problem has occurred (error code %s).  Your connection has been lost, but you should be able to connect again and go right back into the game.'
@@ -223,8 +223,8 @@ CRServerConstantsProxyNoPort = 'Unable to contact %s.\n\nYou are communicating t
 CRServerConstantsProxyNoCONNECT = 'Unable to contact %s.\n\nYou are communicating to the internet via a proxy, but your proxy does not support the CONNECT method.\n\nYou must enable this capability, or disable your proxy, in order to play.  If your proxy has been provided by your ISP, you must contact your ISP to request them to enable this capability.'
 CRServerConstantsTryAgain = 'Unable to contact %s.\n\nThe account server might be temporarily down, or there might be some problem with your internet connection.\n\nTry again?'
 CRServerDateTryAgain = 'Could not get server date from %s. Try again?'
-CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes. If you wish to continue playing during our downtime, you may go into Offline play.'
-CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance. If you wish to continue playing during our downtime, you may go into Offline play.'
+CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
+CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance. If you wish to continue playing during our downtime, you may go into custom play.'
 CRUpdateAvailableMessage = 'A new update is available. Please restart your game to receive it.'
 AfkForceAcknowledgeMessage = 'Your toon got sleepy and went to bed.'
 PeriodTimerWarning = 'Your available time is almost over!'
