@@ -56,6 +56,9 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.joinButton.destroy()
             self.joinButton = None
     
+    def getPort(self):
+        return 7001 if self.singlePlayer else 7000
+    
     def getPids(self):
         return [thread.getPid() for thread in self.threads if thread.hasPid()]
 
@@ -112,7 +115,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('localhost', 7200 if self.singlePlayer else 7199)
+        base.connectToServer('localhost', self.getPort())
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]
@@ -134,8 +137,18 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
 
         thread = ProcessThread(self.path, self.process)
         
-        if (not self.singlePlayer) and thread.processInfo[0].startswith('astrond'):
-            thread.processInfo.append('astrond_mp.yml')
+        if thread.processInfo[0].startswith('astrond'):
+            if not self.singlePlayer:
+                thread.processInfo.append('astrond_mp.yml')
+        elif 'ServiceStart' in thread.processInfo[2]:
+            if self.singlePlayer:
+                mdPort = 7011
+                logPort = 7021
+            else:
+                mdPort = 7010
+                logPort = 7020
+            
+            thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % mdPort, '--eventlogger-ip', '127.0.0.1:%d' % logPort]
 
         thread.start()
         self.threads.append(thread)

@@ -2,7 +2,7 @@ daemon:
     name: Developer Cluster
 
 general:
-    eventlogger: 127.0.0.1:7198
+    eventlogger: 127.0.0.1:7021
     dc_files:
         - dclass/otp.dc
         - dclass/toon.dc
@@ -61,11 +61,11 @@ uberdogs:
       anonymous: false
 
 messagedirector:
-    bind: 127.0.0.1:7100
+    bind: 127.0.0.1:7011
 
 roles:
     - type: clientagent
-      bind: 127.0.0.1:7200
+      bind: 127.0.0.1:7001
       version: "dev"
       client:
         relocate: true
@@ -93,5 +93,5 @@ roles:
           max: 399999999
 
     - type: eventlogger
-      bind: 127.0.0.1:7198
+      bind: 127.0.0.1:7021
       output: logs/events-%y%m%d_%H%M%S.log
