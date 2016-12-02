@@ -14,6 +14,12 @@ class ProcessThread(threading.Thread):
             self.folder = defaultPath
         else:
             self.folder = os.path.join(defaultPath, self.folder)
+    
+    def hasPid(self):
+        return hasattr(self, 'process') and self.process is not None
+    
+    def getPid(self):
+        return self.process.pid
 
     def failed(self):
         messenger.send('processFailed', [self.name])
@@ -49,4 +55,5 @@ class ProcessThread(threading.Thread):
             elif self.successText in line:
                 self.started()
 
+        self.process = None
         self.failed()

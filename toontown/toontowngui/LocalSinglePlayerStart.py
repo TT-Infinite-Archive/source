@@ -55,26 +55,15 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         if self.joinButton:
             self.joinButton.destroy()
             self.joinButton = None
+    
+    def getPids(self):
+        return [thread.getPid() for thread in self.threads if thread.hasPid()]
 
     def killThreads(self):
         self.ignoreAll()
         
         for thread in self.threads:
             thread.kill()
-        
-        pid = os.getpid()
-        processNames = set([process[0][0].split(os.sep)[-1] for process in Processes])
-
-        for subProcess in psutil.process_iter():
-            if pid == subProcess.pid:
-                continue
-            
-            subName = subProcess.name()
-
-            for name in processNames:
-                if subName.startswith(name):
-                    subProcess.kill()
-                    break
     
     def enterOff(self):
         self.destroy()
