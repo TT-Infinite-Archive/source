@@ -28,13 +28,12 @@ class ProcessThread(threading.Thread):
         messenger.send('processStarted', [self.name])
     
     def kill(self):
-        if hasattr(self, 'process'):
+        if hasattr(self, 'process') and self.process:
             self.process.kill()
     
     def run(self):
-        os.chdir(self.folder)
-        
         try:
+            os.chdir(self.folder)
             self.process = subprocess.Popen(self.processInfo, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except:
             self.failed()
@@ -55,5 +54,4 @@ class ProcessThread(threading.Thread):
             elif self.successText in line:
                 self.started()
 
-        self.process = None
         self.failed()

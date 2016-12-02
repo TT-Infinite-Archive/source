@@ -6,7 +6,7 @@ from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.singleplayer.SinglePlayerGlobals import *
 from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-import atexit, socket, os
+import copy, atexit, socket, os
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
 
@@ -94,6 +94,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.accept('processFailed', self.__processFailed)
         atexit.register(self.killThreads)
 
+        os.chdir(self.path)
         self.__nextProcess()
     
     def exitStarting(self):
@@ -116,7 +117,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.backButton.show()
     
     def __nextProcess(self):
-        self.process = Processes[self.currentProcess]
+        self.process = copy.deepcopy(Processes[self.currentProcess])
         self.currentProcess += 1
 
         if base.wantDevDebug:
@@ -136,7 +137,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         thread.start()
         self.threads.append(thread)
 
-        taskMgr.doMethodLater(15, self.__processFailed, 'processFailed')
+        taskMgr.doMethodLater(15, lambda task: self.__processFailed(self.process[2]), 'processFailed')
     
     def __processStarted(self, name):
         taskMgr.remove('processFailed')
