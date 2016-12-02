@@ -351,7 +351,7 @@ class MainMenu(DirectObject, FSM):
         self.hide()
         self.backgroundNodePath.show()
 
-        self.LocalSinglePlayerStart = LocalSinglePlayerStart(self)
+        self.LocalSinglePlayerStart = LocalSinglePlayerStart(self, True)
         self.LocalSinglePlayerStart.request('Start')
 
     def enterMultiplayer(self):

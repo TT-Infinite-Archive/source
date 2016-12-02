@@ -10,7 +10,7 @@ import psutil, os
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
 
-    def __init__(self, mainMenu, **kwargs):
+    def __init__(self, mainMenu, singlePlayer, **kwargs):
         DirectFrame.__init__(self, aspect2d, **kwargs)
         FSM.__init__(self, 'LocalSinglePlayerStart')
         self.initialiseoptions(LocalSinglePlayerStart)
@@ -21,6 +21,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.lastProcess = len(Processes)
         
         self.mainMenu = mainMenu
+        self.singlePlayer = singlePlayer
         
         buttonScale = (-1, 1, 1)
 
@@ -94,7 +95,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterStart(self):
         for subProcess in psutil.process_iter():
             if subProcess.name().startswith('astrond'):
-                self.demand('Question')
+                self.demand('ServerRunning' if self.singlePlayer else 'Question')
                 return
         
         self.demand('StartingKill')
@@ -125,6 +126,10 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]
         self.backButton.show()
         self.killThreads()
+    
+    def enterServerRunning(self):
+        self.label['text'] = TTLocalizer.ServerRunningAlready
+        self.backButton.show()
     
     def __nextProcess(self):
         self.process = Processes[self.currentProcess]
