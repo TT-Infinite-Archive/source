@@ -491,8 +491,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         loader.abortBulkLoad()
         base.transitions.noTransitions()
         if self._userLoggingOut:
+            base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
             self.detectLeaks(okTasks=[], okEvents=['destroy-ToontownLoadingScreenTitle', 'destroy-ToontownLoadingScreenTip', 'destroy-ToontownLoadingScreenWaitBar'])
-        return
 
     def enterGameOff(self):
         OTPClientRepository.OTPClientRepository.enterGameOff(self)
