@@ -965,6 +965,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
 
+        self.air.csm = self
         self.authTokens = {}
 
     def announceGenerate(self):

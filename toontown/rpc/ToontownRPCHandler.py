@@ -1,4 +1,3 @@
-import semidbm
 import datetime
 import re
 
@@ -22,11 +21,6 @@ from toontown.guilds.GuildGlobals import GUILD_NAME_REJECTED
 class ToontownRPCHandler(ToontownRPCHandlerBase):
     def __init__(self, air):
         ToontownRPCHandlerBase.__init__(self, air)
-
-        accountBridgePath = config.GetString(
-            'account-bridge-filename', 'account-bridge')
-        self.accountBridge = semidbm.open(accountBridgePath, 'c')
-
         self.shardStatus = ShardStatusReceiver(air)
 
     # --- TESTS ---
@@ -468,9 +462,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
             On success: 100000000
             On failure: None
         """
-        self.accountBridge.sync()
-        if str(userId) in self.accountBridge:
-            return int(self.accountBridge[str(userId)])
+        return self.air.csm.accountDB.lookupUserId(userId)['accountId'] or None
 
     @rpcmethod(accessLevel=MODERATOR)
     def rpc_getUserAvatars(self, userId):
