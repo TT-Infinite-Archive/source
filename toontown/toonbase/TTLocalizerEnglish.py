@@ -5299,6 +5299,7 @@ NPCForceAcknowledgeMessage6 = 'Great job defeating those Cogs!\n\n\n\n\n\n\n\n\n
 NPCForceAcknowledgeMessage7 = "Don't forget to make a friend!\n\n\n\n\n\n\nClick on another player and use the New Friend button."
 NPCForceAcknowledgeMessage8 = 'Great! You made a new friend!\n\n\n\n\n\n\n\n\nYou should go back at Toon Headquarters now.'
 NPCForceAcknowledgeMessage9 = 'Good job using the phone!\n\n\n\n\n\n\n\n\nReturn to Toon Headquarters to claim your reward.'
+TTIAlphaWelcomeMessage = "Welcome to the Toontown Infinite Alpha!\n\nIf you find any bugs, please immediately report them in our Discord channel in the #toontown-infinite-bugs text channel.\n\nThis is just the beginning. As time goes on, we'll be updating the game with more content.\n\nThanks for helping us test the game!"
 ToonSleepString = '. . . ZZZ . . .'
 MovieTutorialReward1 = 'You received 1 Throw point! When you get 10, you will get a new gag!'
 MovieTutorialReward2 = 'You received 1 Squirt point! When you get 10, you will get a new gag!'

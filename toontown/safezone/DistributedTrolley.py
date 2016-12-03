@@ -58,7 +58,6 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         self.cone3.setPosHpr(-156, -71, 0.545, 150, 0, 0)
         self.cone3.reparentTo(render)
 
-
         if not base.wantTrolleyTTC:
             self.trolleyCar.hide()
             self.constructionSign.show()
