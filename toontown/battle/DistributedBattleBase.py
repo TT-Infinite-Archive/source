@@ -8,7 +8,7 @@ from direct.fsm import State
 from direct.interval.IntervalGlobal import *
 from direct.task.Task import Task
 from otp.avatar import Emote
-from toontown.battle import BattleParticles
+from toontown.battle import BattleParticles, BattleAttack
 from toontown.battle import BattleProps
 from toontown.battle import Movie
 from toontown.battle import MovieUtil
@@ -58,28 +58,22 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.levelBattle = 0
         self.localToonFsm = ClassicFSM.ClassicFSM('LocalToon', [State.State('HasLocalToon', self.enterHasLocalToon, self.exitHasLocalToon, ['NoLocalToon', 'WaitForServer']), State.State('NoLocalToon', self.enterNoLocalToon, self.exitNoLocalToon, ['HasLocalToon', 'WaitForServer']), State.State('WaitForServer', self.enterWaitForServer, self.exitWaitForServer, ['HasLocalToon', 'NoLocalToon'])], 'WaitForServer', 'WaitForServer')
         self.localToonFsm.enterInitialState()
-        self.fsm = ClassicFSM.ClassicFSM('DistributedBattle', [State.State('Off', self.enterOff, self.exitOff, ['FaceOff',
-          'WaitForInput',
-          'WaitForJoin',
-          'MakeMovie',
-          'PlayMovie',
-          'Reward',
-          'Resume']),
-         State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput']),
-         State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
-         State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['WaitForInput', 'PlayMovie', 'Resume']),
-         State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
-         State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForInput',
-          'WaitForJoin',
-          'Reward',
-          'Resume']),
-         State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
-         State.State('Resume', self.enterResume, self.exitResume, [])], 'Off', 'Off')
+        self.fsm = ClassicFSM.ClassicFSM('DistributedBattle', [
+            State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForInput', 'WaitForJoin', 'MakeMovie', 'PlayMovie', 'Reward', 'Resume']),
+            State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput']),
+            State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
+            State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['WaitForInput', 'PlayMovie', 'Resume']),
+            State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForInput', 'WaitForJoin', 'Reward', 'Resume']),
+            State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
+            State.State('Resume', self.enterResume, self.exitResume, [])], 'Off', 'Off')
         self.fsm.enterInitialState()
-        self.adjustFsm = ClassicFSM.ClassicFSM('Adjust', [State.State('Adjusting', self.enterAdjusting, self.exitAdjusting, ['NotAdjusting']), State.State('NotAdjusting', self.enterNotAdjusting, self.exitNotAdjusting, ['Adjusting'])], 'NotAdjusting', 'NotAdjusting')
+        self.adjustFsm = ClassicFSM.ClassicFSM('Adjust', [
+            State.State('Adjusting', self.enterAdjusting, self.exitAdjusting, ['NotAdjusting']),
+            State.State('NotAdjusting', self.enterNotAdjusting, self.exitNotAdjusting, ['Adjusting'])], 'NotAdjusting', 'NotAdjusting')
         self.adjustFsm.enterInitialState()
         self.interactiveProp = None
-        return
+        self.toonAttacks = {}
 
     def uniqueBattleName(self, name):
         DistributedBattleBase.id += 1
@@ -484,6 +478,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 self.localToonFsm.request('NoLocalToon')
         for suit in self.luredSuits:
             suit.loop('lured')
+        self.townBattle.update()
         return oldtoons
 
     def adjust(self, timestamp):
@@ -501,49 +496,11 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.movie.genAttackDicts(toons, suits, toonAttacks, suitAttacks)
 
     def setChosenToonAttacks(self, toonAttacks):
-        if self.__battleCleanedUp:
-            return
-        self.notify.debug('setChosenToonAttacks(%s)' % toonAttacks)
-        toonIndices = [-1, -1, -1, -1]
-        targetIndices = [-1, -1, -1, -1]
-        newGagIds = [-1, -1, -1, -1]
-        unAttack = 0
-        localToonInList = 0
-        for i, attack in enumerate(toonAttacks):
-            ta = BattleAttack.ToonBattleAttack()
-            ta.fromList(attack)
-            gag = InventoryGlobals.Gags.get(ta.attackId, None)
-            toon = self.findToon(ta.attackerId)
-            if toon is None or toon not in self.activeToons:
-                self.notify.warning('setChosenToonAttacks() - toon gone or not in battle: %s!' % ta.attackerId)
-                continue
-            if toon == base.localAvatar:
-                localToonInList = 1
-            toonIndices[i] = self.activeToons.index(toon)
-            # Default target index, does something automatic
-            targetIndex = -1
-            if gag is not None and gag.targetsAlly():
-                target = self.findToon(ta.targetId)
-                if target is not None and target in self.activeToons:
-                    targetIndex = self.activeToons.index(target)
-            elif ta.attackId == NO_ATTACK:
-                newGagIds[i] = NO_ATTACK
-                if toon == base.localAvatar:
-                    unAttack = 1
-                    self.choseAttackAlready = 0
-            elif gag is not None and gag.targetsEnemy():
-                target = self.findSuit(ta.targetId)
-                if target is not None and target in self.activeSuits:
-                    targetIndex = self.activeSuits.index(target)
-                newGagIds[i] = ta.attackId
-            targetIndices[i] = targetIndex
-
-        self.townBattleAttacks = (toonIndices, newGagIds, targetIndices)
-        if self.localToonActive() and localToonInList == 1:
-            if unAttack == 1 and self.fsm.getCurrentState().getName() == 'WaitForInput':
-                if self.townBattle.fsm.getCurrentState().getName() != 'Attack':
-                    self.townBattle.setState('Attack')
-            self.townBattle.updateChosenAttacks(self.townBattleAttacks[0], self.townBattleAttacks[1], self.townBattleAttacks[2])
+        for ta in toonAttacks:
+            toonAttack = BattleAttack.ToonBattleAttack()
+            toonAttack.fromList(ta)
+            self.toonAttacks[toonAttack.attackerId] = toonAttack
+        self.townBattle.updateChosenAttacks()
 
     def setBattleExperience(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
         if self.__battleCleanedUp:
@@ -761,7 +718,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         return
 
     def __makeToonJoin(self, toon, pendingToons, ts):
-        self.notify.debug('__makeToonJoin(%d)' % toon.doId)
+        self.notify.debug('Joining toon %s' % toon.doId)
         spotIndex = len(pendingToons) + len(self.joiningToons)
         self.joiningToons.append(toon)
         openSpot = BattleGlobals.ToonPendingPoints[spotIndex]

@@ -13,8 +13,12 @@ from toontown.toon import InventoryGlobals
 
 class TownBattle(StateData.StateData):
     notify = directNotify.newCategory('TownBattle')
-    evenPos = (0.75, 0.25, -0.25, -0.75)
-    oddPos = (0.5, 0, -0.5)
+    xPositions = (
+        (0.0,),
+        (0.25, -0.25),
+        (0.5, 0.0, -0.5),
+        (0.75, 0.25, -0.25, -0.75)
+    )
 
     def __init__(self, doneEvent):
         StateData.StateData.__init__(self, doneEvent)
@@ -24,19 +28,12 @@ class TownBattle(StateData.StateData):
         self.trappedIndices = []
         self.numToons = 1
         self.toons = []
-        self.localNum = 0
         self.time = 0
         self.bldg = 0
         self.track = -1
         self.level = -1
         self.target = 0
         self.battle = None
-        self.toonAttacks = [
-            (-1, 0, 0),
-            (-1, 0, 0),
-            (-1, 0, 0),
-            (-1, 0, 0)
-        ]
         self.fsm = ClassicFSM.ClassicFSM('TownBattle', [
             State.State('Off', self.enterOff, self.exitOff, ['Attack']),
             State.State('Attack', self.enterAttack, self.exitAttack, ['ChooseTarget', 'AttackWait']),
@@ -66,7 +63,7 @@ class TownBattle(StateData.StateData):
 
         del self.toonPanels
         self.timer.destroy()
-        del self.timer
+        self.timer = None
         del self.toons
 
     def enter(self, event, parentFSMState, bldg=0, creditMultiplier=1, tutorialFlag=0):
@@ -79,8 +76,6 @@ class TownBattle(StateData.StateData):
         base.localAvatar.laffMeter.start()
         self.numToons = 1
         self.numCogs = 1
-        self.toons = [base.localAvatar.doId]
-        self.toonPanels[0].setLaffMeter(base.localAvatar)
         self.bldg = bldg
         self.creditLevel = None
         self.creditMultiplier = creditMultiplier
@@ -108,86 +103,59 @@ class TownBattle(StateData.StateData):
         self.battle = battle
         self.choosePanel.setBattle(battle)
         self.waitPanel.setBattle(battle)
+        for toonPanel in self.toonPanels:
+            toonPanel.setBattle(battle)
 
     def adjustCogsAndToons(self, activeSuits, luredSuits, activeToons):
         pass
 
-    def __enterPanels(self, num, localNum):
-        self.notify.debug('enterPanels() num: %d localNum: %d' % (num, localNum))
-        for toonPanel in self.toonPanels:
-            toonPanel.hide()
-            toonPanel.setPos(0, 0, -0.9)
+    def update(self):
+        self.updatePanels()
+        if self.choosePanel:
+            self.choosePanel.updateButtons()
 
-        if num == 1:
-            self.toonPanels[0].setX(self.oddPos[1])
-            self.toonPanels[0].show()
-        elif num == 2:
-            self.toonPanels[0].setX(self.evenPos[1])
-            self.toonPanels[0].show()
-            self.toonPanels[1].setX(self.evenPos[2])
-            self.toonPanels[1].show()
-        elif num == 3:
-            self.toonPanels[0].setX(self.oddPos[0])
-            self.toonPanels[0].show()
-            self.toonPanels[1].setX(self.oddPos[1])
-            self.toonPanels[1].show()
-            self.toonPanels[2].setX(self.oddPos[2])
-            self.toonPanels[2].show()
-        elif num == 4:
-            self.toonPanels[0].setX(self.evenPos[0])
-            self.toonPanels[0].show()
-            self.toonPanels[1].setX(self.evenPos[1])
-            self.toonPanels[1].show()
-            self.toonPanels[2].setX(self.evenPos[2])
-            self.toonPanels[2].show()
-            self.toonPanels[3].setX(self.evenPos[3])
-            self.toonPanels[3].show()
-        else:
-            self.notify.error('Bad number of toons: %s' % num)
-
-    def updateChosenAttacks(self, toonIndices, attackIds, targets):
-        self.notify.debug('updateChosenAttacks(%s, %s, %s)' % (toonIndices, attackIds, targets))
-        for i in xrange(4):
-            if toonIndices[i] == -1:
-                # Toon is missing, continue
-                continue
+    def updatePanels(self):
+        # Updates toon panel positions and visibility
+        self.notify.debug('Updating toon panels using dictionary: %s' % self.battle.activeToons)
+        if self.battle is None:
+            return
+        num = len(self.battle.activeToons)
+        positions = self.xPositions[num - 1]
+        for index, toonPanel in enumerate(self.toonPanels):
+            if index >= num:
+                # Hide the toon panel, this toon doesnt exist
+                toonPanel.hide()
+                toonPanel.setPos(0, 0, -0.9)
             else:
-                numTargets = 0
-                target = -2
-                gag = InventoryGlobals.Gags.get(attackIds[i], None)
-                if gag is not None and gag.targetsAlly():
-                    numTargets = self.numToons
-                    if gag.targetCount != 4:
-                        target = targets[i]
-                elif gag is not None and gag.targetsEnemy():
-                    numTargets = self.numCogs
-                    if gag.targetCount == 4:
-                        target = -1
-                    else:
-                        target = targets[i]
-                self.toonPanels[toonIndices[i]].setValues(toonIndices[i], attackIds[i], numTargets, target, self.localNum)
+                # Show the toon panel for this toon
+                toonPanel.setX(positions[index])
+                toonPanel.show()
+                # Set the avatar
+                toonPanel.setAvatar(self.battle.activeToons[index])
+                # Update the attack shown
+                toonPanel.updateAttack()
 
-    def updateLaffMeter(self, toonNum, hp):
-        self.toonPanels[toonNum].updateLaffMeter(hp)
+    def updateChosenAttacks(self):
+        self.notify.debug('Updating chosen attacks using dictionary: %s' % self.battle.toonAttacks)
+        # Update the toon attacks on the toon panels
+        for toonPanel in self.toonPanels:
+            toonPanel.updateAttack()
+
+    def updateLaffMeter(self, index):
+        self.notify.debug('Updating laff meter for toon index %d' % index)
+        self.toonPanels[index].updateLaffMeter()
 
     def enterOff(self):
         if self.isLoaded:
             for toonPanel in self.toonPanels:
                 toonPanel.hide()
-
-        self.toonAttacks = [
-            (-1, 0, 0),
-            (-1, 0, 0),
-            (-1, 0, 0),
-            (-1, 0, 0)
-        ]
         self.target = 0
-        if hasattr(self, 'timer'):
+        if self.timer:
             self.timer.hide()
 
     def exitOff(self):
         if self.isLoaded:
-            self.__enterPanels(self.numToons, self.localNum)
+            self.updatePanels()
         self.timer.show()
 
     def enterAttack(self):
@@ -209,7 +177,7 @@ class TownBattle(StateData.StateData):
     def __handleAttackSelected(self, attackId):
         self.notify.debug('attackSelected: %s' % attackId)
         self.attackId = attackId
-        self.toonPanels[self.localNum].setValues(self.localNum, attackId)
+        self.updateChosenAttacks()
         gag = InventoryGlobals.Gags.get(attackId)
         if gag is not None and gag.isTargeted():
             self.fsm.request('ChooseTarget')
@@ -250,8 +218,6 @@ class TownBattle(StateData.StateData):
         response = {
             'mode': 'UnAttack'
         }
-        localIndex = self.battle.activeToons.index(base.localAvatar)
-        self.toonPanels[localIndex].setValues(localIndex, None)
         messenger.send(self.battleEvent, [response])
 
     def enterAttackWait(self):

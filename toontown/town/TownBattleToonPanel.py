@@ -1,15 +1,17 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.gui.DirectGui import DirectFrame
+from panda3d.core import Vec4
+
 from toontown.toon import LaffMeter, InventoryGlobals
-from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel
-from panda3d.core import Vec4
 
 
 class TownBattleToonPanel(DirectFrame):
     notify = directNotify.newCategory('TownBattleToonPanel')
 
-    def __init__(self, id):
+    def __init__(self, idx):
+        self.notify.debug('Initialized.... %s' % idx)
         gui = loader.loadModel('phase_3.5/models/gui/battle_gui')
         DirectFrame.__init__(self, relief=None, image=gui.find('**/ToonBtl_Status_BG'), image_color=Vec4(0.5, 0.9, 0.5, 0.7))
         self.setScale(0.8)
@@ -19,6 +21,7 @@ class TownBattleToonPanel(DirectFrame):
         self.fireText = TTLabel(self, TTLabel.MediumSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleToonFire)
         self.undecidedText = TTLabel(self, TTLabel.GiantSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleUndecided)
         self.healthText = TTLabel(self, TTLabel.NormalSize, (-0.06, 0, -0.075))
+        self.indexText = TTLabel(self, TTLabel.NormalSize, (0.1, 0, -0.075), text='Index: ' + str(idx))
         self.sosText.hide()
         self.fireText.hide()
         self.hpChangeEvent = None
@@ -33,31 +36,11 @@ class TownBattleToonPanel(DirectFrame):
         passGui.reparentTo(self.passNode)
         self.passNode.hide()
         self.laffMeter = None
-        self.whichText = DirectLabel(parent=self, text='', pos=(0.1, 0, -0.08), text_scale=0.05)
+        self.index = idx
+        self.battle = None
+        self.whichText = TTLabel(self, pos=(0.1, 0, -0.08))
         self.hide()
         gui.removeNode()
-
-    def setLaffMeter(self, avatar):
-        self.notify.debug('setLaffMeter: new avatar %s' % avatar.doId)
-        if self.avatar == avatar:
-            messenger.send(self.avatar.uniqueName('hpChange'), [avatar.hp, avatar.maxHp, 1])
-            return
-        else:
-            if self.avatar:
-                self.cleanupLaffMeter()
-            self.avatar = avatar
-            self.laffMeter = LaffMeter.LaffMeter(avatar.style, avatar.hp, avatar.maxHp)
-            self.laffMeter.setAvatar(self.avatar)
-            self.laffMeter.reparentTo(self)
-            self.laffMeter.setPos(-0.06, 0, 0.05)
-            self.laffMeter.setScale(0.045)
-            self.laffMeter.start()
-            self.setHealthText(avatar.hp, avatar.maxHp)
-            self.hpChangeEvent = self.avatar.uniqueName('hpChange')
-            self.accept(self.hpChangeEvent, self.setHealthText)
-
-    def setHealthText(self, hp, maxHp, quietly=0):
-        self.healthText['text'] = TTLocalizer.TownBattleHealthText % {'hitPoints': hp, 'maxHit': maxHp}
 
     def show(self):
         DirectFrame.show(self)
@@ -69,12 +52,59 @@ class TownBattleToonPanel(DirectFrame):
         if self.laffMeter:
             self.laffMeter.stop()
 
-    def updateLaffMeter(self, hp):
+    def setAvatar(self, avatar):
+        if self.avatar == avatar:
+            # We already set this avatar
+            return
+        self.notify.debug('%s Setting my avatar to %s' % (self.index, avatar.doId))
+        if self.avatar:
+            # We have a different avatar, remove old stuff
+            self.unsetAvatar()
+        self.avatar = avatar
+        self.hpChangeEvent = self.avatar.uniqueName('hpChange')
+        self.accept(self.hpChangeEvent, self.setHealthText)
+        self.setHealthText(self.avatar.hp, self.avatar.maxHp)
+        self.setLaffMeter()
+
+    def unsetAvatar(self):
+        self.unsetLaffMeter()
+        self.avatar = None
+
+    def setBattle(self, battle):
+        self.notify.debug('Setting battle...')
+        self.battle = battle
+
+    def setHealthText(self, hp, maxHp, quietly=0):
+        self.healthText['text'] = TTLocalizer.TownBattleHealthText % {'hitPoints': hp, 'maxHit': maxHp}
+
+    def setLaffMeter(self):
         if self.laffMeter:
-            self.laffMeter.adjustFace(hp, self.avatar.maxHp)
-        self.setHealthText(hp, self.avatar.maxHp)
+            self.unsetLaffMeter()
+
+        self.laffMeter = LaffMeter.LaffMeter(
+            self.avatar.style,
+            self.avatar.hp,
+            self.avatar.maxHp
+        )
+        self.laffMeter.setAvatar(self.avatar)
+        self.laffMeter.reparentTo(self)
+        self.laffMeter.setPos(-0.06, 0, 0.05)
+        self.laffMeter.setScale(0.045)
+        self.laffMeter.start()
+
+    def unsetLaffMeter(self):
+        self.notify.debug('Cleaning up laffmeter!')
+        self.ignore(self.hpChangeEvent)
+        if self.laffMeter:
+            self.laffMeter.destroy()
+            self.laffMeter = None
+
+    def updateLaffMeter(self):
+        self.laffMeter.adjustFace(self.avatar.hp, self.avatar.maxHp)
 
     def setGagImage(self, image):
+        if self.gagImage:
+            self.unsetGagImage()
         self.gagImage = image.instanceUnderNode(self.gagNode, 'gag')
         self.gagImage.setScale(0.8)
         self.gagImage.setPos(0, 0, 0.02)
@@ -85,8 +115,7 @@ class TownBattleToonPanel(DirectFrame):
         self.gagImage.removeNode()
         self.gagImage = None
 
-    def setValues(self, index, attackId, numTargets=None, targetIndex=None, localNum=None):
-        self.notify.debug('setValues(%s, %s, %s, %s, %s)' % (index, attackId, numTargets, targetIndex, localNum))
+    def hideAllImages(self):
         self.undecidedText.hide()
         self.sosText.hide()
         self.fireText.hide()
@@ -94,19 +123,67 @@ class TownBattleToonPanel(DirectFrame):
         self.whichText.hide()
         self.passNode.hide()
         self.unsetGagImage()
-        gag = InventoryGlobals.Gags.get(attackId)
-        if gag is None:
+
+    def updateAttack(self):
+        if self.avatar is None:
+            return
+        toonAttack = self.battle.toonAttacks.get(self.avatar.doId)
+        if toonAttack is None:
+            # This gag means no attack
+            self.notify.debug('Showing that toon at index %s has no attack yet.' % self.index)
             self.undecidedText.show()
-        elif gag.uid == 0:
-            # This is not an attack
+            return
+        self.notify.debug('Showing that toon at index %s attacks with %d.' % (self.index, toonAttack.attackId))
+        self.hideAllImages()
+        attackId = toonAttack.attackId
+        gag = InventoryGlobals.Gags.get(attackId)
+        if gag == InventoryGlobals.Gags[0]:
+            # This gag means no gag
+            self.undecidedText.show()
+        elif gag is None:
+            # ???
             self.undecidedText.show()
         else:
-            self.undecidedText.hide()
-            self.gagNode.show()
             self.setGagImage(gag.getDisplayObject().getButtonIcon())
-            if numTargets is not None and targetIndex is not None and localNum is not None:
-                self.whichText.show()
-                self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, index)
+            self.gagNode.show()
+            attacker = self.battle.findToon(toonAttack.attackerId)
+            if attacker is None:
+                self.notify.warning('Failed to set attack attacker %d not in this battle.' % toonAttack.attackerId)
+                return
+            attackerIndex = self.battle.activeToons.index(attacker)
+            if gag.isTargeted() and gag.targetsAlly():
+                numTargets = len(self.battle.activeToons)
+                if gag.targetCount == 4:
+                    # Everyone except me
+                    targetIndex = -2
+                else:
+                    target = base.cr.doId2do.get(toonAttack.targetId)
+                    if target is not None and target.doId in self.battle.activeToons:
+                        target = self.battle.findToon(toonAttack.targetId)
+                        if target is None:
+                            self.notify.warning('Failed to target toon %d not in this battle.' % toonAttack.targetId)
+                            return
+                        targetIndex = self.battle.activeToons.index(target)
+                    else:
+                        # Don't know what to do?
+                        targetIndex = -2
+            elif gag.isTargeted() and gag.targetsEnemy():
+                numTargets = len(self.battle.activeSuits)
+                if gag.targetCount == 4:
+                    # All enemies
+                    targetIndex = -1
+                else:
+                    target = self.battle.findSuit(toonAttack.targetId)
+                    if target is None:
+                        self.notify.warning('Failed to target suit %d not in this battle.' % toonAttack.targetId)
+                        return
+                    targetIndex = self.battle.activeSuits.index(target)
+            else:
+                self.notify.warning('Failed to set attack')
+                return
+
+            self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, attackerIndex)
+
 
     def determineWhichText(self, numTargets, targetIndex, index):
         returnStr = ''
@@ -135,17 +212,11 @@ class TownBattleToonPanel(DirectFrame):
 
     def cleanup(self):
         self.ignoreAll()
-        self.cleanupLaffMeter()
+        self.unsetLaffMeter()
         if self.gagImage is not None:
             self.gagImage.removeNode()
             self.gagImage = None
         self.gagNode.removeNode()
         self.gagNode = None
+        self.battle = None
         DirectFrame.destroy(self)
-
-    def cleanupLaffMeter(self):
-        self.notify.debug('Cleaning up laffmeter!')
-        self.ignore(self.hpChangeEvent)
-        if self.laffMeter:
-            self.laffMeter.destroy()
-            self.laffMeter = None

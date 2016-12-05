@@ -19,15 +19,14 @@ from toontown.toonbase import ToontownGlobals
 import random
 from toontown.toon import NPCToons
 from otp.ai.MagicWordGlobal import *
-if config.GetBool('want-pets', False):
-    from toontown.pets.PetDNA import FIELD_LIST
 
 
 class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBattleBaseAI')
 
-    def __init__(self, air, zoneId, finishCallback = None, maxSuits = 4, bossBattle = 0, tutorialFlag = 0, interactivePropTrackBonus = -1):
+    def __init__(self, air, zoneId, finishCallback=None, maxSuits=4, bossBattle=0, tutorialFlag=0, interactivePropTrackBonus=-1):
         DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+        BattleBase.__init__(self)
         self.serialNum = 0
         self.zoneId = zoneId
         self.maxSuits = maxSuits
@@ -43,7 +42,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.adjustingSuits = []
         self.adjustingToons = []
         self.numSuitsEver = 0
-        BattleBase.__init__(self)
         self.streetBattle = 1
         self.pos = Point3(0, 0, 0)
         self.initialSuitPos = Point3(0, 0, 0)
@@ -80,14 +78,15 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.numNPCAttacks = 0
         self.npcAttacks = {}
         self.pets = {}
-        self.fsm = ClassicFSM.ClassicFSM('DistributedBattleAI', [State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput', 'Resume']),
-         State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
-         State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['PlayMovie', 'Resume']),
-         State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
-         State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Reward', 'Resume']),
-         State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
-         State.State('Resume', self.enterResume, self.exitResume, []),
-         State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])], 'Off', 'Off')
+        self.fsm = ClassicFSM.ClassicFSM('DistributedBattleAI', [
+            State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput', 'Resume']),
+            State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
+            State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['PlayMovie', 'Resume']),
+            State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Reward', 'Resume']),
+            State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
+            State.State('Resume', self.enterResume, self.exitResume, []),
+            State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])], 'Off', 'Off')
         self.joinableFsm = ClassicFSM.ClassicFSM('Joinable', [State.State('Joinable', self.enterJoinable, self.exitJoinable, ['Unjoinable']), State.State('Unjoinable', self.enterUnjoinable, self.exitUnjoinable, ['Joinable'])], 'Unjoinable', 'Unjoinable')
         self.joinableFsm.enterInitialState()
         self.runnableFsm = ClassicFSM.ClassicFSM('Runnable', [State.State('Runnable', self.enterRunnable, self.exitRunnable, ['Unrunnable']), State.State('Unrunnable', self.enterUnrunnable, self.exitUnrunnable, ['Runnable'])], 'Unrunnable', 'Unrunnable')
