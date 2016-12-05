@@ -103,6 +103,11 @@ if not os.path.exists(contentPacksPath.getValue()):
 __builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath.getValue())
 contentPacksMgr.applyAll()
 
+if not os.path.isdir('astron\singleplayerdb'):
+    os.makedirs('astron\singleplayerdb')
+
+if not os.path.isdir('astron\multiplayerdb'):
+    os.makedirs('astron\multiplayerdb')
 
 from toontown.launcher.TTILauncher import TTILauncher
 
