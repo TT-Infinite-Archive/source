@@ -3,12 +3,14 @@ from direct.distributed.DistributedObject import DistributedObject
 from direct.actor.Actor import Actor, CollisionNode, CollisionTube
 from toontown.toonbase import ToontownGlobals
 from toontown.safezone import JukeboxGlobals
-import random
+from panda3d.core import TextNode
 from toontown.util.VolumeInterval import VolumeInterval
 from toontown.toontowngui.JukeboxGui import JukeboxGui
 from direct.filter.CommonFilters import CommonFilters
+from toontown.util import PlacerTool3D
 
 filters = CommonFilters(base.win, base.cam)
+
 
 class DistributedJukebox(DistributedObject):
     notify = directNotify.newCategory('DistributedJukebox')
@@ -20,6 +22,9 @@ class DistributedJukebox(DistributedObject):
         self.songId = 0
         self.queue = []
         self.jukebox = None
+        self.sign = None
+        self.signText = None
+        self.signTextNP = None
         self.collNodePath = None
         self.collNode = None
         self.gui = None
@@ -49,12 +54,33 @@ class DistributedJukebox(DistributedObject):
         collTube.setTangible(1)
         self.collNode.addSolid(collTube)
         self.collNodePath = self.jukebox.attachNewNode(self.collNode)
+        self.sign = loader.loadModel('phase_5.5/models/estate/garden_sign.bam')
+        self.sign.setPos(3.75, -3.35, 0.01)
+        self.sign.setScale(1.5)
+        self.sign.reparentTo(self.jukebox)
+        self.signText = TextNode('%s-textNode' % self.getDoId())
+        self.signText.setText('')
+        self.signText.setFont(ToontownGlobals.ToonFont)
+        self.signText.setTextColor(0.0, 0.0, 0.0, 1.0)
+        self.signText.setAlign(TextNode.ACenter)
+        self.signText.setWordwrap(12)
+        self.signTextNP = self.sign.attachNewNode(self.signText)
+        self.signTextNP.setPos(0.15, -0.15, 1.85)
+        self.signTextNP.setScale(0.125)
 
     def delete(self):
         self.notify.debug('Deleting...')
         self.exitGui()
         self.deactivateCollision()
-        self.jukebox.delete()
+        if self.signTextNP is not None:
+            self.signTextNP.removeNode()
+            self.signTextNP = None
+        if self.sign is not None:
+            self.sign.removeNode()
+            self.sign = None
+        if self.jukebox is not None:
+            self.jukebox.delete()
+            self.jukebox = None
         if self.volumeInterval is not None:
             self.volumeInterval.cleanup()
             self.volumeInterval = None
@@ -138,6 +164,15 @@ class DistributedJukebox(DistributedObject):
     def playMusic(self):
         self.music.play()
         self.gui.setSongId(self.songId)
+        self.setSignSongId(self.songId)
+
+    def setSignSongId(self, songId):
+        ttsong = JukeboxGlobals.Songs.get(self.songId)
+        if ttsong is None:
+            text = 'Error'
+        else:
+            text = ttsong.name
+        self.signText.setText('Currently Playing:\n\n%s' % text)
 
     def setPosHpr(self, x, y, z, h, p, r):
         self.notify.debug('Setting position')
