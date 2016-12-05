@@ -21,7 +21,6 @@ class TownBattleToonPanel(DirectFrame):
         self.fireText = TTLabel(self, TTLabel.MediumSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleToonFire)
         self.undecidedText = TTLabel(self, TTLabel.GiantSize, (0.1, 0, 0.015), text=TTLocalizer.TownBattleUndecided)
         self.healthText = TTLabel(self, TTLabel.NormalSize, (-0.06, 0, -0.075))
-        self.indexText = TTLabel(self, TTLabel.NormalSize, (0.1, 0, -0.075), text='Index: ' + str(idx))
         self.sosText.hide()
         self.fireText.hide()
         self.hpChangeEvent = None
@@ -183,7 +182,7 @@ class TownBattleToonPanel(DirectFrame):
                 return
 
             self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, attackerIndex)
-
+            self.whichText.show()
 
     def determineWhichText(self, numTargets, targetIndex, index):
         returnStr = ''
