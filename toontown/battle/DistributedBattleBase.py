@@ -478,7 +478,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 self.localToonFsm.request('NoLocalToon')
         for suit in self.luredSuits:
             suit.loop('lured')
-        self.townBattle.update()
+        if self.hasLocalToon():
+            self.townBattle.update()
         return oldtoons
 
     def adjust(self, timestamp):
@@ -500,7 +501,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             toonAttack = BattleAttack.ToonBattleAttack()
             toonAttack.fromList(ta)
             self.toonAttacks[toonAttack.attackerId] = toonAttack
-        self.townBattle.updateChosenAttacks()
+        if self.hasLocalToon():
+            self.townBattle.updateChosenAttacks()
 
     def setBattleExperience(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
         if self.__battleCleanedUp:

@@ -163,6 +163,7 @@ class TownBattleChooseAvatarPanel(DirectObject):
             buttons = self.AllyButtons
 
         for index in buttons:
+            # Show or hide the buttons we need to show or hide
             position = positions[index]
             if position is None:
                 self.buttons[index].hide()
