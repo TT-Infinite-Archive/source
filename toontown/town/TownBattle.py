@@ -122,10 +122,10 @@ class TownBattle(StateData.StateData):
         num = len(self.battle.activeToons)
         positions = self.xPositions[num - 1]
         for index, toonPanel in enumerate(self.toonPanels):
+            toonPanel.setPos(0, 0, -0.9)
             if index >= num:
                 # Hide the toon panel, this toon doesnt exist
                 toonPanel.hide()
-                toonPanel.setPos(0, 0, -0.9)
             else:
                 # Show the toon panel for this toon
                 toonPanel.setX(positions[index])
