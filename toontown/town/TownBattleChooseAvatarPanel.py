@@ -139,34 +139,33 @@ class TownBattleChooseAvatarPanel(DirectObject):
             self.notify.warning('Invalid target %s' % index)
 
     def updateButtons(self):
-        self.hidePickerButtons()
+        if self.battle is None or self.attack is None:
+            return
         if not self.attack.isTargeted():
             self.notify.warning('Attack un-targetable, ignoring request to updateButtons')
             return
-        if self.battle is None:
-            self.notify.warning('Not in battle, ignoring request to update buttons.')
-            return
 
+        self.hidePickerButtons()
         enemyCount = len(self.battle.activeSuits)
         allyCount = len(self.battle.activeToons)
 
-        if enemyCount > 0 and self.attack.targetType in (TargetedGagItem.TargetEnemy,):
+        if enemyCount == 0 or allyCount == 0:
+            self.notify.warning('Invalid number of avatars.')
+            return
+
+        if self.attack.targetType in (TargetedGagItem.TargetEnemy,):
+            # Targeting enemies
             positions = self.ButtonXPositions[enemyCount - 1]
-            for index in self.EnemyButtons:
-                position = positions[index]
-                if position is None:
-                    self.buttons[index].hide()
-                else:
-                    self.buttons[index].show()
-                    self.buttons[index].setX(positions[index])
-        elif allyCount > 0 and self.attack.targetType in (TargetedGagItem.TargetAlly,):
-            positions = self.ButtonXPositions[allyCount - 1]
-            for index in self.AllyButtons:
-                position = positions[index]
-                if position is None:
-                    self.buttons[index].hide()
-                else:
-                    self.buttons[index].show()
-                    self.buttons[index].setX(positions[index])
+            buttons = self.EnemyButtons
         else:
-            self.notify.error('Invalid number of avatars: %d' % (enemyCount + allyCount))
+            # Targeting allies
+            positions = self.ButtonXPositions[allyCount - 1]
+            buttons = self.AllyButtons
+
+        for index in buttons:
+            position = positions[index]
+            if position is None:
+                self.buttons[index].hide()
+            else:
+                self.buttons[index].show()
+                self.buttons[index].setX(positions[index])
