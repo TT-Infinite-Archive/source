@@ -3,7 +3,6 @@
 import __builtin__
 import game_data
 import sys
-import _psutil_windows
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
@@ -25,18 +24,5 @@ for mount in mounts:
 
 __builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
 __builtin__.builtFile = 'infinite'
-
-
-class PsutilHook:
-    def find_module(self, fullname, path):
-        if fullname == 'psutil._psutil_windows':
-            return self
-
-    def load_module(self, fullname):
-        if fullname == 'psutil._psutil_windows':
-            return _psutil_windows
-
-
-sys.meta_path.append(PsutilHook())
 
 import toontown.toonbase.ClientStart
