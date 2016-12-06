@@ -1,5 +1,6 @@
 from toontown.battle.Effect import DamageEffect
 
+
 class BattleAttack:
     def __init__(self, attackerId=0, attackId=0, targetId=0):
         self.attackerId = attackerId
@@ -35,7 +36,7 @@ class MovieAttack(BattleAttack):
         self.hit = hit
 
     def toList(self):
-        BattleAttack.toList(self) + [self.hit]
+        return BattleAttack.toList(self) + [self.hit]
 
     def fromList(self, ls):
         BattleAttack.fromList(self, ls)
