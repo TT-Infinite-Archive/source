@@ -74,6 +74,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.adjustFsm.enterInitialState()
         self.interactiveProp = None
         self.toonAttacks = {}
+        self.toonMovieAttacks = []
+        self.suitMovieAttacks = []
 
     def uniqueBattleName(self, name):
         DistributedBattleBase.id += 1
@@ -488,6 +490,24 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('adjust(%f) from server' % globalClockDelta.localElapsedTime(timestamp))
         self.adjustFsm.request('Adjusting', [globalClockDelta.localElapsedTime(timestamp)])
 
+    def makeMovieAttackFromList(self, list):
+        ma = BattleAttack.MovieAttack()
+        ma.fromList(list)
+        return ma
+
+    def setMovieAttacks(self, toonMovieAttacks, suitMovieAttacks):
+        for toonMovieAttack in toonMovieAttacks:
+            tma = self.makeMovieAttackFromList(toonMovieAttack)
+            self.toonMovieAttacks.append(tma)
+        for suitMovieAttack in suitMovieAttacks:
+            sma = self.makeMovieAttackFromList(suitMovieAttack)
+            self.suitMovieAttacks.append(sma)
+
+    def getMovieAttacks(self):
+        toonMovieAttacks = [tma.toList() for tma in self.toonMovieAttacks]
+        suitMovieAttacks = [sma.toList() for sma in self.suitMovieAttacks]
+        return [toonMovieAttacks, suitMovieAttacks]
+
     def setMovie(self, active, toons, suits, toonAttacks, suitAttacks):
         if self.__battleCleanedUp:
             return
@@ -848,7 +868,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('network:timeout()')
         self.sendUpdate('timeout', [])
 
-    def d_movieDone(self, toonId):
+    def d_movieDone(self):
         self.notify.debug('network:movieDone()')
         self.sendUpdate('movieDone', [])
 
@@ -967,7 +987,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.notify.debug('battle timed out')
             self.d_timeout(base.localAvatar.doId)
 
-    def enterMakeMovie(self, ts = 0):
+    def enterMakeMovie(self, ts=0):
         self.notify.debug('enterMakeMovie()')
         return None
 
@@ -976,44 +996,22 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
 
     def enterPlayMovie(self, ts):
         self.notify.debug('enterPlayMovie()')
-        self.delayDeleteMembers()
-        self.d_movieDone(base.localAvatar.doId)
-        return
+        # self.delayDeleteMembers()
         if self.hasLocalToon():
             NametagGlobals.setWant2dNametags(False)
-        if ToontownBattleGlobals.SkipMovie:
-            self.movie.play(ts, self.__handleMovieDone)
-            self.movie.finish()
-        else:
-            self.movie.play(ts, self.__handleMovieDone)
+
+        self.movie.play(ts, self.__handleMovieDone)
 
     def __handleMovieDone(self):
         self.notify.debug('__handleMovieDone()')
         if self.hasLocalToon():
-            self.d_movieDone(base.localAvatar.doId)
+            self.d_movieDone()
         self.movie.reset()
 
     def exitPlayMovie(self):
         self.notify.debug('exitPlayMovie()')
-        self.movie.reset(finish=1)
-        self._removeMembersKeep()
-        self.townBattleAttacks = ([-1,
-          -1,
-          -1,
-          -1],
-         [-1,
-          -1,
-          -1,
-          -1],
-         [-1,
-          -1,
-          -1,
-          -1],
-         [0,
-          0,
-          0,
-          0])
-        return None
+        self.movie.reset()
+        #self._removeMembersKeep()
 
     def hasLocalToon(self):
         return self.toons.count(base.localAvatar) > 0

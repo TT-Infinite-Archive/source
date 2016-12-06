@@ -36,7 +36,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.finishCallback = finishCallback
         self.avatarExitEvents = []
         self.responses = {}
-        self.movieResponses = {}
         self.adjustingResponses = {}
         self.joinResponses = {}
         self.adjustingSuits = []
@@ -58,7 +57,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         mult *= self.air.holidayManager.xpMultiplier
         self.battleCalc.setSkillCreditMultiplier(mult)
         self.fsm = None
-        self.clearAttacks()
         self.ignoreFaceOffDone = 0
         self.needAdjust = 0
         self.movieHasBeenMade = 0
@@ -81,7 +79,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.fsm = ClassicFSM.ClassicFSM('DistributedBattleAI', [
             State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput', 'Resume']),
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
-            State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['PlayMovie', 'Resume']),
+            State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['Resume', 'MakeMovie']),
             State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
             State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Reward', 'Resume']),
             State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
@@ -97,12 +95,16 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.startTime = globalClock.getRealTime()
         self.adjustingTimer = Timer()
         self.finalBattle = False
+
+        self.toonAttacks = {}
+        self.suitAttacks = {}
         self.toonMovieAttacks = []
         self.suitMovieAttacks = []
+        self.movieResponses = {}
 
     def clearAttacks(self):
-        self.toonAttacks = {}
-        self.suitAttacks = getDefaultSuitAttacks()
+        self.toonAttacks.clear()
+        self.suitAttacks.clear()
 
     def requestDelete(self):
         if hasattr(self, 'fsm'):
@@ -854,7 +856,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.timer.startCallback(TIMEOUT_PER_USER, self.__serverMovieDone)
 
     def __resetMovieResponses(self):
-        self.movieResponses = {}
+        self.movieResponses.clear()
 
     def __toonMovieResponse(self, toonId):
         self.movieResponses[toonId] = True
@@ -925,8 +927,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         if attackId == NO_ATTACK:
             # This is not a true attack
             self.toonAttacks[toonId] = getToonAttack(toonId, NO_ATTACK)
-            if toonId in self.responses:
-                self.responses[toonId] = 0
         elif not toon.inventory.isEquipped(attackId) and attackId not in InventoryGlobals.AlwaysEquipped:
             # This attack is not equipped, and needs to be equipped
             self.notify.warning('Toon %s tried to use a move he doesnt have equipped' % toonId)
@@ -943,9 +943,14 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.notify.debug('requestAttack: Toon: %d chose attack: %s' % (toonId, attackId))
         if self.__allActiveToonsResponded():
             self.notify.debug('requestAttack: All toons attacked, playing movie now...')
-            # All toons have attacked, play movie
-            self.battleCalc.calculateRound()
-            self.b_setState('PlayMovie')
+            # All toons have attacked, lets do this round
+            self.fsm.request('MakeMovie')
+
+    def clearMovieAttacks(self):
+        del self.toonMovieAttacks[:]
+        del self.suitMovieAttacks[:]
+        self.toonMovieAttacks = []
+        self.suitMovieAttacks = []
 
     def suitCanJoin(self):
         return len(self.suits) < self.maxSuits and self.isJoinable()
@@ -998,7 +1003,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
 
         self.toonMovieAttacks[:] = []
         self.suitMovieAttacks[:] = []
-        self.battleCalc.calculateRound()
+        self.battleCalc.generateMovieAttacks()
         self.d_setMovie()
         self.b_setState('PlayMovie')
         return Task.done
@@ -1046,10 +1051,14 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
     def enterWaitForInput(self):
         self.notify.debug('STATE: WaitForInput')
         self.movieHasPlayed = 0
+        # Allow toons to run or join
         self.joinableFsm.request('Joinable')
         self.runnableFsm.request('Runnable')
-        self.resetResponses()
+        # Adjust cogs and toons
         self.__requestAdjust()
+        # Reset attacks
+        self.clearAttacks()
+        self.clearMovieAttacks()
         if not self.tutorialFlag:
             self.timer.startCallback(SERVER_INPUT_TIMEOUT, self.__serverTimedOut)
         self.npcAttacks = {}
@@ -1072,21 +1081,30 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
     def enterMakeMovie(self):
         self.notify.debug('STATE: MakeMovie')
         self.runnableFsm.request('Unrunnable')
-        self.resetResponses()
-        return None
+        # Empty our current movie attacks
+        self.clearMovieAttacks()
+        # Generate our new movie attacks
+        self.battleCalc.generateMovieAttacks()
+        # Calculate round on the client and play movie
+        self.d_setMovieAttacks()
+        # Now play the movie
+        self.b_setState('PlayMovie')
 
     def exitMakeMovie(self):
-        return None
+        pass
 
     def enterPlayMovie(self):
         self.notify.debug('STATE: PlayMovie')
         self.joinableFsm.request('Joinable')
-        self.runnableFsm.request('Unrunnable')
-        self.resetResponses()
-        movieTime = TOON_ATTACK_TIME * (len(self.activeToons) + self.numNPCAttacks) + SUIT_ATTACK_TIME * len(self.activeSuits) + SERVER_BUFFER_TIME
-        self.numNPCAttacks = 0
-        self.notify.debug('estimated upper bound of movie time: %f' % movieTime)
+        # Reset movie done responses
+        self.__resetMovieResponses()
+        # Estimate the time this movie will take
+        movieTime = TOON_ATTACK_TIME * (len(self.activeToons)) + SUIT_ATTACK_TIME * len(self.activeSuits) + SERVER_BUFFER_TIME
         self.timer.startCallback(movieTime, self.__serverMovieDone)
+
+    def exitPlayMovie(self):
+        self.timer.stop()
+        return None
 
     def __serverMovieDone(self):
         self.notify.debug('movie timed out on server')
@@ -1101,16 +1119,27 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
     def handleRewardDone(self):
         self.b_setState('Resume')
 
-    def exitPlayMovie(self):
-        self.timer.stop()
-        return None
+    def getMovieAttacks(self):
+        tmas = []
+        smas = []
+        for tma in self.toonMovieAttacks:
+            tmas.append(tma.toList())
+        for sma in self.suitMovieAttacks:
+            smas.append(sma.toList())
+
+        return [tmas, smas]
+
+    def d_setMovieAttacks(self):
+        self.sendUpdate('setMovieAttacks', self.getMovieAttacks())
 
     def __movieDone(self):
         self.notify.debug('movieDone: Enter')
         if self.movieHasPlayed == 1:
             self.notify.debug('movieDone: movie had already finished')
             return
+        # Reset movie done responses
         self.__resetMovieResponses()
+        # Reset movie variables
         self.movieHasBeenMade = 0
         self.movieHasPlayed = 1
         # Send all the attack changes

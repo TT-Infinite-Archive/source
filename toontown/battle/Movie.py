@@ -23,6 +23,7 @@ import MovieTrap
 import MovieUtil
 import PlayByPlayText
 import RewardPanel
+import GagMovies
 from SuitBattleGlobals import *
 from toontown.chat.ChatGlobals import *
 from toontown.distributed import DelayDelete
@@ -194,6 +195,7 @@ class Movie(DirectObject.DirectObject):
             self.track = None
         return
 
+    '''
     def reset(self, finish = 0):
         if self.hasBeenReset == 1:
             return
@@ -213,6 +215,7 @@ class Movie(DirectObject.DirectObject):
             MovieUtil.removeProp(prop)
 
         self.renderProps = []
+    '''
 
     def resetReward(self, finish = 0):
         if self.rewardHasBeenReset == 1:
@@ -228,48 +231,35 @@ class Movie(DirectObject.DirectObject):
         self.rewardPanel = None
         return
 
+    def makeToonMovieAttacks(self):
+        for tma in self.battle.toonMovieAttacks:
+            pass
+
     def play(self, ts, callback):
-        return None
         self.hasBeenReset = 0
-        ptrack = Sequence()
-        camtrack = Sequence()
-        if random.random() > 0.5:
-            MovieUtil.shotDirection = 'left'
-        else:
-            MovieUtil.shotDirection = 'right'
-        for s in self.battle.activeSuits:
-            s.battleTrapIsFresh = 0
+        self.track = Sequence()
+        for tma in self.battle.toonMovieAttacks:
+            # Append a movie for each attack
+            attackId = tma.attackId
+            gag = InventoryGlobals.Gags.get(attackId)
+            if gag is None:
+                continue
+            gagMovieFunc = GagMovies.GagToGagMovie.get(attackId)
+            if gagMovieFunc is None:
+                continue
+            self.track.append(gagMovieFunc(self.battle, tma))
+        # Append the callback at the end
+        self.track.append(Func(callback))
+        # Start the track
+        self.track.start()
 
-        tattacks, tcam = self.__doToonAttacks()
-        if tattacks:
-            ptrack.append(tattacks)
-            camtrack.append(tcam)
-        sattacks, scam = self.__doSuitAttacks()
-        if sattacks:
-            ptrack.append(sattacks)
-            camtrack.append(scam)
-        ptrack.append(Func(callback))
-        self._deleteTrack()
-        self.track = Sequence(ptrack, name='movie-track-%d' % self.battle.doId)
-        if self.battle.localToonPendingOrActive():
-            self.track = Parallel(self.track, Sequence(camtrack), name='movie-track-with-cam-%d' % self.battle.doId)
-        if randomBattleTimestamp == 1:
-            randNum = random.randint(0, 99)
-            dur = self.track.getDuration()
-            ts = float(randNum) / 100.0 * dur
-        self.track.delayDeletes = []
-        for suit in self.battle.suits:
-            self.track.delayDeletes.append(DelayDelete.DelayDelete(suit, 'Movie.play'))
-
-        for toon in self.battle.toons:
-            self.track.delayDeletes.append(DelayDelete.DelayDelete(toon, 'Movie.play'))
-
-        self.track.start(ts)
-        return None
+    def reset(self):
+        self.finish()
+        self.track = None
 
     def finish(self):
-        self.track.finish()
-        return None
+        if self.track is not None:
+            self.track.finish()
 
     def playReward(self, ts, name, callback, noSkip = False):
         self.rewardHasBeenReset = 0

@@ -1022,42 +1022,21 @@ class BattleCalculatorAI:
                 if self.__suitIsLured(t.getDoId()) and t.getDoId() not in self.delayedUnlures and (self.__attackDamageForTgt(self.battle.toonAttacks[toonId], self.battle.activeSuits.index(t), suit=0) > 0 or ignoreDamageCheck):
                     self.delayedUnlures.append(t.getDoId())
 
-    def __doToonAttacks(self):
+    def __generateToonMovieAttacks(self):
+        # Go through each toon attack
         for ta in self.battle.toonAttacks.values():
             tma = BattleAttack.MovieAttack()
             tma.fromList(ta.toList() + [False])
-            if ta.attackId == PASS:
-                self.battle.toonMovieAttacks.append(tma)
-                continue
+            # Get the gag object for this attack id
             gag = InventoryGlobals.Gags.get(ta.attackId)
+            # Check if its a real gag
             if gag is not None:
+                # Check if this hit
                 if gag.isTargeted() and gag.accuracy > random.uniform(0, 1):
+                    # It hit, set our movie attack
                     tma.hit = True
+                self.notify.debug('generatedToonAttack: %s' % tma.toList())
                 self.battle.toonMovieAttacks.append(tma)
-                if not tma.hit:
-                    # Missed, don't apply effects
-                    self.notify.debug('Gag %d Missed!' % gag.uid)
-                    continue
-                else:
-                    self.notify.debug('Gag %d hit!' % gag.uid)
-                if gag.targetsAlly() and gag.targetCount == 4:
-                    self.notify.debug('Applying %d to all toons' % gag.uid)
-                    for toon in self.battle.activeToons:
-                        gag.effect.applyToQuietly(toon)
-                elif gag.targetsAlly():
-                    self.notify.debug('Applying %d to toon %d' % (gag.uid, ta.targetId))
-                    toon = self.battle.findToon(ta.targetId)
-                    gag.effect.applyToQuietly(toon)
-                elif gag.targetsEnemy() and gag.targetCount == 4:
-                    self.notify.debug('Applying %d to all toons' % gag.uid)
-                    for suit in self.battle.activeSuits:
-                        gag.effect.applyToQuietly(suit)
-                elif gag.targetsEnemy():
-                    self.notify.debug('Applying %d to cog %d...' % (gag.uid, ta.targetId))
-                    suit = self.battle.findSuit(ta.targetId)
-                    self.notify.debug('Cog hp was %d' % suit.hp)
-                    gag.effect.applyToQuietly(suit)
-                    self.notify.debug('Cog hp is now %d' % suit.hp)
             else:
                 self.notify.warning('Unknown toon attack %s' % ta.attackId)
 
@@ -1228,14 +1207,15 @@ class BattleCalculatorAI:
         else:
             self.suitAtkStats[toonId] = 1
 
-    def __doSuitAttacks(self):
+    def __generateSuitMovieAttacks(self):
         for sa in self.battle.suitAttacks:
             sma = BattleAttack.MovieAttack()
             sma.fromList(sa.toList() + [False])
             attack = BattleAttack.SuitAttacks.get(sa.attackId)
             if attack is not None:
-                if attack.accuracy > random.randint(0, 99):
+                if attack.accuracy > random.uniform(0, 1):
                     sma.hit = True
+                self.battle.suitMovieAttacks.append(sma)
 
                 if not sma.hit:
                     continue
@@ -1327,11 +1307,13 @@ class BattleCalculatorAI:
         self.successfulLures = {}
         return (toonsHit, cogsMiss)
 
-    def calculateRound(self):
-        self.notify.debug('Calculating round...')
-        # Fill toon movie and suit movie attacks while performing the attacks to members of the battle quietly
-        self.__doToonAttacks()
-        self.__doSuitAttacks()
+    def generateMovieAttacks(self):
+        self.notify.debug('Generating movie attacks...')
+        # Fill toon movie and suit movie attacks
+        self.__generateToonMovieAttacks()
+        self.__generateSuitMovieAttacks()
+        self.notify.debug(
+            'Movie attacks generated:\n Toons: %s\nSuits: %s' % (self.battle.toonAttacks, self.battle.suitAttacks))
 
     def toonLeftBattle(self, toonId):
         if self.notify.getDebug():
