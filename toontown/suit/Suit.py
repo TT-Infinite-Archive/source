@@ -663,7 +663,7 @@ class Suit(Avatar.Avatar):
         self.healthBar.setPos(0.0, 0.1, 0.0)
         self.updateHealthBar(0, forceUpdate=1)
 
-    def updateHealthBar(self, hp, forceUpdate=0):
+    def updateHealthBar(self, hp=0, forceUpdate=0):
         if hp > self.hp:
             hp = self.hp
         self.hp -= hp
@@ -870,3 +870,4 @@ class Suit(Avatar.Avatar):
             return SkelSuitDialogArray
         else:
             return SuitDialogArray
+

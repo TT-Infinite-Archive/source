@@ -8,6 +8,7 @@ import BattleParticles
 import BattleProps
 from toontown.toonbase import TTLocalizer
 from toontown.suit.SuitBuffGlobals import SuitBuffAvenger
+from toontown.battle import Sound
 
 notify = DirectNotifyGlobal.directNotify.newCategory('MovieUtil')
 SUIT_LOSE_DURATION = 6.0
@@ -630,3 +631,62 @@ def updateHealthBar(suit, hp):
     if suit.getMaxSkeleRevives() and hasattr(suit, 'healthBarReset') and not suit.isSkeleton:
         return
     suit.updateHealthBar(hp)
+
+
+def suitDeath(suit, battle):
+    deathSuit = suit.getLoseActor()
+    suitPos = suit.getPos(battle)
+    suitHpr = suit.getHpr(battle)
+    suitTrack = Sequence(
+        Parallel(
+            Func(suit.hide),
+            Func(insertDeathSuit, suit, deathSuit, battle, suitPos, suitHpr)
+        ),
+        ActorInterval(deathSuit, 'lose', duration=6.0),
+        Func(removeDeathSuit, suit, deathSuit, name='remove-death-suit')
+    )
+    BattleParticles.loadParticles()
+    smallGears = BattleParticles.createParticleEffect(file='gearExplosionSmall')
+    singleGear = BattleParticles.createParticleEffect('GearExplosion', numParticles=1)
+    smallGearExplosion = BattleParticles.createParticleEffect('GearExplosion', numParticles=10)
+    bigGearExplosion = BattleParticles.createParticleEffect('BigGearExplosion', numParticles=30)
+    gearPoint = Point3(suitPos.getX(), suitPos.getY(), suitPos.getZ() + suit.getHeight() - 0.2)
+    smallGears.setPos(gearPoint)
+    singleGear.setPos(gearPoint)
+    smallGears.setDepthWrite(False)
+    singleGear.setDepthWrite(False)
+    smallGearExplosion.setPos(gearPoint)
+    bigGearExplosion.setPos(gearPoint)
+    smallGearExplosion.setDepthWrite(False)
+    bigGearExplosion.setDepthWrite(False)
+    soundTrack = Sequence(
+        Func(Sound.CogDeathSound.playSound),
+        Wait(5.4),
+        Func(Sound.CogExplosionSound.playSound)
+    )
+    explosionTrack = Sequence(
+        Wait(5.4),
+        createKapowExplosionTrack(battle, explosionPoint=gearPoint)
+    )
+    gears1Track = Sequence(
+        Wait(2.1),
+        ParticleInterval(smallGears, battle, worldRelative=0, duration=4.3, cleanup=True),
+        name='gears1Track'
+    )
+    gears2MTrack = Track(
+        (0.0, explosionTrack),
+        (0.7, ParticleInterval(singleGear, battle, worldRelative=0, duration=5.7, cleanup=True)),
+        (5.2, ParticleInterval(smallGearExplosion, battle, worldRelative=0, duration=1.2, cleanup=True)),
+        (5.4, ParticleInterval(bigGearExplosion, battle, worldRelative=0, duration=1.0, cleanup=True)),
+        name='gears2MTrack'
+    )
+    toonMTrack = Parallel(name='toonMTrack')
+    for mtoon in battle.toons:
+        toonMTrack.append(
+            Sequence(
+                Wait(1.0),
+                ActorInterval(mtoon, 'duck', duration=5.0, playRate=0.8),
+                Func(mtoon.loop, 'neutral')
+            )
+        )
+    return Parallel(suitTrack, soundTrack, gears1Track, gears2MTrack, toonMTrack)

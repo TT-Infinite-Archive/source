@@ -244,7 +244,7 @@ class Movie(DirectObject.DirectObject):
             gag = InventoryGlobals.Gags.get(attackId)
             if gag is None:
                 continue
-            gagMovieFunc = GagMovies.GagToGagMovie.get(attackId)
+            gagMovieFunc = GagMovies.GagToMovieFunc.get(attackId)
             if gagMovieFunc is None:
                 continue
             self.track.append(gagMovieFunc(self.battle, tma))
