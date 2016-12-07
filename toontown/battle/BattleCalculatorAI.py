@@ -1315,6 +1315,20 @@ class BattleCalculatorAI:
         self.notify.debug(
             'Movie attacks generated:\n Toons: %s\nSuits: %s' % (self.battle.toonAttacks, self.battle.suitAttacks))
 
+    def applyAttacks(self):
+        self.notify.debug('Applying attacks...')
+        for tma in self.battle.toonMovieAttacks:
+            if not tma.hit:
+                continue
+            target = self.battle.findSuit(tma.targetId)
+            gag = InventoryGlobals.Gags.get(tma.attackId)
+            if target is None or gag is None:
+                continue
+            if gag.isTargeted():
+                gag.effect.b_applyTo(target)
+        # TODO: Do suit movie attacks here
+
+
     def toonLeftBattle(self, toonId):
         if self.notify.getDebug():
             self.notify.debug('toonLeftBattle()' + str(toonId))
