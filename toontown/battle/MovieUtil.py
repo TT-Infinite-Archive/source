@@ -642,7 +642,7 @@ def suitDeath(suit, battle):
             Func(suit.hide),
             Func(insertDeathSuit, suit, deathSuit, battle, suitPos, suitHpr)
         ),
-        ActorInterval(deathSuit, 'lose', duration=6.0),
+        ActorInterval(deathSuit, 'lose', duration=3.2, playRate=1.8),
         Func(removeDeathSuit, suit, deathSuit, name='remove-death-suit')
     )
     BattleParticles.loadParticles()
@@ -661,31 +661,30 @@ def suitDeath(suit, battle):
     bigGearExplosion.setDepthWrite(False)
     soundTrack = Sequence(
         Func(Sound.CogDeathSound.playSound),
-        Wait(5.4),
+        Wait(3.1),
         Func(Sound.CogExplosionSound.playSound)
     )
     explosionTrack = Sequence(
-        Wait(5.4),
+        Wait(3.1),
         createKapowExplosionTrack(battle, explosionPoint=gearPoint)
     )
     gears1Track = Sequence(
-        Wait(2.1),
-        ParticleInterval(smallGears, battle, worldRelative=0, duration=4.3, cleanup=True),
+        ParticleInterval(smallGears, battle, worldRelative=0, duration=3, cleanup=True),
         name='gears1Track'
     )
     gears2MTrack = Track(
         (0.0, explosionTrack),
-        (0.7, ParticleInterval(singleGear, battle, worldRelative=0, duration=5.7, cleanup=True)),
-        (5.2, ParticleInterval(smallGearExplosion, battle, worldRelative=0, duration=1.2, cleanup=True)),
-        (5.4, ParticleInterval(bigGearExplosion, battle, worldRelative=0, duration=1.0, cleanup=True)),
+        (0.5, ParticleInterval(singleGear, battle, worldRelative=0, duration=2.5, cleanup=True)),
+        (1.5, ParticleInterval(smallGearExplosion, battle, worldRelative=0, duration=1.0, cleanup=True)),
+        (1.0, ParticleInterval(bigGearExplosion, battle, worldRelative=0, duration=0.5, cleanup=True)),
         name='gears2MTrack'
     )
     toonMTrack = Parallel(name='toonMTrack')
     for mtoon in battle.toons:
         toonMTrack.append(
             Sequence(
-                Wait(1.0),
-                ActorInterval(mtoon, 'duck', duration=5.0, playRate=0.8),
+                Wait(0.2),
+                ActorInterval(mtoon, 'duck', playRate=0.9),
                 Func(mtoon.loop, 'neutral')
             )
         )

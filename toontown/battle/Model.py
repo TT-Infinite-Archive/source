@@ -32,5 +32,5 @@ class BillboardModel(Model):
 
 CupcakeModel = Model(0, 'tart', 'phase_3.5/models/props/tart', {}, 0.6)
 GoldenCupcakeModel = Model(0, 'tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
-SplatModel = BillboardModel(1, 'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'}, scale=0.5)
+SplatModel = BillboardModel(1, 'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'}, scale=0.7)
 

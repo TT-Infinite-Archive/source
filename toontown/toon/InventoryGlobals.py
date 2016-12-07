@@ -153,7 +153,7 @@ Gags = {
     0: GagItem(0, 'Nothing but a chuckle', None),
     1: TargetedGagItem(1, 'Cupcake', DamageEffect(0, 6), 0.6, TargetedGagItem.TargetEnemy, 1),
     2: TargetedGagItem(2, 'Sliced Fruit Pie', DamageEffect(0, 12), 0.6, TargetedGagItem.TargetEnemy, 1),
-    3: TargetedGagItem(3, 'Golden Cupcake', DamageEffect(0, 6), 1, TargetedGagItem.TargetEnemy, 4),
+    3: TargetedGagItem(3, 'Golden Cupcake', DamageEffect(0, 999), 1, TargetedGagItem.TargetEnemy, 4),
     PASS: GagItem(99, 'Pass', None),
 }
 
