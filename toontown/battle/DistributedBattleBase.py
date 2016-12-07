@@ -490,12 +490,20 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('adjust(%f) from server' % globalClockDelta.localElapsedTime(timestamp))
         self.adjustFsm.request('Adjusting', [globalClockDelta.localElapsedTime(timestamp)])
 
+    def clearMovieAttacks(self):
+        del self.toonMovieAttacks[:]
+        del self.suitMovieAttacks[:]
+        self.toonMovieAttacks = []
+        self.suitMovieAttacks = []
+
     def makeMovieAttackFromList(self, list):
         ma = BattleAttack.MovieAttack()
         ma.fromList(list)
         return ma
 
     def setMovieAttacks(self, toonMovieAttacks, suitMovieAttacks):
+        self.notify.debug('Setting movie attacks: %s %s' % (toonMovieAttacks, suitMovieAttacks))
+        self.clearMovieAttacks()
         for toonMovieAttack in toonMovieAttacks:
             tma = self.makeMovieAttackFromList(toonMovieAttack)
             self.toonMovieAttacks.append(tma)
