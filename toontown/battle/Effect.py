@@ -8,6 +8,9 @@ class Effect:
     def applyToQuietly(self, av):
         pass
 
+    def b_applyTo(self, av):
+        pass
+
 
 class HealEffect(Effect):
     def __init__(self, uid, amount):
@@ -20,6 +23,9 @@ class HealEffect(Effect):
     def applyToQuietly(self, av):
         av.setHp(av.getHp() + self.amount)
 
+    def b_applyTo(self, av):
+        av.b_setHp(av.getHp() + self.amount)
+
 
 class DamageEffect(Effect):
     def __init__(self, uid, amount):
@@ -31,3 +37,6 @@ class DamageEffect(Effect):
 
     def applyToQuietly(self, av):
         av.setHp(av.getHp() - self.amount)
+
+    def b_applyTo(self, av):
+        av.b_setHp(av.getHp() - self.amount)
