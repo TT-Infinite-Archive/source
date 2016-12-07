@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 """"Entry point for a compiled build of Toontown Infinite."""
 import __builtin__
+
 import game_data
-import sys
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
@@ -25,4 +25,10 @@ for mount in mounts:
 __builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
 __builtin__.builtFile = 'infinite'
 
-import toontown.toonbase.ClientStart
+# __builtin__.process is automatically defined by the runtime
+if __builtin__.process == 'client':
+    import toontown.toonbase.ClientStart
+elif __builtin__.process == 'ai':
+    import toontown.ai.ServiceStart
+elif __builtin__.process == 'uberdog':
+    import toontown.uberdog.ServiceStart
