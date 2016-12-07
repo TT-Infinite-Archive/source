@@ -51,7 +51,6 @@ class DistributedBattleFactoryAI(DistributedLevelBattleAI.DistributedLevelBattle
             self.battleMgr.level.b_setDefeated()
 
     def assignRewardsLater(self, task=None):
-        self.resetResponses()
         self.assignRewards()
         self.bossDefeated = 1
         self.level.setVictors(self.activeToons[:])

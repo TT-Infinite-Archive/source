@@ -55,7 +55,6 @@ class DistributedStageBattleAI(DistributedLevelBattleAI.DistributedLevelBattleAI
     def enterStageReward(self):
         self.joinableFsm.request('Unjoinable')
         self.runnableFsm.request('Unrunnable')
-        self.resetResponses()
         self.assignRewards()
         self.bossDefeated = 1
         self.level.setVictors(self.activeToons[:])

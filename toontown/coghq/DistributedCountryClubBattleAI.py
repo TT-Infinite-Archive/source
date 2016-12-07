@@ -48,7 +48,6 @@ class DistributedCountryClubBattleAI(DistributedLevelBattleAI.DistributedLevelBa
     def enterCountryClubReward(self):
         self.joinableFsm.request('Unjoinable')
         self.runnableFsm.request('Unrunnable')
-        self.resetResponses()
         self.assignRewards()
         self.bossDefeated = 1
         self.level.setVictors(self.activeToons[:])

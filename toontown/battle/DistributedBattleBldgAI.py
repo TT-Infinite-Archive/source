@@ -79,7 +79,6 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
 
     def exitFaceOff(self):
         self.timer.stop()
-        self.resetResponses()
 
     def handleFaceOffDone(self):
         for suit in self.suits:
@@ -154,7 +153,6 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         self.timer.stop()
 
     def enterBuildingReward(self):
-        self.resetResponses()
         self.assignRewards()
         self.timer.startCallback(BUILDING_REWARD_TIMEOUT, self.serverRewardDone)
 
