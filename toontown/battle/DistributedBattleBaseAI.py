@@ -463,6 +463,10 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.toonItems[avId] = ([], [])
         return 1
 
+    def __handleSuddenExit(self, avId, code):
+        self.notify.debug('handleSuddenExit %s %s' % (avId, code))
+        pass
+
     def __joinToon(self, avId, pos):
         self.joiningToons.append(avId)
         toPendingTime = MAX_JOIN_T + SERVER_BUFFER_TIME
@@ -604,7 +608,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             return False
         for toonId, ta in self.toonAttacks.items():
             if ta.attackId == 0:
-                # This attack isn't a response
+                # This attack isn't a valid response
                 return False
         return True
 
@@ -999,6 +1003,8 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.movieHasBeenMade = 0
         self.movieHasPlayed = 1
         self.ignoreResponses = 0
+        # Apply attacks
+        self.battleCalc.applyAttacks()
         # Send all the attack changes
         self.notify.debug('movieDone: Updating cog and toon statuses...')
         self.sendAvatarUpdates()
