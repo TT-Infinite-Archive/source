@@ -20,7 +20,7 @@ import os
 __builtin__.tempdir = tempfile.mkdtemp()
 atexit.register(shutil.rmtree, tempdir)
 
-if __nirai__:
+if hasattr(__builtin__, '__nirai__'):
     # Output the DC file data to it (for use with Astron)
     filepath = os.path.join(tempdir, 'game_data.dc')
     with open(filepath, 'w') as f:
