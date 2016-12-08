@@ -120,7 +120,7 @@ Gags = {
 
 GagToIcon = {
     0: None,
-    1: IconGlobals.getIcon(IconGlobals.ICON_CUPCAKE),
+    1: IconGlobals.getIcon(IconGlobals.ICON_CUPCAKE_NEW),
     2: IconGlobals.getIcon(IconGlobals.ICON_PIESLICE),
     3: IconGlobals.getIcon(IconGlobals.ICON_GOLD_TART),
     PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)

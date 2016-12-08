@@ -1,6 +1,5 @@
 from toontown.data.Icon import Icon
 
-'''
 ICON_TEN_DOLLAR = 1
 ICON_ONE_DOLLAR = 2
 ICON_FIVE_DOLLAR = 3
@@ -53,16 +52,15 @@ ICON_GEYSER = 49
 ICON_SHIP = 50
 ICON_TROOPER_WHISTLE = 51
 ICON_TROOPER_FIST = 52
-'''
 
-ICON_CUPCAKE = 1
+ICON_CUPCAKE_NEW = 1
 ICON_PIESLICE = 2
 ICON_GOLD_TART = 3
 ICON_PASS = 4
 
 ICON_REPOSITORY = {
     0: None,
-    ICON_CUPCAKE: Icon('Tart', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart'),
+    ICON_CUPCAKE_NEW: Icon('Tart', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart'),
     ICON_PIESLICE: Icon('PieSlice', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_fruit_pie_slice'),
     ICON_GOLD_TART: Icon('GoldenTart', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart', color=(1, 0.84, 0.0, 1.0)),
     ICON_PASS: Icon('Pass', 'phase_3.5/models/gui/battle_gui', nodePathName='tt_t_gui_bat_pass', scale=0.2),
@@ -72,7 +70,6 @@ ICON_REPOSITORY = {
 def getIcon(id):
     return ICON_REPOSITORY[id]
 
-'''
 ICON_ID_TO_MODEL = {
     0: None,
     ICON_TEN_DOLLAR: 'phase_3.5/models/gui/inventory_icons',
@@ -196,4 +193,3 @@ ICON_ID_TO_UNIFORM_POS = {
     ICON_TROOPER_WHISTLE: (0.0, 0.0, -0.35),
     ICON_TROOPER_FIST: (0.0, 0.0, -0.35),
 }
-'''
