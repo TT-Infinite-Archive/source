@@ -1,5 +1,5 @@
+from toontown.data import IconGlobals
 from toontown.toonbase import TTLocalizer, ToontownGlobals
-from toontown.guilds import IconGlobals
 
 # Limits
 GUILD_MAX_MEMBER_COUNT = 50

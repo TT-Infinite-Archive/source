@@ -1,4 +1,4 @@
-from toontown.battle.EffectGlobals import EffectDict
+from toontown.data.EffectGlobals import EffectDict
 
 
 # Behaviors are persistent objects we place on avatars

@@ -1,9 +1,11 @@
+import random
+
 from direct.interval.IntervalGlobal import *
 from panda3d.core import Point3
-from toontown.toon import InventoryGlobals
-from toontown.battle import Sound
+
 import MovieUtil
-import random
+from toontown.data import Sound
+from toontown.toon import InventoryGlobals
 
 
 def throwMovie(battle, tma):

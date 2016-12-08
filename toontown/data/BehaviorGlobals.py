@@ -1,5 +1,5 @@
-from toontown.battle.Behavior import PeriodicBehavior
-from toontown.battle import EffectGlobals
+from toontown.data import EffectGlobals
+from toontown.data.Behavior import PeriodicBehavior
 from toontown.toonbase import TTLocalizer
 
 BehaviorPicnicHeal = 1

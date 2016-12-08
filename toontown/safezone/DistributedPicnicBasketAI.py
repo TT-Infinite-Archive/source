@@ -1,19 +1,12 @@
-from TrolleyConstants import *
-from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM, State
 from direct.showbase import RandomNumGen
-from direct.task import Task
-from otp.ai.AIBase import *
 
-from toontown.battle.BehaviorGlobals import BehaviorPicnicHeal
-from toontown.golf import GolfGlobals
-from toontown.golf import GolfManagerAI
-from toontown.minigame import MinigameCreatorAI
-from toontown.quest import Quests
+from TrolleyConstants import *
+from otp.ai.AIBase import *
+from toontown.data.BehaviorGlobals import BehaviorPicnicHeal
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase.ToontownGlobals import *
 
 
 class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):

@@ -26,7 +26,8 @@ class BillboardModel(Model):
     def getActor(self):
         actor = Model.getActor(self)
         scale = actor.getScale()
-        actor.setBillboardPointWorld()
+        actor.setBillboardPointEye()
+        actor.setDepthWrite(False)
         actor.setScale(scale)
         return actor
 

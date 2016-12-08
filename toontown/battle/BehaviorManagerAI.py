@@ -1,5 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
-from toontown.battle import BehaviorGlobals
+
+from toontown.data import BehaviorGlobals
 
 
 class BehaviorManagerAI:

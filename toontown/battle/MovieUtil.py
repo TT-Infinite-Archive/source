@@ -1,14 +1,13 @@
-from direct.interval.IntervalGlobal import *
-from BattleBase import *
-from BattleProps import *
-from direct.directnotify import DirectNotifyGlobal
 import random
-from direct.particles import ParticleEffect
+
+from direct.directnotify import DirectNotifyGlobal
+from direct.interval.IntervalGlobal import *
+
 import BattleParticles
-import BattleProps
-from toontown.toonbase import TTLocalizer
+from BattleProps import *
+from toontown.data import Sound
 from toontown.suit.SuitBuffGlobals import SuitBuffAvenger
-from toontown.battle import Sound
+from toontown.toonbase import TTLocalizer
 
 notify = DirectNotifyGlobal.directNotify.newCategory('MovieUtil')
 SUIT_LOSE_DURATION = 6.0

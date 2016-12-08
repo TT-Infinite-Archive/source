@@ -1,7 +1,8 @@
 from direct.gui.DirectGui import DirectFrame, DirectButton, OnscreenText, DGG
-from panda3d.core import TextNode, NodePath, CardMaker, TransparencyAttrib
+from panda3d.core import TextNode
+
+from toontown.data import IconGlobals
 from toontown.toonbase import ToontownGlobals
-from toontown.guilds import IconGlobals
 from toontown.util import TTCardMaker
 
 

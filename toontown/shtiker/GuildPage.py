@@ -1,14 +1,14 @@
 from direct.gui.DirectGui import DirectLabel, DirectFrame, DirectButton, DirectScrolledList, DGG, OnscreenText, DirectWaitBar
-from panda3d.core import TextNode, Vec4, CardMaker, NodePath, TransparencyAttrib
+from panda3d.core import TextNode, Vec4
 
-from toontown.toontowngui import ConfirmDialog
+from toontown.data.IconGlobals import *
+from toontown.guilds import GuildQuestGlobals
+from toontown.guilds.GuildGlobals import *
+from toontown.shtiker.GuildLeaderboard import GuildLeaderboard
 from toontown.toonbase import EventGlobals, FontAwesomeGlobals
 from toontown.toonbase.ToontownGlobals import getInterfaceFont, getMinnieFont
+from toontown.toontowngui import ConfirmDialog
 from toontown.util import TTCardMaker
-from toontown.guilds.GuildGlobals import *
-from toontown.guilds import GuildQuestGlobals
-from toontown.guilds.IconGlobals import *
-from toontown.shtiker.GuildLeaderboard import GuildLeaderboard
 
 
 class GuildPage(DirectFrame):

@@ -1,4 +1,4 @@
-from toontown.battle.Effect import DamageEffect
+from toontown.data.Effect import DamageEffect
 
 
 class BattleAttack:

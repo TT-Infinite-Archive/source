@@ -1,6 +1,8 @@
 from direct.gui.DirectButton import DirectButton, DGG
-from toontown.battle.Effect import DamageEffect
-from toontown.battle import Missile
+
+from toontown.data import Missile
+from toontown.data.Effect import DamageEffect
+from toontown.data import IconGlobals
 
 
 class GagItem:
@@ -70,7 +72,7 @@ class TargetedGagItem(GagItem):
         return 'Damage: %s\nAccuracy: %s%%\n\nHits %s' % (self.effect.amount, int(self.accuracy * 100), targetString)
 
     def getDisplayObject(self):
-        return GagDisplay.get(self.uid, None)
+        return GagToIcon.get(self.uid, None)
 
     def isTargeted(self):
         return True
@@ -106,47 +108,6 @@ class GagItemSlot:
         self.equipped = ls[2]
 
 
-class GagImageDisplay:
-    def __init__(self, name, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0), nodePathName=None):
-        self.name = name
-        self.filepath = filepath
-        self.scale = scale
-        self.pos = pos
-        self.color = color
-        self.nodePathName = nodePathName
-
-    def loadFile(self):
-        if self.filepath is None:
-            return None
-
-        model = loader.loadModel(self.filepath)
-
-        if self.nodePathName is not None:
-            old = model
-            model = old.find('**/' + self.nodePathName)
-            old.removeNode()
-
-        model.setDepthTest(1)
-        model.setDepthWrite(1)
-        shadow = loader.loadModel('phase_3/models/props/drop_shadow')
-        shadow.reparentTo(model)
-        shadow.setScale(0.2)
-        shadow.setColorScale(0.0, 0.0, 0.0, 0.5)
-        return model
-
-    def getButtonIcon(self):
-        icon = DirectButton(
-            hidden,
-            relief=None,
-            image=self.loadFile(),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-        icon.setPos(self.pos)
-        icon.setScale(self.scale)
-        icon.setColorScale(self.color)
-        return icon
-
 PASS = 99
 
 Gags = {
@@ -157,12 +118,12 @@ Gags = {
     PASS: GagItem(99, 'Pass', None),
 }
 
-GagDisplay = {
+GagToIcon = {
     0: None,
-    1: GagImageDisplay(Gags[1].name, 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart'),
-    2: GagImageDisplay(Gags[2].name, 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_fruit_pie_slice'),
-    3: GagImageDisplay(Gags[3].name, 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_tart', color=(1, 0.84, 0.0, 1.0)),
-    PASS: GagImageDisplay(Gags[0].name, 'phase_3.5/models/gui/battle_gui', nodePathName='tt_t_gui_bat_pass', scale=0.2),
+    1: IconGlobals.getIcon(IconGlobals.ICON_CUPCAKE),
+    2: IconGlobals.getIcon(IconGlobals.ICON_PIESLICE),
+    3: IconGlobals.getIcon(IconGlobals.ICON_GOLD_TART),
+    PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)
 }
 
 GagToMissile = {

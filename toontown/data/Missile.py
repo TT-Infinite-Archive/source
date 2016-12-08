@@ -1,4 +1,4 @@
-import Model
+from toontown.data import Model
 
 
 class Missile:
