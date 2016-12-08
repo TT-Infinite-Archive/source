@@ -34,6 +34,7 @@ from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 from toontown.toontowngui import TTDialog
 from toontown.nametag import NametagGlobals
+from toontown.util.Queue import Queue
 
 
 camPos = Point3(14, 0, 10)
@@ -47,6 +48,8 @@ class Movie(DirectObject.DirectObject):
         DirectObject.DirectObject.__init__(self)
         self.battle = battle
         self.track = None
+        self.tmaQueue = Queue()
+        self.smaQueue = Queue()
         self.rewardPanel = None
         self.rewardCallback = None
         self.playByPlayText = PlayByPlayText.PlayByPlayText()
@@ -195,28 +198,6 @@ class Movie(DirectObject.DirectObject):
             self.track = None
         return
 
-    '''
-    def reset(self, finish = 0):
-        if self.hasBeenReset == 1:
-            return
-        self.hasBeenReset = 1
-        self.stop()
-        self._deleteTrack()
-        if finish == 1:
-            self.restore()
-        self.toonMovieAttacks = []
-        self.suitMovieAttacks = []
-        self.restoreColor = 0
-        self.restoreHips = 0
-        self.restoreHeadScale = 0
-        self.restoreToonScale = 0
-        self.specialParticleEffects = []
-        for prop in self.renderProps:
-            MovieUtil.removeProp(prop)
-
-        self.renderProps = []
-    '''
-
     def resetReward(self, finish = 0):
         if self.rewardHasBeenReset == 1:
             return
@@ -231,29 +212,36 @@ class Movie(DirectObject.DirectObject):
         self.rewardPanel = None
         return
 
-    def makeToonMovieAttacks(self):
-        for tma in self.battle.toonMovieAttacks:
-            pass
-
     def play(self, ts, callback):
         self.hasBeenReset = 0
-        self.track = Sequence()
+        self.tmaQueue.reset()
+        self.smaQueue.reset()
         for tma in self.battle.toonMovieAttacks:
-            # Append a movie for each attack
-            attackId = tma.attackId
-            gag = InventoryGlobals.Gags.get(attackId)
-            if gag is None:
-                continue
-            gagMovieFunc = GagMovies.GagToMovieFunc.get(attackId)
-            if gagMovieFunc is None:
-                continue
-            # Play the gag movie
-            self.track.append(gagMovieFunc(self.battle, tma))
+            # Queue up attacks
+            self.tmaQueue.enqueue(tma)
+        for sma in self.battle.suitMovieAttacks:
+            # Queue up attacks
+            self.smaQueue.enqueue(sma)
 
-        # Append the callback at the end
-        self.track.append(Func(callback))
-        # Start the track
-        self.track.start()
+        self.playNextAttack(callback)
+
+    def playNextAttack(self, callback):
+        # Get the next attack and play the movie for it
+        # If there are no attacks just end the movie
+        if self.tmaQueue.empty() and self.smaQueue.empty():
+            callback()
+        elif not self.tmaQueue.empty():
+            tma = self.tmaQueue.dequeue()
+            self.track = Sequence()
+            movieFunc = GagMovies.GagToMovieFunc.get(tma.attackId)
+            if movieFunc:
+                self.track.append(movieFunc(self.battle, tma))
+            self.track.append(Func(self.playNextAttack, callback))
+            self.track.start()
+        else:
+            sma = self.smaQueue.dequeue()
+            self.track = Sequence()
+            self.track.append(Func(self.playNextAttack, callback))
 
     def reset(self):
         self.finish()
@@ -292,10 +280,7 @@ class Movie(DirectObject.DirectObject):
         self.rewardHasBeenReset = 0
         self.rewardPanel = RewardPanel.RewardPanel(name)
         self.rewardCallback = callback
-        self.questList = self.rewardPanel.getQuestIntervalList(base.localAvatar, [0,
-         1,
-         1,
-         0], [base.localAvatar], base.localAvatar.quests[0], [], [base.localAvatar.getDoId()])
+        self.questList = self.rewardPanel.getQuestIntervalList(base.localAvatar, [0, 1, 1, 0], [base.localAvatar], base.localAvatar.quests[0], [], [base.localAvatar.getDoId()])
         base.camera.setPosHpr(0, 8, base.localAvatar.getHeight() * 0.66, 179, 15, 0)
         self.playTutorialReward_1()
 
@@ -401,18 +386,6 @@ class Movie(DirectObject.DirectObject):
         if self.playByPlayText:
             self.playByPlayText.hide()
         return
-
-    def __doToonAttacks(self):
-        track = Sequence(name='toon-attacks')
-        camTrack = Sequence(name='toon-attacks-cam')
-        ival, camIval = MovieThrow.doAttacks(self.toonMovieAttacks, self.battle)
-        if ival:
-            track.append(ival)
-            camTrack.append(camIval)
-        if len(track) == 0:
-            return None, None
-        else:
-            return track, camTrack
 
     def genRewardDicts(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
         self.deathList = deathList

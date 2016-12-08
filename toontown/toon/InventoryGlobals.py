@@ -1,5 +1,3 @@
-from direct.gui.DirectButton import DirectButton, DGG
-
 from toontown.data import Missile
 from toontown.data.Effect import DamageEffect
 from toontown.data import IconGlobals
@@ -20,7 +18,7 @@ class GagItem:
         return ''
 
     def getDisplayObject(self):
-        return GagDisplay.get(self.uid, None)
+        return GagToIcon.get(self.uid, None)
 
     def isTargeted(self):
         return False

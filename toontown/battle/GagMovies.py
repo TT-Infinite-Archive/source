@@ -5,14 +5,14 @@ from panda3d.core import Point3
 
 import MovieUtil
 from toontown.data import Sound
-from toontown.toon import InventoryGlobals
+from toontown.toon.InventoryGlobals import Gags, GagToMissile, PASS
 
 
 def throwMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suit = battle.findSuit(tma.targetId)
-    attack = InventoryGlobals.Gags[tma.attackId]
-    missile = InventoryGlobals.GagToMissile.get(tma.attackId)
+    attack = Gags[tma.attackId]
+    missile = GagToMissile.get(tma.attackId)
     prop = missile.model.getActor()
     splat = missile.deathModel.getActor()
     hand = toon.getRightHand()
@@ -94,15 +94,6 @@ def throwMovie(battle, tma):
 
     return Parallel(toonTrack, propTrack, suitTrack)
 
-GagToMovieFunc = {
-    0: None,
-    1: throwMovie,
-    2: throwMovie,
-    3: throwMovie,
-    InventoryGlobals.PASS: None
-}
-
-
 def animateAv(av, animName):
     # Does a toon animation then reverts to neutral
     return Sequence(
@@ -138,3 +129,11 @@ def doSuitDodge(suit, battle):
             dodgeTrack.append(animateAv(s, 'sidestep-right'))
     return dodgeTrack
 
+
+GagToMovieFunc = {
+    0: None,
+    1: throwMovie,
+    2: throwMovie,
+    3: throwMovie,
+    PASS: None
+}
