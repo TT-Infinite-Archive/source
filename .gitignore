@@ -24,3 +24,5 @@ toondata/
 
 # Virtual environments:
 venv/
+astron/sp-database/
+astron/mp-database/

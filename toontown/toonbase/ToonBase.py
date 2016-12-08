@@ -1,10 +1,7 @@
-import atexit
 import os
 import random
-import shutil
 from sys import platform
 import sys
-import tempfile
 import time
 import fractions
 
@@ -181,6 +178,10 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
+        self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
+        self.wantMods = self.config.GetBool('want-mods', False)
+        self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
+        self.wantDevDebug = self.config.GetBool('want-dev-debug', False)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)
@@ -304,8 +305,6 @@ class ToonBase(OTPBase.OTPBase):
         MarginGlobals.updateMarginVisibles()
 
     def setCursorAndIcon(self):
-        tempdir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tempdir)
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
@@ -517,21 +516,18 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='localhost'):
-        # Get the base port.
-        gameserverPort = 7199
-
+    def connectToServer(self, gameserver='localhost', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
         # Get a new port.
-        gameserverPort += random.randint(0, clientagents) * 100
+        port += random.randint(0, clientagents) * 100
 
         gameserver = URLSpec(gameserver, 1)
         if base.config.GetBool('server-force-ssl', False):
             gameserver.setScheme('s')
         if not gameserver.hasPort():
-            gameserver.setPort(gameserverPort)
+            gameserver.setPort(port)
 
         base.cr.loginFSM.request('connect', [[gameserver]])
 

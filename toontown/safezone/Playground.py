@@ -200,12 +200,20 @@ class Playground(Place.Place):
         self.deathAckBox = None
         return
 
+    def playMusic(self):
+        if self.loader.music:
+            base.playMusic(self.loader.music, looping=1, volume=0.8)
+
+    def stopMusic(self):
+        if self.loader.music:
+            self.loader.music.stop()
+
     def enter(self, requestStatus):
         self.fsm.enterInitialState()
         messenger.send('enterPlayground')
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)
-        base.playMusic(self.loader.music, looping=1, volume=0.8)
+        self.playMusic()
         self.loader.geom.reparentTo(render)
         for i in self.loader.nodeList:
             self.loader.enterAnimatedProps(i)
@@ -303,7 +311,7 @@ class Playground(Place.Place):
             self.loader.exitAnimatedProps(i)
 
         self.loader.hood.stopSky()
-        self.loader.music.stop()
+        self.stopMusic()
 
     def load(self):
         Place.Place.load(self)
@@ -539,6 +547,13 @@ class Playground(Place.Place):
         elif base.localAvatar.hp > 0 and (Quests.avatarHasTrolleyQuest(base.localAvatar) or Quests.avatarHasFirstCogQuest(base.localAvatar) or Quests.avatarHasFriendQuest(base.localAvatar) or Quests.avatarHasPhoneQuest(base.localAvatar) and Quests.avatarHasCompletedPhoneQuest(base.localAvatar)) and self.loader.hood.id == ToontownGlobals.ToontownCentral:
             requestStatus['nextState'] = 'popup'
             imageModel = loader.loadModel('phase_4/models/gui/tfa_images')
+        if base.localAvatar.hp > 0:
+            x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralInitialDropPoints)
+            msg = TTLocalizer.TTIAlphaWelcomeMessage
+            # imgNodePath = None
+            # imgPos = (0, 0, 0.04)
+            # imgScale = 0.5
+            """
             if base.localAvatar.quests[0][0] == Quests.TROLLEY_QUEST_ID:
                 if not Quests.avatarHasCompletedTrolleyQuest(base.localAvatar):
                     x, y, z, h, p, r = base.cr.hoodMgr.getDropPoint(base.cr.hoodMgr.ToontownCentralInitialDropPoints)
@@ -587,9 +602,10 @@ class Playground(Place.Place):
                     imgNodePath = imageModel.find('**/hq-dialog-image')
                     imgPos = (0, 0, 0.05)
                     imgScale = 0.5
+            """
             self.dialog = TTDialog.TTDialog(text=msg, command=self.__cleanupDialog, style=TTDialog.Acknowledge)
-            imgLabel = DirectLabel.DirectLabel(parent=self.dialog, relief=None, pos=imgPos, scale=TTLocalizer.PimgLabel, image=imgNodePath, image_scale=imgScale)
-            imageModel.removeNode()
+            # imgLabel = DirectLabel.DirectLabel(parent=self.dialog, relief=None, pos=imgPos, scale=TTLocalizer.PimgLabel, image=imgNodePath, image_scale=imgScale)
+            # imageModel.removeNode()
         else:
             requestStatus['nextState'] = 'walk'
             x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)

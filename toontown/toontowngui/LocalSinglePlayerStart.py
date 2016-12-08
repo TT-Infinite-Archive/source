@@ -6,14 +6,14 @@ from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.singleplayer.SinglePlayerGlobals import *
 from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-import psutil, os
+import copy, atexit, socket, os
 
-class SinglePlayerMenu(DirectFrame, FSM):
+class LocalSinglePlayerStart(DirectFrame, FSM):
 
-    def __init__(self, mainMenu, **kwargs):
+    def __init__(self, mainMenu, singlePlayer, **kwargs):
         DirectFrame.__init__(self, aspect2d, **kwargs)
-        FSM.__init__(self, 'SinglePlayerMenu')
-        self.initialiseoptions(SinglePlayerMenu)
+        FSM.__init__(self, 'LocalSinglePlayerStart')
+        self.initialiseoptions(LocalSinglePlayerStart)
         
         self.path = os.path.abspath('.')
         self.threads = []
@@ -21,6 +21,20 @@ class SinglePlayerMenu(DirectFrame, FSM):
         self.lastProcess = len(Processes)
         
         self.mainMenu = mainMenu
+        self.singlePlayer = singlePlayer
+        
+        if self.singlePlayer:
+            self.mdPort = 7011
+            self.logPort = 7021
+            self.mongoPort = 7031
+            self.mongoPath = 'data/singleplayer'
+            self.astronConfig = 'astrond.yml'
+        else:
+            self.mdPort = 7010
+            self.logPort = 7020
+            self.mongoPort = 7030
+            self.mongoPath = 'data/multiplayer'
+            self.astronConfig = 'astrond_mp.yml'
         
         buttonScale = (-1, 1, 1)
 
@@ -28,12 +42,6 @@ class SinglePlayerMenu(DirectFrame, FSM):
 
         self.backButton = MATShuffleButton(parent=self, pos=(0, 0, -0.75), text=TTLocalizer.MakeAToonLast, wantArrows=False, image_scale=buttonScale, image2_scale=buttonScale, image1_scale=buttonScale, text_scale=0.09, command=lambda: self.request('Back'))
         self.backButton.hide()
-        
-        self.restartButton = MATShuffleButton(parent=self, pos=(-0.4, 0, -0.75), text=TTLocalizer.StartingRestart, wantArrows=False, image_scale=buttonScale, image2_scale=buttonScale, image1_scale=buttonScale, text_scale=0.09, command=lambda: self.request('StartingKill'))
-        self.restartButton.hide()
-
-        self.joinButton = MATShuffleButton(parent=self, pos=(0.4, 0, -0.75), text=TTLocalizer.StartingJoin, wantArrows=False, image_scale=buttonScale, image2_scale=buttonScale, image1_scale=buttonScale, text_scale=0.09, command=lambda: self.request('Begun'))
-        self.joinButton.hide()
 
     def destroy(self):
         DirectFrame.destroy(self)
@@ -46,69 +54,47 @@ class SinglePlayerMenu(DirectFrame, FSM):
         if self.backButton:
             self.backButton.destroy()
             self.backButton = None
-        
-        if self.restartButton:
-            self.restartButton.destroy()
-            self.restartButton = None
-        
-        if self.joinButton:
-            self.joinButton.destroy()
-            self.joinButton = None
+    
+    def getPort(self):
+        return 7001 if self.singlePlayer else 7000
+    
+    def getPids(self):
+        return [thread.getPid() for thread in self.threads if thread.hasPid()]
+    
+    def isServerAlive(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.33)
+        return sock.connect_ex(('127.0.0.1', self.getPort())) == 0
 
     def killThreads(self):
+        self.ignoreAll()
+        
         for thread in self.threads:
             thread.kill()
-        
-        pid = os.getpid()
-        processNames = set([process[0][0].split(os.sep)[-1] for process in Processes])
-
-        for subProcess in psutil.process_iter():
-            if pid == subProcess.pid:
-                continue
-            
-            subName = subProcess.name()
-
-            for name in processNames:
-                if subName.startswith(name):
-                    subProcess.kill()
-                    break
     
     def enterOff(self):
         self.destroy()
         base.cr.sendDisconnect()
-        self.killThreads()
     
     def enterBack(self):
         self.demand('Off')
         self.mainMenu.demand('Idle')
     
-    def enterQuestion(self):
-        self.label['text'] = TTLocalizer.StartingQuestion
-        self.restartButton.show()
-        self.joinButton.show()
-    
-    def exitQuestion(self):
-        self.restartButton.hide()
-        self.joinButton.hide()
-    
     def enterStart(self):
-        for subProcess in psutil.process_iter():
-            if subProcess.name().startswith('astrond'):
-                self.demand('Question')
-                return
-        
-        self.demand('StartingKill')
-    
-    def enterStartingKill(self):
-        self.killThreads()
-        taskMgr.doMethodLater(0.25, lambda task: self.demand('Starting'), 'enterStart')
-    
-    def exitStartingKill(self):
-        taskMgr.remove('enterStart')
-    
-    def enterStarting(self):
+        if self.isServerAlive():
+            if self.singlePlayer:
+                self.demand('ServerRunning')
+            else:
+                self.destroy()
+                base.connectToServer('localhost', self.getPort())
+            
+            return
+
         self.accept('processStarted', self.__processStarted)
         self.accept('processFailed', self.__processFailed)
+        atexit.register(self.killThreads)
+
+        os.chdir(self.path)
         self.__nextProcess()
     
     def exitStarting(self):
@@ -119,24 +105,39 @@ class SinglePlayerMenu(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('localhost')
+        base.connectToServer('localhost', self.getPort())
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]
         self.backButton.show()
         self.killThreads()
     
+    def enterServerRunning(self):
+        self.label['text'] = TTLocalizer.ServerRunningAlready
+        self.backButton.show()
+    
     def __nextProcess(self):
-        self.process = Processes[self.currentProcess]
+        self.process = copy.deepcopy(Processes[self.currentProcess])
         self.currentProcess += 1
-        
-        self.label['text'] = TTLocalizer.StartingServer % self.process[2]
-        
+
+        if base.wantDevDebug:
+            self.label['text'] = TTLocalizer.StartingServerDev % self.process[2]
+        else:
+            self.label['text'] = TTLocalizer.StartingServerLive
+
         thread = ProcessThread(self.path, self.process)
+        
+        if thread.processInfo[0].startswith('astrond'):
+            thread.processInfo.append(self.astronConfig)
+        elif thread.processInfo[0].startswith('mongod'):
+            thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
+        elif 'ServiceStart' in thread.processInfo[2]:
+            thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
+
         thread.start()
         self.threads.append(thread)
 
-        taskMgr.doMethodLater(15, self.__processFailed, 'processFailed')
+        taskMgr.doMethodLater(15, lambda task: self.__processFailed(self.process[2]), 'processFailed')
     
     def __processStarted(self, name):
         taskMgr.remove('processFailed')
@@ -148,7 +149,7 @@ class SinglePlayerMenu(DirectFrame, FSM):
             self.__nextProcess()
     
     def __processFailed(self, name):
-        if self.getCurrentOrNextState() == 'Starting':
+        if self.getCurrentOrNextState() == 'Start':
             self.request('Failed')
         else:
             message = TTLocalizer.ServerDown % name

@@ -14,6 +14,12 @@ class ProcessThread(threading.Thread):
             self.folder = defaultPath
         else:
             self.folder = os.path.join(defaultPath, self.folder)
+    
+    def hasPid(self):
+        return hasattr(self, 'process') and self.process is not None
+    
+    def getPid(self):
+        return self.process.pid
 
     def failed(self):
         messenger.send('processFailed', [self.name])
@@ -22,13 +28,12 @@ class ProcessThread(threading.Thread):
         messenger.send('processStarted', [self.name])
     
     def kill(self):
-        if hasattr(self, 'process'):
+        if hasattr(self, 'process') and self.process:
             self.process.kill()
     
     def run(self):
-        os.chdir(self.folder)
-        
         try:
+            os.chdir(self.folder)
             self.process = subprocess.Popen(self.processInfo, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except:
             self.failed()

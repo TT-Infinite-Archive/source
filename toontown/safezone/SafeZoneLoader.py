@@ -35,7 +35,8 @@ class SafeZoneLoader(StateData.StateData):
         self.placeDoneEvent = 'placeDone'
         self.place = None
         self.playgroundClass = None
-        return
+        self.music = None
+        self.activityMusic = None
 
     def load(self):
         self.music = base.loadMusic(self.musicFile)

@@ -38,17 +38,13 @@ accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 600 access automatically upon login.
+# each user with 700 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
 
     def __init__(self, csm):
         self.csm = csm
-
-        filename = simbase.config.GetString(
-            'account-bridge-filename', 'account-bridge')
-        self.dbm = semidbm.open(filename, 'c')
 
     def submitNameRequest(self, avId, name, callback, errback):
         callback(NAME_APPROVED)
@@ -59,71 +55,32 @@ class AccountDB:
     def lookup(self, username, callback):
         pass  # Inheritors should override this.
 
-    def storeAccountID(self, userId, accountId, callback):
-        self.dbm[str(userId)] = str(accountId)  # semidbm only allows strings.
-        if getattr(self.dbm, 'sync', None):
-            self.dbm.sync()
-            callback(True)
-        else:
-            self.notify.warning('Unable to associate user %s with account %d!' % (userId, accountId))
-            callback(False)
-
 
 class DeveloperAccountDB(AccountDB):
     notify = directNotify.newCategory('DeveloperAccountDB')
+    
+    def __init__(self, csm):
+        AccountDB.__init__(self, csm)
+        self.accessLevel = 700
+        self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
+    
+    def lookupUserId(self, userId):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
+        dict = {'userId': userId, 'success': True}
+        
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
 
-    def lookup(self, username, callback):
-        # Let's check if this user's ID is in your account database bridge:
-        if str(username) not in self.dbm:
-            # Nope. Let's associate them with a brand new Account object! We
-            # will assign them with 600 access just because they are a
-            # developer:
-            response = {
-                'success': True,
-                'userId': username,
-                'accountId': 0,
-                'accessLevel': min(max(600, accessLevelMin), accessLevelMax)
-            }
-            callback(response)
-            return
-
-        # We have an account already, let's return what we've got:
-        response = {
-            'success': True,
-            'userId': username,
-            'accountId': int(self.dbm[str(username)]),
-        }
-        callback(response)
-
-
-# This is the same as the DeveloperAccountDB, except it doesn't automatically
-# give the user an access level of 600. Instead, the first user that is created
-# gets 700 access, and every user created afterwards gets 100 access:
-
-
-class LocalAccountDB(AccountDB):
-    notify = directNotify.newCategory('LocalAccountDB')
-
-    def lookup(self, username, callback):
-        # Let's check if this user's ID is in your account database bridge:
-        if str(username) not in self.dbm:
-            # Nope. Let's associate them with a brand new Account object!
-            response = {
-                'success': True,
-                'userId': username,
-                'accountId': 0,
-                'accessLevel': min(max(700 if not self.dbm else 100, accessLevelMin), accessLevelMax)
-            }
-            callback(response)
-            return
-
-        # We have an account already, let's return what we've got:
-        response = {
-            'success': True,
-            'userId': username,
-            'accountId': int(self.dbm[str(username)])
-        }
-        callback(response)
+        return dict
+    
+    def lookup(self, userId, callback):
+        dict = self.lookupUserId(userId)
+        callback(dict)
+        return dict
 
 
 class ProductionDB(AccountDB):
@@ -152,10 +109,8 @@ class ProductionDB(AccountDB):
             response['userId'] = result['userId']
             response['accessLevel'] = min(max(result['accessLevel'], accessLevelMin), accessLevelMax)
 
-            if str(result['userId']) not in self.dbm:
-                response['accountId'] = 0
-            else:
-                response['accountId'] = int(self.dbm[str(result['userId'])])
+            lookup = self.lookupUserId(result['userId'])
+            response['accountId'] = lookup['accountId']
 
         callback(response)
 
@@ -259,19 +214,6 @@ class LoginAccountFSM(OperationFSM):
 
         self.accountId = accountId
         self.csm.air.writeServerEvent('accountCreated', accountId)
-        self.demand('StoreAccountID')
-
-    def enterStoreAccountID(self):
-        self.csm.accountDB.storeAccountID(
-            self.userId,
-            self.accountId,
-            self.__handleStored)
-
-    def __handleStored(self, success=True):
-        if not success:
-            self.demand('Kill', 'The account server could not save your user ID!')
-            return
-
         self.demand('SetAccount')
 
     def enterSetAccount(self):
@@ -1023,6 +965,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
 
+        self.air.csm = self
         self.authTokens = {}
 
     def announceGenerate(self):
@@ -1044,8 +987,6 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # Instantiate our account DB interface:
         if accountdbType == 'developer':
             self.accountDB = DeveloperAccountDB(self)
-        elif accountdbType == 'local':
-            self.accountDB = LocalAccountDB(self)
         elif accountdbType == 'production':
             self.accountDB = ProductionDB(self)
         else:

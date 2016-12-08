@@ -1,3 +1,5 @@
+from direct.directnotify.DirectNotifyGlobal import directNotify
+
 from toontown.safezone.TTSafeZoneLoader import TTSafeZoneLoader
 from toontown.town.TTTownLoader import TTTownLoader
 from toontown.toonbase import ToontownGlobals

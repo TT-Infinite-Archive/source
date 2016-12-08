@@ -270,6 +270,7 @@ from toontown.safezone import DistributedFindFour/AI
 from toontown.safezone import DistributedGameTable/AI
 from toontown.safezone import DistributedGolfKart/AI
 from toontown.safezone import DistributedPicnicBasket/AI
+from toontown.safezone import DistributedJukebox/AI
 from toontown.distributed import DistributedTimer/AI
 from toontown.suit import DistributedBossbotBoss/AI
 from toontown.coghq import DistributedCogKart/AI
@@ -3772,4 +3773,13 @@ dclass GlobalGroupTracker : DistributedObjectGlobal {
     // UD to Client
     requestGroupsResponse(uint32[], BoardingGroup[]);
     informLeader(string senderName, uint8 informCode);
+};
+
+dclass DistributedJukebox : DistributedObject {
+  setQueue(uint32[]) required broadcast ram;
+  setMusic(uint32 songId) required broadcast ram;
+  setPosHpr(int16/10, int16/10, int16/10, int16/10, int16/10, int16/10) required broadcast ram;
+
+  // Client Request
+  requestPlaySong(uint32 songId) clsend airecv;
 };

@@ -40,8 +40,36 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         self.trolleyStation = self.loader.geom.find('**/*trolley_station*')
         self.trolleyCar = self.trolleyStation.find('**/trolley_car')
 
-        # The Trolley Minigames are currently unavailable. Let's hide the trolley car.
-        self.trolleyCar.hide()
+        # Toontown Central Trolley Station
+
+        self.constructionSign = loader.loadModel('phase_4/models/props/construction_sign.bam')
+        self.constructionSign.setPosHpr(-131.5, -66.776, 0.545, 127, 0, 0)
+        self.constructionSign.reparentTo(render)
+
+        self.cone = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
+        self.cone.setPosHpr(-136, -66, 0.545, 20, 0, 0)
+        self.cone.reparentTo(render)
+
+        self.cone2 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
+        self.cone2.setPosHpr(-143, -84, 0.545, 100, 0, 0)
+        self.cone2.reparentTo(render)
+
+        self.cone3 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
+        self.cone3.setPosHpr(-156, -71, 0.545, 150, 0, 0)
+        self.cone3.reparentTo(render)
+
+        if not base.wantTrolleyTTC:
+            self.trolleyCar.hide()
+            self.constructionSign.show()
+            self.cone.show()
+            self.cone2.show()
+            self.cone3.show()
+        else:
+            self.trolleyCar.show()
+            self.constructionSign.hide()
+            self.cone.hide()
+            self.cone2.hide()
+            self.cone3.hide()
 
         self.trolleySphereNode = self.trolleyStation.find('**/trolley_sphere').node()
         exitFog = Fog('TrolleyExitFog')
@@ -128,6 +156,11 @@ class DistributedTrolley(DistributedObject.DistributedObject):
     def disable(self):
         DistributedObject.DistributedObject.disable(self)
         self.fsm.request('off')
+        if not base.wantTrolleyTTC:
+            self.constructionSign.removeNode()
+            self.cone.removeNode()
+            self.cone2.removeNode()
+            self.cone3.removeNode()
         self.clearToonTracks()
         self.trolleyExitFog.removeNode()
         del self.trolleyExitFog
