@@ -480,8 +480,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 self.localToonFsm.request('NoLocalToon')
         for suit in self.luredSuits:
             suit.loop('lured')
-        if self.hasLocalToon():
-            self.townBattle.update()
         return oldtoons
 
     def adjust(self, timestamp):
@@ -965,6 +963,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.startTimer(ts)
         if self.needAdjustTownBattle == 1:
             self.__adjustTownBattle()
+        if self.hasLocalToon():
+            self.townBattle.update()
         return None
 
     def exitWaitForInput(self):
@@ -1204,6 +1204,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         currStateName = self.fsm.getCurrentState().getName()
         if currStateName == 'WaitForInput' and self.localToonActive():
             self.startTimer()
+            self.townBattle.update()
         return None
 
     def enterNotAdjusting(self):
