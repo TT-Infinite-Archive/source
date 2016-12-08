@@ -27,13 +27,13 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.mdPort = 7011
             self.logPort = 7021
             self.mongoPort = 7031
-            self.mongoPath = 'singleplayerdb'
+            self.mongoPath = 'data/singleplayer'
             self.astronConfig = 'astrond.yml'
         else:
             self.mdPort = 7010
             self.logPort = 7020
             self.mongoPort = 7030
-            self.mongoPath = 'multiplayerdb'
+            self.mongoPath = 'data/multiplayer'
             self.astronConfig = 'astrond_mp.yml'
         
         buttonScale = (-1, 1, 1)
