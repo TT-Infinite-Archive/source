@@ -1,11 +1,12 @@
 from direct.interval.IntervalGlobal import *
-from panda3d.core import Vec3, Point3
+from panda3d.core import Point3
 from toontown.toon import InventoryGlobals
-from toontown.battle import Sound, BattleParticles
+from toontown.battle import Sound
 import MovieUtil
+import random
 
 
-def cupcakeMovie(battle, tma):
+def throwMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suit = battle.findSuit(tma.targetId)
     attack = InventoryGlobals.Gags[tma.attackId]
@@ -84,15 +85,18 @@ def cupcakeMovie(battle, tma):
         # 'sidestep-left', 'sidestep-right'
         # Wait until the missile is fired
         suitTrack.append(Wait(2.2))
-        # Make the suit dodge
-        suitTrack.append(animateAv(suit, 'sidestep-left'))
+        # Make the suit(s) dodge
+        suitTrack.append(doSuitDodge(suit, battle))
+        # Pause the track until the dodge is done
+        suitTrack.append(Func(suitTrack.pause))
+
     return Parallel(toonTrack, propTrack, suitTrack)
 
 GagToMovieFunc = {
     0: None,
-    1: cupcakeMovie,
-    2: cupcakeMovie,
-    3: cupcakeMovie,
+    1: throwMovie,
+    2: throwMovie,
+    3: throwMovie,
     InventoryGlobals.PASS: None
 }
 
@@ -105,12 +109,30 @@ def animateAv(av, animName):
     )
 
 
-def fireMissile(prop, missile, toPos):
-    # Fires a missile to a point
-    splat = missile.deathModel.getActor()
-    return Sequence
-
-
 def unloadProp(prop):
     prop.cleanup()
     prop.delete()
+
+
+def getLeftSuits(suit, battle):
+    suitIndex = battle.activeSuits.index(suit)
+    suits = battle.activeSuits[0:suitIndex + 1]
+    return suits
+
+
+def getRightSuits(suit, battle):
+    suitIndex = battle.activeSuits.index(suit)
+    suits = battle.activeSuits[suitIndex:]
+    return suits
+
+
+def doSuitDodge(suit, battle):
+    dodgeTrack = Parallel()
+    if random.choice([0, 1]):
+        for s in getLeftSuits(suit, battle):
+            dodgeTrack.append(animateAv(s, 'sidestep-left'))
+    else:
+        for s in getRightSuits(suit, battle):
+            dodgeTrack.append(animateAv(s, 'sidestep-right'))
+    return dodgeTrack
+

@@ -247,7 +247,9 @@ class Movie(DirectObject.DirectObject):
             gagMovieFunc = GagMovies.GagToMovieFunc.get(attackId)
             if gagMovieFunc is None:
                 continue
+            # Play the gag movie
             self.track.append(gagMovieFunc(self.battle, tma))
+
         # Append the callback at the end
         self.track.append(Func(callback))
         # Start the track
