@@ -22,13 +22,15 @@ for mount in mounts:
     mountPoint = Filename(mountPoint)
     vfs.mount(mountFile, mountPoint, 0)
 
-__builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
+# Store the deobfuscated DC file data for later use
+__builtin__.dcData = game_data.deobfuscate(game_data.DC)
+
 __builtin__.builtFile = 'infinite'
 
 # __builtin__.process is automatically defined by the runtime
-if __builtin__.process == 'client':
+if process == 'client':
     import toontown.toonbase.ClientStart
-elif __builtin__.process == 'ai':
+elif process == 'ai':
     import toontown.ai.ServiceStart
-elif __builtin__.process == 'uberdog':
+elif process == 'uberdog':
     import toontown.uberdog.ServiceStart

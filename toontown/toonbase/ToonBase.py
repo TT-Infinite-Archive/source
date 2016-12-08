@@ -1,10 +1,7 @@
-import atexit
 import os
 import random
-import shutil
 from sys import platform
 import sys
-import tempfile
 import time
 import fractions
 
@@ -308,8 +305,6 @@ class ToonBase(OTPBase.OTPBase):
         MarginGlobals.updateMarginVisibles()
 
     def setCursorAndIcon(self):
-        tempdir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tempdir)
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
