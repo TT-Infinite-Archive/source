@@ -155,8 +155,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.notify.debug('__removeSuit(%d)' % suit.doId)
         self.suits.remove(suit)
         self.activeSuits.remove(suit)
-        if self.luredSuits.count(suit) == 1:
-            self.luredSuits.remove(suit)
         self.suitGone = 1
 
     def findSuit(self, id):
@@ -241,10 +239,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         for s in self.activeSuits:
             activeSuits += str(suits.index(s.doId))
 
-        luredSuits = ''
-        for s in self.luredSuits:
-            luredSuits += str(suits.index(s.doId))
-
         toons = []
         for t in self.toons:
             toons.append(t)
@@ -270,7 +264,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             joiningSuits,
             pendingSuits,
             activeSuits,
-            luredSuits,
             toons,
             joiningToons,
             pendingToons,
@@ -1076,7 +1069,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.pendingSuits = []
         self.adjustingSuits = []
         self.activeSuits = []
-        self.luredSuits = []
         for toonId in self.toons:
             toon = simbase.air.doId2do.get(toonId)
             if toon:

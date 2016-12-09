@@ -106,7 +106,7 @@ class TownBattle(StateData.StateData):
         for toonPanel in self.toonPanels:
             toonPanel.setBattle(battle)
 
-    def adjustCogsAndToons(self, activeSuits, luredSuits, activeToons):
+    def adjustCogsAndToons(self, activeSuits, activeToons):
         pass
 
     def update(self):
