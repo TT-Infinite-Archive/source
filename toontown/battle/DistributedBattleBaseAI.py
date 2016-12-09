@@ -286,10 +286,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def getTaskZoneId(self):
         return self.zoneId
 
-    def d_setMovie(self):
-        self.sendUpdate('setMovie', self.getMovie())
-        self.__updateEncounteredCogs()
-
     def getMovie(self):
         suitIds = []
         for s in self.activeSuits:
@@ -620,7 +616,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         if len(self.toonAttacks.keys()) != len(self.activeToons):
             return False
         for toonId, ta in self.toonAttacks.items():
-            if ta.attackId == 0:
+            if ta.attackId == NO_ATTACK:
                 # This attack isn't a valid response
                 return False
         return True
@@ -747,26 +743,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         responsesLength = len(self.movieResponses)
         return toonCount >= responsesLength
 
-    def rewardDone(self):
-        toonId = self.air.getAvatarIdFromSender()
-        stateName = self.fsm.getCurrentState().getName()
-        if self.ignoreResponses == 1:
-            self.notify.debug('rewardDone() - ignoring toon: %d' % toonId)
-            return
-        elif stateName not in ('Reward', 'BuildingReward', 'FactoryReward', 'MintReward', 'StageReward', 'CountryClubReward'):
-            self.notify.warning('rewardDone() - in state %s' % stateName)
-            return
-        elif self.toons.count(toonId) == 0:
-            self.notify.warning('rewardDone() - toon: %d not in toon list' % toonId)
-            return
-        self.responses[toonId] += 1
-        self.notify.debug('toon: %d done with reward' % toonId)
-        if self.__allActiveToonsResponded():
-            self.handleRewardDone()
-        else:
-            self.timer.stop()
-            self.timer.startCallback(TIMEOUT_PER_USER, self.serverRewardDone)
-
     def assignRewards(self):
         if self.rewardHasPlayed == 1:
             self.notify.debug('handleRewardDone() - reward has already played')
@@ -792,39 +768,36 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def requestAttack(self, attackId, targetId):
         toonId = self.air.getAvatarIdFromSender()
         self.notify.debug('requestAttack: %s' % [toonId, attackId, targetId])
-        if self.fsm.getCurrentState().getName() != 'WaitForInput':
-            self.notify.warning('requestAttack() - in state: %s' % self.fsm.getCurrentState().getName())
+        currState = self.fsm.getCurrentState().getName()
+        if currState != 'WaitForInput':
+            # Can't request an attack out of this state
+            self.notify.warning('Toon %s requested to attack while we were in the %s state' % (toonId, currState))
             return
-        elif self.activeToons.count(toonId) == 0:
-            self.notify.warning('requestAttack() - toon: %d not in toon list' % toonId)
+        elif toonId not in self.activeToons:
+            # Can't attack unless you're an active toon
+            self.notify.warning('Toon %d tried to attack without being active' % toonId)
             return
-        toon = self.getToon(toonId)
+        toon = self.air.doId2do.get(toonId)
         if toon is None:
-            self.notify.warning('requestAttack() - no toon: %d' % toonId)
+            # No toon
+            self.notify.warning('Invalid toon %s' % toonId)
             return
-        if toonId == targetId:
-            self.notify.warning('Toon %s tried to target themselves!' % toonId)
-            return
-        if attackId == NO_ATTACK:
-            # This is not a true attack
-            self.toonAttacks[toonId] = getToonAttack(toonId, NO_ATTACK)
-        elif not toon.inventory.isEquipped(attackId) and attackId not in InventoryGlobals.AlwaysEquipped:
+        if not toon.inventory.isEquipped(attackId) and attackId not in InventoryGlobals.AlwaysEquipped:
             # This attack is not equipped, and needs to be equipped
-            self.notify.warning('Toon %s tried to use a move he doesnt have equipped' % toonId)
+            self.notify.warning('Toon %s tried to use an attack he doesnt have equipped' % toonId)
             return
-        else:
-            # This attack is equipped or doesn't need to be
-            attack = InventoryGlobals.Gags.get(attackId)
-            if attack is None:
-                self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
-                return
-            else:
-                self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
+        attack = InventoryGlobals.Gags.get(attackId)
+        if attack is None and attackId != NO_ATTACK:
+            # Invalid attackId
+            self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
+            return
+
+        self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
         self.d_setChosenToonAttacks()
-        self.notify.debug('requestAttack: Toon: %d chose attack: %s' % (toonId, attackId))
+        self.notify.debug('Toon: %d chose attack: %s' % (toonId, attackId))
         if self.__allActiveToonsResponded():
-            self.notify.debug('requestAttack: All toons attacked, playing movie now...')
-            # All toons have attacked, lets do this round
+            self.notify.debug('All toons attacked, making movie now...')
+            # All toons have attacked, lets do stuff with them
             self.fsm.request('MakeMovie')
 
     def clearMovieAttacks(self):
@@ -839,70 +812,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def toonCanJoin(self):
         return len(self.toons) < 4 and self.isJoinable()
-
-    def __requestMovie(self, timeout = 0):
-        if self.adjustFsm.getCurrentState().getName() == 'Adjusting':
-            self.notify.debug('__requestMovie() - in Adjusting')
-            self.movieRequested = 1
-        else:
-            movieDelay = 0
-            if len(self.activeToons) == 0:
-                self.notify.warning('only pending toons left in battle %s, toons = %s' % (self.doId, self.toons))
-            elif len(self.activeSuits) == 0:
-                self.notify.warning('only pending suits left in battle %s, suits = %s' % (self.doId, self.suits))
-            elif len(self.activeToons) > 1 and not timeout:
-                movieDelay = 1
-            self.fsm.request('MakeMovie')
-            if movieDelay:
-                taskMgr.doMethodLater(0.8, self.__makeMovie, self.uniqueName('make-movie'))
-                self.taskNames.append(self.uniqueName('make-movie'))
-            else:
-                self.__makeMovie()
-
-    def __makeMovie(self, task = None):
-        self.notify.debug('makeMovie()')
-        if self._DOAI_requestedDelete:
-            self.notify.warning('battle %s requested delete, then __makeMovie was called!' % self.doId)
-            if hasattr(self, 'levelDoId'):
-                self.notify.warning('battle %s in level %s' % (self.doId, self.levelDoId))
-            return
-        self.__removeTaskName(self.uniqueName('make-movie'))
-        if self.movieHasBeenMade == 1:
-            self.notify.debug('__makeMovie() - movie has already been made')
-            return
-        self.movieRequested = 0
-        self.movieHasBeenMade = 1
-        self.movieHasPlayed = 0
-        self.rewardHasPlayed = 0
-        for t in self.activeToons:
-            if t not in self.toonAttacks:
-                self.toonAttacks[t] = getToonAttack(t)
-            attack = self.toonAttacks[t]
-            if attack.attackId == NO_ATTACK:
-                self.toonAttacks[t] = getToonAttack(t, PASS)
-            if self.toonAttacks[t].attackId != PASS:
-                self.addHelpfulToon(t)
-
-        self.toonMovieAttacks[:] = []
-        self.suitMovieAttacks[:] = []
-        self.battleCalc.generateMovieAttacks()
-        self.d_setMovie()
-        self.b_setState('PlayMovie')
-        return Task.done
-
-    def sendEarnedExperience(self, toonId):
-        toon = self.getToon(toonId)
-        if toon != None:
-            expList = self.battleCalc.toonSkillPtsGained.get(toonId, None)
-            if expList == None:
-                toon.d_setEarnedExperience([])
-            else:
-                roundList = []
-                for exp in expList:
-                    roundList.append(int(exp + 0.5))
-
-                toon.d_setEarnedExperience(roundList)
-        return
 
     def enterOff(self):
         return None
@@ -1002,6 +911,14 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
         return [tmas, smas]
 
+    def b_setMovieAttacks(self, tmas, smas):
+        self.setMovieAttacks(tmas, smas)
+        self.d_setMovieAttacks()
+
+    def setMovieAttacks(self, tmas, smas):
+        self.toonMovieAttacks = tmas
+        self.suitMovieAttacks = smas
+
     def d_setMovieAttacks(self):
         self.sendUpdate('setMovieAttacks', self.getMovieAttacks())
 
@@ -1023,8 +940,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.sendAvatarUpdates()
         self.notify.debug('movieDone: Clearing Attacks...')
         self.clearAttacks()
-        self.notify.debug('movieDone: Setting movie...')
-        self.d_setMovie()
         self.notify.debug('movieDone: Setting empty chosen toon attacks...')
         self.d_setChosenToonAttacks()
         self.d_setMembers()

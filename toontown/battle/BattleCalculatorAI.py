@@ -67,13 +67,15 @@ class BattleCalculatorAI:
     def generateMovieAttacks(self):
         self.notify.debug('Generating movie attacks...')
         # Fill toon movie and suit movie attacks
-        self.__generateToonMovieAttacks()
-        self.__generateSuitMovieAttacks()
+        tmas = self.__generateToonMovieAttacks()
+        smas = self.__generateSuitMovieAttacks()
+        self.battle.b_setMovieAttacks(tmas, smas)
         self.notify.debug(
             'Movie attacks generated:\n Toons: %s\nSuits: %s' % (self.battle.toonAttacks, self.battle.suitAttacks))
 
     def __generateToonMovieAttacks(self):
         # Go through each toon attack
+        tmas = []
         for ta in self.battle.toonAttacks.values():
             tma = BattleAttack.MovieAttack()
             tma.fromList(ta.toList() + [False])
@@ -86,11 +88,13 @@ class BattleCalculatorAI:
                     # It hit, set our movie attack
                     tma.hit = True
                 self.notify.debug('generatedToonAttack: %s' % tma.toList())
-                self.battle.toonMovieAttacks.append(tma)
+                tmas.append(tma)
             else:
                 self.notify.warning('Unknown toon attack %s' % ta.attackId)
+        return tmas
 
     def __generateSuitMovieAttacks(self):
+        smas = []
         for sa in self.battle.suitAttacks:
             sma = BattleAttack.MovieAttack()
             sma.fromList(sa.toList() + [False])
@@ -98,9 +102,10 @@ class BattleCalculatorAI:
             if attack is not None:
                 if attack.accuracy > random.uniform(0, 1):
                     sma.hit = True
-                self.battle.suitMovieAttacks.append(sma)
+                smas.append(sma)
             else:
                 self.notify.warning('Invalid suit attack %s' % sa.attackId)
+        return smas
 
     def applyAttacks(self):
         self.notify.debug('Applying attacks...')
