@@ -306,13 +306,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def getChosenToonAttacks(self):
         attacks = []
-        for t in self.activeToons:
-            if t in self.toonAttacks:
-                ta = self.toonAttacks[t]
-            else:
-                ta = getToonAttack(t)
+        for toonId, ta in self.toonAttacks.items():
             attacks.append(ta.toList())
-
         return attacks
 
     def d_setBattleExperience(self):
@@ -322,18 +317,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def getBattleExperience(self):
         returnValue = BattleExperienceAI.getBattleExperience(4, self.activeToons, self.toonExp, self.battleCalc.toonSkillPtsGained, self.toonOrigQuests, self.toonItems, self.toonOrigMerits, self.toonMerits, self.toonParts, self.suitsKilled, self.helpfulToons)
         return returnValue
-
-    def getToonUberStatus(self):
-        fieldList = []
-        uberIndex = LAST_REGULAR_GAG_LEVEL + 1
-        for toon in self.activeToons:
-            toonList = []
-            for trackIndex in xrange(MAX_TRACK_INDEX):
-                toonList.append(toon.inventory.numItem(trackIndex, uberIndex))
-
-            fieldList.append(encodeUber(toonList))
-
-        return fieldList
 
     def addSuit(self, suit):
         self.notify.debug('addSuit(%d)' % suit.doId)
@@ -396,55 +379,31 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.notify.warning('suitRequestJoin() - not joinable - joinable state: %s max suits: %d' % (self.joinableFsm.getCurrentState().getName(), self.maxSuits))
             return 0
 
-    def addToon(self, avId):
-        self.notify.debug('addToon(%d)' % avId)
-        toon = self.getToon(avId)
-        if toon == None:
-            return 0
-        toon.stopToonUp()
-        event = simbase.air.getAvatarExitEvent(avId)
+    def acceptUnexpectedExit(self, avId):
+        event = self.air.getAvatarExitEvent(avId)
         self.avatarExitEvents.append(event)
         self.accept(event, self.__handleUnexpectedExit, extraArgs=[avId])
+
+    def acceptSuddenExit(self, avId):
         event = 'inSafezone-%s' % avId
         self.avatarExitEvents.append(event)
         self.accept(event, self.__handleSuddenExit, extraArgs=[avId, 0])
+
+    def addToon(self, avId):
+        self.notify.debug('addToon(%d)' % avId)
+        toon = self.air.doId2do.get(avId)
+        if toon is None:
+            return False
+        toon.stopToonUp()
+        self.acceptUnexpectedExit(avId)
+        self.acceptSuddenExit(avId)
         self.newToons.append(avId)
         self.toons.append(avId)
-        toon = simbase.air.doId2do.get(avId)
-        if toon:
-            if hasattr(self, 'doId'):
-                toon.b_setBattleId(self.doId)
-            else:
-                toon.b_setBattleId(-1)
-            messageToonAdded = 'Battle adding toon %s' % avId
-            messenger.send(messageToonAdded, [avId])
-        if self.fsm != None and self.fsm.getCurrentState().getName() == 'PlayMovie':
-            self.responses[avId] = 1
-        else:
-            self.responses[avId] = 0
+        toon.b_setBattleId(self.doId)
+        messageToonAdded = 'Battle adding toon %s' % avId
+        messenger.send(messageToonAdded, [avId])
         self.adjustingResponses[avId] = 0
-        if avId not in self.toonExp:
-            p = []
-            for t in Tracks:
-                p.append(toon.experience.getExp(t))
-
-            self.toonExp[avId] = p
-        if avId not in self.toonOrigMerits:
-            self.toonOrigMerits[avId] = toon.cogMerits[:]
-        if avId not in self.toonMerits:
-            self.toonMerits[avId] = [0,
-             0,
-             0,
-             0]
-        if avId not in self.toonOrigQuests:
-            flattenedQuests = []
-            for quest in toon.quests:
-                flattenedQuests.extend(quest)
-
-            self.toonOrigQuests[avId] = flattenedQuests
-        if avId not in self.toonItems:
-            self.toonItems[avId] = ([], [])
-        return 1
+        return True
 
     def __handleSuddenExit(self, avId, code):
         self.notify.debug('handleSuddenExit %s %s' % (avId, code))
@@ -839,8 +798,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return None
 
     def enterWaitForInput(self):
-        self.notify.debug('STATE: WaitForInput')
-        self.movieHasPlayed = 0
+        self.notify.debug('Waiting for Input...')
         # Allow toons to run or join
         self.joinableFsm.request('Joinable')
         self.runnableFsm.request('Runnable')
@@ -856,9 +814,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return None
 
     def __serverTimedOut(self):
-        self.notify.debug('wait for input timed out on server')
-        self.ignoreResponses = 1
-        self.__requestMovie(timeout=1)
+        self.notify.debug('Timed out waiting for toon attacks...')
+        self.fsm.request('MakeMovie')
 
     def enterMakeMovie(self):
         self.notify.debug('STATE: MakeMovie')
