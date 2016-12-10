@@ -784,9 +784,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('network:timeout()')
         self.sendUpdate('timeout', [])
 
-    def d_movieDone(self):
-        self.notify.debug('network:movieDone()')
-        self.sendUpdate('movieDone', [])
+    def d_requestMovieDone(self):
+        self.sendUpdate('requestMovieDone', [])
 
     def d_rewardDone(self, toonId):
         self.notify.debug('network:rewardDone()')
@@ -923,7 +922,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def __handleMovieDone(self):
         self.notify.debug('__handleMovieDone()')
         if self.hasLocalToon():
-            self.d_movieDone()
+            self.d_requestMovieDone()
         self.movie.reset()
 
     def exitPlayMovie(self):
