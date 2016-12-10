@@ -1002,9 +1002,9 @@ dclass DistributedBattleBase : DistributedObject {
   toonDied() airecv clsend;
   adjustDone() airecv clsend;
   timeout() airecv clsend;
-  movieDone() airecv clsend;
   rewardDone() airecv clsend;
   joinDone(uint32) airecv clsend;
+  requestMovieDone() airecv clsend;
   requestAttack(uint32 attackId, uint32 targetId) airecv clsend;
   requestPetProxy(uint32) airecv clsend;
 };
