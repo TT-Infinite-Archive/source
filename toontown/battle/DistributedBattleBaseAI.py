@@ -369,6 +369,9 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def suitRequestJoin(self, suit):
         self.notify.debug('suitRequestJoin(%d)' % suit.getDoId())
+        if suit in self.suits:
+            self.notify.warning('Suit %d already in this battle' % suit.getDoId())
+            return 0
         if self.suitCanJoin():
             self.addSuit(suit)
             self.__joinSuit(suit)

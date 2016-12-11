@@ -138,13 +138,6 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
         if not self.ignoreFaceOffDone:
             self.handleFaceOffDone()
 
-    def suitRequestJoin(self, suit):
-        self.notify.debug('DistributedLevelBattleAI.suitRequestJoin(%d)' % suit.getDoId())
-        if suit in self.suits:
-            self.notify.warning('suit %s already in this battle' % suit.getDoId())
-            return 0
-        DistributedBattleBaseAI.DistributedBattleBaseAI.suitRequestJoin(self, suit)
-
     def enterReward(self):
         self.joinableFsm.request('Unjoinable')
         self.runnableFsm.request('Unrunnable')
