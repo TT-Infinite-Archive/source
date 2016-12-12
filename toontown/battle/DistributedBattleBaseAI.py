@@ -285,7 +285,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             suitIds.append(s.doId)
 
         p = [
-            self.movieHasBeenMade,
             self.activeToons,
             suitIds,
             self.toonMovieAttacks,
@@ -294,7 +293,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return p
 
     def d_setChosenToonAttacks(self):
-        self.notify.debug('d_setChosenToonAttacks()')
+        self.notify.debug('Setting client toon attacks...')
         self.sendUpdate('setChosenToonAttacks', [self.getChosenToonAttacks()])
 
     def getChosenToonAttacks(self):

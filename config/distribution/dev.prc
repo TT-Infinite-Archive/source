@@ -101,7 +101,7 @@ want-heartbeat #f
 #notify-level-TownBattleToonPanel debug
 #notify-level-GagInventoryGui debug
 notify-level-DistributedBattleAI debug
-notify-level-BattleCalculatorAI debug
+#notify-level-BattleCalculatorAI debug
 notify-level-DistributedBattle debug
 #notify-level-ChooseAvatarPanel debug
 #notify-level-GagInventoryBase debug
