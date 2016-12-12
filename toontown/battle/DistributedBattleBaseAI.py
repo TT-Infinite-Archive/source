@@ -9,7 +9,6 @@ from panda3d.core import *
 from otp.ai.MagicWordGlobal import *
 from toontown.battle.BattleCalculatorAI import *
 from toontown.battle.SuitBattleGlobals import *
-from toontown.battle import BattleExperienceAI
 from toontown.battle import BattleGlobals
 from toontown.toon import InventoryGlobals
 from toontown.toonbase import ToontownGlobals
@@ -53,11 +52,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.fsm = None
         self.ignoreFaceOffDone = 0
         self.needAdjust = 0
-        self.movieHasBeenMade = 0
-        self.movieHasPlayed = 0
-        self.rewardHasPlayed = 0
-        self.movieRequested = 0
-        self.ignoreResponses = 0
         self.ignoreAdjustingResponses = 0
         self.taskNames = []
         self.exitedToons = []
@@ -75,8 +69,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
             State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['Resume', 'MakeMovie']),
             State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
-            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Reward', 'Resume']),
-            State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Resume']),
             State.State('Resume', self.enterResume, self.exitResume, []),
             State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])], 'Off', 'Off')
         self.joinableFsm = ClassicFSM.ClassicFSM('Joinable', [State.State('Joinable', self.enterJoinable, self.exitJoinable, ['Unjoinable']), State.State('Unjoinable', self.enterUnjoinable, self.exitUnjoinable, ['Joinable'])], 'Unjoinable', 'Unjoinable')
@@ -309,14 +302,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         for toonId, ta in self.toonAttacks.items():
             attacks.append(ta.toList())
         return attacks
-
-    def d_setBattleExperience(self):
-        self.notify.debug('network:setBattleExperience()')
-        self.sendUpdate('setBattleExperience', self.getBattleExperience())
-
-    def getBattleExperience(self):
-        returnValue = BattleExperienceAI.getBattleExperience(4, self.activeToons, self.toonExp, self.battleCalc.toonSkillPtsGained, self.toonOrigQuests, self.toonItems, self.toonOrigMerits, self.toonMerits, self.toonParts, self.suitsKilled, self.helpfulToons)
-        return returnValue
 
     def addSuit(self, suit):
         self.notify.debug('addSuit(%d)' % suit.doId)
@@ -705,13 +690,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         responsesLength = len(self.movieResponses)
         return toonCount >= responsesLength
 
-    def assignRewards(self):
-        if self.rewardHasPlayed == 1:
-            self.notify.debug('handleRewardDone() - reward has already played')
-            return
-        self.rewardHasPlayed = 1
-        BattleExperienceAI.assignRewards(self.activeToons, self.battleCalc.toonSkillPtsGained, self.suitsKilled, self.getTaskZoneId(), self.helpfulToons)
-
     def joinDone(self, avId):
         toonId = self.air.getAvatarIdFromSender()
         if self.toons.count(toonId) == 0:
@@ -858,14 +836,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.notify.debug('Server\'s movie timed out. Ending movie....')
         self.__movieDone()
 
-    def serverRewardDone(self):
-        self.notify.debug('reward timed out on server')
-        self.ignoreResponses = 1
-        self.handleRewardDone()
-
-    def handleRewardDone(self):
-        self.b_setState('Resume')
-
     def getMovieAttacks(self):
         tmas = []
         smas = []
@@ -916,7 +886,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.__requestAdjust()
 
     def enterResume(self):
-        self.notify.debug('STATE: Resume')
+        self.notify.debug('Resuming...')
         for suit in self.suits:
             self.notify.info('battle done, resuming suit: %d' % suit.doId)
             if suit.isDeleted():

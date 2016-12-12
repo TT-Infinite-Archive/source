@@ -20,9 +20,6 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         DistributedBattleBaseAI.DistributedBattleBaseAI.__init__(self, air, zoneId, finishCallback, maxSuits, bossBattle)
         self.streetBattle = 0
         self.roundCallback = roundCallback
-        self.fsm.addState(State.State('BuildingReward', self.enterBuildingReward, self.exitBuildingReward, ['Resume']))
-        playMovieState = self.fsm.getStateNamed('PlayMovie')
-        playMovieState.addTransition('BuildingReward')
         self.elevatorPos = Point3(0, -30, 0)
         self.resumeNeedUpdate = 0
 
@@ -85,7 +82,6 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
             self.activeSuits.append(suit)
         for toon in self.toons:
             self.activeToons.append(toon)
-            self.sendEarnedExperience(toon)
         self.d_setMembers()
         self.b_setState('WaitForInput')
 
@@ -113,23 +109,18 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         if len(self.suits) == 0:
             self.d_setMembers()
             self.suitsKilledPerFloor.append(self.suitsKilledThisBattle)
-            if topFloor == 0:
-                self.b_setState('Reward')
-            else:
-                for floorNum, cogsThisFloor in enumerate(self.suitsKilledPerFloor):
-                    for toonId in self.activeToons:
-                        toon = self.getToon(toonId)
-                        if toon:
-                            (recovered, notRecovered) = self.air.questManager.recoverItems(toon, cogsThisFloor, self.zoneId)
-                            self.toonItems[toonId][0].extend(recovered)
-                            self.toonItems[toonId][1].extend(notRecovered)
-                            meritArray = self.air.promotionMgr.recoverMerits(toon, cogsThisFloor, self.zoneId, multiplier=getCreditMultiplier(floorNum))
-                            if toonId in self.helpfulToons:
-                                self.toonMerits[toonId] = addListsByValue(self.toonMerits[toonId], meritArray)
-                            else:
-                                self.notify.debug('toon %d not helpful, skipping merits' % toonId)
-                self.d_setBattleExperience()
-                self.b_setState('BuildingReward')
+            for floorNum, cogsThisFloor in enumerate(self.suitsKilledPerFloor):
+                for toonId in self.activeToons:
+                    toon = self.getToon(toonId)
+                    if toon:
+                        (recovered, notRecovered) = self.air.questManager.recoverItems(toon, cogsThisFloor, self.zoneId)
+                        self.toonItems[toonId][0].extend(recovered)
+                        self.toonItems[toonId][1].extend(notRecovered)
+                        meritArray = self.air.promotionMgr.recoverMerits(toon, cogsThisFloor, self.zoneId, multiplier=getCreditMultiplier(floorNum))
+                        if toonId in self.helpfulToons:
+                            self.toonMerits[toonId] = addListsByValue(self.toonMerits[toonId], meritArray)
+                        else:
+                            self.notify.debug('toon %d not helpful, skipping merits' % toonId)
         elif self.resumeNeedUpdate == 1:
             self.d_setMembers()
             if len(self.resumeDeadSuits) > 0 and self.resumeLastActiveSuitDied == 0 or len(self.resumeDeadToons) > 0:
@@ -144,20 +135,6 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         pass
 
     def exitReservesJoining(self, ts=0):
-        pass
-
-    def enterReward(self):
-        self.timer.startCallback(FLOOR_REWARD_TIMEOUT, self.serverRewardDone)
-
-    def exitReward(self):
-        self.timer.stop()
-
-    def enterBuildingReward(self):
-        self.assignRewards()
-        self.timer.startCallback(BUILDING_REWARD_TIMEOUT, self.serverRewardDone)
-
-    def exitBuildingReward(self):
-        self.exitResume()
         pass
 
     def enterResume(self):

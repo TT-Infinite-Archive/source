@@ -172,45 +172,6 @@ class DistributedBattle(DistributedBattleBase.DistributedBattleBase):
         self.clearInterval(self.faceOffName)
         self._removeMembersKeep()
 
-    def enterReward(self, ts):
-        self.notify.debug('enterReward()')
-        self.disableCollision()
-        self.delayDeleteMembers()
-        Emote.globalEmote.disableAll(base.localAvatar, 'dbattle, enterReward')
-        if self.hasLocalToon():
-            NametagGlobals.setWant2dNametags(False)
-            if self.localToonActive() == 0:
-                self.removeInactiveLocalToon(base.localAvatar)
-        for toon in self.toons:
-            toon.startSmooth()
-
-        self.accept('resumeAfterReward', self.handleResumeAfterReward)
-        if self.interactiveProp:
-            self.interactiveProp.gotoVictory()
-        self.playReward(ts)
-
-    def playReward(self, ts):
-        self.movie.playReward(ts, self.uniqueName('reward'), self.handleRewardDone)
-
-    def handleRewardDone(self):
-        self.notify.debug('Reward done')
-        if self.hasLocalToon():
-            self.d_rewardDone(base.localAvatar.doId)
-        self.movie.resetReward()
-        messenger.send('resumeAfterReward')
-
-    def handleResumeAfterReward(self):
-        self.fsm.request('Resume')
-
-    def exitReward(self):
-        self.notify.debug('exitReward()')
-        self.ignore('resumeAfterReward')
-        self.movie.resetReward(finish=1)
-        self._removeMembersKeep()
-        if self.hasLocalToon():
-            NametagGlobals.setWant2dNametags(True)
-        Emote.globalEmote.releaseAll(base.localAvatar, 'dbattle, exitReward')
-
     def enterResume(self, ts = 0):
         self.notify.debug('enterResume()')
         if self.hasLocalToon():

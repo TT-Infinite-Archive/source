@@ -63,13 +63,12 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         ], 'WaitForServer', 'WaitForServer')
         self.localToonFsm.enterInitialState()
         self.fsm = ClassicFSM.ClassicFSM('DistributedBattle', [
-            State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForInput', 'WaitForJoin', 'MakeMovie', 'PlayMovie', 'Reward', 'Resume']),
+            State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForInput', 'WaitForJoin', 'MakeMovie', 'PlayMovie', 'Resume']),
             State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput']),
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
             State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['WaitForInput', 'PlayMovie', 'Resume']),
             State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
-            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForInput', 'WaitForJoin', 'Reward', 'Resume']),
-            State.State('Reward', self.enterReward, self.exitReward, ['Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForInput', 'WaitForJoin', 'Resume']),
             State.State('Resume', self.enterResume, self.exitResume, [])
         ], 'Off', 'Off')
         self.fsm.enterInitialState()
@@ -91,7 +90,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         DistributedNode.DistributedNode.generate(self)
         self.__battleCleanedUp = 0
         self.reparentTo(render)
-        self._skippingRewardMovie = False
 
     def storeInterval(self, interval, name):
         if name in self.activeIntervals:
@@ -436,17 +434,13 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.movie.genAttackDicts(toons, suits, toonAttacks, suitAttacks)
 
     def setChosenToonAttacks(self, toonAttacks):
+        self.notify.debug('Setting chosen toon attacks: %s' % toonAttacks)
         for ta in toonAttacks:
             toonAttack = BattleAttack.ToonBattleAttack()
             toonAttack.fromList(ta)
             self.toonAttacks[toonAttack.attackerId] = toonAttack
         if self.hasLocalToon():
             self.townBattle.updateChosenAttacks()
-
-    def setBattleExperience(self, id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList):
-        if self.__battleCleanedUp:
-            return
-        self.movie.genRewardDicts(id0, origExp0, earnedExp0, origQuests0, items0, missedItems0, origMerits0, merits0, parts0, id1, origExp1, earnedExp1, origQuests1, items1, missedItems1, origMerits1, merits1, parts1, id2, origExp2, earnedExp2, origQuests2, items2, missedItems2, origMerits2, merits2, parts2, id3, origExp3, earnedExp3, origQuests3, items3, missedItems3, origMerits3, merits3, parts3, deathList, uberList, helpfulToonsList)
 
     def __listenForUnexpectedExit(self, toon):
         self.accept(toon.uniqueName('disable'), self.__handleUnexpectedExit, extraArgs=[toon])
@@ -523,13 +517,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         return 0
 
     def removeLocalToon(self):
-        if self._skippingRewardMovie:
-            return
-        if base.cr.playGame.getPlace() != None:
+        if base.cr.playGame.getPlace() is not None:
             base.cr.playGame.getPlace().setState('walk')
-        base.localAvatar.earnedExperience = None
         self.localToonFsm.request('NoLocalToon')
-        return
 
     def removeInactiveLocalToon(self, toon):
         self.notify.debug('removeInactiveLocalToon(%d)' % toon.doId)
@@ -787,10 +777,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def d_requestMovieDone(self):
         self.sendUpdate('requestMovieDone', [])
 
-    def d_rewardDone(self, toonId):
-        self.notify.debug('network:rewardDone()')
-        self.sendUpdate('rewardDone', [])
-
     def d_joinDone(self, toonId, avId):
         self.notify.debug('network:joinDone(%d)' % avId)
         self.sendUpdate('joinDone', [avId])
@@ -977,9 +963,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def exitNoLocalToon(self):
         return None
 
-    def setSkippingRewardMovie(self):
-        self._skippingRewardMovie = True
-
     def enterWaitForServer(self):
         self.notify.debug('enterWaitForServer()')
         return None
@@ -1163,8 +1146,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.notify.debug('ignoring collision in Off state')
             return
         if not base.localAvatar.wantBattles:
-            return
-        if self._skippingRewardMovie:
             return
         base.cr.playGame.getPlace().setState('WaitForBattle')
         toon = base.localAvatar

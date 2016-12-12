@@ -89,7 +89,6 @@ class DistributedBattleFinalAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
 
             self.d_setMembers()
             self.d_setBattleExperience()
-            self.b_setState('Reward')
         else:
             if self.resumeNeedUpdate == 1:
                 self.d_setMembers()
@@ -108,14 +107,6 @@ class DistributedBattleFinalAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         self.b_setState('WaitForJoin')
 
     def exitReservesJoining(self, ts = 0):
-        return None
-
-    def enterReward(self):
-        self.timer.startCallback(FLOOR_REWARD_TIMEOUT + 5, self.serverRewardDone)
-        return None
-
-    def exitReward(self):
-        self.timer.stop()
         return None
 
     def enterResume(self):

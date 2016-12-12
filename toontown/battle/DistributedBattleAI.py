@@ -77,7 +77,6 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
             self.b_setState('Resume')
         elif self.faceOffToon == self.toons[0]:
             self.activeToons.append(self.toons[0])
-            self.sendEarnedExperience(self.toons[0])
         self.d_setMembers()
         self.b_setState('WaitForInput')
 
@@ -96,28 +95,12 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
                         self.notify.debug('toon %d not helpful, skipping merits' % toonId)
 
             self.d_setMembers()
-            self.d_setBattleExperience()
-            self.b_setState('Reward')
         else:
             if needUpdate == 1:
                 self.d_setMembers()
                 if len(deadSuits) > 0 and lastActiveSuitDied == 0 or len(deadToons) > 0:
                     self.needAdjust = 1
             self.setState('WaitForJoin')
-
-    def enterReward(self):
-        self.notify.debug('enterReward()')
-        self.joinableFsm.request('Unjoinable')
-        self.runnableFsm.request('Unrunnable')
-        self.resetResponses()
-        self.assignRewards()
-        self.startRewardTimer()
-
-    def startRewardTimer(self):
-        self.timer.startCallback(REWARD_TIMEOUT, self.serverRewardDone)
-
-    def exitReward(self):
-        return None
 
     def enterResume(self):
         self.notify.debug('enterResume()')

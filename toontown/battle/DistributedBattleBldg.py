@@ -29,11 +29,6 @@ class DistributedBattleBldg(DistributedBattleBase.DistributedBattleBase):
         townBattle = cr.playGame.getPlace().townBattle
         DistributedBattleBase.DistributedBattleBase.__init__(self, cr, townBattle)
         self.streetBattle = 0
-        self.fsm.addState(State.State('BuildingReward', self.enterBuildingReward, self.exitBuildingReward, ['Resume']))
-        offState = self.fsm.getStateNamed('Off')
-        offState.addTransition('BuildingReward')
-        playMovieState = self.fsm.getStateNamed('PlayMovie')
-        playMovieState.addTransition('BuildingReward')
 
     def generate(self):
         DistributedBattleBase.DistributedBattleBase.generate(self)
@@ -163,54 +158,6 @@ class DistributedBattleBldg(DistributedBattleBase.DistributedBattleBase):
         base.camera.wrtReparentTo(self)
         base.camLens.setMinFov(self.camFov/(4./3.))
         return None
-
-    def __playReward(self, ts, callback):
-        toonTracks = Parallel()
-        for toon in self.toons:
-            toonTracks.append(Sequence(Func(toon.loop, 'victory'), Wait(FLOOR_REWARD_TIMEOUT), Func(toon.loop, 'neutral')))
-
-        name = self.uniqueName('floorReward')
-        track = Sequence(toonTracks, Func(callback), name=name)
-        base.camera.setPos(0, 0, 1)
-        base.camera.setHpr(180, 10, 0)
-        self.storeInterval(track, name)
-        track.start(ts)
-
-    def enterReward(self, ts):
-        self.notify.debug('enterReward()')
-        self.delayDeleteMembers()
-        self.__playReward(ts, self.__handleFloorRewardDone)
-        return None
-
-    def __handleFloorRewardDone(self):
-        return None
-
-    def exitReward(self):
-        self.notify.debug('exitReward()')
-        self.clearInterval(self.uniqueName('floorReward'))
-        self._removeMembersKeep()
-        if self.hasLocalToon():
-            NametagGlobals.setWant2dNametags(True)
-        for toon in self.toons:
-            toon.startSmooth()
-
-    def enterBuildingReward(self, ts):
-        self.delayDeleteMembers()
-        if self.hasLocalToon():
-            NametagGlobals.setWant2dNametags(False)
-        self.movie.playReward(ts, self.uniqueName('building-reward'), self.__handleBuildingRewardDone, noSkip=True)
-
-    def __handleBuildingRewardDone(self):
-        if self.hasLocalToon():
-            self.d_rewardDone(base.localAvatar.doId)
-        self.movie.resetReward()
-        self.fsm.request('Resume')
-
-    def exitBuildingReward(self):
-        self.movie.resetReward(finish=1)
-        self._removeMembersKeep()
-        if self.hasLocalToon():
-            NametagGlobals.setWant2dNametags(True)
 
     def enterResume(self, ts=0):
         if self.hasLocalToon():
