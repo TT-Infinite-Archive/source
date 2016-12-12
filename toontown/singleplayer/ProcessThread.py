@@ -32,10 +32,22 @@ class ProcessThread(threading.Thread):
             self.process.kill()
     
     def run(self):
+        from toontown.singleplayer.SinglePlayerGlobals import LogsPath
+        import time
+
         try:
+            print('Creating log file....')
+            name = self.name.split(' ', 1)[0].lower()
+            path = os.path.join(LogsPath, name)
+            if not os.path.exists(path):
+                os.makedirs(path)
+            filename = os.path.join(path, '%s-%s.log' % (name, int(time.time())))
+            f = open(filename, 'w')
+            print("Created Log File: " + f.name)
             os.chdir(self.folder)
-            self.process = subprocess.Popen(self.processInfo, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        except:
+            self.process = subprocess.Popen(self.processInfo, stdout=subprocess.PIPE, stderr=f)
+        except Exception as e:
+            print('failed', e.message, e.args)
             self.failed()
             return
 
@@ -46,7 +58,9 @@ class ProcessThread(threading.Thread):
                 break
             if not line:
                 continue
-            
+
+            f.write(line[:-1])
+
             if self.failText in line:
                 self.notify.warning('%s quit with line: %s' % (self.name, line))
                 self.failed()

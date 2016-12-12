@@ -1,8 +1,15 @@
 from toontown.toonbase import TTLocalizer
 import sys, os
 
+LogsPath = os.path.join(os.getcwd(), 'logs')
+
+if not os.path.exists(LogsPath):
+    os.makedirs(LogsPath)
+
 try:
     PythonPath = os.path.join(os.getcwd(), builtFile)
+    LogsPath = os.path.join(os.getcwd(), 'logs')
+    print('logs:', LogsPath)
 except:
     PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
 

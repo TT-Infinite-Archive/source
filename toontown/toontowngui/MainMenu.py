@@ -289,6 +289,7 @@ class MainMenu(DirectObject, FSM):
         self.backgroundNodePath.show()
         self.backButton.show()
         self.quitButton.show()
+        base.isSinglePlayer = True
         for spButton in self.spButtons:
             spButton.show()
 
@@ -341,7 +342,7 @@ class MainMenu(DirectObject, FSM):
             spButton.hide()
 
     def enterSinglePlayerLocal(self):
-        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing local play on Toontown Infinite!"
+        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing offline local play on Toontown Infinite!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
         OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open.'
@@ -362,6 +363,7 @@ class MainMenu(DirectObject, FSM):
         self.backgroundNodePath.show()
         self.backButton.show()
         self.quitButton.show()
+        base.isSinglePlayer = False
         for mpButton in self.mpButtons:
             mpButton.show()
 

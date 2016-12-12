@@ -1039,7 +1039,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             claraXPos += AdjustmentForNewsButton
             notifyXPos += AdjustmentForNewsButton
         newPos = (claraXPos - 0.1, 1.0, 0.45)
-        self.__clarabelleButton.setPos(newPos)
+        if base.isSinglePlayer:
+            self.__clarabelleButton.reparentTo(base.a2dTopRight)
+        else:
+            self.__clarabelleButton.setPos(newPos)
         if self.__catalogNotifyDialog == None or self.__catalogNotifyDialog.frame == None:
             return
         notifyPos = self.__catalogNotifyDialog.frame.getPos()
@@ -1201,7 +1204,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.hideClarabelleGui()
         clarabelleHidden = 1
         self.ignore(ToontownGlobals.FriendsListHotkey)
-        if self.friendsListButtonActive and self.friendsListButtonObscured <= 0:
+        if self.friendsListButtonActive and self.friendsListButtonObscured <= 0 and base.isSinglePlayer == False:
             self.bFriendsList.show()
             self.accept(ToontownGlobals.FriendsListHotkey, self.sendFriendsListEvent)
             if self.clarabelleButtonObscured <= 0 and self.isTeleportAllowed():
