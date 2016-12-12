@@ -404,7 +404,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         if not self.fsm:
             return
         cstate = self.fsm.getCurrentState().getName()
-        if cstate == 'WaitForInput' or cstate == 'WaitForJoin':
+        if cstate in ('WaitForInput', 'WaitForJoin', 'ApplyAttacks'):
             if self.adjustFsm.getCurrentState().getName() == 'NotAdjusting':
                 if self.needAdjust == 1:
                     self.d_adjust()
@@ -418,11 +418,11 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
                     self.adjustFsm.request('Adjusting')
                 else:
-                    self.notify.debug('requestAdjust() - dont need to')
+                    self.notify.debug('Did not adjust, no need to')
             else:
-                self.notify.debug('requestAdjust() - already adjusting')
+                self.notify.debug('Did not adjust, already adjusting')
         else:
-            self.notify.debug('requestAdjust() - in state: %s' % cstate)
+            self.notify.debug('Did not adjust, in invalid state: %s' % cstate)
 
     def __handleUnexpectedExit(self, avId):
         disconnectCode = self.air.getAvatarDisconnectReason(avId)
@@ -746,9 +746,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.timer.stop()
         # Reset movie done responses
         self.__resetMovieResponses()
-        # Clear our movie attacks, it finished playing
-        self.clearMovieAttacks()
-        self.d_setMovieAttacks()
 
     def __serverMovieDone(self):
         self.notify.debug('Server\'s movie timed out. Ending movie....')
@@ -811,7 +808,9 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.b_setState('Resume')
 
     def exitApplyAttacks(self):
-        pass
+        # Clear our movie attacks, we're done with them
+        self.clearMovieAttacks()
+        self.d_setMovieAttacks()
 
     def enterResume(self):
         self.notify.debug('Resuming...')
