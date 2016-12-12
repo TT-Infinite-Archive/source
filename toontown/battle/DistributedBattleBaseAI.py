@@ -745,32 +745,9 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.timer.stop()
         # Reset movie done responses
         self.__resetMovieResponses()
-        # Apply attacks
-        self.applyAttacks()
         # Clear our movie attacks, it finished playing
         self.clearMovieAttacks()
         self.d_setMovieAttacks()
-
-    def applyAttacks(self):
-        self.notify.debug('Applying attacks...')
-        for tma in self.toonMovieAttacks:
-            if not tma.hit:
-                continue
-            target = self.findSuit(tma.targetId)
-            gag = InventoryGlobals.Gags.get(tma.attackId)
-            if target is None or gag is None:
-                continue
-            if gag.isTargeted():
-                gag.effect.b_applyTo(target)
-            if target.hp <= 0:
-                # Suit died
-                self.__removeSuit(target)
-                self.needAdjust = 1
-        # TODO: Do suit movie attacks here
-
-        # Set members in the event some died just now
-        self.d_setMembers()
-        self.__requestAdjust()
 
     def __serverMovieDone(self):
         self.notify.debug('Server\'s movie timed out. Ending movie....')
@@ -797,7 +774,30 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def d_setMovieAttacks(self):
         self.sendUpdate('setMovieAttacks', self.getMovieAttacks())
 
+    def applyAttacks(self):
+        self.notify.debug('Applying attacks...')
+        for tma in self.toonMovieAttacks:
+            if not tma.hit:
+                continue
+            target = self.findSuit(tma.targetId)
+            gag = InventoryGlobals.Gags.get(tma.attackId)
+            if target is None or gag is None:
+                continue
+            if gag.isTargeted():
+                gag.effect.b_applyTo(target)
+            if target.hp <= 0:
+                # Suit died
+                self.__removeSuit(target)
+                self.needAdjust = 1
+        # TODO: Do suit movie attacks here
+
+        # Set members in the event some died just now
+        self.d_setMembers()
+        self.__requestAdjust()
+
     def endMovie(self):
+        # Apply attacks
+        self.applyAttacks()
         if len(self.joiningSuits) or len(self.pendingSuits) or len(self.joiningToons) or len(self.pendingToons):
             # Someone is joining, wait for them to join
             self.b_setState('WaitForJoin')
