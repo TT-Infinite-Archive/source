@@ -2,14 +2,16 @@ from direct.distributed.ClockDelta import *
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.fsm import ClassicFSM, State
-from direct.task import Task
+from direct.task import Task, Timer
 
 from panda3d.core import *
 
-from otp.ai.MagicWordGlobal import *
-from toontown.battle.BattleCalculatorAI import *
-from toontown.battle.SuitBattleGlobals import *
+from otp.ai.MagicWordGlobal import CATEGORY_PROGRAMMER, magicWord, spellbook
+from toontown.battle.BattleCalculatorAI import BattleCalculatorAI
+from toontown.battle.BattleBase import BattleBase
+from toontown.battle import SuitBattleGlobals
 from toontown.battle import BattleGlobals
+from toontown.battle import BattleAttack
 from toontown.toon import InventoryGlobals
 from toontown.toonbase import ToontownGlobals
 
@@ -44,11 +46,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.toonMerits = {}
         self.toonParts = {}
         self.battleCalc = BattleCalculatorAI(self, tutorialFlag)
-        mult = 1.0
-        if self.air.suitInvasionManager.getInvading():
-            mult *= getInvasionMultiplier()
-        mult *= self.air.holidayManager.xpMultiplier
-        self.battleCalc.setSkillCreditMultiplier(mult)
         self.fsm = None
         self.ignoreFaceOffDone = 0
         self.needAdjust = 0
@@ -61,9 +58,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.suitsEncountered = []
         self.newToons = []
         self.newSuits = []
-        self.numNPCAttacks = 0
-        self.npcAttacks = {}
-        self.pets = {}
         self.fsm = ClassicFSM.ClassicFSM('DistributedBattleAI', [
             State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput', 'Resume']),
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
@@ -71,16 +65,26 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
             State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Resume']),
             State.State('Resume', self.enterResume, self.exitResume, []),
-            State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])], 'Off', 'Off')
-        self.joinableFsm = ClassicFSM.ClassicFSM('Joinable', [State.State('Joinable', self.enterJoinable, self.exitJoinable, ['Unjoinable']), State.State('Unjoinable', self.enterUnjoinable, self.exitUnjoinable, ['Joinable'])], 'Unjoinable', 'Unjoinable')
+            State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])
+        ], 'Off', 'Off')
+        self.joinableFsm = ClassicFSM.ClassicFSM('Joinable', [
+            State.State('Joinable', self.enterJoinable, self.exitJoinable, ['Unjoinable']),
+            State.State('Unjoinable', self.enterUnjoinable, self.exitUnjoinable, ['Joinable'])
+        ], 'Unjoinable', 'Unjoinable')
         self.joinableFsm.enterInitialState()
-        self.runnableFsm = ClassicFSM.ClassicFSM('Runnable', [State.State('Runnable', self.enterRunnable, self.exitRunnable, ['Unrunnable']), State.State('Unrunnable', self.enterUnrunnable, self.exitUnrunnable, ['Runnable'])], 'Unrunnable', 'Unrunnable')
+        self.runnableFsm = ClassicFSM.ClassicFSM('Runnable', [
+            State.State('Runnable', self.enterRunnable, self.exitRunnable, ['Unrunnable']),
+            State.State('Unrunnable', self.enterUnrunnable, self.exitUnrunnable, ['Runnable'])
+        ], 'Unrunnable', 'Unrunnable')
         self.runnableFsm.enterInitialState()
-        self.adjustFsm = ClassicFSM.ClassicFSM('Adjust', [State.State('Adjusting', self.enterAdjusting, self.exitAdjusting, ['NotAdjusting', 'Adjusting']), State.State('NotAdjusting', self.enterNotAdjusting, self.exitNotAdjusting, ['Adjusting'])], 'NotAdjusting', 'NotAdjusting')
+        self.adjustFsm = ClassicFSM.ClassicFSM('Adjust', [
+            State.State('Adjusting', self.enterAdjusting, self.exitAdjusting, ['NotAdjusting', 'Adjusting']),
+            State.State('NotAdjusting', self.enterNotAdjusting, self.exitNotAdjusting, ['Adjusting'])
+        ], 'NotAdjusting', 'NotAdjusting')
         self.adjustFsm.enterInitialState()
         self.fsm.enterInitialState()
         self.startTime = globalClock.getRealTime()
-        self.adjustingTimer = Timer()
+        self.adjustingTimer = Timer.Timer()
         self.finalBattle = False
 
         self.toonAttacks = {}
@@ -117,8 +121,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.battleCalc.cleanup()
         del self.battleCalc
         del self.finishCallback
-        for petProxy in self.pets.values():
-            petProxy.requestDelete()
 
         DistributedObjectAI.delete(self)
 
@@ -201,7 +203,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def b_setState(self, state):
         self.notify.debug('network:setState(%s)' % state)
-        stime = globalClock.getRealTime() + SERVER_BUFFER_TIME
+        stime = globalClock.getRealTime() + SuitBattleGlobals.SERVER_BUFFER_TIME
         self.sendUpdate('setState', [state, globalClockDelta.localToNetworkTime(stime)])
         self.setState(state)
 
@@ -310,7 +312,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def __joinSuit(self, suit):
         self.joiningSuits.append(suit)
-        toPendingTime = MAX_JOIN_T + SERVER_BUFFER_TIME
+        toPendingTime = SuitBattleGlobals.MAX_JOIN_T + SuitBattleGlobals.SERVER_BUFFER_TIME
         taskName = self.taskName('to-pending-av-%d' % suit.doId)
         self.__addJoinResponse(suit.doId, taskName)
         self.taskNames.append(taskName)
@@ -406,7 +408,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def __joinToon(self, avId, pos):
         self.joiningToons.append(avId)
-        toPendingTime = MAX_JOIN_T + SERVER_BUFFER_TIME
+        toPendingTime = SuitBattleGlobals.MAX_JOIN_T + SuitBattleGlobals.SERVER_BUFFER_TIME
         taskName = self.taskName('to-pending-av-%d' % avId)
         self.__addJoinResponse(avId, taskName, toon=1)
         taskMgr.doMethodLater(toPendingTime, self.__serverJoinDone, taskName, extraArgs=(avId, taskName))
@@ -440,7 +442,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.toonGone = 1
         self.runningToons.append(toonId)
         taskName = self.taskName('running-toon-%d' % toonId)
-        taskMgr.doMethodLater(TOON_RUN_T, self.__serverRunDone, taskName, extraArgs=(toonId, updateAttacks, taskName))
+        taskMgr.doMethodLater(SuitBattleGlobals.TOON_RUN_T, self.__serverRunDone, taskName, extraArgs=(toonId, updateAttacks, taskName))
         self.taskNames.append(taskName)
 
     def __serverRunDone(self, toonId, updateAttacks, taskName):
@@ -546,7 +548,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             if self.responses[t] == 0:
                 return 0
 
-        self.ignoreResponses = 1
         return 1
 
     def __allPendingActiveToonsResponded(self):
@@ -554,7 +555,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             if self.responses[t] == 0:
                 return 0
 
-        self.ignoreResponses = 1
         return 1
 
     def __allActiveToonsResponded(self):
@@ -562,7 +562,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         if len(self.toonAttacks.keys()) != len(self.activeToons):
             return False
         for toonId, ta in self.toonAttacks.items():
-            if ta.attackId == NO_ATTACK:
+            if ta.attackId == SuitBattleGlobals.NO_ATTACK:
                 # This attack isn't a valid response
                 return False
         return True
@@ -656,7 +656,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.notify.warning('timeout() - toon: %d not in toon list' % toonId)
             return
         self.notify.debug('Toon %d timed out' % toonId)
-        self.toonAttacks[toonId] = getToonAttack(toonId, InventoryGlobals.PASS)
+        # Lets make the toon pass since it timed out
+        self.toonAttacks[toonId] = BattleAttack.ToonBattleAttack(toonId, InventoryGlobals.PASS)
         self.d_setChosenToonAttacks()
         if self.__allActiveToonsResponded():
             self.notify.debug('All toons attacked, playing movie now...')
@@ -676,10 +677,10 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.notify.debug('Toon: %d is done with movie' % toonId)
         if self.__allMovieReponsesDone():
             self.notify.debug('All toons done with movie, continuing...')
-            self.__movieDone()
+            self.endMovie()
         else:
             self.timer.stop()
-            self.timer.startCallback(TIMEOUT_PER_USER, self.__serverMovieDone)
+            self.timer.startCallback(SuitBattleGlobals.TIMEOUT_PER_USER, self.__serverMovieDone)
 
     def __resetMovieResponses(self):
         self.movieResponses.clear()
@@ -726,12 +727,12 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.notify.warning('Toon %s tried to use an attack he doesnt have equipped' % toonId)
             return
         attack = InventoryGlobals.Gags.get(attackId)
-        if attack is None and attackId != NO_ATTACK:
+        if attack is None and attackId != SuitBattleGlobals.NO_ATTACK:
             # Invalid attackId
             self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
             return
 
-        self.toonAttacks[toonId] = getToonAttack(toonId, attackId, targetId)
+        self.toonAttacks[toonId] = BattleAttack.ToonBattleAttack(toonId, attackId, targetId)
         self.d_setChosenToonAttacks()
         self.notify.debug('Toon: %d chose attack: %s' % (toonId, attackId))
         if self.__allActiveToonsResponded():
@@ -817,7 +818,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         # Reset movie done responses
         self.__resetMovieResponses()
         # Estimate the time this movie will take
-        movieTime = TOON_ATTACK_TIME * (len(self.activeToons)) + SUIT_ATTACK_TIME * len(self.activeSuits) + SERVER_BUFFER_TIME
+        movieTime = SuitBattleGlobals.TOON_ATTACK_TIME * (len(self.activeToons)) + SuitBattleGlobals.SUIT_ATTACK_TIME * len(self.activeSuits) + SuitBattleGlobals.SERVER_BUFFER_TIME
         self.timer.startCallback(movieTime, self.__serverMovieDone)
 
     def exitPlayMovie(self):
@@ -833,7 +834,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def __serverMovieDone(self):
         self.notify.debug('Server\'s movie timed out. Ending movie....')
-        self.__movieDone()
+        self.endMovie()
 
     def getMovieAttacks(self):
         tmas = []
@@ -856,7 +857,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def d_setMovieAttacks(self):
         self.sendUpdate('setMovieAttacks', self.getMovieAttacks())
 
-    def __movieDone(self):
+    def endMovie(self):
         if len(self.joiningSuits) or len(self.pendingSuits):
             self.b_setState('WaitForJoin')
         else:
@@ -982,10 +983,19 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return adjustTime
 
     def enterAdjusting(self):
-        self.notify.debug('STATE: Adjusting')
+        self.notify.debug('Adjusting...')
         self.timer.stop()
         self.__resetAdjustingResponses()
-        self.adjustingTimer.startCallback(self.__estimateAdjustTime() + SERVER_BUFFER_TIME, self.__serverAdjustingDone)
+        self.adjustingTimer.startCallback(self.__estimateAdjustTime() + SuitBattleGlobals.SERVER_BUFFER_TIME, self.__serverAdjustingDone)
+
+    def exitAdjusting(self):
+        self.notify.debug('Exiting Adjusting...')
+        currStateName = self.fsm.getCurrentState().getName()
+        if currStateName == 'WaitForInput':
+            self.timer.restart()
+        elif currStateName == 'WaitForJoin':
+            self.b_setState('WaitForInput')
+        self.adjustingTimer.stop()
 
     def __serverAdjustingDone(self):
         if self.needAdjust == 1:
@@ -995,15 +1005,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.notify.debug('adjusting timed out on the server')
             self.ignoreAdjustingResponses = 1
             self.__adjustDone()
-
-    def exitAdjusting(self):
-        currStateName = self.fsm.getCurrentState().getName()
-        if currStateName == 'WaitForInput':
-            self.timer.restart()
-        elif currStateName == 'WaitForJoin':
-            self.b_setState('WaitForInput')
-        self.adjustingTimer.stop()
-        return None
 
     def __adjustDone(self):
         for s in self.adjustingSuits:
@@ -1023,17 +1024,14 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.__requestAdjust()
 
     def enterNotAdjusting(self):
-        self.notify.debug('STATE: NotAdjusting')
-        if self.movieRequested == 1:
-            if len(self.activeToons) > 0 and self.__allActiveToonsResponded():
-                self.__requestMovie()
+        self.notify.debug('Not Adjusting...')
         return None
 
     def exitNotAdjusting(self):
         return None
 
     def end(self):
-        self.notify.debug('Ending battle')
+        self.notify.debug('Ending...')
         self.__removeAllTasks()
         self.timer.stop()
         self.adjustingTimer.stop()
@@ -1052,8 +1050,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def removePendingToon(self, toon):
         if toon in self.pendingToons:
             self.pendingToons.remove(toon)
-        else:
-            self.notify.warning('Tried to remove toon from pending who wasn\'t pending %s' % toon)
 
     def removeJoiningToon(self, toon):
         if toon in self.joiningToons:
@@ -1068,7 +1064,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.adjustingToons.remove(toon)
 
 
-
 @magicWord(category=CATEGORY_PROGRAMMER)
 def skipMovie():
     invoker = spellbook.getInvoker()
@@ -1076,5 +1071,5 @@ def skipMovie():
     if not battleId:
         return 'You are not currently in a battle!'
     battle = simbase.air.doId2do.get(battleId)
-    battle._DistributedBattleBaseAI__movieDone()
+    battle.endMovie()
     return 'Battle movie skipped.'

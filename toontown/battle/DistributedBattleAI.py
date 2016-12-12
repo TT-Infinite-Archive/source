@@ -1,19 +1,13 @@
-from otp.ai.AIBase import *
-from BattleBase import *
-from BattleCalculatorAI import *
-from toontown.toonbase.ToontownBattleGlobals import *
-from SuitBattleGlobals import *
-import DistributedBattleBaseAI
-from direct.task import Task
-from direct.directnotify import DirectNotifyGlobal
-import random
+from direct.directnotify.DirectNotifyGlobal import directNotify
+from toontown.battle.DistributedBattleBaseAI import DistributedBattleBaseAI
+from toontown.battle.SuitBattleGlobals import FACEOFF_TAUNT_T, SERVER_BUFFER_TIME, FACEOFF_LOOK_AT_PROP_T
 
 
-class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBattleAI')
+class DistributedBattleAI(DistributedBattleBaseAI):
+    notify = directNotify.newCategory('DistributedBattleAI')
 
     def __init__(self, air, battleMgr, pos, suit, toonId, zoneId, finishCallback = None, maxSuits = 4, tutorialFlag = 0, levelFlag = 0, interactivePropTrackBonus = -1):
-        DistributedBattleBaseAI.DistributedBattleBaseAI.__init__(self, air, zoneId, finishCallback, maxSuits=maxSuits, tutorialFlag=tutorialFlag, interactivePropTrackBonus=interactivePropTrackBonus)
+        DistributedBattleBaseAI.__init__(self, air, zoneId, finishCallback, maxSuits=maxSuits, tutorialFlag=tutorialFlag, interactivePropTrackBonus=interactivePropTrackBonus)
         self.battleMgr = battleMgr
         self.pos = pos
         self.initialSuitPos = suit.getConfrontPosHpr()[0]
@@ -26,7 +20,7 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         self.fsm.request('FaceOff')
 
     def generate(self):
-        DistributedBattleBaseAI.DistributedBattleBaseAI.generate(self)
+        DistributedBattleBaseAI.generate(self)
         toon = simbase.air.doId2do.get(self.avId)
         if toon:
             if hasattr(self, 'doId'):
@@ -106,7 +100,7 @@ class DistributedBattleAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         self.notify.debug('enterResume()')
         self.joinableFsm.request('Unjoinable')
         self.runnableFsm.request('Unrunnable')
-        DistributedBattleBaseAI.DistributedBattleBaseAI.enterResume(self)
+        DistributedBattleBaseAI.enterResume(self)
         if self.finishCallback:
             self.finishCallback(self.zoneId)
         self.battleMgr.destroy(self)
