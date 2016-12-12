@@ -61,7 +61,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
             State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['Resume', 'MakeMovie']),
             State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
-            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'WaitForInput', 'Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['ApplyAttacks', 'Resume']),
+            State.State('ApplyAttacks', self.enterApplyAttacks, self.exitApplyAttacks, ['WaitForJoin', 'WaitForInput', 'Resume']),
             State.State('Resume', self.enterResume, self.exitResume, []),
             State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])
         ], 'Off', 'Off')
@@ -774,7 +775,10 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def d_setMovieAttacks(self):
         self.sendUpdate('setMovieAttacks', self.getMovieAttacks())
 
-    def applyAttacks(self):
+    def endMovie(self):
+        self.fsm.request('ApplyAttacks')
+
+    def enterApplyAttacks(self):
         self.notify.debug('Applying attacks...')
         for tma in self.toonMovieAttacks:
             if not tma.hit:
@@ -789,24 +793,25 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
                 # Suit died
                 self.__removeSuit(target)
                 self.needAdjust = 1
-        # TODO: Do suit movie attacks here
+        # TODO: Apply suit movie attacks here
 
         # Set members in the event some died just now
         self.d_setMembers()
         self.__requestAdjust()
 
-    def endMovie(self):
-        # Apply attacks
-        self.applyAttacks()
+        # Check which state to go into next
         if len(self.joiningSuits) or len(self.pendingSuits) or len(self.joiningToons) or len(self.pendingToons):
             # Someone is joining, wait for them to join
             self.b_setState('WaitForJoin')
         elif len(self.activeToons) and len(self.activeSuits):
-            # No one is joining, and we have toons and suits in the battle, let's allow them to whack eachother
+            # No one is joining, and we have toons and suits in the battle, let's allow them to attack each other
             self.b_setState('WaitForInput')
         else:
             # We either don't have any active suits or toons, this battle is over...
             self.b_setState('Resume')
+
+    def exitApplyAttacks(self):
+        pass
 
     def enterResume(self):
         self.notify.debug('Resuming...')
