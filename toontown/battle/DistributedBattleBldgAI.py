@@ -45,17 +45,14 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
 
     def faceOffDone(self):
         toonId = self.air.getAvatarIdFromSender()
-        if self.ignoreResponses == 1:
-            self.notify.debug('faceOffDone() - ignoring toon: %d' % toonId)
-            return
-        elif self.fsm.getCurrentState().getName() != 'FaceOff':
+        if self.fsm.getCurrentState().getName() != 'FaceOff':
             self.notify.warning('faceOffDone() - in state: %s' % self.fsm.getCurrentState().getName())
             return
         elif self.toons.count(toonId) == 0:
             self.notify.warning('faceOffDone() - toon: %d not in toon list' % toonId)
             return
         self.responses[toonId] += 1
-        self.notify.debug('toon: %d done facing off' % toonId)
+        self.notify.debug('Toon %d done facing off' % toonId)
         if not self.ignoreFaceOffDone:
             if self.allToonsResponded():
                 self.handleFaceOffDone()
@@ -111,7 +108,7 @@ class DistributedBattleBldgAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
             self.suitsKilledPerFloor.append(self.suitsKilledThisBattle)
             for floorNum, cogsThisFloor in enumerate(self.suitsKilledPerFloor):
                 for toonId in self.activeToons:
-                    toon = self.getToon(toonId)
+                    toon = self.air.doId2do.get(toonId)
                     if toon:
                         (recovered, notRecovered) = self.air.questManager.recoverItems(toon, cogsThisFloor, self.zoneId)
                         self.toonItems[toonId][0].extend(recovered)

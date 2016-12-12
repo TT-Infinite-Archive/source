@@ -246,9 +246,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.bossBattle = value
 
     def setState(self, state, timestamp):
+        self.notify.debug('Setting state: %s' % state)
         if self.__battleCleanedUp:
             return
-        self.notify.debug('setState(%s)' % state)
         self.fsm.request(state, [globalClockDelta.localElapsedTime(timestamp)])
 
     def setMembers(self, suits, suitsJoining, suitsPending, suitsActive, toons, toonsJoining, toonsPending, toonsActive, toonsRunning, timestamp):
@@ -394,9 +394,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         return oldtoons
 
     def adjust(self, timestamp):
+        self.notify.debug('Adjust from server sent')
         if self.__battleCleanedUp:
             return
-        self.notify.debug('adjust(%f) from server' % globalClockDelta.localElapsedTime(timestamp))
         self.adjustFsm.request('Adjusting', [globalClockDelta.localElapsedTime(timestamp)])
 
     def clearMovieAttacks(self):
@@ -453,7 +453,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def __handleDied(self, toon):
         self.notify.warning('handleDied() - toon: %d' % toon.doId)
         if toon == base.localAvatar:
-            self.d_toonDied(toon.doId)
             self.cleanupBattle()
 
     def delayDeleteMembers(self):
@@ -757,10 +756,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def d_toonRequestRun(self, toonId):
         self.notify.debug('network:toonRequestRun()')
         self.sendUpdate('toonRequestRun', [])
-
-    def d_toonDied(self, toonId):
-        self.notify.debug('network:toonDied()')
-        self.sendUpdate('toonDied', [])
 
     def d_faceOffDone(self, toonId):
         self.notify.debug('network:faceOffDone()')

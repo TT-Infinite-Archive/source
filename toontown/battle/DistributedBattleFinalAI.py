@@ -81,14 +81,13 @@ class DistributedBattleFinalAI(DistributedBattleBaseAI.DistributedBattleBaseAI):
         elif len(self.suits) == 0:
             battleMultiplier = getBossBattleCreditMultiplier(self.battleNumber)
             for toonId in self.activeToons:
-                toon = self.getToon(toonId)
+                toon = self.air.doId2do.get(toonId)
                 if toon and hasattr(self.air, 'questManager'):
                     recovered, notRecovered = self.air.questManager.recoverItems(toon, self.suitsKilledThisBattle, self.zoneId)
                     self.toonItems[toonId][0].extend(recovered)
                     self.toonItems[toonId][1].extend(notRecovered)
 
             self.d_setMembers()
-            self.d_setBattleExperience()
         else:
             if self.resumeNeedUpdate == 1:
                 self.d_setMembers()

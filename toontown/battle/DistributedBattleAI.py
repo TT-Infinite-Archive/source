@@ -74,28 +74,6 @@ class DistributedBattleAI(DistributedBattleBaseAI):
         self.d_setMembers()
         self.b_setState('WaitForInput')
 
-    def localMovieDone(self, needUpdate, deadToons, deadSuits, lastActiveSuitDied):
-        if len(self.toons) == 0:
-            self.d_setMembers()
-            self.b_setState('Resume')
-        elif len(self.suits) == 0:
-            for toonId in self.activeToons:
-                toon = self.getToon(toonId)
-                if toon is not None:
-                    self.toonItems[toonId] = self.air.questManager.recoverItems(toon, self.suitsKilled, self.zoneId)
-                    if toonId in self.helpfulToons:
-                        self.toonMerits[toonId] = self.air.promotionMgr.recoverMerits(toon, self.suitsKilled, self.zoneId)
-                    else:
-                        self.notify.debug('toon %d not helpful, skipping merits' % toonId)
-
-            self.d_setMembers()
-        else:
-            if needUpdate == 1:
-                self.d_setMembers()
-                if len(deadSuits) > 0 and lastActiveSuitDied == 0 or len(deadToons) > 0:
-                    self.needAdjust = 1
-            self.setState('WaitForJoin')
-
     def enterResume(self):
         self.notify.debug('enterResume()')
         self.joinableFsm.request('Unjoinable')

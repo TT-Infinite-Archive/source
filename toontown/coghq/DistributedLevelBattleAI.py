@@ -50,23 +50,6 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
         self.pos = [x, y, z]
         self.hpr = [h, p, r]
 
-    def localMovieDone(self, needUpdate, deadToons, deadSuits, lastActiveSuitDied):
-        self.timer.stop()
-        self.resumeNeedUpdate = needUpdate
-        self.resumeDeadToons = deadToons
-        self.resumeDeadSuits = deadSuits
-        self.resumeLastActiveSuitDied = lastActiveSuitDied
-        if len(self.toons) == 0:
-            self.d_setMembers()
-            self.b_setState('Resume')
-        else:
-            totalHp = 0
-            for suit in self.suits:
-                if suit.hp > 0:
-                    totalHp += suit.hp
-
-            self.roundCallback(self.battleCellId, self.activeToons, totalHp, deadSuits)
-
     def storeSuitsKilledThisBattle(self):
         self.suitsKilledPerFloor.append(self.suitsKilledThisBattle)
 
@@ -74,7 +57,7 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
         if len(self.suits) == 0:
             avList = []
             for toonId in self.activeToons:
-                toon = self.getToon(toonId)
+                toon = self.air.doId2do.get(toonId)
                 if toon:
                     avList.append(toon)
 
@@ -84,7 +67,6 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
                 self.b_setState('Reward')
             else:
                 self.handleToonsWon(avList)
-                self.d_setBattleExperience()
                 self.b_setState(self.winState)
             if self.blocker:
                 if len(self.activeToons):
@@ -137,13 +119,3 @@ class DistributedLevelBattleAI(DistributedBattleAI.DistributedBattleAI):
         self.notify.debug('toon: %d done facing off' % toonId)
         if not self.ignoreFaceOffDone:
             self.handleFaceOffDone()
-
-    def enterReward(self):
-        self.joinableFsm.request('Unjoinable')
-        self.runnableFsm.request('Unrunnable')
-        self.timer.startCallback(FLOOR_REWARD_TIMEOUT, self.serverRewardDone)
-        return None
-
-    def exitReward(self):
-        self.timer.stop()
-        return None

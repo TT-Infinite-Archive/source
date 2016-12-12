@@ -996,8 +996,6 @@ dclass DistributedBattleBase : DistributedObject {
   setState(string, int16) required broadcast ram;
   faceOffDone() airecv clsend;
   toonRequestJoin(int16/10, int16/10, int16/10) airecv clsend;
-  toonRequestRun() airecv clsend;
-  toonDied() airecv clsend;
   adjustDone() airecv clsend;
   timeout() airecv clsend;
   joinDone(uint32) airecv clsend;
