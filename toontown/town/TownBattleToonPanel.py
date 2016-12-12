@@ -114,7 +114,7 @@ class TownBattleToonPanel(DirectFrame):
         self.gagImage.removeNode()
         self.gagImage = None
 
-    def hideAllImages(self):
+    def hideAll(self):
         self.undecidedText.hide()
         self.sosText.hide()
         self.fireText.hide()
@@ -127,7 +127,7 @@ class TownBattleToonPanel(DirectFrame):
         if self.avatar is None:
             return
         toonAttack = self.battle.toonAttacks.get(self.avatar.doId)
-        self.hideAllImages()
+        self.hideAll()
         if toonAttack is None:
             # This gag means no attack
             self.notify.debug('Showing that toon at index %s has no attack yet.' % self.index)
