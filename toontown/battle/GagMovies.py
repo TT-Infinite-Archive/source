@@ -6,6 +6,7 @@ from panda3d.core import Point3
 import MovieUtil
 from toontown.data import Sound
 from toontown.toon.InventoryGlobals import Gags, GagToMissile, PASS
+from toontown.toonbase import TTLocalizer
 
 
 def throwMovie(battle, tma):
@@ -58,8 +59,14 @@ def throwMovie(battle, tma):
                     Func(splat.setPos, suitHeadPos),
                     Func(splat.show)
                 ),
-                # Play splat dead animation
-                ActorInterval(splat, 'death'),
+                Parallel(
+                    # Play splat dead animation
+                    ActorInterval(splat, 'death'),
+                    # Splat noise
+                    Func(Sound.SplatSound.playSound),
+                    # Look at camera
+                    Func(splat.lookAt, base.camera)
+                ),
                 # Unload the splat actor
                 Func(unloadProp, splat)
             )
@@ -78,21 +85,21 @@ def throwMovie(battle, tma):
                 Func(suit.updateHealthBar)
             )
         )
-        # Play death effect if dead otherwise it wont
+        # Play death animation if dead otherwise it wont
         if max(suit.getHp() - attack.getDamage(), 0) == 0:
             suitTrack.append(MovieUtil.suitDeath(suit, battle))
-        else:
-            battle.notify.debug('%s - %s != 0, not killing' % (suit.getHp(), attack.getDamage()))
     else:
-        # 'sidestep-left', 'sidestep-right'
         # Wait until the missile is fired
         suitTrack.append(Wait(2.2))
+        # Show missed text
+        suitTrack.append(Func(suit.displayText, TTLocalizer.AttackMissed))
         # Make the suit(s) dodge
         suitTrack.append(doSuitDodge(suit, battle))
         # Pause the track until the dodge is done
         suitTrack.append(Func(suitTrack.pause))
 
     return Parallel(toonTrack, propTrack, suitTrack)
+
 
 def animateAv(av, animName):
     # Does a toon animation then reverts to neutral

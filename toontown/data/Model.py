@@ -21,17 +21,7 @@ class Model:
         actor.reparentTo(hidden)
         return actor
 
-
-class BillboardModel(Model):
-    def getActor(self):
-        actor = Model.getActor(self)
-        scale = actor.getScale()
-        actor.setBillboardPointEye()
-        actor.setDepthWrite(False)
-        actor.setScale(scale)
-        return actor
-
 CupcakeModel = Model(0, 'tart', 'phase_3.5/models/props/tart', {}, 0.6)
-GoldenCupcakeModel = Model(0, 'tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
-SplatModel = BillboardModel(1, 'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'}, scale=0.7)
+GoldenCupcakeModel = Model(1, 'tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
+SplatModel = Model(2, 'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'}, scale=0.7)
 

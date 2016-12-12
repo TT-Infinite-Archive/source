@@ -693,7 +693,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         if len(self.activeSuits) >= 1:
             for suit in self.activeSuits:
                 suitPos, suitHpr = self.getActorPosHpr(suit)
-                spos = Point3(suitPos[0], suitPos[1] - MovieUtil.SUIT_LURE_DISTANCE, suitPos[2])
+                spos = Point3(suitPos[0], suitPos[1], suitPos[2])
                 suit.setPosHpr(self, spos, suitHpr)
                 suit.loop('neutral')
 
