@@ -1,6 +1,7 @@
 import DistributedBattleAI
 from direct.directnotify import DirectNotifyGlobal
 
+
 class BattleManagerAI:
     notify = DirectNotifyGlobal.directNotify.newCategory('BattleManagerAI')
 
@@ -25,8 +26,9 @@ class BattleManagerAI:
             battle = self.cellId2battle[cellId]
             battle.signupToon(toonId, pos[0], pos[1], pos[2])
         else:
-            battle = self.battleConstructor(self.air, self, pos, suit, toonId, zoneId, finishCallback, maxSuits, interactivePropTrackBonus=interactivePropTrackBonus)
+            battle = self.battleConstructor(self.air, self, pos, zoneId, finishCallback, maxSuits, interactivePropTrackBonus=interactivePropTrackBonus)
             battle.generateWithRequired(zoneId)
+            battle.doFaceOff(toonId, suit)
             battle.battleCellId = cellId
             self.cellId2battle[cellId] = battle
         return battle

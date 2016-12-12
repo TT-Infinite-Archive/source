@@ -98,7 +98,7 @@ want-cog-headquarters #f
 want-heartbeat #f
 
 #notify-level-TownBattle debug
-#notify-level-TownBattleToonPanel debug
+notify-level-TownBattleToonPanel debug
 #notify-level-GagInventoryGui debug
 notify-level-DistributedBattleAI debug
 #notify-level-BattleCalculatorAI debug

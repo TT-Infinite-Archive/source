@@ -127,16 +127,16 @@ class TownBattleToonPanel(DirectFrame):
         if self.avatar is None:
             return
         toonAttack = self.battle.toonAttacks.get(self.avatar.doId)
+        self.hideAllImages()
         if toonAttack is None:
             # This gag means no attack
             self.notify.debug('Showing that toon at index %s has no attack yet.' % self.index)
             self.undecidedText.show()
             return
         self.notify.debug('Showing that toon at index %s attacks with %d.' % (self.index, toonAttack.attackId))
-        self.hideAllImages()
         attackId = toonAttack.attackId
         gag = InventoryGlobals.Gags.get(attackId)
-        if gag == InventoryGlobals.Gags[0]:
+        if attackId == 0:
             # This gag means no gag
             self.undecidedText.show()
         elif gag is None:
@@ -150,7 +150,9 @@ class TownBattleToonPanel(DirectFrame):
                 self.notify.warning('Failed to set attack attacker %d not in this battle.' % toonAttack.attackerId)
                 return
             attackerIndex = self.battle.activeToons.index(attacker)
-            if gag.isTargeted() and gag.targetsAlly():
+            if not gag.isTargeted():
+                return
+            elif gag.targetsAlly():
                 numTargets = len(self.battle.activeToons)
                 if gag.targetCount == 4:
                     # Everyone except me
@@ -166,7 +168,7 @@ class TownBattleToonPanel(DirectFrame):
                     else:
                         # Don't know what to do?
                         targetIndex = -2
-            elif gag.isTargeted() and gag.targetsEnemy():
+            elif gag.targetsEnemy():
                 numTargets = len(self.battle.activeSuits)
                 if gag.targetCount == 4:
                     # All enemies

@@ -399,6 +399,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             return
         self.adjustFsm.request('Adjusting', [globalClockDelta.localElapsedTime(timestamp)])
 
+    def clearToonAttacks(self):
+        self.toonAttacks.clear()
+
     def clearMovieAttacks(self):
         del self.toonMovieAttacks[:]
         del self.suitMovieAttacks[:]
@@ -425,16 +428,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         suitMovieAttacks = [sma.toList() for sma in self.suitMovieAttacks]
         return [toonMovieAttacks, suitMovieAttacks]
 
-    def setMovie(self, active, toons, suits, toonAttacks, suitAttacks):
-        if self.__battleCleanedUp:
-            return
-        self.notify.debug('setMovie()')
-        if int(active) == 1:
-            self.notify.debug('setMovie() - movie is active')
-            self.movie.genAttackDicts(toons, suits, toonAttacks, suitAttacks)
-
     def setChosenToonAttacks(self, toonAttacks):
         self.notify.debug('Setting chosen toon attacks: %s' % toonAttacks)
+        self.clearToonAttacks()
         for ta in toonAttacks:
             toonAttack = BattleAttack.ToonBattleAttack()
             toonAttack.fromList(ta)

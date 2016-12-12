@@ -105,7 +105,7 @@ class GagItemSlot:
         self.amount = ls[1]
         self.equipped = ls[2]
 
-
+NO_ATTACK = 0
 PASS = 99
 
 Gags = {
@@ -132,6 +132,7 @@ GagToMissile = {
 }
 
 AlwaysEquipped = [
+    NO_ATTACK,
     PASS
 ]
 

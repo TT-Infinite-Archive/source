@@ -73,7 +73,7 @@ class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
 
     def requestBattle(self, x, y, z, h, p, r):
         toonId = self.air.getAvatarIdFromSender()
-        if self.air.doId2do.get(toonId) == None:
+        if self.air.doId2do.get(toonId) is None:
             return
         if self.pathState == 3:
             pass

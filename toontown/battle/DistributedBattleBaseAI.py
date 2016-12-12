@@ -61,7 +61,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
             State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['Resume', 'MakeMovie']),
             State.State('MakeMovie', self.enterMakeMovie, self.exitMakeMovie, ['PlayMovie', 'Resume']),
-            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForJoin', 'WaitForInput', 'Resume']),
             State.State('Resume', self.enterResume, self.exitResume, []),
             State.State('Off', self.enterOff, self.exitOff, ['FaceOff', 'WaitForJoin', 'Resume'])
         ], 'Off', 'Off')
@@ -245,9 +245,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return self.zoneId
 
     def getMovie(self):
-        suitIds = []
-        for s in self.activeSuits:
-            suitIds.append(s.doId)
+        suitIds = [s.doId for s in self.activeSuits]
 
         p = [
             self.activeToons,
@@ -263,7 +261,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def getChosenToonAttacks(self):
         attacks = []
-        for toonId, ta in self.toonAttacks.items():
+        for ta in self.toonAttacks.values():
             attacks.append(ta.toList())
         return attacks
 
@@ -352,7 +350,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.acceptSuddenExit(avId)
         self.newToons.append(avId)
         self.toons.append(avId)
-        toon.b_setBattleId(self.doId)
+        toon.b_setBattleId(self.getDoId())
         messageToonAdded = 'Battle adding toon %s' % avId
         messenger.send(messageToonAdded, [avId])
         self.adjustingResponses[avId] = 0
@@ -706,7 +704,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.notify.debug('Waiting for Input...')
         # Clear the attacks
         self.clearAttacks()
-        self.clearMovieAttacks()
         self.d_setChosenToonAttacks()
         # Allow toons to run or join
         self.joinableFsm.request('Joinable')
@@ -716,7 +713,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def exitWaitForInput(self):
         self.timer.stop()
-        return None
 
     def __serverTimedOut(self):
         self.notify.debug('Timed out waiting for toon attacks...')
@@ -725,12 +721,10 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def enterMakeMovie(self):
         self.notify.debug('Making movie...')
         self.runnableFsm.request('Unrunnable')
-        # Empty our current movie attacks
-        self.clearMovieAttacks()
         # Generate our new movie attacks
-        self.battleCalc.generateMovieAttacks()
-        # Set movie attacks on the client
-        self.d_setMovieAttacks()
+        tmas, smas = self.battleCalc.generateMovieAttacks()
+        # Set movie attacks we generated
+        self.b_setMovieAttacks(tmas, smas)
         # Now play the movie
         self.b_setState('PlayMovie')
 
@@ -752,9 +746,31 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         # Reset movie done responses
         self.__resetMovieResponses()
         # Apply attacks
-        self.battleCalc.applyAttacks()
+        self.applyAttacks()
+        # Clear our movie attacks, it finished playing
+        self.clearMovieAttacks()
+        self.d_setMovieAttacks()
+
+    def applyAttacks(self):
+        self.notify.debug('Applying attacks...')
+        for tma in self.toonMovieAttacks:
+            if not tma.hit:
+                continue
+            target = self.findSuit(tma.targetId)
+            gag = InventoryGlobals.Gags.get(tma.attackId)
+            if target is None or gag is None:
+                continue
+            if gag.isTargeted():
+                gag.effect.b_applyTo(target)
+            if target.hp <= 0:
+                # Suit died
+                self.__removeSuit(target)
+                self.needAdjust = 1
+        # TODO: Do suit movie attacks here
+
         # Set members in the event some died just now
         self.d_setMembers()
+        self.__requestAdjust()
 
     def __serverMovieDone(self):
         self.notify.debug('Server\'s movie timed out. Ending movie....')
@@ -782,32 +798,15 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.sendUpdate('setMovieAttacks', self.getMovieAttacks())
 
     def endMovie(self):
-        if len(self.joiningSuits) or len(self.pendingSuits):
+        if len(self.joiningSuits) or len(self.pendingSuits) or len(self.joiningToons) or len(self.pendingToons):
+            # Someone is joining, wait for them to join
             self.b_setState('WaitForJoin')
+        elif len(self.activeToons) and len(self.activeSuits):
+            # No one is joining, and we have toons and suits in the battle, let's allow them to whack eachother
+            self.b_setState('WaitForInput')
         else:
+            # We either don't have any active suits or toons, this battle is over...
             self.b_setState('Resume')
-
-    def sendAvatarUpdates(self):
-        for toonId in self.activeToons:
-            toon = self.air.doId2do.get(toonId)
-            if toon is not None:
-                toon.d_setHp(toon.hp)
-                if toon.hp <= 0:
-                    self.__removeToon(toonId)
-                    self.needAdjust = 1
-            else:
-                self.notify.warning('Attempted to update invalid toon %s in %s' % (toon, self.activeToons))
-
-        for suit in self.activeSuits:
-            if suit is not None:
-                suit.d_setHp(suit.hp)
-                if suit.hp <= 0:
-                    self.__removeSuit(suit)
-                    self.needAdjust = 1
-            else:
-                self.notify.warning('Attempted to update invalid suit %s in %s' % (suit, self.activeSuits))
-
-        self.__requestAdjust()
 
     def enterResume(self):
         self.notify.debug('Resuming...')
@@ -986,6 +985,19 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def removeAdjustingToon(self, toon):
         if toon in self.adjustingToons:
             self.adjustingToons.remove(toon)
+
+    def getPosition(self):
+        return [self.pos[0], self.pos[1], self.pos[2]]
+
+    def d_setInitialSuitPos(self):
+        self.sendUpdate('setInitialSuitPos', self.getInitialSuitPos())
+
+    def getInitialSuitPos(self):
+        return [
+            self.initialSuitPos[0],
+            self.initialSuitPos[1],
+            self.initialSuitPos[2]
+        ]
 
 
 @magicWord(category=CATEGORY_PROGRAMMER)

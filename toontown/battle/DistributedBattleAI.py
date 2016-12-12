@@ -6,29 +6,23 @@ from toontown.battle.SuitBattleGlobals import FACEOFF_TAUNT_T, SERVER_BUFFER_TIM
 class DistributedBattleAI(DistributedBattleBaseAI):
     notify = directNotify.newCategory('DistributedBattleAI')
 
-    def __init__(self, air, battleMgr, pos, suit, toonId, zoneId, finishCallback = None, maxSuits = 4, tutorialFlag = 0, levelFlag = 0, interactivePropTrackBonus = -1):
+    def __init__(self, air, battleMgr, pos, zoneId, finishCallback = None, maxSuits = 4, tutorialFlag = 0, levelFlag = 0, interactivePropTrackBonus = -1):
         DistributedBattleBaseAI.__init__(self, air, zoneId, finishCallback, maxSuits=maxSuits, tutorialFlag=tutorialFlag, interactivePropTrackBonus=interactivePropTrackBonus)
         self.battleMgr = battleMgr
         self.pos = pos
+        self.faceOffToon = None
+        self.initialSuitPos = None
+        self.initialToonPos = None
+
+    def doFaceOff(self, toonId, suit):
+        self.faceOffToon = toonId
         self.initialSuitPos = suit.getConfrontPosHpr()[0]
         self.initialToonPos = suit.getConfrontPosHpr()[0]
+        self.addToon(toonId)
         self.addSuit(suit)
-        self.avId = toonId
-        if levelFlag == 0:
-            self.addToon(toonId)
-        self.faceOffToon = toonId
-        self.fsm.request('FaceOff')
-
-    def generate(self):
-        DistributedBattleBaseAI.generate(self)
-        toon = simbase.air.doId2do.get(self.avId)
-        if toon:
-            if hasattr(self, 'doId'):
-                toon.b_setBattleId(self.doId)
-            else:
-                toon.b_setBattleId(-1)
-        self.avId = None
-        return
+        self.d_setMembers()
+        self.d_setInitialSuitPos()
+        self.b_setState('FaceOff')
 
     def faceOffDone(self):
         toonId = self.air.getAvatarIdFromSender()
@@ -70,9 +64,9 @@ class DistributedBattleAI(DistributedBattleBaseAI):
         if len(self.toons) == 0:
             self.b_setState('Resume')
         elif self.faceOffToon == self.toons[0]:
-            self.activeToons.append(self.toons[0])
-        self.d_setMembers()
-        self.b_setState('WaitForInput')
+            self.addActiveToon(self.toons[0])
+            self.d_setMembers()
+            self.b_setState('WaitForInput')
 
     def enterResume(self):
         self.notify.debug('enterResume()')
