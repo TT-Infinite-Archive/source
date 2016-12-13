@@ -2,7 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import *
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase import TTLocalizer, EventGlobals
-from toontown.toon.InventoryGlobals import TargetedGagItem
+from toontown.toon.InventoryGlobals import Gag
 from panda3d.core import Vec4
 
 
@@ -113,7 +113,7 @@ class TownBattleChooseAvatarPanel(DirectObject):
 
     def setAttack(self, attack):
         self.notify.debug('Setting attack %s' % attack.uid)
-        if not attack.isTargeted():
+        if not attack.requiresTarget():
             self.notify.warning('Cannot choose target for un-targeted attack')
             return
         self.attack = attack
@@ -141,8 +141,8 @@ class TownBattleChooseAvatarPanel(DirectObject):
     def updateButtons(self):
         if self.battle is None or self.attack is None:
             return
-        if not self.attack.isTargeted():
-            self.notify.warning('Attack un-targetable, ignoring request to updateButtons')
+        if not self.attack.requiresTarget():
+            self.notify.warning('Attack not single target, ignoring request to updateButtons')
             return
 
         self.hidePickerButtons()
@@ -153,7 +153,7 @@ class TownBattleChooseAvatarPanel(DirectObject):
             self.notify.warning('Invalid number of avatars.')
             return
 
-        if self.attack.targetType in (TargetedGagItem.TargetEnemy,):
+        if self.attack.targetType in (Gag.TargetSingleEnemy,):
             # Targeting enemies
             positions = self.ButtonXPositions[enemyCount - 1]
             buttons = self.EnemyButtons

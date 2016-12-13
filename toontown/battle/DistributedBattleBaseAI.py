@@ -784,7 +784,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             gag = InventoryGlobals.Gags.get(tma.attackId)
             if target is None or gag is None:
                 continue
-            if gag.isTargeted():
+            if gag.requiresTarget():
                 gag.effect.b_applyTo(target)
             if target.hp <= 0:
                 # Suit died

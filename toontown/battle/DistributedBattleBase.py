@@ -196,6 +196,14 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             if t == toon:
                 return t
 
+    def getToonIndex(self, toonId):
+        toon = self.findToon(toonId)
+        return self.activeToons.index(toon)
+
+    def getSuitIndex(self, suitId):
+        suit = self.findSuit(suitId)
+        return self.activeSuits.index(suit)
+
     def getActorPosHpr(self, actor, actorList = []):
         if isinstance(actor, Suit.Suit):
             if actorList == []:
@@ -264,7 +272,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
          toonsActive,
          toonsRunning))
         ts = globalClockDelta.localElapsedTime(timestamp)
-        oldsuits = self.suits
         self.suits = []
         suitGone = 0
         for s in suits:
@@ -278,18 +285,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 self.suits.append(None)
                 suitGone = 1
 
-        numSuitsThatDied = 0
-        for s in oldsuits:
-            if self.suits.count(s) == 0:
-                self.__removeSuit(s)
-                numSuitsThatDied += 1
-                self.notify.debug('suit %d dies, numSuitsThatDied=%d' % (s.doId, numSuitsThatDied))
-
-        if numSuitsThatDied == 4:
-            trainTrap = self.find('**/traintrack')
-            if not trainTrap.isEmpty():
-                self.notify.debug('removing old train trap when 4 suits died')
-                trainTrap.removeNode()
         for s in suitsJoining:
             suit = self.suits[int(s)]
             if suit != None and self.joiningSuits.count(suit) == 0:
@@ -318,8 +313,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.toons = []
         toonGone = 0
         for t in toons:
-            toon = self.getToon(t)
-            if toon == None:
+            toon = self.cr.doId2do.get(t)
+            if toon is None:
                 self.notify.warning('setMembers() - toon not in cr!')
                 self.toons.append(None)
                 toonGone = 1
@@ -736,14 +731,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         runMTrack.start(ts)
         runMTrack.delayDelete = DelayDelete.DelayDelete(toon, '__makeToonRun')
         self.storeInterval(runMTrack, runName)
-
-    def getToon(self, toonId):
-        if toonId in self.cr.doId2do:
-            return self.cr.doId2do[toonId]
-        else:
-            self.notify.warning('getToon() - toon: %d not in repository!' % toonId)
-            return None
-        return None
 
     def d_toonRequestJoin(self, toonId, pos):
         self.notify.debug('network:toonRequestJoin()')

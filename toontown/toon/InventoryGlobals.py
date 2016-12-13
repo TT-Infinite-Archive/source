@@ -1,85 +1,70 @@
+from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.showbase.DirectObject import DirectObject
+
 from toontown.data import Missile
 from toontown.data.Effect import DamageEffect
 from toontown.data import IconGlobals
 
 
-class GagItem:
-    def __init__(self, uid, name, effect):
+class Gag(DirectObject):
+    notify = directNotify.newCategory('Gag')
+    TargetNone = 0
+    TargetSingleEnemy = 1
+    TargetSingleAlly = 2
+    TargetEnemies = 3
+    TargetAllies = 4
+    TargetSelf = 5
+    TargetSelfAndAllies = 6
+
+    def __init__(self, uid, name, effect, targetType):
+        DirectObject.__init__(self)
         self.uid = uid
         self.name = name
         self.effect = effect
+        self.targetType = targetType
+
+    def __str__(self):
+        return '%s' % self.name
 
     def toList(self):
         return [
             self.uid
         ]
 
-    def getInfoString(self):
-        return ''
+    def getDescription(self):
+        typeToString = {
+            self.TargetNone: '',
+            self.TargetSingleEnemy: ' to a single Cog',
+            self.TargetSingleAlly: ' to a single Toon',
+            self.TargetEnemies: ' to all Cogs',
+            self.TargetAllies: ' to all other Toons',
+            self.TargetSelf: ' to yourself',
+            self.TargetSelfAndAllies: ' to all Toons'
+        }
+        return '%s%s.' % (self.effect.getDescription(), typeToString[self.targetType])
 
     def getDisplayObject(self):
         return GagToIcon.get(self.uid, None)
 
-    def isTargeted(self):
-        return False
+    def requiresTarget(self):
+        return self.targetType in (self.TargetSingleEnemy, self.TargetSingleAlly)
 
-    def targetsAlly(self):
-        return False
-
-    def __str__(self):
-        return '%s' % self.name
-
-    def targetsEnemy(self):
-        return False
+    def getTargets(self, battle, targetId):
+        # Returns the targets from the battle given
+        targets = []
+        if self.targetType == self.TargetSingleEnemy:
+            targets.append(battle.findSuit(targetId))
+        elif self.targetType == self.TargetSingleAlly:
+            targets.append(battle.findToon(targetId))
+        else:
+            self.notify.warning('Getting targets for target type %d not yet implemented' % self.targetType)
+        return targets
 
     def getDamage(self):
         if isinstance(self.effect, DamageEffect):
             return self.effect.amount
         else:
             return 0
-
-
-class TargetedGagItem(GagItem):
-    TargetNone = 0
-    TargetEnemy = 1
-    TargetAlly = 2
-
-    def __init__(self, uid, name, effect, accuracy, targetType, targetCount):
-        GagItem.__init__(self, uid, name, effect)
-        self.accuracy = accuracy
-        self.targetType = targetType
-        self.targetCount = targetCount
-
-    def getInfoString(self):
-        typeToString = {
-            self.TargetNone: '',
-            self.TargetEnemy: 'Cog',
-            self.TargetAlly: 'Ally'
-        }
-        countToString = {
-            0: '',
-            1: 'One',
-            2: 'Two',
-            3: 'Three',
-            4: 'All'
-        }
-        targetString = '%s %s' % (
-            countToString[self.targetCount], typeToString[self.targetType] + ('s' if self.targetCount > 1 else '')
-        )
-
-        return 'Damage: %s\nAccuracy: %s%%\n\nHits %s' % (self.effect.amount, int(self.accuracy * 100), targetString)
-
-    def getDisplayObject(self):
-        return GagToIcon.get(self.uid, None)
-
-    def isTargeted(self):
-        return True
-
-    def targetsAlly(self):
-        return self.targetType == self.TargetAlly
-
-    def targetsEnemy(self):
-        return self.targetType == self.TargetEnemy
 
 
 class GagItemSlot:
@@ -109,11 +94,11 @@ NO_ATTACK = 0
 PASS = 99
 
 Gags = {
-    0: GagItem(0, 'Nothing but a chuckle', None),
-    1: TargetedGagItem(1, 'Cupcake', DamageEffect(0, 6), 0.6, TargetedGagItem.TargetEnemy, 1),
-    2: TargetedGagItem(2, 'Sliced Fruit Pie', DamageEffect(0, 12), 0.6, TargetedGagItem.TargetEnemy, 1),
-    3: TargetedGagItem(3, 'Golden Cupcake', DamageEffect(0, 999), 1, TargetedGagItem.TargetEnemy, 4),
-    PASS: GagItem(99, 'Pass', None),
+    0: Gag(0, 'Nothing but a chuckle', None, 0),
+    1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy),
+    2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy),
+    3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies),
+    PASS: Gag(99, 'Pass', None, 0),
 }
 
 GagToIcon = {

@@ -178,8 +178,8 @@ class TownBattle(StateData.StateData):
         self.notify.debug('attackSelected: %s' % attackId)
         self.attackId = attackId
         self.updateChosenAttacks()
-        gag = InventoryGlobals.Gags.get(attackId)
-        if gag is not None and gag.isTargeted():
+        gag = InventoryGlobals.Gags[attackId]
+        if gag.requiresTarget():
             self.fsm.request('ChooseTarget')
         else:
             self.fsm.request('AttackWait')
@@ -229,8 +229,8 @@ class TownBattle(StateData.StateData):
         self.waitPanel.hide()
 
     def __handleAttackWaitBack(self):
-        gag = InventoryGlobals.Gags.get(self.attackId)
-        if gag and gag.isTargeted():
+        gag = InventoryGlobals.Gags[self.attackId]
+        if gag.requiresTarget():
             self.fsm.request('ChooseTarget')
         else:
             self.fsm.request('Attack')

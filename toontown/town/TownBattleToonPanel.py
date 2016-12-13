@@ -2,7 +2,8 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import DirectFrame
 from panda3d.core import Vec4
 
-from toontown.toon import LaffMeter, InventoryGlobals
+from toontown.toon import LaffMeter
+from toontown.toon.InventoryGlobals import Gags, Gag
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel
 
@@ -50,6 +51,17 @@ class TownBattleToonPanel(DirectFrame):
         DirectFrame.hide(self)
         if self.laffMeter:
             self.laffMeter.stop()
+
+    def cleanup(self):
+        self.ignoreAll()
+        self.unsetLaffMeter()
+        if self.gagImage is not None:
+            self.gagImage.removeNode()
+            self.gagImage = None
+        self.gagNode.removeNode()
+        self.gagNode = None
+        self.battle = None
+        DirectFrame.destroy(self)
 
     def setAvatar(self, avatar):
         if self.avatar == avatar:
@@ -135,89 +147,36 @@ class TownBattleToonPanel(DirectFrame):
             return
         self.notify.debug('Showing that toon at index %s attacks with %d.' % (self.index, toonAttack.attackId))
         attackId = toonAttack.attackId
-        gag = InventoryGlobals.Gags.get(attackId)
+        gag = Gags[attackId]
         if attackId == 0:
             # This gag means no gag
-            self.undecidedText.show()
-        elif gag is None:
-            # ???
+            self.notify.debug('Showing that toon at index %s has no attack yet.' % self.index)
             self.undecidedText.show()
         else:
             self.setGagImage(gag.getDisplayObject().getButtonIcon())
             self.gagNode.show()
-            attacker = self.battle.findToon(toonAttack.attackerId)
-            if attacker is None:
-                self.notify.warning('Failed to set attack attacker %d not in this battle.' % toonAttack.attackerId)
-                return
-            attackerIndex = self.battle.activeToons.index(attacker)
-            if not gag.isTargeted():
-                return
-            elif gag.targetsAlly():
-                numTargets = len(self.battle.activeToons)
-                if gag.targetCount == 4:
-                    # Everyone except me
-                    targetIndex = -2
-                else:
-                    target = base.cr.doId2do.get(toonAttack.targetId)
-                    if target is not None and target.doId in self.battle.activeToons:
-                        target = self.battle.findToon(toonAttack.targetId)
-                        if target is None:
-                            self.notify.warning('Failed to target toon %d not in this battle.' % toonAttack.targetId)
-                            return
-                        targetIndex = self.battle.activeToons.index(target)
-                    else:
-                        # Don't know what to do?
-                        targetIndex = -2
-            elif gag.targetsEnemy():
-                numTargets = len(self.battle.activeSuits)
-                if gag.targetCount == 4:
-                    # All enemies
-                    targetIndex = -1
-                else:
-                    target = self.battle.findSuit(toonAttack.targetId)
-                    if target is None:
-                        self.notify.warning('Failed to target suit %d not in this battle.' % toonAttack.targetId)
-                        return
-                    targetIndex = self.battle.activeSuits.index(target)
-            else:
-                self.notify.warning('Failed to set attack')
-                return
-
-            self.whichText['text'] = self.determineWhichText(numTargets, targetIndex, attackerIndex)
+            # whichText display stuff
+            self.whichText['text'] = self.determineWhichText(toonAttack)
             self.whichText.show()
 
-    def determineWhichText(self, numTargets, targetIndex, index):
-        returnStr = ''
-        targetList = range(numTargets)
-        targetList.reverse()
-        for i in targetList:
-            if targetIndex == -1:
-                # Everyone
-                returnStr += 'X'
-            elif targetIndex == -2:
-                # Everyone except me
-                if i == index:
-                    returnStr += '-'
-                else:
-                    returnStr += 'X'
-            elif targetIndex in xrange(0, 4):
-                # Specific targets
-                if i == targetIndex:
-                    returnStr += 'X'
-                else:
-                    returnStr += '-'
-            else:
-                self.notify.error('Bad target index: %s' % targetIndex)
+    def determineWhichText(self, toonAttack):
+        gag = Gags[toonAttack.attackId]
+        text = ['']
+        if gag.targetType == Gag.TargetSingleAlly:
+            text = ['-'] * len(self.battle.activeToons)
+            text[self.battle.getToonIndex(toonAttack.targetId)] = 'X'
+        elif gag.targetType == Gag.TargetSingleEnemy:
+            text = ['-'] * len(self.battle.activeSuits)
+            text[self.battle.getSuitIndex(toonAttack.targetId)] = 'X'
+        elif gag.targetType == Gag.TargetSelf:
+            text = 'SELF'
+        elif gag.targetType == Gag.TargetEnemies:
+            text = ['X'] * len(self.battle.activeSuits)
+        elif gag.targetType == Gag.TargetAllies:
+            text = ['X'] * len(self.battle.activeToons)
+            text[self.battle.getToonIndex(toonAttack.attackerId)] = '-'
+        elif gag.targetType == Gag.TargetSelfAndAllies:
+            text = ['X'] * len(self.battle.activeToons)
 
-        return returnStr
-
-    def cleanup(self):
-        self.ignoreAll()
-        self.unsetLaffMeter()
-        if self.gagImage is not None:
-            self.gagImage.removeNode()
-            self.gagImage = None
-        self.gagNode.removeNode()
-        self.gagNode = None
-        self.battle = None
-        DirectFrame.destroy(self)
+        text = ''.join(text)
+        return text

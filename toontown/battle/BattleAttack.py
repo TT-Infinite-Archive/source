@@ -31,16 +31,16 @@ class SuitBattleAttack(BattleAttack):
 
 
 class MovieAttack(BattleAttack):
-    def __init__(self, suitId=0, attackId=0, targetId=0, hit=False):
+    def __init__(self, suitId=0, attackId=0, targetId=0, roll=False):
         BattleAttack.__init__(self, suitId, attackId, targetId)
-        self.hit = hit
+        self.roll = roll
 
     def toList(self):
-        return BattleAttack.toList(self) + [self.hit]
+        return BattleAttack.toList(self) + [self.roll]
 
     def fromList(self, ls):
         BattleAttack.fromList(self, ls)
-        self.hit = ls[3]
+        self.roll = ls[3]
 
 
 class SuitAttack:
