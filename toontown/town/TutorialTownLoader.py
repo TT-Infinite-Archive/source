@@ -12,6 +12,7 @@ from toontown.toonbase import ToontownGlobals
 from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
 from panda3d.core import Vec3
 
+
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
     def __init__(self, hood, parentFSM, doneEvent):
@@ -44,13 +45,18 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.loadInfiniteSky()
         self.startInfiniteLowGravity()
-        self.setColor()
         self.enterIntroduction()
         self.logo.hide()
+
+    def enter(self, zoneId):
+        TTTownLoader.TTTownLoader.enter(self, zoneId)
+        render.setColorScale(0.3, 0.2, 0.2, 1)
+
 
     def exit(self):
         self.unloadInfiniteSky()
         self.stopInfiniteLowGravity()
+        TTTownLoader.TTTownLoader.exit(self)
 
     def loadInfiniteSky(self):
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/Infinite_sky.bam')
@@ -81,9 +87,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
     def stopInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 2.0)
-
-    def setColor(self):
-        render.setColorScale(0.3, 0.2, 0.2, 1)
 
     def enterIntroduction(self):
 
