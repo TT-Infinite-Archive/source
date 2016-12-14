@@ -10,3 +10,7 @@ class TutorialHood(ToonHood):
     TOWNLOADER_CLASS = TutorialTownLoader
     SKY_FILE = 'phase_3.5/models/props/TT_sky'
     TITLE_COLOR = (1.0, 0.5, 0.4, 1.0)
+
+    def enter(self, requestStatus):
+        ToonHood.enter(self, requestStatus)
+        base.cr.playGame.getPlace().exitWalk()

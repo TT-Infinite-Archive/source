@@ -10691,6 +10691,10 @@ IntroNoButton = 'No'
 ClickToStartLabel = '\x01shadow\x01Click anywhere to begin\x02'
 ClickToStartHalloweenLabel = '\x01shadow\x01Click anywhere to begin\n...if you dare...\x02'
 
+# Prologue
+PrologueKaldronPresents = 'Kaldron Interactive presents...'
+PrologueKaldronPresents2 = 'test test'
+
 Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
