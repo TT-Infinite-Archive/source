@@ -22,6 +22,7 @@ import string
 import sys
 import time
 import types
+import __builtin__
 
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
 from otp.avatar import Avatar
@@ -368,18 +369,11 @@ class OTPClientRepository(ClientRepositoryBase):
         self.dclassesByNumber = {}
         self.hashVal = 0
 
-        try:
-            dcStream
-
-        except:
-            pass
-
-        else:
-            self.notify.info('Detected DC file stream, reading it...')
-            dcFileNames = [dcStream]
-
         if isinstance(dcFileNames, str):
             dcFileNames = [dcFileNames]
+
+        if hasattr(__builtin__, 'dcData'):
+            dcFileNames = [StringStream(dcData)]
 
         if dcFileNames is not None:
             for dcFileName in dcFileNames:

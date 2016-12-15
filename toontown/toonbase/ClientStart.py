@@ -1,27 +1,36 @@
 #!/usr/bin/env python2
 import gc
 
-
 # Due to the newer Panda3D versions being less stable on the C++ side of
 # things, we need to disable the garbage collector during startup or a thread
 # related error will cause an AttributeError.
 # ~ Chan
 gc.disable()
 
-
 import __builtin__
-
 
 __builtin__.process = 'client'
 
+import tempfile
+import atexit
+import shutil
+import os
+
+# Create a temporary directory
+__builtin__.tempdir = tempfile.mkdtemp()
+atexit.register(shutil.rmtree, tempdir)
+
+if hasattr(__builtin__, '__nirai__'):
+    # Output the DC file data to it (for use with Astron)
+    filepath = os.path.join(tempdir, 'game_data.dc')
+    with open(filepath, 'w') as f:
+        f.write(dcData)
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
-
 
 __builtin__.directNotify = directNotify
 notify = directNotify.newCategory('ClientStart')
 notify.setInfo(True)
-
 
 if __debug__:
     from panda3d.core import loadPrcFile
@@ -39,11 +48,9 @@ if __debug__:
         notify.info('Starting injector...')
         __builtin__.injector = Injector()
 
-
 from panda3d.core import ConfigVariableString, loadPrcFileData
 
 from otp.settings.Settings import Settings
-
 
 preferencesPath = ConfigVariableString('preferences-path', 'preferences.json')
 notify.info('Reading %s...' % preferencesPath.getValue())
@@ -91,11 +98,9 @@ loadPrcFileData('Settings: loadDisplay',
 loadPrcFileData('Settings: toonChatSounds',
                 'toon-chat-sounds %s' % settings['toonChatSounds'])
 
-
 import os
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
-
 
 contentPacksPath = ConfigVariableString('content-packs-path', 'contentpacks')
 if not os.path.exists(contentPacksPath.getValue()):
@@ -103,26 +108,26 @@ if not os.path.exists(contentPacksPath.getValue()):
 __builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath.getValue())
 contentPacksMgr.applyAll()
 
+if not os.path.isdir('astron/data/singleplayer'):
+    os.makedirs('astron/data/singleplayer')
+
+if not os.path.isdir('astron/data/multiplayer'):
+    os.makedirs('astron/data/multiplayer')
 
 from toontown.launcher.TTILauncher import TTILauncher
-
 
 __builtin__.launcher = TTILauncher()
 
 notify.info('Starting the game...')
 
-
 from direct.gui import DirectGuiGlobals
 from toontown.toonbase import ToontownGlobals
-
 
 DirectGuiGlobals.setDefaultFontFunc(ToontownGlobals.getInterfaceFont)
 
 launcher.setPandaErrorCode(7)
 
-
 from toontown.toonbase import ToonBase
-
 
 ToonBase.ToonBase()
 
@@ -132,9 +137,7 @@ if base.win is None:
 launcher.setPandaErrorCode(0)
 launcher.setPandaWindowOpen()
 
-
 from panda3d.core import Vec4
-
 
 base.setBackgroundColor(Vec4(0, 0, 0, 0))
 base.graphicsEngine.renderFrame()
@@ -146,39 +149,27 @@ DirectGuiGlobals.setDefaultClickSound(
 DirectGuiGlobals.setDefaultDialogGeom(
     loader.loadModel('phase_3/models/gui/dialog_box_gui.bam'))
 
-
 from toontown.toon import Toon
-
 
 Toon.preload()
 
-
 from toontown.suit import Suit
-
 
 Suit.preload()
 
-
 from toontown.login import AvatarChooser
-
 
 AvatarChooser.preload()
 
-
 from toontown.shtiker import ShtikerGUI
-
 
 ShtikerGUI.preload()
 
-
 from toontown.toontowngui.Introduction import Introduction
-
 
 introduction = Introduction()
 
-
 from toontown.toontowngui.ClickToStart import ClickToStart
-
 
 version = ConfigVariableString('server-version', 'n/a')
 clickToStart = ClickToStart(version=version.getValue())
@@ -192,7 +183,6 @@ if base.musicManagerIsValid:
         music = loader.loadMusic('phase_3/audio/bgm/tti_theme_christmas.ogg')
     else:
         music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
-
 
 from toontown.toonbase import TTLocalizer
 from otp.otpbase import OTPLocalizer
@@ -257,7 +247,6 @@ def syncLoginFSM(task=None):
 
 from direct.interval.IntervalGlobal import Sequence, Func, Wait
 
-
 presentsTrack = Sequence(
     Func(introduction.request, 'Presents'),
     Wait(7),
@@ -269,9 +258,7 @@ disclaimerTrack = Sequence(
     Func(presentsTrack.start)
 )
 
-
 from toontown.distributed import ToontownClientRepository
-
 
 base.cr = ToontownClientRepository.ToontownClientRepository(
     version.getValue(), launcher)
@@ -280,9 +267,7 @@ base.cr.introduction = introduction
 base.cr.clickToStart = clickToStart
 base.initNametagGlobals()
 
-
 from otp.distributed.OtpDoGlobals import OTP_DO_ID_FRIEND_MANAGER
-
 
 base.cr.generateGlobalObject(OTP_DO_ID_FRIEND_MANAGER, 'FriendManager')
 

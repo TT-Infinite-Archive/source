@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 """"Entry point for a compiled build of Toontown Infinite."""
 import __builtin__
+
 import game_data
-import sys
-import _psutil_windows
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
@@ -23,20 +22,15 @@ for mount in mounts:
     mountPoint = Filename(mountPoint)
     vfs.mount(mountFile, mountPoint, 0)
 
-__builtin__.dcStream = StringStream(game_data.deobfuscate(game_data.DC))
+# Store the deobfuscated DC file data for later use
+__builtin__.dcData = game_data.deobfuscate(game_data.DC)
+
 __builtin__.builtFile = 'infinite'
 
-
-class PsutilHook:
-    def find_module(self, fullname, path):
-        if fullname == 'psutil._psutil_windows':
-            return self
-
-    def load_module(self, fullname):
-        if fullname == 'psutil._psutil_windows':
-            return _psutil_windows
-
-
-sys.meta_path.append(PsutilHook())
-
-import toontown.toonbase.ClientStart
+# __builtin__.process is automatically defined by the runtime
+if process == 'client':
+    import toontown.toonbase.ClientStart
+elif process == 'ai':
+    import toontown.ai.ServiceStart
+elif process == 'uberdog':
+    import toontown.uberdog.ServiceStart
