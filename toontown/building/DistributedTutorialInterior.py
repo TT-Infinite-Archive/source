@@ -15,8 +15,8 @@ from toontown.suit import SuitDNA
 from toontown.suit import Suit
 from toontown.quest import QuestParser
 from toontown.toon import DistributedNPCSpecialQuestGiver
+from toontown.hood import TutorialHood
 from toontown.toonbase import TTLocalizer
-from toontown.chat.ChatGlobals import CFSpeech
 
 
 class DistributedTutorialInterior(DistributedObject.DistributedObject):
@@ -84,6 +84,7 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         self.interior = loader.loadModel('phase_3.5/models/modules/toon_interior_tutorial')
         self.interior.reparentTo(render)
         dnaStore = DNAStorage()
+        """
         node = loader.loadDNAFile(self.cr.playGame.hood.dnaStore, 'phase_3.5/dna/tutorial_street.pdna')
         self.street = render.attachNewNode(node)
         self.street.flattenMedium()
@@ -91,14 +92,7 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         self.street.find('**/tb2:toon_landmark_TT_A1_DNARoot').stash()
         self.street.find('**/tb1:toon_landmark_hqTT_DNARoot/**/door_flat_0').stash()
         self.street.findAllMatches('**/+CollisionNode').stash()
-        self.skyFile = 'phase_3.5/models/props/TT_sky'
-        self.sky = loader.loadModel(self.skyFile)
-        self.sky.setScale(0.8)
-        self.sky.reparentTo(render)
-        self.sky.setDepthTest(0)
-        self.sky.setDepthWrite(0)
-        self.sky.setBin('background', 100)
-        self.sky.find('**/Sky').reparentTo(self.sky, -1)
+        """
         hoodId = ZoneUtil.getCanonicalHoodId(self.zoneId)
         self.colors = ToonInteriorColors.colors[hoodId]
         self.replaceRandomInModel(self.interior)
@@ -121,13 +115,9 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         del self.dnaStore
         del self.randomGenerator
         self.interior.flattenMedium()
-        npcOrigin = self.interior.find('**/npc_origin_' + `(self.cr.doId2do[self.npcId].posIndex)`)
-        if not npcOrigin.isEmpty():
-            self.cr.doId2do[self.npcId].reparentTo(npcOrigin)
-            self.cr.doId2do[self.npcId].clearMat()
         self.createSuit()
         base.localAvatar.setPosHpr(-2, 12, 0, -10, 0, 0)
-        self.cr.doId2do[self.npcId].setChatAbsolute(TTLocalizer.QuestScriptTutorialMickey_4, CFSpeech)
+        self.cr.doId2do[self.npcId].setPosHpr(-8.709, 17.837, 0.025, 212.567, 0, 0)
         place = base.cr.playGame.getPlace()
         if place and hasattr(place, 'fsm') and place.fsm.getCurrentState().getName():
             self.notify.info('Tutorial movie: Place ready.')

@@ -6,11 +6,12 @@ from toontown.toon import Toon
 from toontown.hood import ZoneUtil
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from toontown.battle.BattleProps import *
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
-from panda3d.core import Vec3
+from pandac.PandaModules import *
+from otp.otpbase import OTPGlobals
+from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
@@ -21,8 +22,9 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.infiniteSkyLoop = None
         self.prologueIntro = None
+        self.environmentSequences = []
         self.musicFile = 'phase_4/audio/bgm/ttc_storm_bgm.ogg'
-        self.activityMusicFile = 'phase_3/audio/bgm/toontown_infinite_prologue_1.ogg'
+        self.activityMusicFile = ''
 
         font = ToontownGlobals.getMinnieFont()
 
@@ -43,28 +45,61 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.createHood(dnaFile, loadStorage=0)
         self.alterDictionaries()
 
-        self.loadInfiniteSky()
+        self.loadInfinite()
         self.startInfiniteLowGravity()
         self.enterIntroduction()
         self.logo.hide()
+        self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
         render.setColorScale(0.3, 0.2, 0.2, 1)
+        # base.cr.playGame.getPlace().exitWalk()
 
 
     def exit(self):
-        self.unloadInfiniteSky()
+        self.loadInfinite()
         self.stopInfiniteLowGravity()
         TTTownLoader.TTTownLoader.exit(self)
 
-    def loadInfiniteSky(self):
+    def loadInfinite(self):
+
+        # Load space
+
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/Infinite_sky.bam')
         self.infiniteSky.reparentTo(render)
-        self.infiniteSkyLoop = self.infiniteSky.hprInterval(200, Vec3(360, 0, 0))
+        self.infiniteSkyLoop = self.infiniteSky.hprInterval(300, Vec3(360, 0, 0))
         self.infiniteSkyLoop.loop()
 
-    def unloadInfiniteSky(self):
+        # Floating objects!
+
+        self.tutorialStreet = loader.loadModel('phase_3.5/models/props/tutorial_street.bam')
+        self.tutorialStreet.reparentTo(render)
+        self.tutorialStreet.setPosHpr(-439.387, -233.377, 60, 0, 30, 0)
+
+        tutorialStreetPosInterval1 = LerpPosInterval(self.tutorialStreet,
+                                                  duration=6,
+                                                  pos=Point3(0, 0, 12),
+                                                  startPos=Point3(0, 0, 0),
+                                                  blendType='easeInOut')
+
+        tutorialStreetPosInterval2 = LerpPosInterval(self.tutorialStreet,
+                                                  duration=6,
+                                                  pos=Point3(0, 0, 0),
+                                                  startPos=Point3(0, 0, 12),
+                                                  blendType='easeInOut')
+
+        self.environmentSequences.append(self.tutorialStreet)
+
+        self.tutorialStreetPace = Sequence(tutorialStreetPosInterval1,
+                                        tutorialStreetPosInterval2,
+                                        name="tutorialStreetPace")
+
+        self.tutorialStreetPace.loop()
+
+        # self.plazaPlatform = loader.loadModel('')
+
+    def unloadInfinite(self):
         self.infiniteSky.removeNode()
 
         if self.infiniteSkyLoop:
@@ -90,13 +125,19 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
     def enterIntroduction(self):
 
+        nametag2d = render2d.findAllMatches('**/Nametag2d')
+        nametag2d.hide()
+
         self.label.setText(TTLocalizer.PrologueKaldronPresents)
         self.label.setPos(0, self.calcLabelY())
         self.label.reparentTo(aspect2d)
-        
+
         self.label2.setText(TTLocalizer.PrologueKaldronPresents2)
         self.label2.setPos(0, self.calcLabelY())
         self.label2.reparentTo(aspect2d)
+
+        self.introductionMusic = loader.loadMusic('phase_3/audio/bgm/toontown_infinite_prologue_1.ogg')
+        base.playMusic(self.introductionMusic, looping=0)
 
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter, image='phase_3/maps/toontown-logo.png',
@@ -146,7 +187,23 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.label2.setPos(0, 0)
         self.label2.setText('')
 
+        self.introductionMusic.stop()
+
     def calcLabelY(self):
         sy = self.label.getScale()[1]
         height = self.label.textNode.getHeight()
         return (height * sy) / 2.0
+
+    # Only here temporarily for development purposes
+    def thinkPos(self):
+        pos = base.localAvatar.getPos()
+        hpr = base.localAvatar.getHpr()
+        serverVersion = base.cr.getServerVersion()
+        districtName = base.cr.getShardName(base.localAvatar.defaultShard)
+        if hasattr(base.cr.playGame.hood, 'loader') and hasattr(base.cr.playGame.hood.loader, 'place') and base.cr.playGame.getPlace() != None:
+            zoneId = base.cr.playGame.getPlace().getZoneId()
+        else:
+            zoneId = '?'
+        strPos = '(%.3f' % pos[0] + '\n %.3f' % pos[1] + '\n %.3f)' % pos[2] + '\nH: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ',\nVer: %s, ' % serverVersion + '\nDistrict: %s' % districtName
+        print 'Current position=', strPos.replace('\n', ', ')
+        return

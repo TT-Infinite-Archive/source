@@ -13,7 +13,7 @@ class TutorialHood(ToonHood):
 
     def enter(self, requestStatus):
         ToonHood.enter(self, requestStatus)
-        base.cr.playGame.getPlace().exitWalk()
+        # base.cr.playGame.getPlace().exitWalk()
         render.setColorScale(0.3, 0.2, 0.2, 1)
 
     def processTime(self):
