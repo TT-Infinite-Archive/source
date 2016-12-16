@@ -32,7 +32,7 @@ class BattleCalculatorAI:
             # Check if its a real gag
             if gag is not None:
                 # Roll a dice for the attack
-                tma.roll = round(random.uniform(0, 1), 2)
+                tma.hit = gag.chance >= random.uniform(0, 1)
                 self.notify.debug('generatedToonAttack: %s' % tma.toList())
                 tmas.append(tma)
             else:
@@ -46,7 +46,7 @@ class BattleCalculatorAI:
             sma.fromList(sa.toList() + [0.0])
             attack = BattleAttack.SuitAttacks.get(sa.attackId)
             if attack is not None:
-                sma.roll = random.uniform(0, 1)
+                sma.hit = attack.chance >= random.uniform(0, 1)
                 smas.append(sma)
             else:
                 self.notify.warning('Invalid suit attack %s' % sa.attackId)

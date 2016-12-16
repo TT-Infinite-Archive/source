@@ -16,12 +16,13 @@ class Gag(DirectObject):
     TargetSelf = 5
     TargetSelfAndAllies = 6
 
-    def __init__(self, uid, name, effect, targetType):
+    def __init__(self, uid, name, effect, targetType, chance=1.0):
         DirectObject.__init__(self)
         self.uid = uid
         self.name = name
         self.effect = effect
         self.targetType = targetType
+        self.chance = chance
 
     def __str__(self):
         return '%s' % self.name
@@ -98,6 +99,7 @@ Gags = {
     1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy),
     2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy),
     3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies),
+    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, chance=0.5),
     PASS: Gag(99, 'Pass', None, 0),
 }
 
@@ -106,6 +108,7 @@ GagToIcon = {
     1: IconGlobals.getIcon(IconGlobals.ICON_CUPCAKE_NEW),
     2: IconGlobals.getIcon(IconGlobals.ICON_PIESLICE),
     3: IconGlobals.getIcon(IconGlobals.ICON_GOLD_TART),
+    4: IconGlobals.getIcon(IconGlobals.ICON_RED_TART),
     PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)
 }
 
@@ -113,7 +116,8 @@ GagToMissile = {
     0: None,
     1: Missile.CupcakeMissile,
     2: Missile.CupcakeMissile,
-    3: Missile.GoldenCupcakeMissile
+    3: Missile.GoldenCupcakeMissile,
+    4: Missile.RedCupcakeMissile
 }
 
 AlwaysEquipped = [

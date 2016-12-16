@@ -296,7 +296,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.pendingToons.append(avId)
         else:
             suit = self.findSuit(avId)
-            if suit != None:
+            if suit is not None:
                 if not suit.isEmpty():
                     if not self.joiningSuits.count(suit) == 1:
                         self.notify.warning('__makeAvPending(%d) in zone: %d' % (avId, self.zoneId))
@@ -415,6 +415,9 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
                     self.adjustingToons = []
                     for t in self.pendingToons:
                         self.adjustingToons.append(t)
+
+                    if cstate == 'WaitForJoin':
+                        self.b_setState('WaitForInput')
 
                     self.adjustFsm.request('Adjusting')
                 else:
@@ -615,6 +618,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def joinDone(self, avId):
         toonId = self.air.getAvatarIdFromSender()
+        self.notify.debug('Got join done from %d' % toonId)
         if self.toons.count(toonId) == 0:
             self.notify.warning('joinDone() - toon: %d not in toon list' % toonId)
             return
@@ -689,16 +693,11 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return None
 
     def enterWaitForJoin(self):
-        self.notify.debug('STATE: WaitForJoin')
-        if len(self.activeSuits) > 0:
-            self.b_setState('WaitForInput')
-        else:
-            self.notify.debug('enterWaitForJoin() - no active suits')
-            self.runnableFsm.request('Runnable')
-            self.__requestAdjust()
+        self.notify.debug('Waiting for join...')
         return None
 
     def exitWaitForJoin(self):
+        self.notify.debug('Done waiting for join.')
         return None
 
     def enterWaitForInput(self):
@@ -777,34 +776,70 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def enterApplyAttacks(self):
         self.notify.debug('Applying attacks...')
+        # For each attack
         for tma in self.toonMovieAttacks:
             if not tma.hit:
                 continue
-            target = self.findSuit(tma.targetId)
             gag = InventoryGlobals.Gags.get(tma.attackId)
-            if target is None or gag is None:
-                continue
+            if gag is None:
+                self.notify.warning('Attempted to apply invalid gag with id %s' % tma.attackId)
+                return
+            targets = []
+            # Setup targets
             if gag.requiresTarget():
+                targetId = tma.targetId
+                if gag.targetType == InventoryGlobals.Gag.TargetSingleAlly:
+                    if targetId in self.activeToons:
+                        targets.append(self.air.doId2do.get(targetId))
+                    else:
+                        self.notify.warning('Invalid target %s for ally attack' % targetId)
+                elif gag.targetType == InventoryGlobals.Gag.TargetSingleEnemy:
+                    suit = self.findSuit(targetId)
+                    if suit and suit in self.activeSuits:
+                        targets.append(suit)
+                    else:
+                        self.notify.warning('Invalid target %s for enemy attack' % targetId)
+            elif gag.targetType == InventoryGlobals.Gag.TargetEnemies:
+                targets += self.activeSuits
+            else:
+                self.notify.warning('Targeting for target type %s not yet implemented.' % gag.targetType)
+
+            # Apply effects to targets
+            for target in targets:
                 gag.effect.b_applyTo(target)
-            if target.hp <= 0:
-                # Suit died
-                self.__removeSuit(target)
-                self.needAdjust = 1
+
         # TODO: Apply suit movie attacks here
+
+        # Check if anyone died
+        for suit in self.activeSuits:
+            self.notify.debug('Suit %d with %d hp' % (suit.doId, suit.getHp()))
+            if suit.getHp() <= 0:
+                # Suit died
+                self.__removeSuit(suit)
+                self.needAdjust = 1
+        for toonId in self.activeToons:
+            toon = self.air.doId2do.get(toonId)
+            if toon and toon.getHp() <= 0:
+                # Toon died
+                self.__removeToon(toon)
+                self.needAdjust = 1
 
         # Set members in the event some died just now
         self.d_setMembers()
         self.__requestAdjust()
 
         # Check which state to go into next
-        if len(self.joiningSuits) or len(self.pendingSuits) or len(self.joiningToons) or len(self.pendingToons):
-            # Someone is joining, wait for them to join
-            self.b_setState('WaitForJoin')
-        elif len(self.activeToons) and len(self.activeSuits):
-            # No one is joining, and we have toons and suits in the battle, let's allow them to attack each other
+        if len(self.activeToons) and len(self.activeSuits):
+            # We have toons and suits in the battle, let's allow them to attack each other
             self.b_setState('WaitForInput')
+        elif len(self.activeToons) and (len(self.joiningSuits) or len(self.pendingSuits)):
+            # We have no suits but a suit is joining, wait for them to join
+            self.b_setState('WaitForJoin')
+        elif len(self.activeSuits) and (len(self.joiningToons) or len(self.pendingToons)):
+            # We have no toons but a toon is joining, wait for them to join
+            self.b_setState('WaitForJoin')
         else:
-            # We either don't have any active suits or toons, this battle is over...
+            # We either don't have any suits or toons, this battle is over...
             self.b_setState('Resume')
 
     def exitApplyAttacks(self):

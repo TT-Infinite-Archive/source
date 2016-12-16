@@ -688,3 +688,39 @@ def suitDeath(suit, battle):
             )
         )
     return Parallel(suitTrack, soundTrack, gears1Track, gears2MTrack, toonMTrack)
+
+
+def unloadProp(prop):
+    prop.cleanup()
+    prop.delete()
+
+
+def getLeftSuits(suit, battle):
+    suitIndex = battle.activeSuits.index(suit)
+    suits = battle.activeSuits[0:suitIndex + 1]
+    return suits
+
+
+def getRightSuits(suit, battle):
+    suitIndex = battle.activeSuits.index(suit)
+    suits = battle.activeSuits[suitIndex:]
+    return suits
+
+
+def doSuitDodge(suit, battle):
+    dodgeTrack = Parallel()
+    if random.choice([0, 1]):
+        for s in getLeftSuits(suit, battle):
+            dodgeTrack.append(animateAv(s, 'sidestep-left'))
+    else:
+        for s in getRightSuits(suit, battle):
+            dodgeTrack.append(animateAv(s, 'sidestep-right'))
+    return dodgeTrack
+
+
+def animateAv(av, animName):
+    # Does a toon animation then reverts to neutral
+    return Sequence(
+        ActorInterval(av, animName),
+        Func(av.loop, 'neutral')
+    )

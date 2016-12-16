@@ -463,7 +463,7 @@ struct MovieAttack {
     uint32 attackerId;
     uint32 attackId;
     uint32 targetId;
-    int16/10 roll;
+    bool hit;
 };
 
 dclass ToontownDistrict : DistributedDistrict {

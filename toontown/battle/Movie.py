@@ -236,12 +236,26 @@ class Movie(DirectObject.DirectObject):
             movieFunc = GagMovies.GagToMovieFunc.get(tma.attackId)
             if movieFunc:
                 self.track.append(movieFunc(self.battle, tma))
-            self.track.append(Func(self.playNextAttack, callback))
+            else:
+                self.notify.warning('Gag %s has no movie defined!' % tma.attackId)
+            self.track.append(Func(self.playDeadSuits, callback))
             self.track.start()
         else:
             sma = self.smaQueue.dequeue()
             self.track = Sequence()
             self.track.append(Func(self.playNextAttack, callback))
+            self.track.start()
+
+    def playDeadSuits(self, callback):
+        # Play cogs dying in the event any of them died
+        self.track = Sequence()
+        deathTrack = Parallel()
+        for suit in self.battle.activeSuits:
+            if suit.getHp() <= 0:
+                deathTrack.append(MovieUtil.suitDeath(suit, self.battle))
+        self.track.append(deathTrack)
+        self.track.append(Func(self.playNextAttack, callback))
+        self.track.start()
 
     def reset(self):
         self.finish()
