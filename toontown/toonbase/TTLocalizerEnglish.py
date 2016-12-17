@@ -5997,7 +5997,7 @@ LeaderboardTitle = 'Toon Platoon'
 QuestScriptTutorialMickey_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMickey_2 = 'Sure, %s!'
 QuestScriptTutorialMickey_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
-QuestScriptTutorialMickey_4 = "Hello, new citizen! Welcome to Toontown! Use the arrow keys to move. Walk up to me when you're ready!"
+QuestScriptTutorialMickey_4 = "Hello, new citizen! Welcome to Toontown! Use the arrow keys to move. Walk up to me when you are ready to get started!"
 QuestScriptTutorialMinnie_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMinnie_2 = 'Sure, %s!'
 QuestScriptTutorialMinnie_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
@@ -7403,7 +7403,7 @@ CatalogExitButtonText = 'Hang Up'
 CatalogCurrentButtonText = 'To Current Items'
 CatalogPastButtonText = 'To Past Items'
 TutorialHQOfficerName = 'HQ Harry'
-NPCToonNames = {20000: 'Doctor Surlee',
+NPCToonNames = {20000: 'Tutorial Tom',
  998: 'Talkative Tyler',
  999: 'Toon Tailor',
  1000: lToonHQ,

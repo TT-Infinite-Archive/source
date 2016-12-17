@@ -23,7 +23,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infiniteSkyLoop = None
         self.prologueIntro = None
         self.environmentSequences = []
-        self.musicFile = 'phase_4/audio/bgm/ttc_storm_bgm.ogg'
+        self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
         self.activityMusicFile = ''
 
         font = ToontownGlobals.getMinnieFont()
@@ -54,6 +54,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
         render.setColorScale(0.3, 0.2, 0.2, 1)
+        base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
         # base.cr.playGame.getPlace().exitWalk()
 
 
@@ -68,6 +69,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/Infinite_sky.bam')
         self.infiniteSky.reparentTo(render)
+        self.infiniteSky.setScale(5)
         self.infiniteSkyLoop = self.infiniteSky.hprInterval(300, Vec3(360, 0, 0))
         self.infiniteSkyLoop.loop()
 
@@ -75,20 +77,20 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.tutorialStreet = loader.loadModel('phase_3.5/models/props/tutorial_street.bam')
         self.tutorialStreet.reparentTo(render)
-        self.tutorialStreet.setPosHpr(-229, -53, 5, 150, 35, -20)
-        self.tutorialStreet.setScale(0.5)
+        self.tutorialStreet.setPosHpr(-479, -53, -25, 150, 35, -20)
+        self.tutorialStreet.setScale(1)
 
 
         tutorialStreetPosInterval1 = LerpPosInterval(self.tutorialStreet,
-                                                  duration=9,
-                                                  pos=Point3(-229, -53, 6),
-                                                  startPos=Point3(-229, -53, 0),
+                                                  duration=12,
+                                                  pos=Point3(-479, -53, -25),
+                                                  startPos=Point3(-479, -53, -35),
                                                   blendType='easeInOut')
 
         tutorialStreetPosInterval2 = LerpPosInterval(self.tutorialStreet,
-                                                  duration=9,
-                                                  pos=Point3(-229, -53, 0),
-                                                  startPos=Point3(-229, -53, 6),
+                                                  duration=12,
+                                                  pos=Point3(-479, -53, -35),
+                                                  startPos=Point3(-479, -53, -25),
                                                   blendType='easeInOut')
 
         self.environmentSequences.append(self.tutorialStreet)
@@ -99,23 +101,23 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.tutorialStreetPace.loop()
 
+
         self.keyBlade = loader.loadModel('phase_3.5/models/props/kh_key_blade.bam')
         self.keyBlade.reparentTo(render)
         self.keyBlade.setPosHpr(-63, 21, 3, 50, -45, 55)
         self.keyBlade.setScale(0.2)
-        PlacerTool3D(self.keyBlade, increment=3)
 
 
         keyBladePosInterval1 = LerpPosInterval(self.keyBlade,
-                                                  duration=6,
-                                                  pos=Point3(-63, 21, 4),
+                                                  duration=8,
+                                                  pos=Point3(-63, 21, 3),
                                                   startPos=Point3(-63, 21, 2),
                                                   blendType='easeInOut')
 
         keyBladePosInterval2 = LerpPosInterval(self.keyBlade,
-                                                  duration=6,
+                                                  duration=8,
                                                   pos=Point3(-63, 21, 2),
-                                                  startPos=Point3(-63, 21, 4),
+                                                  startPos=Point3(-63, 21, 3),
                                                   blendType='easeInOut')
 
         self.environmentSequences.append(self.keyBlade)
@@ -126,9 +128,113 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.keyBladePace.loop()
 
+        # Meteors
+
+        self.infiniteMeteor = loader.loadModel('phase_3.5/models/props/infinite_meteor.bam')
+        self.infiniteMeteor.reparentTo(render)
+        self.infiniteMeteor.setPosHpr(-190, -90, 40, 0, 0, 0)
+        self.infiniteMeteor.setScale(5)
 
 
-        # self.plazaPlatform = loader.loadModel('')
+        # POS INTERVAL
+
+
+        infiniteMeteorPosInterval1 = LerpPosInterval(self.infiniteMeteor,
+                                                     duration=10,
+                                                     pos=Point3(148.278,  148.132, 25),
+                                                     startPos=Point3(-190, -90, 40),
+                                                     blendType='easeInOut')
+
+        infiniteMeteorPosInterval2 = LerpPosInterval(self.infiniteMeteor,
+                                                     duration=10,
+                                                     pos=Point3(113.114, -40.519, 25),
+                                                     startPos=Point3(148.278,  148.132, 25),
+                                                     blendType='easeInOut')
+
+        infiniteMeteorPosInterval3 = LerpPosInterval(self.infiniteMeteor,
+                                                     duration=10,
+                                                     pos=Point3(-190, -90, 40),
+                                                     startPos=Point3(113.114, -40.519, 25),
+                                                     blendType='easeInOut')
+
+        self.infiniteMeteorPosPace = Sequence(infiniteMeteorPosInterval1,
+                                           infiniteMeteorPosInterval2,
+                                           infiniteMeteorPosInterval3,
+                                           name="infiniteMeteorPosPace")
+
+        # HPR INTERVAL
+
+        infiniteMeteorHprInterval1 = LerpHprInterval(self.infiniteMeteor,
+                                                     duration=10,
+                                                     hpr=Vec3(360, 120, 60),
+                                                     startHpr=Vec3(0, 0, 0),
+                                                     blendType='easeInOut')
+
+        infiniteMeteorHprInterval2 = LerpHprInterval(self.infiniteMeteor,
+                                                     duration=10,
+                                                     hpr=Vec3(0, 0, 0),
+                                                     startHpr=Vec3(360, 120, 60),
+                                                     blendType='easeInOut')
+
+        self.infiniteMeteorHprPace = Sequence(infiniteMeteorHprInterval1,
+                                              infiniteMeteorHprInterval2,
+                                              name="infiniteMeteorHprPace")
+
+        self.environmentSequences.append(self.infiniteMeteor)
+
+        self.infiniteMeteorPosPace.loop()
+        self.infiniteMeteorHprPace.loop()
+
+
+        self.plazaPlatform = loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam')
+        self.plazaPlatform.reparentTo(render)
+        self.plazaPlatform.setPosHpr(-220, -90, 0, 135, -55, -5)
+        localAvatar.wrtReparentTo(self.plazaPlatform)
+
+        self.plazaBuildings = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
+        self.plazaBuildings.setPosHpr(0, 0, 0, 90, 0, -90)
+        self.plazaBuildings.reparentTo(self.plazaPlatform)
+        PlacerTool3D(self.plazaBuildings, increment=1)
+
+
+        plazaPlatformPosInterval1 = LerpPosInterval(self.plazaPlatform,
+                                                  duration=8,
+                                                  pos=Point3(-220, -90, 5),
+                                                  startPos=Point3(-220, -90, 0),
+                                                  blendType='easeInOut')
+
+        plazaPlatformPosInterval2 = LerpPosInterval(self.plazaPlatform,
+                                                  duration=8,
+                                                  pos=Point3(-220, -90, 0),
+                                                  startPos=Point3(-220, -90, 5),
+                                                  blendType='easeInOut')
+
+        plazaBuildingsPosInterval1 = LerpPosInterval(self.plazaBuildings,
+                                                  duration=8,
+                                                  pos=Point3(0, -5.1, 0),
+                                                  startPos=Point3(0, 0, 0),
+                                                  blendType='easeInOut')
+
+        plazaBuildingsPosInterval2 = LerpPosInterval(self.plazaBuildings,
+                                                  duration=8,
+                                                  pos=Point3(0, 0, 0),
+                                                  startPos=Point3(0, -5.1, 0),
+                                                  blendType='easeInOut')
+
+        self.plazaPlatformPosPace = Sequence(plazaPlatformPosInterval1,
+                                             plazaPlatformPosInterval2,
+                                              name="plazaPlatformPosPace")
+
+        self.plazaBuildingsPosPace = Sequence(plazaBuildingsPosInterval1,
+                                              plazaBuildingsPosInterval2,
+                                              name="plazaBuildingsPosPace")
+
+        self.environmentSequences.append(self.plazaPlatform)
+        self.environmentSequences.append(self.plazaBuildings)
+
+        self.plazaPlatformPosPace.loop()
+        self.plazaBuildingsPosPace.loop()
+
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
