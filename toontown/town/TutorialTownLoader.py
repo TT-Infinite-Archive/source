@@ -64,7 +64,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
     def loadInfinite(self):
 
-        # Load space
+        # Spaaaaaaace
 
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/Infinite_sky.bam')
         self.infiniteSky.reparentTo(render)
@@ -75,18 +75,20 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.tutorialStreet = loader.loadModel('phase_3.5/models/props/tutorial_street.bam')
         self.tutorialStreet.reparentTo(render)
-        self.tutorialStreet.setPosHpr(-439.387, -233.377, 60, 0, 30, 0)
+        self.tutorialStreet.setPosHpr(-229, -53, 5, 150, 35, -20)
+        self.tutorialStreet.setScale(0.5)
+
 
         tutorialStreetPosInterval1 = LerpPosInterval(self.tutorialStreet,
-                                                  duration=6,
-                                                  pos=Point3(0, 0, 12),
-                                                  startPos=Point3(0, 0, 0),
+                                                  duration=9,
+                                                  pos=Point3(-229, -53, 6),
+                                                  startPos=Point3(-229, -53, 0),
                                                   blendType='easeInOut')
 
         tutorialStreetPosInterval2 = LerpPosInterval(self.tutorialStreet,
-                                                  duration=6,
-                                                  pos=Point3(0, 0, 0),
-                                                  startPos=Point3(0, 0, 12),
+                                                  duration=9,
+                                                  pos=Point3(-229, -53, 0),
+                                                  startPos=Point3(-229, -53, 6),
                                                   blendType='easeInOut')
 
         self.environmentSequences.append(self.tutorialStreet)
@@ -96,6 +98,35 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
                                         name="tutorialStreetPace")
 
         self.tutorialStreetPace.loop()
+
+        self.keyBlade = loader.loadModel('phase_3.5/models/props/kh_key_blade.bam')
+        self.keyBlade.reparentTo(render)
+        self.keyBlade.setPosHpr(-63, 21, 3, 50, -45, 55)
+        self.keyBlade.setScale(0.2)
+        PlacerTool3D(self.keyBlade, increment=3)
+
+
+        keyBladePosInterval1 = LerpPosInterval(self.keyBlade,
+                                                  duration=6,
+                                                  pos=Point3(-63, 21, 4),
+                                                  startPos=Point3(-63, 21, 2),
+                                                  blendType='easeInOut')
+
+        keyBladePosInterval2 = LerpPosInterval(self.keyBlade,
+                                                  duration=6,
+                                                  pos=Point3(-63, 21, 2),
+                                                  startPos=Point3(-63, 21, 4),
+                                                  blendType='easeInOut')
+
+        self.environmentSequences.append(self.keyBlade)
+
+        self.keyBladePace = Sequence(keyBladePosInterval1,
+                                        keyBladePosInterval2,
+                                        name="keyBladePace")
+
+        self.keyBladePace.loop()
+
+
 
         # self.plazaPlatform = loader.loadModel('')
 

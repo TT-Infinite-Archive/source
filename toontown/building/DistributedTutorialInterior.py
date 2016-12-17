@@ -31,10 +31,10 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
     def disable(self):
         self.interior.removeNode()
         del self.interior
-        self.street.removeNode()
-        del self.street
-        self.sky.removeNode()
-        del self.sky
+        # self.street.removeNode()
+        # del self.street
+        # self.sky.removeNode()
+        # del self.sky
         self.suitWalkTrack.finish()
         del self.suitWalkTrack
         self.suit.delete()
