@@ -12,6 +12,7 @@ from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
 from pandac.PandaModules import *
 from otp.otpbase import OTPGlobals
 from toontown.util.PlacerTool3D import PlacerTool3D
+from panda3d.core import CollisionNode, CollisionSphere
 
 
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
@@ -135,6 +136,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infiniteMeteor.setPosHpr(-190, -90, 40, 0, 0, 0)
         self.infiniteMeteor.setScale(5)
 
+        PlacerTool3D(base.localAvatar, increment=1)
+
 
         # POS INTERVAL
 
@@ -189,12 +192,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.plazaPlatform = loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam')
         self.plazaPlatform.reparentTo(render)
         self.plazaPlatform.setPosHpr(-220, -90, 0, 135, -55, -5)
-        localAvatar.wrtReparentTo(self.plazaPlatform)
 
         self.plazaBuildings = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
         self.plazaBuildings.setPosHpr(0, 0, 0, 90, 0, -90)
         self.plazaBuildings.reparentTo(self.plazaPlatform)
-        PlacerTool3D(self.plazaBuildings, increment=1)
 
 
         plazaPlatformPosInterval1 = LerpPosInterval(self.plazaPlatform,
@@ -211,14 +212,14 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         plazaBuildingsPosInterval1 = LerpPosInterval(self.plazaBuildings,
                                                   duration=8,
-                                                  pos=Point3(0, -5.1, 0),
+                                                  pos=Point3(0, -5, 0),
                                                   startPos=Point3(0, 0, 0),
                                                   blendType='easeInOut')
 
         plazaBuildingsPosInterval2 = LerpPosInterval(self.plazaBuildings,
                                                   duration=8,
                                                   pos=Point3(0, 0, 0),
-                                                  startPos=Point3(0, -5.1, 0),
+                                                  startPos=Point3(0, -5, 0),
                                                   blendType='easeInOut')
 
         self.plazaPlatformPosPace = Sequence(plazaPlatformPosInterval1,
@@ -235,6 +236,16 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.plazaPlatformPosPace.loop()
         self.plazaBuildingsPosPace.loop()
 
+        plazaTrigger = CollisionNode('plazaTrigger')
+        plazaTrigger.setIntoCollideMask(ToontownGlobals.WallBitmask)
+        self.plazaTrigger = self.plazaPlatform.attachNewNode(plazaTrigger)
+        self.plazaTrigger.setPos(0, -20, 60)
+        self.plazaTrigger.show()
+        plazaTrigger = CollisionSphere(0, 0, 0, 86)
+        plazaTrigger.setTangible(0)
+        self.plazaTrigger.node().addSolid(plazaTrigger)
+
+        self.accept('enterplazaTrigger', self.__handleCollision)
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
@@ -344,3 +355,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         strPos = '(%.3f' % pos[0] + '\n %.3f' % pos[1] + '\n %.3f)' % pos[2] + '\nH: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ',\nVer: %s, ' % serverVersion + '\nDistrict: %s' % districtName
         print 'Current position=', strPos.replace('\n', ', ')
         return
+
+    def __handleCollision(self, e):
+        print 'Entered sphere'
+        base.localAvatar.wrtReparentTo(self.plazaPlatform)
+        base.localAvatar.setHpr(0, 90, 0)
