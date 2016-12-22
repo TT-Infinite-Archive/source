@@ -1,16 +1,10 @@
-from direct.interval.IntervalGlobal import Sequence
 from direct.task.Task import Task
-from pandac.PandaModules import *
 
 from DistributedNPCToonBase import *
 import NPCToons
 from toontown.chat.ChatGlobals import *
-from toontown.hood import ZoneUtil
 from toontown.minigame import ClerkPurchase
-from toontown.nametag.NametagGlobals import *
-from toontown.shtiker.PurchaseManagerConstants import *
-from toontown.toonbase import TTLocalizer
-from toontown.toontowngui import TeaserPanel
+from toontown.toonbase import TTLocalizer, EventGlobals
 
 
 class DistributedNPCClerk(DistributedNPCToonBase):
@@ -18,9 +12,8 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         DistributedNPCToonBase.__init__(self, cr)
 
         self.purchase = None
-        self.isLocalToon = 0
         self.av = None
-        self.purchaseDoneEvent = 'purchaseDone'
+        self.timeout = 0
 
     def disable(self):
         self.ignoreAll()
@@ -35,22 +28,12 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
         DistributedNPCToonBase.disable(self)
 
-    def allowedToEnter(self):
-        return True
-
-    def handleOkTeaser(self):
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request('walk')
-
     def handleCollisionSphereEnter(self, collEntry):
         base.cr.playGame.getPlace().fsm.request('purchase')
         self.sendUpdate('avatarEnter', [])
 
     def __handleUnexpectedExit(self):
-        self.notify.warning('unexpected exit')
+        self.notify.warning('Unexpected exit')
         self.av = None
 
     def resetClerk(self):
@@ -64,21 +47,24 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.clearMat()
         self.startLookAround()
         self.detectAvatars()
-        if self.isLocalToon:
+        if self.hasLocalToon():
             self.showNametag2d()
             self.freeAvatar()
         return Task.done
 
+    def hasLocalToon(self):
+        return self.av.doId == base.localAvatar.doId
+
     def setMovie(self, mode, npcId, avId, timestamp):
         timeStamp = ClockDelta.globalClockDelta.localElapsedTime(timestamp)
-        self.remain = NPCToons.CLERK_COUNTDOWN_TIME - timeStamp
+        self.timeout = NPCToons.CLERK_COUNTDOWN_TIME - timeStamp
         self.isLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.PURCHASE_MOVIE_CLEAR:
             return
         if mode == NPCToons.PURCHASE_MOVIE_TIMEOUT:
             taskMgr.remove(self.uniqueName('popupPurchaseGUI'))
             taskMgr.remove(self.uniqueName('lerpCamera'))
-            if self.isLocalToon:
+            if self.hasLocalToon():
                 self.ignore(self.purchaseDoneEvent)
             if self.purchase:
                 self.__handlePurchaseDone()
@@ -111,9 +97,9 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)
-        self.acceptOnce(self.purchaseDoneEvent, self.__handlePurchaseDone)
-        self.accept('boughtGag', self.__handleBoughtGag)
-        self.purchase = ClerkPurchase.ClerkPurchase(base.localAvatar, self.remain, self.purchaseDoneEvent)
+        self.acceptOnce(EventGlobals.PURCHASE_DONE, self.__handlePurchaseDone)
+        self.accept(EventGlobals.BOUGHT_GAG, self.__handleBoughtGag)
+        self.purchase = ClerkPurchase.ClerkPurchase(base.localAvatar, self.timeout, self.purchaseDoneEvent)
         self.purchase.load()
         self.purchase.enter()
         return Task.done
@@ -122,7 +108,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.d_setInventory(base.localAvatar.inventory.makeNetString(), base.localAvatar.getMoney(), 0)
 
     def __handlePurchaseDone(self):
-        self.ignore('boughtGag')
+        self.ignore(EventGlobals.BOUGHT_GAG)
         self.d_setInventory(base.localAvatar.inventory.makeNetString(), base.localAvatar.getMoney(), 1)
         self.purchase.exit()
         self.purchase.unload()

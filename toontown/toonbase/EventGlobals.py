@@ -28,3 +28,5 @@ ChooserPick = 'choose-panel-done'   # Town battle target chooser pick event
 ChooserBack = 'choose-panel-back'   # Town battle target chooser back event
 WaitPanelBack = 'wait-panel-back'   # Town battle wait panel back event
 TownBattleDone = 'town-battle-done'  # Town Battle attack selection event
+PURCHASE_DONE = 'purchaseDone'
+BOUGHT_GAG = 'boughtGag'
