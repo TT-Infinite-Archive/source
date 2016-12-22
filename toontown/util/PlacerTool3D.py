@@ -36,7 +36,7 @@ class PlacerTool3D(DirectFrame):
         # Name
         name = self.target.getName()
         self.nameLabel = TTLabel.TTLabel(
-            self.mainFrame, text='Target: %s' % name, pos=(-0.39, 0.0, 0.27), text_align=TextNode.ALeft, text_wordwrap=13)
+            self.mainFrame, text='Target: %s' % name, pos=self.ORIG_NAME_POS, text_align=TextNode.ALeft, text_wordwrap=13)
         # Pos
         pos = self.target.getPos()
         self.posLabel = TTLabel.TTLabel(
@@ -70,7 +70,7 @@ class PlacerTool3D(DirectFrame):
             relief=None,
             image=thumb,
             image_scale=(0.5, 0.5, 0.5),
-            pos=(0.37, 0.0, 0.37)
+            pos=self.ORIG_DRAG_BUTTON_POS
         )
         self.minimizeButton = DirectButton(
             self.mainFrame,
@@ -78,14 +78,11 @@ class PlacerTool3D(DirectFrame):
             image=thumb,
             image_scale=(0.5, 0.5, 0.5),
             image_color=(0.0, 0.0, 0.65, 1.0),
-            pos=(0.29, 0.0, 0.37),
+            pos=self.ORIG_MINI_BUTTON_POS,
             command=self.toggleMinimize,
             extraArgs=[]
         )
         self.dragButton.bind(DGG.B1PRESS, self.onPress)
-        PlacerTool.PlacerTool(self.xPosSpinner, increment=0.005)
-        PlacerTool.PlacerTool(self.yPosSpinner, increment=0.005)
-        PlacerTool.PlacerTool(self.zPosSpinner, increment=0.005)
 
     def destroy(self):
         self.target = None
