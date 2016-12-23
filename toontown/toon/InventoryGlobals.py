@@ -4,6 +4,7 @@ from direct.showbase.DirectObject import DirectObject
 from toontown.data import Missile
 from toontown.data.Effect import DamageEffect
 from toontown.data import IconGlobals
+from toontown.toonbase import ColorGlobals
 
 
 class Gag(DirectObject):
@@ -41,14 +42,27 @@ class Gag(DirectObject):
     def getDescription(self):
         typeToString = {
             self.TargetNone: '',
-            self.TargetSingleEnemy: ' to a single Cog',
-            self.TargetSingleAlly: ' to a single Toon',
+            self.TargetSingleEnemy: ' to a Cog',
+            self.TargetSingleAlly: ' to a Toon',
             self.TargetEnemies: ' to all Cogs',
-            self.TargetAllies: ' to all other Toons',
+            self.TargetAllies: ' to other Toons',
             self.TargetSelf: ' to yourself',
             self.TargetSelfAndAllies: ' to all Toons'
         }
-        return '%s%s.' % (self.effect.getDescription(), typeToString[self.targetType])
+        string = '%s%s.' % (self.effect.getDescription(), typeToString[self.targetType])
+        if self.chance < 1.0:
+            string += ' Has a %s%% chance to hit.' % int(self.chance * 100)
+        return string
+
+    def getRarityColor(self):
+        rarityToColor = {
+            Gag.RarityCommon: ColorGlobals.CGray,
+            Gag.RarityRare: ColorGlobals.CMediumBlue,
+            Gag.RarityEpic: ColorGlobals.CDarkViolet,
+            Gag.RarityLegendary: ColorGlobals.COrange
+        }
+        return rarityToColor[self.rarity]
+
 
     def getDisplayObject(self):
         return GagToIcon.get(self.uid, None)
@@ -102,10 +116,10 @@ PASS = 99
 
 Gags = {
     0: Gag(0, 'Nothing but a chuckle', None, 0),
-    1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy),
-    2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy),
-    3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies),
-    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, chance=0.5),
+    1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy, Gag.RarityCommon),
+    2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Gag.RarityCommon),
+    3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Gag.RarityLegendary),
+    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Gag.RarityRare, chance=0.5),
     PASS: Gag(99, 'Pass', None, 0),
 }
 
@@ -130,6 +144,7 @@ AlwaysEquipped = [
     NO_ATTACK,
     PASS
 ]
+
 
 
 
