@@ -5,6 +5,11 @@ from panda3d.core import *
 
 class TTPicker(DirectObject):
     notify = directNotify.newCategory('TTPicker')
+    '''
+    0 (default): Selects the outer most node that isn't render (closest to render)
+    1: Selects the parent of the node you selected
+    2: Selects the node you selected
+    '''
     ModeOutmostParent = 0
     ModeParent = 1
     ModePrecise = 2
