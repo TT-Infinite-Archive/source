@@ -1,9 +1,10 @@
 from panda3d.core import TextNode
-from direct.gui.DirectGui import DirectFrame, DGG, DirectButton
+from direct.gui.DirectGui import DirectFrame, DGG, DirectButton, DirectEntry
 
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals
 from toontown.toontowngui import TTLabel
 from toontown.util import PlacerTool
+import re
 
 
 class PlacerTool3D(DirectFrame):
@@ -123,7 +124,7 @@ class PlacerTool3D(DirectFrame):
 
     def changeTargetPos(self, index, value):
         pos = self.target.getPos()
-        pos[index] = value
+        pos[index] = float(value)
         self.target.setPos(pos)
 
     def changeTargetHpr(self, index, value):
@@ -189,14 +190,31 @@ class PlacerTool3D(DirectFrame):
 
 
 class PlacerToolSpinner(DirectFrame):
-    def __init__(self, parent=render2d, pos=(0.0, 0.0, 0.0), scale=1.0, precision=2, value=0, callback=None, increment=0.01):
+    def __init__(self, parent=render2d, pos=(0.0, 0.0, 0.0), scale=1.0, value=0, callback=None, increment=0.01):
         DirectFrame.__init__(self, parent, pos=pos, scale=1.0)
-        self.precision = precision
         self.increment = increment
         self.value = value
         self.callback = callback
 
-        self.display = TTLabel.TTLabel(self, pos=(0.0, 0.0, 0.0))
+        self.display = DirectEntry(
+            parent=self,
+            relief=None,
+            initialText="%.2f" % value,
+            scale=1,
+            text_scale=0.055,
+            text_align=TextNode.ACenter,
+            pos=(0.0, 0.0, 0.0),
+            frameColor=(0.8, 0.8, 0.5, 1),
+            borderWidth=(0.1, 0.1),
+            numLines=1,
+            width=6,
+            frameSize=(-0.1, 0.1, -0.1, 0.1),
+            cursorKeys=1
+        )
+        self.display.bind(DGG.TYPE, self.typeCallback)
+        # This allows the text box to handle mouse events
+        self.display.guiItem.setActive(True)
+
         gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_mainGui.bam')
         image = (
             gui.find('**/tt_t_gui_mat_shuffleArrowUp'),
@@ -225,20 +243,31 @@ class PlacerToolSpinner(DirectFrame):
             command=self.__handleDownClicked
         )
         self.downArrow.setR(-90)
+
+    def typeCallback(self, e):
+        messenger.send(EventGlobals.WakeUp)
+        if self.display is None:
+            return
+        value = self.display.get()
+        value = re.sub("[^0-9\.]", "", value)
+        if value == '':
+            value = '000.00'
+        if '.' not in value:
+            value = int(value)
+        else:
+            value = "%.2f" % float(value)
         self.setValue(value)
 
     def setValue(self, value):
         self.value = value
-        self.display['text'] = format(self.value, '.%df' % self.precision)
+        self.display.enterText(str(value))
+        if self.callback:
+            self.callback(self.value)
 
     def __handleUpClicked(self):
         self.value += self.increment
         self.setValue(self.value)
-        if self.callback:
-            self.callback(self.value)
 
     def __handleDownClicked(self):
         self.value -= self.increment
         self.setValue(self.value)
-        if self.callback:
-            self.callback(self.value)
