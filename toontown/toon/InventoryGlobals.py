@@ -16,13 +16,19 @@ class Gag(DirectObject):
     TargetSelf = 5
     TargetSelfAndAllies = 6
 
-    def __init__(self, uid, name, effect, targetType, chance=1.0):
+    RarityCommon = 0
+    RarityRare = 1
+    RarityEpic = 2
+    RarityLegendary = 3
+
+    def __init__(self, uid, name, effect, targetType, rarity=0, chance=1.0):
         DirectObject.__init__(self)
         self.uid = uid
         self.name = name
         self.effect = effect
         self.targetType = targetType
         self.chance = chance
+        self.rarity = rarity
 
     def __str__(self):
         return '%s' % self.name
@@ -124,6 +130,7 @@ AlwaysEquipped = [
     NO_ATTACK,
     PASS
 ]
+
 
 
 
