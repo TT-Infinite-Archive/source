@@ -30,3 +30,5 @@ WaitPanelBack = 'wait-panel-back'   # Town battle wait panel back event
 TownBattleDone = 'town-battle-done'  # Town Battle attack selection event
 PURCHASE_DONE = 'purchaseDone'
 BOUGHT_GAG = 'boughtGag'
+SHOW_BATTLE_INVENTORY = 'showBattleInventory'
+HIDE_BATTLE_INVENTORY = 'hideBattleInventory'

@@ -30,7 +30,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         )
 
         self.gagInfoFrame = GagInfoFrame(parent=self, pos=(-0.39, 0, -0.35))
-        self.gagInfoFrame.setName('Gag info frame')
         self.moneyDisplay = JarGui(parent=self, pos=(0.6, 0.0, -0.4))
         self.cogMenu = CogMenu()
         self.cogMenu.reparentTo(self)
@@ -55,8 +54,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         self.accept(EventGlobals.GagSlotExit, self.clearGagInfo)
         self.accept('enterBookDelete', self.enterDeleteMode)
         self.accept('exitBookDelete', self.exitDeleteMode)
-        self.accept('enterTrackFrame', self.updateTrackInfo)
-        self.accept('exitTrackFrame', self.clearTrackInfo)
 
     def exit(self):
         ShtikerPage.ShtikerPage.exit(self)
@@ -65,8 +62,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         self.ignore(EventGlobals.GagSlotExit)
         self.ignore('enterBookDelete')
         self.ignore('exitBookDelete')
-        self.ignore('enterTrackFrame')
-        self.ignore('exitTrackFrame')
         self.moneyDisplay.unlisten()
         self.makePageWhite(None)
         base.localAvatar.gagPanel.hide()
@@ -131,6 +126,8 @@ class InventoryPage(ShtikerPage.ShtikerPage):
     def acceptOnscreenHooks(self):
         self.accept(ToontownGlobals.InventoryHotkeyOn, self.showInventoryOnscreen)
         self.accept(ToontownGlobals.InventoryHotkeyOff, self.hideInventoryOnscreen)
+        self.accept(EventGlobals.SHOW_BATTLE_INVENTORY, self.showInventoryBattle)
+        self.accept(EventGlobals.HIDE_BATTLE_INVENTORY, self.hideInventoryBattle)
 
     def ignoreOnscreenHooks(self):
         self.ignore(ToontownGlobals.InventoryHotkeyOn)
@@ -142,6 +139,28 @@ class InventoryPage(ShtikerPage.ShtikerPage):
 
     def clearGagInfo(self, slot):
         self.gagInfoFrame.unsetGag()
+
+    def showInventoryBattle(self):
+        base.localAvatar.gagPanel.show()
+        base.localAvatar.gagPanel.reparentTo(self)
+        self.accept(EventGlobals.GagSlotEnter, self.updateGagInfo)
+        self.accept(EventGlobals.GagSlotExit, self.clearGagInfo)
+        self.clearGagInfo(None)
+        self.reparentTo(aspect2d)
+        self.moneyDisplay.hide()
+        self.title.hide()
+        self.show()
+
+    def hideInventoryBattle(self):
+        base.localAvatar.gagPanel.hide()
+        base.localAvatar.gagPanel.reparentTo(hidden)
+        self.ignore(EventGlobals.GagSlotEnter)
+        self.ignore(EventGlobals.GagSlotExit)
+        self.clearGagInfo(None)
+        self.reparentTo(self.book)
+        self.moneyDisplay.show()
+        self.title.show()
+        self.hide()
 
     def showInventoryOnscreen(self):
         messenger.send('wakeup')
@@ -158,8 +177,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         self.moneyDisplay.listen()
         self.accept(EventGlobals.GagSlotEnter, self.updateGagInfo)
         self.accept(EventGlobals.GagSlotExit, self.clearGagInfo)
-        self.accept('enterTrackFrame', self.updateTrackInfo)
-        self.accept('exitTrackFrame', self.clearTrackInfo)
         self.cogMenu.update()
         self.reparentTo(aspect2d)
         self.cogMenu.show()
@@ -172,8 +189,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         self.onscreen = 0
         self.ignore(EventGlobals.GagSlotEnter)
         self.ignore(EventGlobals.GagSlotExit)
-        self.ignore('enterTrackFrame')
-        self.ignore('exitTrackFrame')
         self.ignore(localAvatar.uniqueName('moneyChange'))
         base.localAvatar.gagPanel.hide()
         base.localAvatar.gagPanel.reparentTo(hidden)
