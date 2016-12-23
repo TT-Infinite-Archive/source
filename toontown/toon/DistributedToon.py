@@ -55,7 +55,7 @@ from toontown.parties.PartyGlobals import InviteStatus, PartyStatus
 from toontown.parties.PartyInfo import PartyInfo
 from toontown.parties.PartyReplyInfo import PartyReplyInfoBase
 from toontown.parties.SimpleMailBase import SimpleMailBase
-from toontown.shtiker.OptionsPage import speedChatStyles
+from toontown.shtiker.OptionsPageGlobals import speedChatStyles
 from toontown.speedchat import TTSCDecoders
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer

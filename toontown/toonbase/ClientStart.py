@@ -85,7 +85,7 @@ if 'keymap' not in settings:
 loadPrcFileData('Settings: res',
                 'win-size %d %d' % tuple(settings.get('res', (800, 600))))
 loadPrcFileData('Settings: fullscreen',
-                'fullscreen %s' % settings['fullscreen'])
+                'fullscreen #%s' % 't' if settings['fullscreen'] else 'f')
 loadPrcFileData('Settings: music', 'audio-music-active %s' % settings['music'])
 loadPrcFileData('Settings: sfx',
                 'audio-sfx-active %s' % settings['sfx'])
@@ -277,20 +277,25 @@ else:
     base.startShow()
 
 __builtin__.loader = base.loader
-
-disclaimerTrack.start()
 if music is not None:
     base.playMusic(music, looping=1, volume=0.9)
 
+if __debug__:
+    # Skip the introduction if we are in dev mode
+    clickToStart.stop()
+    clickToStart.begin()
+else:
+    disclaimerTrack.start()
 
-def skip():
-    if disclaimerTrack.isPlaying():
-        disclaimerTrack.finish()
-    elif presentsTrack.isPlaying():
-        presentsTrack.finish()
+    def skip():
+        if disclaimerTrack.isPlaying():
+            disclaimerTrack.finish()
+        elif presentsTrack.isPlaying():
+            presentsTrack.finish()
+
+    base.accept('mouse1', skip)
 
 
-base.accept('mouse1', skip)
 
 # Now that everything is loaded we can enable the garbage collector again.
 gc.enable()

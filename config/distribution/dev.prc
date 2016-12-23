@@ -64,7 +64,7 @@ want-resistance-dance #t
 
 # Developer options:
 show-population #f
-force-skip-tutorial #t
+force-skip-tutorial #f
 want-instant-parties #t
 want-quest-verification #t
 
