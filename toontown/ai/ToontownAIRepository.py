@@ -114,6 +114,14 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.leakGraph = None
         self.cogSuitMessageSent = False
 
+        # Logging
+        from panda3d.core import MultiplexStream, Notify, StreamWriter
+        from direct.directnotify import Notifier
+        self.nout = MultiplexStream()
+        Notify.ptr().setOstreamPtr(self.nout, 0)
+        Notifier.Notifier.streamWriter = StreamWriter(self.nout, False)
+        self.nout.addStandardOutput()
+
     def createManagers(self):
         self.timeManager = TimeManagerAI(self)
         self.timeManager.generateWithRequired(2)

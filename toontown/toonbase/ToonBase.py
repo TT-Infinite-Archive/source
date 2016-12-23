@@ -17,6 +17,7 @@ from toontown.toonbase.Preloader import Preloader
 from otp.otpbase import OTPBase
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLauncherGlobals
+from otp.ai.MagicWordGlobal import *
 from toontown.margins import MarginGlobals
 from toontown.margins.MarginManager import MarginManager
 from toontown.nametag import NametagGlobals
@@ -291,6 +292,9 @@ class ToonBase(OTPBase.OTPBase):
         if config.GetBool('want-leak-graph-client', False):
             self.leakGraph = LeakGraph('tti-client-process')
             self.leakGraph.start()
+
+        self.picker = None
+        self.placer = None
 
         self.__tick()
 
@@ -697,3 +701,24 @@ class ToonBase(OTPBase.OTPBase):
             if self.sfxManagerIsValidList[i]:
                 self.sfxManagerList[i].stopAllSounds()
 
+@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+def picker():
+    from toontown.util.TTPicker import TTPicker
+    from toontown.util.PlacerTool3D import PlacerTool3D
+    """
+    Toggle picker
+    """
+    def handlePicked(object):
+        if object is None:
+            return
+        if base.placer is not None:
+            base.placer.setTarget(object)
+        else:
+            base.placer = PlacerTool3D(object)
+
+    if base.picker is None:
+        base.picker = TTPicker(handlePicked)
+    else:
+        base.picker.destroy()
+        if base.placer:
+            base.placer.destroy()
