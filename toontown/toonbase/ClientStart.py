@@ -85,7 +85,7 @@ if 'keymap' not in settings:
 loadPrcFileData('Settings: res',
                 'win-size %d %d' % tuple(settings.get('res', (800, 600))))
 loadPrcFileData('Settings: fullscreen',
-                'fullscreen %s' % settings['fullscreen'])
+                'fullscreen #%s' % 't' if settings['fullscreen'] else 'f')
 loadPrcFileData('Settings: music', 'audio-music-active %s' % settings['music'])
 loadPrcFileData('Settings: sfx',
                 'audio-sfx-active %s' % settings['sfx'])
