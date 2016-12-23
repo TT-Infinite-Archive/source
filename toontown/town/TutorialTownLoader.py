@@ -13,6 +13,7 @@ from pandac.PandaModules import *
 from otp.otpbase import OTPGlobals
 from toontown.util.PlacerTool3D import PlacerTool3D
 from panda3d.core import CollisionNode, CollisionSphere
+from toontown.toon import ToonDNA, ToonDNA
 
 
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
@@ -56,6 +57,15 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
         render.setColorScale(0.3, 0.2, 0.2, 1)
         base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
+
+        dna = ToonDNA.ToonDNA()
+        dnaList = ('pls', 'ls', 'l', 'm', 20, 0, 20, 20, 98, 27, 0, 27, 38, 27)
+        dna.newToonFromProperties(*dnaList)
+        base.localAvatar.setDNA(dna)
+
+        # TODO: Set Surlee's dna color to 9
+
+        base.localAvatar.setName('Doctor Surlee')
         # base.cr.playGame.getPlace().exitWalk()
 
 
@@ -136,7 +146,18 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infiniteMeteor.setPosHpr(-190, -90, 40, 0, 0, 0)
         self.infiniteMeteor.setScale(5)
 
-        PlacerTool3D(base.localAvatar, increment=1)
+        self.tutorialMeteor = loader.loadModel('phase_3.5/models/props/tutorial_shop_meteor.bam')
+        self.tutorialMeteor.reparentTo(render)
+        self.tutorialMeteor.setPos(-7, 26, -37)
+        self.tutorialMeteor.setScale(20)
+
+        self.hqMeteor = loader.loadModel('phase_3.5/models/props/tutorial_shop_meteor.bam')
+        self.hqMeteor.reparentTo(render)
+        self.hqMeteor.setPosHpr(-271.93, 250.52, 321.106, 0, 0, 0)
+        self.hqMeteor.setScale(20)
+
+
+        PlacerTool3D(self.hqMeteor, increment=1)
 
 
         # POS INTERVAL
@@ -249,7 +270,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.nodeDict[20001]
 
     def startInfiniteLowGravity(self):
-        base.localAvatar.controlManager.currentControls.setGravity(32.174 * 1)
+        base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.8)
 
     def stopInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 2.0)
