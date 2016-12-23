@@ -37,6 +37,7 @@ class Hood(StateData.StateData):
         self.halloweenLights = []
         self.wantSpookySky = False
 
+        self.initialEntry = False
         self.timeColorScaleLerp = None
         self.skyAlphaParallel = None
 
@@ -45,6 +46,8 @@ class Hood(StateData.StateData):
         zoneId = requestStatus['zoneId']
         hoodText = self.getHoodText(zoneId)
         self.titleText = OnscreenText.OnscreenText(hoodText, fg=self.titleColor, font=getSignFont(), pos=(0, -0.5), scale=TTLocalizer.HtitleText, drawOrder=0, mayChange=1)
+
+        self.initialEntry = True
         self.fsm.request(requestStatus['loader'], [requestStatus])
 
     def processTime(self):
@@ -159,6 +162,16 @@ class Hood(StateData.StateData):
             )
 
         self.skyAlphaParallel.start()
+
+        # If we are entering the hood for the first time we will automatically complete our time sequences
+        if self.initialEntry:
+            self.initialEntry = False
+
+            self.timeColorScaleLerp.finish()
+            self.timeColorScaleLerp = None
+
+            self.skyAlphaParallel.finish()
+            self.skyAlphaParallel = None
 
     def getHoodText(self, zoneId):
         hoodText = base.cr.hoodMgr.getFullnameFromId(self.id)
