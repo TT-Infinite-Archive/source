@@ -2,12 +2,12 @@ import ShtikerPage
 from toontown.toonbase import ToontownBattleGlobals
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
-from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals, ColorGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TTLabel
 from toontown.shtiker.CogMenu import CogMenu
 from toontown.toontowngui.JarGui import JarGui
-from toontown.util import PlacerTool
+from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class InventoryPage(ShtikerPage.ShtikerPage):
@@ -29,39 +29,8 @@ class InventoryPage(ShtikerPage.ShtikerPage):
             pos=(0, 0, 0.62)
         )
 
-        self.gagInfoFrame = GagInfoFrame(parent=self, pos=(-0.6, 0, -0.35), scale=(0.45, 0.35, 0.5))
-
-        self.trackInfo = DirectFrame(
-            parent=self,
-            relief=None,
-            pos=(0.025, 0, -0.35),
-            scale=(0.45, 0.35, 0.5),
-            geom=DGG.getDefaultDialogGeom(),
-            geom_scale=(1.4, 1, 1),
-            geom_color=ToontownGlobals.GlobalDialogColor,
-            text='',
-            text_wordwrap=11,
-            text_align=TextNode.ALeft,
-            text_scale=0.12,
-            text_pos=(-0.65, 0.3),
-            text_fg=(0.05, 0.14, 0.4, 1)
-        )
-        self.trackProgress = DirectWaitBar(
-            parent=self.trackInfo,
-            pos=(0, 0, -0.2),
-            relief=DGG.SUNKEN,
-            frameSize=(-0.6, 0.6, -0.1, 0.1),
-            borderWidth=(0.025, 0.025),
-            scale=1.1,
-            frameColor=(0.4, 0.6, 0.4, 1),
-            barColor=(0.9, 1, 0.7, 1),
-            text='0/0',
-            text_scale=0.15,
-            text_fg=(0.05, 0.14, 0.4, 1),
-            text_align=TextNode.ACenter,
-            text_pos=(0, -0.22)
-        )
-        self.trackProgress.hide()
+        self.gagInfoFrame = GagInfoFrame(parent=self, pos=(-0.39, 0, -0.35))
+        self.gagInfoFrame.setName('Gag info frame')
         self.moneyDisplay = JarGui(parent=self, pos=(0.6, 0.0, -0.4))
         self.cogMenu = CogMenu()
         self.cogMenu.reparentTo(self)
@@ -216,53 +185,67 @@ class InventoryPage(ShtikerPage.ShtikerPage):
 
 class GagInfoFrame(DirectFrame):
     def __init__(self, parent, pos=(0.0, 0.0, 0.0), scale=(1, 1, 1)):
-        DirectFrame.__init__(self, parent, pos=pos)
-
-        self.gagFrame = DirectFrame(
+        DirectFrame.__init__(
+            self,
+            parent,
+            relief=None,
+            pos=pos,
+            scale=scale
+        )
+        self.mainFrame = DirectFrame(
             parent=self,
             relief=None,
             geom=DGG.getDefaultDialogGeom(),
             geom_color=ToontownGlobals.GlobalDialogColor,
-            geom_scale=scale
+            geom_scale=(0.9, 0.5, 0.5)
         )
-        self.gagInfo = TTLabel.TTLabel(
-            parent=self.gagFrame,
-            pos=(-0.2, 0.0, -0.05),
-            text_align=TextNode.ALeft
-        )
-        self.gagInfoTitle = TTLabel.TTLabel(
-            parent=self.gagFrame,
+        self.gagTitle = TTLabel.TTLabel(
+            parent=self.mainFrame,
             text_size=TTLabel.TTLabel.MediumSize,
-            pos=(0, 0.0, 0.025)
+            pos=(0.0, 0.0, 0.15),
+            text='',
+            text_align=TextNode.ACenter,
+            text_fg=ColorGlobals.CDarkGray
         )
-        self.gagFrameIcon = DirectButton(
-            parent=self.gagFrame,
+        self.gagDescription = TTLabel.TTLabel(
+            parent=self.mainFrame,
+            pos=(-0.12, 0.0, 0.03),
+            text='',
+            text_align=TextNode.ALeft,
+            text_wordwrap=10
+        )
+        self.gagIcon = DirectButton(
+            parent=self.mainFrame,
             relief=None,
-            pos=(0, 0.0, 0.15),
+            pos=(-0.29, 0, 0),
             suppressMouse=True,
             state=DGG.DISABLED
         )
+        self.hide()
 
     def destroy(self):
-        self.gagFrame.destroy()
-        self.gagInfo.destroy()
+        self.gagTitle.destroy()
+        self.gagDescription.destroy()
+        self.mainFrame.destroy()
         DirectFrame.destroy(self)
 
     def setGag(self, gag):
+        self.show()
         self.setTitle(gag.name)
-        self.setInfo(gag.getInfoString())
+        self.setDescription(gag.getDescription())
         self.setIcon(gag.getDisplayObject().getButtonIcon())
 
     def unsetGag(self):
+        self.hide()
         self.setTitle('')
-        self.setInfo('')
+        self.setDescription('')
         self.setIcon(None)
 
     def setTitle(self, title):
-        self.gagInfoTitle['text'] = title
+        self.gagTitle['text'] = title
 
-    def setInfo(self, info):
-        self.gagInfo['text'] = info
+    def setDescription(self, desc):
+        self.gagDescription['text'] = desc
 
     def setIcon(self, icon):
-        self.gagFrameIcon['image'] = icon
+        self.gagIcon['image'] = icon
