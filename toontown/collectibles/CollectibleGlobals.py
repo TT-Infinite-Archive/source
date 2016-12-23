@@ -154,6 +154,42 @@ CollectibleRewardFlatPortrait = CollectibleReward.CollectibleItemReward(
     category=CICategoryCheesyEffect,
     itemId=CheesyEffectFlatPortrait
 )
+CollectibleRewardFlatProfile = CollectibleReward.CollectibleItemReward(
+    id=23,
+    name='Flat Profile',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectFlatProfile
+)
+CollectibleRewardTransparent = CollectibleReward.CollectibleItemReward(
+    id=24,
+    name='Transparent',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectTransparent
+)
+CollectibleRewardNoColor = CollectibleReward.CollectibleItemReward(
+    id=25,
+    name='Colorless',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectNoColor
+)
+CollectibleRewardInvisible = CollectibleReward.CollectibleItemReward(
+    id=26,
+    name='Invisible',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectInvisible
+)
+CollectibleRewardPumpkin = CollectibleReward.CollectibleItemReward(
+    id=27,
+    name='Pumpkin Head',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectPumpkin
+)
+CollectibleRewardSnowMan = CollectibleReward.CollectibleItemReward(
+    id=28,
+    name='Snowman Head',
+    category=CICategoryCheesyEffect,
+    itemId=CheesyEffectSnowMan
+)
 
 # Items
 CollectibleFishing01 = CollectibleItem.CollectibleModelItem(
@@ -857,13 +893,67 @@ CollectibleCheesyEffectSmallToon = CollectibleItem.CheesyEffectItem(
     filepath='phase_3.5/maps/small_toon_ce_icon.png',
     scale=0.001,
 )
+CollectibleCheesyEffectFlatProfile = CollectibleItem.CheesyEffectItem(
+    name='Flat Profile',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectFlatProfile,
+    desc='Equip this to make your Toon flat vertically!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/flat_portrait_ce_icon.png',
+    scale=0.001,
+)
 CollectibleCheesyEffectFlatPortrait = CollectibleItem.CheesyEffectItem(
     name='Flat Portrait',
     category=CICategoryCheesyEffect,
     id=CheesyEffectFlatPortrait,
-    desc='Equip this to make your Toon flat!',
+    desc='Equip this to make your Toon flat horizontally!',
     flavorText='Acquired from Crates of Amusement',
-    filepath='phase_3.5/maps/flat_portrait_ce_icon.png',
+    filepath='phase_3.5/maps/flat_profile_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectTransparent = CollectibleItem.CheesyEffectItem(
+    name='Transparent',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectTransparent,
+    desc='Equip this to make your Toon transparent!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/transparent_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectNoColor = CollectibleItem.CheesyEffectItem(
+    name='Colorless',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectNoColor,
+    desc='Equip this to make your Toon colorless!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/no_color_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectInvisible = CollectibleItem.CheesyEffectItem(
+    name='Invisible',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectInvisible,
+    desc='Equip this to make your Toon invisible!',
+    flavorText='Acquired from Crates of Amusement',
+    filepath='phase_3.5/maps/invisible_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectPumpkin = CollectibleItem.CheesyEffectItem(
+    name='Pumpkin Head',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectPumpkin,
+    desc='Equip this to put a pumpkin on your head!',
+    flavorText='Acquired from Trick or Treating',
+    filepath='phase_3.5/maps/pumpkin_head_ce_icon.png',
+    scale=0.001,
+)
+CollectibleCheesyEffectSnowMan = CollectibleItem.CheesyEffectItem(
+    name='Snowman Head',
+    category=CICategoryCheesyEffect,
+    id=CheesyEffectSnowMan,
+    desc='Equip this to have a snowman head!',
+    flavorText='Acquired from Caroling',
+    filepath='phase_3.5/maps/snowman_head_ce_icon.png',
     scale=0.001,
 )
 
@@ -938,6 +1028,12 @@ CICheesyEffect = CollectibleItem.CollectibleCategory(
         CheesyEffectBigToon: CollectibleCheesyEffectBigToon,
         CheesyEffectSmallToon: CollectibleCheesyEffectSmallToon,
         CheesyEffectFlatPortrait: CollectibleCheesyEffectFlatPortrait,
+        CheesyEffectFlatProfile: CollectibleCheesyEffectFlatProfile,
+        CheesyEffectTransparent: CollectibleCheesyEffectTransparent,
+        CheesyEffectNoColor: CollectibleCheesyEffectNoColor,
+        CheesyEffectInvisible: CollectibleCheesyEffectInvisible,
+        CheesyEffectPumpkin: CollectibleCheesyEffectPumpkin,
+        CheesyEffectSnowMan: CollectibleCheesyEffectSnowMan,
         CheesyEffectGreenToon: CollectibleCheesyEffectGreenToon,
         CheesyEffectGoofy: CollectibleCheesyEffectGoofy
     }

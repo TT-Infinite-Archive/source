@@ -7,8 +7,9 @@ set /P PPYTHON_PATH=<PPYTHON_PATH
 rem Define some constants for our UberDOG server:
 set MAX_CHANNELS=999999
 set STATESERVER=4002
-set ASTRON_IP=127.0.0.1:7100
-set EVENTLOGGER_IP=127.0.0.1:7198
+set ASTRON_IP=127.0.0.1:7010
+set EVENTLOGGER_IP=127.0.0.1:7020
+set MONGODB_IP=mongodb://localhost:7030
 
 rem Get the user input:
 set /P BASE_CHANNEL="Base channel (DEFAULT: 1000000): " || ^
@@ -27,5 +28,6 @@ echo ===============================
 :main
 %PPYTHON_PATH% -m toontown.uberdog.ServiceStart --base-channel %BASE_CHANNEL% ^
                --max-channels %MAX_CHANNELS% --stateserver %STATESERVER% ^
-               --astron-ip %ASTRON_IP% --eventlogger-ip %EVENTLOGGER_IP%
+               --astron-ip %ASTRON_IP% --eventlogger-ip %EVENTLOGGER_IP% ^
+               --mongodb-ip %MONGODB_IP%
 goto main

@@ -32,9 +32,8 @@ backups-extension .json
 
 # Server:
 server-timezone EST/EDT/-5
-server-port 7199
+server-port 7000
 account-server-endpoint https://toontowninfinite.com/api/
-account-bridge-filename astron/databases/account-bridge.db
 
 # Performance:
 sync-video #f
@@ -57,6 +56,8 @@ egg-object-type-model <Model> { 1 }
 egg-object-type-dcs <DCS> { 1 }
 
 # Core features:
+want-kaldron-network #f
+want-multiplayer #f
 want-guilds #f
 want-guild-quests #f
 want-emblems #f
@@ -95,6 +96,7 @@ want-goofy #f
 want-minigames #t
 want-photo-game #f
 want-travel-game #f
+want-ttc-trolley #f
 
 # Picnic table board games:
 want-game-tables #f

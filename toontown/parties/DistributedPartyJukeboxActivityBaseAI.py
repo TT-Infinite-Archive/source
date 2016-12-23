@@ -18,7 +18,6 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         taskMgr.remove('playSong%d' % self.doId)
         DistributedPartyActivityAI.delete(self)
 
-
     def setNextSong(self, song):
         avId = self.air.getAvatarIdFromSender()
         phase = self.music.get(song[0])

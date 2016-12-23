@@ -47,19 +47,19 @@ class ClothesGUI(StateData.StateData):
 
 
         self.shirtStyleFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, 0.2), hpr=(0, 0, 3), scale=1.2,
-                                        text=TTLocalizer.ClothesShopShirtsStyle, text_scale=0.0575, text_pos=(-0.001, -0.015),
+                                        text=TTLocalizer.ClothesShopShirtsStyle, text_scale=0.0545, text_pos=(-0.001, -0.015),
                                         arrowcommand=self.swapTopStyle)
 
         self.shirtFrame = MATFrame(parent=self.parentFrame,  pos=(0, 0, -0.1), hpr=(0, 0, 3), scale=1.2,
-                                   text= TTLocalizer.ClothesShopShirtsColor, text_scale=0.0575, text_pos=(-0.001, -0.015),
+                                   text= TTLocalizer.ClothesShopShirtsColor, text_scale=0.0545, text_pos=(-0.001, -0.015),
                                    arrowcommand=self.swapTopColor)
 
         self.bottomStyleFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.4), hpr=(0, 0, -2), scale=1.2,
-                                            text='', text_scale=0.0575, text_pos=(-0.001, -0.015),
+                                            text=TTLocalizer.ClothesShopShortsStyle, text_scale=0.0515, text_pos=(-0.001, -0.015),
                                             arrowcommand=self.swapBottomStyle)
 
-        self.bottomFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.65), hpr=(0, 0, -2), scale=1.2, text='',
-                                       text_scale=0.0575, text_pos=(-0.001, -0.015), arrowcommand=self.swapBottomColor)
+        self.bottomFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.65), hpr=(0, 0, -2), scale=1.2, text=TTLocalizer.ClothesShopShortsColor,
+                                       text_scale=0.0515, text_pos=(-0.001, -0.015), arrowcommand=self.swapBottomColor)
         self.parentFrame.hide()
         self.shuffleFetchMsg = 'ClothesShopShuffle'
         self.shuffleButton = ShuffleButton.ShuffleButton(self, self.shuffleFetchMsg)

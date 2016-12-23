@@ -167,6 +167,7 @@ class ColorShop(StateData.StateData):
             scale=0.9,
             text=TTLocalizer.ColorShopHead,
             text_scale=0.0625,
+            text_pos=(-0.001, -0.015),
             arrowcommand=self.__swapHeadColor
         )
 
@@ -177,6 +178,7 @@ class ColorShop(StateData.StateData):
             scale=0.9,
             text=TTLocalizer.ColorShopBody,
             text_scale=0.0625,
+            text_pos=(-0.001, -0.015),
             arrowcommand=self.__swapArmColor
         )
 
@@ -187,6 +189,7 @@ class ColorShop(StateData.StateData):
             scale=0.9,
             text=TTLocalizer.ColorShopLegs,
             text_scale=0.0625,
+            text_pos=(-0.001, -0.015),
             arrowcommand=self.__swapLegColor
         )
 

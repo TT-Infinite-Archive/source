@@ -12,6 +12,8 @@ client-agents 8
 force-access-level 100
 
 # Core features:
+want-kaldron-network #f
+want-multiplayer #f
 want-grouptracker #f
 want-game-tables #f
 want-true-friends #f
@@ -31,6 +33,11 @@ want-goofy-speedway #f
 want-outdoor-zone #f
 want-golf-zone #f
 want-resistance-grounds #f
+
+# Trolley minigames:
+want-photo-game #f
+want-travel-game #f
+want-ttc-trolley #f
 
 # Chat:
 want-whitelist #t
@@ -54,6 +61,10 @@ show-population #f
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
+want-dev-debug #f
+
+# Safezone Interactables
+want-ttc-jukebox #t
 
 # Unlock timer:
 want-unlock-timer #t

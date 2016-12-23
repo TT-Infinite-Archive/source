@@ -22,6 +22,7 @@ import string
 import sys
 import time
 import types
+import __builtin__
 
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
 from otp.avatar import Avatar
@@ -368,18 +369,11 @@ class OTPClientRepository(ClientRepositoryBase):
         self.dclassesByNumber = {}
         self.hashVal = 0
 
-        try:
-            dcStream
-
-        except:
-            pass
-
-        else:
-            self.notify.info('Detected DC file stream, reading it...')
-            dcFileNames = [dcStream]
-
         if isinstance(dcFileNames, str):
             dcFileNames = [dcFileNames]
+
+        if hasattr(__builtin__, 'dcData'):
+            dcFileNames = [StringStream(dcData)]
 
         if dcFileNames is not None:
             for dcFileName in dcFileNames:
@@ -452,7 +446,8 @@ class OTPClientRepository(ClientRepositoryBase):
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-            self.connectingBox.show()
+            # Show the connecting box only if you are connecting to an MP server
+            self.connectingBox.hide()
             self.renderFrame()
         self.handler = self.handleConnecting
         self.connect(self.serverList, successCallback=self._sendHello,
@@ -2078,7 +2073,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def enterMainMenu(self):
         self.mainMenu.request('Idle')
         if self.isConnected():
-          self.mainMenu.singlePlayerMenu.demand('Off')
+          self.mainMenu.LocalSinglePlayerStart.demand('Off')
 
     def exitMainMenu(self):
         self.mainMenu.hide()

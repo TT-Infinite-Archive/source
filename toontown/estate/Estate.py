@@ -116,7 +116,7 @@ class Estate(Place.Place):
             limiter = TLNull()
         self._telemLimiter = limiter
         if newsManager:
-            holidayIds = base.cr.newsManager.getDecorationHolidayId()
+            holidayIds = newsManager.getDecorationHolidayId()
             if (ToontownGlobals.HALLOWEEN_PROPS in holidayIds or ToontownGlobals.SPOOKY_PROPS in holidayIds) and self.loader.hood.spookySkyFile:
                 lightsOff = Sequence(LerpColorScaleInterval(base.cr.playGame.hood.loader.geom, 0.1, Vec4(0.55, 0.55, 0.65, 1)), Func(self.loader.hood.startSpookySky))
                 lightsOff.start()
@@ -137,7 +137,7 @@ class Estate(Place.Place):
             self.loader.enterAnimatedProps(i)
 
         self.loader.geom.reparentTo(render)
-        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_DAY):
+        if newsManager and newsManager.isHolidayRunning(APRIL_FOOLS_DAY):
             self.startAprilFoolsControls()
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)

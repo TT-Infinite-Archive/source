@@ -80,7 +80,6 @@ class FactoryQuestPoster(DirectFrame):
         self.questPosterBar['text'] = TTLocalizer.QuestsCompleteString
         self.questPosterBar['text_fg'] = VBase4(1.0, 1.0, 1.0, 0.9)
 
-
     def destroy(self):
         if self.questPoster:
             self.questPoster.destroy()

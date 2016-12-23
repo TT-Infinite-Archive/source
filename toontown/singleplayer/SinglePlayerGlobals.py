@@ -1,14 +1,21 @@
 from toontown.toonbase import TTLocalizer
 import sys, os
 
+LogsPath = os.path.join(os.getcwd(), 'logs')
+
+if not os.path.exists(LogsPath):
+    os.makedirs(LogsPath)
+
 try:
     PythonPath = os.path.join(os.getcwd(), builtFile)
+    LogsPath = os.path.join(os.getcwd(), 'logs')
+    print('logs:', LogsPath)
 except:
     PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
 
 Processes = [
     [
-        ['mongod', '--dbpath', 'databases'],
+        ['mongod'],
         'astron',
         TTLocalizer.MongoDB,
         'shutting down',
@@ -23,8 +30,7 @@ Processes = [
     ],
     [
         [PythonPath, '-m', 'toontown.uberdog.ServiceStart',
-        '--base-channel', '1000000', '--max-channels', '9999', '--stateserver', '4002',
-        '--astron-ip', '127.0.0.1:7100', '--eventlogger-ip', '127.0.0.1:7198'],
+        '--base-channel', '1000000', '--max-channels', '9999', '--stateserver', '4002'],
         None,
         TTLocalizer.Uberdog,
         'Failed to connect!',
@@ -33,7 +39,6 @@ Processes = [
     [
         [PythonPath, '-m', 'toontown.ai.ServiceStart',
         '--base-channel', '401000000', '--max-channels', '999999', '--stateserver', '4002',
-        '--astron-ip', '127.0.0.1:7100', '--eventlogger-ip', '127.0.0.1:7198',
         '--district-name', 'Toontown'],
         None,
         TTLocalizer.District,

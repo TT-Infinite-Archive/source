@@ -1,6 +1,7 @@
 from direct.gui.DirectGui import DirectFrame, OnscreenText, DirectButton, DGG
 from panda3d.core import TextNode, NodePath, CardMaker, TransparencyAttrib
 from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.util import TTCardMaker
 
 
 class WarningDialog(DirectFrame):
@@ -12,14 +13,7 @@ class WarningDialog(DirectFrame):
 
         DirectFrame.__init__(self, parent=self.parent, relief=None)
 
-        filepath = 'phase_3/maps/curved-gui-square.png'
-        tex = loader.loadTexture(filepath)
-        cm = CardMaker(filepath + ' card')
-        cm.setFrame(-tex.getOrigFileXSize(), tex.getOrigFileXSize(), -tex.getOrigFileYSize(), tex.getOrigFileYSize())
-
-        background = NodePath(cm.generate())
-        background.setTexture(tex)
-        background.setTransparency(TransparencyAttrib.MAlpha)
+        background = TTCardMaker.makeCard('phase_3/maps/curved-gui-square.png')
 
         buttonModels = preloader.getModel('phase_3.5/models/gui/inventory_gui')
         upButton = buttonModels.find('**/InventoryButtonUp')

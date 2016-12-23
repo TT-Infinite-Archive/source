@@ -42,6 +42,8 @@ dc-file astron/dclass/toon.dc
 dc-file astron/dclass/otp.dc
 
 # Core features:
+want-kaldron-network #f
+want-multiplayer #t
 want-pets #f
 want-parties #f
 want-achievements #f
@@ -68,6 +70,7 @@ want-quest-verification #t
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
+want-dev-debug #t
 
 # Safe zones:
 want-safe-zones #t
@@ -82,8 +85,19 @@ want-outdoor-zone #f
 want-golf-zone #f
 want-resistance-grounds #f
 
+# Trolley minigames:
+want-ttc-trolley #f
+want-photo-game #f
+want-travel-game #f
+
 # Cog headquarters:
 want-cog-headquarters #f
 
 # Heartbeat
 want-heartbeat #f
+# Safezone Interactables
+want-ttc-jukebox #t
+
+# Mod Tools
+want-mods #f
+

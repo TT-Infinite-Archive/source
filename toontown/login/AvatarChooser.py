@@ -115,8 +115,8 @@ class AvatarChooser(StateData.StateData):
             text_pos=TTLocalizer.ACdisconnectButtonPos,
             text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-0.25, 0, 0.075), command = self.__back)
-        self.disconnectButton.reparentTo(base.a2dBottomRight)
+            pos=(0.25, 0, 0.075), command = self.__back)
+        self.disconnectButton.reparentTo(base.a2dBottomLeft)
 
         """
         self.logoutButton = DirectButton(
@@ -313,4 +313,5 @@ class AvatarChooser(StateData.StateData):
         base.cr.loginFSM.request('login')
     
     def __back(self):
+        base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
         base.cr.loginFSM.request('mainMenu')

@@ -105,7 +105,9 @@ CICategoryToItemIds = {
         LaffPointRacing02,
         LaffPointRacing03
     ),
-    CICategoryCheesyEffect: (CheesyEffectNone, CheesyEffectGreenToon, CheesyEffectGoofy),
+    CICategoryCheesyEffect: (CheesyEffectNone, CheesyEffectBigHead, CheesyEffectSmallHead, CheesyEffectBigLegs, CheesyEffectSmallLegs,
+                             CheesyEffectBigToon, CheesyEffectSmallToon, CheesyEffectFlatPortrait, CheesyEffectFlatProfile, CheesyEffectTransparent,
+                             CheesyEffectNoColor, CheesyEffectInvisible, CheesyEffectPumpkin, CheesyEffectSnowMan, CheesyEffectGreenToon, CheesyEffectGoofy),
 }
 
 # Items you gain at the start of the game { category: [(id, equip), (id, equip)]

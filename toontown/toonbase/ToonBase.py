@@ -1,10 +1,7 @@
-import atexit
 import os
 import random
-import shutil
 from sys import platform
 import sys
-import tempfile
 import time
 import fractions
 
@@ -20,6 +17,7 @@ from toontown.toonbase.Preloader import Preloader
 from otp.otpbase import OTPBase
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLauncherGlobals
+from otp.ai.MagicWordGlobal import *
 from toontown.margins import MarginGlobals
 from toontown.margins.MarginManager import MarginManager
 from toontown.nametag import NametagGlobals
@@ -180,6 +178,11 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGroupTracker = self.config.GetBool('want-grouptracker', 0)
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
+        self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
+        self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
+        self.wantMods = self.config.GetBool('want-mods', False)
+        self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
+        self.wantDevDebug = self.config.GetBool('want-dev-debug', False)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)
@@ -290,6 +293,9 @@ class ToonBase(OTPBase.OTPBase):
             self.leakGraph = LeakGraph('tti-client-process')
             self.leakGraph.start()
 
+        self.picker = None
+        self.placer = None
+
         self.__tick()
 
     def openMainWindow(self, *args, **kw):
@@ -303,8 +309,6 @@ class ToonBase(OTPBase.OTPBase):
         MarginGlobals.updateMarginVisibles()
 
     def setCursorAndIcon(self):
-        tempdir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tempdir)
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
@@ -516,21 +520,18 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='localhost'):
-        # Get the base port.
-        gameserverPort = 7199
-
+    def connectToServer(self, gameserver='localhost', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
         # Get a new port.
-        gameserverPort += random.randint(0, clientagents) * 100
+        port += random.randint(0, clientagents) * 100
 
         gameserver = URLSpec(gameserver, 1)
         if base.config.GetBool('server-force-ssl', False):
             gameserver.setScheme('s')
         if not gameserver.hasPort():
-            gameserver.setPort(gameserverPort)
+            gameserver.setPort(port)
 
         base.cr.loginFSM.request('connect', [[gameserver]])
 
@@ -700,3 +701,24 @@ class ToonBase(OTPBase.OTPBase):
             if self.sfxManagerIsValidList[i]:
                 self.sfxManagerList[i].stopAllSounds()
 
+@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+def picker():
+    from toontown.util.TTPicker import TTPicker
+    from toontown.util.PlacerTool3D import PlacerTool3D
+    """
+    Toggle picker
+    """
+    def handlePicked(object):
+        if object is None:
+            return
+        if base.placer is not None:
+            base.placer.setTarget(object)
+        else:
+            base.placer = PlacerTool3D(object)
+
+    if base.picker is None:
+        base.picker = TTPicker(handlePicked)
+    else:
+        base.picker.destroy()
+        if base.placer:
+            base.placer.destroy()

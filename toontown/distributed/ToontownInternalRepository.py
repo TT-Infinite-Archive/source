@@ -34,6 +34,7 @@ class ToontownInternalRepository(AstronInternalRepository):
             self.mongo = pymongo.MongoClient(url)
         db = (urlparse.urlparse(url).path or '/game')[1:]
         self.mongodb = self.mongo[db]
+        self.dbAstronCursor = self.mongodb.astron
 
         if config.GetBool('want-web-api', False):
             endpoint = config.GetString(

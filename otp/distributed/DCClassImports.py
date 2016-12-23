@@ -2,7 +2,7 @@
 from pandac.PandaModules import *
 
 
-hashVal = 1202244516
+hashVal = 1616457157
 
 
 from toontown.cogdominium import DistributedCogdoInterior, DistributedCogdoBattleBldg, DistributedCogdoElevatorExt, DistributedCogdoElevatorInt, DistributedCogdoBarrel, DistCogdoGame, DistCogdoLevelGame, DistCogdoBoardroomGame, DistCogdoCraneGame, DistCogdoMazeGame, DistCogdoFlyingGame, DistCogdoCrane, DistCogdoCraneMoneyBag, DistCogdoCraneCog
@@ -32,7 +32,7 @@ from toontown.suit import DistributedSuitPlanner, DistributedSuitBase, Distribut
 from toontown.distributed import ToontownDistrict, ToontownDistrictStats, DistributedTimer
 from toontown.fishing import DistributedFishingPond, DistributedFishingTarget, DistributedPondBingoManager
 from toontown.uberdog.DistributedDataStoreManager import DistributedDataStoreManager
-from toontown.safezone import DistributedTrolley, DistributedPartyGate, DistributedBoat, DistributedButterfly, DistributedMMPiano, DistributedDGFlower, DistributedFishingSpot, SafeZoneManager, DistributedTreasure, DistributedChineseCheckers, DistributedCheckers, DistributedFindFour, DistributedGameTable, DistributedGolfKart, DistributedPicnicBasket
+from toontown.safezone import DistributedTrolley, DistributedPartyGate, DistributedBoat, DistributedButterfly, DistributedMMPiano, DistributedDGFlower, DistributedFishingSpot, SafeZoneManager, DistributedTreasure, DistributedChineseCheckers, DistributedCheckers, DistributedFindFour, DistributedGameTable, DistributedGolfKart, DistributedPicnicBasket, DistributedJukebox
 from toontown.effects import DistributedFireworkShow
 from toontown.minigame import DistributedMinigame, DistributedMinigameTemplate, DistributedRaceGame, DistributedCannonGame, DistributedPhotoGame, DistributedPatternGame, DistributedRingGame, DistributedTagGame, DistributedMazeGame, DistributedTugOfWarGame, DistributedCatchGame, DistributedDivingGame, DistributedTargetGame, DistributedTravelGame, DistributedPairingGame, DistributedVineGame, DistributedIceGame, DistributedCogThiefGame, DistributedTwoDGame
 from toontown.racing import DistributedVehicle, DistributedStartingBlock, DistributedRace, DistributedKartPad, DistributedRacePad, DistributedViewPad, DistributedStartingBlock, DistributedLeaderBoard, DistributedGag, DistributedProjectile

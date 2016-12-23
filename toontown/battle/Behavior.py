@@ -14,7 +14,7 @@ class Behavior:
         return 'Behavior-%s' % id(self)
 
 
-# Periodic behaviors do effects on intervals to its applied avatar
+# Periodic behaviors do effects on intervals to its applied avatar in real time
 class PeriodicBehavior(Behavior):
     def __init__(self, uid, name, interval, intEffectId):
         Behavior.__init__(self, uid, name)

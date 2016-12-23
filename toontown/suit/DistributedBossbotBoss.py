@@ -791,8 +791,9 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stopMoveTask()
         taskMgr.remove('chaseTask')
         if hasattr(self, 'tableIndex'):
-            table = self.tables[self.tableIndex]
-            table.tableGroup.hide()
+            table = self.tables.get(self.tableIndex, None)
+            if table is not None:
+                table.tableGroup.hide()
         self.loop('neutral')
         localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
         self.clearChat()

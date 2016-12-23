@@ -2,7 +2,7 @@ daemon:
     name: Developer Cluster
 
 general:
-    eventlogger: 127.0.0.1:7021
+    eventlogger: 127.0.0.1:7020
     dc_files:
         - dclass/otp.dc
         - dclass/toon.dc
@@ -61,11 +61,11 @@ uberdogs:
       anonymous: false
 
 messagedirector:
-    bind: 127.0.0.1:7011
+    bind: 127.0.0.1:7010
 
 roles:
     - type: clientagent
-      bind: 127.0.0.1:7001
+      bind: 0.0.0.0:7000
       version: "dev"
       client:
         relocate: true
@@ -84,7 +84,7 @@ roles:
         max: 399999999
       backend:
         type: mongodb
-        server: mongodb://127.0.0.1:7031/game
+        server: mongodb://127.0.0.1:7030/game
 
     - type: dbss
       database: 4003
@@ -93,5 +93,5 @@ roles:
           max: 399999999
 
     - type: eventlogger
-      bind: 127.0.0.1:7021
+      bind: 127.0.0.1:7020
       output: logs/events-%y%m%d_%H%M%S.log
