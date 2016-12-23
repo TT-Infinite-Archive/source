@@ -32,21 +32,21 @@ class TTPicker(DirectObject):
         self.ignoreAll()
 
     def findObject(self, mpos):
-        object = None
+        obj = None
         self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())
         self.picker.traverse(render)
         if self.queue.getNumEntries():
             self.queue.sortEntries()
-            object = self.queue.getEntry(0).getIntoNodePath()
-            parent = object.getParent()
+            obj = self.queue.getEntry(0).getIntoNodePath()
+            parent = obj.getParent()
             while parent != render and not parent.isEmpty():
                 # Get the highest order object which is not render
-                object = parent
-                if object.hasParent():
-                    parent = object.getParent()
-            if object == render or object.isEmpty():
-                object = None
-        return object
+                obj = parent
+                if obj.hasParent():
+                    parent = obj.getParent()
+            if obj == render or obj.isEmpty():
+                obj = None
+        return obj
 
     def setPickedObj(self, obj):
         self.pickedObj = obj
