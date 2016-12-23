@@ -210,31 +210,14 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
                                                   startPos=Point3(-220, -90, 5),
                                                   blendType='easeInOut')
 
-        plazaBuildingsPosInterval1 = LerpPosInterval(self.plazaBuildings,
-                                                  duration=8,
-                                                  pos=Point3(0, -5, 0),
-                                                  startPos=Point3(0, 0, 0),
-                                                  blendType='easeInOut')
-
-        plazaBuildingsPosInterval2 = LerpPosInterval(self.plazaBuildings,
-                                                  duration=8,
-                                                  pos=Point3(0, 0, 0),
-                                                  startPos=Point3(0, -5, 0),
-                                                  blendType='easeInOut')
-
         self.plazaPlatformPosPace = Sequence(plazaPlatformPosInterval1,
                                              plazaPlatformPosInterval2,
                                               name="plazaPlatformPosPace")
-
-        self.plazaBuildingsPosPace = Sequence(plazaBuildingsPosInterval1,
-                                              plazaBuildingsPosInterval2,
-                                              name="plazaBuildingsPosPace")
 
         self.environmentSequences.append(self.plazaPlatform)
         self.environmentSequences.append(self.plazaBuildings)
 
         self.plazaPlatformPosPace.loop()
-        self.plazaBuildingsPosPace.loop()
 
         plazaTrigger = CollisionNode('plazaTrigger')
         plazaTrigger.setIntoCollideMask(ToontownGlobals.WallBitmask)
