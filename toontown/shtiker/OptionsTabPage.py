@@ -664,20 +664,21 @@ class OptionsTabPage(DirectFrame):
         # Test the resolution and ask the user if they want to keep it
         taskMgr.doMethodLater(0.1, self.testResolution, 'testResolution-task', extraArgs=[res])
         # Revert after 15 seconds of inactivity
-        taskMgr.doMethodLater(15, self.revertResolution, 'revertResolution-task', extraArgs=[origFullscreen, origRes])
+        taskMgr.doMethodLater(15, self.revertResolution, 'revertResolution-task', extraArgs=[])
         # Disable apply video so, no need now
         self.applyVideoButton.disable()
 
     def __videoOptionsChanged(self):
         self.applyVideoButton.enable()
 
-    def revertResolution(self, fullscreen, res):
+    def revertResolution(self):
         if self.videoDialog:
             self.videoDialog.destroy()
             self.videoDialog = None
         wp = WindowProperties()
         wp.setFullscreen(settings['fullscreen'])
-        wp.setSize(settings['res'])
+        res = settings['res']
+        wp.setSize(res[0], res[1])
         base.win.requestProperties(wp)
         # Re-enable apply video button because we didn't apply changes
         self.applyVideoButton.enable()
@@ -704,9 +705,8 @@ class OptionsTabPage(DirectFrame):
             self.accept('confirmWarning', self.__handleWarningDone)
             self.applyVideoButton.enable()
             if taskMgr.hasTaskNamed('revertResolution-task'):
-                task = taskMgr.getTasksNamed('revertResolution-task')[0]
                 taskMgr.remove('revertResolution-task')
-                taskMgr.add(task)
+                self.revertResolution()
         else:
             if self.videoDialog:
                 self.videoDialog.destroy()
@@ -733,9 +733,8 @@ class OptionsTabPage(DirectFrame):
             print('cancelled change to window')
             # Make the revert task trigger now
             if taskMgr.hasTaskNamed('revertResolution-task'):
-                task = taskMgr.getTasksNamed('revertResolution-task')[0]
                 taskMgr.remove('revertResolution-task')
-                taskMgr.add(task)
+                self.revertResolution()
 
     def __handleWarningDone(self, e=None):
         self.ignore('warningDone')
