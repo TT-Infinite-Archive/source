@@ -44,7 +44,9 @@ class OptionsTabPage(DirectFrame):
 
     def destroy(self):
         self.parent = None
-        taskMgr.remove('warning')
+        self.ignoreAll()
+        taskMgr.remove('testResolution-task')
+        taskMgr.remove('revertResolution-task')
         DirectFrame.destroy(self)
 
     def load(self):
@@ -673,7 +675,7 @@ class OptionsTabPage(DirectFrame):
 
     def revertResolution(self):
         if self.videoDialog:
-            self.videoDialog.destroy()
+            self.videoDialog.cleanup()
             self.videoDialog = None
         wp = WindowProperties()
         wp.setFullscreen(settings['fullscreen'])
@@ -696,7 +698,7 @@ class OptionsTabPage(DirectFrame):
         base.win.clearRejectedProperties()
         if failed:
             if self.warning:
-                self.warning.destroy()
+                self.warning.cleanup()
             self.warning = TTDialog.TTGlobalDialog(
                 style=TTDialog.Acknowledge,
                 doneEvent='confirmWarning',
@@ -709,7 +711,7 @@ class OptionsTabPage(DirectFrame):
                 self.revertResolution()
         else:
             if self.videoDialog:
-                self.videoDialog.destroy()
+                self.videoDialog.cleaup()
             self.videoDialog = TTDialog.TTGlobalDialog(
                 style=TTDialog.TwoChoice,
                 doneEvent='confirmVideo',
