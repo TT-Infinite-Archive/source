@@ -129,7 +129,7 @@ class PlacerTool3D(DirectFrame):
 
     def changeTargetHpr(self, index, value):
         hpr = self.target.getHpr()
-        hpr[index] = value
+        hpr[index] = float(value)
         self.target.setHpr(hpr)
 
     def toggleMinimize(self):
