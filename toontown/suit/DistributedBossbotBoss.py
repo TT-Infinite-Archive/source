@@ -27,7 +27,7 @@ from toontown.coghq import CogDisguiseGlobals
 from toontown.distributed import DelayDelete
 from toontown.nametag.NametagGlobals import *
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 
 OneBossCog = None
 TTL = TTLocalizer
@@ -273,7 +273,8 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.resistanceToon.suit.loop('neutral')
         base.camera.setPos(0, 21, 7)
         self.reparentTo(render)
-        self.setBlend(frameBlend=True)
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.setBlend(frameBlend=True)
         self.setPosHpr(*ToontownGlobals.BossbotBossBattleOnePosHpr)
         self.loop('Ff_neutral')
         base.camLens.setMinFov(ToontownGlobals.CEOElevatorFov / (4. / 3.))

@@ -8,7 +8,7 @@ from otp.speedchat import SpeedChat, SCColorScheme, SCStaticTextTerminal
 from toontown.shtiker import OptionsPageGlobals, ControlRemapDialog
 from toontown.toontowngui import TTLabel, TTClickableLabel, TTButton, TTCheckBox, TTSlider, TTDialog, \
     TTRadioButton, TTRadioGroup
-from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, SettingsGlobals
+from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, SettingsGlobals, ColorGlobals
 from toontown.util.PlacerTool3D import PlacerTool3D
 
 
@@ -152,6 +152,70 @@ class OptionsTabPage(DirectFrame):
         self.windowSizeRG = TTRadioGroup.TTRadioGroup(buttons=[self.fullscreenRadio, self.windowRadio], command=self.__handleFullscreenRadioClicked)
         self.applyVideoButton = TTButton.TTButton(
             parent=self.rightFrame, text=TTLocalizer.OptionsPageApply, pos=(-0.31, 0, -0.02), disable=True, command=self.__applyVideoChanges)
+
+        self.vsyncLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(-0.36, 0.0, -0.28),
+            text_align=TextNode.ALeft,
+            text='VSync',
+        )
+        self.vsyncCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(-0.42, 0, -0.27),
+            checked=settings.get(SettingsGlobals.VSync, False),
+            command=self.__doToggleVSync
+        )
+        self.vsyncRequiresRestartLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(-0.2, 0.0, -0.29),
+            text_align=TextNode.ALeft,
+            text_fg=ColorGlobals.CRed,
+            text='*'
+        )
+        self.changedVsync = False
+        self.showFpsLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(-0.36, 0.0, -0.17),
+            text_align=TextNode.ALeft,
+            text='Show FPS',
+        )
+        self.showFpsCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(-0.42, 0, -0.16),
+            checked=settings.get(SettingsGlobals.ShowFps, False),
+            command=self.__doToggleShowFps
+        )
+        self.animationSmoothingLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(-0.36, 0.0, -0.39),
+            text_align=TextNode.ALeft,
+            text='Animation Smoothing'
+        )
+        self.animationSmoothingCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(-0.42, 0, -0.38),
+            checked=settings.get(SettingsGlobals.AnimationSmoothing, True),
+            command=self.__doToggleAnimationSmoothing
+        )
+        self.animationSmoothingRequiresRestartLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(0.12, 0.0, -0.4),
+            text_align=TextNode.ALeft,
+            text_fg=ColorGlobals.CRed,
+            text='*'
+        )
+        self.changedAnimationSmoothing = False
+        self.requiresRestartLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(-0.04, 0.0, -0.57),
+            text_align=TextNode.ALeft,
+            text_fg=ColorGlobals.CRed,
+            text='* Requires Restart'
+        )
+        self.requiresRestart = False
+        self.animationSmoothingRequiresRestartLabel.hide()
+        self.vsyncRequiresRestartLabel.hide()
+        self.requiresRestartLabel.hide()
 
         # -- Sound
 
@@ -447,6 +511,18 @@ class OptionsTabPage(DirectFrame):
         self.windowSizeRG.show()
         self.applyVideoButton.show()
         self.windowLabel.show()
+        self.showFpsCheckBox.show()
+        self.vsyncCheckBox.show()
+        self.showFpsLabel.show()
+        self.vsyncLabel.show()
+        self.animationSmoothingLabel.show()
+        self.animationSmoothingCheckBox.show()
+        if self.changedVsync:
+            self.vsyncRequiresRestartLabel.show()
+        if self.changedAnimationSmoothing:
+            self.animationSmoothingRequiresRestartLabel.show()
+        if self.requiresRestart:
+            self.requiresRestartLabel.show()
 
     def hideVideoGui(self):
         self.videoTitle.hide()
@@ -458,6 +534,15 @@ class OptionsTabPage(DirectFrame):
         self.windowSizeRG.hide()
         self.windowLabel.hide()
         self.applyVideoButton.hide()
+        self.showFpsCheckBox.hide()
+        self.vsyncCheckBox.hide()
+        self.showFpsLabel.hide()
+        self.vsyncLabel.hide()
+        self.animationSmoothingLabel.hide()
+        self.animationSmoothingCheckBox.hide()
+        self.requiresRestartLabel.hide()
+        self.vsyncRequiresRestartLabel.hide()
+        self.animationSmoothingRequiresRestartLabel.hide()
 
     def showSoundGui(self):
         self.volumeTitle.show()
@@ -559,6 +644,33 @@ class OptionsTabPage(DirectFrame):
             settings[SettingsGlobals.Music] = True
             self.musicSlider.enable()
 
+    def __doToggleVSync(self):
+        messenger.send(EventGlobals.WakeUp)
+        flag = not settings.get(SettingsGlobals.VSync, False)
+        settings[SettingsGlobals.VSync] = flag
+        self.vsyncRequiresRestartLabel.show()
+        self.requiresRestartLabel.show()
+        self.requiresRestart = True
+        self.changedVsync = True
+
+    def __doToggleShowFps(self):
+        messenger.send(EventGlobals.WakeUp)
+        if settings.get(SettingsGlobals.ShowFps, False):
+            settings[SettingsGlobals.ShowFps] = False
+            base.setFrameRateMeter(False)
+        else:
+            settings[SettingsGlobals.ShowFps] = True
+            base.setFrameRateMeter(True)
+
+    def __doToggleAnimationSmoothing(self):
+        messenger.send(EventGlobals.WakeUp)
+        flag = not settings.get(SettingsGlobals.AnimationSmoothing, True)
+        settings[SettingsGlobals.AnimationSmoothing] = flag
+        self.animationSmoothingRequiresRestartLabel.show()
+        self.requiresRestartLabel.show()
+        self.requiresRestart = True
+        self.changedAnimationSmoothing = True
+
     def __doToggleSfx(self):
         messenger.send(EventGlobals.WakeUp)
         if base.sfxActive:
@@ -657,9 +769,6 @@ class OptionsTabPage(DirectFrame):
 
         # Reload graphics pipe
         wp = WindowProperties()
-        mywp = base.win.getProperties()
-        origFullscreen = mywp.getFullscreen()
-        origRes = mywp.getSize()
         wp.setSize(res[0], res[1])
         wp.setFullscreen(fullscreen)
         base.win.requestProperties(wp)

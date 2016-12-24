@@ -1,7 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObject import DistributedObject
 from direct.actor.Actor import Actor, CollisionNode, CollisionTube
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.safezone import JukeboxGlobals
 from panda3d.core import TextNode
 from toontown.util.VolumeInterval import VolumeInterval
@@ -48,6 +48,8 @@ class DistributedJukebox(DistributedObject):
         self.jukebox.reparentTo(render)
         self.jukebox.loop('dance', fromFrame=0, toFrame=48)
         self.jukebox.setPosHpr(*self.posHpr)
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.jukebox.setBlend(frameBlend=True)
         self.collNode = CollisionNode(self.getCollisionName())
         self.collNode.setCollideMask(ToontownGlobals.CameraBitmask | ToontownGlobals.WallBitmask)
         collTube = CollisionTube(0, 0, 0, 0.0, 0.0, 4.25, 2.25)

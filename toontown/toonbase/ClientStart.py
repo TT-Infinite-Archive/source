@@ -55,48 +55,28 @@ from otp.settings.Settings import Settings
 preferencesPath = ConfigVariableString('preferences-path', 'preferences.json')
 notify.info('Reading %s...' % preferencesPath.getValue())
 __builtin__.settings = Settings(preferencesPath.getValue())
-if 'fullscreen' not in settings:
-    settings['fullscreen'] = False
-if 'music' not in settings:
-    settings['music'] = True
-if 'sfx' not in settings:
-    settings['sfx'] = True
-if 'music-volume' not in settings:
-    settings['music-volume'] = 1.0
-if 'sound-volume' not in settings:
-    settings['sound-volume'] = 1.0
-if 'loadDisplay' not in settings:
-    settings['loadDisplay'] = 'pandagl'
-if 'toonChatSounds' not in settings:
-    settings['toonChatSounds'] = True
-if 'want-custom-controls' not in settings:
-    settings['want-custom-controls'] = False
-if 'keymap' not in settings:
-    settings['keymap'] = {
-        "ACTION_BUTTON": "delete",
-        "CHAT_HOTKEY": "t",
-        "JUMP": "control",
-        "MOVE_DOWN": "s",
-        "MOVE_LEFT": "a",
-        "MOVE_RIGHT": "d",
-        "MOVE_UP": "w",
-        "OPTIONS_PAGE_HOTKEY": "escape"
-    }
+from toontown.toonbase import SettingsGlobals
+SettingsGlobals.loadInitialSettings()
+
 loadPrcFileData('Settings: res',
-                'win-size %d %d' % tuple(settings.get('res', (800, 600))))
+                'win-size %d %d' % tuple(settings.get(SettingsGlobals.Resolution, (800, 600))))
 loadPrcFileData('Settings: fullscreen',
-                'fullscreen #%s' % 't' if settings['fullscreen'] else 'f')
-loadPrcFileData('Settings: music', 'audio-music-active %s' % settings['music'])
+                'fullscreen #%s' % 't' if settings[SettingsGlobals.Fullscreen] else 'f')
+loadPrcFileData('Settings: music', 'audio-music-active %s' % settings[SettingsGlobals.Music])
 loadPrcFileData('Settings: sfx',
-                'audio-sfx-active %s' % settings['sfx'])
+                'audio-sfx-active %s' % settings[SettingsGlobals.Sound])
 loadPrcFileData('Settings: musicVol',
-                'audio-master-music-volume %s' % settings.get('music-volume', 1.0))
+                'audio-master-music-volume %s' % settings[SettingsGlobals.MusicVolume])
 loadPrcFileData('Settings: sfxVol',
-                'audio-master-sfx-volume %s' % settings['sound-volume'])
+                'audio-master-sfx-volume %s' % settings[SettingsGlobals.SoundVolume])
 loadPrcFileData('Settings: loadDisplay',
-                'load-display %s' % settings['loadDisplay'])
-loadPrcFileData('Settings: toonChatSounds',
-                'toon-chat-sounds %s' % settings['toonChatSounds'])
+                'load-display %s' % settings[SettingsGlobals.LoadDisplay])
+loadPrcFileData('Settings: showFps',
+                'show-frame-rate-meter %s' % (1 if settings[SettingsGlobals.ShowFps] else 0))
+loadPrcFileData('Settings: vsync',
+                'sync-video %s' % (1 if settings[SettingsGlobals.VSync] else 0))
+loadPrcFileData('Settings: animationSmoothing',
+                'interpolate-frames %s' % (1 if settings[SettingsGlobals.AnimationSmoothing] else 0))
 
 import os
 
