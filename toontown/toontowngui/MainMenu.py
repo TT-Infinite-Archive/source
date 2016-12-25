@@ -21,20 +21,19 @@ class MainMenu(DirectObject, FSM):
         FSM.__init__(self, 'MainMenu')
 
         self.localSinglePlayerStart = None
-        self.backgroundNodePath = render2d.attachNewNode('background', 0)
-        self.backgroundNodePath.hide()
-
-        self.backgroundModel = loader.loadModel('phase_3/models/gui/loading-background.bam')
-        self.backgroundModel.reparentTo(self.backgroundNodePath)
-        self.backgroundNodePath.find('**/fg').removeNode()
-        self.backgroundNodePath.setScale(1, 1, 1)
 
         self.logo = OnscreenImage(
-            parent=self.backgroundNodePath, 
+            parent=base.a2dTopCenter,
             image='phase_3/maps/toontown-logo.png',
-            scale=(0.38, 0.63, 0.33), pos=(0, 0, 0.38)
+            scale=(0.9, 1, 0.4), pos=(0, 0, -0.55)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
+
+        self.logo.hide()
+
+        self.background = OnscreenImage(
+            parent=base.render2d, image='phase_3/maps/background.jpg',
+            scale=(1, 1, 1), pos=(0, 0, 0))
 
         self.buttons = []
         self.spButtons = []
@@ -203,6 +202,33 @@ class MainMenu(DirectObject, FSM):
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
 
+        cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
+
+        self.ipInput = DirectEntry(
+            parent=self.background,
+            relief=DGG.GROOVE,
+            scale=0.08,
+            pos=(-0.33, 0, -0.50),
+            borderWidth=(0.05, 0.05),
+            frameColor=((1, 1, 1, 1),
+                        (1, 1, 1, 1),
+                        (0.5, 0.5, 0.5, 0.5)),
+             state=DGG.NORMAL,
+             text_align=TextNode.ALeft,
+             text_scale=TTLocalizer.OPCodesInputTextScale,
+             width=10.5,
+             numLines=1,
+             focus=1,
+             backgroundFocus=0,
+             cursorKeys=1,
+             text_fg=(0,
+                      0,
+                      0,
+                      1),
+             suppressMouse=1,
+             autoCapitalize=0,
+             command=self.__submitIP)
+
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.quitButton = DirectButton(
@@ -216,8 +242,6 @@ class MainMenu(DirectObject, FSM):
             pos=(-0.25, 0, 0.075), command=self.__handleQuit)
         self.quitButton.reparentTo(base.a2dBottomRight)
         self.buttons.append(self.quitButton)
-
-        self.hide()
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -261,6 +285,8 @@ class MainMenu(DirectObject, FSM):
         self.backButton3.hide()
         self.backButton3.reparentTo(base.a2dBottomLeft)
 
+        self.hide()
+
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
             if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
@@ -272,21 +298,24 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.setVolume(0.9)
                 base.cr.music.play()
 
-        self.backgroundNodePath.show()
+        self.background.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
         for button in self.buttons:
           button.show()
 
+        self.logo.show()
+        self.ipInput.hide()
+
     def exitIdle(self):
-        self.backgroundNodePath.hide()
+        self.background.hide()
         if not base.wantMultiplayer:
             self.lockIcon.hide()
         for button in self.buttons:
             button.hide()
 
     def enterSinglePlayer(self):
-        self.backgroundNodePath.show()
+        self.background.show()
         self.backButton.show()
         self.quitButton.show()
         base.isSinglePlayer = True
@@ -332,7 +361,7 @@ class MainMenu(DirectObject, FSM):
             self.spMods.setColorScale(CDefault)
 
     def exitSinglePlayer(self):
-        self.backgroundNodePath.hide()
+        self.background.hide()
         self.backButton.hide()
         if not base.wantKaldronNetwork:
             self.lockIcon2.hide()
@@ -354,13 +383,13 @@ class MainMenu(DirectObject, FSM):
     
     def __startSinglePlayer(self, singlePlayer):
         self.hide()
-        self.backgroundNodePath.show()
+        self.background.show()
 
         self.LocalSinglePlayerStart = LocalSinglePlayerStart(self, singlePlayer)
         self.LocalSinglePlayerStart.request('Start')
 
     def enterMultiplayer(self):
-        self.backgroundNodePath.show()
+        self.background.show()
         self.backButton.show()
         self.quitButton.show()
         base.isSinglePlayer = False
@@ -406,7 +435,7 @@ class MainMenu(DirectObject, FSM):
             self.spOnlineButton.setColorScale(CDefault)
 
     def exitMultiplayer(self):
-        self.backgroundNodePath.hide()
+        self.background.hide()
         self.backButton.hide()
         if not base.wantKaldronNetwork:
             self.lockIcon4.hide()
@@ -416,30 +445,51 @@ class MainMenu(DirectObject, FSM):
             mpButton.hide()
 
     def enterMultiplayerCP(self):
-        self.backgroundNodePath.show()
+        self.background.show()
         self.backButton2.show()
         self.quitButton.show()
         for mpButton2 in self.mpButtons2:
             mpButton2.show()
 
     def exitMultiplayerCP(self):
-        self.backgroundNodePath.hide()
+        self.background.hide()
         self.backButton2.hide()
         for mpButton2 in self.mpButtons2:
             mpButton2.hide()
 
     def enterMultiplayerCPJoin(self):
-        self.backgroundNodePath.show()
+        self.background.show()
         self.backButton3.show()
         self.quitButton.show()
+        self.ipInput.show()
+        self.__enableIPEntry()
+        self.ipInput.enterText('')
+
         for mpButton3 in self.mpButtons3:
             mpButton3.show()
 
     def exitMultiplayerCPJoin(self):
-        self.backgroundNodePath.hide()
+        self.background.hide()
         self.backButton3.hide()
+        self.ipInput.hide()
+        self.__disableIPEntry()
         for mpButton3 in self.mpButtons3:
             mpButton3.hide()
+
+    def __submitIP(self, input=None):
+        if input is None:
+            input = self.ipInput.get()
+        self.ipInput['focus'] = 1
+        if input == '':
+            return
+        messenger.send('wakeup')
+
+    def __enableIPEntry(self):
+        self.ipInput['state'] = DGG.NORMAL
+        self.ipInput['focus'] = 1
+
+    def __disableIPEntry(self):
+        self.ipInput['state'] = DGG.DISABLED
 
     def enterOff(self):
         self.hide()
@@ -450,7 +500,8 @@ class MainMenu(DirectObject, FSM):
 
     def hide(self):
         self.destroySPLocalStart()
-        self.backgroundNodePath.hide()
+        self.background.hide()
+        self.logo.hide()
         for button in self.buttons:
             button.hide()
 
