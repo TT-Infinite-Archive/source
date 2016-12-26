@@ -14,6 +14,7 @@ from otp.otpbase import OTPGlobals
 from toontown.util.PlacerTool3D import PlacerTool3D
 from panda3d.core import CollisionNode, CollisionSphere
 from toontown.toon import ToonDNA, ToonDNA
+from toontown.prologue.Island import Island
 
 
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
@@ -25,8 +26,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infiniteSkyLoop = None
         self.prologueIntro = None
         self.environmentSequences = []
+        self.islands = []
         self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
         self.activityMusicFile = ''
+        self.currentIsland = None
 
         font = ToontownGlobals.getMinnieFont()
 
@@ -91,6 +94,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.tutorialStreet.setPosHpr(-479, -53, -25, 150, 35, -20)
         self.tutorialStreet.setScale(1)
 
+        self.environmentSequences.append(self.tutorialStreet)
 
         tutorialStreetPosInterval1 = LerpPosInterval(
             self.tutorialStreet,
@@ -107,8 +111,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             startPos=Point3(-479, -53, -25),
             blendType='easeInOut'
         )
-
-        self.environmentSequences.append(self.tutorialStreet)
 
         self.tutorialStreetPace = Sequence(
             tutorialStreetPosInterval1,
@@ -167,12 +169,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.hqMeteor.setPosHpr(-271.93, 250.52, 321.106, 0, 0, 0)
         self.hqMeteor.setScale(20)
 
-
-        PlacerTool3D(self.hqMeteor, increment=1)
-
-
         # POS INTERVAL
-
 
         infiniteMeteorPosInterval1 = LerpPosInterval(
             self.infiniteMeteor,
@@ -234,53 +231,11 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infiniteMeteorPosPace.loop()
         self.infiniteMeteorHprPace.loop()
 
-
-        self.plazaPlatform = loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam')
-        self.plazaPlatform.reparentTo(self.space)
-        self.plazaPlatform.setPosHpr(-220, -90, 0, 135, -55, -5)
-
-        self.plazaBuildings = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
-        self.plazaBuildings.setPosHpr(0, 0, 0, 90, 0, -90)
-        self.plazaBuildings.reparentTo(self.plazaPlatform)
-
-
-        plazaPlatformPosInterval1 = LerpPosInterval(
-            self.plazaPlatform,
-            duration=8,
-            pos=Point3(-220, -90, 5),
-            startPos=Point3(-220, -90, 0),
-            blendType='easeInOut'
-        )
-
-        plazaPlatformPosInterval2 = LerpPosInterval(
-            self.plazaPlatform,
-            duration=8,
-            pos=Point3(-220, -90, 0),
-            startPos=Point3(-220, -90, 5),
-            blendType='easeInOut'
-        )
-
-        self.plazaPlatformPosPace = Sequence(
-            plazaPlatformPosInterval1,
-            plazaPlatformPosInterval2,
-            name="plazaPlatformPosPace"
-        )
-
-        self.environmentSequences.append(self.plazaPlatform)
-        self.environmentSequences.append(self.plazaBuildings)
-
-        self.plazaPlatformPosPace.loop()
-
-        plazaTrigger = CollisionNode('plazaAtmosphere')
-        plazaTrigger.setIntoCollideMask(ToontownGlobals.WallBitmask)
-        self.plazaTrigger = self.plazaPlatform.attachNewNode(plazaTrigger)
-        self.plazaTrigger.setPos(0, -20, 60)
-        self.plazaTrigger.show()
-        plazaTrigger = CollisionSphere(0, 0, 0, 86)
-        plazaTrigger.setTangible(0)
-        self.plazaTrigger.node().addSolid(plazaTrigger)
-
-        self.accept('enterplazaAtmosphere', self.__handleEnterAtmosphere, extraArgs=[self.plazaPlatform])
+        island = Island(self.space)
+        loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam').reparentTo(island)
+        island.setPosHpr(-220, -90, 0, 135, 55, 5)
+        island.setup(80, 2)
+        self.islands.append(island)
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
@@ -301,7 +256,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.nodeDict[20001]
 
     def startInfiniteLowGravity(self):
-        base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.8)
+        base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.6)
 
     def stopInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 2.0)
@@ -390,9 +345,3 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         strPos = '(%.3f' % pos[0] + '\n %.3f' % pos[1] + '\n %.3f)' % pos[2] + '\nH: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ',\nVer: %s, ' % serverVersion + '\nDistrict: %s' % districtName
         print 'Current position=', strPos.replace('\n', ', ')
         return
-
-    def __handleEnterAtmosphere(self, node, e=None):
-        print('Entering atmosphere for node %s myhpr: %s theirhpr: %s' % (node.getName(), self.space.getHpr(), node.getHpr()))
-        toHpr = (self.space.getH(), -node.getP(), node.getR())
-        # Rotate space to make it seem like you're being pulled into the object's atmosphere
-        LerpHprInterval(self.space, 2, toHpr).start()
