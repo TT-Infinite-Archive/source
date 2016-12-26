@@ -25,14 +25,14 @@ class MainMenu(DirectObject, FSM):
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter,
             image='phase_3/maps/toontown-logo.png',
-            scale=(0.9, 1, 0.4), pos=(0, 0, -0.55)
+            scale=(0.9, 1, 0.4), pos=(0, 0, -0.60)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         self.logo.hide()
 
         self.background = OnscreenImage(
-            parent=base.render2d, image='phase_3/maps/background.jpg',
+            parent=base.render2d, image='phase_3/maps/loading_bg_clouds.jpg',
             scale=(1, 1, 1), pos=(0, 0, 0))
 
         self.buttons = []
