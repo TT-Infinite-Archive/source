@@ -11,7 +11,8 @@ from pandac.PandaModules import *
 from toontown.toonbase import ToontownGlobals
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
-
+from direct.interval.IntervalGlobal import Sequence
+from direct.interval.IntervalGlobal import LerpScaleInterval
 
 class MainMenu(DirectObject, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -20,20 +21,8 @@ class MainMenu(DirectObject, FSM):
         DirectObject.__init__(self)
         FSM.__init__(self, 'MainMenu')
 
+        self.logoScaleTrack = None
         self.localSinglePlayerStart = None
-
-        self.logo = OnscreenImage(
-            parent=base.a2dTopCenter,
-            image='phase_3/maps/toontown-logo.png',
-            scale=(0.9, 1, 0.4), pos=(0, 0, -0.60)
-        )
-        self.logo.setTransparency(TransparencyAttrib.MAlpha)
-
-        self.logo.hide()
-
-        self.background = OnscreenImage(
-            parent=base.render2d, image='phase_3/maps/loading_bg_clouds.jpg',
-            scale=(1, 1, 1), pos=(0, 0, 0))
 
         self.buttons = []
         self.spButtons = []
@@ -41,24 +30,51 @@ class MainMenu(DirectObject, FSM):
         self.mpButtons2 = []
         self.mpButtons3 = []
 
-        buttonScale = (-1.1, 1.1, 1.1) # (-0.9, 0.9, 0.9)
-        buttonScale2 = (-1.4, 1.5, 1.5)
-        buttonScale3 = (-0.8, 0.8, 0.8)
+        buttonScale = (-1.1, 1.1, 1.1)
+        buttonScale2 = (-0.8, 0.8, 0.8)
 
+
+        # Load the background image for the Main Menu
+        self.background = OnscreenImage(
+            parent=base.aspect2d, image='phase_3/maps/loading_bg_clouds.jpg',
+            scale=(2, 1, 1), pos=(0, 0, 0))
+
+        # Load the Toontown Infinite logo
+        self.logo = OnscreenImage(
+            parent=base.aspect2d,
+            image='phase_3/maps/toontown-logo.png',
+            scale=(0.75, 0.35, 0.35), pos=(0, 0, 0.35)
+        )
+        self.logo.setTransparency(TransparencyAttrib.MAlpha)
+
+        if self.logoScaleTrack is not None:
+            self.logoScaleTrack.finish()
+            self.logoScaleTrack = None
+
+        # Pulsating animation for the logo
+        self.logoScaleTrack = Sequence(
+            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.35), Vec3(0.65, 0.35, 0.3),
+                              blendType='easeInOut'),
+            LerpScaleInterval(self.logo, 4, Vec3(0.65, 0.35, 0.3), Vec3(0.75, 0.35, 0.35),
+                              blendType='easeInOut')
+        )
+        self.logoScaleTrack.loop()
+
+        # Main Menu Buttons
         self.singlePlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.25),  # (0, 0, -0.1),
+            pos=(0, 0, -0.2),
             text="Single Player",
             wantArrows=False,
             image_scale=buttonScale, 
             image2_scale=buttonScale,
             image1_scale=buttonScale, 
-            text_scale=0.082, # text_scale=0.07
+            text_scale=0.082,
             command=lambda: self.request('SinglePlayer')
         )
         self.buttons.append(self.singlePlayerButton)
 
         self.multiPlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.6), 
+            pos=(0, 0, -0.5),
             text="Multiplayer",
             wantArrows=False,
             image_scale=buttonScale, 
@@ -69,34 +85,70 @@ class MainMenu(DirectObject, FSM):
         )
         self.buttons.append(self.multiPlayerButton)
 
-        self.spOnlineButton = MATShuffleButton(
-            pos=(0, 0, -0.25),
+        self.kaldronNetworkButton = MATShuffleButton(
+            pos=(0, 0, -0.8),
             text="Kaldron\nNetwork",
-            text_pos=(0,0.02,0),
+            text_pos=(0, 0.02, 0),
             wantArrows=False,
-            image_scale=buttonScale2,
-            image2_scale=buttonScale2,
-            image1_scale=buttonScale2,
-            text_scale=0.10,
+            image_scale=buttonScale,
+            image2_scale=buttonScale,
+            image1_scale=buttonScale,
+            text_scale=0.08,
             command=lambda: self.request('')
         )
-        self.spButtons.append(self.spOnlineButton)
+        self.buttons.append(self.kaldronNetworkButton)
 
-        self.mpOnlineButton = MATShuffleButton(
-            pos=(0, 0, -0.25),
-            text="Kaldron\nNetwork",
-            text_pos=(0,0.02,0),
-            wantArrows=False,
-            image_scale=buttonScale2,
-            image2_scale=buttonScale2,
-            image1_scale=buttonScale2,
-            text_scale=0.10,
-            command=lambda: self.request('')
+        # Load the lock icon image for disabled buttons
+        lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
+
+        # Lock icon for Multiplayer
+        self.lockIcon = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.0007, 0.0007, 0.0007),
+            pos=(0.35, 0, -0.48),
+            suppressMouse=True,
+            state=DGG.DISABLED
         )
-        self.mpButtons.append(self.mpOnlineButton)
 
+        self.lockIcon.hide()
+
+        # Lock icon for the Kaldron Interactive Network
+        self.lockIcon2 = DirectButton(
+            parent=aspect2d,
+            relief=None,
+            image=lockImage,
+            image_scale=(0.0007, 0.0007, 0.0007),
+            pos=(0.35, 0, -0.78),
+            suppressMouse=True,
+            state=DGG.DISABLED
+        )
+
+        self.lockIcon2.hide()
+
+        # Functionality for enabling and disabling the Multiplayer button
+        self.multiPlayerButton['state'] = DGG.DISABLED
+        self.multiPlayerButton.setColorScale(CGray)
+
+        if base.wantMultiplayer:
+            self.lockIcon.destroy()
+            self.multiPlayerButton['state'] = DGG.NORMAL
+            self.multiPlayerButton.setColorScale(CDefault)
+
+        # Functionality for enabling and disabling the Kaldron Interactive Network button
+        self.kaldronNetworkButton['state'] = DGG.DISABLED
+        self.kaldronNetworkButton.setColorScale(CGray)
+
+        if base.wantKaldronNetwork:
+            self.lockIcon2.destroy()
+            self.kaldronNetworkButton['state'] = DGG.NORMAL
+            self.kaldronNetworkButton.setColorScale(CDefault)
+
+
+        # Single Player Menu Buttons
         self.spLocalButton = MATShuffleButton(
-            pos=(0, 0, -0.65),
+            pos=(0, 0, -0.30),
             text="Local Play",
             wantArrows=False,
             image_scale=buttonScale,
@@ -107,8 +159,21 @@ class MainMenu(DirectObject, FSM):
         )
         self.spButtons.append(self.spLocalButton)
 
+        self.spMods = MATShuffleButton(
+            pos=(0, 0, -0.60),
+            text="Mods",
+            wantArrows=False,
+            image_scale=buttonScale2,
+            image2_scale=buttonScale2,
+            image1_scale=buttonScale2,
+            text_scale=0.09,
+            command=lambda: self.request('Mods')
+        )
+        self.spButtons.append(self.spMods)
+
+        # Multiplayer Menu Buttons
         self.mpCustomPlay = MATShuffleButton(
-            pos=(0, 0, -0.65),
+            pos=(0, 0, -0.30),
             text="Custom Play",
             wantArrows=False,
             image_scale=buttonScale,
@@ -120,30 +185,19 @@ class MainMenu(DirectObject, FSM):
 
         self.mpButtons.append(self.mpCustomPlay)
 
-        self.spMods = MATShuffleButton(
-            pos=(0, 0, -0.87),
-            text="Mods",
-            wantArrows=False,
-            image_scale=buttonScale3,
-            image2_scale=buttonScale3,
-            image1_scale=buttonScale3,
-            text_scale=0.09,
-            command=lambda: self.request('Mods')
-        )
-        self.spButtons.append(self.spMods)
-
         self.mpMods = MATShuffleButton(
-            pos=(0, 0, -0.87),
+            pos=(0, 0, -0.60),
             text="Mods",
             wantArrows=False,
-            image_scale=buttonScale3,
-            image2_scale=buttonScale3,
-            image1_scale=buttonScale3,
+            image_scale=buttonScale2,
+            image2_scale=buttonScale2,
+            image1_scale=buttonScale2,
             text_scale=0.09,
             command=lambda: self.request('Mods')
         )
         self.mpButtons.append(self.mpMods)
 
+        # Multiplayer Menu Buttons: Join/Host
         self.mpCPJoin = MATShuffleButton(
             pos=(-0.5, 0, -0.45),
             text="Join",
@@ -168,6 +222,8 @@ class MainMenu(DirectObject, FSM):
         )
         self.mpButtons2.append(self.mpCPHost)
 
+
+        # Multiplayer Menu Buttons: Join Menu
         self.mpCPConnect = MATShuffleButton(
             pos=(0, 0, -0.75),
             text="Connect",
@@ -179,31 +235,11 @@ class MainMenu(DirectObject, FSM):
             command=lambda: self.request('MultiplayerCPConnect')
         )
         self.mpButtons3.append(self.mpCPConnect)
-        
-        lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
-        
-        self.lockIcon = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.58),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-        lockImage.removeNode()
 
-        self.lockIcon.hide()
-        self.multiPlayerButton['state'] = DGG.DISABLED
-        self.multiPlayerButton.setColorScale(CGray)
-
-        if base.wantMultiplayer:
-            self.lockIcon.destroy()
-            self.multiPlayerButton['state'] = DGG.NORMAL
-            self.multiPlayerButton.setColorScale(CDefault)
-
+        # Load the image for the ip input bar
         cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
 
+        # Load the ip input bar
         self.ipInput = DirectEntry(
             parent=self.background,
             relief=DGG.GROOVE,
@@ -229,6 +265,7 @@ class MainMenu(DirectObject, FSM):
              autoCapitalize=0,
              command=self.__submitIP)
 
+        # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.quitButton = DirectButton(
@@ -239,13 +276,15 @@ class MainMenu(DirectObject, FSM):
             text_pos=TTLocalizer.ACquitButtonPos,
             text_scale=TTLocalizer.ACquitButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-0.25, 0, 0.075), command=self.__handleQuit)
-        self.quitButton.reparentTo(base.a2dBottomRight)
+            pos=(1.65, 0, -0.935), command=self.__handleQuit)
+        self.quitButton.reparentTo(base.aspect2d)
         self.buttons.append(self.quitButton)
+
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
 
+        # Back Button
         self.backButton = DirectButton(
             image=(quitHover, quitHover, quitHover), relief=None,
             text=TTLocalizer.OptionsGoBack,
@@ -254,11 +293,12 @@ class MainMenu(DirectObject, FSM):
             text_pos=TTLocalizer.ACquitButtonPos,
             text_scale=TTLocalizer.ACbackButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command=lambda: self.request('Idle'))
+            pos=(-1.65, 0, -0.935), command=lambda: self.request('Idle'))
 
         self.backButton.hide()
-        self.backButton.reparentTo(base.a2dBottomLeft)
+        self.backButton.reparentTo(base.aspect2d)
 
+        # Back Button 2
         self.backButton2 = DirectButton(
             image=(quitHover, quitHover, quitHover), relief=None,
             text=TTLocalizer.OptionsGoBack,
@@ -267,11 +307,12 @@ class MainMenu(DirectObject, FSM):
             text_pos=TTLocalizer.ACquitButtonPos,
             text_scale=TTLocalizer.ACbackButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command=lambda: self.request('Multiplayer'))
+            pos=(-1.65, 0, -0.935), command=lambda: self.request('Multiplayer'))
 
         self.backButton2.hide()
-        self.backButton2.reparentTo(base.a2dBottomLeft)
+        self.backButton2.reparentTo(base.aspect2d)
 
+        # Back Button 3
         self.backButton3 = DirectButton(
             image=(quitHover, quitHover, quitHover), relief=None,
             text=TTLocalizer.OptionsGoBack,
@@ -280,10 +321,10 @@ class MainMenu(DirectObject, FSM):
             text_pos=TTLocalizer.ACquitButtonPos,
             text_scale=TTLocalizer.ACbackButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command=lambda: self.request('MultiplayerCP'))
+            pos=(-1.65, 0, -0.935), command=lambda: self.request('MultiplayerCP'))
 
         self.backButton3.hide()
-        self.backButton3.reparentTo(base.a2dBottomLeft)
+        self.backButton3.reparentTo(base.aspect2d)
 
         self.hide()
 
@@ -301,6 +342,8 @@ class MainMenu(DirectObject, FSM):
         self.background.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
+        if not base.wantKaldronNetwork:
+            self.lockIcon2.show()
         for button in self.buttons:
           button.show()
 
@@ -309,10 +352,12 @@ class MainMenu(DirectObject, FSM):
 
     def exitIdle(self):
         self.background.hide()
-        if not base.wantMultiplayer:
-            self.lockIcon.hide()
         for button in self.buttons:
             button.hide()
+        if not base.wantMultiplayer:
+            self.lockIcon.hide()
+        if not base.wantKaldronNetwork:
+            self.lockIcon2.hide()
 
     def enterSinglePlayer(self):
         self.background.show()
@@ -324,15 +369,6 @@ class MainMenu(DirectObject, FSM):
 
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
 
-        self.lockIcon2 = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0009, 0.0009, 0.0009),
-            pos=(0.44, 0, -0.23),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
         self.lockIcon3 = DirectButton(
             parent=aspect2d,
             relief=None,
@@ -344,16 +380,8 @@ class MainMenu(DirectObject, FSM):
         )
         lockImage.removeNode()
 
-        self.spOnlineButton['state'] = DGG.DISABLED
-        self.spOnlineButton.setColorScale(CGray)
-
         self.spMods['state'] = DGG.DISABLED
         self.spMods.setColorScale(CGray)
-
-        if base.wantKaldronNetwork:
-            self.lockIcon2.destroy()
-            self.spOnlineButton['state'] = DGG.NORMAL
-            self.spOnlineButton.setColorScale(CDefault)
 
         if base.wantMods:
             self.lockIcon3.destroy()
@@ -363,12 +391,10 @@ class MainMenu(DirectObject, FSM):
     def exitSinglePlayer(self):
         self.background.hide()
         self.backButton.hide()
-        if not base.wantKaldronNetwork:
-            self.lockIcon2.hide()
-        if not base.wantMods:
-            self.lockIcon3.hide()
         for spButton in self.spButtons:
             spButton.hide()
+        if not base.wantMods:
+            self.lockIcon3.hide()
 
     def enterSinglePlayerLocal(self):
         OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing offline local play on Toontown Infinite!"
@@ -402,15 +428,6 @@ class MainMenu(DirectObject, FSM):
             parent=aspect2d,
             relief=None,
             image=lockImage,
-            image_scale=(0.0009, 0.0009, 0.0009),
-            pos=(0.44, 0, -0.23),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-        self.lockIcon5 = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
             image_scale=(0.00045, 0.00045, 0.00045),
             pos=(0.246, 0, -0.86),
             suppressMouse=True,
@@ -418,31 +435,21 @@ class MainMenu(DirectObject, FSM):
         )
         lockImage.removeNode()
 
-        self.mpOnlineButton['state'] = DGG.DISABLED
-        self.mpOnlineButton.setColorScale(CGray)
-
         self.mpMods['state'] = DGG.DISABLED
         self.mpMods.setColorScale(CGray)
 
-        if base.wantKaldronNetwork:
-            self.lockIcon4.destroy()
-            self.spOnlineButton['state'] = DGG.NORMAL
-            self.spOnlineButton.setColorScale(CDefault)
-
         if base.wantMods:
-            self.lockIcon5.destroy()
-            self.spOnlineButton['state'] = DGG.NORMAL
-            self.spOnlineButton.setColorScale(CDefault)
+            self.lockIcon4.destroy()
+            self.mpMods['state'] = DGG.NORMAL
+            self.mpMods.setColorScale(CDefault)
 
     def exitMultiplayer(self):
         self.background.hide()
         self.backButton.hide()
-        if not base.wantKaldronNetwork:
-            self.lockIcon4.hide()
-        if not base.wantMods:
-            self.lockIcon5.hide()
         for mpButton in self.mpButtons:
             mpButton.hide()
+        if not base.wantMods:
+            self.lockIcon4.hide()
 
     def enterMultiplayerCP(self):
         self.background.show()
@@ -493,6 +500,9 @@ class MainMenu(DirectObject, FSM):
 
     def enterOff(self):
         self.hide()
+        if self.logoScaleTrack is not None:
+            self.logoScaleTrack.finish()
+            self.logoScaleTrack = None
 
     def destroySPLocalStart(self):
         if self.localSinglePlayerStart:
