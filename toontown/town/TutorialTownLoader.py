@@ -15,6 +15,7 @@ from toontown.util.PlacerTool3D import PlacerTool3D
 from panda3d.core import CollisionNode, CollisionSphere
 from toontown.toon import ToonDNA, ToonDNA
 from toontown.prologue.Island import Island
+from toontown.prologue.FloatingObject import FloatingObject
 
 
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
@@ -52,13 +53,13 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.loadInfinite()
         self.startInfiniteLowGravity()
-        self.enterIntroduction()
-        self.logo.hide()
+        # self.enterIntroduction()
+        # self.logo.hide()
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
-        render.setColorScale(0.3, 0.2, 0.2, 1)
+        render.setColorScale(0.4, 0.4, 0.45, 1)
         base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
 
         dna = ToonDNA.ToonDNA()
@@ -70,7 +71,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         base.localAvatar.setName('Doctor Surlee')
         # base.cr.playGame.getPlace().exitWalk()
-
 
     def exit(self):
         self.loadInfinite()
@@ -84,9 +84,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         # Skybox
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/infinite_sky.bam')
         self.infiniteSky.reparentTo(self.space)
-        self.infiniteSky.setScale(5)
-        self.infiniteSkyLoop = self.infiniteSky.hprInterval(300, Vec3(360, 0, 0))
-        self.infiniteSkyLoop.loop()
 
         # Plane
         self.infinitePlane = loader.loadModel('phase_3.5/models/props/infinite_plane.bam')
@@ -95,71 +92,60 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infinitePlane.setScale(5)
         self.infinitePlane.hide()
 
-        # PlacerTool3D(self.infinitePlane, increment=20)
+        # Islands
 
-        # Objects
-        self.tutorialStreet = loader.loadModel('phase_3.5/models/props/tutorial_street.bam')
-        self.tutorialStreet.reparentTo(self.space)
-        self.tutorialStreet.setPosHpr(-479, -53, -25, 150, 35, -20)
-        self.tutorialStreet.setScale(1)
+        # Toontown Central Island
+        island = Island(self.space)
+        loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam').reparentTo(island)
+        islandBuilding = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
+        islandBuilding.setPosHpr(0, -63, -4, 90, 0, 0)
+        islandBuilding.reparentTo(island)
 
-        self.environmentSequences.append(self.tutorialStreet)
+        island.setPosHpr(-250, -135, 0, 140, 35, 0)
+        island.setIslandName('Toontown Central Plaza', (1.0, 0.5, 0.4, 1.0))
+        island.setAtmosphereMusic(self.music, 'phase_4/audio/bgm/TC_nbrhood.ogg')
+        island.setup(80, 2)
+        self.islands.append(island)
 
-        tutorialStreetPosInterval1 = LerpPosInterval(
-            self.tutorialStreet,
-            duration=12,
-            pos=Point3(-479, -53, -25),
-            startPos=Point3(-479, -53, -35),
-            blendType='easeInOut'
-        )
+        # Tutorial Terrace Island
+        island2 = Island(self.space)
+        loader.loadModel('phase_3.5/models/props/tutorial_street.bam').reparentTo(island2)
+        island2.setPosHpr(-479, -53, -25, 150, 35, -20)
+        island2.setup(80, 2)
+        self.islands.append(island2)
 
-        tutorialStreetPosInterval2 = LerpPosInterval(
-            self.tutorialStreet,
-            duration=12,
-            pos=Point3(-479, -53, -35),
-            startPos=Point3(-479, -53, -25),
-            blendType='easeInOut'
-        )
+        # The Docks Island
+        ddBoat = Island(self.space)
+        loader.loadModel('phase_6/models/modules/donalds_boat.bam').reparentTo(ddBoat)
+        ddBoat.setPosHpr(-340, -135, 50, 215, 0, -65)
+        ddBoat.setup(20, 4)
+        self.islands.append(ddBoat)
 
-        self.tutorialStreetPace = Sequence(
-            tutorialStreetPosInterval1,
-            tutorialStreetPosInterval2,
-            name="tutorialStreetPace"
-        )
-        self.tutorialStreetPace.loop()
+        ddPalmtree = FloatingObject(self.space)
+        loader.loadModel('phase_6/models/props/palm_tree_topflat.bam').reparentTo(self.space)
+        ddPalmtree.setPosHpr(-340, -135, 50, 0, 0, 0)
+        ddPalmtree.setup(2)
+        self.islands.append(ddPalmtree)
 
+        ddPalmtree2 = FloatingObject(self.space)
+        loader.loadModel('phase_6/models/props/palm_tree_topflat.bam').reparentTo(self.space)
+        ddPalmtree2.setPosHpr(-340, -135, 50, 0, 0, 0)
+        ddPalmtree2.setup(2)
+        self.islands.append(ddPalmtree2)
 
-        self.keyBlade = loader.loadModel('phase_3.5/models/props/kh_key_blade.bam')
-        self.keyBlade.reparentTo(self.space)
-        self.keyBlade.setPosHpr(-63, 21, 3, 50, -45, 55)
-        self.keyBlade.setScale(0.2)
+        # trashcan_DD
+        # palm_tree_topflat
 
+        # PlacerTool3D(ddPalmtree, increment=5)
 
-        keyBladePosInterval1 = LerpPosInterval(
-            self.keyBlade,
-            duration=8,
-            pos=Point3(-63, 21, 3),
-            startPos=Point3(-63, 21, 2),
-            blendType='easeInOut'
-        )
+        # Misc Objects
 
-        keyBladePosInterval2 = LerpPosInterval(
-            self.keyBlade,
-            duration=8,
-            pos=Point3(-63, 21, 2),
-            startPos=Point3(-63, 21, 3),
-            blendType='easeInOut'
-        )
-
-        self.environmentSequences.append(self.keyBlade)
-
-        self.keyBladePace = Sequence(
-            keyBladePosInterval1,
-            keyBladePosInterval2,
-            name="keyBladePace"
-        )
-
-        self.keyBladePace.loop()
+        # Key Blade
+        self.keyblade = FloatingObject(self.space)
+        loader.loadModel('phase_3.5/models/props/kh_key_blade.bam').reparentTo(self.keyblade)
+        self.keyblade.setPosHpr(-63, 21, 3, 50, -45, 55)
+        self.keyblade.setScale(0.2)
+        self.keyblade.setup(1)
 
         # Meteors
 
@@ -234,16 +220,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.infiniteMeteorPosPace.loop()
         self.infiniteMeteorHprPace.loop()
-
-        island = Island(self.space)
-        loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam').reparentTo(island)
-        island.setPosHpr(-250, -135, 0, 140, 35, 0)
-        island.setup(80, 2)
-        self.islands.append(island)
-
-        self.islandBuilding = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
-        self.islandBuilding.setPosHpr(0, -63, -4, 90, 0, 0)
-        self.islandBuilding.reparentTo(island)
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
