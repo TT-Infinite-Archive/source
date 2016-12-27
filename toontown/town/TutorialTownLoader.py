@@ -82,11 +82,20 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.space = render.attachNewNode('SpaceNode')
 
         # Skybox
-        self.infiniteSky = loader.loadModel('phase_3.5/models/props/Infinite_sky.bam')
+        self.infiniteSky = loader.loadModel('phase_3.5/models/props/infinite_sky.bam')
         self.infiniteSky.reparentTo(self.space)
         self.infiniteSky.setScale(5)
         self.infiniteSkyLoop = self.infiniteSky.hprInterval(300, Vec3(360, 0, 0))
         self.infiniteSkyLoop.loop()
+
+        # Plane
+        self.infinitePlane = loader.loadModel('phase_3.5/models/props/infinite_plane.bam')
+        self.infinitePlane.reparentTo(self.space)
+        self.infinitePlane.setPos(0, 0, -800)
+        self.infinitePlane.setScale(5)
+        self.infinitePlane.hide()
+
+        # PlacerTool3D(self.infinitePlane, increment=20)
 
         # Objects
         self.tutorialStreet = loader.loadModel('phase_3.5/models/props/tutorial_street.bam')
@@ -164,11 +173,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.tutorialMeteor.setPos(-7, 26, -37)
         self.tutorialMeteor.setScale(20)
 
-        self.hqMeteor = loader.loadModel('phase_3.5/models/props/tutorial_shop_meteor.bam')
-        self.hqMeteor.reparentTo(self.space)
-        self.hqMeteor.setPosHpr(-271.93, 250.52, 321.106, 0, 0, 0)
-        self.hqMeteor.setScale(20)
-
         # POS INTERVAL
 
         infiniteMeteorPosInterval1 = LerpPosInterval(
@@ -233,9 +237,13 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         island = Island(self.space)
         loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam').reparentTo(island)
-        island.setPosHpr(-220, -90, 0, 135, 55, 5)
+        island.setPosHpr(-250, -135, 0, 140, 35, 0)
         island.setup(80, 2)
         self.islands.append(island)
+
+        self.islandBuilding = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
+        self.islandBuilding.setPosHpr(0, -63, -4, 90, 0, 0)
+        self.islandBuilding.reparentTo(island)
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
@@ -256,7 +264,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.nodeDict[20001]
 
     def startInfiniteLowGravity(self):
-        base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.6)
+        base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.8)
 
     def stopInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 2.0)
