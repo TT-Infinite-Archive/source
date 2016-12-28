@@ -1,5 +1,5 @@
 from panda3d.core import TextNode
-from direct.gui.DirectGui import DirectLabel, DGG
+from direct.gui.DirectGui import DirectLabel
 
 
 class TTLabel(DirectLabel):

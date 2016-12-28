@@ -49,33 +49,11 @@ class ToonBase(OTPBase.OTPBase):
         # Choose the best resolution if we're either fullscreen, or we don't
         # have a resolution defined in our settings:
         fullscreen = settings.get('fullscreen', False)
-        if fullscreen or ('res' not in settings):
-            if fullscreen:
-                # Fit the entire display:
-                res = (self.nativeWidth, self.nativeHeight)
-            else:
-                # Choose the smallest resolution that matches that largest
-                # ratio that contains resolutions that will fit our display in
-                # windowed mode:
-                resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
-
-                if len(resolutions) < 2:
-                    ratios = ToontownGlobals.CommonDisplayResolutions.keys()
-                    ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
-
-                    while ratios:
-                        ratio = ratios.pop()
-                        if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
-                            resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
-                            if resolutions[0][0] >= (self.nativeWidth - 125):
-                                continue
-                            if resolutions[0][1] >= (self.nativeHeight - 125):
-                                continue
-                            break
-                    else:
-                        resolutions = ToontownGlobals.CommonDisplayResolutions[(4, 3)]
-
-                res = resolutions[0]
+        if 'res' not in settings and not fullscreen:
+            # Choose the smallest resolution that matches that largest
+            # ratio that contains resolutions that will fit our display in
+            # windowed mode:
+            res = self.getSmallestResolution()
 
             # Store our result
             settings['res'] = res
@@ -299,7 +277,12 @@ class ToonBase(OTPBase.OTPBase):
         self.__tick()
 
     def openMainWindow(self, *args, **kw):
-        result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
+        try:
+            result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
+        except StandardError as e:
+            settings['fullscreen'] = False
+            raise StandardError, 'Could not open window, resetting display options; try to run the game again.'
+
         self.setCursorAndIcon()
         return result
 
@@ -313,7 +296,7 @@ class ToonBase(OTPBase.OTPBase):
 
         searchPath = DSearchPath()
         if __debug__:
-            searchPath.appendDirectory(Filename('resources/phase_3/etc'))
+            searchPath.appendDirectory(Filename('/resources/phase_3/etc'))
         searchPath.appendDirectory(Filename('/phase_3/etc'))
 
         for filename in ['toonmono.cur', 'icon.ico']:
@@ -701,12 +684,35 @@ class ToonBase(OTPBase.OTPBase):
             if self.sfxManagerIsValidList[i]:
                 self.sfxManagerList[i].stopAllSounds()
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
-def picker():
+    def getSmallestResolution(self):
+        resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
+
+        if len(resolutions) < 2:
+            ratios = ToontownGlobals.CommonDisplayResolutions.keys()
+            ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
+
+            while ratios:
+                ratio = ratios.pop()
+                if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
+                    resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
+                    if resolutions[0][0] >= (self.nativeWidth - 125):
+                        continue
+                    if resolutions[0][1] >= (self.nativeHeight - 125):
+                        continue
+                    break
+            else:
+                resolutions = ToontownGlobals.CommonDisplayResolutions[(4, 3)]
+
+        res = resolutions[0]
+        return res
+
+
+@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[int])
+def picker(mode=0):
     from toontown.util.TTPicker import TTPicker
     from toontown.util.PlacerTool3D import PlacerTool3D
     """
-    Toggle picker
+    Toggle picker with mode
     """
     def handlePicked(object):
         if object is None:
@@ -717,8 +723,12 @@ def picker():
             base.placer = PlacerTool3D(object)
 
     if base.picker is None:
-        base.picker = TTPicker(handlePicked)
+        base.picker = TTPicker(mode, handlePicked)
+        return 'Picker on with mode %d' % mode
     else:
         base.picker.destroy()
+        base.picker = None
         if base.placer:
             base.placer.destroy()
+            base.placer = None
+        return 'Picker turned off.'

@@ -28,7 +28,7 @@ from toontown.distributed import DelayDelete
 from toontown.nametag.NametagGlobals import *
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 
 from toontown.debug.DebugTools import timeFunc
 OneBossCog = None
@@ -941,7 +941,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stopAnimate()
         self.endVault.unstash()
         self.evWalls.stash()
-        self.setBlend(frameBlend=True)
         self.midVault.unstash()
         self.__showResistanceToon(True)
         base.playMusic(self.stingMusic, looping=1, volume=0.9)

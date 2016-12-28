@@ -5,11 +5,20 @@ from panda3d.core import *
 
 class TTPicker(DirectObject):
     notify = directNotify.newCategory('TTPicker')
+    '''
+    0 (default): Selects the outer most node that isn't render (closest to render)
+    1: Selects the parent of the node you selected
+    2: Selects the node you selected
+    '''
+    ModeOutmostParent = 0
+    ModeParent = 1
+    ModePrecise = 2
 
-    def __init__(self, callback=None):
+    def __init__(self, mode=0, callback=None):
         DirectObject.__init__(self)
         self.pickedObj = None
         self.callback = callback
+        self.mode = mode
 
         # Collision stuff
         self.picker = CollisionTraverser()
@@ -32,21 +41,26 @@ class TTPicker(DirectObject):
         self.ignoreAll()
 
     def findObject(self, mpos):
-        object = None
+        obj = None
         self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())
         self.picker.traverse(render)
         if self.queue.getNumEntries():
             self.queue.sortEntries()
-            object = self.queue.getEntry(0).getIntoNodePath()
-            parent = object.getParent()
-            while parent != render and not parent.isEmpty():
-                # Get the highest order object which is not render
-                object = parent
-                if object.hasParent():
-                    parent = object.getParent()
-            if object == render or object.isEmpty():
-                object = None
-        return object
+            obj = self.queue.getEntry(0).getIntoNodePath()
+            parent = obj.getParent()
+            if self.mode == self.ModeOutmostParent:
+                while parent != render and not parent.isEmpty():
+                    # Get the highest order object which is not render
+                    obj = parent
+                    if obj.hasParent():
+                        parent = obj.getParent()
+            elif self.mode == self.ModeParent:
+                if parent != render and not parent.isEmpty():
+                    obj = parent
+
+            if obj == render or obj.isEmpty():
+                obj = None
+        return obj
 
     def setPickedObj(self, obj):
         self.pickedObj = obj
