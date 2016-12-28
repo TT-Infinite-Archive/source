@@ -70,7 +70,6 @@ want-quest-verification #t
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
-want-dev-debug #t
 
 # Safe zones:
 want-safe-zones #t
