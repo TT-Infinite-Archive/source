@@ -53,9 +53,9 @@ class MainMenu(DirectObject, FSM):
 
         # Pulsating animation for the logo
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.35), Vec3(0.65, 0.35, 0.3),
+            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.35), Vec3(0.70, 0.35, 0.325),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.65, 0.35, 0.3), Vec3(0.75, 0.35, 0.35),
+            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.325), Vec3(0.75, 0.35, 0.35),
                               blendType='easeInOut')
         )
         self.logoScaleTrack.loop()
@@ -107,7 +107,7 @@ class MainMenu(DirectObject, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.48),
+            pos=(0.35, 0, -0.50),
             suppressMouse=True,
             state=DGG.DISABLED
         )
@@ -120,7 +120,7 @@ class MainMenu(DirectObject, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.78),
+            pos=(0.35, 0, -0.80),
             suppressMouse=True,
             state=DGG.DISABLED
         )
@@ -374,7 +374,7 @@ class MainMenu(DirectObject, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.00045, 0.00045, 0.00045),
-            pos=(0.246, 0, -0.86),
+            pos=(0.246, 0, -0.60),
             suppressMouse=True,
             state=DGG.DISABLED
         )
@@ -429,7 +429,7 @@ class MainMenu(DirectObject, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.00045, 0.00045, 0.00045),
-            pos=(0.246, 0, -0.86),
+            pos=(0.246, 0, -0.60),
             suppressMouse=True,
             state=DGG.DISABLED
         )
