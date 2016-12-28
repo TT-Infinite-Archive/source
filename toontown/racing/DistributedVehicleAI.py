@@ -9,7 +9,7 @@ from direct.task import Task
 from direct.distributed.PyDatagram import *
 
 
-if (__debug__):
+if (__dev__):
     import pdb
 
 class DistributedVehicleAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, FSM.FSM):

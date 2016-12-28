@@ -224,7 +224,7 @@ class DistributedGridAI(DistributedEntityAI.DistributedEntityAI):
         return 1
 
     def printGrid(self):
-        if not __debug__:
+        if not __dev__:
             return
         for i in xrange(len(self.gridCells)):
             str = ''

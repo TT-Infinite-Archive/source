@@ -59,12 +59,12 @@ from toontown.shtiker.OptionsPageGlobals import speedChatStyles
 from toontown.speedchat import TTSCDecoders
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals, SettingsGlobals
 
 
 if base.wantKarts:
     from toontown.racing.KartDNA import *
-if (__debug__):
+if (__dev__):
     import pdb
 
 
@@ -277,7 +277,8 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         DistributedPlayer.DistributedPlayer.announceGenerate(self)
         if self.animFSM.getCurrentState().getName() == 'off':
             self.setAnimState('neutral')
-        self.setBlend(frameBlend=True)
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.setBlend(frameBlend=True)
 
     def _handleClientCleanup(self):
         if self.track is not None:

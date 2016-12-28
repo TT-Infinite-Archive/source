@@ -160,7 +160,6 @@ class ToonBase(OTPBase.OTPBase):
         self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
         self.wantMods = self.config.GetBool('want-mods', False)
         self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
-        self.wantDevDebug = self.config.GetBool('want-dev-debug', False)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)
@@ -295,7 +294,7 @@ class ToonBase(OTPBase.OTPBase):
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
-        if __debug__:
+        if __dev__:
             searchPath.appendDirectory(Filename('/resources/phase_3/etc'))
         searchPath.appendDirectory(Filename('/phase_3/etc'))
 
@@ -706,12 +705,13 @@ class ToonBase(OTPBase.OTPBase):
         res = resolutions[0]
         return res
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
-def picker():
+
+@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[int])
+def picker(mode=0):
     from toontown.util.TTPicker import TTPicker
     from toontown.util.PlacerTool3D import PlacerTool3D
     """
-    Toggle picker
+    Toggle picker with mode
     """
     def handlePicked(object):
         if object is None:
@@ -722,8 +722,12 @@ def picker():
             base.placer = PlacerTool3D(object)
 
     if base.picker is None:
-        base.picker = TTPicker(handlePicked)
+        base.picker = TTPicker(mode, handlePicked)
+        return 'Picker on with mode %d' % mode
     else:
         base.picker.destroy()
+        base.picker = None
         if base.placer:
             base.placer.destroy()
+            base.placer = None
+        return 'Picker turned off.'

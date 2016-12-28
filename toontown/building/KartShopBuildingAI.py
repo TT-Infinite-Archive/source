@@ -6,7 +6,7 @@ from toontown.building.DistributedKartShopInteriorAI import DistributedKartShopI
 from toontown.toon import NPCToons
 
 
-if __debug__:
+if __dev__:
     import pdb
 
 

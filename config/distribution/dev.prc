@@ -64,14 +64,13 @@ want-resistance-dance #t
 
 # Developer options:
 show-population #f
-force-skip-tutorial #f
+force-skip-tutorial #t
 want-instant-parties #t
 want-quest-verification #t
 
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
-want-dev-debug #t
 
 # Safe zones:
 want-safe-zones #t

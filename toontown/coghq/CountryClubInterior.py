@@ -100,7 +100,7 @@ class CountryClubInterior(BattlePlace.BattlePlace):
         self.CountryClubReadyWatcher = BulletinBoardWatcher.BulletinBoardWatcher('CountryClubReady', DistributedCountryClub.DistributedCountryClub.ReadyPost, commence)
         self.CountryClubDefeated = 0
         self.acceptOnce(DistributedCountryClub.DistributedCountryClub.WinEvent, self.handleCountryClubWinEvent)
-        if __debug__ and 0:
+        if __dev__ and 0:
             self.accept('f10', lambda : messenger.send(DistributedCountryClub.DistributedCountryClub.WinEvent))
         self.confrontedBoss = 0
 
