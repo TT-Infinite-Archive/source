@@ -29,6 +29,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.environmentSequences = []
         self.islands = []
         self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
+        self.activityMusicFile = ''
         self.currentIsland = None
 
         font = ToontownGlobals.getMinnieFont()
@@ -66,10 +67,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         dna.newToonFromProperties(*dnaList)
         base.localAvatar.setDNA(dna)
 
+        # TODO: Set Surlee's dna color to 9
+
         base.localAvatar.setName('Doctor Surlee')
         # base.cr.playGame.getPlace().exitWalk()
-
-        # TODO: Set Surlee's dna color to 9
 
     def exit(self):
         self.loadInfinite()
