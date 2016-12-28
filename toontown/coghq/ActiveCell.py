@@ -15,7 +15,7 @@ class ActiveCell(BasicEntities.DistributedNodePathEntity):
         self.loadModel()
 
     def loadModel(self):
-        if 0 and __dev__:
+        if 0 and __debug__:
             grid = self.level.entities.get(self.gridId, None)
             if grid:
                 pos = grid.getPos() + Vec3(self.col * grid.cellSize, self.row * grid.cellSize, 0)

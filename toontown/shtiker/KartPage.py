@@ -9,7 +9,7 @@ from toontown.racing.Kart import Kart
 from toontown.racing import RaceGlobals
 from toontown.shtiker.ShtikerPage import ShtikerPage
 from toontown.toonbase import ToontownGlobals, TTLocalizer
-if (__dev__):
+if (__debug__):
     import pdb
 PageMode = PythonUtil.Enum('Customize, Records, Trophy')
 

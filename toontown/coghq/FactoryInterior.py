@@ -94,7 +94,7 @@ class FactoryInterior(BattlePlace.BattlePlace):
             self.acceptOnce('FactoryReady', commence)
         self.factoryDefeated = 0
         self.acceptOnce('FactoryWinEvent', self.handleFactoryWinEvent)
-        if __dev__ and 0:
+        if __debug__ and 0:
             self.accept('f10', lambda : messenger.send('FactoryWinEvent'))
         self.confrontedForeman = 0
 

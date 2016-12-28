@@ -1041,7 +1041,7 @@ class OTPClientRepository(ClientRepositoryBase):
             if errorCode >= OTPLauncherGlobals.NonErrorExitStateStart and errorCode <= OTPLauncherGlobals.NonErrorExitStateEnd:
                 logFunc = self.notify.warning
                 allowExit = True
-            elif __dev__ and not PythonUtil.configIsToday('temp-disable-leak-detection'):
+            elif __debug__ and not PythonUtil.configIsToday('temp-disable-leak-detection'):
                 logFunc = self.notify.error
                 allowExit = False
             else:
@@ -1065,7 +1065,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.notify.info('There are no leaks detected.')
 
     def detectLeakedGarbage(self, callback = None):
-        if not __dev__:
+        if not __debug__:
             return 0
         self.notify.info('checking for leaked garbage...')
         if gc.garbage:

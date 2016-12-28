@@ -96,7 +96,7 @@ class StageInterior(BattlePlace.BattlePlace):
         self.stageReadyWatcher = BulletinBoardWatcher.BulletinBoardWatcher('StageReady', DistributedStage.DistributedStage.ReadyPost, commence)
         self.stageDefeated = 0
         self.acceptOnce(DistributedStage.DistributedStage.WinEvent, self.handleStageWinEvent)
-        if __dev__ and 0:
+        if __debug__ and 0:
             self.accept('f10', lambda : messenger.send(DistributedStage.DistributedStage.WinEvent))
         self.confrontedBoss = 0
 

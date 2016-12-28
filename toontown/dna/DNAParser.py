@@ -24,7 +24,7 @@ class DNABulkLoader:
 
 def loadDNABulk(dnaStorage, file):
     dnaLoader = DNALoader.DNALoader()
-    if __dev__:
+    if __debug__:
         file = '../resources/' + file
     else:
         file = '/' + file
@@ -35,7 +35,7 @@ def loadDNABulk(dnaStorage, file):
 def loadDNAFile(dnaStorage, file):
     print 'Reading DNA file...', file
     dnaLoader = DNALoader.DNALoader()
-    if __dev__:
+    if __debug__:
         file = '../resources/' + file
     else:
         file = '/' + file
@@ -48,7 +48,7 @@ def loadDNAFile(dnaStorage, file):
 
 def loadDNAFileAI(dnaStorage, file):
     dnaLoader = DNALoader.DNALoader()
-    if __dev__:
+    if __debug__:
         file = '../resources/' + file
     else:
         file = '/' + file
