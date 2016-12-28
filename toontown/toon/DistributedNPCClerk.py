@@ -1,7 +1,8 @@
+from panda3d.core import Vec3
 from direct.task.Task import Task
-
-from DistributedNPCToonBase import *
-import NPCToons
+from direct.interval.IntervalGlobal import Sequence
+from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
+from toontown.toon import NPCToons
 from toontown.chat.ChatGlobals import *
 from toontown.minigame import ClerkPurchase
 from toontown.toonbase import TTLocalizer, EventGlobals

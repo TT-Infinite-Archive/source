@@ -442,7 +442,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         else:
             self.laffMeter.setPos(0.133, 0.0, 0.13)
         self.laffMeter.stop()
-        self.gagPanel = GagInventoryGui(self)
+        self.gagPanel = GagInventoryGui(self, (0.0, 0.0, 0.25))
         self.gagPanel.hide()
         self.questMap = QuestMap.QuestMap(self)
         self.questMap.stop()

@@ -16,14 +16,14 @@ class GagInventoryGui(DirectFrame):
     )
     notify = DirectNotifyGlobal.directNotify.newCategory('GagInventoryGui')
 
-    def __init__(self, toon):
+    def __init__(self, toon, pos):
         self.notify.debug('Loading...')
         DirectFrame.__init__(self, parent=aspect2d, relief=None)
         self.initialiseoptions(GagInventoryGui)
         self.mainFrame = DirectFrame(
             self,
             relief=None,
-            pos=(0.0, 0.0, 0.25),
+            pos=pos,
             geom=DGG.getDefaultDialogGeom(),
             geom_scale=(1.65, 1, 0.4),
             geom_color=ToontownGlobals.GlobalDialogColor
