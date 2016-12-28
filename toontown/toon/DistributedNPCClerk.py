@@ -6,6 +6,7 @@ from toontown.toon import NPCToons
 from toontown.chat.ChatGlobals import *
 from toontown.minigame import ClerkPurchase
 from toontown.toonbase import TTLocalizer, EventGlobals
+from toontown.toontowngui.GagSelectGui import GagSelectGui
 
 
 class DistributedNPCClerk(DistributedNPCToonBase):
@@ -100,9 +101,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.setChatAbsolute('', CFSpeech)
         self.acceptOnce(EventGlobals.PURCHASE_DONE, self.__handlePurchaseDone)
         self.accept(EventGlobals.BOUGHT_GAG, self.__handleBoughtGag)
-        self.purchase = ClerkPurchase.ClerkPurchase(base.localAvatar, self.timeout, self.purchaseDoneEvent)
-        self.purchase.load()
-        self.purchase.enter()
+        self.purchase = GagSelectGui(base.localAvatar, self.timeout)
         return Task.done
 
     def __handleBoughtGag(self):
@@ -111,9 +110,9 @@ class DistributedNPCClerk(DistributedNPCToonBase):
     def __handlePurchaseDone(self):
         self.ignore(EventGlobals.BOUGHT_GAG)
         self.d_setInventory(base.localAvatar.inventory.makeNetString(), base.localAvatar.getMoney(), 1)
-        self.purchase.exit()
-        self.purchase.unload()
-        self.purchase = None
+        if self.purchase:
+            self.puchase.destroy()
+            self.purchase = None
 
     def d_setInventory(self, invString, money, done):
         self.sendUpdate('setInventory', [invString, money, done])

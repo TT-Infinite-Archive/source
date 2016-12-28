@@ -21,10 +21,12 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
         if av is None:
             self.notify.warning('Toon %s tried to enter but not in air.' % avId)
             return
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
         if self.isBusy():
+            # I'm busy, go away
             self.freeAvatar(avId)
         else:
+            # Not busy, I'll tend to you
+            self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
             self.sendStartMovie(avId)
 
     def sendStartMovie(self, avId):

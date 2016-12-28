@@ -16,9 +16,9 @@ class GagInventoryGui(DirectFrame):
     )
     notify = DirectNotifyGlobal.directNotify.newCategory('GagInventoryGui')
 
-    def __init__(self, toon, pos):
+    def __init__(self, toon, pos, parent=aspect2d):
         self.notify.debug('Loading...')
-        DirectFrame.__init__(self, parent=aspect2d, relief=None)
+        DirectFrame.__init__(self, parent=parent, relief=None)
         self.initialiseoptions(GagInventoryGui)
         self.mainFrame = DirectFrame(
             self,
