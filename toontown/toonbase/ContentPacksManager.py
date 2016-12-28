@@ -21,7 +21,7 @@ class ContentPacksManager:
     def __init__(self, path):
         self.path = path
 
-        if __debug__:
+        if __dev__:
             self.mountPoint = '../resources'
         else:
             self.mountPoint = '/'

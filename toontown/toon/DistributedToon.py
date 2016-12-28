@@ -64,7 +64,7 @@ from toontown.toonbase import ToontownGlobals, EventGlobals, SettingsGlobals
 
 if base.wantKarts:
     from toontown.racing.KartDNA import *
-if (__debug__):
+if (__dev__):
     import pdb
 
 

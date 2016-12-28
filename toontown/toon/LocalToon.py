@@ -70,7 +70,7 @@ if WantNewsPage:
     from toontown.shtiker import NewsPage
 AdjustmentForNewsButton = -0.275
 ClaraBaseXPos = 0.12
-if (__debug__):
+if (__dev__):
     import pdb
 
 

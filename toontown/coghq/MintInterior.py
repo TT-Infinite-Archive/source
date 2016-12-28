@@ -94,7 +94,7 @@ class MintInterior(BattlePlace.BattlePlace):
         self.mintReadyWatcher = BulletinBoardWatcher.BulletinBoardWatcher('MintReady', DistributedMint.DistributedMint.ReadyPost, commence)
         self.mintDefeated = 0
         self.acceptOnce(DistributedMint.DistributedMint.WinEvent, self.handleMintWinEvent)
-        if __debug__ and 0:
+        if __dev__ and 0:
             self.accept('f10', lambda : messenger.send(DistributedMint.DistributedMint.WinEvent))
         self.confrontedBoss = 0
 

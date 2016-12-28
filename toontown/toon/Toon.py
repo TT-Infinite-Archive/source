@@ -188,7 +188,7 @@ def preload():
         for lodName in ('1000', '500', '250'):
             preloader.loadModel('phase_3' + fileRoot + lodName + '.bam')
 
-    if __debug__:
+    if __dev__:
         filenames = os.listdir('../resources/phase_3.5/audio/sfx')
     else:
         filenames = []

@@ -22,7 +22,7 @@ from toontown.racing.KartShopGlobals import KartGlobals
 from toontown.racing import RaceGlobals
 from toontown.toontowngui.TTDialog import TTGlobalDialog
 from toontown.toontowngui.TeaserPanel import TeaserPanel
-if (__debug__):
+if (__dev__):
     import pdb
 
 class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
@@ -56,7 +56,7 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
         self.kart = None
         self.holeActor = None
         self.exitRequested = False
-        if (__debug__):
+        if (__dev__):
             self.testLOD = False
         self.id = DistributedStartingBlock.id
         DistributedStartingBlock.id += 1
@@ -109,7 +109,7 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
         DistributedObject.DistributedObject.announceGenerate(self)
         self.nodePath.reparentTo(render)
         self.accept(self.uniqueName('enterStartingBlockSphere'), self.__handleEnterSphere)
-        if (__debug__):
+        if (__dev__):
             if self.testLOD:
                 self.__generateKartAppearTrack()
 
@@ -600,7 +600,7 @@ class DistributedViewingBlock(DistributedStartingBlock):
         DistributedObject.DistributedObject.announceGenerate(self)
         self.nodePath.reparentTo(render)
         self.accept(self.uniqueName('enterStartingBlockSphere'), self.__handleEnterSphere)
-        if (__debug__):
+        if (__dev__):
             if self.testLOD:
                 self.__generateKartAppearTrack()
 

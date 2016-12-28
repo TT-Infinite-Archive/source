@@ -391,7 +391,7 @@ class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
         zoneEnt = self.getEntity(zoneNum)
         visibleZoneNums = list2dict([zoneNum])
         visibleZoneNums.update(list2dict(zoneEnt.getVisibleZoneNums()))
-        if not __debug__:
+        if not __dev__:
             if self.lastToonZone not in visibleZoneNums:
                 if self.lastToonZone is not None:
                     self.notify.warning('adding zoneNum %s to visibility list because toon is standing in that zone!' % self.lastToonZone)

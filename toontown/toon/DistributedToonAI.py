@@ -2956,7 +2956,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             self.sendUpdate('setKartAccessoriesOwned', [accessories])
 
         def setKartAccessoriesOwned(self, accessories):
-            if (__debug__):
+            if (__dev__):
                 import pdb
             self.accessories = accessories
 
