@@ -6,7 +6,7 @@ from toontown.hood import ZoneUtil
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
-if (__dev__):
+if (__debug__):
     import pdb
 
 class DistributedKartShopInterior(DistributedObject):

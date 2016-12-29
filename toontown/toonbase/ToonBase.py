@@ -294,7 +294,7 @@ class ToonBase(OTPBase.OTPBase):
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
-        if __dev__:
+        if __debug__:
             searchPath.appendDirectory(Filename('/resources/phase_3/etc'))
         searchPath.appendDirectory(Filename('/phase_3/etc'))
 

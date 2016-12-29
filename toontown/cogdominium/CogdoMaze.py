@@ -18,7 +18,7 @@ class CogdoMaze(MazeBase, DirectObject):
         self._clearColor = VBase4(base.win.getClearColor())
         self._clearColor.setW(1.0)
         base.win.setClearColor(VBase4(0.0, 0.0, 0.0, 1.0))
-        if __dev__ and base.config.GetBool('cogdomaze-dev', False):
+        if __debug__ and base.config.GetBool('cogdomaze-dev', False):
             self._initCollisionVisuals()
 
     def _initWaterCoolers(self):
@@ -60,7 +60,7 @@ class CogdoMaze(MazeBase, DirectObject):
         base.win.setClearColor(self._clearColor)
         del self._clearColor
         MazeBase.destroy(self)
-        if __dev__ and hasattr(self, '_cubes'):
+        if __debug__ and hasattr(self, '_cubes'):
             self.ignoreAll()
             self._cubes.removeNode()
             del self._cubes

@@ -32,7 +32,7 @@ __builtin__.directNotify = directNotify
 notify = directNotify.newCategory('ClientStart')
 notify.setInfo(True)
 
-if __dev__:
+if __debug__:
     from panda3d.core import loadPrcFile
 
     loadPrcFile('config/general.prc')
@@ -260,7 +260,7 @@ __builtin__.loader = base.loader
 if music is not None:
     base.playMusic(music, looping=1, volume=0.9)
 
-if __dev__:
+if __debug__:
     # Skip the introduction if we are in dev mode
     clickToStart.stop()
     clickToStart.begin()

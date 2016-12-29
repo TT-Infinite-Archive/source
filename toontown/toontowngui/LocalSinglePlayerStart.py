@@ -120,7 +120,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.process = copy.deepcopy(Processes[self.currentProcess])
         self.currentProcess += 1
 
-        if __dev__:
+        if __debug__:
             self.label['text'] = TTLocalizer.StartingServerDev % self.process[2]
         else:
             self.label['text'] = TTLocalizer.StartingServerLive
