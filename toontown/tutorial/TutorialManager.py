@@ -35,9 +35,9 @@ class TutorialManager(DistributedObject.DistributedObject):
     def skipTutorialResponse(self, allOk):
         messenger.send('skipTutorialAnswered', [allOk])
 
-    def enterTutorial(self, branchZone, streetZone, shopZone, hqZone):
+    def enterTutorial(self, branchZone, streetZone, shopZone):
         base.localAvatar.cantLeaveGame = 1
-        ZoneUtil.overrideOn(branch=branchZone, exteriorList=[streetZone], interiorList=[shopZone, hqZone])
+        ZoneUtil.overrideOn(branch=branchZone, exteriorList=[streetZone], interiorList=[shopZone])
         messenger.send('startTutorial', [shopZone])
         self.acceptOnce('stopTutorial', self.__handleStopTutorial)
         self.acceptOnce('toonArrivedTutorial', self.d_toonArrived)

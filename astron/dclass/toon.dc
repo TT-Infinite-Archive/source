@@ -1586,7 +1586,7 @@ dclass TutorialManager : DistributedObject {
   rejectTutorial() airecv clsend;
   requestSkipTutorial() airecv clsend;
   skipTutorialResponse(uint8);
-  enterTutorial(uint32, uint32, uint32, uint32);
+  enterTutorial(uint32, uint32, uint32);
   allDone() airecv clsend;
   toonArrived() airecv clsend;
 };

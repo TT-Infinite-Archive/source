@@ -48,8 +48,12 @@ class DistributedTutorialSuitAI(DistributedSuitBaseAI):
             return
 
         battle = DistributedBattleTutorialAI(
-            self.air, FakeBattleManager(avId), Point3(0, 0, 0), self,
-            avId, 20001)
+            self.air,
+            battleMgr=FakeBattleManager(avId),
+            pos=Point3(0, 0, 0),
+            suit=self,
+            toonId=avId,
+            zoneId=20001)
         battle.generateWithRequired(self.zoneId)
         battle.battleCellId = 0
 

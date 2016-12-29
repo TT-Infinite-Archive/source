@@ -26,15 +26,15 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
 
     def announceGenerate(self):
         DistributedSuitBase.DistributedSuitBase.announceGenerate(self)
-
         # Reparent this suit to the plaza island
-        self.reparentTo(base.cr.playGame.hood.loader.islands[0])
+        self.accept('islands-loaded', self.__handleIslandsLoaded)
         self.setPos(0, 0, 0)
         self.setState('Walk')
 
     def disable(self):
         self.notify.debug('DistributedSuit %d: disabling' % self.getDoId())
         self.setState('Off')
+        self.ignore('islands-loaded')
         DistributedSuitBase.DistributedSuitBase.disable(self)
 
     def delete(self):
@@ -45,6 +45,9 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
             self.notify.debug('DistributedSuit %d: deleting' % self.getDoId())
             del self.fsm
             DistributedSuitBase.DistributedSuitBase.delete(self)
+
+    def __handleIslandsLoaded(self, e=None):
+        self.reparentTo(base.cr.playGame.hood.loader.islands[1])
 
     def d_requestBattle(self, pos, hpr):
         self.cr.playGame.getPlace().setState('WaitForBattle')
@@ -57,6 +60,7 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
         self.setState('WaitForBattle')
 
     def enterWalk(self):
+        #self.reparentTo(base.cr.playGame.hood.loader.islands[0])
         self.enableBattleDetect('walk', self.__handleToonCollision)
         self.loop('walk', 0)
         pathPoints = [

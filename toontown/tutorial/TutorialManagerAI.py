@@ -4,7 +4,6 @@ from direct.fsm.FSM import FSM
 
 from toontown.ai import DistributedBlackCatMgrAI
 from toontown.building import FADoorCodes
-from toontown.building.HQBuildingAI import HQBuildingAI
 from toontown.building.TutorialBuildingAI import TutorialBuildingAI
 from toontown.quest import Quests
 from toontown.suit.DistributedTutorialSuitAI import DistributedTutorialSuitAI
@@ -26,14 +25,8 @@ class TutorialFSM(FSM):
         self.tutorialTom = NPCToons.createNPC(self.air, 20000, npcDesc, self.zones['building'])
         self.tutorialTom.setTutorial(1)
 
-        npcDesc = NPCToons.NPCToonDict.get(20002)
-        self.hqHarry = NPCToons.createNPC(self.air, 20002, npcDesc, self.zones['hq'])
-        self.hqHarry.setTutorial(1)
-        self.hqHarry.setHq(1)
-
         self.building = TutorialBuildingAI(
             self.air, self.zones['street'], self.zones['building'], 2, self.tutorialTom.getDoId())
-        self.hq = HQBuildingAI(self.air, self.zones['street'], self.zones['hq'], 1)
 
         self.forceTransition('Introduction')
 
@@ -48,19 +41,13 @@ class TutorialFSM(FSM):
         self.suit.generateWithRequired(self.zones['street'])
 
         self.building.door.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_TOM)
-        self.hq.door0.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_HQ)
-        self.hq.door1.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_HQ)
 
     def exitBattle(self):
         if self.suit:
             self.suit.requestDelete()
 
     def enterHQ(self):
-        self.building.door.setDoorLock(FADoorCodes.TALK_TO_HQ)
-        self.hq.door0.setDoorLock(FADoorCodes.UNLOCKED)
-        self.hq.door1.setDoorLock(FADoorCodes.UNLOCKED)
-        self.hq.insideDoor0.setDoorLock(FADoorCodes.TALK_TO_HQ)
-        self.hq.insideDoor1.setDoorLock(FADoorCodes.TALK_TO_HQ)
+        pass
 
     def enterTunnel(self):
         npcDesc = NPCToons.NPCToonDict.get(20001)
@@ -69,10 +56,6 @@ class TutorialFSM(FSM):
         self.BlackCatManager = DistributedBlackCatMgrAI.DistributedBlackCatMgrAI(self.air)
         self.BlackCatManager.generateWithRequired(self.zones['street'])
 
-        self.hq.insideDoor0.setDoorLock(FADoorCodes.WRONG_DOOR_HQ)
-        self.hq.insideDoor1.setDoorLock(FADoorCodes.UNLOCKED)
-        self.hq.door0.setDoorLock(FADoorCodes.GO_TO_PLAYGROUND)
-        self.hq.door1.setDoorLock(FADoorCodes.GO_TO_PLAYGROUND)
         self.building.door.setDoorLock(FADoorCodes.GO_TO_PLAYGROUND)
 
     def exitTunnel(self):
@@ -80,13 +63,10 @@ class TutorialFSM(FSM):
 
     def enterCleanup(self):
         self.building.cleanup()
-        self.hq.cleanup()
         self.tutorialTom.requestDelete()
-        self.hqHarry.requestDelete()
 
         self.air.deallocateZone(self.zones['street'])
         self.air.deallocateZone(self.zones['building'])
-        self.air.deallocateZone(self.zones['hq'])
 
         del self.air.tutorialManager.avId2fsm[self.avId]
 
@@ -105,12 +85,11 @@ class TutorialManagerAI(DistributedObjectAI):
         zones = {}
         zones['street'] = self.air.allocateZone()
         zones['building'] = self.air.allocateZone()
-        zones['hq'] = self.air.allocateZone()
 
         self.avId2fsm[avId] = TutorialFSM(self.air, zones, avId)
 
         self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
-        self.d_enterTutorial(avId, ToontownGlobals.Tutorial, zones['street'], zones['building'], zones['hq'])
+        self.d_enterTutorial(avId, ToontownGlobals.Tutorial, zones['street'], zones['building'])
 
     def rejectTutorial(self):
         pass
@@ -137,8 +116,8 @@ class TutorialManagerAI(DistributedObjectAI):
     def d_skipTutorialResponse(self, avId, allOk):
         self.sendUpdateToAvatarId(avId, 'skipTutorialResponse', [allOk])
 
-    def d_enterTutorial(self, avId, branchZone, streetZone, shopZone, hqZone):
-        self.sendUpdateToAvatarId(avId, 'enterTutorial', [branchZone, streetZone, shopZone, hqZone])
+    def d_enterTutorial(self, avId, branchZone, streetZone, shopZone):
+        self.sendUpdateToAvatarId(avId, 'enterTutorial', [branchZone, streetZone, shopZone])
 
     def allDone(self):
         avId = self.air.getAvatarIdFromSender()

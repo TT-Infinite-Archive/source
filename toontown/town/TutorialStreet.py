@@ -1,4 +1,7 @@
 from toontown.town.TTStreet import TTStreet
+from toontown.toonbase import ToontownGlobals
+from toontown.prologue.Island import Island
+from toontown.prologue.FloatingObject import FloatingObject
 
 
 class TutorialStreet(TTStreet):
@@ -17,3 +20,4 @@ class TutorialStreet(TTStreet):
 
     def exitDoorIn(self):
         base.localAvatar.obscureMoveFurnitureButton(-1)
+
