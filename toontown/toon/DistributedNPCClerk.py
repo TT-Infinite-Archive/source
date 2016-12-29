@@ -1,6 +1,7 @@
 from panda3d.core import Vec3
 from direct.task.Task import Task
 from direct.interval.IntervalGlobal import Sequence
+from direct.distributed.ClockDelta import globalClockDelta
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
 from toontown.toon import NPCToons
 from toontown.chat.ChatGlobals import *
@@ -58,7 +59,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         return self.av.doId == base.localAvatar.doId
 
     def setMovie(self, mode, npcId, avId, timestamp):
-        timeStamp = ClockDelta.globalClockDelta.localElapsedTime(timestamp)
+        timeStamp = globalClockDelta.localElapsedTime(timestamp)
         self.timeout = NPCToons.CLERK_COUNTDOWN_TIME - timeStamp
         self.isLocalToon = avId == base.localAvatar.doId
         if mode == NPCToons.PURCHASE_MOVIE_CLEAR:

@@ -18,12 +18,11 @@ class GagInventoryGui(DirectFrame):
 
     def __init__(self, toon, pos, parent=aspect2d):
         self.notify.debug('Loading...')
-        DirectFrame.__init__(self, parent=parent, relief=None)
+        DirectFrame.__init__(self, parent=parent, relief=None, pos=pos)
         self.initialiseoptions(GagInventoryGui)
         self.mainFrame = DirectFrame(
             self,
             relief=None,
-            pos=pos,
             geom=DGG.getDefaultDialogGeom(),
             geom_scale=(1.65, 1, 0.4),
             geom_color=ToontownGlobals.GlobalDialogColor
@@ -54,14 +53,6 @@ class GagInventoryGui(DirectFrame):
                 exitCommand=self.__handleExitGagSlot
             )
             self.gagSlots.append(gagSlotGui)
-
-    def show(self):
-        self.notify.debug('Showing...')
-        DirectFrame.show(self)
-
-    def hide(self):
-        self.notify.debug('Hiding...')
-        DirectFrame.hide(self)
 
     def unloadEquippedGags(self):
         for gagSlot in self.gagSlots:
