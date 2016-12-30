@@ -44,6 +44,7 @@ from toontown.hood import GZHoodAI
 from toontown.hood import LawbotHQAI
 from toontown.hood import MMHoodAI
 from toontown.hood import OZHoodAI
+from toontown.hood import TLAHoodAI
 from toontown.hood import SellbotHQAI
 from toontown.hood import TTHoodAI
 from toontown.hood import ZoneUtil
@@ -214,6 +215,8 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.hoods.append(OZHoodAI.OZHoodAI(self))
         if self.config.GetBool('want-golf-zone', True):
             self.hoods.append(GZHoodAI.GZHoodAI(self))
+        if self.config.GetBool('want-lost-acre', True):
+            self.hoods.append(TLAHoodAI.TLAHoodAI(self))
 
         while self.readerPollOnce():
             pass

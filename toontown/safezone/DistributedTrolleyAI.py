@@ -19,6 +19,7 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
         self.seats = [None, None, None, None]
         self.accepting = 0
         self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)
+        self.trolleyMode = simbase.config.GetInt('trolley-mode', 1)
         self.fsm = ClassicFSM.ClassicFSM(
             'DistributedTrolleyAI',
             [
@@ -256,38 +257,45 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
     def trolleyLeft(self):
         numPlayers = self.countFullSeats()
         if numPlayers > 0:
-            newbieIds = []
-            for avId in self.seats:
-                if avId:
-                    toon = self.air.doId2do.get(avId)
-                    if toon:
-                        if Quests.avatarHasTrolleyQuest(toon):
-                            if not Quests.avatarHasCompletedTrolleyQuest(toon):
-                                newbieIds.append(avId)
-            playerArray = []
-            for i in self.seats:
-                if i not in [None, 0]:
-                    playerArray.append(i)
-            startingVotes = None
-            metagameRound = -1
-            trolleyGoesToMetagame = simbase.config.GetBool('want-travel-game', 0)
-            trolleyHoliday = simbase.air.holidayManager.isHolidayRunning(TROLLEY_HOLIDAY) or\
-                simbase.air.holidayManager.isHolidayRunning(SILLY_SATURDAY_TROLLEY)
-            trolleyWeekend = simbase.air.holidayManager.isHolidayRunning(TROLLEY_WEEKEND)
-            if trolleyGoesToMetagame and (trolleyHoliday or trolleyWeekend):
-                metagameRound = 0
-                if len(playerArray) == 1:
-                    metagameRound = -1
-            mgDict = MinigameCreatorAI.createMinigame(
-                self.air, playerArray, self.zoneId, newbieIds=newbieIds,
-                startingVotes=startingVotes, metagameRound=metagameRound)
-            minigameZone = mgDict['minigameZone']
-            minigameId = mgDict['minigameId']
-            for seatIndex in xrange(len(self.seats)):
-                avId = self.seats[seatIndex]
-                if avId:
-                    self.sendUpdateToAvatarId(avId, 'setMinigameZone', [minigameZone, minigameId])
-                    self.clearFullNow(seatIndex)
+            if self.trolleyMode == 0:
+                newbieIds = []
+                for avId in self.seats:
+                    if avId:
+                        toon = self.air.doId2do.get(avId)
+                        if toon:
+                            if Quests.avatarHasTrolleyQuest(toon):
+                                if not Quests.avatarHasCompletedTrolleyQuest(toon):
+                                    newbieIds.append(avId)
+                playerArray = []
+                for i in self.seats:
+                    if i not in [None, 0]:
+                        playerArray.append(i)
+                startingVotes = None
+                metagameRound = -1
+                trolleyGoesToMetagame = simbase.config.GetBool('want-travel-game', 0)
+                trolleyHoliday = simbase.air.holidayManager.isHolidayRunning(TROLLEY_HOLIDAY) or\
+                    simbase.air.holidayManager.isHolidayRunning(SILLY_SATURDAY_TROLLEY)
+                trolleyWeekend = simbase.air.holidayManager.isHolidayRunning(TROLLEY_WEEKEND)
+                if trolleyGoesToMetagame and (trolleyHoliday or trolleyWeekend):
+                    metagameRound = 0
+                    if len(playerArray) == 1:
+                        metagameRound = -1
+                mgDict = MinigameCreatorAI.createMinigame(
+                    self.air, playerArray, self.zoneId, newbieIds=newbieIds,
+                    startingVotes=startingVotes, metagameRound=metagameRound)
+                minigameZone = mgDict['minigameZone']
+                minigameId = mgDict['minigameId']
+                for seatIndex in xrange(len(self.seats)):
+                    avId = self.seats[seatIndex]
+                    if avId:
+                        self.sendUpdateToAvatarId(avId, 'setMinigameZone', [minigameZone, minigameId])
+                        self.clearFullNow(seatIndex)
+            elif self.trolleyMode == 1:
+                for seatIndex in xrange(len(self.seats)):
+                    avId = self.seats[seatIndex]
+                    if avId:
+                        self.sendUpdateToAvatarId(avId, 'enterPalooza', [])
+                        self.clearFullNow(seatIndex)
         else:
             self.notify.warning('The trolley left, but was empty.')
         self.enter()

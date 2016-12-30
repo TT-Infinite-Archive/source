@@ -318,6 +318,18 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         self.localToonOnBoard = 0
         messenger.send('playMinigame', [zoneId, minigameId])
 
+    def enterPalooza(self):
+        self.localToonOnBoard = 0
+        zoneId = ToontownGlobals.ToonPalooza
+        base.cr.playGame.getPlace().requestLeave({'loader': ZoneUtil.getBranchLoaderName(zoneId),
+            'where': ZoneUtil.getToonWhereName(zoneId),
+            'how': 'trolleyIn',
+            'hoodId': zoneId,
+            'zoneId': zoneId,
+            'shardId': None,
+            'avId': -1})
+
+
     def __enableCollisions(self):
         self.accept('entertrolley_sphere', self.handleEnterTrolleySphere)
         self.accept('enterTrolleyOK', self.handleEnterTrolley)

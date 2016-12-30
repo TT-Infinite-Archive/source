@@ -169,7 +169,7 @@ TheBrrrgh = 3000
 MinniesMelodyland = 4000
 DaisyGardens = 5000
 OutdoorZone = 6000
-FunnyFarm = 7000
+ToonPalooza = 7000
 GoofySpeedway = 8000
 DonaldsDreamland = 9000
 BarnacleBoulevard = 1100
@@ -198,6 +198,7 @@ HoodHierarchy = {
     MinniesMelodyland: (AltoAvenue, BaritoneBoulevard, TenorTerrace),
     DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
     DonaldsDreamland: (LullabyLane, PajamaPlace),
+    ToonPalooza: (),
     ResistanceGrounds: (),
     GoofySpeedway: ()
 }
@@ -407,7 +408,7 @@ Hoods = (
     MinniesMelodyland,
     DaisyGardens,
     OutdoorZone,
-    FunnyFarm,
+    ToonPalooza,
     GoofySpeedway,
     DonaldsDreamland,
     BossbotHQ,
@@ -524,9 +525,9 @@ phaseMap = {
     GoofySpeedway: 6,
     TheBrrrgh: 8,
     DaisyGardens: 8,
-    FunnyFarm: 8,
     DonaldsDreamland: 8,
     OutdoorZone: 6,
+    ToonPalooza: 4,
     BossbotHQ: 12,
     SellbotHQ: 9,
     CashbotHQ: 10,
@@ -542,7 +543,7 @@ streetPhaseMap = {
     GoofySpeedway: 6,
     TheBrrrgh: 8,
     DaisyGardens: 8,
-    FunnyFarm: 8,
+    ToonPalooza: 8,
     DonaldsDreamland: 8,
     OutdoorZone: 8,
     BossbotHQ: 12,
@@ -559,7 +560,7 @@ dnaMap = {
     GoofySpeedway: 'goofy_speedway',
     TheBrrrgh: 'the_burrrgh',
     DaisyGardens: 'daisys_garden',
-    FunnyFarm: 'not done yet',
+    ToonPalooza: 'lost_acre',
     DonaldsDreamland: 'donalds_dreamland',
     OutdoorZone: 'outdoor_zone',
     ResistanceGrounds: 'resistance_grounds',
@@ -576,7 +577,7 @@ hoodNameMap = {
     MinniesMelodyland: TTLocalizer.MinniesMelodyland,
     DaisyGardens: TTLocalizer.DaisyGardens,
     OutdoorZone: TTLocalizer.OutdoorZone,
-    FunnyFarm: TTLocalizer.FunnyFarm,
+    ToonPalooza: TTLocalizer.ToonPalooza,
     GoofySpeedway: TTLocalizer.GoofySpeedway,
     DonaldsDreamland: TTLocalizer.DonaldsDreamland,
     BossbotHQ: TTLocalizer.BossbotHQ,
@@ -598,7 +599,7 @@ safeZoneCountMap = {
     GoofySpeedway: 500,
     TheBrrrgh: 8,
     DaisyGardens: 9,
-    FunnyFarm: 500,
+    ToonPalooza: 500,
     DonaldsDreamland: 5,
     OutdoorZone: 500,
     GolfZone: 500,
@@ -614,7 +615,7 @@ townCountMap = {
     GoofySpeedway: 40,
     TheBrrrgh: 40,
     DaisyGardens: 40,
-    FunnyFarm: 40,
+    ToonPalooza: 40,
     DonaldsDreamland: 40,
     OutdoorZone: 40,
     PartyHood: 20
@@ -628,7 +629,7 @@ hoodCountMap = {
     GoofySpeedway: 2,
     TheBrrrgh: 2,
     DaisyGardens: 2,
-    FunnyFarm: 2,
+    ToonPalooza: 2,
     DonaldsDreamland: 2,
     OutdoorZone: 2,
     BossbotHQ: 2,
