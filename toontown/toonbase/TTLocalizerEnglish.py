@@ -89,6 +89,7 @@ lGoofySpeedway = 'Toontown Speedway'
 lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
+lToonPalooza = 'The Toon Palooza'
 lResistanceGrounds = 'Resistance Grounds'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),

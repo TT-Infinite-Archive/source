@@ -543,7 +543,7 @@ streetPhaseMap = {
     GoofySpeedway: 6,
     TheBrrrgh: 8,
     DaisyGardens: 8,
-    ToonPalooza: 8,
+    ToonPalooza: 4,
     DonaldsDreamland: 8,
     OutdoorZone: 8,
     BossbotHQ: 12,
@@ -615,7 +615,7 @@ townCountMap = {
     GoofySpeedway: 40,
     TheBrrrgh: 40,
     DaisyGardens: 40,
-    ToonPalooza: 40,
+    ToonPalooza: 20,
     DonaldsDreamland: 40,
     OutdoorZone: 40,
     PartyHood: 20

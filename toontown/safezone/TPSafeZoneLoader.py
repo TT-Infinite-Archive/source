@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 import SafeZoneLoader
 import TPPlayground
 import random
