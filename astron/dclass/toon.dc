@@ -774,6 +774,7 @@ dclass DistributedTrolley : DistributedObject {
   rejectBoard(uint32);
   requestExit() airecv clsend;
   setMinigameZone(uint32, uint16);
+  enterPalooza();
 };
 
 dclass DistributedSuitPlanner : DistributedObject {

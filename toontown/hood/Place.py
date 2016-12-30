@@ -562,6 +562,40 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         base.localAvatar.obscureMoveFurnitureButton(-1)
         base.localAvatar.stopQuestMap()
 
+    def enterTrolleyIn(self, requestStatus):
+        self._tiToken = self.addSetZoneCompleteCallback(Functor(self._placeTrolleyInPostZoneComplete, requestStatus), 100)
+
+    def exitTrolleyIn(self):
+        pass
+
+    def enterTrolleyOut(self, requestStatus, callback):
+        base.localAvatar.laffMeter.start()
+        callback(requestStatus)
+        base.localAvatar.obscureMoveFurnitureButton(1)
+
+    def exitTeleportOut(self):
+        base.localAvatar.laffMeter.stop()
+        base.localAvatar.stopQuestMap()
+
+    def _placeTrolleyInPostZoneComplete(self, requestStatus):
+        base.localAvatar.laffMeter.start()
+        base.localAvatar.startQuestMap()
+        base.localAvatar.reconsiderCheesyEffect()
+        base.localAvatar.obscureMoveFurnitureButton(1)
+        base.transitions.irisIn()
+        self.nextState = requestStatus.get('nextState', 'walk')
+        base.localAvatar.attachCamera()
+        base.localAvatar.startUpdateSmartCamera()
+        base.localAvatar.startPosHprBroadcast()
+        globalClock.tick()
+        base.localAvatar.d_broadcastPositionNow()
+        base.localAvatar.b_setParent(ToontownGlobals.SPRender)
+        if hasattr(self, 'fsm'):
+            self.fsm.request(self.nextState, [1])
+
+    def exitTrolleyOut(self):
+        print "EXIT TROLLEY OUT"
+
     def handleDoorDoneEvent(self, requestStatus):
         self.doneStatus = requestStatus
         messenger.send(self.doneEvent)

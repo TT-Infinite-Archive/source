@@ -82,11 +82,10 @@ want-donalds-dreamland #f
 want-goofy-speedway #f
 want-outdoor-zone #t
 want-golf-zone #f
-want-lost-acre #t
-want-resistance-grounds #f
+want-toon-palooza #t
 
 # Trolley minigames:
-want-ttc-trolley #f
+want-ttc-trolley #t
 want-photo-game #f
 want-travel-game #f
 

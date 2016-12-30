@@ -560,7 +560,7 @@ dnaMap = {
     GoofySpeedway: 'goofy_speedway',
     TheBrrrgh: 'the_burrrgh',
     DaisyGardens: 'daisys_garden',
-    ToonPalooza: 'lost_acre',
+    ToonPalooza: 'toon_palooza',
     DonaldsDreamland: 'donalds_dreamland',
     OutdoorZone: 'outdoor_zone',
     ResistanceGrounds: 'resistance_grounds',
