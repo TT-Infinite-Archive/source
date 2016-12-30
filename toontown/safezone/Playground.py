@@ -37,7 +37,8 @@ class Playground(Place.Place):
                             'walk',
                             'deathAck',
                             'doorIn',
-                            'tunnelIn']),
+                            'tunnelIn',
+                            'trolleyIn']),
             State.State('walk',
                         self.enterWalk,
                         self.exitWalk, [
@@ -84,7 +85,17 @@ class Playground(Place.Place):
             State.State('trolley',
                         self.enterTrolley,
                         self.exitTrolley, [
-                            'walk']),
+                            'walk',
+                            'DFA',
+                            'trialerFA']),
+           	State.State('trolleyIn', 
+           				self.enterTrolleyIn,
+           				self.exitTrolleyIn, [
+           					'walk']),
+           	State.State('trolleyOut', 
+           				self.enterTrolleyOut,
+           				self.exitTrolleyOut, [
+           					'walk']),           	
             State.State('doorIn',
                         self.enterDoorIn,
                         self.exitDoorIn, [
@@ -135,7 +146,8 @@ class Playground(Place.Place):
                         self.exitHFA, [
                             'HFAReject',
                             'teleportOut',
-                            'tunnelOut']),
+                            'tunnelOut',
+                            'trolleyOut']),
             State.State('HFAReject',
                         self.enterHFAReject,
                         self.exitHFAReject, [
@@ -478,7 +490,8 @@ class Playground(Place.Place):
             else:
                 outHow = {'teleportIn': 'teleportOut',
                  'tunnelIn': 'tunnelOut',
-                 'doorIn': 'doorOut'}
+                 'doorIn': 'doorOut',
+                 'trolleyIn': 'trolleyOut'}
             self.fsm.request(outHow[requestStatus['how']], [requestStatus])
         elif doneStatus['mode'] == 'incomplete':
             self.fsm.request('HFAReject')
@@ -490,6 +503,26 @@ class Playground(Place.Place):
 
     def exitHFAReject(self):
         pass
+
+    def enterTrolleyIn(self, requestStatus):
+         print "PLAYGROUND TROLLEY IN"
+         requestStatus['nextState'] = 'walk'
+         x, y, z, h, p, r = base.cr.hoodMgr.getPlaygroundCenterFromId(self.loader.hood.id)
+         base.localAvatar.detachNode()
+         base.localAvatar.setPosHpr(render, x, y, z, h, p, r)
+         Place.Place.enterTrolleyIn(self, requestStatus)
+         return
+ 
+    def enterTrolleyOut(self, requestStatus):
+        print "PLAYGROUND TROLLEY OUT"
+        Place.Place.enterTrolleyOut(self, requestStatus, self.__trolleyOutDone)
+ 
+    def __trolleyOutDone(self, requestStatus):
+        if hasattr(self, 'activityFsm'):
+            self.activityFsm.requestFinalState()
+        self.doneStatus = requestStatus
+        messenger.send(self.doneEvent)
+        return
 
     def enterNPCFA(self, requestStatus):
         self.acceptOnce(self.npcfaDoneEvent, self.enterNPCFACallback, [requestStatus])

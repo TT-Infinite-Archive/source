@@ -594,7 +594,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             self.fsm.request(self.nextState, [1])
 
     def exitTrolleyOut(self):
-        print "EXIT TROLLEY OUT"
+        pass
 
     def handleDoorDoneEvent(self, requestStatus):
         self.doneStatus = requestStatus
