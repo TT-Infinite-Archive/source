@@ -33,8 +33,7 @@ class TTArrowSelectorGroup(DirectObject):
         self.items = None
 
     def enable(self):
-        self.lArrow.enable()
-        self.rArrow.enable()
+        self.update()
 
     def disable(self):
         self.lArrow.disable()
@@ -87,7 +86,7 @@ class TTArrowSelectorGroup(DirectObject):
         self.index -= 1
         self.update()
         if self.callback:
-            self.callback(self.items[self.index])
+            self.callback(self.index)
 
     def __handleRArrowClicked(self):
         if self.items is None:
@@ -97,4 +96,4 @@ class TTArrowSelectorGroup(DirectObject):
         self.index += 1
         self.update()
         if self.callback:
-            self.callback(self.items[self.index])
+            self.callback(self.index)
