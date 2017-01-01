@@ -139,7 +139,7 @@ class OptionsTabPage(DirectFrame):
             text_align=TextNode.ALeft,
             pos=(-0.45, 0, 0.10)
         )
-        isFullscreen = settings.get('fullscreen', False)
+        isFullscreen = settings.get(SettingsGlobals.Fullscreen, False)
         self.fullscreenRadio = TTRadioButton.TTRadioButton(
             parent=self.rightFrame, selected=isFullscreen, value='fullscreen', pos=(-0.11, 0, 0.22)
         )
@@ -153,7 +153,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             pos=(-0.36, 0.0, -0.28),
             text_align=TextNode.ALeft,
-            text='VSync',
+            text=TTLocalizer.OptionsPageVSync,
         )
         self.vsyncCheckBox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
@@ -173,7 +173,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             pos=(-0.36, 0.0, -0.17),
             text_align=TextNode.ALeft,
-            text='Show FPS',
+            text=TTLocalizer.OptionsPageShowFps,
         )
         self.showFpsCheckBox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
@@ -185,7 +185,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             pos=(-0.36, 0.0, -0.39),
             text_align=TextNode.ALeft,
-            text='Animation Smoothing'
+            text=TTLocalizer.OptionsPageAnimationSmoothing
         )
         self.animationSmoothingCheckBox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
@@ -206,7 +206,7 @@ class OptionsTabPage(DirectFrame):
             pos=(-0.04, 0.0, -0.57),
             text_align=TextNode.ALeft,
             text_fg=ColorGlobals.CRed,
-            text='* Requires Restart'
+            text='* %s' % TTLocalizer.OptionsPageRequiresRestart
         )
         self.requiresRestart = False
         self.animationSmoothingRequiresRestartLabel.hide()
@@ -877,7 +877,7 @@ class OptionsTabPage(DirectFrame):
         self.__videoOptionsChanged()
 
     def getResIndex(self):
-        res = tuple(settings.get('res', base.getSmallestResolution()))
+        res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
         return self.screenSizes.index(res)
 
     def updateSpeedChatStyle(self):
