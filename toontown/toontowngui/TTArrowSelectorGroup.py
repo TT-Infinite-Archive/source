@@ -75,23 +75,26 @@ class TTArrowSelectorGroup(DirectObject):
                 self.rArrow.disable()
             else:
                 self.rArrow.enable()
+        val = self.items[self.index]
+        self.label['text'] = val
 
     def __handleLArrowClicked(self):
         if self.items is None:
             return
-        if self.index > 0:
-            self.index -= 1
-            val = self.items[self.index]
-            self.label['text'] = val
-            if self.callback:
-                self.callback(val)
+        if self.index <= 0:
+            return
+
+        self.index -= 1
+        self.update()
+        if self.callback:
+            self.callback(self.items[self.index])
 
     def __handleRArrowClicked(self):
         if self.items is None:
             return
-        if self.index < len(self.items) - 1:
-            self.index += 1
-            val = self.items[self.index]
-            self.label['text'] = val
-            if self.callback:
-                self.callback(val)
+        if self.index >= len(self.items) - 1:
+            return
+        self.index += 1
+        self.update()
+        if self.callback:
+            self.callback(self.items[self.index])
