@@ -1,10 +1,14 @@
-from direct.gui.DirectGui import *
 from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.gui.DirectFrame import DirectFrame, DGG
+from panda3d.core import TextNode
+
 from toontown.toon.ClerkGagInventoryGui import ClerkGagInventoryGui
 from toontown.toonbase import EventGlobals, ToontownGlobals
-from toontown.util.PlacerTool3D import PlacerTool3D
+from toontown.toontowngui.TTArrowSelectorGroup import TTArrowSelectorGroup
 from toontown.toontowngui.TTLabel import TTLabel
+from toontown.toontowngui.TTArrow import TTArrow
 from toontown.toontowngui.TTSeperator import TTSeperator
+from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class GagSelectGui(DirectFrame):
@@ -37,4 +41,18 @@ class GagSelectGui(DirectFrame):
             pos=(0.0, 0.0, -0.25)
         )
         self.seperator = TTSeperator(self.mainFrame, pos=(0.0, 0.0, 0.5))
+        self.trackLabel = TTLabel(self.mainFrame, text='ToonUp', text_size=TTLabel.LargeSize, pos=(0.0, 0.0, 0.23))
+        self.trackLArrow = TTArrow(self.mainFrame, orientation=TTArrow.OrientationLeft, pos=(-0.25, 0.0, 0.25))
+        self.trackRArrow = TTArrow(self.mainFrame, orientation=TTArrow.OrientationRight, pos=(0.25, 0.0, 0.25))
+        self.trackSelector = TTArrowSelectorGroup(
+            self.trackLArrow,
+            self.trackRArrow,
+            self.trackLabel,
+            self.__handleTrackSelected,
+            items=['ToonUp', 'Trap', 'Lure', 'Throw', 'Squirt', 'Sound', 'Drop']
+        )
+        self.gagButtons = []
+
+    def __handleTrackSelected(self, track):
+        print('Selected: %s' % track)
 
