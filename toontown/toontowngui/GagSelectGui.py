@@ -41,7 +41,7 @@ class GagSelectGui(DirectFrame):
             pos=(0.0, 0.0, -0.25)
         )
         self.seperator = TTSeperator(self.mainFrame, pos=(0.0, 0.0, 0.5))
-        self.trackLabel = TTLabel(self.mainFrame, text='ToonUp', text_size=TTLabel.LargeSize, pos=(0.0, 0.0, 0.23))
+        self.trackLabel = TTLabel(self.mainFrame, text_size=TTLabel.LargeSize, pos=(0.0, 0.0, 0.23))
         self.trackLArrow = TTArrow(self.mainFrame, orientation=TTArrow.OrientationLeft, pos=(-0.25, 0.0, 0.25))
         self.trackRArrow = TTArrow(self.mainFrame, orientation=TTArrow.OrientationRight, pos=(0.25, 0.0, 0.25))
         self.trackSelector = TTArrowSelectorGroup(
