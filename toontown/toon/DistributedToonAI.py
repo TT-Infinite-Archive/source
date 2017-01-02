@@ -5459,6 +5459,16 @@ def addGag(gagId, amount=1):
     invoker.b_setInventory(invoker.inventory.toList())
     return 'Added %s of %s gag(s)' % (amount, gagId)
 
+@magicWord(category=CATEGORY_PROGRAMMER, types=[int, int])
+def removeGag(gagId):
+    invoker = spellbook.getInvoker()
+    if gagId not in Gag.Gags:
+        return 'Invalid gag id %s' % gagId
+
+    invoker.inventory.removeItem(gagId)
+    invoker.b_setInventory(invoker.inventory.toList())
+    return 'Removed gag %s' % (Gag.Gags[gagId])
+
 @magicWord(category=CATEGORY_PROGRAMMER, types=[int])
 def equipGag(gagId):
     invoker = spellbook.getInvoker()

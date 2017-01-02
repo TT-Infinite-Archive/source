@@ -112,6 +112,9 @@ class GagInventoryBase(DirectObject):
         else:
             self.inventory[itemId].amount -= 1
 
+    def removeItem(self, itemId):
+        del self.inventory[itemId]
+
     def setAmount(self, itemId, amount):
         self.notify.debug('Setting item %s amount to %s' % (itemId, amount))
         if itemId not in self.inventory:

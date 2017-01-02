@@ -25,6 +25,10 @@ class GagInventory(GagInventoryBase):
         GagInventoryBase.useItem(self, itemId)
         messenger.send(EventGlobals.GagsChanged)
 
+    def removeItem(self, itemId):
+        GagInventoryBase.removeItem(self, itemId)
+        messenger.send(EventGlobals.GagsChanged)
+
     def setAmount(self, itemId, amount):
         GagInventoryBase.setAmount(self, itemId, amount)
         messenger.send(EventGlobals.GagsChanged)
