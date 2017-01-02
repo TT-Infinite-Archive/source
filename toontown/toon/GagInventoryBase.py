@@ -35,23 +35,25 @@ class GagInventoryBase(DirectObject):
             slot.fromList(item)
             self.inventory[uid] = slot
 
-    def getItems(self):
+    @property
+    def items(self):
         return sorted(self.inventory.values(), key=lambda slot: slot.gag.uid)
 
-    def getEquippedItems(self):
-        return [item for item in self.getItems() if item.equipped]
+    @property
+    def equippedItems(self):
+        return [item for item in self.items if item.equipped]
 
     def isEquipped(self, gagId):
-        return gagId in [item.gag.uid for item in self.getEquippedItems()]
+        return gagId in [item.gag.uid for item in self.equippedItems]
 
     def getGagSlotAtSlot(self, slot):
-        gagSlot = self.getEquippedItems()[slot]
+        gagSlot = self.equippedItems[slot]
         if gagSlot is None:
             return None
         return gagSlot
 
     def getGagAtSlot(self, slot):
-        gagSlot = self.getEquippedItems()[slot]
+        gagSlot = self.equippedItems[slot]
         if gagSlot is None:
             return None
         return gagSlot.gag

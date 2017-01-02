@@ -29,7 +29,8 @@ class Icon:
         shadow.setColorScale(0.0, 0.0, 0.0, 0.5)
         return model
 
-    def getButtonIcon(self):
+    @property
+    def buttonIcon(self):
         icon = DirectButton(
             hidden,
             relief=None,

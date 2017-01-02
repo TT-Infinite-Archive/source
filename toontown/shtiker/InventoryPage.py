@@ -247,9 +247,9 @@ class GagInfoFrame(DirectFrame):
     def setGag(self, gag):
         self.show()
         self.setTitle(gag.name)
-        self.setTitleColor(gag.getRarityColor())
-        self.setDescription(gag.getDescription())
-        self.setIcon(gag.getDisplayObject().getButtonIcon())
+        self.setTitleColor(gag.rarityColor)
+        self.setDescription(gag.description)
+        self.setIcon(gag.displayObject.buttonIcon)
 
     def unsetGag(self):
         self.hide()

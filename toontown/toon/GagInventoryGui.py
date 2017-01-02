@@ -35,7 +35,7 @@ class GagInventoryGui(DirectFrame):
     def loadEquippedGags(self):
         self.notify.debug('Loading Equipped Gags...')
         self.unloadEquippedGags()
-        eqItems = self.toon.inventory.getEquippedItems()
+        eqItems = self.toon.inventory.equippedItems
         for index in xrange(0, self.MaxSlots):
             if index < len(eqItems):
                 gagSlot = eqItems[index]
@@ -84,7 +84,7 @@ class GagInventorySlot(DirectButton):
         self.parent = parent
         self.gagItem = gagItem
         if self.gagItem is not None:
-            self.gdObj = gagItem.getDisplayObject()
+            self.gdObj = gagItem.displayObject
         else:
             self.gdObj = None
         self.index = index
@@ -110,7 +110,7 @@ class GagInventorySlot(DirectButton):
         self.mainButton.bind(DGG.WITHOUT, self.__handleExit)
 
         if self.gdObj is not None:
-            self.icon = self.gdObj.getButtonIcon()
+            self.icon = self.gdObj.buttonIcon
             if self.icon is not None:
                 pos = self.icon.getPos()
                 self.icon.reparentTo(self.mainButton)

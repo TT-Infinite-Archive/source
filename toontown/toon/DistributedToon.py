@@ -2906,4 +2906,4 @@ def autoboard():
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[])
 def getEquippedGags():
-    return 'Gags: %s' % (base.localAvatar.inventory.getEquippedItems())
+    return 'Gags: %s' % (base.localAvatar.inventory.equippedItems)
