@@ -179,6 +179,7 @@ lNext = 'Next'
 lQuit = 'Quit'
 lYes = 'Yes'
 lNo = 'No'
+lNone = 'None'
 lLoading = 'Loading...'
 SleepAutoReply = '%s is sleeping right now.'
 lHQOfficerF = 'HQ Officer'
@@ -10739,3 +10740,11 @@ BehaviorName = {
  0: 'None',
  1: 'Having a picnic'
 }
+
+TrackToonUp = 'Toon-Up'
+TrackLure = 'Lure'
+TrackTrap = 'Trap'
+TrackSound = 'Sound'
+TrackSquirt = 'Squirt'
+TrackThrow = 'Throw'
+TrackDrop = 'Drop'

@@ -110,7 +110,7 @@ class GagInventorySlot(DirectButton):
         self.mainButton.bind(DGG.WITHOUT, self.__handleExit)
 
         if self.gdObj is not None:
-            self.icon = self.gdObj.buttonIcon
+            self.icon = self.gdObj.button
             if self.icon is not None:
                 pos = self.icon.getPos()
                 self.icon.reparentTo(self.mainButton)

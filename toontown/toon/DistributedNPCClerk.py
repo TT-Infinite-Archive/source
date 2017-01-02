@@ -23,8 +23,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         taskMgr.remove(self.uniqueName('popupPurchaseGUI'))
         taskMgr.remove(self.uniqueName('lerpCamera'))
         if self.purchase:
-            self.purchase.exit()
-            self.purchase.unload()
+            self.purchase.destroy()
             self.purchase = None
         self.av = None
         base.localAvatar.posCamera(0, 0)
@@ -44,8 +43,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         taskMgr.remove(self.uniqueName('popupPurchaseGUI'))
         taskMgr.remove(self.uniqueName('lerpCamera'))
         if self.purchase:
-            self.purchase.exit()
-            self.purchase.unload()
+            self.purchase.destroy()
             self.purchase = None
         self.clearMat()
         self.startLookAround()
@@ -102,7 +100,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.setChatAbsolute('', CFSpeech)
         self.acceptOnce(EventGlobals.PURCHASE_DONE, self.__handlePurchaseDone)
         self.accept(EventGlobals.BOUGHT_GAG, self.__handleBoughtGag)
-        self.purchase = GagSelectGui(base.localAvatar, self.timeout)
+        self.purchase = GagSelectGui(base.localAvatar, self.timeout, pos=(-0.5, 0.0, 0.0))
         return Task.done
 
     def __handleBoughtGag(self):
@@ -112,7 +110,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.ignore(EventGlobals.BOUGHT_GAG)
         self.d_setInventory(base.localAvatar.inventory.makeNetString(), base.localAvatar.getMoney(), 1)
         if self.purchase:
-            self.puchase.destroy()
+            self.purchase.destroy()
             self.purchase = None
 
     def d_setInventory(self, invString, money, done):

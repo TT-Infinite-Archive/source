@@ -153,7 +153,7 @@ class TownBattleToonPanel(DirectFrame):
             self.notify.debug('Showing that toon at index %s has no attack yet.' % self.index)
             self.undecidedText.show()
         else:
-            self.setGagImage(gag.displayObject.buttonIcon)
+            self.setGagImage(gag.displayObject.button)
             self.gagNode.show()
             # whichText display stuff
             self.whichText['text'] = self.determineWhichText(toonAttack)

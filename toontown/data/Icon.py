@@ -20,21 +20,22 @@ class Icon:
             old = model
             model = old.find('**/' + self.nodePathName)
             old.removeNode()
-
-        model.setDepthTest(1)
-        model.setDepthWrite(1)
-        shadow = loader.loadModel('phase_3/models/props/drop_shadow')
-        shadow.reparentTo(model)
-        shadow.setScale(0.2)
-        shadow.setColorScale(0.0, 0.0, 0.0, 0.5)
         return model
+    
+    @property
+    def icon(self):
+        icon = self.loadFile()
+        icon.setPos(self.pos)
+        icon.setScale(self.scale)
+        icon.setColorScale(self.color)
+        return icon
 
     @property
-    def buttonIcon(self):
+    def button(self):
         icon = DirectButton(
             hidden,
             relief=None,
-            image=self.loadFile(),
+            geom=self.loadFile(),
             suppressMouse=True,
             state=DGG.DISABLED
         )

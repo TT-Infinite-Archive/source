@@ -4,7 +4,7 @@ from direct.showbase.DirectObject import DirectObject
 from toontown.data import Missile
 from toontown.data.Effect import DamageEffect
 from toontown.data import IconGlobals
-from toontown.toonbase import ColorGlobals
+from toontown.toonbase import ColorGlobals, TTLocalizer
 
 
 class Gag(DirectObject):
@@ -22,24 +22,26 @@ class Gag(DirectObject):
     RarityEpic = 2
     RarityLegendary = 3
 
-    def __init__(self, uid, name, effect, targetType, rarity=0, chance=1.0):
+    def __init__(self, uid, name, effect, targetType, track=0, rarity=0, chance=1.0):
         DirectObject.__init__(self)
         self.uid = uid
         self.name = name
         self.effect = effect
         self.targetType = targetType
+        self.track = track
         self.chance = chance
         self.rarity = rarity
 
     def __str__(self):
-        return '%s' % self.name
+        return 'Gag-%s' % self.name
 
     def toList(self):
         return [
             self.uid
         ]
 
-    def getDescription(self):
+    @property
+    def description(self):
         typeToString = {
             self.TargetNone: '',
             self.TargetSingleEnemy: ' to a Cog',
@@ -49,12 +51,13 @@ class Gag(DirectObject):
             self.TargetSelf: ' to yourself',
             self.TargetSelfAndAllies: ' to all Toons'
         }
-        string = '%s%s.' % (self.effect.getDescription(), typeToString[self.targetType])
+        string = '%s%s.' % (self.effect.description, typeToString[self.targetType])
         if self.chance < 1.0:
             string += ' Has a %s%% chance to hit.' % int(self.chance * 100)
         return string
 
-    def getRarityColor(self):
+    @property
+    def rarityColor(self):
         rarityToColor = {
             Gag.RarityCommon: ColorGlobals.CGray,
             Gag.RarityRare: ColorGlobals.CMediumBlue,
@@ -63,8 +66,8 @@ class Gag(DirectObject):
         }
         return rarityToColor[self.rarity]
 
-
-    def getDisplayObject(self):
+    @property
+    def displayObject(self):
         return GagToIcon.get(self.uid, None)
 
     def requiresTarget(self):
@@ -114,8 +117,9 @@ class GagItemSlot:
 NO_ATTACK = 0
 PASS = 99
 
+DefaultGag = Gag(0, 'Nothing but a chuckle', None, 0)
 Gags = {
-    0: Gag(0, 'Nothing but a chuckle', None, 0),
+    0: DefaultGag,
     1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy, Gag.RarityCommon),
     2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Gag.RarityCommon),
     3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Gag.RarityLegendary),
@@ -139,6 +143,32 @@ GagToMissile = {
     3: Missile.GoldenCupcakeMissile,
     4: Missile.RedCupcakeMissile
 }
+
+
+class Track:
+    def __init__(self, idn, name):
+        self.idn = idn
+        self.name = name
+
+TrackNone = 0
+TrackToonUp = 1
+TrackLure = 2
+TrackTrap = 3
+TrackSound = 4
+TrackSquirt = 5
+TrackThrow = 6
+TrackDrop = 7
+
+Tracks = [
+    Track(0, TTLocalizer.lNone),
+    Track(1, TTLocalizer.TrackToonUp),
+    Track(2, TTLocalizer.TrackLure),
+    Track(3, TTLocalizer.TrackTrap),
+    Track(4, TTLocalizer.TrackSound),
+    Track(5, TTLocalizer.TrackSquirt),
+    Track(6, TTLocalizer.TrackThrow),
+    Track(7, TTLocalizer.TrackDrop)
+]
 
 AlwaysEquipped = [
     NO_ATTACK,
