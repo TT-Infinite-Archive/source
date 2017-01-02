@@ -1,7 +1,7 @@
-from direct.showbase.DirectObject import DirectObject
 from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.showbase.DirectObject import DirectObject
 
-from toontown.toon.InventoryGlobals import GagItemSlot
+from toontown.data.Gag import GagItemSlot
 
 
 class GagInventoryBase(DirectObject):
