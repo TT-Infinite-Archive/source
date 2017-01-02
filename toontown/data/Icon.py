@@ -1,5 +1,6 @@
 from direct.gui.DirectButton import DirectButton, DGG
 
+from toontown.util import TTCardMaker
 
 class Icon:
     def __init__(self, name, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0), nodePathName=None):
@@ -43,3 +44,11 @@ class Icon:
         icon.setScale(self.scale)
         icon.setColorScale(self.color)
         return icon
+
+
+class ImageIcon(Icon):
+    def __init__(self, name, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0)):
+        Icon.__init__(self, name, filepath, scale, pos, color)
+
+    def loadFile(self):
+        return TTCardMaker.makeCard(self.filepath)
