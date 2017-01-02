@@ -1,25 +1,19 @@
-from pandac.PandaModules import *
-from direct.actor import Actor
-from direct.directnotify.DirectNotifyGlobal import directNotify
-from direct.distributed.ClockDelta import *
 from direct.distributed import DistributedNode
+from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
 from direct.task.Task import Task
+
 from otp.avatar import Emote
-from toontown.battle import BattleParticles, BattleAttack
-from toontown.battle import BattleProps
 from toontown.battle import Movie
 from toontown.battle import MovieUtil
 from toontown.battle.BattleBase import *
 from toontown.distributed import DelayDelete
-from toontown.nametag import NametagGlobals
 from toontown.hood import ZoneUtil
 from toontown.suit import Suit
-from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import ToontownBattleGlobals
-from toontown.toon import InventoryGlobals
+from toontown.toonbase.ToonBaseGlobal import *
 
 
 class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):

@@ -1,18 +1,17 @@
-from direct.distributed.ClockDelta import *
 from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.distributed.ClockDelta import *
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.fsm import ClassicFSM, State
 from direct.task import Task, Timer
-
 from panda3d.core import *
 
 from otp.ai.MagicWordGlobal import CATEGORY_PROGRAMMER, magicWord, spellbook
-from toontown.battle.BattleCalculatorAI import BattleCalculatorAI
-from toontown.battle.BattleBase import BattleBase
-from toontown.battle import SuitBattleGlobals
-from toontown.battle import BattleGlobals
 from toontown.battle import BattleAttack
-from toontown.toon import InventoryGlobals
+from toontown.battle import BattleGlobals
+from toontown.battle import SuitBattleGlobals
+from toontown.battle.BattleBase import BattleBase
+from toontown.battle.BattleCalculatorAI import BattleCalculatorAI
+from toontown.data import Gag
 from toontown.toonbase import ToontownGlobals
 
 
@@ -583,7 +582,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             return
         self.notify.debug('Toon %d timed out' % toonId)
         # Lets make the toon pass since it timed out
-        self.toonAttacks[toonId] = BattleAttack.ToonBattleAttack(toonId, InventoryGlobals.PASS)
+        self.toonAttacks[toonId] = BattleAttack.ToonBattleAttack(toonId, Gag.PASS)
         self.d_setChosenToonAttacks()
         if self.attacksSet():
             self.notify.debug('All toons attacked, playing movie now...')
@@ -649,11 +648,11 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             # No toon
             self.notify.warning('Invalid toon %s' % toonId)
             return
-        if not toon.inventory.isEquipped(attackId) and attackId not in InventoryGlobals.AlwaysEquipped:
+        if not toon.inventory.isEquipped(attackId) and attackId not in Gag.AlwaysEquipped:
             # This attack is not equipped, and needs to be equipped
             self.notify.warning('Toon %s tried to use an attack he doesnt have equipped' % toonId)
             return
-        attack = InventoryGlobals.Gags.get(attackId)
+        attack = Gag.Gags.get(attackId)
         if attack is None and attackId != SuitBattleGlobals.NO_ATTACK:
             # Invalid attackId
             self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
@@ -780,7 +779,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         for tma in self.toonMovieAttacks:
             if not tma.hit:
                 continue
-            gag = InventoryGlobals.Gags.get(tma.attackId)
+            gag = Gag.Gags.get(tma.attackId)
             if gag is None:
                 self.notify.warning('Attempted to apply invalid gag with id %s' % tma.attackId)
                 return
@@ -788,18 +787,18 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             # Setup targets
             if gag.requiresTarget():
                 targetId = tma.targetId
-                if gag.targetType == InventoryGlobals.Gag.TargetSingleAlly:
+                if gag.targetType == Gag.Gag.TargetSingleAlly:
                     if targetId in self.activeToons:
                         targets.append(self.air.doId2do.get(targetId))
                     else:
                         self.notify.warning('Invalid target %s for ally attack' % targetId)
-                elif gag.targetType == InventoryGlobals.Gag.TargetSingleEnemy:
+                elif gag.targetType == Gag.Gag.TargetSingleEnemy:
                     suit = self.findSuit(targetId)
                     if suit and suit in self.activeSuits:
                         targets.append(suit)
                     else:
                         self.notify.warning('Invalid target %s for enemy attack' % targetId)
-            elif gag.targetType == InventoryGlobals.Gag.TargetEnemies:
+            elif gag.targetType == Gag.Gag.TargetEnemies:
                 targets += self.activeSuits
             else:
                 self.notify.warning('Targeting for target type %s not yet implemented.' % gag.targetType)

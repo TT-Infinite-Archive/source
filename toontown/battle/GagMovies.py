@@ -3,10 +3,9 @@ from panda3d.core import Point3
 
 import MovieUtil
 from toontown.data import Sound
-from toontown.toon.InventoryGlobals import Gags, GagToMissile, PASS
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.data.Gag import Gags, GagToMissile, PASS
+from toontown.toonbase import TTLocalizer
 from toontown.util import PointLib, PlacerTool3D
-from panda3d.core import CollisionSphere, CollisionNode
 
 
 def place(node):

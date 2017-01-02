@@ -1,20 +1,14 @@
-from direct.directnotify import DirectNotifyGlobal
+import random
+import re
+
 from direct.distributed import DistributedSmoothNodeAI
 from direct.distributed.ClockDelta import *
-from direct.distributed.MsgTypes import *
-from direct.distributed.PyDatagram import PyDatagram
-from direct.task import Task
-from direct.stdpy import threading2
-from pandac.PandaModules import *
-import random
-import time
-import re
 
 import Experience
 import GagInventoryBase
 import ModuleListAI
-from NPCToons import npcFriends
 import ToonDNA
+from NPCToons import npcFriends
 from otp.ai.AIBaseGlobal import *
 from otp.ai.MagicWordGlobal import *
 from otp.avatar import DistributedAvatarAI
@@ -30,6 +24,7 @@ from toontown.catalog import CatalogItemList
 from toontown.chat import ResistanceChat
 from toontown.coghq import CogDisguiseGlobals
 from toontown.collectibles import StatsAI, CollectibleInventoryGlobals, CollectibleInventoryAI
+from toontown.data import Gag
 from toontown.estate import FlowerBasket, FlowerCollection, GardenGlobals
 from toontown.fishing import FishCollection, FishTank
 from toontown.golf import GolfGlobals
@@ -46,13 +41,10 @@ from toontown.racing import RaceGlobals
 from toontown.shtiker import CogPageGlobals
 from toontown.suit import SuitDNA
 from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownAccessAI
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownGlobals import *
-from toontown.toonbase.TTLocalizerEnglish import SuitNameDropper
-
 
 if simbase.wantPets:
     from toontown.pets import PetLookerAI, PetObserve
@@ -2928,7 +2920,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
         def setKartAccessoriesOwned(self, accessories):
             if (__debug__):
-                import pdb
+                pass
             self.accessories = accessories
 
         def getKartAccessoriesOwned(self):

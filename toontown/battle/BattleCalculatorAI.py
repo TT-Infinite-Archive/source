@@ -1,7 +1,9 @@
-from toontown.battle import BattleAttack
-from toontown.toon import InventoryGlobals
-from direct.directnotify.DirectNotifyGlobal import directNotify
 import random
+
+from direct.directnotify.DirectNotifyGlobal import directNotify
+
+from toontown.battle import BattleAttack
+from toontown.data import Gag
 
 
 class BattleCalculatorAI:
@@ -28,7 +30,7 @@ class BattleCalculatorAI:
             tma = BattleAttack.MovieAttack()
             tma.fromList(ta.toList() + [0.0])
             # Get the gag object for this attack id
-            gag = InventoryGlobals.Gags.get(ta.attackId)
+            gag = Gag.Gags.get(ta.attackId)
             # Check if its a real gag
             if gag is not None:
                 # Roll a dice for the attack

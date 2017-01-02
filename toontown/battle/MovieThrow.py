@@ -1,15 +1,14 @@
-from pandac.PandaModules import *
+from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
+
+import MovieCamera
+import MovieUtil
 from BattleBase import *
 from BattleProps import *
 from BattleSounds import *
-from toontown.toon import InventoryGlobals
-from toontown.suit.SuitDNA import *
-from direct.directnotify import DirectNotifyGlobal
-import random
-import MovieCamera
-import MovieUtil
 from MovieUtil import calcAvgSuitPos
+from toontown.suit.SuitDNA import *
+
 notify = DirectNotifyGlobal.directNotify.newCategory('MovieThrow')
 hitSoundFiles = ('AA_tart_only.ogg', 'AA_slice_only.ogg', 'AA_slice_only.ogg', 'AA_slice_only.ogg', 'AA_slice_only.ogg', 'AA_wholepie_only.ogg', 'AA_wholepie_only.ogg')
 tPieLeavesHand = 2.7

@@ -1,41 +1,24 @@
 import copy
-from direct.directnotify import DirectNotifyGlobal
+
 from direct.interval.IntervalGlobal import *
 from direct.showbase import DirectObject
-import random
 
-from BattleBase import *
 import BattleExperience
-import BattleParticles
-import MovieDrop
-import MovieFire
-import MovieHeal
-import MovieLure
-import MovieNPCSOS
-import MoviePetSOS
-import MovieSOS
-import MovieSound
-import MovieSquirt
+import GagMovies
 import MovieSuitAttacks
-import MovieThrow
 import MovieToonVictory
-import MovieTrap
 import MovieUtil
 import PlayByPlayText
 import RewardPanel
-import GagMovies
 from SuitBattleGlobals import *
 from toontown.chat.ChatGlobals import *
+from toontown.data import Gag
 from toontown.distributed import DelayDelete
-from toontown.toon import NPCToons
-from toontown.toon import InventoryGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.nametag import NametagGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 from toontown.toontowngui import TTDialog
-from toontown.nametag import NametagGlobals
 from toontown.util.Queue import Queue
-
 
 camPos = Point3(14, 0, 10)
 camHpr = Vec3(89, -30, 0)
@@ -464,7 +447,7 @@ class Movie(DirectObject.DirectObject):
         for tma in self.toonMovieAttacks:
             if tma.attackId == PASS:
                 continue
-            attack = InventoryGlobals.Gags.get(tma.attackId)
+            attack = Gag.Gags.get(tma.attackId)
             if attack is None:
                 continue
             elif attack.targetsAlly() and type == HEAL:

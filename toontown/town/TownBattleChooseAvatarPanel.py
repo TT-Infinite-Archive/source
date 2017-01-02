@@ -1,9 +1,10 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import *
 from direct.showbase.DirectObject import DirectObject
-from toontown.toonbase import TTLocalizer, EventGlobals
-from toontown.toon.InventoryGlobals import Gag
 from panda3d.core import Vec4
+
+from toontown.data.Gag import Gag
+from toontown.toonbase import TTLocalizer, EventGlobals
 
 
 class TownBattleChooseAvatarPanel(DirectObject):
