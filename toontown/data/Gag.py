@@ -69,6 +69,18 @@ class Gag(DirectObject):
     def displayObject(self):
         return GagToIcon.get(self.uid, None)
 
+    @property
+    def icon(self):
+        return self.displayObject.icon
+
+    @property
+    def glow(self):
+        glow = IconGlobals.getIcon(IconGlobals.ICON_GLOW).icon
+        color = self.rarityColor
+        color[3] = 0.75
+        glow.setColorScale(color)
+        return glow
+
     def requiresTarget(self):
         return self.targetType in (self.TargetSingleEnemy, self.TargetSingleAlly)
 
@@ -142,9 +154,6 @@ GagToMissile = {
     3: Missile.GoldenCupcakeMissile,
     4: Missile.RedCupcakeMissile
 }
-
-
-
 
 AlwaysEquipped = [
     NO_ATTACK,

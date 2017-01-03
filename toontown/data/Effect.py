@@ -11,7 +11,8 @@ class Effect:
     def b_applyTo(self, av):
         pass
 
-    def getDescription(self):
+    @property
+    def description(self):
         return ''
 
 
@@ -29,7 +30,8 @@ class HealEffect(Effect):
     def b_applyTo(self, av):
         av.b_setHp(av.getHp() + self.amount)
 
-    def getDescription(self):
+    @property
+    def description(self):
         return 'Toon-Up (%d) points' % self.amount
 
 
@@ -47,5 +49,6 @@ class DamageEffect(Effect):
     def b_applyTo(self, av):
         av.b_setHp(av.getHp() - self.amount)
 
-    def getDescription(self):
+    @property
+    def description(self):
         return 'Deal (%d) damage' % self.amount

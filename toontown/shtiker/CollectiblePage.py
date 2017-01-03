@@ -456,7 +456,7 @@ class ItemDialog(DirectButton):
         self.mainButton.bind(DGG.WITHOUT, self.__handleExit)
 
         if item is not None:
-            self.icon = item.button
+            self.icon = item.getButtonIcon()
             if self.icon is not None:
                 pos = self.icon.getPos()
                 self.icon.reparentTo(self.mainButton)

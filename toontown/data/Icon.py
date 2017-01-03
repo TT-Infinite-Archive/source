@@ -1,6 +1,9 @@
+from panda3d.core import NodePath
+
 from direct.gui.DirectButton import DirectButton, DGG
 
 from toontown.util import TTCardMaker
+
 
 class Icon:
     def __init__(self, name, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0), nodePathName=None):
@@ -36,7 +39,7 @@ class Icon:
         icon = DirectButton(
             hidden,
             relief=None,
-            geom=self.loadFile(),
+            image=self.loadFile(),
             suppressMouse=True,
             state=DGG.DISABLED
         )
@@ -51,4 +54,7 @@ class ImageIcon(Icon):
         Icon.__init__(self, name, filepath, scale, pos, color)
 
     def loadFile(self):
-        return TTCardMaker.makeCard(self.filepath)
+        model = NodePath('%s-node' % self.filepath)
+        card = TTCardMaker.makeCard(self.filepath)
+        card.reparentTo(model)
+        return model

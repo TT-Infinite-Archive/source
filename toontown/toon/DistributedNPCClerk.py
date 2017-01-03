@@ -66,7 +66,8 @@ class DistributedNPCClerk(DistributedNPCToonBase):
             taskMgr.remove(self.uniqueName('popupPurchaseGUI'))
             taskMgr.remove(self.uniqueName('lerpCamera'))
             if self.hasLocalToon():
-                self.ignore(self.purchaseDoneEvent)
+                pass
+                # self.ignore(self.purchaseDoneEvent)
             if self.purchase:
                 self.__handlePurchaseDone()
             self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
@@ -100,7 +101,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.setChatAbsolute('', CFSpeech)
         self.acceptOnce(EventGlobals.PURCHASE_DONE, self.__handlePurchaseDone)
         self.accept(EventGlobals.BOUGHT_GAG, self.__handleBoughtGag)
-        self.purchase = GagSelectGui(base.localAvatar, self.timeout, pos=(-0.5, 0.0, 0.0))
+        self.purchase = GagSelectGui(base.localAvatar, self.timeout)
         return Task.done
 
     def __handleBoughtGag(self):

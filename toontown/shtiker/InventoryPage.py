@@ -199,7 +199,7 @@ class InventoryPage(ShtikerPage.ShtikerPage):
 
 
 class GagInfoFrame(DirectFrame):
-    def __init__(self, parent, pos=(0.0, 0.0, 0.0), scale=(1, 1, 1)):
+    def __init__(self, parent, pos=(0.0, 0.0, 0.0), scale=(1, 1, 1), geom_scale=(0.9, 0.5, 0.5)):
         DirectFrame.__init__(
             self,
             parent,
@@ -212,7 +212,7 @@ class GagInfoFrame(DirectFrame):
             relief=None,
             geom=DGG.getDefaultDialogGeom(),
             geom_color=ToontownGlobals.GlobalDialogColor,
-            geom_scale=(0.9, 0.5, 0.5)
+            geom_scale=geom_scale
         )
         self.gagTitle = TTLabel.TTLabel(
             parent=self.mainFrame,
