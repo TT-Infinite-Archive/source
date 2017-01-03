@@ -46,7 +46,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         words = message.split(' ')
         offset = 0
         for word in words:
-            if self.whiteList and word and not self.whiteList.isWord(word):
+            if self.wantWhiteList and word and not self.whiteList.isWord(word):
                 modifications.append((offset, offset + len(word) - 1))
             offset += len(word) + 1
 
