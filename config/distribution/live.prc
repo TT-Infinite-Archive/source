@@ -3,23 +3,49 @@ distribution live
 
 # Server:
 server-version SERVER_VERSION
-shard-low-pop 100
-shard-mid-pop 150
-client-agents 8
+accountdb-type developer
 
 # Temporary configuration for SP Alpha
-# until we get our web account API up and running.
-force-access-level 100
+# until we get our web account API up and running
+access-level-clamp 100 100
+
+# MongoDB:
+mongodb-url mongodb://localhost/game
+
+# UberDOG:
+generate-root-object #t
+generate-global-object 4688 CentralLogger
+generate-global-object 4665 ClientServicesManager
+generate-global-object 4681 ChatAgent
+generate-global-object 4501 FriendManager
+generate-global-object 4686 AvatarFriendsManager
+generate-global-object 4687 PlayerFriendsManager
+generate-global-object 4666 TTIFriendsManager
+generate-global-object 4712 TTSpeedchatRelay
+generate-global-object 4683 DistributedDeliveryManager
+generate-global-object 4695 TTCodeRedemptionMgr
+generate-global-object 4477 GlobalPartyManager
+generate-global-object 4683 DistributedDeliveryManager
+# generate-global-object 4701 GuildManager
+# generate-global-object 4478 GlobalGroupTracker
+generate-global-object 4901 MegaInvasionManager
+
+# RPC:
+want-rpc-server #f
+rpc-server-endpoint http://localhost:8080/
+
+# Web API:
+want-web-api #f
+web-api-endpoint https://localhost:8000/api/
+web-api-token invalid
 
 # Core features:
 want-kaldron-network #f
 want-multiplayer #f
-want-grouptracker #f
-want-game-tables #f
-want-true-friends #f
-want-achievements #f
+want-pets #f
 want-parties #f
-force-skip-tutorial #t
+want-achievements #f
+want-grouptracker #f
 
 # Safe zones:
 want-safe-zones #t
@@ -34,39 +60,36 @@ want-outdoor-zone #f
 want-golf-zone #f
 want-resistance-grounds #f
 
-# Trolley minigames:
-want-photo-game #f
-want-travel-game #f
-want-ttc-trolley #f
-
-# Chat:
-want-whitelist #t
-want-blacklist #t
+# Cog headquarters:
+want-cog-headquarters #f
 
 # Sellbot boss:
 disable-sos-card 91917
 disable-sos-card 91918
 
-# Holidays:
-base-xp-multiplier 1.0
+# Trolley minigames:
+want-ttc-trolley #f
+want-photo-game #f
+want-travel-game #f
 
-# Optional
-want-phone-quest #f
-want-yin-yang #f
-want-heartbeat #f
+# Chat:
+want-whitelist #t
+want-blacklist #f
 
 # Developer options:
+want-yin-yang #f
+force-skip-tutorial #t
 show-population #f
+want-phone-quest #f
+want-heartbeat #f
 
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
 want-dev-debug #f
 
-# Safezone Interactables
+# Safezone interactables:
 want-ttc-jukebox #t
 
-# Unlock timer:
-want-unlock-timer #t
-unlock-time Sun Dec 6 19:20:00 2015
-unlock-text Toontown Infinite will open in:
+# Mod tools:
+want-mods #f
