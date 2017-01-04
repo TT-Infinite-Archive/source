@@ -35,8 +35,6 @@ class TTHoodAI(HoodAI.HoodAI):
         if simbase.config.GetBool('want-classic-chars', True):
             if simbase.config.GetBool('want-mickey', True):
                 self.createClassicChar()
-        if simbase.config.GetBool('want-butterflies', True):
-            self.createButterflies()
         if self.air.newsManager.getStormEnabled():
             self.createStormEvent()
 
@@ -66,16 +64,6 @@ class TTHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedMickeyAI.DistributedMickeyAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
-
-    def createButterflies(self):
-        playground = ButterflyGlobals.TTC
-        for area in xrange(ButterflyGlobals.NUM_BUTTERFLY_AREAS[playground]):
-            for b in xrange(ButterflyGlobals.NUM_BUTTERFLIES[playground]):
-                butterfly = DistributedButterflyAI.DistributedButterflyAI(self.air)
-                butterfly.setArea(playground, area)
-                butterfly.setState(0, 0, 0, 1, 1)
-                butterfly.generateWithRequired(self.zoneId)
-                self.butterflies.append(butterfly)
     
     def createStormEvent(self):
         self.stormEvent = DistributedStormEventAI.DistributedStormEventAI(self.air)

@@ -30,8 +30,6 @@ class DGHoodAI(HoodAI.HoodAI):
         if simbase.config.GetBool('want-classic-chars', True):
             if simbase.config.GetBool('want-daisy', True):
                 self.createClassicChar()
-        if simbase.config.GetBool('want-butterflies', True):
-            self.createButterflies()
 
     def shutdown(self):
         HoodAI.HoodAI.shutdown(self)
@@ -52,16 +50,6 @@ class DGHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedDaisyAI.DistributedDaisyAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
-
-    def createButterflies(self):
-        playground = ButterflyGlobals.DG
-        for area in xrange(ButterflyGlobals.NUM_BUTTERFLY_AREAS[playground]):
-            for b in xrange(ButterflyGlobals.NUM_BUTTERFLIES[playground]):
-                butterfly = DistributedButterflyAI.DistributedButterflyAI(self.air)
-                butterfly.setArea(playground, area)
-                butterfly.setState(0, 0, 0, 1, 1)
-                butterfly.generateWithRequired(self.zoneId)
-                self.butterflies.append(butterfly)
 
     def startupGreenToonManager(self):
         if hasattr(self, 'GreenToonEffectManager'):
