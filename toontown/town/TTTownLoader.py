@@ -31,12 +31,13 @@ class TTTownLoader(TownLoader.TownLoader):
 
     def unload(self):
         TownLoader.TownLoader.unload(self)
+        Suit.unloadSuits(1)
 
     def enter(self, requestStatus):
         TownLoader.TownLoader.enter(self, requestStatus)
 
         if base.cr.newsManager.isStormEnabled():
-            self.rain.start(camera, self.rainRender)
+            self.rain.start(base.camera, self.rainRender)
 
     def exit(self):
         TownLoader.TownLoader.exit(self)
