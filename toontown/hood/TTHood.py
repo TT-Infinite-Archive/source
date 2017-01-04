@@ -4,6 +4,8 @@ from toontown.safezone.TTSafeZoneLoader import TTSafeZoneLoader
 from toontown.town.TTTownLoader import TTTownLoader
 from toontown.toonbase import ToontownGlobals
 from toontown.hood.ToonHood import ToonHood
+from toontown.safezone import Butterfly
+from toontown.safezone import ButterflyGlobals
 
 from otp.ai.MagicWordGlobal import *
 
@@ -23,7 +25,24 @@ class TTHood(ToonHood):
       ToontownGlobals.WINTER_DECORATIONS: ['phase_4/dna/winter_storage_TT.pdna', 'phase_4/dna/winter_storage_TT_sz.pdna'],
       ToontownGlobals.WACKY_WINTER_DECORATIONS: ['phase_4/dna/winter_storage_TT.pdna', 'phase_4/dna/winter_storage_TT_sz.pdna'],
       ToontownGlobals.HALLOWEEN_PROPS: ['phase_4/dna/halloween_props_storage_TT.pdna', 'phase_4/dna/halloween_props_storage_TT_sz.pdna'],
-      ToontownGlobals.SPOOKY_PROPS: ['phase_4/dna/halloween_props_storage_TT.pdna', 'phase_4/dna/halloween_props_storage_TT_sz.pdna']}
+      ToontownGlobals.SPOOKY_PROPS: ['phase_4/dna/halloween_props_storage_TT.pdna', 'phase_4/dna/halloween_props_storage_TT_sz.pdna']
+    }
+
+    def __init__(self, parentFSM, doneEvent, dnaStore, hoodId):
+        ToonHood.__init__(self, parentFSM, doneEvent, dnaStore, hoodId)
+        self.butterflies = []
+        self.createButterflies()
+
+    def unload(self):
+        for butterfly in self.butterflies:
+            butterfly.unload()
+
+    def createButterflies(self):
+        playground = ButterflyGlobals.TTC
+        areas = ButterflyGlobals.PLAYGROUND_TO_POINTS[playground]
+        for area in areas:
+            butterfly = Butterfly.Butterfly(area)
+            self.butterflies.append(butterfly)
 
 
 @magicWord(category=CATEGORY_CREATIVE)
