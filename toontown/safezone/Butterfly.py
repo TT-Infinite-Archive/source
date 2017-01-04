@@ -28,8 +28,8 @@ class Butterfly(FSM):
         Vec4(0.9, 0.6, 0.9, 1),
         Vec4(1, 0.6, 0.9, 1)
     )
-    shadowScaleBig = Point3(0.07, 0.07, 0.07)
-    shadowScaleSmall = Point3(0.01, 0.01, 0.01)
+    shadowScaleBig = Point3(0.11, 0.11, 0.11)
+    shadowScaleSmall = Point3(0.08, 0.08, 0.08)
 
     def __init__(self, positions):
         FSM.__init__(self, self.uniqueName('ButterflyFSM'))
@@ -100,10 +100,11 @@ class Butterfly(FSM):
         self.butterfly.setH(180.0)
         self.butterfly.reparentTo(self.butterflyNode)
         self.dropShadow = loader.loadModel('phase_3/models/props/drop_shadow')
+        self.dropShadow.setBin('shadow', 0)
         self.dropShadow.setColor(0, 0, 0, 0.3)
-        self.dropShadow.setPos(0, 0.1, -0.05)
         self.dropShadow.setScale(self.shadowScaleBig)
         self.dropShadow.reparentTo(self.butterfly)
+        self.dropShadow.setPos(0, 0.1, -0.05)
 
     def cleanup(self):
         self.request('Off')
@@ -183,8 +184,12 @@ class Butterfly(FSM):
         self.butterflyNode.headsUp(destPos)
         newHpr = self.butterflyNode.getHpr()
         self.butterflyNode.setHpr(oldHpr)
-        takeoffShadowT = 0.2 * takeoffTime
-        landShadowT = 0.2 * landTime
+        takeoffShadowT = 0.2 + takeoffTime
+        landShadowT = 0.2 + landTime
+        col = self.dropShadow.getColorScale()
+        invisCol = (col[0], col[1], col[2], 0.0)
+        visCol = (col[0], col[1], col[2], 1.0)
+
         self.butterfly2.loop('flutter')
         self.ival = Sequence(
             Parallel(
@@ -192,22 +197,24 @@ class Butterfly(FSM):
                 LerpPosHprInterval(self.butterflyNode, takeoffTime, curPosHigh, newHpr),
                 LerpAnimInterval(self.butterfly, takeoffTime, 'land', 'flutter'),
                 LerpAnimInterval(self.butterfly, takeoffTime, None, 'glide', startWeight=0, endWeight=self.glideWeight),
-                Sequence(
+                Parallel(
+                    Func(self.dropShadow.wrtReparentTo, render),
                     LerpScaleInterval(self.dropShadow, takeoffShadowT, self.shadowScaleSmall, startScale=self.shadowScaleBig),
-                    HideInterval(self.dropShadow)
+                    LerpColorScaleInterval(self.dropShadow, takeoffShadowT + 0.2, invisCol)
                 )
             ),
             # Fly to the point above the position
             LerpPosInterval(self.butterflyNode, flyTime, destPosHigh),
+            # Move the shadow to the destination
+            Func(self.dropShadow.setPos, (destPos[0], destPos[1] + 0.1, destPos[2] - 0.05)),
             # Land
             Parallel(
                 LerpPosInterval(self.butterflyNode, landTime, destPos),
                 LerpAnimInterval(self.butterfly, landTime, 'flutter', 'land'),
                 LerpAnimInterval(self.butterfly, landTime, None, 'glide', startWeight=self.glideWeight, endWeight=0),
-                Sequence(
-                    Wait(landTime - landShadowT),
-                    ShowInterval(self.dropShadow), LerpScaleInterval(self.dropShadow, landShadowT, self.shadowScaleBig, startScale=self.shadowScaleSmall)
-                )
+                # Show the shadow
+                LerpColorScaleInterval(self.dropShadow, takeoffShadowT + 0.2, visCol),
+                LerpScaleInterval(self.dropShadow, landShadowT, self.shadowScaleBig, startScale=self.shadowScaleSmall)
             ),
             name=self.uniqueName('Butterfly')
         )
@@ -226,7 +233,7 @@ class Butterfly(FSM):
         curPos = self.positions[self.curIndex]
         self.butterflyNode.setPos(curPos)
         self.dropShadow.show()
-        self.dropShadow.setScale(self.shadowScaleSmall)
+        self.dropShadow.setScale(self.shadowScaleBig)
         self.butterfly.setControlEffect('land', 1.0)
         self.butterfly.setControlEffect('flutter', 0.0)
         self.butterfly.setControlEffect('glide', 0.0)
