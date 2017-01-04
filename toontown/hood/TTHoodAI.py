@@ -1,8 +1,6 @@
 from toontown.classicchars import DistributedMickeyAI
 from toontown.hood import HoodAI
 from toontown.hood import DistributedStormEventAI
-from toontown.safezone import ButterflyGlobals
-from toontown.safezone import DistributedButterflyAI
 from toontown.safezone import DistributedTrolleyAI
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
@@ -49,11 +47,6 @@ class TTHoodAI(HoodAI.HoodAI):
                 simbase.air, 2022,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2022], ('bss', 'ms', 'm', 'm', 0, 0, 0, 0, 0, 31, 0, 31, 0, 31), 'm', 1, NPCToons.NPC_YANG),
                 ToontownGlobals.ToontownCentral, posIndex=0)
-
-    def shutdown(self):
-        HoodAI.HoodAI.shutdown(self)
-
-        ButterflyGlobals.clearIndexes(self.zoneId)
 
     def createTrolley(self):
         self.trolley = DistributedTrolleyAI.DistributedTrolleyAI(self.air)

@@ -1,7 +1,6 @@
 from toontown.classicchars import DistributedDaisyAI
 from toontown.hood import HoodAI
 from toontown.safezone import ButterflyGlobals
-from toontown.safezone import DistributedButterflyAI
 from toontown.safezone import DistributedDGFlowerAI
 from toontown.safezone import DistributedTrolleyAI
 from toontown.toonbase import ToontownGlobals
@@ -30,11 +29,6 @@ class DGHoodAI(HoodAI.HoodAI):
         if simbase.config.GetBool('want-classic-chars', True):
             if simbase.config.GetBool('want-daisy', True):
                 self.createClassicChar()
-
-    def shutdown(self):
-        HoodAI.HoodAI.shutdown(self)
-
-        ButterflyGlobals.clearIndexes(self.zoneId)
 
     def createTrolley(self):
         self.trolley = DistributedTrolleyAI.DistributedTrolleyAI(self.air)
