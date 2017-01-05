@@ -7,7 +7,6 @@ from panda3d.core import TextNode
 from toontown.util.VolumeInterval import VolumeInterval
 from toontown.toontowngui.JukeboxGui import JukeboxGui
 from direct.filter.CommonFilters import CommonFilters
-from toontown.util import PlacerTool3D
 
 filters = CommonFilters(base.win, base.cam)
 

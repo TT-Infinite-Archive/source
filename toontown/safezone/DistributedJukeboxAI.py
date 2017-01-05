@@ -67,7 +67,7 @@ class DistributedJukeboxAI(DistributedObjectAI):
         song = JukeboxGlobals.Songs.get(songId)
         if song is None:
             return
-        delay = song.getLength() + JukeboxGlobals.ServerBufferTime
+        delay = song.length + JukeboxGlobals.ServerBufferTime
         self.notify.debug('Starting song timer for song %s set to %s seconds' % (songId, delay))
         taskMgr.doMethodLater(delay, self.playNextSongTask, self.getTaskName())
 
