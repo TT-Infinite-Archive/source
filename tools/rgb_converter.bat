@@ -1,0 +1,2 @@
+python 255rgb_to_1rgb.py
+pause

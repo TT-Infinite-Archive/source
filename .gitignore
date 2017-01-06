@@ -1,0 +1,28 @@
+# Python artifacts:
+*.pyc
+
+# Eclipse IDE:
+.project
+.pydevproject
+
+# PyCharm IDE:
+.idea
+*.iml
+
+# Mac directory info:
+.DS_Store
+
+# Game-specific files and directories:
+preferences.json
+snippets.json
+logs/
+screenshots/
+backups/
+crashes/
+contentpacks/
+toondata/
+
+# Virtual environments:
+venv/
+astron/sp-database/
+astron/mp-database/
