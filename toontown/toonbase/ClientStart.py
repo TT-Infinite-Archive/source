@@ -40,8 +40,8 @@ if __debug__:
 
     try:
         import wx
-    except:
-        notify.warning('Failed to start injector - wx module missing!')
+    except ImportError as e:
+        notify.warning('Failed to start injector -- %s' % e.message)
     else:
         from otp.otpbase.OTPInjectorDev import Injector
 
