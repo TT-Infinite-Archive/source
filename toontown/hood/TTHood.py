@@ -37,6 +37,7 @@ class TTHood(ToonHood):
         for butterfly in self.butterflies:
             butterfly.cleanup()
         del self.butterflies[:]
+        ToonHood.unload(self)
 
     def createButterflies(self):
         playground = ButterflyGlobals.TTC
