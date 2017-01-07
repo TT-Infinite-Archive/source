@@ -27,8 +27,28 @@ class TTPlayground(Playground.Playground):
         Playground.Playground.enter(self, requestStatus)
         taskMgr.doMethodLater(1, self.__birds, 'TT-birds')
 
+        if not base.wantTrolleyTTC:
+            self.loadTrolleyConstruction()
+
         if base.cr.newsManager.isStormEnabled():
             self.loadStormProps()
+
+    def loadTrolleyConstruction(self):
+        self.constructionSign = loader.loadModel('phase_4/models/props/construction_sign.bam')
+        self.constructionSign.setPosHpr(-131.5, -66.776, 0.545, 127, 0, 0)
+        self.constructionSign.reparentTo(render)
+
+        self.cone = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
+        self.cone.setPosHpr(-136, -66, 0.545, 20, 0, 0)
+        self.cone.reparentTo(render)
+
+        self.cone2 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
+        self.cone2.setPosHpr(-143, -84, 0.545, 100, 0, 0)
+        self.cone2.reparentTo(render)
+
+        self.cone3 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
+        self.cone3.setPosHpr(-156, -71, 0.545, 150, 0, 0)
+        self.cone3.reparentTo(render)
 
     def loadStormProps(self):
         # Storm: No birds.
@@ -273,6 +293,19 @@ class TTPlayground(Playground.Playground):
         self.cutsceneSphere.node().addSolid(cs)
         self.cutsceneSphere.hide()
 
+    def unloadTrolleyConstruction(self):
+        self.constructionSign.removeNode()
+        del self.constructionSign
+
+        self.cone.removeNode()
+        del self.cone
+
+        self.cone2.removeNode()
+        del self.cone2
+
+        self.cone3.removeNode()
+        del self.cone3
+
     def unloadStormProps(self):
         self.documents.removeNode()
         del self.documents
@@ -348,6 +381,9 @@ class TTPlayground(Playground.Playground):
 
     def exit(self):
         taskMgr.remove('TT-birds')
+
+        if not base.wantTrolleyTTC:
+            self.unloadTrolleyConstruction()
 
         if base.cr.newsManager.isStormEnabled():
             self.unloadStormProps()
