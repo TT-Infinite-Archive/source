@@ -33,10 +33,6 @@ class TTTownLoader(TownLoader.TownLoader):
         TownLoader.TownLoader.unload(self)
         Suit.unloadSuits(1)
 
-        if hasattr(self, 'profMoochtopher'):
-            self.moochPreSpeech.pause()
-            self.profMoochtopher.delete()
-
     def enter(self, requestStatus):
         TownLoader.TownLoader.enter(self, requestStatus)
 

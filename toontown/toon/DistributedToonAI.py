@@ -3829,11 +3829,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if paidStatus == 'unpaid':
             access = 1
         if access == OTPGlobals.AccessInvalid:
-            if not __dev__:
-                self.air.writeServerEvent('Setting Access', self.doId, 'setAccess not being sent by the OTP Server, changing access to unpaid')
-                access = OTPGlobals.AccessVelvetRope
-            elif __dev__:
-                access = OTPGlobals.AccessFull
+            self.air.writeServerEvent('Setting Access', self.doId, 'setAccess not being sent by the OTP Server, changing access to paid')
+            access = OTPGlobals.AccessFull
         self.setGameAccess(access)
 
     def setGameAccess(self, access):

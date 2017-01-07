@@ -79,7 +79,7 @@ JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
 lDaisyGardens = 'The Gardens'
-lDonaldsDock = "The Docks"
+lDonaldsDock = "The Harbor"
 lDonaldsDreamland = "Dreamland"
 lMinniesMelodyland = "Melodyland"
 lToontownCentral = 'Toontown Central'
@@ -707,7 +707,7 @@ QuestDialogDict = {160: {GREETING: '',
         LEAVING: '',
         COMPLETE: "Adding machines all fixed up?\x07Nice work.  I'm sure I've got something around here to reward you with..."},
  1054: {QUEST: '_toNpcName_ needs some help with his clown cars._where_'},
- 1055: {QUEST: "Yowza!  I can't find the tires to this here clown car anywhere!\x07Do ya think you could help me out?\x07I think Loopy Bob may have tossed them in the pond in the " + lToontownCentral + ' neighborhood.\x07If you stand on one of the docks there you can try and fish out the tires for me.',
+ 1055: {QUEST: "Yowza!  I can't find the tires to this here clown car anywhere!\x07Do ya think you could help me out?\x07I think Loopy Bob may have tossed them in the pond in the " + lToontownCentral + ' neighborhood.\x07If you stand on one of The Harbor there you can try and fish out the tires for me.',
         GREETING: 'Woohoo!',
         LEAVING: '',
         INCOMPLETE_PROGRESS: 'Are you having trouble fishing out all 4 tires?'},
@@ -1003,7 +1003,7 @@ QuestDialogDict = {160: {GREETING: '',
  2420: {QUEST: "Thank you!\x07Now I can send out this order.\x07Take down a building on this street to prevent the Cogs from doing this again and I'll get you your reward.",
         LEAVING: '',
         GREETING: ''},
- 2422: {QUEST: "I need help rebuilding my ship as my current one has sunken off the coast of The Docks from the Cogs!\x07How am I here?\x07Well I didn't say I was on it!\x07Go see Heave Ho.",
+ 2422: {QUEST: "I need help rebuilding my ship as my current one has sunken off the coast of The Harbor from the Cogs!\x07How am I here?\x07Well I didn't say I was on it!\x07Go see Heave Ho.",
         LEAVING: ''},
  2423: {QUEST: "A couple of tough looking Cogs have taken my oars!\x07If you Find them you can take them to Brian.",
         LEAVING: '',
@@ -3861,7 +3861,7 @@ SuperGoofyChatter = (['Welcome to my Super Speedway!',
   "It's fun to dress up for Halloween!",
   'I hope you are enjoying our Halloween fun!'], ['Gotta fly!',
   'Hi-Ho and away I go!',
-  "Should I fly or drive to The Docks?",
+  "Should I fly or drive to The Harbor?",
   'Gawrsh, have a Happy Halloween!'])
 DonaldChatter = (['Welcome to Dreamland.', "Hi, my name is %s. What's yours?" % Donald], ['Sometimes this place gives me the creeps.',
   'Be sure and try the maze in ' + lDaisyGardens + '.',
@@ -4644,7 +4644,7 @@ MusicGzPlaygolf = "Let's Play Golf!"
 MusicMmNbrhood = "Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
-MusicDdNbrhood = "The Docks"
+MusicDdNbrhood = "The Harbor"
 MusicDdSz = 'Waddling Way'
 MusicDdSzActivity = 'Sea Shanty'
 MusicThemeSong = "Toontown Infinite Theme"
@@ -4701,7 +4701,7 @@ MusicPartyWaltzDance = 'Party Waltz'
 MusicPartyGenericThemeJazzy = 'Party Jazz'
 MusicPartyGenericTheme = 'Party Jingle'
 MusicTcEncounter = 'Toontown Central Battle'
-MusicDdEncounter = 'Encounter at The Docks'
+MusicDdEncounter = 'Encounter at The Harbor'
 MusicDgEncounter = 'Encounter in The Gardens'
 MusicMmEncounter = 'Melodyland Encounter'
 MusicTbEncounter = 'Encounter in The Brrrgh'
@@ -10388,7 +10388,7 @@ achievementInfo = {
     5: ('Grand Goodbye',
         'Complete Toontown Central'),
     6: ('Bon Voyage!',
-        "Complete The Docks"),
+        "Complete The Harbor"),
     7: ('Blooming',
         'Complete The Gardens'),
     8: ('Warming symphonies',

@@ -15,8 +15,16 @@ class ChatAgentUD(DistributedObjectGlobalUD):
     def announceGenerate(self):
         DistributedObjectGlobalUD.announceGenerate(self)
 
-        self.whiteList = TTWhiteList()
-        self.sequenceList = TTSequenceList()        
+        self.wantWhiteList = config.GetBool('want-whitelist', True)
+        self.wantBlackList = config.GetBool('want-blacklist', True)
+
+        self.whiteList = None
+        if self.wantWhiteList:
+            self.whiteList = TTWhiteList()
+
+        self.sequenceList = None
+        if self.wantBlackList:
+            self.sequenceList = TTSequenceList()
 
         self.mutedDict = {}
 
@@ -37,10 +45,8 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         modifications = []
         words = message.split(' ')
         offset = 0
-        WantWhitelist = config.GetBool('want-whitelist', 1)
-        WantSequenceList = config.GetBool('want-blacklist', 1)
         for word in words:
-            if word and not self.whiteList.isWord(word) and WantWhitelist:
+            if self.wantWhiteList and word and not self.whiteList.isWord(word):
                 modifications.append((offset, offset + len(word) - 1))
             offset += len(word) + 1
 
@@ -48,7 +54,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         for modStart, modStop in modifications:
             cleanMessage = cleanMessage[:modStart] + '*'*(modStop-modStart+1) + cleanMessage[modStop+1:]
 
-        if WantSequenceList:
+        if self.wantBlackList:
             modifications += self.cleanSequences(cleanMessage)
 
         self.air.writeServerEvent('chat-said', sender, message, cleanMessage)
