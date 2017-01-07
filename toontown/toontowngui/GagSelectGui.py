@@ -5,8 +5,8 @@ from direct.gui.DirectFrame import DirectFrame
 
 from toontown.data import Gag, Track
 from toontown.toon.ClerkGagInventoryGui import ClerkGagInventoryGui
-from toontown.toonbase import ToontownGlobals, ColorGlobals
-from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame
+from toontown.toonbase import ToontownGlobals, ColorGlobals, EventGlobals
+from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame, TTTooltip
 from toontown.shtiker.InventoryPage import GagInfoFrame
 from toontown.util.PlacerTool3D import PlacerTool3D
 from toontown.util.ThreadedCall import ThreadedCall
@@ -50,29 +50,44 @@ class GagSelectGui(DirectFrame):
         )
         self.gagButtons = []
         self.gagInfoFrame = GagSelectInfoFrame(self, pos=(1, 0.0, 0.45), geom_scale=(1, 1.0, 0.6))
-        PlacerTool3D(self.gagInfoFrame, increment=0.01)
         self.gagThread = ThreadedCall(func=self.loadGags, args=[0, self.__handleGagsLoaded])
         self.gagThread.start()
+
+        self.accept(EventGlobals.GagSlotClick, self.__handleSlotSelected)
+        self.accept(EventGlobals.GagSlotEnter, self.__handleSlotEnter)
+        self.accept(EventGlobals.GagSlotExit, self.__handleSlotExit)
+        self.tt = None
 
     def destroy(self):
         if self.gagThread:
             self.gagThread.join()
             self.gagThread = None
+        if self.tt:
+            self.tt.destroy()
+            self.tt = None
         del self.gagButtons[:]
         DirectFrame.destroy(self)
 
     def __handleFilterSelected(self, filterIdx):
-        print('Selected: %s' % self.filters[filterIdx])
         self.gagThread = ThreadedCall(func=self.loadGags, args=[filterIdx, self.__handleGagsLoaded])
         self.gagThread.start()
 
-    def __handleGagSelected(self, gag):
-        print('Selected: %s' % gag)
+    def __handleSlotSelected(self, slot):
         pass
+
+    def __handleSlotEnter(self, slot):
+        if self.tt:
+            self.tt.destroy()
+        self.tt = TTTooltip(description='Click to un-equip')
+
+    def __handleSlotExit(self, slot):
+        if self.tt:
+            self.tt.destroy()
+            self.tt = None
 
     def __handleGagsLoaded(self, amount):
         if amount == 0:
-            self.status['text'] = '???'
+            self.status['text'] = 'No Gags in this category!'
         else:
             self.status['text'] = ''
             for gb in self.gagButtons:
@@ -134,6 +149,7 @@ class GagSelectGui(DirectFrame):
                         extraArgs=[gag]
                     )
                     gbi.bind(DGG.WITHIN, self.__handleEnterGag, extraArgs=[gag])
+                    gbi.bind(DGG.WITHOUT, self.__handleExitGag, extraArgs=[gag])
                 gb.hide()
                 self.gagButtons.append(gb)
         if callback:
@@ -141,6 +157,17 @@ class GagSelectGui(DirectFrame):
 
     def __handleEnterGag(self, gag, e=None):
         self.gagInfoFrame.setGag(gag)
+        if self.tt:
+            self.tt.destroy()
+        self.tt = TTTooltip(description='Click to Equip')
+
+    def __handleExitGag(self, gag, e=None):
+        if self.tt:
+            self.tt.destroy()
+            self.tt = None
+
+    def __handleGagSelected(self, gag):
+        pass
 
 
 class GagSelectInfoFrame(GagInfoFrame):

@@ -69,7 +69,8 @@ class DistributedNPCClerk(DistributedNPCToonBase):
                 pass
                 # self.ignore(self.purchaseDoneEvent)
             if self.purchase:
-                self.__handlePurchaseDone()
+                self.purchase.destroy()
+                self.purchase = None
             self.setChatAbsolute(TTLocalizer.STOREOWNER_TOOKTOOLONG, CFSpeech | CFTimeout)
             self.resetClerk()
         elif mode == NPCToons.PURCHASE_MOVIE_START:
@@ -99,20 +100,14 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)
-        self.acceptOnce(EventGlobals.PURCHASE_DONE, self.__handlePurchaseDone)
-        self.accept(EventGlobals.BOUGHT_GAG, self.__handleBoughtGag)
         self.purchase = GagSelectGui(base.localAvatar, self.timeout)
         return Task.done
 
-    def __handleBoughtGag(self):
-        self.d_setInventory(base.localAvatar.inventory.makeNetString(), base.localAvatar.getMoney(), 0)
+    def __handleUnequipSlot(self, slot):
+        pass
 
-    def __handlePurchaseDone(self):
-        self.ignore(EventGlobals.BOUGHT_GAG)
-        self.d_setInventory(base.localAvatar.inventory.makeNetString(), base.localAvatar.getMoney(), 1)
-        if self.purchase:
-            self.purchase.destroy()
-            self.purchase = None
+    def __handleEquipGag(self, gag):
+        pass
 
     def d_setInventory(self, invString, money, done):
         self.sendUpdate('setInventory', [invString, money, done])

@@ -159,12 +159,12 @@ class TownBattle(StateData.StateData):
     def enterAttack(self):
         self.notify.debug('Enter Attack')
         messenger.send(EventGlobals.SHOW_BATTLE_INVENTORY)
-        self.accept(EventGlobals.GagInventorySelection, self.__handleGagSelected)
+        self.accept(EventGlobals.GagSlotClick, self.__handleGagSelected)
 
     def exitAttack(self):
         self.notify.debug('Exit Attack')
         messenger.send(EventGlobals.HIDE_BATTLE_INVENTORY)
-        self.ignore(EventGlobals.GagInventorySelection)
+        self.ignore(EventGlobals.GagSlotClick)
 
     def __handleGagSelected(self, slotIndex):
         gag = base.localAvatar.inventory.getGagAtSlot(slotIndex)
