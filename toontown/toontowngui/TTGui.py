@@ -9,3 +9,4 @@ from TTSlider import *
 from TTArrow import *
 from TTArrowSelectorGroup import *
 from TTSeperator import *
+from TTTooltip import *
