@@ -5,10 +5,6 @@ distribution live
 server-version SERVER_VERSION
 accountdb-type developer
 
-# Temporary configuration for SP Alpha
-# until we get our web account API up and running
-access-level-clamp 100 100
-
 # MongoDB:
 mongodb-url mongodb://localhost/game
 

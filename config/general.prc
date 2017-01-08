@@ -1,5 +1,5 @@
 # Window settings:
-window-title Toontown Infinite
+window-title Toontown Infinite Classic
 win-origin -1 -1
 icon-filename phase_3/etc/icon.ico
 cursor-filename phase_3/etc/toonmono.cur
@@ -78,8 +78,8 @@ want-golf-zone #t
 want-resistance-grounds #f
 
 # Safe zone settings:
-want-treasure-planners #f
-want-suit-planners #f
+want-treasure-planners #t
+want-suit-planners #t
 
 # Classic characters:
 want-classic-chars #f
@@ -96,13 +96,13 @@ want-goofy #f
 want-minigames #t
 want-photo-game #f
 want-travel-game #f
-want-ttc-trolley #f
+want-ttc-trolley #t
 
 # Picnic table board games:
 want-game-tables #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 want-sellbot-headquarters #t
 want-cashbot-headquarters #t
 want-lawbot-headquarters #t

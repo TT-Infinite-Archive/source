@@ -49,26 +49,26 @@ dc-file astron/dclass/otp.dc
 # Core features:
 want-kaldron-network #f
 want-multiplayer #t
-want-pets #f
-want-parties #f
+want-pets #t
+want-parties #t
 want-achievements #f
 want-grouptracker #f
 
 # Safe zones:
 want-safe-zones #t
 want-toontown-central #t
-want-donalds-dock #f
-want-daisys-garden #f
-want-minnies-melodyland #f
-want-the-burrrgh #f
-want-donalds-dreamland #f
-want-goofy-speedway #f
-want-outdoor-zone #f
-want-golf-zone #f
+want-donalds-dock #t
+want-daisys-garden #t
+want-minnies-melodyland #t
+want-the-burrrgh #t
+want-donalds-dreamland #t
+want-goofy-speedway #t
+want-outdoor-zone #t
+want-golf-zone #t
 want-resistance-grounds #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 
 # Cashbot boss:
 want-resistance-toonup #t
@@ -76,7 +76,7 @@ want-resistance-restock #t
 want-resistance-dance #t
 
 # Trolley minigames:
-want-ttc-trolley #f
+want-ttc-trolley #t
 want-photo-game #f
 want-travel-game #f
 
@@ -99,7 +99,7 @@ want-leak-graph-ai #f
 want-leak-graph-client #f
 
 # Safezone interactables:
-want-ttc-jukebox #t
+want-ttc-jukebox #f
 
 # Mod tools:
 want-mods #f
