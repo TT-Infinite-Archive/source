@@ -22,6 +22,9 @@ class GagLoadout(DirectObject):
     def isEmpty(self):
         return len(self._loadout) == 0
 
+    def isEquipped(self, gag):
+        return gag in self._loadout
+
     def setLoadout(self, loadout):
         self.notify.debug('Setting new loadout: %s' % loadout)
         # Convert the loadout of gag ids to gag objects

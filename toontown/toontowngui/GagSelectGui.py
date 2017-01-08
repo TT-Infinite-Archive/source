@@ -64,6 +64,7 @@ class GagSelectGui(DirectFrame):
         self.gagThread.start()
         self.accept(EventGlobals.GagSlotClick, self.__handleSlotSelected)
         self.accept(EventGlobals.GagSlotEnter, self.__handleSlotEnter)
+        self.accept(EventGlobals.GAG_SELECT_GAG_ENTER, self.__handleGagEnter)
         self.accept(EventGlobals.GagSlotExit, self.__handleSlotExit)
         self.tt = None
 
@@ -91,6 +92,7 @@ class GagSelectGui(DirectFrame):
         if self.tt:
             self.tt.destroy()
         self.tt = TTTooltip(description=TTLocalizer.GagSelectClickToUnEquip)
+        self.gagInfoFrame.setGag(base.localAvatar.loadout.getGagAtSlot(slot))
 
     def __handleSlotExit(self, slot):
         if self.tt:
@@ -98,12 +100,16 @@ class GagSelectGui(DirectFrame):
             self.tt = None
 
     def __handleGagsLoaded(self, amount):
+        self.notify.debug('Done loading %d gags.' % amount)
         if amount == 0:
             self.status['text'] = TTLocalizer.GagSelectNoGags
         else:
             self.status['text'] = ''
             for gb in self.gagButtons:
                 gb.show()
+
+    def __handleGagEnter(self, gag):
+        self.gagInfoFrame.setGag(gag)
 
     def cleanupGagIcons(self):
         for gb in self.gagButtons:
@@ -133,53 +139,18 @@ class GagSelectGui(DirectFrame):
                 x = self.X_START + i * self.X_SEP
                 z = self.Z_START - n * self.Z_SEP
                 gag = gags[idx]
-                text = ''
-                state = DGG.NORMAL
-                if not base.localAvatar.inventory.gagUnlocked(gag.uid):
-                    text = '?'
+                if not base.localAvatar.inventory.gagUnlocked(gag):
                     gag = None
-                    state = DGG.DISABLED
 
-                gb = DirectButton(
+                gb = GagSelectGagButton(
                     parent=self.mainFrame,
-                    relief=None,
-                    pos=(x, 0, z),
-                    text=text,
-                    text_scale=0.12,
-                    text_font=ToontownGlobals.getFancyFont(),
-                    text_pos=(0.0, -0.045, 0.0)
+                    gag=gag,
+                    pos=(x, 0, z)
                 )
-                if gag is not None:
-                    glow = gag.glow
-                    glow.reparentTo(gb)
-                    gbi = DirectButton(
-                        parent=gb,
-                        relief=None,
-                        image=gag.icon,
-                        state=state,
-                        command=self.__handleGagSelected,
-                        extraArgs=[gag]
-                    )
-                    gbi.bind(DGG.WITHIN, self.__handleEnterGag, extraArgs=[gag])
-                    gbi.bind(DGG.WITHOUT, self.__handleExitGag, extraArgs=[gag])
                 gb.hide()
                 self.gagButtons.append(gb)
         if callback:
             callback(len(gags))
-
-    def __handleEnterGag(self, gag, e=None):
-        self.gagInfoFrame.setGag(gag)
-        if self.tt:
-            self.tt.destroy()
-        self.tt = TTTooltip(description=TTLocalizer.GagSelectClickToEquip)
-
-    def __handleExitGag(self, gag, e=None):
-        if self.tt:
-            self.tt.destroy()
-            self.tt = None
-
-    def __handleGagSelected(self, gag):
-        messenger.send(EventGlobals.EQUIP_GAG)
 
 
 class GagSelectInfoFrame(GagInfoFrame):
@@ -205,3 +176,95 @@ class GagSelectInfoFrame(GagInfoFrame):
 
     def setStatus(self, status):
         self.status['text'] = status
+
+
+class GagSelectGagButton(DirectButton):
+    def __init__(self, parent=aspect2d, gag=None, **kw):
+        self.gag = gag
+        self.tt = None
+        self.equipped = False
+        self.unlocked = False
+        if gag is None:
+            text = '?'
+        else:
+            text = ''
+        optiondefs = (
+            ('relief', None, None),
+        )
+
+        self.defineoptions(kw, optiondefs)
+        DirectButton.__init__(self, parent)
+        self.initialiseoptions(GagSelectGagButton)
+        self['text'] = text
+        self['text_pos'] = (0.0, -0.035, 0.0)
+        self['text_font'] = ToontownGlobals.getFancyFont()
+        self['text_scale'] = 0.12
+        self.gbi = None
+
+        self.eLabel = TTLabel(
+            parent=self,
+            text='E',
+            pos=(-0.1, 0.0, 0.05)
+        )
+        if gag:
+            glow = gag.glow
+            glow.reparentTo(self)
+
+        self.gbi = DirectButton(
+            parent=self,
+            relief=None,
+            image=None if gag is None else gag.icon,
+            state=(DGG.NORMAL if gag is not None else DGG.DISABLED),
+            command=self.__handleGagSelected
+        )
+        self.gbi.bind(DGG.WITHIN, self.__handleEnterGag, extraArgs=[gag])
+        self.gbi.bind(DGG.WITHOUT, self.__handleExitGag, extraArgs=[gag])
+        self.setEquipped(base.localAvatar.loadout.isEquipped(self.gag))
+        self.setUnlocked(base.localAvatar.inventory.gagUnlocked(self.gag))
+        self.accept(EventGlobals.LoadoutChanged, self.__handleLoadoutChanged)
+        self.accept(EventGlobals.InventoryChanged, self.__handleInventoryChanged)
+
+    def setEquipped(self, flag):
+        self.equipped = flag
+        if flag:
+            self.eLabel.show()
+            if self.tt:
+                self.tt.description['text'] = TTLocalizer.GagSelectEquipped
+        else:
+            if self.tt:
+                self.tt.description['text'] = TTLocalizer.GagSelectClickToEquip
+            self.eLabel.hide()
+
+    def setUnlocked(self, flag):
+        self.unlocked = flag
+        if flag:
+            self.gbi.show()
+        else:
+            self.gbi.hide()
+
+    def __handleLoadoutChanged(self):
+        if base.localAvatar.loadout.isEquipped(self.gag):
+            pass
+
+    def __handleInventoryChanged(self):
+        pass
+
+    def __handleGagSelected(self):
+        messenger.send(EventGlobals.EQUIP_GAG, [self.gag])
+
+    def __handleEnterGag(self, gag, e=None):
+        messenger.send(EventGlobals.GAG_SELECT_GAG_ENTER, [self.gag])
+        if self.tt:
+            self.tt.destroy()
+        if self.equipped:
+            description = TTLocalizer.GagSelectEquipped
+        else:
+            description = TTLocalizer.GagSelectClickToEquip
+
+        self.tt = TTTooltip(description=description)
+
+    def __handleExitGag(self, gag, e=None):
+        messenger.send(EventGlobals.GAG_SELECT_GAG_EXIT, [self.gag])
+        if self.tt:
+            self.tt.destroy()
+            self.tt = None
