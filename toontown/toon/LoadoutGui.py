@@ -118,7 +118,6 @@ class GagInventorySlot(DirectButton):
     StateNormal = 1
 
     def __init__(self, parent, gagItem, index, pos=(0, 0, 0), color=(1, 1, 1, 1), clickCommand=None, enterCommand=None, exitCommand=None):
-        self.parent = parent
         self.gagItem = gagItem
         if self.gagItem is not None:
             self.gdObj = gagItem.displayObject
@@ -160,7 +159,6 @@ class GagInventorySlot(DirectButton):
         self.updateButtonState()
 
     def destroy(self):
-        self.parent = None
         if self.mainButton is not None:
             self.mainButton.destroy()
             self.mainButton = None
