@@ -43,7 +43,7 @@ class MainMenu(DirectObject, FSM):
         self.logo = OnscreenImage(
             parent=base.aspect2d,
             image='phase_3/maps/toontown_infinite_classic_logo.png',
-            scale=(0.80, 0.35, 0.45), pos=(0, 0, 0.38)
+            scale=(0.8, 0.35, 0.45), pos=(0, 0, 0.38)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
