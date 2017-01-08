@@ -105,6 +105,8 @@ notify-level-GagInventoryAI debug
 notify-level-GagInventory debug
 notify-level-GagLoadoutAI debug
 notify-level-GagLoadout debug
+notify-level-GagSelectGui debug
+notify-level-DistributedNPCClerk debug
 
 # Debug tools:
 want-leak-graph-ai #f
