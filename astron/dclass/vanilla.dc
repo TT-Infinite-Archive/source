@@ -2408,6 +2408,7 @@ dclass DistributedNPCScientist : DistributedNPCToonBase {
 
 dclass DistributedNPCClerk : DistributedNPCToonBase {
   setMovie(uint8, uint32, uint32, int16) broadcast ram;
+  avatarExit() clsend airecv;
   requestEquipGag(uint32 gagId) clsend airecv;
   requestUnEquipGag(uint32 gagId) clsend airecv;
 };

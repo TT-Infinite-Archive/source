@@ -29,6 +29,18 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
             self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
             self.sendStartMovie(avId)
 
+    def avatarExit(self):
+        avId = self.air.getAvatarIdFromSender()
+        av = self.air.doId2do.get(avId)
+        if av is None:
+            self.notify.warning('Toon %s tried to exit but not in air.' % avId)
+            return
+        if self.busy != avId:
+            self.notify.warning('Toon %s tried to exit but not interacting with.' % avId)
+            return
+        else:
+            self.sendDone(avId)
+
     def sendStartMovie(self, avId):
         self.busy = avId
         self.sendUpdate('setMovie', [

@@ -105,6 +105,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         return Task.done
 
     def __handlePurchaseDone(self):
+        self.d_avatarExit()
         self.ignore(EventGlobals.GagSelectGuiClose)
         self.resetClerk()
 
@@ -113,6 +114,9 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
     def __handleEquipGag(self, gag):
         pass
+
+    def d_avatarExit(self):
+        self.sendUpdate('avatarExit', [])
 
     def d_requestEquipGag(self, gagId):
         self.sendUpdate('requestEquipGag', [gagId])
