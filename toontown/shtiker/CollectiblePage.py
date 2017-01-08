@@ -125,7 +125,7 @@ class CategoryItemsDisplay(DirectFrame):
 
     def __init__(self, parent, cItems):
         DirectFrame.__init__(self, parent=parent)
-        self.parent = parent
+        self._parent = parent
         self.cItems = cItems
 
         self.items = []
@@ -157,7 +157,7 @@ class CategoryItemsDisplay(DirectFrame):
 
         # Main
         self.mainFrame = DirectFrame(
-            self.parent,
+            self._parent,
             relief=DGG.FLAT,
             scale=1.0,
             image_color=(1.0, 1.0, 1.0, 1.0),
@@ -433,7 +433,7 @@ class ItemDialog(DirectButton):
     StateEquipped = 3
 
     def __init__(self, parent, item, image, pos, color, command):
-        self.parent = parent
+        self._parent = parent
         self.item = item
         self.image = image
         self.pos = pos
@@ -469,7 +469,7 @@ class ItemDialog(DirectButton):
         self.updateButtonState()
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
         self.command = None
         if self.mainButton is not None:
             self.mainButton.destroy()
@@ -599,7 +599,7 @@ class CollectibleItemDialog(ItemDialog):
 
 class ItemTooltip(DirectFrame):
     def __init__(self, parent, item, pos, scale, color):
-        self.parent = parent
+        self._parent = parent
         self.item = item
         self.pos = pos
         self.scale = scale

@@ -42,9 +42,8 @@ want-web-api #f
 web-api-endpoint https://localhost:8000/api/
 web-api-token invalid
 
-# DClass files (in reverse order):
-dc-file astron/dclass/toon.dc
-dc-file astron/dclass/otp.dc
+# DC file:
+dc-file astron/dclass/vanilla.dc
 
 # Core features:
 want-kaldron-network #f
@@ -103,4 +102,3 @@ want-ttc-jukebox #t
 
 # Mod tools:
 want-mods #f
-

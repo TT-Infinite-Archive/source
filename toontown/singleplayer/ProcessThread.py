@@ -1,5 +1,12 @@
+import os
+import subprocess
+import threading
+import time
+
 from direct.directnotify import DirectNotifyGlobal
-import subprocess, threading, os
+
+from toontown.singleplayer.SinglePlayerGlobals import LogsPath
+
 
 class ProcessThread(threading.Thread):
     notify = DirectNotifyGlobal.directNotify.newCategory('ProcessThread')
@@ -32,9 +39,6 @@ class ProcessThread(threading.Thread):
             self.process.kill()
     
     def run(self):
-        from toontown.singleplayer.SinglePlayerGlobals import LogsPath
-        import time
-
         try:
             print('Creating log file....')
             name = self.name.split(' ', 1)[0].lower()
@@ -53,7 +57,7 @@ class ProcessThread(threading.Thread):
 
         while True:
             line = self.process.stdout.readline()
-            
+
             if line == '' and self.process.poll() is not None:
                 break
             if not line:

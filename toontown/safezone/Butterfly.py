@@ -1,12 +1,13 @@
+import random
+
 from direct.actor import Actor
-from direct.distributed.ClockDelta import PartBundle, HideInterval, ShowInterval
-from direct.interval.IntervalGlobal import *
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.fsm.FSM import FSM
+from direct.interval.IntervalGlobal import *
 from panda3d.core import NodePath, Vec4, Point3, LODNode, CollisionSphere, CollisionNode
+from panda3d.core import PartBundle
 
 from toontown.toonbase import ToontownGlobals
-import random
 
 
 class Butterfly(FSM):

@@ -1,9 +1,12 @@
+import atexit
+import fractions
 import os
 import random
-from sys import platform
+import shutil
 import sys
+import tempfile
 import time
-import fractions
+from sys import platform
 
 from direct.directnotify import DirectNotifyGlobal
 from direct.filter.CommonFilters import CommonFilters
@@ -11,21 +14,20 @@ from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 
-from toontown.toonbase import ToontownGlobals, SettingsGlobals
-from toontown.toonbase import ToontownLoader
-from toontown.toonbase.Preloader import Preloader
+from otp.ai.MagicWordGlobal import *
 from otp.otpbase import OTPBase
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLauncherGlobals
-from otp.ai.MagicWordGlobal import *
 from toontown.margins import MarginGlobals
 from toontown.margins.MarginManager import MarginManager
 from toontown.nametag import NametagGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownAccess
 from toontown.toonbase import ToontownBattleGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownLoader
+from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
-
 
 if config.GetBool('want-leak-graph', False):
     from toontown.debug.LeakGraph import LeakGraph
@@ -38,6 +40,10 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         self.cr = None
+
+        # Create a temporary directory:
+        self.tempDir = tempfile.mkdtemp()
+        atexit.register(shutil.rmtree, self.tempDir)
 
         # Get the native display info:
         self.nativeWidth = self.pipe.getDisplayWidth()
@@ -304,14 +310,14 @@ class ToonBase(OTPBase.OTPBase):
             if not found:
                 return  # Can't do anything past this point.
 
-            with open(os.path.join(tempdir, filename), 'wb') as f:
+            with open(os.path.join(self.tempDir, filename), 'wb') as f:
                 f.write(vfs.readFile(p3filename, False))
 
         wp = WindowProperties()
         wp.setCursorFilename(
-            Filename.fromOsSpecific(os.path.join(tempdir, 'toonmono.cur')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, 'toonmono.cur')))
         wp.setIconFilename(
-            Filename.fromOsSpecific(os.path.join(tempdir, 'icon.ico')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, 'icon.ico')))
         self.win.requestProperties(wp)
 
     def addCullBins(self):
@@ -502,7 +508,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='localhost', port=7000):
+    def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 

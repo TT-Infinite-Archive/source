@@ -1,12 +1,17 @@
+import atexit
+import copy
+import socket
+
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
-from toontown.chat.WhisperPopup import WhisperPopup
+
 from toontown.chat import ChatGlobals
-from toontown.toonbase import ToontownGlobals, TTLocalizer
-from toontown.singleplayer.SinglePlayerGlobals import *
-from toontown.singleplayer.ProcessThread import ProcessThread
+from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-import copy, atexit, socket, os
+from toontown.singleplayer.ProcessThread import ProcessThread
+from toontown.singleplayer.SinglePlayerGlobals import *
+from toontown.toonbase import ToontownGlobals
+
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
 
@@ -28,7 +33,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.logPort = 7021
             self.mongoPort = 7031
             self.mongoPath = 'data/singleplayer'
-            self.astronConfig = 'astrond.yml'
+            self.astronConfig = os.path.join(base.tempDir, 'singleplayer.yml')
         else:
             self.mdPort = 7010
             self.logPort = 7020
@@ -87,8 +92,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
                 self.demand('ServerRunning')
             else:
                 self.destroy()
-                base.connectToServer('localhost', self.getPort())
-            
+                base.connectToServer('127.0.0.1', self.getPort())
             return
 
         self.accept('processStarted', self.__processStarted)
@@ -106,7 +110,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('localhost', self.getPort())
+        base.connectToServer('127.0.0.1', self.getPort())
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]
@@ -132,7 +136,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             thread.processInfo.append(self.astronConfig)
         elif thread.processInfo[0].startswith('mongod'):
             thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
-        elif 'ServiceStart' in thread.processInfo[2]:
+        elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
 
         thread.start()
