@@ -8,6 +8,7 @@ class GagLoadoutAI(DirectObject):
     notify = directNotify.newCategory('GagLoadoutAI')
 
     def __init__(self):
+        self.notify.debug('Initializing...')
         DirectObject.__init__(self)
         self._loadout = []
 

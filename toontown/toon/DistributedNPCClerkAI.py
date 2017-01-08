@@ -89,7 +89,7 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
         if not av.inventory.gagUnlocked(gagId):
             self.notify.warning('AvId %d tried to equip a gag he didn\'t have unlocked!' % avId)
             return
-        if av.loadout.equipGag(gagId):
+        if not av.loadout.equipGag(gagId):
             self.notify.warning('Failed to equip gag %s for avId %d. Loadout is %s.' % (gagId, avId, av.loadout.toList()))
             return
         av.b_setLoadout(av.loadout.toList())
@@ -100,7 +100,7 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
         if av is None:
             self.notify.warning('Failed to un-equip gag on unknown av %s' % avId)
             return
-        if av.loadout.removeGag(gagId):
+        if not av.loadout.removeGag(gagId):
             self.notify.warning('Failed to un-equip gag %s for avId %d. Loadout is %s.' % (gagId, avId, av.loadout.toList()))
             return
         av.b_setLoadout(av.loadout.toList())
