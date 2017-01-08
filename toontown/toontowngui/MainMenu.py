@@ -14,6 +14,7 @@ from toontown.toonbase import TTLocalizer
 from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import LerpScaleInterval
 
+
 class MainMenu(DirectObject, FSM):
     notify = directNotify.newCategory('MainMenu')
 
@@ -32,7 +33,6 @@ class MainMenu(DirectObject, FSM):
 
         buttonScale = (-1.1, 1.1, 1.1)
         buttonScale2 = (-0.8, 0.8, 0.8)
-
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -65,9 +65,9 @@ class MainMenu(DirectObject, FSM):
             pos=(0, 0, -0.2),
             text="Single Player",
             wantArrows=False,
-            image_scale=buttonScale, 
+            image_scale=buttonScale,
             image2_scale=buttonScale,
-            image1_scale=buttonScale, 
+            image1_scale=buttonScale,
             text_scale=0.082,
             command=lambda: self.request('SinglePlayer')
         )
@@ -77,7 +77,7 @@ class MainMenu(DirectObject, FSM):
             pos=(0, 0, -0.5),
             text="Multiplayer",
             wantArrows=False,
-            image_scale=buttonScale, 
+            image_scale=buttonScale,
             image2_scale=buttonScale,
             image1_scale=buttonScale,
             text_scale=0.09,
@@ -144,7 +144,6 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon2.destroy()
             self.kaldronNetworkButton['state'] = DGG.NORMAL
             self.kaldronNetworkButton.setColorScale(CDefault)
-
 
         # Single Player Menu Buttons
         self.spLocalButton = MATShuffleButton(
@@ -222,7 +221,6 @@ class MainMenu(DirectObject, FSM):
         )
         self.mpButtons2.append(self.mpCPHost)
 
-
         # Multiplayer Menu Buttons: Join Menu
         self.mpCPConnect = MATShuffleButton(
             pos=(0, 0, -0.75),
@@ -235,35 +233,6 @@ class MainMenu(DirectObject, FSM):
             command=lambda: self.request('MultiplayerCPConnect')
         )
         self.mpButtons3.append(self.mpCPConnect)
-
-        # Load the image for the ip input bar
-        cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
-
-        # Load the ip input bar
-        self.ipInput = DirectEntry(
-            parent=self.background,
-            relief=DGG.GROOVE,
-            scale=0.08,
-            pos=(-0.33, 0, -0.50),
-            borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
-             state=DGG.NORMAL,
-             text_align=TextNode.ALeft,
-             text_scale=TTLocalizer.OPCodesInputTextScale,
-             width=10.5,
-             numLines=1,
-             focus=1,
-             backgroundFocus=0,
-             cursorKeys=1,
-             text_fg=(0,
-                      0,
-                      0,
-                      1),
-             suppressMouse=1,
-             autoCapitalize=0,
-             command=self.__submitIP)
 
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -279,7 +248,6 @@ class MainMenu(DirectObject, FSM):
             pos=(1.65, 0, -0.935), command=self.__handleQuit)
         self.quitButton.reparentTo(base.aspect2d)
         self.buttons.append(self.quitButton)
-
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -345,10 +313,9 @@ class MainMenu(DirectObject, FSM):
         if not base.wantKaldronNetwork:
             self.lockIcon2.show()
         for button in self.buttons:
-          button.show()
+            button.show()
 
         self.logo.show()
-        self.ipInput.hide()
 
     def exitIdle(self):
         self.background.hide()
@@ -401,12 +368,13 @@ class MainMenu(DirectObject, FSM):
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
         OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open...'
-        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs on the Toontown Infinite Discord channel in the #bug-reports text channel.'
+        OTPLocalizer.SpeedChatStaticText[
+            30512] = 'I can report bugs on the Toontown Infinite Discord channel in the #bug-reports text channel.'
         self.__startSinglePlayer(True)
-    
+
     def enterMultiplayerCPHost(self):
         self.__startSinglePlayer(False)
-    
+
     def __startSinglePlayer(self, singlePlayer):
         self.hide()
         self.background.show()
@@ -468,6 +436,36 @@ class MainMenu(DirectObject, FSM):
         self.background.show()
         self.backButton3.show()
         self.quitButton.show()
+
+        # Load the image for the ip input bar for Multiplayer
+        cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
+
+        # Load the ip input bar
+        self.ipInput = DirectEntry(
+            parent=aspect2d,
+            relief=DGG.GROOVE,
+            scale=0.1,
+            pos=(-0.44, 0, -0.50),
+            borderWidth=(0.05, 0.05),
+            frameColor=((1, 1, 1, 1),
+                        (1, 1, 1, 1),
+                        (0.5, 0.5, 0.5, 0.5)),
+            state=DGG.NORMAL,
+            text_align=TextNode.ALeft,
+            text_scale=TTLocalizer.OPCodesInputTextScale,
+            width=10.5,
+            numLines=1,
+            focus=1,
+            backgroundFocus=0,
+            cursorKeys=1,
+            text_fg=(0,
+                     0,
+                     0,
+                     1),
+            suppressMouse=1,
+            autoCapitalize=0,
+            command=self.__submitIP)
+
         self.ipInput.show()
         self.__enableIPEntry()
         self.ipInput.enterText('')
