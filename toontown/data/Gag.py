@@ -101,30 +101,6 @@ class Gag(DirectObject):
         else:
             return 0
 
-
-class GagItemSlot:
-    def __init__(self, gagId, amount, equipped):
-        self.gag = Gags.get(gagId, None)
-        self.amount = amount
-        self.equipped = equipped
-
-    def addOne(self):
-        self.amount += 1
-
-    def useOne(self):
-        self.amount = max(0, self.amount - 1)
-
-    def setAmount(self, amount):
-        self.amount = amount
-
-    def toList(self):
-        return self.gag.toList() + [self.amount, self.equipped]
-
-    def fromList(self, ls):
-        self.gag = Gags.get(ls[0], None)
-        self.amount = ls[1]
-        self.equipped = ls[2]
-
 NO_ATTACK = 0
 PASS = 99
 

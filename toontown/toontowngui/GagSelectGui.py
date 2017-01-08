@@ -5,7 +5,7 @@ from direct.gui.DirectFrame import DirectFrame
 
 from toontown.data import Gag, Track
 from toontown.toon.ClerkGagInventoryGui import ClerkGagInventoryGui
-from toontown.toonbase import ToontownGlobals, ColorGlobals, EventGlobals
+from toontown.toonbase import ToontownGlobals, ColorGlobals, EventGlobals, TTLocalizer
 from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame, TTTooltip
 from toontown.shtiker.InventoryPage import GagInfoFrame
 from toontown.util.PlacerTool3D import PlacerTool3D
@@ -21,7 +21,7 @@ class GagSelectGui(DirectFrame):
     Z_SEP = 0.215
     Z_START = 0.05
 
-    def __init__(self, toon, timeout, pos=(0.0, 0.0, 0.0)):
+    def __init__(self, timeout, pos=(0.0, 0.0, 0.0)):
         self.notify.debug('Loading...')
         self.gagThread = None
         DirectFrame.__init__(self, parent=aspect2d, relief=None, pos=pos)
@@ -78,7 +78,7 @@ class GagSelectGui(DirectFrame):
     def __handleSlotEnter(self, slot):
         if self.tt:
             self.tt.destroy()
-        self.tt = TTTooltip(description='Click to un-equip')
+        self.tt = TTTooltip(description=TTLocalizer.GagSelectClickToUnEquip)
 
     def __handleSlotExit(self, slot):
         if self.tt:
@@ -87,7 +87,7 @@ class GagSelectGui(DirectFrame):
 
     def __handleGagsLoaded(self, amount):
         if amount == 0:
-            self.status['text'] = 'No Gags in this category!'
+            self.status['text'] = TTLocalizer.GagSelectNoGags
         else:
             self.status['text'] = ''
             for gb in self.gagButtons:
@@ -99,7 +99,7 @@ class GagSelectGui(DirectFrame):
         del self.gagButtons[:]
 
     def loadGags(self, filterIdx=0, callback=None):
-        self.status['text'] = 'Loading...'
+        self.status['text'] = TTLocalizer.lLoading
         self.cleanupGagIcons()
         gags = [gag for gag in Gag.Gags.values() if gag.uid not in Gag.AlwaysEquipped]
         if filterIdx != 0:
@@ -159,7 +159,7 @@ class GagSelectGui(DirectFrame):
         self.gagInfoFrame.setGag(gag)
         if self.tt:
             self.tt.destroy()
-        self.tt = TTTooltip(description='Click to Equip')
+        self.tt = TTTooltip(description=TTLocalizer.GagSelectClickToEquip)
 
     def __handleExitGag(self, gag, e=None):
         if self.tt:
@@ -167,7 +167,9 @@ class GagSelectGui(DirectFrame):
             self.tt = None
 
     def __handleGagSelected(self, gag):
-        pass
+        if base.localAvatar.inventory.isFull():
+            pass
+        messenger.send(EventGlobals.EQUIP_GAG)
 
 
 class GagSelectInfoFrame(GagInfoFrame):
@@ -176,7 +178,7 @@ class GagSelectInfoFrame(GagInfoFrame):
         self.gagTitle.setPos(0, 0, 0.2)
         self.gagDescription.setPos(-0.12, 0.0, 0.06)
         self.gagIcon.setPos(-0.29, 0, 0.04)
-        self.status = TTLabel(self.mainFrame, text='Hover over a gag to view information about it!', pos=(0, 0, 0.05))
+        self.status = TTLabel(self.mainFrame, text=TTLocalizer.GagSelectNoGagInfo, pos=(0, 0, 0.05))
         self.show()
 
     def setGag(self, gag):
@@ -189,7 +191,7 @@ class GagSelectInfoFrame(GagInfoFrame):
         self.setTitle('')
         self.setDescription('')
         self.setIcon(None)
-        self.setStatus('Hover over a gag to view information about it!')
+        self.setStatus(TTLocalizer.GagSelectNoGagInfo)
 
     def setStatus(self, status):
         self.status['text'] = status

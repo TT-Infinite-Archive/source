@@ -30,15 +30,15 @@ class GagInventoryGui(DirectFrame):
         self.gagSlots = []
         self.toon = toon
         self.loadEquippedGags()
-        self.accept(EventGlobals.GagsChanged, self.loadEquippedGags)
+        self.accept(EventGlobals.InventoryChanged, self.loadEquippedGags)
 
     def loadEquippedGags(self):
         self.notify.debug('Loading Equipped Gags...')
         self.unloadEquippedGags()
-        eqItems = self.toon.inventory.equippedItems
+        loadout = self.toon.loadout.getLoadout()
         for index in xrange(0, self.MaxSlots):
-            if index < len(eqItems):
-                gagSlot = eqItems[index]
+            if index < len(loadout):
+                gagSlot = loadout[index]
                 gagObj = gagSlot.gag
             else:
                 gagObj = None
@@ -62,7 +62,7 @@ class GagInventoryGui(DirectFrame):
     def destroy(self):
         self.notify.debug('Destroying...')
         self.unloadEquippedGags()
-        self.ignore(EventGlobals.GagsChanged)
+        self.ignore(EventGlobals.InventoryChanged)
         DirectFrame.destroy(self)
 
     def __handleSelection(self, slotIndex):

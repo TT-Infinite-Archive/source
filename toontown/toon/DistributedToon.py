@@ -1,21 +1,13 @@
-import copy
-from direct.controls.GravityWalker import GravityWalker
-from direct.directnotify import DirectNotifyGlobal
-from direct.distributed import DistributedObject
-from direct.distributed import DistributedSmoothNode
-from direct.distributed.ClockDelta import *
-from direct.distributed.MsgTypes import *
-from direct.fsm import ClassicFSM
-from direct.interval.IntervalGlobal import Sequence, Wait, Func, Parallel, SoundInterval
-from direct.showbase import PythonUtil
-from direct.task.Task import Task
 import operator
-from pandac.PandaModules import *
 import random
 import time
 
+from direct.distributed import DistributedObject
+from direct.distributed import DistributedSmoothNode
+from direct.distributed.ClockDelta import *
+from direct.task.Task import Task
+
 import Experience
-from toontown.toon.GagInventory import GagInventory
 import TTEmote
 import Toon
 from otp.ai.MagicWordGlobal import *
@@ -31,7 +23,6 @@ from toontown.catalog import CatalogItemList
 from toontown.chat import ResistanceChat
 from toontown.chat import ToonChatGarbler
 from toontown.chat.ChatGlobals import *
-from toontown.chat.WhisperPopup import *
 from toontown.coghq import CogDisguiseGlobals
 from toontown.collectibles import Stats, CollectibleInventory, CollectibleInventoryGlobals, CollectibleGlobals
 from toontown.distributed import DelayDelete
@@ -40,15 +31,15 @@ from toontown.effects.ScavengerHuntEffects import *
 from toontown.estate import DistributedGagTree
 from toontown.estate import FlowerBasket
 from toontown.estate import FlowerCollection
-from toontown.estate import GardenDropGame
 from toontown.estate import GardenGlobals
 from toontown.fishing import FishCollection
 from toontown.fishing import FishTank
 from toontown.friends import FriendHandle
 from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
+from toontown.inventory.GagInventory import GagInventory
+from toontown.inventory.GagLoadout import GagLoadout
 from toontown.nametag import NametagGlobals
-from toontown.nametag.NametagGlobals import *
 from toontown.parties import PartyGlobals
 from toontown.parties.InviteInfo import InviteInfo
 from toontown.parties.PartyGlobals import InviteStatus, PartyStatus
@@ -58,14 +49,12 @@ from toontown.parties.SimpleMailBase import SimpleMailBase
 from toontown.shtiker.OptionsPageGlobals import speedChatStyles
 from toontown.speedchat import TTSCDecoders
 from toontown.suit import SuitDNA
-from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, EventGlobals, SettingsGlobals
-
 
 if base.wantKarts:
     from toontown.racing.KartDNA import *
 if (__debug__):
-    import pdb
+    pass
 
 
 class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, DistributedSmoothNode.DistributedSmoothNode, DelayDeletable):
@@ -193,6 +182,8 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         self.partiesInvitedTo = []
         self.partyReplyInfoBases = []
         self.uniteTrack = None
+        self.inventory = None
+        self.loadout = None
 
     def disable(self):
         for soundSequence in self.soundSequenceList:
@@ -341,8 +332,13 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def setInventory(self, netList):
         if not self.inventory:
-            self.inventory = GagInventory(self)
-        self.inventory.fromList(netList)
+            self.inventory = GagInventory()
+        self.inventory.setInventory(netList)
+
+    def setLoadout(self, netList):
+        if self.loadout is None:
+            self.loadout = GagLoadout()
+        self.loadout.setLoadout(netList)
 
     def setLastHood(self, lastHood):
         self.lastHood = lastHood
@@ -2863,8 +2859,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         reason = 'You have been warned by a moderator for: %s' % reason
         self.setSystemMessage(base.localAvatar.doId, reason)
 
-    def d_requestEquipGag(self, gagId):
-        self.sendUpdate('requestEquipGag', [gagId])
 
 @magicWord(category=CATEGORY_COMMUNITY_MANAGER)
 def globalTeleport():
@@ -2905,5 +2899,5 @@ def autoboard():
     base.cr.doFind('Boarding').sendUpdate('requestGoToSecondTime',[base.cr.doFind('Elevator').doId])
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[])
-def getEquippedGags():
-    return 'Gags: %s' % (base.localAvatar.inventory.equippedItems)
+def getLoadout():
+    return 'Loadout: %s' % base.localAvatar.loadout.getLoadout()

@@ -5,7 +5,6 @@ from direct.distributed import DistributedSmoothNodeAI
 from direct.distributed.ClockDelta import *
 
 import Experience
-import GagInventoryBase
 import ModuleListAI
 import ToonDNA
 from NPCToons import npcFriends
@@ -29,6 +28,8 @@ from toontown.estate import FlowerBasket, FlowerCollection, GardenGlobals
 from toontown.fishing import FishCollection, FishTank
 from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
+from toontown.inventory import GagInventoryAI
+from toontown.inventory import GagLoadoutAI
 from toontown.minigame import MinigameCreatorAI
 from toontown.parties import PartyGlobals
 from toontown.parties.InviteInfo import InviteInfoBase
@@ -112,6 +113,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.fishCollection = None
         self.fishTank = None
         self.inventory = None
+        self.loadout = None
         self.magicWordDNABackups = {}
         self.patchVersion = 0
         self.petId = None
@@ -303,7 +305,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.stopToonUp()
         del self.dna
         if self.inventory:
-            self.inventory.unload()
+            self.inventory.empty()
         del self.inventory
         del self.experience
         if simbase.wantPets:
@@ -316,7 +318,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def deleteDummy(self):
         if self.inventory:
-            self.inventory.unload()
+            self.inventory.empty()
         del self.inventory
         self.experience = None
         taskName = self.uniqueName('next-catalog')
@@ -344,7 +346,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def patchDelete(self):
         del self.dna
         if self.inventory:
-            self.inventory.unload()
+            self.inventory.empty()
         del self.inventory
         del self.experience
         if simbase.wantPets:
@@ -529,11 +531,23 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def d_setInventory(self, inventory):
         self.sendUpdate('setInventory', [inventory])
 
-    def setInventory(self, netList):
+    def setInventory(self, inventory):
         if not self.inventory:
-            self.inventory = GagInventoryBase.GagInventoryBase(self)
+            self.inventory = GagInventoryAI.GagInventoryAI()
 
-        self.inventory.fromList(netList)
+        self.inventory.setInventory(inventory)
+
+    def b_setLoadout(self, loadout):
+        self.setLoadout(loadout)
+        self.d_setLoadout(self.loadout.toList())
+
+    def d_setLoadout(self, loadout):
+        self.sendUpdate('setLoadout', [loadout])
+
+    def setLoadout(self, loadout):
+        if self.loadout is None:
+            self.loadout = GagLoadoutAI.GagLoadoutAI()
+        self.loadout.setLoadout(loadout)
 
     def doRestock(self, noUber = 1, noPaid = 1):
         self.inventory.zeroInv()
@@ -5441,12 +5455,15 @@ def warn(reason):
     target.sendUpdate('warnToon', [reason])
     return 'Warned %s for %s!' % (target.getName(), reason)
 
+
 @magicWord(category=CATEGORY_PROGRAMMER, types=[int, int])
-def addGag(gagId, amount=1):
+def unlockGag(gagId):
     invoker = spellbook.getInvoker()
-    invoker.inventory.addItems(gagId, amount)
-    invoker.b_setInventory(invoker.inventory.toList())
-    return 'Added %s of %s gag(s)' % (amount, gagId)
+    if invoker.inventory.addGag(gagId):
+        invoker.b_setInventory(invoker.inventory.toList())
+        return 'Unlocked gag %s for %s.' % (gagId, invoker.getName())
+    return 'Failed to add gag %s.' % gagId
+
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[int, int])
 def removeGag(gagId):
@@ -5454,13 +5471,26 @@ def removeGag(gagId):
     if gagId not in Gag.Gags:
         return 'Invalid gag id %s' % gagId
 
-    invoker.inventory.removeItem(gagId)
-    invoker.b_setInventory(invoker.inventory.toList())
-    return 'Removed gag %s' % (Gag.Gags[gagId])
+    if invoker.inventory.removeItem(gagId):
+        invoker.b_setInventory(invoker.inventory.toList())
+        return 'Removed gag %s' % gagId
+    return 'Failed to remove gag %s' % gagId
+
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[int])
 def equipGag(gagId):
     invoker = spellbook.getInvoker()
-    invoker.inventory.equipGag(gagId)
-    invoker.d_setInventory(invoker.inventory.toList())
-    return 'Equipping gag %s' % gagId
+    if invoker.inventory.gagUnlocked(gagId) and invoker.loadout.equipGag(gagId):
+        invoker.b_setLoadout(invoker.loadout.toList())
+        return 'Equipping gag %s' % gagId
+    return 'Failed to equip gag %s' % gagId
+
+
+@magicWord(category=CATEGORY_PROGRAMMER, types=[int])
+def unequipGag(gagId):
+    invoker = spellbook.getInvoker()
+    if invoker.loadout.removeGag(gagId):
+        invoker.b_setLoadout(invoker.loadout.toList())
+        return 'Equipping gag %s' % gagId
+    return 'Failed to equip gag %s' % gagId
+

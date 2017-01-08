@@ -446,12 +446,6 @@ struct CollectibleItem {
     bool equipped;
 };
 
-struct GagItemSlot {
-    uint32 gagId;
-    uint8 amount;
-    bool equipped;
-};
-
 struct BattleAttack {
     uint32 attackerId;
     uint32 attackId;
@@ -512,8 +506,8 @@ dclass DistributedToon : DistributedPlayer {
   setTrackAccess(uint16[] = [0,0,0,0,1,1,0]) required broadcast ownrecv db;
   setTrackProgress(int8 = -1, uint32 = 0) required ownrecv db;
   setTrackBonusLevel(int8[] = [-1,-1,-1,-1,-1,-1,-1]) required broadcast ownrecv db;
-  setInventory(GagItemSlot[] = []) required ownrecv db;
-  requestEquipGag(uint32 gagId) ownsend airecv;
+  setInventory(uint32[] = []) required ownrecv db;
+  setLoadout(uint32[] = []) required ownrecv db;
   setMaxNPCFriends(uint16 = 16) required ownrecv db;
   setNPCFriendsDict(FriendEntry[] = []) required ownrecv db;
   setDefaultShard(uint32 = 0) required ownrecv broadcast db;
@@ -1975,7 +1969,8 @@ dclass DistributedNPCScientist : DistributedNPCToonBase {
 
 dclass DistributedNPCClerk : DistributedNPCToonBase {
   setMovie(uint8, uint32, uint32, int16) broadcast ram;
-  setInventory(blob, int16, uint8) airecv clsend;
+  requestEquipGag(uint32 gagId) clsend airecv;
+  requestUnEquipGag(uint32 gagId) clsend airecv;
 };
 
 dclass DistributedNPCTailor : DistributedNPCToonBase {
