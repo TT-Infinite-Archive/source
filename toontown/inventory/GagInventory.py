@@ -10,17 +10,17 @@ class GagInventory(DirectObject):
 
     def __init__(self):
         DirectObject.__init__(self)
-        self.inventory = []
+        self._inventory = []
 
     def empty(self):
-        del self.inventory[:]
+        del self._inventory[:]
         messenger.send(EventGlobals.InventoryChanged)
 
     def setInventory(self, inventory):
         self.notify.debug('Setting new inventory: %s' % inventory)
         # Convert the inventory of gag ids to gag objects
-        self.inventory = [Gags[gagId] for gagId in sorted(inventory)]
+        self._inventory = [Gags[gagId] for gagId in sorted(inventory)]
         messenger.send(EventGlobals.InventoryChanged)
 
-    def gagUnlocked(self, gagId):
-        return gagId in [gag.uid for gag in self.inventory]
+    def gagUnlocked(self, gag):
+        return gag in self._inventory
