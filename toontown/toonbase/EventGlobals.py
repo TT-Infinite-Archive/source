@@ -36,4 +36,6 @@ SHOW_BATTLE_INVENTORY = 'showBattleInventory'
 HIDE_BATTLE_INVENTORY = 'hideBattleInventory'
 ExitWalk = 'exit-walk'
 EnterWalk = 'enter-walk'
-
+JumpStart = 'jumpStart'
+JumpHardLand = 'jumpHardLand'
+JumpLand = 'jumpLand'
