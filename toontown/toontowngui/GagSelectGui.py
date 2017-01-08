@@ -9,6 +9,7 @@ from toontown.toonbase import ToontownGlobals, ColorGlobals, EventGlobals, TTLoc
 from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame, TTTooltip
 from toontown.toon.LoadoutGui import GagInfoFrame
 from toontown.util.ThreadedCall import ThreadedCall
+from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class GagSelectGui(DirectFrame):
@@ -34,6 +35,16 @@ class GagSelectGui(DirectFrame):
             text_font=ToontownGlobals.getMinnieFont(),
             pos=(0.0, 0.0, 0.35),
         )
+        gui = loader.loadModel('phase_3/models/gui/dialog_box_buttons_gui')
+        closeButtonImage = (gui.find('**/CloseBtn_UP'), gui.find('**/CloseBtn_DN'), gui.find('**/CloseBtn_Rllvr'))
+        self.closeBtn = DirectButton(
+            parent=self,
+            relief=None,
+            image=closeButtonImage,
+            pos=(0.29, 0, 0.81),
+            command=self.__handleClose
+        )
+        gui.removeNode()
         self.status = TTLabel(self.mainFrame, text_size=TTLabel.GiantSize, pos=(0.0, 0.0, -0.25))
         self.seperator = TTSeperator(self.mainFrame, pos=(0.0, 0.0, 0.5))
         self.filters = ['All', 'ToonUp', 'Trap', 'Lure', 'Throw', 'Squirt', 'Sound', 'Drop']
@@ -51,7 +62,6 @@ class GagSelectGui(DirectFrame):
         self.gagInfoFrame = GagSelectInfoFrame(self, pos=(1, 0.0, 0.45), geom_scale=(1, 1.0, 0.6))
         self.gagThread = ThreadedCall(func=self.loadGags, args=[0, self.__handleGagsLoaded])
         self.gagThread.start()
-
         self.accept(EventGlobals.GagSlotClick, self.__handleSlotSelected)
         self.accept(EventGlobals.GagSlotEnter, self.__handleSlotEnter)
         self.accept(EventGlobals.GagSlotExit, self.__handleSlotExit)
@@ -67,9 +77,12 @@ class GagSelectGui(DirectFrame):
         del self.gagButtons[:]
         DirectFrame.destroy(self)
 
+    def __handleClose(self):
+        messenger.send(EventGlobals.GagSelectGuiClose)
+
     def __handleFilterSelected(self, filterIdx):
         self.gagThread = ThreadedCall(func=self.loadGags, args=[filterIdx, self.__handleGagsLoaded])
-        self.gagThread.start()
+        self.gagThread.run()
 
     def __handleSlotSelected(self, slot):
         pass

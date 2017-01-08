@@ -101,7 +101,12 @@ class DistributedNPCClerk(DistributedNPCToonBase):
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)
         self.purchase = GagSelectGui(self.timeout)
+        self.accept(EventGlobals.GagSelectGuiClose, self.__handlePurchaseDone)
         return Task.done
+
+    def __handlePurchaseDone(self):
+        self.ignore(EventGlobals.GagSelectGuiClose)
+        self.resetClerk()
 
     def __handleUnequipSlot(self, slot):
         pass
