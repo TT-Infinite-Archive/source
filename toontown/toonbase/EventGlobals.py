@@ -20,3 +20,5 @@ ShardInfoUpdated = 'shardInfoUpdated'  # Sent when district page needs to be upd
 StatUpdated = 'statUpdated'  # Sent when a stat is updated on the toon with: [category, objective]
 ValentinesDayStart = 'ValentinesDayStart'  # Sent when valentines starts
 WakeUp = 'wakeup'  # Sent to tell the toon to not fall asleep
+ExitWalk = 'exit-walk'
+EnterWalk = 'enter-walk'
