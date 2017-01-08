@@ -4487,10 +4487,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if av is not None:
             av.d_setSystemMessage(0, OTPLocalizer.WhisperIgnored % self.getName())
 
-    def requestEquipGag(self, gagId):
-        self.inventory.equipGag(gagId)
-        self.d_setInventory(self.inventory.toList())
-
 
 @magicWord(category=CATEGORY_PROGRAMMER, types=[str, int, int])
 def cheesyEffect(value, hood=0, expire=0):

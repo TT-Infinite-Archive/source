@@ -66,3 +66,28 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar: %s has exited unexpectedly' % avId)
         self.sendTimeoutMovie()
+
+    def requestEquipGag(self, gagId):
+        avId = self.air.getAvatarIdFromSender()
+        av = self.air.doId2do.get(avId)
+        if av is None:
+            self.notify.warning('Failed to equip gag on unknown av %s' % avId)
+            return
+        if not av.inventory.gagUnlocked(gagId):
+            self.notify.warning('AvId %d tried to equip a gag he didn\'t have unlocked!' % avId)
+            return
+        if av.loadout.equipGag(gagId):
+            self.notify.warning('Failed to equip gag for avId %d' % avId)
+            return
+        av.b_setLoadout(av.loadout.toList())
+
+    def requestUnEquipGag(self, gagId):
+        avId = self.air.getAvatarIdFromSender()
+        av = self.air.doId2do.get(avId)
+        if av is None:
+            self.notify.warning('Failed to un-equip gag on unknown av %s' % avId)
+            return
+        if av.loadout.removeGag(gagId):
+            self.notify.warning('Failed to un-equip gag for avId %d' % avId)
+            return
+        av.b_setLoadout(av.loadout.toList())
