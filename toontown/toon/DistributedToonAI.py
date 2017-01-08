@@ -5491,6 +5491,6 @@ def unequipGag(gagId):
     invoker = spellbook.getInvoker()
     if invoker.loadout.removeGag(gagId):
         invoker.b_setLoadout(invoker.loadout.toList())
-        return 'Equipping gag %s' % gagId
+        return 'Unequipping gag %s' % gagId
     return 'Failed to equip gag %s' % gagId
 

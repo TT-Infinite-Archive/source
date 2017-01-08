@@ -47,15 +47,13 @@ class LoadoutGui(DirectFrame):
         self.unload()
         loadout = self.toon.loadout.getLoadout()
         for index in xrange(0, self.MaxSlots):
+            gag = None
             if index < len(loadout):
-                gagSlot = loadout[index]
-                gagObj = gagSlot.gag
-            else:
-                gagObj = None
+                gag = loadout[index]
 
             gagSlotGui = GagInventorySlot(
                 self.mainFrame,
-                gagObj,
+                gag,
                 index,
                 pos=self.SlotPositions[index],
                 clickCommand=self.__handleSelection,
@@ -79,6 +77,7 @@ class LoadoutGui(DirectFrame):
 
     def showOnscreen(self):
         self.onscreen = True
+        self.show()
         self.reparentTo(aspect2d)
         if self.gagInfoFrame is not None:
             self.gagInfoFrame.destroy()
@@ -86,19 +85,22 @@ class LoadoutGui(DirectFrame):
         self.accept(EventGlobals.GagSlotEnter, self.updateGagInfo)
         self.accept(EventGlobals.GagSlotExit, self.clearGagInfo)
 
+    def hideOnscreen(self):
+        self.onscreen = False
+        self.ignore(EventGlobals.GagSlotEnter)
+        self.ignore(EventGlobals.GagSlotExit)
+        if self.gagInfoFrame:
+            self.gagInfoFrame.destroy()
+            self.gagInfoFrame = None
+        self.hide()
+        self.reparentTo(hidden)
+
     def updateGagInfo(self, slot):
         gag = base.localAvatar.loadout.getGagAtSlot(slot)
         self.gagInfoFrame.setGag(gag)
 
     def clearGagInfo(self, slot):
         self.gagInfoFrame.unsetGag()
-
-    def hideOnscreen(self):
-        self.onscreen = False
-        if self.gagInfoFrame:
-            self.gagInfoFrame.destroy()
-            self.gagInfoFrame = None
-        self.reparentTo(hidden)
 
     def __handleSelection(self, slotIndex):
         self.notify.debug('Selected gag at slot %d' % slotIndex)

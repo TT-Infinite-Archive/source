@@ -1,10 +1,8 @@
 import ShtikerPage
-from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel
 from toontown.shtiker.CogMenu import CogMenu
 from toontown.toontowngui.JarGui import JarGui
-from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class InventoryPage(ShtikerPage.ShtikerPage):
@@ -23,7 +21,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
             text_size=TTLabel.TitleSize,
             pos=(0, 0, 0.62)
         )
-        PlacerTool3D(self.title, increment=0.01)
         self.moneyDisplay = JarGui(parent=self, pos=(0.6, 0.0, -0.4))
         self.cogMenu = CogMenu()
         self.cogMenu.reparentTo(self)
