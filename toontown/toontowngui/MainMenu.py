@@ -43,7 +43,7 @@ class MainMenu(DirectObject, FSM):
         self.logo = OnscreenImage(
             parent=base.aspect2d,
             image='phase_3/maps/toontown_infinite_classic_logo.png',
-            scale=(0.70, 0.35, 0.35), pos=(0, 0, 0.35)
+            scale=(0.80, 0.35, 0.45), pos=(0, 0, 0.37)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -53,9 +53,9 @@ class MainMenu(DirectObject, FSM):
 
         # Pulsating animation for the logo
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.35), Vec3(0.65, 0.35, 0.325),
+            LerpScaleInterval(self.logo, 4, Vec3(0.80, 0.35, 0.45), Vec3(0.75, 0.35, 0.425),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.65, 0.35, 0.325), Vec3(0.70, 0.35, 0.35),
+            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.425), Vec3(0.80, 0.35, 0.45),
                               blendType='easeInOut')
         )
         self.logoScaleTrack.loop()
