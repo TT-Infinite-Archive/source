@@ -11,7 +11,10 @@ try:
     LogsPath = os.path.join(os.getcwd(), 'logs')
     print('logs:', LogsPath)
 except:
-    PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
+    if sys.platform.startswith('linux'):
+        PythonPath = '/usr/bin/python2'
+    else:
+        PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
 
 Processes = [
     [
