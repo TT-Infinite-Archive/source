@@ -47,7 +47,6 @@ class TTTooltip(DirectFrame):
         if base.mouseWatcherNode.hasMouse():
             mpos = base.mouseWatcherNode.getMouse()
             offPos = (self.description.getBounds()[0], 0.0, self.getHeight() * 2)
-            print(mpos, offPos, self.description.getBounds())
             newPos = (mpos[0] - offPos[0]/2 * 1.35, 0, mpos[1] - offPos[2] * 1.35)
 
             self.setPos(render2d, newPos)
