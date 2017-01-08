@@ -204,7 +204,7 @@ class CalendarGuiDay(DirectFrame):
         except Exception:
             numItems = 0
 
-        if numItems <= self.scrollList.numItemsVisible:
+        if numItems <= self.scrollList['numItemsVisible']:
             self.scrollList.incButton.hide()
             self.scrollList.decButton.hide()
         else:
@@ -537,7 +537,7 @@ class MiniInviteVisual(DirectFrame):
         DirectFrame.__init__(self, parent, pos=(0.1, 0, -0.018))
         self.checkedHeight = True
         self.partyInfo = partyInfo
-        self.parent = parent
+        self._parent = parent
         self.inviteBackgrounds = loader.loadModel('phase_4/models/parties/partyStickerbook')
         backgrounds = ['calendar_popup_birthday',
          'calendar_popup_fun',
@@ -553,9 +553,9 @@ class MiniInviteVisual(DirectFrame):
         return
 
     def show(self):
-        self.reparentTo(self.parent)
+        self.reparentTo(self._parent)
         self.setPos(0.1, 0, -0.018)
-        newParent = self.parent.getParent().getParent()
+        newParent = self._parent.getParent().getParent()
         self.wrtReparentTo(newParent)
         if self.whosePartyLabel['text'] == ' ':
             host = base.cr.identifyAvatar(self.partyInfo.hostId)
@@ -581,7 +581,7 @@ class MiniInviteVisual(DirectFrame):
     def destroy(self):
         del self.checkedHeight
         del self.partyInfo
-        del self.parent
+        del self._parent
         del self.background
         del self.whosePartyLabel
         del self.whenTextLabel

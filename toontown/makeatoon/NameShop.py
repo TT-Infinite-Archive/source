@@ -26,6 +26,7 @@ from direct.task import Task
 from toontown.makeatoon.TTPickANamePattern import TTPickANamePattern
 from pandac.PandaModules import TextEncoder
 from toontown.toon import ToonDNA
+from direct.gui.DirectGuiGlobals import NO_FADE_SORT_INDEX
 MAX_NAME_WIDTH = TTLocalizer.NSmaxNameWidth
 ServerDialogTimeout = 3.0
 

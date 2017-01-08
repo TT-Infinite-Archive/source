@@ -8,6 +8,7 @@ from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toontowngui import TeaserPanel
+from direct.gui.DirectGuiGlobals import NO_FADE_SORT_INDEX
 #from toontown.toonbase import UserFunnel
 NAME_ROTATIONS = (0, 0, 0, 0, 0, 0)
 NAME_POSITIONS = ((0, 0, 0.16),

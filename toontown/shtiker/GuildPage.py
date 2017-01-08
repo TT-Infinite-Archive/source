@@ -23,13 +23,13 @@ class GuildPage(DirectFrame):
     SortContDn = 8
 
     def __init__(self, parent):
-        self.parent = parent
+        self._parent = parent
         self.currentSizeIndex = None
         self.currentScrollIndex = 0
         self.sortedState = self.SortNone
         self.wantShowOffline = False
 
-        DirectFrame.__init__(self, parent=self.parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
+        DirectFrame.__init__(self, parent=self._parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
 
         self.leaveGuildDialog = None
         self.leaderboardPage = None
@@ -54,7 +54,7 @@ class GuildPage(DirectFrame):
 
         background = TTCardMaker.makeCard('phase_3/maps/curved-gui-square.png')
 
-        self.mainFrame = DirectFrame(self.parent, relief=None, image=background, image_scale=(0.0011, 1, 0.0008), image_color=primaryColor, scale=(0.85, 1.0, 0.73))
+        self.mainFrame = DirectFrame(self._parent, relief=None, image=background, image_scale=(0.0011, 1, 0.0008), image_color=primaryColor, scale=(0.85, 1.0, 0.73))
 
         self.seasonFrame = DirectFrame(self.mainFrame, relief=None, image=background, image_scale=(0.0003, 1, 0.0001), image_color=tertiaryColor, pos=(-0.6, 1.0, 0.78))
         self.seasonText = DirectLabel(self.seasonFrame, relief=None, text='', text_align=TextNode.ACenter, text_scale=0.05)
@@ -144,7 +144,7 @@ class GuildPage(DirectFrame):
     def destroy(self):
         self.ignoreAll()
         self.closeLeaderboard()
-        self.parent = None
+        self._parent = None
 
         for memberObject in self.memberObjects:
             memberObject.destroy()
@@ -306,7 +306,7 @@ class GuildPage(DirectFrame):
     def openLeaderboard(self):
         self.mainFrame.hide()
         messenger.send(EventGlobals.WakeUp)
-        self.leaderboardPage = GuildLeaderboard(self.parent, TTLocalizer.GuildLeaderboardTitle, pos=(0.0, 0.0, 0.0), scale=(1.03, 1.0, 0.65), backCommand=self.closeLeaderboard)
+        self.leaderboardPage = GuildLeaderboard(self._parent, TTLocalizer.GuildLeaderboardTitle, pos=(0.0, 0.0, 0.0), scale=(1.03, 1.0, 0.65), backCommand=self.closeLeaderboard)
 
     def closeLeaderboard(self):
         if self.mainFrame is not None:
@@ -393,7 +393,7 @@ class GuildPage(DirectFrame):
 
 class GuildPageMember(DirectButton):
     def __init__(self, parent, avId, name, contribution, roleId, laff, online, index, listObject):
-        self.parent = parent
+        self._parent = parent
         self.avId = avId
         self.name = name
         self.contribution = contribution

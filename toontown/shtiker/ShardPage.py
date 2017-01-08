@@ -207,7 +207,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
 
 class ShardWidget(DirectButton):
     def __init__(self, parent, shardId, shardName, invasion, population, timezone, index, listObject):
-        self.parent = parent
+        self._parent = parent
         self.shardId = shardId
         self.shardName = shardName
         self.invasion = invasion            # [CogDeptIndex, CogSuitIndex]
@@ -291,7 +291,7 @@ class ShardWidget(DirectButton):
             icon.removeNode()
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
         if self.mainFrame is not None:
             self.mainFrame.destroy()
             self.mainFrame = None

@@ -11,20 +11,9 @@ import __builtin__
 
 __builtin__.process = 'client'
 
-import tempfile
-import atexit
-import shutil
-import os
+from panda3d.core import ConfigVariableString
 
-# Create a temporary directory
-__builtin__.tempdir = tempfile.mkdtemp()
-atexit.register(shutil.rmtree, tempdir)
-
-if hasattr(__builtin__, '__nirai__'):
-    # Output the DC file data to it (for use with Astron)
-    filepath = os.path.join(tempdir, 'game_data.dc')
-    with open(filepath, 'w') as f:
-        f.write(dcData)
+__builtin__.version = ConfigVariableString('server-version', 'n/a').getValue()
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
@@ -48,7 +37,7 @@ if __debug__:
         notify.info('Starting injector...')
         __builtin__.injector = Injector()
 
-from panda3d.core import ConfigVariableString, loadPrcFileData
+from panda3d.core import loadPrcFileData
 
 from otp.settings.Settings import Settings
 
@@ -151,8 +140,7 @@ introduction = Introduction()
 
 from toontown.toontowngui.ClickToStart import ClickToStart
 
-version = ConfigVariableString('server-version', 'n/a')
-clickToStart = ClickToStart(version=version.getValue())
+clickToStart = ClickToStart(version=version)
 clickToStart.setColorScale(0, 0, 0, 0)
 
 music = None
@@ -235,8 +223,7 @@ disclaimerTrack = Sequence(
 
 from toontown.distributed import ToontownClientRepository
 
-base.cr = ToontownClientRepository.ToontownClientRepository(
-    version.getValue(), launcher)
+base.cr = ToontownClientRepository.ToontownClientRepository(version, launcher)
 base.cr.music = music
 base.cr.introduction = introduction
 base.cr.clickToStart = clickToStart

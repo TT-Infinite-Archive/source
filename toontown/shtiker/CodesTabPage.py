@@ -9,16 +9,16 @@ class CodesTabPage(DirectFrame):
     notify = directNotify.newCategory('CodesTabPage')
 
     def __init__(self, parent=aspect2d):
-        self.parent = parent
+        self._parent = parent
         DirectFrame.__init__(
-            self, parent=self.parent, relief=None, pos=(
+            self, parent=self._parent, relief=None, pos=(
                 0.0, 0.0, 0.0), scale=(
                 1.0, 1.0, 1.0))
         self.load()
         return
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
         DirectFrame.destroy(self)
         return
 
