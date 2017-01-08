@@ -6,7 +6,7 @@ from toontown.toonbase.ColorGlobals import CToontownBlue, CGray, CDefault
 class TTSlider(DirectButton):
     def __init__(self, parent=aspect2d, pos=(0, 0, 0), value=0, scale=1.0, enabled=True, command=None):
         DirectButton.__init__(self, parent, relief=None)
-        self.parent = parent
+        self._parent = parent
         self.command = command
         self.pos = pos
         self.scale = (0.375 * scale, 0.1 * scale, 0.25 * scale)

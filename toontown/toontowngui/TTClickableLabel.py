@@ -5,7 +5,7 @@ from toontown.toonbase.ColorGlobals import CBlack, CGray, CLime, COrange
 class TTClickableLabel(DirectButton):
     def __init__(self, parent=aspect2d, pos=(0, 0, 0), scale=1.0, text='', active=False, command=None, extraArgs=None):
         DirectButton.__init__(self, parent, relief=None)
-        self.parent = parent
+        self._parent = parent
         self.pos = pos
         self.text = text
         self.command = command

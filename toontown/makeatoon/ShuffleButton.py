@@ -14,7 +14,7 @@ class ShuffleButton:
     notify = DirectNotifyGlobal.directNotify.newCategory('ShuffleButton')
 
     def __init__(self, parent, fetchEvent):
-        self.parent = parent
+        self._parent = parent
         self.fetchEvent = fetchEvent
         self.history = [0]
         self.historyPtr = 0
@@ -22,7 +22,7 @@ class ShuffleButton:
         self.load()
 
     def load(self):
-        self.parentFrame = DirectFrame(parent=self.parent.parentFrame, relief=DGG.RAISED, pos=(0, 0, -1),
+        self.parentFrame = DirectFrame(parent=self._parent.parentFrame, relief=DGG.RAISED, pos=(0, 0, -1),
                                        frameColor=(1, 0, 0, 0))
 
         self.button = MATShuffleButton(parent=self.parentFrame, text_font=ToontownGlobals.getInterfaceFont(),
@@ -42,7 +42,7 @@ class ShuffleButton:
         if self.showLerp:
             self.showLerp.finish()
             del self.showLerp
-        self.parent = None
+        self._parent = None
         self.parentFrame.destroy()
         self.button.destroy()
         del self.parentFrame
@@ -79,7 +79,7 @@ class ShuffleButton:
         return self.currChoice
 
     def saveCurrChoice(self):
-        self.currChoice = self.parent.getCurrToonSetting()
+        self.currChoice = self._parent.getCurrToonSetting()
         self.history[self.historyPtr] = self.currChoice
 
     def handleArrow(self, direction):

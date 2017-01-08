@@ -27,7 +27,7 @@ class OptionsTabPage(DirectFrame):
     def __init__(self, parent=aspect2d):
         DirectFrame.__init__(self, parent=parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
 
-        self.parent = parent
+        self._parent = parent
         self.currentSizeIndex = None
         self.displaySettingsChanged = 0
         self.displaySettingsSize = (None, None)
@@ -44,7 +44,7 @@ class OptionsTabPage(DirectFrame):
         self.load()
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
         self.ignoreAll()
         taskMgr.remove('testResolution-task')
         taskMgr.remove('revertResolution-task')
@@ -430,7 +430,7 @@ class OptionsTabPage(DirectFrame):
         self.speedChatStyleText.enter()
         self.speedChatStyleIndex = base.localAvatar.getSpeedChatStyleIndex()
         self.updateSpeedChatStyle()
-        if self.parent.book.safeMode:
+        if self._parent.book.safeMode:
             self.exitButton.hide()
             self.toonselectButton.hide()
         else:
@@ -923,7 +923,7 @@ class OptionsTabPage(DirectFrame):
             style=TTDialog.TwoChoice
         )
         self.confirm.show()
-        self.parent.doneStatus = {'mode': 'exit',
+        self._parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'disconnect'}
         self.accept('confirmDone', self.__handleConfirm)
 
@@ -933,7 +933,7 @@ class OptionsTabPage(DirectFrame):
             message=TTLocalizer.OptionsPagePickAToonConfirm,
             style=TTDialog.TwoChoice)
         self.confirm.show()
-        self.parent.doneStatus = {'mode': 'exit',
+        self._parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'closeShard'}
         self.accept('confirmDone', self.__handleConfirm)
 
@@ -944,7 +944,7 @@ class OptionsTabPage(DirectFrame):
         del self.confirm
         if status == 'ok':
             base.cr._userLoggingOut = True
-            messenger.send(self.parent.doneEvent)
+            messenger.send(self._parent.doneEvent)
 
     def __back(self):
         status = self.confirm.doneStatus
@@ -953,7 +953,7 @@ class OptionsTabPage(DirectFrame):
         del self.confirm
         if status == 'ok':
             base.cr._userLoggingOut = True
-            messenger.send(self.parent.doneEvent)
+            messenger.send(self._parent.doneEvent)
             # Have this button disconnect you and bring you all the way back to the main menu like the one on the Toon Select screen
             base.cr.loginFSM.request('mainMenu')
             base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')
