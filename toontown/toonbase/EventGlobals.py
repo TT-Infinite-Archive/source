@@ -22,3 +22,6 @@ ValentinesDayStart = 'ValentinesDayStart'  # Sent when valentines starts
 WakeUp = 'wakeup'  # Sent to tell the toon to not fall asleep
 ExitWalk = 'exit-walk'
 EnterWalk = 'enter-walk'
+JumpStart = 'jumpStart'
+JumpHardLand = 'jumpHardLand'
+JumpLand = 'jumpLand'

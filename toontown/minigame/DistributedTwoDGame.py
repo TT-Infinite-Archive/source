@@ -10,7 +10,7 @@ from direct.directnotify import DirectNotifyGlobal
 from DistributedMinigame import *
 import MinigameAvatarScorePanel, ArrowKeys, ToonBlitzAssetMgr, TwoDCamera
 import TwoDSectionMgr, ToonBlitzGlobals, TwoDGameToonSD
-from toontown.toonbase import ToontownTimer
+from toontown.toonbase import ToontownTimer, EventGlobals
 from TwoDWalk import *
 from TwoDDrive import *
 COLOR_RED = VBase4(1, 0, 0, 0.3)
@@ -183,7 +183,7 @@ class DistributedTwoDGame(DistributedMinigame):
          self.shootKeyHandler]
         self.twoDDrive.arrowKeys.setPressHandlers(handlers)
         self.twoDWalk.start()
-        self.accept('jumpStart', self.startJump)
+        self.accept(EventGlobals.JumpStart, self.startJump)
         self.accept('enemyHit', self.localToonHitByEnemy)
         self.accept('twoDTreasureGrabbed', self.__treasureGrabbed)
         self.accept('enemyShot', self.__enemyShot)
@@ -205,7 +205,7 @@ class DistributedTwoDGame(DistributedMinigame):
         self.twoDDrive.arrowKeys.setPressHandlers(handlers)
         if self.toonSDs[self.localAvId].fsm.getCurrentState().getName() != 'victory':
             base.localAvatar.b_setAnimState('Happy', 1.0)
-        self.ignore('jumpStart')
+        self.ignore(EventGlobals.JumpStart)
         self.ignore('enemyHit')
         self.ignore('twoDTreasureGrabbed')
         return
