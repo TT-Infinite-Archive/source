@@ -18,7 +18,6 @@ class ClickToStart(DirectObject):
         self.backgroundModel = loader.loadModel(
             'phase_3/models/gui/progress-background.bam')
         self.backgroundModel.reparentTo(self.backgroundNodePath)
-        self.backgroundNodePath.find('**/fg').removeNode()
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             bgTex = loader.loadTexture(
                 'phase_3/maps/loading_bg_clouds_halloween.jpg')
