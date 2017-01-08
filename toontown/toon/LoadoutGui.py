@@ -34,6 +34,7 @@ class LoadoutGui(DirectFrame):
         self.gagInfoFrame = None
         self.accept(EventGlobals.LoadoutChanged, self.load)
         self.acceptOnscreenHooks()
+        self.onscreen = False
 
     def destroy(self):
         self.notify.debug('Destroying...')
@@ -77,6 +78,7 @@ class LoadoutGui(DirectFrame):
         self.ignore(ToontownGlobals.InventoryHotkeyOff)
 
     def showOnscreen(self):
+        self.onscreen = True
         self.reparentTo(aspect2d)
         if self.gagInfoFrame is not None:
             self.gagInfoFrame.destroy()
@@ -92,6 +94,7 @@ class LoadoutGui(DirectFrame):
         self.gagInfoFrame.unsetGag()
 
     def hideOnscreen(self):
+        self.onscreen = False
         if self.gagInfoFrame:
             self.gagInfoFrame.destroy()
             self.gagInfoFrame = None

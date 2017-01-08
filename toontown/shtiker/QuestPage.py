@@ -140,7 +140,7 @@ class QuestPage(ShtikerPage.ShtikerPage):
         if timedif < 0.7:
             return
         self.lastQuestTime = globalClock.getRealTime()
-        if self.onscreen or base.localAvatar.invPage.onscreen:
+        if self.onscreen or base.localAvatar.gagPanel.onscreen:
             return
         self.onscreen = 1
         for i in xrange(ToontownGlobals.MaxQuestCarryLimit):
