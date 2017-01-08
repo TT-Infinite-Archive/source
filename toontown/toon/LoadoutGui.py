@@ -40,6 +40,7 @@ class LoadoutGui(DirectFrame):
         self.notify.debug('Destroying...')
         self.unload()
         self.ignore(EventGlobals.LoadoutChanged)
+        self.ignoreOnscreenHooks()
         DirectFrame.destroy(self)
 
     def load(self):
@@ -51,7 +52,7 @@ class LoadoutGui(DirectFrame):
             if index < len(loadout):
                 gag = loadout[index]
 
-            gagSlotGui = GagInventorySlot(
+            gagSlotGui = LoadoutSlotGui(
                 self.mainFrame,
                 gag,
                 index,
@@ -113,7 +114,7 @@ class LoadoutGui(DirectFrame):
         messenger.send(EventGlobals.GagSlotExit, [slotIndex])
 
 
-class GagInventorySlot(DirectButton):
+class LoadoutSlotGui(DirectButton):
     StateEmpty = 0
     StateNormal = 1
 
