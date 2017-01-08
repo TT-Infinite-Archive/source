@@ -2,6 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
 
 from toontown.toonbase import EventGlobals
+from toontown.data.Gag import Gags
 
 
 class GagInventory(DirectObject):
@@ -17,5 +18,9 @@ class GagInventory(DirectObject):
 
     def setInventory(self, inventory):
         self.notify.debug('Setting new inventory: %s' % inventory)
-        self.inventory = sorted(inventory)
+        # Convert the inventory of gag ids to gag objects
+        self.inventory = [Gags[gagId] for gagId in sorted(inventory)]
         messenger.send(EventGlobals.InventoryChanged)
+
+    def gagUnlocked(self, gagId):
+        return gagId in [gag.uid for gag in self.inventory]
