@@ -110,7 +110,7 @@ Gags = {
     1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon),
     2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon),
     3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityLegendary),
-    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Track.TrackLure, Gag.RarityRare, chance=0.5),
+    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityRare, chance=0.5),
     PASS: Gag(99, 'Pass', None, 0),
 }
 
