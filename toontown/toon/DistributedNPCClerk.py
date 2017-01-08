@@ -100,7 +100,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)
-        self.purchase = GagSelectGui(base.localAvatar, self.timeout)
+        self.purchase = GagSelectGui(self.timeout)
         return Task.done
 
     def __handleUnequipSlot(self, slot):
@@ -109,5 +109,8 @@ class DistributedNPCClerk(DistributedNPCToonBase):
     def __handleEquipGag(self, gag):
         pass
 
-    def d_setInventory(self, invString, money, done):
-        self.sendUpdate('setInventory', [invString, money, done])
+    def d_requestEquipGag(self, gagId):
+        self.sendUpdate('requestEquipGag', [gagId])
+
+    def d_requestUnEquipGag(self, gagId):
+        self.sendUpdate('requestUnEquipGag', [gagId])

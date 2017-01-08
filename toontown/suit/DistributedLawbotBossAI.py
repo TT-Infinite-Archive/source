@@ -1,26 +1,24 @@
-from otp.ai.AIBaseGlobal import *
-from direct.distributed.ClockDelta import *
-from otp.ai.MagicWordGlobal import *
-import DistributedBossCogAI
-from direct.directnotify import DirectNotifyGlobal
-from otp.avatar import DistributedAvatarAI
-import DistributedSuitAI
-from toontown.battle import BattleExperienceAI
-from direct.fsm import FSM
-from toontown.toonbase import ToontownGlobals
-from toontown.toon import GagInventoryBase
-from toontown.toonbase import TTLocalizer
-from toontown.battle import BattleBase
-from toontown.toon import NPCToons
-from toontown.building import SuitBuildingGlobals
-import SuitDNA
+import math
 import random
+
+from direct.directnotify import DirectNotifyGlobal
+from direct.distributed.ClockDelta import *
+from direct.fsm import FSM
+
+import DistributedBossCogAI
+import SuitDNA
+from otp.ai.AIBaseGlobal import *
+from otp.ai.MagicWordGlobal import *
+from toontown.battle import BattleExperienceAI
+from toontown.building import SuitBuildingGlobals
 from toontown.coghq import DistributedLawbotBossGavelAI
-from toontown.suit import DistributedLawbotBossSuitAI
 from toontown.coghq import DistributedLawbotCannonAI
 from toontown.coghq import DistributedLawbotChairAI
+from toontown.suit import DistributedLawbotBossSuitAI
+from toontown.toon import NPCToons
+from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
-import math
+from toontown.toonbase import ToontownGlobals
 
 
 class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM):

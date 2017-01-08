@@ -4,11 +4,10 @@ from direct.gui.DirectButton import DirectButton, DGG
 from direct.gui.DirectFrame import DirectFrame
 
 from toontown.data import Gag, Track
-from toontown.toon.ClerkGagInventoryGui import ClerkGagInventoryGui
+from toontown.toon.ClerkLoadoutGui import ClerkLoadoutGui
 from toontown.toonbase import ToontownGlobals, ColorGlobals, EventGlobals, TTLocalizer
 from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame, TTTooltip
-from toontown.shtiker.InventoryPage import GagInfoFrame
-from toontown.util.PlacerTool3D import PlacerTool3D
+from toontown.toon.LoadoutGui import GagInfoFrame
 from toontown.util.ThreadedCall import ThreadedCall
 
 
@@ -27,7 +26,7 @@ class GagSelectGui(DirectFrame):
         DirectFrame.__init__(self, parent=aspect2d, relief=None, pos=pos)
         self.initialiseoptions(GagSelectGui)
         self.mainFrame = TTFrame(self, pos=(-0.5, 0.0, 0.0), geom_scale=(1.7, 1, 1.7))
-        self.gagInventory = ClerkGagInventoryGui(base.localAvatar, (0, 0, 0.65), self.mainFrame)
+        self.gagInventory = ClerkLoadoutGui(base.localAvatar, (0, 0, 0.65), self.mainFrame)
         self.title = TTLabel(
             self.mainFrame,
             text='Gag Storage',

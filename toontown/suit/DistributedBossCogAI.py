@@ -1,16 +1,18 @@
 import math
+import random
+
 from direct.directnotify import DirectNotifyGlobal
+from pandac.PandaModules import *
+
+import SuitDNA
 from otp.avatar import DistributedAvatarAI
+from toontown.battle import BattleBase
 from toontown.battle import BattleExperienceAI
-from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import ToontownBattleGlobals
-from toontown.toon import GagInventoryBase
 from toontown.battle import DistributedBattleFinalAI
 from toontown.building import SuitPlannerInteriorAI
-from toontown.battle import BattleBase
-from pandac.PandaModules import *
-import SuitDNA
-import random
+from toontown.toonbase import ToontownBattleGlobals
+from toontown.toonbase import ToontownGlobals
+
 AllBossCogs = []
 
 class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):

@@ -96,14 +96,16 @@ want-quest-verification #t
 want-heartbeat #f
 
 #notify-level-TownBattle debug
-notify-level-TownBattleToonPanel debug
+#notify-level-TownBattleToonPanel debug
 #notify-level-GagInventoryGui debug
-notify-level-DistributedBattleAI debug
+#notify-level-DistributedBattleAI debug
 #notify-level-BattleCalculatorAI debug
-notify-level-DistributedBattle debug
+#notify-level-DistributedBattle debug
 #notify-level-ChooseAvatarPanel debug
-#notify-level-GagInventoryBase debug
-#notify-level-GagInventory debug
+notify-level-GagInventoryAI debug
+notify-level-GagInventory debug
+notify-level-GagLoadoutAI debug
+notify-level-GagLoadout debug
 
 # Debug tools:
 want-leak-graph-ai #f

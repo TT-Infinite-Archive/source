@@ -79,7 +79,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
             self.DistributedPlayer_deleted = 1
             del self.experience
             if self.inventory:
-                self.inventory.unload()
+                self.inventory.empty()
             del self.inventory
             DistributedAvatar.DistributedAvatar.delete(self)
 

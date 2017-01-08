@@ -16,7 +16,7 @@ import zlib
 import DistributedToon
 import LaffMeter
 import Toon
-from toontown.toon.GagInventoryGui import GagInventoryGui
+from toontown.toon.LoadoutGui import LoadoutGui
 from otp.avatar import DistributedPlayer
 from otp.avatar import LocalAvatar
 from otp.avatar import PositionExaminer
@@ -442,7 +442,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         else:
             self.laffMeter.setPos(0.133, 0.0, 0.13)
         self.laffMeter.stop()
-        self.gagPanel = GagInventoryGui(self, (0.0, 0.0, 0.25))
+        self.gagPanel = LoadoutGui(self, (0.0, 0.0, 0.25))
         self.gagPanel.hide()
         self.questMap = QuestMap.QuestMap(self)
         self.questMap.stop()

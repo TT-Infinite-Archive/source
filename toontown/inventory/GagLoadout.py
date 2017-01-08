@@ -3,6 +3,7 @@ from direct.showbase.DirectObject import DirectObject
 
 from toontown.toonbase import EventGlobals
 from toontown.inventory import GagLoadoutGlobals
+from toontown.data import Gag
 
 
 class GagLoadout(DirectObject):
@@ -25,3 +26,6 @@ class GagLoadout(DirectObject):
         self.notify.debug('Setting new loadout: %s' % loadout)
         self._loadout = sorted(loadout)
         messenger.send(EventGlobals.LoadoutChanged)
+
+    def getGagAtSlot(self, slot):
+        return self._loadout[slot]

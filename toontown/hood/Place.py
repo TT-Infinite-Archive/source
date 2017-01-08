@@ -8,7 +8,7 @@ from toontown.launcher import DownloadForceAcknowledge
 import TrialerForceAcknowledge
 import ZoneUtil
 from toontown.friends import FriendsListManager
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals
 from toontown.toon.Toon import teleportDebug
 from toontown.estate import HouseGlobals
 from toontown.toonbase import TTLocalizer
@@ -216,7 +216,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         self.accept('teleportQuery', self.handleTeleportQuery)
         base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.questPage.acceptOnscreenHooks()
-        base.localAvatar.invPage.acceptOnscreenHooks()
+        base.localAvatar.gagPanel.acceptOnscreenHooks()
         base.localAvatar.questMap.acceptOnscreenHooks()
         self.walkStateData.fsm.request('walking')
         self.enablePeriodTimer()
@@ -235,8 +235,8 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             base.cr.playGame.hood.hideTitleText()
         base.localAvatar.questPage.hideQuestsOnscreen()
         base.localAvatar.questPage.ignoreOnscreenHooks()
-        base.localAvatar.invPage.ignoreOnscreenHooks()
-        base.localAvatar.invPage.hideInventoryOnscreen()
+        base.localAvatar.gagPanel.ignoreOnscreenHooks()
+        base.localAvatar.gagPanel.hideOnscreen()
         base.localAvatar.questMap.hide()
         base.localAvatar.questMap.ignoreOnscreenHooks()
         return
