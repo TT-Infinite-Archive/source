@@ -55,7 +55,7 @@ class ToontownLoadingScreen:
         logoScale = 0.5625  # Scale for our locked aspect ratio (2:1).
         self.logo = OnscreenImage(
             image='phase_3/maps/toontown-logo.png',
-            scale=(0.9, 1, 0.4))
+            scale=(0.75, 0.35, 0.35))
         self.logo.reparentTo(hidden)
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
         scale = self.logo.getScale()
