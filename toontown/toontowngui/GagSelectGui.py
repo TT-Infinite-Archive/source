@@ -62,10 +62,10 @@ class GagSelectGui(DirectFrame):
         self.gagInfoFrame = GagSelectInfoFrame(self, pos=(1, 0.0, 0.45), geom_scale=(1, 1.0, 0.6))
         self.gagThread = ThreadedCall(func=self.loadGags, args=[0, self.__handleGagsLoaded])
         self.gagThread.start()
-        self.accept(EventGlobals.GagSlotClick, self.__handleSlotSelected)
         self.accept(EventGlobals.GagSlotEnter, self.__handleSlotEnter)
-        self.accept(EventGlobals.GAG_SELECT_GAG_ENTER, self.__handleGagEnter)
         self.accept(EventGlobals.GagSlotExit, self.__handleSlotExit)
+        self.accept(EventGlobals.GAG_SELECT_GAG_ENTER, self.__handleGagEnter)
+        self.accept(EventGlobals.LoadoutChanged, self.__handleLoadoutChanged)
         self.tt = None
 
     def destroy(self):
@@ -85,8 +85,10 @@ class GagSelectGui(DirectFrame):
         self.gagThread = ThreadedCall(func=self.loadGags, args=[filterIdx, self.__handleGagsLoaded])
         self.gagThread.run()
 
-    def __handleSlotSelected(self, slot):
-        pass
+    def __handleLoadoutChanged(self):
+        if self.tt:
+            self.tt.destroy()
+            self.tt = None
 
     def __handleSlotEnter(self, slot):
         if self.tt:
@@ -238,18 +240,21 @@ class GagSelectGagButton(DirectButton):
     def setUnlocked(self, flag):
         self.unlocked = flag
         if flag:
+            self['text'] = ''
             self.gbi.show()
         else:
+            self['text'] = '?'
             self.gbi.hide()
 
     def __handleLoadoutChanged(self):
-        if base.localAvatar.loadout.isEquipped(self.gag):
-            pass
+        self.setEquipped(base.localAvatar.loadout.isEquipped(self.gag))
 
     def __handleInventoryChanged(self):
-        pass
+        self.setUnlocked(base.localAvatar.inventory.gagUnlocked(self.gag))
 
     def __handleGagSelected(self):
+        if self.equipped or not self.unlocked:
+            return
         messenger.send(EventGlobals.EQUIP_GAG, [self.gag])
 
     def __handleEnterGag(self, gag, e=None):

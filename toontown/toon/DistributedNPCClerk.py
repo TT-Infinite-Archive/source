@@ -11,6 +11,8 @@ from toontown.toontowngui.GagSelectGui import GagSelectGui
 
 
 class DistributedNPCClerk(DistributedNPCToonBase):
+    notify = directNotify.newCategory('DistributedNPCClerk')
+
     def __init__(self, cr):
         DistributedNPCToonBase.__init__(self, cr)
 
@@ -102,6 +104,8 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.setChatAbsolute('', CFSpeech)
         self.purchase = GagSelectGui(self.timeout)
         self.accept(EventGlobals.GagSelectGuiClose, self.__handlePurchaseDone)
+        self.accept(EventGlobals.EQUIP_GAG, self.__handleEquipGag)
+        self.accept(EventGlobals.GagSlotClick, self.__handleUnEquipSlot)
         return Task.done
 
     def __handlePurchaseDone(self):
@@ -109,11 +113,13 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         self.d_avatarExit()
         self.resetClerk()
 
-    def __handleUnequipSlot(self, slot):
-        pass
+    def __handleUnEquipSlot(self, slot):
+        self.notify.debug('Unequipping slot %d. Gag at slot is %s.' % (slot, base.localAvatar.loadout.getGagAtSlot(slot)))
+        self.d_requestUnEquipGag(base.localAvatar.loadout.getGagAtSlot(slot).uid)
 
     def __handleEquipGag(self, gag):
-        pass
+        self.notify.debug('Equipping gag %s' % gag)
+        self.d_requestEquipGag(gag.uid)
 
     def d_avatarExit(self):
         self.sendUpdate('avatarExit', [])

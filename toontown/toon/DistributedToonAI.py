@@ -537,6 +537,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
         self.inventory.setInventory(inventory)
 
+    def getInventory(self):
+        return self.inventory.toList()
+
     def b_setLoadout(self, loadout):
         self.setLoadout(loadout)
         self.d_setLoadout(self.loadout.toList())
@@ -548,6 +551,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if self.loadout is None:
             self.loadout = GagLoadoutAI.GagLoadoutAI()
         self.loadout.setLoadout(loadout)
+
+    def getLoadout(self):
+        return self.loadout.toList()
 
     def doRestock(self, noUber = 1, noPaid = 1):
         self.inventory.zeroInv()
