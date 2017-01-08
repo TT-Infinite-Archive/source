@@ -34,3 +34,6 @@ PURCHASE_DONE = 'purchaseDone'
 BOUGHT_GAG = 'boughtGag'
 SHOW_BATTLE_INVENTORY = 'showBattleInventory'
 HIDE_BATTLE_INVENTORY = 'hideBattleInventory'
+ExitWalk = 'exit-walk'
+EnterWalk = 'enter-walk'
+

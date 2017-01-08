@@ -209,10 +209,8 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         self.walkStateData.enter()
         if teleportIn == 0:
             self.walkStateData.fsm.request('walking')
+        messenger.send(EventGlobals.EnterWalk)
         self.acceptOnce(self.walkDoneEvent, self.handleWalkDone)
-        if base.cr.productName in ['DisneyOnline-US', 'ES'] and not base.cr.isPaid() and base.localAvatar.tutorialAck:
-            base.localAvatar.chatMgr.obscure(0, 0)
-            base.localAvatar.chatMgr.normalButton.show()
         self.accept('teleportQuery', self.handleTeleportQuery)
         base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.questPage.acceptOnscreenHooks()
@@ -223,15 +221,14 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
 
     def exitWalk(self):
         self.exitFLM()
-        if base.cr.productName in ['DisneyOnline-US', 'ES'] and not base.cr.isPaid() and base.localAvatar.tutorialAck and not base.cr.whiteListChatEnabled:
-            base.localAvatar.chatMgr.obscure(1, 0)
         self.disablePeriodTimer()
-        messenger.send('wakeup')
+        messenger.send(EventGlobals.WakeUp)
+        messenger.send(EventGlobals.ExitWalk)
         self.walkStateData.exit()
         self.ignore(self.walkDoneEvent)
         base.localAvatar.setTeleportAvailable(0)
         self.ignore('teleportQuery')
-        if base.cr.playGame.hood != None:
+        if base.cr.playGame.hood is not None:
             base.cr.playGame.hood.hideTitleText()
         base.localAvatar.questPage.hideQuestsOnscreen()
         base.localAvatar.questPage.ignoreOnscreenHooks()
@@ -239,7 +236,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         base.localAvatar.gagPanel.hideOnscreen()
         base.localAvatar.questMap.hide()
         base.localAvatar.questMap.ignoreOnscreenHooks()
-        return
 
     def handleWalkDone(self, doneStatus):
         mode = doneStatus['mode']
