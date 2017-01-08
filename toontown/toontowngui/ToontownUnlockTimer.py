@@ -32,7 +32,7 @@ class ToontownUnlockTimer:
             scale=(1, 1, 1), pos=(0, 0, 0))
 
         self.logo = OnscreenImage(
-            parent=base.a2dTopCenter, image='phase_3/maps/toontown-logo.png',
+            parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_classic_logo.png',
             scale=(0.9, 1, 0.4), pos=(0, 0, -0.90))
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 

@@ -1,5 +1,5 @@
 # Window settings:
-window-title Toontown Infinite Classic
+window-title Toontown Infinite Classic Edition
 win-origin -1 -1
 icon-filename phase_3/etc/icon.ico
 cursor-filename phase_3/etc/toonmono.cur
@@ -78,7 +78,7 @@ want-golf-zone #t
 want-resistance-grounds #f
 
 # Safe zone settings:
-want-treasure-planners #t
+want-treasure-planners #f
 want-suit-planners #t
 
 # Classic characters:
