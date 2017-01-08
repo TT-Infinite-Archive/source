@@ -16,7 +16,7 @@ class ClickToStart(DirectObject):
 
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.backgroundModel = loader.loadModel(
-            'phase_3/models/gui/loading-background.bam')
+            'phase_3/models/gui/progress-background.bam')
         self.backgroundModel.reparentTo(self.backgroundNodePath)
         self.backgroundNodePath.find('**/fg').removeNode()
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
@@ -27,7 +27,7 @@ class ClickToStart(DirectObject):
 
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_classic_logo.png',
-            scale=(0.9, 1, 0.4), pos=(0, 0, -0.90))
+            scale=(0.9, 1, 0.45), pos=(0, 0, -0.90))
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
