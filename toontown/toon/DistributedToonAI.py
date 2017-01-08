@@ -5467,7 +5467,7 @@ def removeGag(gagId):
     if gagId not in Gag.Gags:
         return 'Invalid gag id %s' % gagId
 
-    if invoker.inventory.removeItem(gagId):
+    if invoker.inventory.removeGag(gagId):
         invoker.b_setInventory(invoker.inventory.toList())
         return 'Removed gag %s' % gagId
     return 'Failed to remove gag %s' % gagId

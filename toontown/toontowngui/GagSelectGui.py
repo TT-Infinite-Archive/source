@@ -122,7 +122,7 @@ class GagSelectGui(DirectFrame):
                 gag = gags[idx]
                 text = ''
                 state = DGG.NORMAL
-                if gag.uid not in [slot.gag.uid for slot in base.localAvatar.inventory.items]:
+                if not base.localAvatar.inventory.gagUnlocked(gag.uid):
                     text = '?'
                     gag = None
                     state = DGG.DISABLED
@@ -166,8 +166,6 @@ class GagSelectGui(DirectFrame):
             self.tt = None
 
     def __handleGagSelected(self, gag):
-        if base.localAvatar.inventory.isFull():
-            pass
         messenger.send(EventGlobals.EQUIP_GAG)
 
 
