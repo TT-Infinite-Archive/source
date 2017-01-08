@@ -105,8 +105,8 @@ class DistributedNPCClerk(DistributedNPCToonBase):
         return Task.done
 
     def __handlePurchaseDone(self):
-        self.d_avatarExit()
         self.ignore(EventGlobals.GagSelectGuiClose)
+        self.d_avatarExit()
         self.resetClerk()
 
     def __handleUnequipSlot(self, slot):

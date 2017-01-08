@@ -62,6 +62,7 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
         return Task.done
 
     def sendDone(self, avId):
+        taskMgr.remove(self.uniqueName('clearMovie'))
         self.busy = avId
         self.d_setMovie(NPCToons.PURCHASE_MOVIE_COMPLETE)
         self.sendClearMovie()
