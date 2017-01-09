@@ -56,7 +56,7 @@ class ToontownLoadingScreen:
         offset = -0.02
         self.logo = OnscreenImage(
             image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.75, 0.35, 0.35))
+            scale=(0.75, 0.35, 0.40))
         self.logo.reparentTo(hidden)
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
         scale = self.logo.getScale()
