@@ -648,7 +648,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             # No toon
             self.notify.warning('Invalid toon %s' % toonId)
             return
-        if not toon.inventory.isEquipped(attackId) and attackId not in Gag.AlwaysEquipped:
+        if not toon.loadout.isEquipped(attackId) and attackId not in Gag.AlwaysEquipped:
             # This attack is not equipped, and needs to be equipped
             self.notify.warning('Toon %s tried to use an attack he doesnt have equipped' % toonId)
             return

@@ -104,9 +104,6 @@ class TownBattle(StateData.StateData):
         for toonPanel in self.toonPanels:
             toonPanel.setBattle(battle)
 
-    def adjustCogsAndToons(self, activeSuits, activeToons):
-        pass
-
     def update(self):
         self.updatePanels()
         if self.choosePanel:
@@ -158,18 +155,16 @@ class TownBattle(StateData.StateData):
 
     def enterAttack(self):
         self.notify.debug('Enter Attack')
-        messenger.send(EventGlobals.SHOW_BATTLE_INVENTORY)
+        base.localAvatar.gagPanel.showOnscreen()
         self.accept(EventGlobals.GagSlotClick, self.__handleGagSelected)
 
     def exitAttack(self):
         self.notify.debug('Exit Attack')
-        messenger.send(EventGlobals.HIDE_BATTLE_INVENTORY)
+        base.localAvatar.gagPanel.hideOnscreen()
         self.ignore(EventGlobals.GagSlotClick)
 
     def __handleGagSelected(self, slotIndex):
-        gag = base.localAvatar.inventory.getGagAtSlot(slotIndex)
-        if gag is None:
-            return
+        gag = base.localAvatar.loadout.getGagAtSlot(slotIndex)
         self.__handleAttackSelected(gag.uid)
 
     def __handleAttackSelected(self, attackId):
