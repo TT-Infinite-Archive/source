@@ -43,15 +43,15 @@ class Gag(DirectObject):
     def description(self):
         typeToString = {
             self.TargetNone: '',
-            self.TargetSingleEnemy: 'Targets one Cog',
-            self.TargetSingleAlly: 'Targets one Toon',
-            self.TargetEnemies: 'Targets all Cogs',
-            self.TargetAllies: 'Targets other Toons',
-            self.TargetSelf: 'Targets yourself',
-            self.TargetSelfAndAllies: 'Targets all Toons'
+            self.TargetSingleEnemy: 'Affects: One Cog',
+            self.TargetSingleAlly: 'Affects: One Toon',
+            self.TargetEnemies: 'Affects: All Cogs',
+            self.TargetAllies: 'Affects: Other Toons',
+            self.TargetSelf: 'Affects: Yourself',
+            self.TargetSelfAndAllies: 'Affects: All Toons'
         }
         string = self.effect.description + '\n'
-        string += typeToString[self.targetType] + '\n'
+        string += typeToString[self.targetType] + '\n\n'
         if self.chance < 1.0:
             string += 'Has a %s%% chance to miss' % (100 - int(self.chance * 100)) + '\n'
         return string
