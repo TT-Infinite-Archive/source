@@ -59,8 +59,8 @@ class DistributedTreasure(DistributedObject.DistributedObject):
     def loadModel(self):
         modelPath, grabSoundPath = TreasureGlobals.TreasureModels[self.treasureType]
 
-        self.grabSound = base.loadSfx(grabSoundPath)
-        self.rejectSound = base.loadSfx(self.rejectSoundPath)
+        self.grabSound = loader.loadSfx(grabSoundPath)
+        self.rejectSound = loader.loadSfx(self.rejectSoundPath)
         if self.nodePath == None:
             self.makeNodePath()
         else:
