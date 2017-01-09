@@ -40,10 +40,12 @@ class MainMenu(DirectObject, FSM):
             scale=(2, 1, 1), pos=(0, 0, 0))
 
         # Load the Toontown Infinite logo
+        offset = -0.04
+
         self.logo = OnscreenImage(
             parent=base.aspect2d,
             image='phase_3/maps/toontown_infinite_classic_logo.png',
-            scale=(0.8, 0.35, 0.45), pos=(0, 0, 0.38)
+            scale=(0.8, 0.35, 0.45), pos=(offset, 0, 0.40)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -364,10 +366,10 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon3.hide()
 
     def enterSinglePlayerLocal(self):
-        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing local play on Toontown Infinite!"
+        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing local play on Toontown Infinite Classic Edition!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
-        OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open...'
+        OTPLocalizer.SpeedChatStaticText[30506] = 'Most of the features that were once available on the Toontown Infinite private server is here on Toontown Infinite Classic Edition!'
         OTPLocalizer.SpeedChatStaticText[
             30512] = 'I can report bugs on the Toontown Infinite Discord channel in the #bug-reports text channel.'
         self.__startSinglePlayer(True)
