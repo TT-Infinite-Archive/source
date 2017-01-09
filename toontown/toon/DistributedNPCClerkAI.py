@@ -6,6 +6,8 @@ from toontown.toon import NPCToons
 
 
 class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
+    notify = directNotify.newCategory('DistributedNPCClerkAI')
+
     def __init__(self, air, npcId):
         DistributedNPCToonBaseAI.__init__(self, air, npcId)
         self.timedOut = 0
@@ -18,6 +20,7 @@ class DistributedNPCClerkAI(DistributedNPCToonBaseAI):
     def avatarEnter(self):
         avId = self.air.getAvatarIdFromSender()
         av = self.air.doId2do.get(avId)
+        self.notify.debug('Avatar entering my pos %s their pos %s' % (self.getPos(), av.getPos()))
         if av is None:
             self.notify.warning('Toon %s tried to enter but not in air.' % avId)
             return

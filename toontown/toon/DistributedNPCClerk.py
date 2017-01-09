@@ -7,7 +7,7 @@ from toontown.toon import NPCToons
 from toontown.chat.ChatGlobals import *
 from toontown.minigame import ClerkPurchase
 from toontown.toonbase import TTLocalizer, EventGlobals
-from toontown.toontowngui.GagSelectGui import GagSelectGui
+from toontown.toontowngui.LoadoutSelectGui import LoadoutSelectGui
 
 
 class DistributedNPCClerk(DistributedNPCToonBase):
@@ -102,7 +102,7 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
     def popupPurchaseGUI(self, task):
         self.setChatAbsolute('', CFSpeech)
-        self.purchase = GagSelectGui(self.timeout)
+        self.purchase = LoadoutSelectGui(self.timeout)
         self.accept(EventGlobals.GagSelectGuiClose, self.__handlePurchaseDone)
         self.accept(EventGlobals.EQUIP_GAG, self.__handleEquipGag)
         self.accept(EventGlobals.GagSlotClick, self.__handleUnEquipSlot)

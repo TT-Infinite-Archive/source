@@ -12,8 +12,8 @@ from toontown.util.ThreadedCall import ThreadedCall
 from toontown.util.PlacerTool3D import PlacerTool3D
 
 
-class GagSelectGui(DirectFrame):
-    notify = directNotify.newCategory('GagSelectGui')
+class LoadoutSelectGui(DirectFrame):
+    notify = directNotify.newCategory('LoadoutSelectGui')
     MAX_PER_ROW = 5
     MAX_ROWS = 4
     X_START = -0.65
@@ -25,7 +25,7 @@ class GagSelectGui(DirectFrame):
         self.notify.debug('Loading...')
         self.gagThread = None
         DirectFrame.__init__(self, parent=aspect2d, relief=None, pos=pos)
-        self.initialiseoptions(GagSelectGui)
+        self.initialiseoptions(LoadoutSelectGui)
         self.mainFrame = TTFrame(self, pos=(-0.5, 0.0, 0.0), geom_scale=(1.7, 1, 1.7))
         self.gagInventory = ClerkLoadoutGui(base.localAvatar, (0, 0, 0.65), self.mainFrame)
         self.title = TTLabel(
@@ -152,7 +152,7 @@ class GagSelectGui(DirectFrame):
                 gb.hide()
                 self.gagButtons.append(gb)
         if callback:
-            callback(len(gags))
+            callback(len(self.gagButtons))
 
 
 class GagSelectInfoFrame(GagInfoFrame):
