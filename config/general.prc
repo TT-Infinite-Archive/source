@@ -1,5 +1,5 @@
 # Window settings:
-window-title Toontown Infinite Classic Edition
+window-title Toontown Infinite: Classic Edition
 win-origin -1 -1
 icon-filename phase_3/etc/icon.ico
 cursor-filename phase_3/etc/toonmono.cur
