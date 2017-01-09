@@ -244,7 +244,7 @@ def loadDialog(level):
          'COG_VO_statement',
          'COG_VO_question']
         for file in SuitDialogFiles:
-            SuitDialogArray.append(base.loadSfx(loadPath + file + '.ogg'))
+            SuitDialogArray.append(loader.loadSfx(loadPath + file + '.ogg'))
 
         SuitDialogArray.append(SuitDialogArray[2])
         SuitDialogArray.append(SuitDialogArray[2])

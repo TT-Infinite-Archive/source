@@ -112,9 +112,9 @@ base.setBackgroundColor(Vec4(0, 0, 0, 0))
 base.graphicsEngine.renderFrame()
 
 DirectGuiGlobals.setDefaultRolloverSound(
-    base.loadSfx('phase_3/audio/sfx/GUI_rollover.ogg'))
+    loader.loadSfx('phase_3/audio/sfx/GUI_rollover.ogg'))
 DirectGuiGlobals.setDefaultClickSound(
-    base.loadSfx('phase_3/audio/sfx/GUI_create_toon_fwd.ogg'))
+    loader.loadSfx('phase_3/audio/sfx/GUI_create_toon_fwd.ogg'))
 DirectGuiGlobals.setDefaultDialogGeom(
     loader.loadModel('phase_3/models/gui/dialog_box_gui.bam'))
 

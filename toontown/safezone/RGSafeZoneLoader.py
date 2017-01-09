@@ -16,13 +16,13 @@ class RGSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
     def load(self):
         SafeZoneLoader.SafeZoneLoader.load(self)
 
-        self.birdSound = map(base.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
+        self.birdSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird2.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
-        self.underwaterSound = base.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')
-        self.swimSound = base.loadSfx('phase_4/audio/sfx/AV_swim_single_stroke.ogg')
-        self.submergeSound = base.loadSfx('phase_5.5/audio/sfx/AV_jump_in_water.ogg')
-        self.waterSound = base.loadSfx('phase_6/audio/sfx/SZ_DD_waterlap.ogg')
+        self.underwaterSound = loader.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')
+        self.swimSound = loader.loadSfx('phase_4/audio/sfx/AV_swim_single_stroke.ogg')
+        self.submergeSound = loader.loadSfx('phase_5.5/audio/sfx/AV_jump_in_water.ogg')
+        self.waterSound = loader.loadSfx('phase_6/audio/sfx/SZ_DD_waterlap.ogg')
         water = self.geom.find('**/water')
         water.setTransparency(1)
         water.setColorScale(1, 1, 1, 1)

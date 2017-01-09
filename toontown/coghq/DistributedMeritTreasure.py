@@ -19,8 +19,8 @@ class DistributedMeritTreasure(DistributedTreasure):
         model = loader.loadModel(modelPath)
         model.setScale(2.0)
 
-        self.grabSound = base.loadSfx('phase_4/audio/sfx/SZ_DD_treasure.ogg')
-        self.rejectSound = base.loadSfx(self.rejectSoundPath)
+        self.grabSound = loader.loadSfx('phase_4/audio/sfx/SZ_DD_treasure.ogg')
+        self.rejectSound = loader.loadSfx(self.rejectSoundPath)
 
         if self.nodePath is None:
             self.makeNodePath()
