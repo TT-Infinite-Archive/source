@@ -1,9 +1,5 @@
 from direct.showbase.DirectObject import DirectObject
 from direct.task.Task import Task
-from direct.showbase.RandomNumGen import RandomNumGen
-from direct.interval.FunctionInterval import Wait
-from direct.interval.IntervalGlobal import Func
-from direct.interval.MetaInterval import Sequence, Parallel
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 import CogdoFlyingGameGlobals as Globals
 from CogdoFlyingLocalPlayer import CogdoFlyingLocalPlayer
@@ -66,7 +62,7 @@ class CogdoFlyingGame(DirectObject):
     def load(self):
         self.accept(self.distGame.getRemoteActionEventName(), self.handleRemoteAction)
         self.audioMgr = CogdoGameAudioManager(Globals.Audio.MusicFiles, Globals.Audio.SfxFiles, base.localAvatar, cutoff=Globals.Audio.Cutoff)
-        factory = CogdoFlyingLevelFactory(render, Globals.Level.QuadLengthUnits, Globals.Level.QuadVisibilityAhead, Globals.Level.QuadVisibilityBehind, rng=RandomNumGen(self.distGame.doId))
+        factory = CogdoFlyingLevelFactory(render, Globals.Level.QuadLengthUnits, Globals.Level.QuadVisibilityAhead, Globals.Level.QuadVisibilityBehind)
         self.level = factory.createLevel(self.distGame.getSafezoneId())
         self.level.setCamera(camera)
         self.guiMgr = CogdoFlyingGuiManager(self.level)
@@ -114,7 +110,7 @@ class CogdoFlyingGame(DirectObject):
         self.levelFog.setVisible(False)
 
     def startIntro(self):
-        self._movie = CogdoFlyingGameIntro(self.level, RandomNumGen(self.distGame.doId))
+        self._movie = CogdoFlyingGameIntro(self.level)
         self._movie.load()
         self._movie.play()
         self.audioMgr.playMusic('normal')

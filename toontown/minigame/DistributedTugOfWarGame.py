@@ -93,12 +93,11 @@ class DistributedTugOfWarGame(DistributedMinigame):
         for k in xrange(4):
             self.drinkPositions.append(VBase3(-.2 + 0.2 * k, 16 + 2 * k, 0.0))
 
-        self.rng = RandomNumGen.RandomNumGen(1000)
+        self.rng = random.Random(1000)
         self.introTrack = None
         self.showTrack = None
         self.setupTrack = None
         self.animTracks = {}
-        self.randomNumGen = None
         return
 
     def getTitle(self):
@@ -647,7 +646,7 @@ class DistributedTugOfWarGame(DistributedMinigame):
                 self.hprDict[self.avIdList[0]] = hprPositions[0]
                 self.hprDict[self.avIdList[1]] = hprPositions[0]
             else:
-                self.randomNumGen.shuffle(self.avIdList)
+                random.shuffle(self.avIdList)
                 self.posDict[self.avIdList[0]] = dockPositions[2]
                 self.posDict[self.avIdList[1]] = dockPositions[7]
                 self.hprDict[self.avIdList[0]] = hprPositions[0]
@@ -663,7 +662,7 @@ class DistributedTugOfWarGame(DistributedMinigame):
                 self.hprDict[self.avIdList[1]] = hprPositions[0]
                 self.hprDict[self.avIdList[2]] = hprPositions[0]
             else:
-                self.randomNumGen.shuffle(self.avIdList)
+                random.shuffle(self.avIdList)
                 self.arrangeByHeight(self.avIdList, self.H_TO_L, 0, 1)
                 self.posDict[self.avIdList[0]] = dockPositions[1]
                 self.posDict[self.avIdList[1]] = dockPositions[2]
@@ -684,7 +683,7 @@ class DistributedTugOfWarGame(DistributedMinigame):
                 self.hprDict[self.avIdList[2]] = hprPositions[0]
                 self.hprDict[self.avIdList[3]] = hprPositions[0]
             else:
-                self.randomNumGen.shuffle(self.avIdList)
+                random.shuffle(self.avIdList)
                 self.arrangeByHeight(self.avIdList, self.H_TO_L, 0, 1)
                 self.arrangeByHeight(self.avIdList, self.L_TO_H, 2, 3)
                 self.posDict[self.avIdList[0]] = dockPositions[1]
@@ -938,7 +937,7 @@ class DistributedTugOfWarGame(DistributedMinigame):
         reactSeq = Sequence()
         exitSeq = Sequence()
         suitSlipTime = 0
-        if self.gameFSM.getCurrentState().getName() == 'cleanup' or not self.randomNumGen:
+        if self.gameFSM.getCurrentState().getName() == 'cleanup':
             return
         if self.suit:
             #For the Alpha Blueprint ARG
@@ -946,7 +945,7 @@ class DistributedTugOfWarGame(DistributedMinigame):
                 MinigameGlobals.generateDebugARGPhrase()
             if self.suitId in winners:
                 newPos = VBase3(2.65, 18, 0.1)
-                randInt = self.randomNumGen.randrange(0, 10)
+                randInt = random.randrange(0, 10)
                 oopsTrack = Wait(0)
                 if randInt < 3:
                     suitSlipTime = 2.2

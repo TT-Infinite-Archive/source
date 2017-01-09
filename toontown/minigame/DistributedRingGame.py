@@ -528,10 +528,10 @@ class DistributedRingGame(DistributedMinigame):
 
             return 1
 
-        pattern = self.randomNumGen.choice(difficultyPatterns[self.getSafezoneId()])
+        pattern = random.choice(difficultyPatterns[self.getSafezoneId()])
         for i in xrange(0, self.__numRingGroups):
             numRings = self.numPlayers
-            trackGroup = RingTrackGroups.getRandomRingTrackGroup(pattern[i], numRings, self.randomNumGen)
+            trackGroup = RingTrackGroups.getRandomRingTrackGroup(pattern[i], numRings)
             ringGroup = RingGroup.RingGroup(trackGroup, self.ringModel, RingGameGlobals.MAX_TOONXZ, self.colorIndices)
             for r in xrange(numRings):
                 self.__addRingDropShadow(ringGroup.getRing(r))

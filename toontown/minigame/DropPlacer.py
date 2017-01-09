@@ -1,23 +1,19 @@
-from direct.showbase.RandomNumGen import RandomNumGen
 import CatchGameGlobals
 import DropScheduler
 from toontown.parties.PartyGlobals import CatchActivityDuration as PartyCatchDuration
+import random
+
 
 class DropPlacer:
-
     def __init__(self, game, numPlayers, dropTypes, startTime = None):
         self.game = game
         self.numPlayers = numPlayers
         self.dropTypes = dropTypes
         self.dtIndex = 0
         self._createScheduler(startTime)
-        self._createRng()
 
     def _createScheduler(self, startTime):
         self.scheduler = DropScheduler.DropScheduler(CatchGameGlobals.GameDuration, self.game.FirstDropDelay, self.game.DropPeriod, self.game.MaxDropDuration, self.game.FasterDropDelay, self.game.FasterDropPeriodMult, startTime=startTime)
-
-    def _createRng(self):
-        self.rng = self.game.randomNumGen
 
     def skipPercent(self, percent):
         numSkips = self.scheduler.skipPercent(percent)
@@ -46,8 +42,8 @@ class DropPlacer:
         return typeName
 
     def getRandomColRow(self):
-        col = self.rng.randrange(0, self.game.DropColumns)
-        row = self.rng.randrange(0, self.game.DropRows)
+        col = random.randrange(0, self.game.DropColumns)
+        row = random.randrange(0, self.game.DropRows)
         return [col, row]
 
     def getNextDrop(self):
@@ -911,8 +907,8 @@ class RegionDropPlacer(DropPlacer):
         candidates = self.emptyDropRegions
         if len(candidates) == 0:
             candidates = self.DropRegions
-        dropRegion = self.rng.choice(candidates)
-        row, col = self.rng.choice(self.DropRegion2GridCoordList[dropRegion])
+        dropRegion = random.choice(candidates)
+        row, col = random.choice(self.DropRegion2GridCoordList[dropRegion])
         dropTypeName = self.getNextDropTypeName()
         drop = [t, dropTypeName, [row, col]]
         duration = self.game.BaselineDropDuration
@@ -928,9 +924,6 @@ class PartyRegionDropPlacer(RegionDropPlacer):
     def __init__(self, game, numPlayers, generationId, dropTypes, startTime = None):
         self.generationId = generationId
         RegionDropPlacer.__init__(self, game, numPlayers, dropTypes, startTime=startTime)
-
-    def _createRng(self):
-        self.rng = RandomNumGen(self.generationId + self.game.doId)
 
     def _createScheduler(self, startTime):
         self.scheduler = DropScheduler.ThreePhaseDropScheduler(PartyCatchDuration, self.game.FirstDropDelay, self.game.DropPeriod, self.game.MaxDropDuration, self.game.SlowerDropPeriodMult, self.game.NormalDropDelay, self.game.FasterDropDelay, self.game.FasterDropPeriodMult, startTime=startTime)
@@ -950,7 +943,7 @@ class PathDropPlacer(DropPlacer):
          [-1, -1]]
         self.paths = []
         for i in xrange(self.numPlayers):
-            dir = self.rng.randrange(0, len(self.moves))
+            dir = random.randrange(0, len(self.moves))
             col, row = self.getRandomColRow()
             path = {'direction': dir,
              'location': [col, row]}
@@ -1052,7 +1045,7 @@ class PathDropPlacer(DropPlacer):
             return dir
         newDir = redirectTable[dir]
         if type(newDir) != type(1):
-            newDir = self.rng.choice(newDir)
+            newDir = random.choice(newDir)
         return newDir
 
     def getNextDrop(self):
@@ -1063,7 +1056,7 @@ class PathDropPlacer(DropPlacer):
          0,
          0,
          1]
-        turn = self.rng.choice(turns)
+        turn = random.choice(turns)
         if turn:
             dir = (dir + turn) % len(self.moves)
         dir = self.getValidDirection(col, row, dir)

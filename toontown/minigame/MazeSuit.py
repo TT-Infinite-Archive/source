@@ -1,13 +1,14 @@
 from direct.showbase.DirectObject import DirectObject
 from direct.interval.MetaInterval import Parallel
 from direct.interval.LerpInterval import LerpPosInterval, LerpHprInterval
-from direct.showbase.RandomNumGen import RandomNumGen
 from pandac.PandaModules import Point3, WaitInterval
 from pandac.PandaModules import CollisionSphere, CollisionNode
 from toontown.suit import Suit
 from toontown.suit import SuitDNA
 from toontown.toonbase import ToontownGlobals
 import MazeGameGlobals
+import random
+
 
 class MazeSuit(DirectObject):
     COLL_SPHERE_NAME = 'MazeSuitSphere'
@@ -28,13 +29,9 @@ class MazeSuit(DirectObject):
     DEFAULT_SPEED = 4.0
     SUIT_Z = 0.1
 
-    def __init__(self, serialNum, maze, randomNumGen, cellWalkPeriod, difficulty, suitDnaName = 'f', startTile = None, ticFreq = MazeGameGlobals.SUIT_TIC_FREQ, walkSameDirectionProb = MazeGameGlobals.WALK_SAME_DIRECTION_PROB, walkTurnAroundProb = MazeGameGlobals.WALK_TURN_AROUND_PROB, uniqueRandomNumGen = True, walkAnimName = None):
+    def __init__(self, serialNum, maze, cellWalkPeriod, difficulty, suitDnaName = 'f', startTile = None, ticFreq = MazeGameGlobals.SUIT_TIC_FREQ, walkSameDirectionProb = MazeGameGlobals.WALK_SAME_DIRECTION_PROB, walkTurnAroundProb = MazeGameGlobals.WALK_TURN_AROUND_PROB, walkAnimName = None):
         self.serialNum = serialNum
         self.maze = maze
-        if uniqueRandomNumGen:
-            self.rng = RandomNumGen(randomNumGen)
-        else:
-            self.rng = randomNumGen
         self.difficulty = difficulty
         self._walkSameDirectionProb = walkSameDirectionProb
         self._walkTurnAroundProb = walkTurnAroundProb
@@ -161,12 +158,12 @@ class MazeSuit(DirectObject):
         return (TX, TY)
 
     def __chooseNewWalkDirection(self, unwalkables):
-        if not self.rng.randrange(self._walkSameDirectionProb):
+        if not random.randrange(self._walkSameDirectionProb):
             newTX, newTY = self.__applyDirection(self.direction, self.TX, self.TY)
             if self.maze.isWalkable(newTX, newTY, unwalkables):
                 return self.direction
         if self.difficulty >= 0.5:
-            if not self.rng.randrange(self._walkTurnAroundProb):
+            if not random.randrange(self._walkTurnAroundProb):
                 oppositeDir = self.oppositeDirections[self.direction]
                 newTX, newTY = self.__applyDirection(oppositeDir, self.TX, self.TY)
                 if self.maze.isWalkable(newTX, newTY, unwalkables):
@@ -177,7 +174,7 @@ class MazeSuit(DirectObject):
          self.DIR_RIGHT]
         candidateDirs.remove(self.oppositeDirections[self.direction])
         while len(candidateDirs):
-            dir = self.rng.choice(candidateDirs)
+            dir = random.choice(candidateDirs)
             newTX, newTY = self.__applyDirection(dir, self.TX, self.TY)
             if self.maze.isWalkable(newTX, newTY, unwalkables):
                 return dir

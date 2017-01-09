@@ -13,6 +13,7 @@ from toontown.toonbase import ToontownTimer
 from direct.task.Task import Task
 import Trajectory
 import math
+import random
 from toontown.toon import ToonHead
 from toontown.effects import Splash
 from toontown.effects import DustCloud
@@ -282,7 +283,7 @@ class DistributedCannonGame(DistributedMinigame):
             else:
                 y = yMax
         else:
-            y = self.randomNumGen.randint(yMin, yMax)
+            y = random.randint(yMin, yMax)
         xRange = TOWER_X_RANGE
         if self.DEBUG_TOWER_RANGE:
             if self.DEBUG_TOWER_FAR_LEFT:
@@ -290,7 +291,7 @@ class DistributedCannonGame(DistributedMinigame):
             else:
                 x = xRange
         else:
-            x = self.randomNumGen.randint(0, xRange)
+            x = random.randint(0, xRange)
         x = x - int(xRange / 2.0)
         if base.wantMinigameDifficulty:
             diff = self.getDifficulty()

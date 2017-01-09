@@ -5,7 +5,6 @@ from direct.interval.IntervalGlobal import Sequence, Parallel
 from direct.interval.IntervalGlobal import LerpScaleInterval, LerpFunctionInterval, LerpColorScaleInterval, LerpPosInterval
 from direct.interval.IntervalGlobal import SoundInterval, WaitInterval
 from direct.showbase.PythonUtil import Functor, bound, lerp, SerialNumGen
-from direct.showbase.RandomNumGen import RandomNumGen
 from direct.task.Task import Task
 from direct.distributed import DistributedSmoothNode
 from direct.directnotify import DirectNotifyGlobal
@@ -23,6 +22,7 @@ from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
 from toontown.parties.DistributedPartyCatchActivityBase import DistributedPartyCatchActivityBase
 from toontown.parties.DistributedPartyCannonActivity import DistributedPartyCannonActivity
 from toontown.parties.activityFSMs import CatchActivityFSM
+import random
 
 class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCatchActivityBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPartyCatchActivity')
@@ -68,7 +68,7 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
         self._id2gen = {}
         self._orderedGenerations = []
         self._orderedGenerationIndex = None
-        rng = RandomNumGen(self.doId)
+        rng = random.Random(self.doId)
         self._generationSeedBase = rng.randrange(1000)
         self._lastDropTime = 0.0
         return
@@ -625,7 +625,7 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
          'watermelon',
          'pineapple']
         fruitName = fruitNames[fruitIndex % len(fruitNames)]
-        rng = RandomNumGen(genId + self._generationSeedBase)
+        rng = random.Random(genId + self._generationSeedBase)
         gen.droppedObjNames = [fruitName] * self.numFruits + ['anvil'] * self.numAnvils
         rng.shuffle(gen.droppedObjNames)
         dropPlacer = PartyRegionDropPlacer(self, gen.numPlayers, genId, gen.droppedObjNames, startTime=gen.startTime)
@@ -708,10 +708,10 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
             objH = object.getH()
             absDelta = {'watermelon': 12,
              'anvil': 15}[dropObjName]
-            delta = (self.randomNumGen.random() * 2.0 - 1.0) * absDelta
+            delta = (random.random() * 2.0 - 1.0) * absDelta
             newH = objH + delta
         else:
-            newH = self.randomNumGen.random() * 360.0
+            newH = random.random() * 360.0
         object.setH(newH)
         sphereName = 'FallObj%s' % (id,)
         radius = self.ObjRadius
