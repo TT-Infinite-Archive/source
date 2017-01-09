@@ -82,7 +82,7 @@ class LoadoutGui(DirectFrame):
         self.reparentTo(aspect2d)
         if self.gagInfoFrame is not None:
             self.gagInfoFrame.destroy()
-        self.gagInfoFrame = GagInfoFrame(parent=self, pos=(-0.39, 0, -0.35))
+        self.gagInfoFrame = GagInfoFrame(parent=self, pos=(-0.39, 0, -0.51))
         self.accept(EventGlobals.GagSlotEnter, self.updateGagInfo)
         self.accept(EventGlobals.GagSlotExit, self.clearGagInfo)
 
