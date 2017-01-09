@@ -3,7 +3,7 @@ from direct.showbase.DirectObject import DirectObject
 
 from toontown.data import Missile, Track, IconGlobals
 from toontown.data.Effect import DamageEffect
-from toontown.toonbase import ColorGlobals
+from toontown.toonbase import ColorGlobals, TTLocalizer
 
 
 class Gag(DirectObject):
@@ -43,16 +43,17 @@ class Gag(DirectObject):
     def description(self):
         typeToString = {
             self.TargetNone: '',
-            self.TargetSingleEnemy: ' to a Cog',
-            self.TargetSingleAlly: ' to a Toon',
-            self.TargetEnemies: ' to all Cogs',
-            self.TargetAllies: ' to other Toons',
-            self.TargetSelf: ' to yourself',
-            self.TargetSelfAndAllies: ' to all Toons'
+            self.TargetSingleEnemy: 'Targets one Cog',
+            self.TargetSingleAlly: 'Targets one Toon',
+            self.TargetEnemies: 'Targets all Cogs',
+            self.TargetAllies: 'Targets other Toons',
+            self.TargetSelf: 'Targets yourself',
+            self.TargetSelfAndAllies: 'Targets all Toons'
         }
-        string = '%s%s.' % (self.effect.description, typeToString[self.targetType])
+        string = self.effect.description + '\n'
+        string += typeToString[self.targetType] + '\n'
         if self.chance < 1.0:
-            string += ' Has a %s%% chance to hit.' % int(self.chance * 100)
+            string += 'Has a %s%% chance to miss' % (100 - int(self.chance * 100)) + '\n'
         return string
 
     @property

@@ -32,7 +32,7 @@ class HealEffect(Effect):
 
     @property
     def description(self):
-        return 'Toon-Up (%d) points' % self.amount
+        return 'Toon-Up: %d' % self.amount
 
 
 class DamageEffect(Effect):
@@ -51,4 +51,4 @@ class DamageEffect(Effect):
 
     @property
     def description(self):
-        return 'Deal (%d) damage' % self.amount
+        return 'Damage: %d' % self.amount
