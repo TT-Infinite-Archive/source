@@ -92,6 +92,7 @@ show-population #f
 want-instant-parties #t
 want-quest-verification #t
 want-heartbeat #f
+want-yin-yang #t
 
 # Debug tools:
 want-leak-graph-ai #f

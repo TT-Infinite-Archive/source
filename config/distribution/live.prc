@@ -38,33 +38,33 @@ web-api-token invalid
 # Core features:
 want-kaldron-network #f
 want-multiplayer #f
-want-pets #f
-want-parties #f
+want-pets #t
+want-parties #t
 want-achievements #f
 want-grouptracker #f
 
 # Safe zones:
 want-safe-zones #t
 want-toontown-central #t
-want-donalds-dock #f
-want-daisys-garden #f
-want-minnies-melodyland #f
-want-the-burrrgh #f
-want-donalds-dreamland #f
-want-goofy-speedway #f
-want-outdoor-zone #f
-want-golf-zone #f
+want-donalds-dock #t
+want-daisys-garden #t
+want-minnies-melodyland #t
+want-the-burrrgh #t
+want-donalds-dreamland #t
+want-goofy-speedway #t
+want-outdoor-zone #t
+want-golf-zone #t
 want-resistance-grounds #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 
 # Sellbot boss:
 disable-sos-card 91917
 disable-sos-card 91918
 
 # Trolley minigames:
-want-ttc-trolley #f
+want-ttc-trolley #t
 want-photo-game #f
 want-travel-game #f
 
@@ -73,7 +73,7 @@ want-whitelist #t
 want-blacklist #f
 
 # Developer options:
-want-yin-yang #f
+want-yin-yang #t
 force-skip-tutorial #t
 show-population #f
 want-phone-quest #f
@@ -85,7 +85,7 @@ want-leak-graph-client #f
 want-dev-debug #f
 
 # Safezone interactables:
-want-ttc-jukebox #t
+want-ttc-jukebox #f
 
 # Mod tools:
 want-mods #f
