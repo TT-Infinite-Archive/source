@@ -76,6 +76,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         
         for thread in self.threads:
             thread.kill()
+
+        self.threads = []
     
     def enterOff(self):
         self.destroy()

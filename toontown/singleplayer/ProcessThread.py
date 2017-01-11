@@ -15,6 +15,7 @@ class ProcessThread(threading.Thread):
         threading.Thread.__init__(self)
 
         self.daemon = True
+        self.killed = False
         self.processInfo, self.folder, self.name, self.failText, self.successText = process
         
         if not self.folder:
@@ -30,13 +31,15 @@ class ProcessThread(threading.Thread):
 
     def failed(self):
         messenger.send('processFailed', [self.name])
+        self.killed = True
 
     def started(self):
         messenger.send('processStarted', [self.name])
     
     def kill(self):
-        if hasattr(self, 'process') and self.process:
+        if hasattr(self, 'process') and self.process and not self.killed:
             self.process.kill()
+            self.killed = True
     
     def run(self):
         try:
