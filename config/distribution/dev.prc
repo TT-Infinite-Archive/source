@@ -75,7 +75,7 @@ want-resistance-restock #t
 want-resistance-dance #t
 
 # Trolley minigames:
-want-ttc-trolley #t
+want-ttc-trolley #f
 want-photo-game #f
 want-travel-game #f
 
