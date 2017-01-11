@@ -39,7 +39,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.logPort = 7020
             self.mongoPort = 7030
             self.mongoPath = 'data/multiplayer'
-            self.astronConfig = 'astrond_mp.yml'
+            self.astronConfig = os.path.join(base.tempDir, 'multiplayer.yml')
         
         buttonScale = (-1, 1, 1)
 
@@ -88,11 +88,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     
     def enterStart(self):
         if self.isServerAlive():
-            if self.singlePlayer:
-                self.demand('ServerRunning')
-            else:
-                self.destroy()
-                base.connectToServer('127.0.0.1', self.getPort())
+            self.demand('ServerRunning')
             return
 
         self.accept('processStarted', self.__processStarted)
@@ -118,7 +114,10 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.killThreads()
     
     def enterServerRunning(self):
-        self.label['text'] = TTLocalizer.ServerRunningAlready
+        if self.singlePlayer:
+            self.label['text'] = TTLocalizer.ServerRunningAlready
+        else:
+            self.label['text'] = TTLocalizer.MultiServerRunningAlready
         self.backButton.show()
     
     def __nextProcess(self):

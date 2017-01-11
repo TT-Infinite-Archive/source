@@ -332,6 +332,7 @@ class MainMenu(DirectObject, FSM):
         self.backButton.show()
         self.quitButton.show()
         base.isSinglePlayer = True
+        base.isHosting = False
         for spButton in self.spButtons:
             spButton.show()
 
@@ -374,6 +375,7 @@ class MainMenu(DirectObject, FSM):
         self.__startSinglePlayer(True)
 
     def enterMultiplayerCPHost(self):
+        base.isHosting = True
         self.__startSinglePlayer(False)
 
     def __startSinglePlayer(self, singlePlayer):
@@ -489,6 +491,21 @@ class MainMenu(DirectObject, FSM):
         if input == '':
             return
         messenger.send('wakeup')
+        self.request('MultiplayerCPConnect')
+
+    def enterMultiplayerCPConnect(self):
+        base.isHosting = False
+        ip = self.ipInput.get()
+        if ':' in ip:
+            ip, port = ip.split(':')
+            try:
+                port = int(port)
+            except:
+                # TODO: Better handle invalid addresses
+                port = 7000
+            base.connectToServer(ip, port)
+        else:
+            base.connectToServer(ip)
 
     def __enableIPEntry(self):
         self.ipInput['state'] = DGG.NORMAL
@@ -528,5 +545,4 @@ class MainMenu(DirectObject, FSM):
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
-        self.doneStatus = {'mode': 'exit'}
-        messenger.send(self.doneEvent, [self.doneStatus])
+        base.cr.loginFSM.request('shutdown')

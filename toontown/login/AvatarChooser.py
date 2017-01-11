@@ -313,5 +313,6 @@ class AvatarChooser(StateData.StateData):
         base.cr.loginFSM.request('login')
     
     def __back(self):
-        base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+        if base.isSinglePlayer or base.isHosting:
+            base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
         base.cr.loginFSM.request('mainMenu')
