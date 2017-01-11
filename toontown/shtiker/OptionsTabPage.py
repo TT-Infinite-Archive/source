@@ -882,6 +882,8 @@ class OptionsTabPage(DirectFrame):
 
     def getResIndex(self):
         res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
+        if res not in self.screenSizes:
+            res = base.getSmallestResolution()
         return self.screenSizes.index(res)
 
     def updateSpeedChatStyle(self):
