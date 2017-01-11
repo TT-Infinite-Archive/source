@@ -886,7 +886,7 @@ class OptionsTabPage(DirectFrame):
             res = base.getSmallestResolution()
         try:
             return self.screenSizes.index(res)
-        except IndexError as e:
+        except ValueError as e:
             self.notify.warning('%s. Resolution info: %s' % (e, (base.nativeRatio, base.nativeHeight, base.nativeWidth, self.screenSizes)))
 
     def updateSpeedChatStyle(self):
