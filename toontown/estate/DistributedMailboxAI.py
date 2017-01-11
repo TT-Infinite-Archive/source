@@ -73,8 +73,8 @@ class DistributedMailboxAI(DistributedObjectAI):
 
     def updateIndicatorFlag(self):
         av = self.air.doId2do.get(self.house.avatarId)
-        if av:
-            self.sendUpdate('setFullIndicator', [len(min(av.mailboxContents, ToontownGlobals.MaxMailboxContents))])
+        if av and av.mailboxContents:
+            self.sendUpdate('setFullIndicator', [1])
         else:
             self.sendUpdate('setFullIndicator', [0])
 
