@@ -10721,7 +10721,7 @@ Jellybeans = 'Jellybeans'
 BossLeaderboardLabel = 'Current Damage'
 
 ServerRunningAlready = 'A single player session is already in progress.'
-MultiServerRunningAlready = 'A multi player session is already in progress.'
+MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 StartingGame = 'Starting the game momentarily...'
