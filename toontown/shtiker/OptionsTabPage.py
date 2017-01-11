@@ -923,7 +923,12 @@ class OptionsTabPage(DirectFrame):
         settings['fullscreen'] = self.displaySettingsFullscreen
 
     def __handleExitServerShowWithConfirm(self):
-        message = TTLocalizer.OptionsPageExitConfirmMultiplayer if base.isHosting else TTLocalizer.OptionsPageExitConfirm
+        if base.isHosting:
+            message = TTLocalizer.OptionsPageExitConfirmMultiplayerHost
+        else:
+            message = TTLocalizer.OptionsPageExitConfirmMultiplayer
+        if base.isSinglePlayer:
+            message = TTLocalizer.OptionsPageExitConfirmSingleplayer
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent='confirmDone',
             message=message,
