@@ -371,13 +371,13 @@ class MainMenu(DirectObject, FSM):
         OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open...'
         OTPLocalizer.SpeedChatStaticText[
             30512] = 'I can report bugs on the Toontown Infinite Discord channel in the #bug-reports text channel.'
-        self.__startSinglePlayer(True)
+        self.__startGameSession(True)
 
     def enterMultiplayerCPHost(self):
         base.isHosting = True
-        self.__startSinglePlayer(False)
+        self.__startGameSession(False)
 
-    def __startSinglePlayer(self, singlePlayer):
+    def __startGameSession(self, singlePlayer):
         self.hide()
         self.background.show()
         self.logo.show()
