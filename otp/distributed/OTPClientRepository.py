@@ -191,6 +191,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.enterFailedToConnect,
                   self.exitFailedToConnect, [
                       'connect',
+                      'mainMenu',
                       'shutdown']),
             State('failedToGetServerConstants',
                   self.enterFailedToGetServerConstants,
@@ -224,6 +225,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitNoShards, [
                       'noConnection',
                       'noShardsWait',
+                      'mainMenu',
                       'shutdown']),
             State('noShardsWait',
                   self.enterNoShardsWait,
@@ -239,6 +241,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitNoConnection, [
                       'login',
                       'connect',
+                      'mainMenu',
                       'shutdown']),
             State('afkTimeout',
                   self.enterAfkTimeout,
@@ -398,6 +401,12 @@ class OTPClientRepository(ClientRepositoryBase):
         # Generate a single player Astron config file.
         path = os.path.join(base.tempDir, 'singleplayer.yml')
         data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+        with open(path, 'w') as f:
+            yaml.dump(data, f)
+
+        # Generate a multi player Astron config file.
+        path = os.path.join(base.tempDir, 'multiplayer.yml')
+        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
         with open(path, 'w') as f:
             yaml.dump(data, f)
 
@@ -595,7 +604,7 @@ class OTPClientRepository(ClientRepositoryBase):
         whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)
         whisper.manage(base.marginManager)
         if not self.systemMessageSfx:
-            self.systemMessageSfx = base.loadSfx('phase_3/audio/sfx/clock03.ogg')
+            self.systemMessageSfx = loader.loadSfx('phase_3/audio/sfx/clock03.ogg')
         if self.systemMessageSfx:
             base.playSfx(self.systemMessageSfx)
 
@@ -714,12 +723,12 @@ class OTPClientRepository(ClientRepositoryBase):
         if not self.introDone:
             if style == OTPDialog.CancelOnly:
                 self.introduction.request('ExitDialog', message,
-                                          self.loginFSM.request, ['shutdown'])
+                                          self.loginFSM.request, ['mainMenu'])
             else:
                 self.introduction.request(
                     'YesNoDialog', message, self.loginFSM.request,
                     ['connect', [self.serverList]], self.loginFSM.request,
-                    ['shutdown'])
+                    ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.failedToConnectBox = dialogClass(message=message, doneEvent='failedToConnectAck', text_wordwrap=18, style=style)
@@ -732,7 +741,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('connect', [self.serverList])
             messenger.send('connectionRetrying')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -826,7 +835,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.introduction.request(
                 'YesNoDialog', OTPLocalizer.CRMissingGameRootObject,
                 self.loginFSM.request, ['waitForGameList'],
-                self.loginFSM.request, ['shutdown'])
+                self.loginFSM.request, ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.missingGameRootObjectBox = dialogClass(message=OTPLocalizer.CRMissingGameRootObject, doneEvent='missingGameRootObjectBoxAck', style=OTPDialog.TwoChoice)
@@ -838,7 +847,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if doneStatus == 'ok':
             self.loginFSM.request('waitForGameList')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -890,7 +899,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.introduction.request(
                 'YesNoDialog', OTPLocalizer.CRNoDistrictsTryAgain,
                 self.loginFSM.request, ['noShardsWait'], self.loginFSM.request,
-                ['shutdown'])
+                ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.noShardsBox = dialogClass(message=OTPLocalizer.CRNoDistrictsTryAgain, doneEvent='noShardsAck', style=OTPDialog.TwoChoice)
@@ -903,7 +912,7 @@ class OTPClientRepository(ClientRepositoryBase):
             messenger.send('connectionRetrying')
             self.loginFSM.request('noShardsWait')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -1001,7 +1010,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
 
     def exitNoConnection(self):
         self.handler = None
@@ -1776,7 +1785,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return Task.done
 
     def __handleCancelWaiting(self, value):
-        self.loginFSM.request('shutdown')
+        self.loginFSM.request('mainMenu')
 
     def setIsNotNewInstallation(self):
         launcher.setIsNotNewInstallation()
@@ -2186,7 +2195,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def enterMainMenu(self):
         self.mainMenu.request('Idle')
-        if self.isConnected():
+        if self.isConnected() and (base.isSinglePlayer or base.isHosting):
           self.mainMenu.LocalSinglePlayerStart.demand('Off')
 
     def exitMainMenu(self):

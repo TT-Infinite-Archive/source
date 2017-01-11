@@ -1,10 +1,7 @@
-import atexit
 import fractions
 import os
 import random
-import shutil
 import sys
-import tempfile
 import time
 from sys import platform
 
@@ -40,10 +37,6 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         self.cr = None
-
-        # Create a temporary directory:
-        self.tempDir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, self.tempDir)
 
         # Get the native display info:
         self.nativeWidth = self.pipe.getDisplayWidth()

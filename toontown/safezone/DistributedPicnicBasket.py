@@ -14,8 +14,8 @@ from toontown.toonbase.ToontownTimer import ToontownTimer
 from direct.task.Task import Task
 from direct.showbase import PythonUtil
 from toontown.toon import ToonDNA
-from direct.showbase import RandomNumGen
 from toontown.battle.BattleSounds import *
+import random
 
 
 class DistributedPicnicBasket(DistributedObject.DistributedObject):
@@ -111,7 +111,7 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
     def setState(self, state, seed, timestamp):
         self.seed = seed
         if not self.random:
-            self.random = RandomNumGen.RandomNumGen(seed)
+            self.random = random.Random(seed)
         self.fsm.request(state, [globalClockDelta.localElapsedTime(timestamp)])
 
     def handleEnterPicnicTableSphere(self, i, collEntry):

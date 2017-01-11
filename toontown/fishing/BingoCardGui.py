@@ -7,7 +7,6 @@ from toontown.fishing import BingoCardCell
 from toontown.fishing import BingoGlobals
 from toontown.fishing import FishBase
 from toontown.fishing import FishGlobals
-from direct.showbase import RandomNumGen
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase import TTLocalizer
@@ -169,7 +168,7 @@ class BingoCardGui(DirectFrame):
                 self.cellGuiList[index].enable(callback)
 
     def generateCard(self, tileSeed, zoneId):
-        rng = RandomNumGen.RandomNumGen(tileSeed)
+        rng = random.Random(tileSeed)
         rowSize = self.game.getRowSize()
         fishList = FishGlobals.getPondGeneraList(zoneId)
         for i in xrange(len(fishList)):

@@ -21,8 +21,8 @@ class DistributedCogdoBarrel(DistributedObject.DistributedObject):
 
     def generate(self):
         DistributedObject.DistributedObject.generate(self)
-        self.bumpSound = base.loadSfx(CogdoBarrelRoomConsts.BarrelBumpSound)
-        self.grabSound = base.loadSfx(CogdoBarrelRoomConsts.BarrelGrabSound)
+        self.bumpSound = loader.loadSfx(CogdoBarrelRoomConsts.BarrelBumpSound)
+        self.grabSound = loader.loadSfx(CogdoBarrelRoomConsts.BarrelGrabSound)
 
     def __setModel(self):
         self.model = loader.loadModel(CogdoBarrelRoomConsts.BarrelModel)

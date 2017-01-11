@@ -5,21 +5,22 @@ import RingTracks
 import RingTrack
 import RingTrackGroup
 from direct.showbase import PythonUtil
+import random
 STATIC = 0
 SIMPLE = 1
 COMPLEX = 2
 
-def getRandomRingTrackGroup(type, numRings, rng):
+def getRandomRingTrackGroup(type, numRings):
     global trackListGenFuncs
     funcTable = trackListGenFuncs[type][numRings - 1]
-    func = rng.choice(funcTable)
-    tracks, tOffsets, period = func(numRings, rng)
-    tracks, tOffsets = __scramble(tracks, tOffsets, rng)
-    trackGroup = RingTrackGroup.RingTrackGroup(tracks, period, trackTOffsets=tOffsets, reverseFlag=rng.choice([0, 1]), tOffset=rng.random())
+    func = random.choice(funcTable)
+    tracks, tOffsets, period = func(numRings)
+    tracks, tOffsets = __scramble(tracks, tOffsets)
+    trackGroup = RingTrackGroup.RingTrackGroup(tracks, period, trackTOffsets=tOffsets, reverseFlag=random.choice([0, 1]), tOffset=random.random())
     return trackGroup
 
 
-def __scramble(tracks, tOffsets, rng):
+def __scramble(tracks, tOffsets):
     newTracks = []
     if tOffsets == None:
         newTOffsets = None
@@ -28,7 +29,7 @@ def __scramble(tracks, tOffsets, rng):
     used = [0] * len(tracks)
     count = 0
     while count < len(tracks):
-        i = rng.randint(0, len(tracks) - 1)
+        i = random.randint(0, len(tracks) - 1)
         if not used[i]:
             used[i] = 1
             count += 1
@@ -57,7 +58,7 @@ def getTightCircleStaticPositions(numRings):
     return positions
 
 
-def get_keypad(numRings, rng):
+def get_keypad(numRings):
     positions = (RingTracks.center,
      RingTracks.up,
      RingTracks.down,
@@ -69,11 +70,11 @@ def get_keypad(numRings, rng):
      RingTracks.ll)
     tracks = []
     usedPositions = [None]
-    posScale = 0.7 + rng.random() * 0.2
+    posScale = 0.7 + random.random() * 0.2
     for i in xrange(0, numRings):
         pos = None
         while pos in usedPositions:
-            pos = rng.choice(positions)
+            pos = random.choice(positions)
 
         usedPositions.append(pos)
         scaledPos = [0, 0]
@@ -89,7 +90,7 @@ def get_keypad(numRings, rng):
 fullCirclePeriod = 6.0
 plusPeriod = 4.0
 
-def get_evenCircle(numRings, rng):
+def get_evenCircle(numRings):
     tracks = []
     tOffsets = []
     for i in xrange(0, numRings):
@@ -101,7 +102,7 @@ def get_evenCircle(numRings, rng):
     return (tracks, tOffsets, fullCirclePeriod)
 
 
-def get_followCircle(numRings, rng):
+def get_followCircle(numRings):
     tracks = []
     tOffsets = []
     for i in xrange(0, numRings):
@@ -114,10 +115,10 @@ def get_followCircle(numRings, rng):
     return (tracks, tOffsets, fullCirclePeriod)
 
 
-def get_evenCircle_withStationaryCenterRings(numRings, rng):
+def get_evenCircle_withStationaryCenterRings(numRings):
     tracks = []
     tOffsets = []
-    numCenterRings = rng.randint(1, numRings - 1)
+    numCenterRings = random.randint(1, numRings - 1)
     positions = getTightCircleStaticPositions(numCenterRings)
     for i in xrange(0, numCenterRings):
         action = RingAction.RingActionStaticPos(positions[i])
@@ -135,7 +136,7 @@ def get_evenCircle_withStationaryCenterRings(numRings, rng):
     return (tracks, tOffsets, fullCirclePeriod)
 
 
-def __get_Slots(numRings, rng, vertical = 1):
+def __get_Slots(numRings, vertical = 1):
     tracks = []
     tOffsets = []
     fpTab = []
@@ -143,7 +144,7 @@ def __get_Slots(numRings, rng, vertical = 1):
         fpTab.append(PythonUtil.lineupPos(i, numRings, 2.0 / 3))
 
     offset = 1 - fpTab[-1]
-    offset = rng.random() * (offset * 2) - offset
+    offset = random.random() * (offset * 2) - offset
     fpTab = map(lambda x: x + offset, fpTab)
     for i in xrange(0, numRings):
         if vertical:
@@ -158,15 +159,15 @@ def __get_Slots(numRings, rng, vertical = 1):
     return (tracks, tOffsets, fullCirclePeriod)
 
 
-def get_verticalSlots(numRings, rng):
-    return __get_Slots(numRings, rng, vertical=1)
+def get_verticalSlots(numRings):
+    return __get_Slots(numRings, vertical=1)
 
 
-def get_horizontalSlots(numRings, rng):
-    return __get_Slots(numRings, rng, vertical=0)
+def get_horizontalSlots(numRings):
+    return __get_Slots(numRings, vertical=0)
 
 
-def get_plus(numRings, rng):
+def get_plus(numRings):
     up = RingTracks.getPlusUpRingActions
     down = RingTracks.getPlusDownRingActions
     left = RingTracks.getPlusLeftRingActions
@@ -181,7 +182,7 @@ def get_plus(numRings, rng):
           left,
           right]]}
     tracks = []
-    actionSet = rng.choice(actionSets[numRings])
+    actionSet = random.choice(actionSets[numRings])
     for i in xrange(0, numRings):
         actions, durations = actionSet[i]()
         track = RingTrack.RingTrack(actions, durations)
@@ -219,7 +220,7 @@ def __initInfinityTOffsets():
 
 __initInfinityTOffsets()
 
-def get_vertInfinity(numRings, rng):
+def get_vertInfinity(numRings):
     tracks = []
     for i in xrange(0, numRings):
         actions, durations = RingTracks.getVerticalInfinityRingActions()
@@ -229,7 +230,7 @@ def get_vertInfinity(numRings, rng):
     return (tracks, infinityTOffsets[numRings - 1], infinityPeriod)
 
 
-def get_horizInfinity(numRings, rng):
+def get_horizInfinity(numRings):
     tracks = []
     for i in xrange(0, numRings):
         actions, durations = RingTracks.getHorizontalInfinityRingActions()
@@ -239,13 +240,13 @@ def get_horizInfinity(numRings, rng):
     return (tracks, infinityTOffsets[numRings - 1], infinityPeriod)
 
 
-def get_evenCircle_withStationaryCenterRings_FASTER(numRings, rng):
-    tracks, tOffsets, period = get_evenCircle_withStationaryCenterRings(numRings, rng)
+def get_evenCircle_withStationaryCenterRings_FASTER(numRings):
+    tracks, tOffsets, period = get_evenCircle_withStationaryCenterRings(numRings)
     return (tracks, tOffsets, fullCirclePeriodFaster)
 
 
-def get_plus_FASTER(numRings, rng):
-    tracks, tOffsets, period = get_plus(numRings, rng)
+def get_plus_FASTER(numRings):
+    tracks, tOffsets, period = get_plus(numRings)
     return (tracks, tOffsets, plusPeriodFaster)
 
 

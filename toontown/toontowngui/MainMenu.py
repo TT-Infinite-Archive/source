@@ -310,14 +310,13 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.play()
 
         self.background.show()
+        self.logo.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
         if not base.wantKaldronNetwork:
             self.lockIcon2.show()
         for button in self.buttons:
             button.show()
-
-        self.logo.show()
 
     def exitIdle(self):
         self.background.hide()
@@ -333,6 +332,7 @@ class MainMenu(DirectObject, FSM):
         self.backButton.show()
         self.quitButton.show()
         base.isSinglePlayer = True
+        base.isHosting = False
         for spButton in self.spButtons:
             spButton.show()
 
@@ -371,14 +371,16 @@ class MainMenu(DirectObject, FSM):
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
         OTPLocalizer.SpeedChatStaticText[
             30512] = 'I can report bugs on the Toontown Infinite Discord channel in the #bug-reports text channel.'
-        self.__startSinglePlayer(True)
+        self.__startGameSession(True)
 
     def enterMultiplayerCPHost(self):
-        self.__startSinglePlayer(False)
+        base.isHosting = True
+        self.__startGameSession(False)
 
-    def __startSinglePlayer(self, singlePlayer):
+    def __startGameSession(self, singlePlayer):
         self.hide()
         self.background.show()
+        self.logo.show()
 
         self.LocalSinglePlayerStart = LocalSinglePlayerStart(self, singlePlayer)
         self.LocalSinglePlayerStart.request('Start')
@@ -446,13 +448,13 @@ class MainMenu(DirectObject, FSM):
             parent=aspect2d,
             relief=DGG.GROOVE,
             scale=0.1,
-            pos=(-0.44, 0, -0.50),
+            pos=(0, 0, -0.50),
             borderWidth=(0.05, 0.05),
             frameColor=((1, 1, 1, 1),
                         (1, 1, 1, 1),
                         (0.5, 0.5, 0.5, 0.5)),
             state=DGG.NORMAL,
-            text_align=TextNode.ALeft,
+            text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
             width=10.5,
             numLines=1,
@@ -489,6 +491,21 @@ class MainMenu(DirectObject, FSM):
         if input == '':
             return
         messenger.send('wakeup')
+        self.request('MultiplayerCPConnect')
+
+    def enterMultiplayerCPConnect(self):
+        base.isHosting = False
+        ip = self.ipInput.get()
+        if ':' in ip:
+            ip, port = ip.split(':')
+            try:
+                port = int(port)
+            except:
+                # TODO: Better handle invalid addresses
+                port = 7000
+            base.connectToServer(ip, port)
+        else:
+            base.connectToServer(ip)
 
     def __enableIPEntry(self):
         self.ipInput['state'] = DGG.NORMAL
@@ -528,5 +545,4 @@ class MainMenu(DirectObject, FSM):
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
-        self.doneStatus = {'mode': 'exit'}
-        messenger.send(self.doneEvent, [self.doneStatus])
+        base.cr.loginFSM.request('shutdown')

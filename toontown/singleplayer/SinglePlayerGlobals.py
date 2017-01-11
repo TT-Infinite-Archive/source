@@ -113,8 +113,19 @@ AstronConfig = {
 }
 
 
-def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev'):
+def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', multiplayer=0):
     config = AstronConfig.copy()
+    if multiplayer:
+        # The changes we've made for singleplayer
+        # seems to have carried over, so let's
+        # just change the required options
+        # for multiplayer and return from there.
+        config['general']['eventlogger'] = '127.0.0.1:7020'
+        config['messagedirector']['bind'] = '127.0.0.1:7010'
+        config['roles'][0]['bind'] = '0.0.0.0:7000'
+        config['roles'][2]['backend']['server'] = 'mongodb://127.0.0.1:7030/game'
+        config['roles'][4]['bind'] = '127.0.0.1:7020'
+        return config
     for dcFileName in dcFileNames:
         config['general']['dc_files'].append(dcFileName)
     config['roles'][0]['version'] = version

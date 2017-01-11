@@ -1,29 +1,27 @@
 from pandac.PandaModules import NodePath, Point3, PlaneNode
 from direct.showbase.ShowBase import Plane
-from direct.showbase.RandomNumGen import RandomNumGen
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Func, Wait
 from toontown.toonbase import TTLocalizer
 from toontown.suit import Suit, SuitDNA
-from toontown.toon import Toon, ToonHead, ToonDNA
+from toontown.toon import Toon, ToonDNA
 from CogdoUtil import CogdoGameMovie
 import CogdoMazeGameGlobals as Globals
 import CogdoUtil
 
 class CogdoMazeGameIntro(CogdoGameMovie):
 
-    def __init__(self, maze, exit, rng):
+    def __init__(self, maze, exit):
         CogdoGameMovie.__init__(self)
         self._maze = maze
         self._exit = exit
-        self._rng = RandomNumGen(rng)
         self._camTarget = None
         self._state = 0
         self._suits = []
         return
 
     def _getRandomLine(self, lineList):
-        return CogdoUtil.getRandomDialogueLine(lineList, self._rng)
+        return CogdoUtil.getRandomDialogueLine(lineList)
 
     def displayLine(self, who, text):
         self._dialogueLabel.node().setText(text)

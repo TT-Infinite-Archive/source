@@ -64,9 +64,9 @@ class DistributedFindFour(DistributedNode.DistributedNode):
         self.clockNode.hide()
         self.tintConstant = Vec4(0.25, 0.25, 0.25, 0)
         self.ghostConstant = Vec4(0, 0, 0, 0.5)
-        self.knockSound = base.loadSfx('phase_5/audio/sfx/GUI_knock_1.ogg')
-        self.clickSound = base.loadSfx('phase_3/audio/sfx/GUI_balloon_popup.ogg')
-        self.moveSound = base.loadSfx('phase_6/audio/sfx/CC_move.ogg')
+        self.knockSound = loader.loadSfx('phase_5/audio/sfx/GUI_knock_1.ogg')
+        self.clickSound = loader.loadSfx('phase_3/audio/sfx/GUI_balloon_popup.ogg')
+        self.moveSound = loader.loadSfx('phase_6/audio/sfx/CC_move.ogg')
         self.accept('stoppedAsleep', self.handleSleep)
         from direct.fsm import ClassicFSM, State
 

@@ -372,10 +372,14 @@ class OptionsTabPage(DirectFrame):
             command=self.__doToggleWantFriends
         )
 
+        if (base.isSinglePlayer or base.isHosting):
+            text = TTLocalizer.OptionsDisconnect
+        else:
+            text = TTLocalizer.OptionsLeaveServer
         self.exitButton = TTButton.TTButton(
             parent=self,
             buttonScale=1.15,
-            text=TTLocalizer.OptionsDisconnect,
+            text=text,
             pos=(-0.45, 0, -0.53),
             command=self.__handleExitServerShowWithConfirm
         )
@@ -917,9 +921,10 @@ class OptionsTabPage(DirectFrame):
         settings['fullscreen'] = self.displaySettingsFullscreen
 
     def __handleExitServerShowWithConfirm(self):
+        message = TTLocalizer.OptionsPageExitConfirmMultiplayer if base.isHosting else TTLocalizer.OptionsPageExitConfirm
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent='confirmDone',
-            message=TTLocalizer.OptionsPageExitConfirm,
+            message=message,
             style=TTDialog.TwoChoice
         )
         self.confirm.show()

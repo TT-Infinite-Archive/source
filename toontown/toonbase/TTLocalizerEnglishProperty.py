@@ -90,6 +90,7 @@ ACtitle = 0.15
 ACquitButton = 0.1
 ACbackButton = 0.09
 ACdisconnectButton = 0.055
+ACleaveButton = 0.053
 AClogoutButton = 0.1
 ACquitButtonPos = (0, -0.035)
 ACdisconnectButtonPos = (0, -0.015)

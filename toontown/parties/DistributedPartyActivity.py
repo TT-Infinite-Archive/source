@@ -2,7 +2,6 @@ from pandac.PandaModules import CollisionSphere, CollisionNode, CollisionTube
 from pandac.PandaModules import TextNode, NodePath, Vec3, Point3
 from direct.distributed.ClockDelta import globalClockDelta
 from direct.distributed import DistributedObject
-from direct.showbase import RandomNumGen
 from direct.showbase import PythonUtil
 from direct.interval.IntervalGlobal import Sequence, Parallel, ActorInterval
 from direct.interval.FunctionInterval import Wait
@@ -163,20 +162,9 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
             self.notify.warning('Hood or loader not created, defaulting to render')
             return render
 
-    def __createRandomNumGen(self):
-        self.notify.debug('BASE: self.doId=0x%08X' % self.doId)
-        self.randomNumGen = RandomNumGen.RandomNumGen(self.doId)
-
-        def destroy(self = self):
-            self.notify.debug('BASE: destroying random num gen')
-            del self.randomNumGen
-
-        self.cleanupActions.append(destroy)
-
     def generate(self):
         DistributedObject.DistributedObject.generate(self)
         self.notify.debug('BASE: generate, %s' % self.getTitle())
-        self.__createRandomNumGen()
 
     def announceGenerate(self):
         DistributedObject.DistributedObject.announceGenerate(self)
