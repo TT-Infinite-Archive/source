@@ -1,10 +1,14 @@
 #!/usr/bin/env python2
 """"Entry point for a compiled build of Toontown Infinite."""
 import __builtin__
+import sys
 
 import game_data
 from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
+
+# Hack fix for ctypes
+sys.dllhandle = 0
 
 for i, config in enumerate(game_data.CONFIG):
     name = 'game_data config page #' + str(i)
@@ -24,8 +28,6 @@ for mount in mounts:
 
 # Store the deobfuscated DC file data for later use
 __builtin__.dcData = game_data.deobfuscate(game_data.DC)
-
-__builtin__.builtFile = 'infinite'
 
 # __builtin__.process is automatically defined by the runtime
 if process == 'client':

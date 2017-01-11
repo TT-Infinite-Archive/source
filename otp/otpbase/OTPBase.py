@@ -12,6 +12,10 @@ from pandac.PandaModules import Camera, TPLow, VBase4, ColorWriteAttrib, Filenam
 class OTPBase(ShowBase):
 
     def __init__(self, windowType = None):
+        # Create a temporary directory:
+        self.tempDir = tempfile.mkdtemp()
+        atexit.register(shutil.rmtree, self.tempDir)
+
         self.wantEnviroDR = False
         ShowBase.__init__(self, windowType=windowType)
         if config.GetBool('want-phase-checker', 0):

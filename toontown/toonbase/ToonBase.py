@@ -41,10 +41,6 @@ class ToonBase(OTPBase.OTPBase):
 
         self.cr = None
 
-        # Create a temporary directory:
-        self.tempDir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, self.tempDir)
-
         # Get the native display info:
         self.nativeWidth = self.pipe.getDisplayWidth()
         self.nativeHeight = self.pipe.getDisplayHeight()
