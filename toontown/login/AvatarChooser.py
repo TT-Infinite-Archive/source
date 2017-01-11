@@ -331,7 +331,7 @@ class AvatarChooser(StateData.StateData):
         if base.isHosting:
             self.confirm = TTDialog.TTGlobalDialog(
             doneEvent='confirmBack',
-            message=TTLocalizer.OptionsPageExitConfirmMultiplayer,
+            message=TTLocalizer.OptionsPageExitConfirmMultiplayerHost,
             style=TTDialog.TwoChoice)
             self.confirm.show()
             base.accept('confirmBack', self.__backConfirm)
