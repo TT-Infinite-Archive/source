@@ -284,7 +284,7 @@ SCMenuBattleSound = 'SOUND'
 SCMenuBattleThrow = 'THROW'
 SCMenuBattleSquirt = 'SQUIRT'
 SCMenuBattleDrop = 'DROP'
-SCMenuGagShop = 'TOON PALOOZA'
+SCMenuGagShop = 'TROLLEY'
 SCMenuFactory = 'FACTORY'
 SCMenuCogGolf = 'COUNTRY CLUB'
 SCMenuKartRacing = 'RACING'
@@ -1870,7 +1870,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30173: "I'll stun the VP from the front.",
  30174: "I'll stun the VP from the back.",
  30175: 'Jump when the VP jumps!',
- 30180: 'I got double jellybeans at The Toon Palooza!',
+ 30180: 'I got double jellybeans on the Trolley!',
  30181: 'I got double jellybeans from fishing!',
  30182: 'I got double jellybeans at a party!',
  30183: 'Jellybeans jellybeans jellybeans!',
