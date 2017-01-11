@@ -1,10 +1,7 @@
-import atexit
 import fractions
 import os
 import random
-import shutil
 import sys
-import tempfile
 import time
 from sys import platform
 
