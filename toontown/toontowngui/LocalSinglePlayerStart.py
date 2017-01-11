@@ -10,7 +10,7 @@ from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.singleplayer.SinglePlayerGlobals import *
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
@@ -143,7 +143,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         thread.start()
         self.threads.append(thread)
 
-        taskMgr.doMethodLater(15, lambda task: self.__processFailed(self.process[2]), 'processFailed')
+        taskMgr.doMethodLater(settings.get(SettingsGlobals.ProcessFailback, 60), lambda task: self.__processFailed(self.process[2]), 'processFailed')
     
     def __processStarted(self, name):
         taskMgr.remove('processFailed')
