@@ -107,16 +107,29 @@ class AvatarChooser(StateData.StateData):
             fg=(1, 0.9, 0.1, 1), pos=(0.0, 0.82))
 
         quitHover = gui.find('**/QuitBtn_RLVR')
-        self.disconnectButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.OptionsDisconnect,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACdisconnectButtonPos,
-            text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command = self.__back)
+        if (base.isSinglePlayer or base.isHosting):
+            self.disconnectButton = DirectButton(
+                image=(quitHover, quitHover, quitHover), relief=None,
+                text = TTLocalizer.OptionsDisconnect,
+                text_font=ToontownGlobals.getSignFont(),
+                text_fg=(0.977, 0.816, 0.133, 1),
+                text_pos=TTLocalizer.ACdisconnectButtonPos,
+                text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
+                image1_scale=1.05, image2_scale=1.05, scale=1.05,
+                pos=(0.25, 0, 0.075), command=self.__back)
+        else:
+            self.disconnectButton = DirectButton(
+                image=(quitHover, quitHover, quitHover), relief=None,
+                text=TTLocalizer.OptionsLeaveServer,
+                text_font=ToontownGlobals.getSignFont(),
+                text_fg=(0.977, 0.816, 0.133, 1),
+                text_pos=TTLocalizer.ACdisconnectButtonPos,
+                text_scale=TTLocalizer.ACleaveButton, image_scale=1,
+                image1_scale=1.05, image2_scale=1.05, scale=1.05,
+                pos=(0.25, 0, 0.075), command=self.__back)
         self.disconnectButton.reparentTo(base.a2dBottomLeft)
+
+
 
         """
         self.logoutButton = DirectButton(
