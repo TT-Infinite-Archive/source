@@ -309,14 +309,13 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.play()
 
         self.background.show()
+        self.logo.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
         if not base.wantKaldronNetwork:
             self.lockIcon2.show()
         for button in self.buttons:
             button.show()
-
-        self.logo.show()
 
     def exitIdle(self):
         self.background.hide()
@@ -381,6 +380,7 @@ class MainMenu(DirectObject, FSM):
     def __startSinglePlayer(self, singlePlayer):
         self.hide()
         self.background.show()
+        self.logo.show()
 
         self.LocalSinglePlayerStart = LocalSinglePlayerStart(self, singlePlayer)
         self.LocalSinglePlayerStart.request('Start')
