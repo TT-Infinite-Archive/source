@@ -884,7 +884,10 @@ class OptionsTabPage(DirectFrame):
         res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
         if res not in self.screenSizes:
             res = base.getSmallestResolution()
-        return self.screenSizes.index(res)
+        try:
+            return self.screenSizes.index(res)
+        except IndexError as e:
+            self.notify.warning('%s. Resolution info: %s' % (e, (base.nativeRatio, base.nativeHeight, base.nativeWidth, self.screenSizes)))
 
     def updateSpeedChatStyle(self):
         nameKey, arrowColor, rolloverColor, frameColor = OptionsPageGlobals.speedChatStyles[self.speedChatStyleIndex]
