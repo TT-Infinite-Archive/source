@@ -1981,7 +1981,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30509: "I hope that bug gets fixed soon.",
  30510: "Those bugs can be obnoxious at times.",
  30511: "What types of bugs have you ran into so far?",
- 30512: "You can report bugs on the Toontown Infinite Discord server in the #bug-reports text channel."}
+ 30512: "You can report bugs on the Toontown Infinite Discord server in the #bug-report-classic text channel."}
 SpeedChatStaticTextPirates = {50001: 'Aye',
  50002: 'Nay',
  50003: 'Yes',
