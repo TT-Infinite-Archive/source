@@ -5,6 +5,7 @@ from direct.showbase import Transitions
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 import LaffMeter
+from direct.gui.DirectGuiGlobals import FADE_SORT_INDEX
 
 class DeathForceAcknowledge:
 

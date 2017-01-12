@@ -23,13 +23,13 @@ class BossBattleTimer:
         self.text.setAlign(TextNode.ACenter)
         self.text.setFlattenFlags(TextNode.FFMedium)
         self.text.setFont(getBuildingNametagFont())
-        self.text.setTextScale(0.055)
+        self.text.setTextScale(0.075)
         self.text.setTextColor(*TEXT_WHITE)
         # self.text.setShadow(0.003, -0.003)
         # self.text.setShadowColor(0.0, 0.0, 0.0, 1.0)
         self.textNodePath = aspect2d.attachNewNode(self.text)
-        self.textNodePath.reparentTo(base.a2dTopCenter)
-        self.textNodePath.setPos(0.075, 0.0, -0.35)
+        self.textNodePath.reparentTo(base.a2dBottomRight)
+        self.textNodePath.setPos(-0.345, 0.0, 0.035)
 
     def makeFlashTrack(self):
         return Track(

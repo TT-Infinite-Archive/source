@@ -367,7 +367,7 @@ class MainMenu(DirectObject, FSM):
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
         OTPLocalizer.SpeedChatStaticText[
-            30512] = 'I can report bugs on the Toontown Infinite Discord channel in the #bug-reports text channel.'
+            30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-reports text channel.'
         self.__startGameSession(True)
 
     def enterMultiplayerCPHost(self):
