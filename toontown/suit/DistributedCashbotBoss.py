@@ -28,6 +28,7 @@ from toontown.distributed import DelayDelete
 from toontown.nametag.NametagGlobals import *
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerEnglish
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
 
 from toontown.debug.DebugTools import timeFunc
