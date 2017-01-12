@@ -56,17 +56,6 @@ want-outdoor-zone #t
 want-golf-zone #t
 want-resistance-grounds #f
 
-# Classic characters:
-want-classic-chars #t
-want-mickey #t
-want-donald-dock #t
-want-daisy #t
-want-minnie #t
-want-pluto #t
-want-donald-dreamland #t
-want-chip-and-dale #t
-want-goofy #t
-
 # Cog headquarters:
 want-cog-headquarters #t
 
