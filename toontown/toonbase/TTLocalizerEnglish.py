@@ -78,16 +78,16 @@ Dale = 'Dale'
 JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'The Gardens'
-lDonaldsDock = "The Harbor"
-lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Melodyland"
+lDaisyGardens = 'Daisy Gardens'
+lDonaldsDock = "Donald's Dock"
+lDonaldsDreamland = "Donald's Dreamland"
+lMinniesMelodyland = "Minnie's Melodyland"
 lToontownCentral = 'Toontown Central'
 lToonHQ = 'Toon HQ'
 lSellbotHQ = 'Sellbot HQ'
-lGoofySpeedway = 'Toontown Speedway'
-lOutdoorZone = "Acorn Acres"
-lGolfZone = "Toontown MiniGolf"
+lGoofySpeedway = 'Goofy Speedway'
+lOutdoorZone = "Chip 'n Dale's Acorn Acres"
+lGolfZone = "Chip 'n Dale's MiniGolf"
 lPartyHood = 'Party Grounds'
 lResistanceGrounds = 'Resistance Grounds'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
@@ -3860,7 +3860,7 @@ SuperGoofyChatter = (['Welcome to my Super Speedway!',
   "It's fun to dress up for Halloween!",
   'I hope you are enjoying our Halloween fun!'], ['Gotta fly!',
   'Hi-Ho and away I go!',
-  "Should I fly or drive to The Harbor?",
+  "Should I fly or drive to Donald's Dock?",
   'Gawrsh, have a Happy Halloween!'])
 DonaldChatter = (['Welcome to Dreamland.', "Hi, my name is %s. What's yours?" % Donald], ['Sometimes this place gives me the creeps.',
   'Be sure and try the maze in ' + lDaisyGardens + '.',
@@ -4643,7 +4643,7 @@ MusicGzPlaygolf = "Let's Play Golf!"
 MusicMmNbrhood = "Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
-MusicDdNbrhood = "The Harbor"
+MusicDdNbrhood = "Donald's Dock"
 MusicDdSz = 'Waddling Way'
 MusicDdSzActivity = 'Sea Shanty'
 MusicThemeSong = "Toontown Infinite Theme"
@@ -4661,7 +4661,7 @@ MusicTbSzActivity = 'Snow Problem'
 MusicDlNbrhood = "Dreamland"
 MusicDlSz = 'Sleepwalking'
 MusicDlSzActivity = 'Counting Sheep'
-MusicDgNbrhood = "The Gardens"
+MusicDgNbrhood = "Dasiy Gardens"
 MusicDgSz = 'Waltz of the Flowers'
 MusicEncntrHallOfFame = 'The Hall of Fame'
 MusicEncntrSuitHqNbrhood = 'Dollars and Cents'
@@ -10390,15 +10390,15 @@ achievementInfo = {
     5: ('Grand Goodbye',
         'Complete Toontown Central'),
     6: ('Bon Voyage!',
-        "Complete The Harbor"),
+        "Complete Donald's Dock"),
     7: ('Blooming',
-        'Complete The Gardens'),
+        'Complete Dasiy Gardens'),
     8: ('Warming symphonies',
-        "Complete Melodyland"),
+        "Complete Minnie's Melodyland"),
     9: ('You cold Yeti?',
         'Complete The Brrrgh'),
     10: ("Dreaming Goodbyes",
-         "Complete Dreamland"),
+         "Complete Donald's Dreamland"),
     11: ('Task master',
          'Complete all classic toontasks'),
     12: ('Sold out',
