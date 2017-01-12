@@ -883,7 +883,18 @@ class OptionsTabPage(DirectFrame):
     def getResIndex(self):
         res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
         if res not in self.screenSizes:
-            res = base.getSmallestResolution()
+            # The player's resolution is not in our screen sizes, this means they changed it to be something
+            # incompatible or our res detection couldn't find a resolution for their native ratio so we have invalid
+            # values for our self.screenSizes...
+            newRes = base.getSmallestResolution()
+            # Getting the new smallest resolution above will adapt
+            # base.calcRatio, so we must get a new set of
+            # screenSizes
+            self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
+            if res not in self.screenSizes:
+                # Our resolution is STILL not in these screen sizes, the user must be involved with this confusion
+                # so we will reset their res to the smallest resolution
+                res = newRes
         return self.screenSizes.index(res)
 
     def updateSpeedChatStyle(self):
