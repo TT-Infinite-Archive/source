@@ -7,7 +7,7 @@ from toontown.toonbase import BulkLoader
 
 from BossBattleLeaderboard import BossBattleLeaderboard
 from BossBattleTimer import BossBattleTimer
-from BossBattleHealthBar import BossBattleHealthBar
+# from BossBattleHealthBar import BossBattleHealthBar
 import DistributedCashbotBossGoon
 
 from direct.fsm import FSM
@@ -70,7 +70,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.battleTwoBattles = []
         self.bossBattleTimer = None
         self.bossBattleLeaderboard = None
-        self.bossBattleHealthBar = None
+        # self.bossBattleHealthBar = None
         base.boss = self
         self.titleText = None
         self.bulkLoader = BulkLoader.BulkLoader(ModelAssets)
@@ -782,8 +782,8 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         obj.lerpInterval.start()
         self.heldObject = obj
 
-        if self.bossBattleHealthBar:
-            self.bossBattleHealthBar.setHelmet(True)
+        # if self.bossBattleHealthBar:
+            # self.bossBattleHealthBar.setHelmet(True)
 
     def dropObject(self, obj):
         if obj.lerpInterval:
@@ -797,8 +797,8 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         obj.unstashCollisions()
         self.heldObject = None
 
-        if self.bossBattleHealthBar:
-            self.bossBattleHealthBar.setHelmet(False)
+        # if self.bossBattleHealthBar:
+            # self.bossBattleHealthBar.setHelmet(False)
 
     def setBossDamage(self, bossDamage):
         if bossDamage > self.bossDamage:
@@ -807,7 +807,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.doAnimate('hit', now=1)
             self.showHpText(-delta, scale=5)
         self.bossDamage = bossDamage
-        self.updateHealthBar()
+        # self.updateHealthBar()
 
     def setRewardIds(self, rewardIds):
         self.rewardIds = rewardIds
@@ -903,9 +903,9 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         DistributedBossCog.DistributedBossCog.enterOff(self)
         if self.resistanceToon:
             self.resistanceToon.clearChat()
-        if self.bossBattleHealthBar:
-            self.bossBattleHealthBar.destroy()
-            self.bossBattleHealthBar = None
+        # if self.bossBattleHealthBar:
+            # self.bossBattleHealthBar.destroy()
+            # self.bossBattleHealthBar = None
         if self.bossBattleLeaderboard:
             self.bossBattleLeaderboard.destroy()
             self.bossBattleLeaderboard = None
@@ -1098,11 +1098,11 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.midVault.stash()
         self.__hideResistanceToon()
         localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
-        self.generateHealthBar()
-        self.updateHealthBar()
+        # self.generateHealthBar()
+        # self.updateHealthBar()
 
-        self.bossBattleHealthBar = BossBattleHealthBar(self.dna.dept, self.bossMaxDamage)
-        self.bossBattleHealthBar.load()
+        # self.bossBattleHealthBar = BossBattleHealthBar(self.dna.dept, self.bossMaxDamage)
+        # self.bossBattleHealthBar.load()
 
         base.playMusic(self.battleThreeMusic, looping=1, volume=0.9)
         taskMgr.add(self.__doPhysics, self.uniqueName('physics'), priority=25)
@@ -1114,7 +1114,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stopAnimate()
         self.cleanupAttacks()
         self.setDizzy(0)
-        self.removeHealthBar()
+        # self.removeHealthBar()
         localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
         if self.newState != 'Victory':
             self.battleThreeMusic.stop()
@@ -1137,9 +1137,9 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         if self.cranes:
             self.cranes[1].demand('Off')
         self.releaseToons(finalBattle=1)
-        if self.bossBattleHealthBar:
-            self.bossBattleHealthBar.destroy()
-            self.bossBattleHealthBar = None
+        # if self.bossBattleHealthBar:
+            # self.bossBattleHealthBar.destroy()
+            # self.bossBattleHealthBar = None
         if self.hasLocalToon():
             self.toMovieMode()
         intervalName = 'VictoryMovie'
@@ -1337,11 +1337,11 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             else:
                 self.bossBattleLeaderboard.updateAvatar(avId, damage)
 
-    def healthBarUpdate(self):
-        if self.bossBattleHealthBar:
-            self.bossBattleHealthBar.updateHealthBar(self.bossMaxDamage - self.bossDamage)
+    # def healthBarUpdate(self):
+        # if self.bossBattleHealthBar:
+            # self.bossBattleHealthBar.updateHealthBar(self.bossMaxDamage - self.bossDamage)
 
     def setDizzy(self, dizzy):
         DistributedBossCog.DistributedBossCog.setDizzy(self, dizzy)
-        if self.bossBattleHealthBar:
-            self.bossBattleHealthBar.setDizzy(dizzy)
+        # if self.bossBattleHealthBar:
+            # self.bossBattleHealthBar.setDizzy(dizzy)
