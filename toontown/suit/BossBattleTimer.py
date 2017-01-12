@@ -29,7 +29,7 @@ class BossBattleTimer:
         # self.text.setShadowColor(0.0, 0.0, 0.0, 1.0)
         self.textNodePath = aspect2d.attachNewNode(self.text)
         self.textNodePath.reparentTo(base.a2dBottomRight)
-        self.textNodePath.setPos(0.095, 0.0, 0.035)
+        self.textNodePath.setPos(-0.345, 0.0, 0.035)
 
     def makeFlashTrack(self):
         return Track(
