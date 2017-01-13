@@ -1,6 +1,7 @@
 from panda3d.core import TextNode
 from direct.gui.DirectGui import *
-from toontown.util import TTCardMaker
+from toontown.data import Track
+from toontown.util import TTCardMaker, PlacerTool3D
 from toontown.toonbase import EventGlobals, ToontownGlobals, ColorGlobals
 from toontown.toontowngui import TTLabel
 
@@ -222,57 +223,70 @@ class GagInfoFrame(DirectFrame):
             geom_color=ToontownGlobals.GlobalDialogColor,
             geom_scale=geom_scale
         )
-        self.gagTitle = TTLabel.TTLabel(
+        self.title = TTLabel.TTLabel(
             parent=self.mainFrame,
-            text_size=TTLabel.TTLabel.MediumSize,
-            pos=(0.0, 0.0, 0.15),
+            pos=(-0.4, 0.0, 0.14),
             text='',
-            text_align=TextNode.ACenter,
-            text_fg=ColorGlobals.CDarkGray
+            text_size=TTLabel.TTLabel.MediumSize,
+            text_align=TextNode.ALeft,
+            text_fg=ColorGlobals.CDarkGray,
+            text_shadow=ColorGlobals.CBlack
         )
-        self.gagDescription = TTLabel.TTLabel(
+        self.subtitle = TTLabel.TTLabel(
             parent=self.mainFrame,
-            pos=(-0.12, 0.0, 0.03),
+            pos=(-0.4, 0.0, 0.07),
+            text='Level 1 Throw Gag',
+            text_align=TextNode.ALeft,
+            text_fg=ColorGlobals.CToontownBlue
+        )
+        self.description = TTLabel.TTLabel(
+            parent=self.mainFrame,
+            pos=(-0.4, 0.0, 0.02),
             text='',
             text_align=TextNode.ALeft,
             text_wordwrap=10
         )
-        self.gagIcon = DirectButton(
+        self.icon = DirectButton(
             parent=self.mainFrame,
             relief=None,
-            pos=(-0.29, 0, 0),
+            pos=(0.3, 0, 0.12),
             suppressMouse=True,
             state=DGG.DISABLED
         )
         self.hide()
 
     def destroy(self):
-        self.gagTitle.destroy()
-        self.gagDescription.destroy()
+        self.title.destroy()
+        self.description.destroy()
         self.mainFrame.destroy()
         DirectFrame.destroy(self)
 
     def setGag(self, gag):
         self.show()
         self.setTitle(gag.name)
+        self.setSubtitle('Level %d %s Gag' % (gag.level, Track.Tracks[gag.track].name))
         self.setTitleColor(gag.rarityColor)
         self.setDescription(gag.description)
-        self.setIcon(gag.displayObject.button)
+        self.setIcon(gag.icon)
 
     def unsetGag(self):
         self.hide()
         self.setTitle('')
+        self.setSubtitle('')
         self.setDescription('')
         self.setIcon(None)
 
     def setTitle(self, title):
-        self.gagTitle['text'] = title
+        self.title['text'] = title
+
+    def setSubtitle(self, text):
+        self.subtitle['text'] = text
 
     def setDescription(self, desc):
-        self.gagDescription['text'] = desc
+        self.description['text'] = desc
 
     def setIcon(self, icon):
-        self.gagIcon['image'] = icon
+        self.icon['image'] = icon
 
     def setTitleColor(self, color):
-        self.gagTitle['text_fg'] = color
+        self.title['text_fg'] = color
