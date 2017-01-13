@@ -152,27 +152,22 @@ class IconSelector(DirectButton):
         background = TTCardMaker.makeCard('phase_3/maps/gui-circle.png')
 
         # Use icon Id to load this
-        modelPath = IconGlobals.ICON_ID_TO_MODEL[iconId]
-        if modelPath is None:
-            iconModel = None
-            iconImage = None
-            iScale = 1.0
-            iPos = (0, 0, 0)
-        else:
-            iconModel = loader.loadModel(IconGlobals.ICON_ID_TO_MODEL[iconId])
-            iconImage = iconModel.find(IconGlobals.ICON_ID_TO_NODE[iconId])
-            iScale = IconGlobals.ICON_ID_TO_UNIFORM_SCALE.get(iconId)
-            if iScale is None:
-                iScale = 1.0
-            iPos = IconGlobals.ICON_ID_TO_UNIFORM_POS.get(iconId)
-            if iPos is None:
-                iPos = (0, 0, 0)
+        icon = IconGlobals.ICON_REPOSITORY.get(iconId)
 
-        self.mainButton = DirectButton(self, relief=None, image=background, image_color=color, image_scale=(0.0025, 1, 0.0025), command=self.__handleClick)
+        self.mainButton = DirectButton(
+            self,
+            relief=None,
+            image=background,
+            image_color=color,
+            image_scale=(0.0025, 1, 0.0025),
+            command=self.__handleClick
+        )
         self.mainButton.bind(DGG.WITHIN, self.__handleEnter)
         self.mainButton.bind(DGG.WITHOUT, self.__handleExit)
-        if iconModel is not None and iconImage is not None:
-            self.icon = DirectButton(self.mainButton, relief=None, image=iconImage, image_scale=iScale, image_pos=iPos, suppressMouse=True, state=DGG.DISABLED)
+        if icon is not None:
+            self.icon = DirectButton(
+                self.mainButton, relief=None, image=icon.icon, suppressMouse=True, state=DGG.DISABLED
+            )
         else:
             self.disable()
 
