@@ -156,9 +156,9 @@ class LoadoutSelectGui(DirectFrame):
 class GagSelectInfoFrame(GagInfoFrame):
     def __init__(self, parent, pos=(0.0, 0.0, 0.0), scale=(1, 1, 1), geom_scale=(0.9, 0.5, 0.5)):
         GagInfoFrame.__init__(self, parent, pos, scale, geom_scale)
-        self.title.setPos(0.45, 0, 0.18)
-        self.subtitle.setPos(0.45, 0, 0.1)
-        self.description.setPos(0.45, 0.0, -0.01)
+        self.title.setPos(-0.45, 0, 0.18)
+        self.subtitle.setPos(-0.45, 0, 0.1)
+        self.description.setPos(-0.45, 0.0, -0.01)
         self.icon.setPos(0.33, 0, 0.15)
         self.status = TTLabel(self.mainFrame, text=TTLocalizer.GagSelectNoGagInfo, pos=(0, 0, 0.05))
         self.show()
