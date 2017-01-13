@@ -226,7 +226,6 @@ class GagInfoFrame(DirectFrame):
         self.title = TTLabel.TTLabel(
             parent=self.mainFrame,
             pos=(-0.4, 0.0, 0.14),
-            text='',
             text_size=TTLabel.TTLabel.MediumSize,
             text_align=TextNode.ALeft,
             text_fg=ColorGlobals.CDarkGray,
@@ -235,13 +234,12 @@ class GagInfoFrame(DirectFrame):
         self.subtitle = TTLabel.TTLabel(
             parent=self.mainFrame,
             pos=(-0.4, 0.0, 0.07),
-            text='Level 1 Throw Gag',
             text_align=TextNode.ALeft,
             text_fg=ColorGlobals.CToontownBlue
         )
         self.description = TTLabel.TTLabel(
             parent=self.mainFrame,
-            pos=(-0.4, 0.0, 0.02),
+            pos=(-0.4, 0.0, -0.02),
             text='',
             text_align=TextNode.ALeft,
             text_wordwrap=10
