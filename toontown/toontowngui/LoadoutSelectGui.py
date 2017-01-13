@@ -1,15 +1,13 @@
-from panda3d.core import TextNode
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectButton import DirectButton, DGG
 from direct.gui.DirectFrame import DirectFrame
 
 from toontown.data import Gag, Track
 from toontown.toon.ClerkLoadoutGui import ClerkLoadoutGui
-from toontown.toonbase import ToontownGlobals, ColorGlobals, EventGlobals, TTLocalizer
+from toontown.toonbase import ToontownGlobals, EventGlobals, TTLocalizer
 from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame, TTTooltip
 from toontown.toon.LoadoutGui import GagInfoFrame
 from toontown.util.ThreadedCall import ThreadedCall
-from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class LoadoutSelectGui(DirectFrame):
@@ -158,9 +156,10 @@ class LoadoutSelectGui(DirectFrame):
 class GagSelectInfoFrame(GagInfoFrame):
     def __init__(self, parent, pos=(0.0, 0.0, 0.0), scale=(1, 1, 1), geom_scale=(0.9, 0.5, 0.5)):
         GagInfoFrame.__init__(self, parent, pos, scale, geom_scale)
-        self.title.setPos(0, 0, 0.2)
-        self.description.setPos(-0.12, 0.0, 0.06)
-        self.icon.setPos(-0.29, 0, 0.04)
+        self.title.setPos(0.45, 0, 0.18)
+        self.subtitle.setPos(0.45, 0, 0.1)
+        self.description.setPos(0.45, 0.0, -0.01)
+        self.icon.setPos(0.33, 0, 0.15)
         self.status = TTLabel(self.mainFrame, text=TTLocalizer.GagSelectNoGagInfo, pos=(0, 0, 0.05))
         self.show()
 

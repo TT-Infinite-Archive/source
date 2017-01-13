@@ -1,7 +1,7 @@
 from panda3d.core import TextNode
 from direct.gui.DirectGui import *
 from toontown.data import Track
-from toontown.util import TTCardMaker, PlacerTool3D
+from toontown.util import TTCardMaker
 from toontown.toonbase import EventGlobals, ToontownGlobals, ColorGlobals
 from toontown.toontowngui import TTLabel
 
