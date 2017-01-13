@@ -11,7 +11,6 @@ from direct.fsm import State
 import MinigameRulesPanel
 from direct.task.Task import Task
 from toontown.toon import Toon
-from direct.showbase import RandomNumGen
 from toontown.toonbase import TTLocalizer
 import random
 import MinigameGlobals
@@ -77,20 +76,9 @@ class DistributedMinigame(DistributedObject.DistributedObject):
     def getMaxDuration(self):
         raise Exception('Minigame implementer: you must override getMaxDuration()')
 
-    def __createRandomNumGen(self):
-        self.notify.debug('BASE: self.doId=0x%08X' % self.doId)
-        self.randomNumGen = RandomNumGen.RandomNumGen(self.doId)
-
-        def destroy(self = self):
-            self.notify.debug('BASE: destroying random num gen')
-            del self.randomNumGen
-
-        self.cleanupActions.append(destroy)
-
     def generate(self):
         self.notify.debug('BASE: generate, %s' % self.getTitle())
         DistributedObject.DistributedObject.generate(self)
-        self.__createRandomNumGen()
 
     def announceGenerate(self):
         DistributedObject.DistributedObject.announceGenerate(self)

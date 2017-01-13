@@ -1,6 +1,5 @@
 from pandac.PandaModules import NodePath, Plane, Vec3, Point3
 from pandac.PandaModules import CollisionPlane, CollisionNode
-from direct.showbase.RandomNumGen import RandomNumGen
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.PythonUtil import bound as clamp
 import CogdoUtil
@@ -10,6 +9,8 @@ from CogdoFlyingObjects import CogdoFlyingGatherableFactory, CogdoFlyingPlatform
 from CogdoFlyingObstacles import CogdoFlyingObstacleFactory
 from CogdoGameExit import CogdoGameExit
 from otp.otpbase import OTPGlobals
+import random
+
 
 class CogdoFlyingLevel(DirectObject):
     notify = directNotify.newCategory('CogdoFlyingLevel')
@@ -187,12 +188,11 @@ class CogdoFlyingLevel(DirectObject):
 
 class CogdoFlyingLevelFactory:
 
-    def __init__(self, parent, quadLengthUnits, quadVisibilityAhead, quadVisibiltyBehind, rng = None):
+    def __init__(self, parent, quadLengthUnits, quadVisibilityAhead, quadVisibiltyBehind):
         self.parent = parent
         self.quadLengthUnits = quadLengthUnits
         self.quadVisibiltyAhead = quadVisibilityAhead
         self.quadVisibiltyBehind = quadVisibiltyBehind
-        self._rng = rng or RandomNumGen(1)
         self._level = None
         return
 
@@ -220,7 +220,7 @@ class CogdoFlyingLevelFactory:
             quads = []
             for difficulty in levelInfo:
                 quadList = Globals.Level.QuadsByDifficulty[difficulty]
-                quads.append(quadList[self._rng.randint(0, len(quadList) - 1)])
+                quads.append(quadList[random.randint(0, len(quadList) - 1)])
 
         for i in quads:
             filePath = CogdoUtil.getModelPath('quadrant%i' % i, 'flying')

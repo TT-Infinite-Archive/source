@@ -1,11 +1,11 @@
 from pandac.PandaModules import NodePath, VBase4
 from direct.showbase.DirectObject import DirectObject
-from direct.showbase.RandomNumGen import RandomNumGen
 from toontown.minigame.MazeBase import MazeBase
 import CogdoMazeGameGlobals as Globals
 from CogdoMazeGameObjects import CogdoMazeWaterCooler
 import CogdoMazeData
 import CogdoUtil
+import random
 
 class CogdoMaze(MazeBase, DirectObject):
 
@@ -79,8 +79,7 @@ BARRIER_DATA_TOP = 1
 
 class CogdoMazeFactory:
 
-    def __init__(self, randomNumGen, width, height, frameWallThickness = Globals.FrameWallThickness, cogdoMazeData = CogdoMazeData):
-        self._rng = RandomNumGen(randomNumGen)
+    def __init__(self, width, height, frameWallThickness = Globals.FrameWallThickness, cogdoMazeData = CogdoMazeData):
         self.width = width
         self.height = height
         self.frameWallThickness = frameWallThickness
@@ -101,19 +100,19 @@ class CogdoMazeFactory:
     def _gatherQuadrantData(self):
         self.openBarriers = []
         barrierItems = range(Globals.TotalBarriers)
-        self._rng.shuffle(barrierItems)
+        random.shuffle(barrierItems)
         for i in barrierItems[0:len(barrierItems) - Globals.NumBarriers]:
             self.openBarriers.append(i)
 
         self.quadrantData = []
         quadrantKeys = self._cogdoMazeData.QuadrantCollisions.keys()
-        self._rng.shuffle(quadrantKeys)
+        random.shuffle(quadrantKeys)
         i = 0
         for y in xrange(self.height):
             for x in xrange(self.width):
                 key = quadrantKeys[i]
                 collTable = self._cogdoMazeData.QuadrantCollisions[key]
-                angle = self._cogdoMazeData.QuadrantAngles[self._rng.randint(0, len(self._cogdoMazeData.QuadrantAngles) - 1)]
+                angle = self._cogdoMazeData.QuadrantAngles[random.randint(0, len(self._cogdoMazeData.QuadrantAngles) - 1)]
                 self.quadrantData.append((key, collTable[angle], angle))
                 i += 1
                 if x * y >= self._cogdoMazeData.NumQuadrants:
@@ -189,8 +188,8 @@ class CogdoMazeFactory:
 
             return
 
-        x = self._rng.randint(0, self.width - 1)
-        y = self._rng.randint(0, self.height - 1)
+        x = random.randint(0, self.width - 1)
+        y = random.randint(0, self.height - 1)
         openBarriers(x, y)
         self._barrierData = data
         return

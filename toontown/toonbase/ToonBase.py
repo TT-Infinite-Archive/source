@@ -1,10 +1,7 @@
-import atexit
 import fractions
 import os
 import random
-import shutil
 import sys
-import tempfile
 import time
 from sys import platform
 
@@ -41,16 +38,13 @@ class ToonBase(OTPBase.OTPBase):
 
         self.cr = None
 
-        # Create a temporary directory:
-        self.tempDir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, self.tempDir)
-
         # Get the native display info:
         self.nativeWidth = self.pipe.getDisplayWidth()
         self.nativeHeight = self.pipe.getDisplayHeight()
         ratio = float(self.nativeWidth) / float(self.nativeHeight)
         fraction = fractions.Fraction(ratio).limit_denominator()
         self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
+        self.calcRatio = self.nativeRatio
 
         # Choose the best resolution if we're either fullscreen, or we don't
         # have a resolution defined in our settings:
@@ -691,7 +685,6 @@ class ToonBase(OTPBase.OTPBase):
 
     def getSmallestResolution(self):
         resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
-
         if len(resolutions) < 2:
             ratios = ToontownGlobals.CommonDisplayResolutions.keys()
             ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
@@ -699,6 +692,7 @@ class ToonBase(OTPBase.OTPBase):
             while ratios:
                 ratio = ratios.pop()
                 if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
+                    self.calcRatio = ratio
                     resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
                     if resolutions[0][0] >= (self.nativeWidth - 125):
                         continue
@@ -706,7 +700,8 @@ class ToonBase(OTPBase.OTPBase):
                         continue
                     break
             else:
-                resolutions = ToontownGlobals.CommonDisplayResolutions[(4, 3)]
+                self.calcRatio = (4, 3)
+                resolutions = ToontownGlobals.CommonDisplayResolutions[self.calcRatio]
 
         res = resolutions[0]
         return res

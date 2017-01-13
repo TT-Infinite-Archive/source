@@ -17,8 +17,6 @@ from toontown.toonbase import ToontownBattleGlobals
 from direct.distributed.ClockDelta import *
 from toontown.golf import BuildGeometry
 from direct.gui.DirectGui import *
-import random
-from direct.showbase import RandomNumGen
 import GameSprite3D
 from math import pi
 import math

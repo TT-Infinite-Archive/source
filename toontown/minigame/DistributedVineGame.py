@@ -16,6 +16,7 @@ from toontown.minigame import MinigameAvatarScorePanel
 from toontown.toonbase import ToontownTimer
 from toontown.minigame import VineHeadFrame
 from toontown.minigame import VineBat
+import random
 
 class DistributedVineGame(DistributedMinigame):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedVineGame')
@@ -191,8 +192,8 @@ class DistributedVineGame(DistributedMinigame):
         self.numTreasures = len(self.vines) - 1
         self.treasures = []
         for i in xrange(self.numTreasures):
-            height = self.randomNumGen.randrange(10, 25)
-            xPos = self.randomNumGen.randrange(12, 18)
+            height = random.randrange(10, 25)
+            xPos = random.randrange(12, 18)
             pos = Point3(self.vines[i].getX() + 15, 0, height)
             self.treasures.append(VineTreasure.VineTreasure(self.treasureModel, pos, i, self.doId))
 
@@ -1417,7 +1418,7 @@ class DistributedVineGame(DistributedMinigame):
         endX = -VineGameGlobals.VineXIncrement
         firstInterval = True
         while batIval.getDuration() < VineGameGlobals.GameDuration:
-            batHeight = self.randomNumGen.randrange(VineGameGlobals.BatMinHeight, VineGameGlobals.BatMaxHeight)
+            batHeight = random.randrange(VineGameGlobals.BatMinHeight, VineGameGlobals.BatMaxHeight)
             batIval.append(Func(self.bats[batIndex].startLap))
             if firstInterval:
                 newIval = LerpPosInterval(self.bats[batIndex], duration=timeToTraverseField * startMultiplier, pos=Point3(endX, 0, batHeight), startPos=Point3(startX * startMultiplier, 0, batHeight))

@@ -8,6 +8,7 @@ from toontown.toonbase import TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 import random
+from toontown.toontowngui import TTDialog
 MAX_AVATARS = 6
 POSITIONS = (Vec3(-0.860167, 0, 0.359333),
  Vec3(0, 0, 0.346533),
@@ -81,6 +82,7 @@ class AvatarChooser(StateData.StateData):
         self.disconnectButton.hide()
         self.pickAToonBG.reparentTo(hidden)
         base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
+        base.ignore('confirmBack')
 
     def load(self):
         if self.isLoaded:
@@ -107,16 +109,29 @@ class AvatarChooser(StateData.StateData):
             fg=(1, 0.9, 0.1, 1), pos=(0.0, 0.82))
 
         quitHover = gui.find('**/QuitBtn_RLVR')
-        self.disconnectButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.OptionsDisconnect,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACdisconnectButtonPos,
-            text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.25, 0, 0.075), command = self.__back)
+        if (base.isSinglePlayer or base.isHosting):
+            self.disconnectButton = DirectButton(
+                image=(quitHover, quitHover, quitHover), relief=None,
+                text = TTLocalizer.OptionsDisconnect,
+                text_font=ToontownGlobals.getSignFont(),
+                text_fg=(0.977, 0.816, 0.133, 1),
+                text_pos=TTLocalizer.ACdisconnectButtonPos,
+                text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
+                image1_scale=1.05, image2_scale=1.05, scale=1.05,
+                pos=(0.25, 0, 0.075), command=self.__back)
+        else:
+            self.disconnectButton = DirectButton(
+                image=(quitHover, quitHover, quitHover), relief=None,
+                text=TTLocalizer.OptionsLeaveServer,
+                text_font=ToontownGlobals.getSignFont(),
+                text_fg=(0.977, 0.816, 0.133, 1),
+                text_pos=TTLocalizer.ACdisconnectButtonPos,
+                text_scale=TTLocalizer.ACleaveButton, image_scale=1,
+                image1_scale=1.05, image2_scale=1.05, scale=1.05,
+                pos=(0.25, 0, 0.075), command=self.__back)
         self.disconnectButton.reparentTo(base.a2dBottomLeft)
+
+
 
         """
         self.logoutButton = DirectButton(
@@ -313,5 +328,26 @@ class AvatarChooser(StateData.StateData):
         base.cr.loginFSM.request('login')
     
     def __back(self):
-        base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+        if base.isHosting:
+            self.confirm = TTDialog.TTGlobalDialog(
+            doneEvent='confirmBack',
+            message=TTLocalizer.OptionsPageExitConfirmMultiplayerHost,
+            style=TTDialog.TwoChoice)
+            self.confirm.show()
+            base.accept('confirmBack', self.__backConfirm)
+            return
+
+        elif base.isSinglePlayer:
+            base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+        
         base.cr.loginFSM.request('mainMenu')
+
+    def __backConfirm(self):
+        status = self.confirm.doneStatus
+        self.ignore('confirmDone')
+        self.confirm.cleanup()
+        del self.confirm
+        if status == 'ok':
+            if base.isSinglePlayer or base.isHosting:
+                base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+            base.cr.loginFSM.request('mainMenu')

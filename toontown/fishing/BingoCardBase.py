@@ -1,8 +1,8 @@
 from direct.directnotify import DirectNotifyGlobal
 from toontown.fishing import FishGlobals
 from toontown.fishing import BingoGlobals
-from direct.showbase import RandomNumGen
 from math import ceil, pow
+import random
 
 class BingoCardBase:
     notify = DirectNotifyGlobal.directNotify.newCategory('BingoCardBase')
@@ -20,7 +20,7 @@ class BingoCardBase:
         del self.cellList
 
     def generateCard(self, tileSeed, zoneId):
-        rng = RandomNumGen.RandomNumGen(tileSeed)
+        rng = random.Random(tileSeed)
         fishList = FishGlobals.getPondGeneraList(zoneId)
         emptyCells = self.cardSize - 1 - len(fishList)
         rodId = 0

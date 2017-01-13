@@ -115,6 +115,9 @@ class Butterfly(FSM):
         if self.butterfly2:
             self.butterfly2.cleanup()
             self.butterfly2 = None
+        if self.dropShadow:
+            self.dropShadow.removeNode()
+            self.dropShadow = None
         self.butterflyNode.removeNode()
         self.__deleteCollisions()
         FSM.cleanup(self)

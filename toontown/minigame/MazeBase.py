@@ -1,5 +1,6 @@
 from pandac.PandaModules import VBase3
-from direct.showbase.RandomNumGen import RandomNumGen
+import random
+
 
 class MazeBase:
 
@@ -98,8 +99,7 @@ class MazeBase:
                 offset.setY(cY - curY)
         return oldPos + offset
 
-    def createRandomSpotsList(self, numSpots, randomNumGen):
-        randomNumGen = RandomNumGen(randomNumGen)
+    def createRandomSpotsList(self, numSpots):
         width = self.width
         height = self.height
         halfWidth = int(width / 2)
@@ -126,15 +126,15 @@ class MazeBase:
             tX = -1
             tY = -1
             while tX < 0 or not self.isWalkable(tX, tY, spotsTaken):
-                tX = randomNumGen.randint(quadrant[0], quadrant[2])
-                tY = randomNumGen.randint(quadrant[1], quadrant[3])
+                tX = random.randint(quadrant[0], quadrant[2])
+                tY = random.randint(quadrant[1], quadrant[3])
 
             spot = (tX, tY)
             spotsTaken.append(spot)
             return spot
 
         def getSpotList(length):
-            randomNumGen.shuffle(quadrants)
+            random.shuffle(quadrants)
             l = []
             remaining = length
             for quadrant in quadrants:
@@ -144,7 +144,7 @@ class MazeBase:
                 remaining -= int(length / 4)
 
             for u in xrange(remaining):
-                quadrant = quadrants[randomNumGen.randint(0, len(quadrants) - 1)]
+                quadrant = quadrants[random.randint(0, len(quadrants) - 1)]
                 l.append(getEmptySpotInQuadrant(quadrant))
 
             return l

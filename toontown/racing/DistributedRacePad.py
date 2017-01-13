@@ -9,6 +9,7 @@ from toontown.toonbase.ToontownTimer import ToontownTimer
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.racing.KartShopGlobals import KartGlobals
+from panda3d.core import TextNode
 
 class DistributedRacePad(DistributedKartPad, FSM):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedRacePad')

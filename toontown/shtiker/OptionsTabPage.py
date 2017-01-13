@@ -104,7 +104,7 @@ class OptionsTabPage(DirectFrame):
             pos=(-0.40, 0, rightYBase + 0.1),
             text=TTLocalizer.OptionsPageVideo
         )
-        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.nativeRatio])
+        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
         self.resIndex = self.getResIndex()
         self.resolutionLabel = TTLabel.TTLabel(parent=self.rightFrame, text=TTLocalizer.DisplaySettingsResolution, pos=(-0.33, 0, 0.35))
         self.resolutionValueLabel = TTLabel.TTLabel(
@@ -372,10 +372,14 @@ class OptionsTabPage(DirectFrame):
             command=self.__doToggleWantFriends
         )
 
+        if (base.isSinglePlayer or base.isHosting):
+            text = TTLocalizer.OptionsDisconnect
+        else:
+            text = TTLocalizer.OptionsLeaveServer
         self.exitButton = TTButton.TTButton(
             parent=self,
             buttonScale=1.15,
-            text=TTLocalizer.OptionsDisconnect,
+            text=text,
             pos=(-0.45, 0, -0.53),
             command=self.__handleExitServerShowWithConfirm
         )
@@ -878,6 +882,19 @@ class OptionsTabPage(DirectFrame):
 
     def getResIndex(self):
         res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
+        if res not in self.screenSizes:
+            # The player's resolution is not in our screen sizes, this means they changed it to be something
+            # incompatible or our res detection couldn't find a resolution for their native ratio so we have invalid
+            # values for our self.screenSizes...
+            newRes = base.getSmallestResolution()
+            # Getting the new smallest resolution above will adapt
+            # base.calcRatio, so we must get a new set of
+            # screenSizes
+            self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
+            if res not in self.screenSizes:
+                # Our resolution is STILL not in these screen sizes, the user must be involved with this confusion
+                # so we will reset their res to the smallest resolution
+                res = newRes
         return self.screenSizes.index(res)
 
     def updateSpeedChatStyle(self):
@@ -917,9 +934,15 @@ class OptionsTabPage(DirectFrame):
         settings['fullscreen'] = self.displaySettingsFullscreen
 
     def __handleExitServerShowWithConfirm(self):
+        if base.isHosting:
+            message = TTLocalizer.OptionsPageExitConfirmMultiplayerHost
+        else:
+            message = TTLocalizer.OptionsPageExitConfirmMultiplayer
+        if base.isSinglePlayer:
+            message = TTLocalizer.OptionsPageExitConfirmSingleplayer
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent='confirmDone',
-            message=TTLocalizer.OptionsPageExitConfirm,
+            message=message,
             style=TTDialog.TwoChoice
         )
         self.confirm.show()
