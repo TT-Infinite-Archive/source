@@ -3,8 +3,7 @@ from direct.interval.IntervalGlobal import Sequence, ActorInterval, Func, Parall
 
 
 class Missile:
-    def __init__(self, uid, model, deathModel, deathSound=Sound.NothingSound):
-        self.uid = uid
+    def __init__(self, model, deathModel, deathSound=Sound.NothingSound):
         self.model = model
         self.deathModel = deathModel
         self.deathSound = deathSound
@@ -27,8 +26,12 @@ class Missile:
             Func(splat.delete)
         ).start()
 
-CupcakeMissile = Missile(0, Model.CupcakeModel, Model.SplatModel, Sound.SplatSound)
-PieSliceMissile = Missile(0, Model.PieSliceModel, Model.SplatModel, Sound.SplatSound)
-GoldenCupcakeMissile = Missile(0, Model.GoldenCupcakeModel, Model.SplatModel, Sound.SplatSound)
-RedCupcakeMissile = Missile(0, Model.RedCupcakeModel, Model.SplatModel, Sound.SplatSound)
+CupcakeMissile = Missile(Model.CupcakeModel, Model.TartSplatModel, Sound.SplatSound)
+PieSliceMissile = Missile(Model.PieSliceModel, Model.FruitPieSliceSplatModel)
+GoldenCupcakeMissile = Missile(Model.GoldenCupcakeModel, Model.TartSplatModel)
+RedCupcakeMissile = Missile(Model.RedCupcakeModel, Model.TartSplatModel)
+FruitPieMissile = Missile(Model.PieModel, Model.FruitPieSplatModel)
+CreamPieSliceMissile = Missile(Model.CreamPieSliceModel, Model.CreamPieSliceSplatModel)
+CreamPieMissile = Missile(Model.PieModel, Model.CreamPieSplatModel)
+BirthdayCakeMissile = Missile(Model.BirthdayCakeModel, Model.BirthdayCakeSplatModel)
 

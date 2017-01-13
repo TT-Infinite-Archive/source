@@ -196,5 +196,9 @@ GagToMovieFunc = {
     2: singleTargetThrowMovie,
     3: multiTargetThrowMovie,
     4: multiTargetThrowMovie,
+    5: singleTargetThrowMovie,
+    6: singleTargetThrowMovie,
+    7: singleTargetThrowMovie,
+    8: singleTargetThrowMovie,
     Gag.PASS: None
 }

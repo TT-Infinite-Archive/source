@@ -113,6 +113,10 @@ Gags = {
     2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 2),
     3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityLegendary, 9),
     4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityRare, 1, chance=0.5),
+    5: Gag(5, 'Sliced Cream Pie', DamageEffect(0, 16), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 3),
+    6: Gag(6, 'Fruit Pie', DamageEffect(0, 24), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 4),
+    7: Gag(7, 'Cream Pie', DamageEffect(0, 32), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 5),
+    8: Gag(8, 'Birthday Cake', DamageEffect(0, 80), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 6),
     PASS: Gag(99, 'Pass', None, 0, Track.TrackNone, Gag.RarityCommon, 0),
 }
 
@@ -122,6 +126,10 @@ GagToIcon = {
     2: IconGlobals.getIcon(IconGlobals.ICON_PIESLICE),
     3: IconGlobals.getIcon(IconGlobals.ICON_GOLD_TART),
     4: IconGlobals.getIcon(IconGlobals.ICON_RED_TART),
+    5: IconGlobals.getIcon(IconGlobals.ICON_CREAM_PIE_SLICE),
+    6: IconGlobals.getIcon(IconGlobals.ICON_FRUIT_PIE),
+    7: IconGlobals.getIcon(IconGlobals.ICON_CREAM_PIE),
+    8: IconGlobals.getIcon(IconGlobals.ICON_BIRTHDAY_CAKE),
     PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)
 }
 
@@ -130,7 +138,11 @@ GagToMissile = {
     1: Missile.CupcakeMissile,
     2: Missile.PieSliceMissile,
     3: Missile.GoldenCupcakeMissile,
-    4: Missile.RedCupcakeMissile
+    4: Missile.RedCupcakeMissile,
+    5: Missile.CreamPieSliceMissile,
+    6: Missile.FruitPieMissile,
+    7: Missile.CreamPieMissile,
+    8: Missile.BirthdayCakeMissile,
 }
 
 AlwaysEquipped = [
