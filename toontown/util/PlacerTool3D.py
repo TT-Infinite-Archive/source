@@ -193,7 +193,7 @@ class PlacerToolSpinner(DirectFrame):
     def __init__(self, parent=render2d, pos=(0.0, 0.0, 0.0), scale=1.0, value=0, callback=None, increment=0.01):
         DirectFrame.__init__(self, parent, pos=pos, scale=1.0)
         self.increment = increment
-        self.value = value
+        self.value = float(value)
         self.callback = callback
 
         self.display = DirectEntry(
@@ -259,7 +259,7 @@ class PlacerToolSpinner(DirectFrame):
         self.setValue(value)
 
     def setValue(self, value):
-        self.value = value
+        self.value = float(value)
         self.display.enterText(str(value))
         if self.callback:
             self.callback(self.value)
