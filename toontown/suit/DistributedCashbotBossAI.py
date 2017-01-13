@@ -584,7 +584,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
 
         self.b_setBossDamage(self.bossDamage + damage)
         self.sendUpdate('leaderboardUpdateAvatar', [avId, damage])
-        # self.sendUpdate('healthBarUpdate', [])
+        self.sendUpdate('healthBarUpdate', [])
         self.addThreat(avId, damage)
 
         if self.bossDamage >= self.bossMaxDamage:
