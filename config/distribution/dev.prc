@@ -58,15 +58,6 @@ want-suit-planners #t
 want-safe-zones #t
 want-toontown-central #t
 want-donalds-dock #t
-<<<<<<< HEAD
-want-daisys-garden #f
-want-minnies-melodyland #f
-want-the-burrrgh #f
-want-donalds-dreamland #f
-want-goofy-speedway #f
-want-outdoor-zone #f
-want-golf-zone #f
-=======
 want-daisys-garden #t
 want-minnies-melodyland #t
 want-the-burrrgh #t
@@ -74,7 +65,6 @@ want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
->>>>>>> master
 want-resistance-grounds #f
 
 # Cog headquarters:
