@@ -28,7 +28,7 @@ class GagLoadout(DirectObject):
     def setLoadout(self, loadout):
         self.notify.debug('Setting new loadout: %s' % loadout)
         # Convert the loadout of gag ids to gag objects
-        self._loadout = [Gags[gagId] for gagId in sorted(loadout)]
+        self._loadout = [Gags[gagId] for gagId in loadout]
         messenger.send(EventGlobals.LoadoutChanged)
 
     def getGagAtSlot(self, slot):

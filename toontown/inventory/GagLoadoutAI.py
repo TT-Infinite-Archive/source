@@ -13,14 +13,13 @@ class GagLoadoutAI(DirectObject):
         self._loadout = []
 
     def setLoadout(self, loadout):
-        self._loadout = sorted(loadout)
+        self._loadout = loadout
         self.notify.debug('Setting loadout %s' % self._loadout)
 
     def equipGag(self, gagId):
         if self.isFull() or self.isEquipped(gagId):
             return False
         self._loadout.append(gagId)
-        self._loadout.sort()
         return True
 
     def removeGag(self, gagId):
