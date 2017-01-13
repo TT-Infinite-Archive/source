@@ -27,11 +27,11 @@ class Missile:
         ).start()
 
 CupcakeMissile = Missile(Model.CupcakeModel, Model.TartSplatModel, Sound.SplatSound)
-PieSliceMissile = Missile(Model.PieSliceModel, Model.FruitPieSliceSplatModel)
-GoldenCupcakeMissile = Missile(Model.GoldenCupcakeModel, Model.TartSplatModel)
-RedCupcakeMissile = Missile(Model.RedCupcakeModel, Model.TartSplatModel)
-FruitPieMissile = Missile(Model.PieModel, Model.FruitPieSplatModel)
-CreamPieSliceMissile = Missile(Model.CreamPieSliceModel, Model.CreamPieSliceSplatModel)
-CreamPieMissile = Missile(Model.PieModel, Model.CreamPieSplatModel)
-BirthdayCakeMissile = Missile(Model.BirthdayCakeModel, Model.BirthdayCakeSplatModel)
+PieSliceMissile = Missile(Model.PieSliceModel, Model.FruitPieSliceSplatModel, Sound.SplatSound02)
+GoldenCupcakeMissile = Missile(Model.GoldenCupcakeModel, Model.TartSplatModel, Sound.SplatSound)
+RedCupcakeMissile = Missile(Model.RedCupcakeModel, Model.TartSplatModel, Sound.SplatSound)
+FruitPieMissile = Missile(Model.PieModel, Model.FruitPieSplatModel, Sound.SplatSound02)
+CreamPieSliceMissile = Missile(Model.CreamPieSliceModel, Model.CreamPieSliceSplatModel, Sound.SplatSound02)
+CreamPieMissile = Missile(Model.PieModel, Model.CreamPieSplatModel, Sound.SplatSound02)
+BirthdayCakeMissile = Missile(Model.BirthdayCakeModel, Model.BirthdayCakeSplatModel, Sound.SplatSound03)
 
