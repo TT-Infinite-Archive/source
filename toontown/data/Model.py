@@ -25,4 +25,5 @@ CupcakeModel = Model(0, 'tart', 'phase_3.5/models/props/tart', {}, 0.6)
 GoldenCupcakeModel = Model(1, 'tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
 SplatModel = Model(2, 'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'}, scale=0.5)
 RedCupcakeModel = Model(3, 'tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.2, 0.2, 1.0))
+PieSliceModel = Model(3, 'pie', 'phase_5/models/props/fruit-pie-slice', {}, 0.6)
 

@@ -28,12 +28,12 @@ class BattleCalculatorAI:
         tmas = []
         for ta in self.battle.toonAttacks.values():
             tma = BattleAttack.MovieAttack()
-            tma.fromList(ta.toList() + [0.0])
+            tma.fromList(ta.toList() + [False])
             # Get the gag object for this attack id
             gag = Gag.Gags.get(ta.attackId)
             # Check if its a real gag
             if gag is not None:
-                # Roll a dice for the attack
+                # Check if attack hit
                 tma.hit = gag.chance >= random.uniform(0, 1)
                 self.notify.debug('generatedToonAttack: %s' % tma.toList())
                 tmas.append(tma)
@@ -45,9 +45,10 @@ class BattleCalculatorAI:
         smas = []
         for sa in self.battle.suitAttacks:
             sma = BattleAttack.MovieAttack()
-            sma.fromList(sa.toList() + [0.0])
+            sma.fromList(sa.toList() + [False])
             attack = BattleAttack.SuitAttacks.get(sa.attackId)
             if attack is not None:
+                # Check if attack hit
                 sma.hit = attack.chance >= random.uniform(0, 1)
                 smas.append(sma)
             else:

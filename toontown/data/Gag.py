@@ -127,7 +127,7 @@ GagToIcon = {
 GagToMissile = {
     0: None,
     1: Missile.CupcakeMissile,
-    2: Missile.CupcakeMissile,
+    2: Missile.PieSliceMissile,
     3: Missile.GoldenCupcakeMissile,
     4: Missile.RedCupcakeMissile
 }

@@ -28,6 +28,7 @@ class Missile:
         ).start()
 
 CupcakeMissile = Missile(0, Model.CupcakeModel, Model.SplatModel, Sound.SplatSound)
+PieSliceMissile = Missile(0, Model.PieSliceModel, Model.SplatModel, Sound.SplatSound)
 GoldenCupcakeMissile = Missile(0, Model.GoldenCupcakeModel, Model.SplatModel, Sound.SplatSound)
 RedCupcakeMissile = Missile(0, Model.RedCupcakeModel, Model.SplatModel, Sound.SplatSound)
 
