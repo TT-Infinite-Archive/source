@@ -21,7 +21,7 @@ class Gag(DirectObject):
     RarityEpic = 2
     RarityLegendary = 3
 
-    def __init__(self, uid, name, effect, targetType, track=0, rarity=0, chance=1.0):
+    def __init__(self, uid, name, effect, targetType, track, rarity, level, chance=1.0):
         DirectObject.__init__(self)
         self.uid = uid
         self.name = name
@@ -30,6 +30,7 @@ class Gag(DirectObject):
         self.track = track
         self.chance = chance
         self.rarity = rarity
+        self.level = level
 
     def __str__(self):
         return 'Gag-%s' % self.name
@@ -59,8 +60,8 @@ class Gag(DirectObject):
     @property
     def rarityColor(self):
         rarityToColor = {
-            Gag.RarityCommon: ColorGlobals.CGray,
-            Gag.RarityRare: ColorGlobals.CMediumBlue,
+            Gag.RarityCommon: ColorGlobals.CDarkGray,
+            Gag.RarityRare: ColorGlobals.CEmerald,
             Gag.RarityEpic: ColorGlobals.CDarkViolet,
             Gag.RarityLegendary: ColorGlobals.COrange
         }
@@ -105,14 +106,14 @@ class Gag(DirectObject):
 NO_ATTACK = 0
 PASS = 99
 
-DefaultGag = Gag(0, 'Nothing but a chuckle', None, 0)
+DefaultGag = Gag(0, 'Nothing but a chuckle', None, 0, Track.TrackNone, Gag.RarityCommon, 0)
 Gags = {
     0: DefaultGag,
-    1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon),
-    2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon),
-    3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityLegendary),
-    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityRare, chance=0.5),
-    PASS: Gag(99, 'Pass', None, 0),
+    1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 1),
+    2: Gag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 2),
+    3: Gag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityLegendary, 9),
+    4: Gag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Track.TrackThrow, Gag.RarityRare, 1, chance=0.5),
+    PASS: Gag(99, 'Pass', None, 0, Track.TrackNone, Gag.RarityCommon, 0),
 }
 
 GagToIcon = {
