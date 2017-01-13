@@ -2,8 +2,7 @@ from direct.interval.IntervalGlobal import *
 from panda3d.core import Point3
 
 import MovieUtil
-from toontown.data import Sound
-from toontown.data.Gag import Gags, GagToMissile, PASS
+from toontown.data import Sound, Gag
 from toontown.toonbase import TTLocalizer
 from toontown.util import PointLib, PlacerTool3D
 
@@ -15,8 +14,8 @@ def place(node):
 def singleTargetThrowMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suit = battle.findSuit(tma.targetId)
-    attack = Gags[tma.attackId]
-    missile = GagToMissile.get(tma.attackId)
+    attack = Gag.Gags[tma.attackId]
+    missile = Gag.GagToMissile.get(tma.attackId)
     prop = missile.model.getActor()
     hand = toon.getRightHand()
     suitPos = suit.getPos(battle)
@@ -86,8 +85,8 @@ def singleTargetThrowMovie(battle, tma):
 def multiTargetThrowMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suits = battle.activeSuits
-    attack = Gags[tma.attackId]
-    missile = GagToMissile.get(tma.attackId)
+    attack = Gag.Gags[tma.attackId]
+    missile = Gag.GagToMissile.get(tma.attackId)
     prop = missile.model.getActor()
     hand = toon.getRightHand()
     toonTrack = Sequence(
@@ -191,13 +190,11 @@ def multiTargetThrowMovie(battle, tma):
 
     return Parallel(toonTrack, propTrack, suitTrack)
 
-
-
 GagToMovieFunc = {
     0: None,
     1: singleTargetThrowMovie,
     2: singleTargetThrowMovie,
     3: multiTargetThrowMovie,
     4: multiTargetThrowMovie,
-    PASS: None
+    Gag.PASS: None
 }
