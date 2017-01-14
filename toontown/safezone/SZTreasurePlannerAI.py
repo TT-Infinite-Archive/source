@@ -24,8 +24,9 @@ class SZTreasurePlannerAI(RegenTreasurePlannerAI):
 
     def validAvatar(self, treasure, av):
         # Avatars can only heal if they are missing some health, but aren't sad.
-        if treasure.treasureType in (TreasurePD):
-            simbase.air.statManager.handleTreasureObtained(av, treasure)
+        simbase.air.statManager.handleTreasureObtained(av, treasure)
+        if treasure.treasureType in (TreasurePD,):
+            # This treasure type doesn't heal
             return True
         elif 0 < av.getHp() < av.getMaxHp():
             amount = self.getHealAmount(av)
