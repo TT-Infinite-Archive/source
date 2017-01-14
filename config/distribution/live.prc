@@ -51,7 +51,7 @@ want-daisys-garden #t
 want-minnies-melodyland #t
 want-the-burrrgh #t
 want-donalds-dreamland #t
-want-goofy-speedway #f
+want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
 want-resistance-grounds #f
