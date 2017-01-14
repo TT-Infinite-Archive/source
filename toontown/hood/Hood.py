@@ -34,6 +34,8 @@ class Hood(StateData.StateData):
         self.holidayStorageDNADict = {}
         self.spookySkyFile = None
         self.snowySkyFile = 'phase_3.5/models/props/BR_sky'
+        self.nightSkyFile = None
+        self.sunSkyFile = None
         self.halloweenLights = []
         self.wantSpookySky = False
 
@@ -247,6 +249,8 @@ class Hood(StateData.StateData):
             self.nightSky.setTag('sky', 'Night')
             self.nightSky.setScale(1.0)
             self.nightSky.setFogOff()
+        else:
+            self.notify.warning('Hood %s has no night sky file!' % self.hoodId)
 
         if self.sunSkyFile:
             self.sunSky = loader.loadModel(self.sunSkyFile)
@@ -254,6 +258,8 @@ class Hood(StateData.StateData):
             self.sunSky.setTag('sky', 'Sun')
             self.sunSky.setScale(1.0)
             self.sunSky.setFogOff()
+        else:
+            self.notify.warning('Hood %s has no sun sky file!' % self.hoodId)
 
         dnaBulk = DNABulkLoader(self.dnaStore, tuple(files))
         dnaBulk.loadDNAFiles()
