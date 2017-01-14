@@ -30,11 +30,27 @@ class PartyHood(Hood.Hood):
         self.holidayStorageDNADict = {WINTER_DECORATIONS: ['phase_5.5/dna/winter_storage_estate.pdna'],
          WACKY_WINTER_DECORATIONS: ['phase_5.5/dna/winter_storage_estate.pdna']}
         self.skyFile = 'phase_3.5/models/props/TT_sky'
+        self.nightSkyFile = 'phase_8/models/props/DL_sky'
+        self.sunSkyFile = 'phase_6/models/props/MM_sky'
         self.popupInfo = None
         return
 
     def load(self):
         Hood.Hood.load(self)
+
+        if self.nightSkyFile:
+            self.nightSky = loader.loadModel(self.nightSkyFile)
+            self.nightSky.setTransparency(TransparencyAttrib.MAlpha)
+            self.nightSky.setTag('sky', 'Night')
+            self.nightSky.setScale(1.0)
+            self.nightSky.setFogOff()
+
+        if self.sunSkyFile:
+            self.sunSky = loader.loadModel(self.sunSkyFile)
+            self.sunSky.setTransparency(TransparencyAttrib.MAlpha)
+            self.sunSky.setTag('sky', 'Sun')
+            self.sunSky.setScale(1.0)
+            self.sunSky.setFogOff()
 
     def unload(self):
         del self.safeZoneLoaderClass
