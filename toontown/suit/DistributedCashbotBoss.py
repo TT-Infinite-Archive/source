@@ -808,7 +808,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.doAnimate('hit', now=1)
             self.showHpText(-delta, scale=5)
         self.bossDamage = bossDamage
-        # self.updateHealthBar()
+        self.updateHealthBar()
 
     def setRewardIds(self, rewardIds):
         self.rewardIds = rewardIds
@@ -1099,8 +1099,8 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.midVault.stash()
         self.__hideResistanceToon()
         localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
-        # self.generateHealthBar()
-        # self.updateHealthBar()
+        self.generateHealthBar()
+        self.updateHealthBar()
 
         # self.bossBattleHealthBar = BossBattleHealthBar(self.dna.dept, self.bossMaxDamage)
         # self.bossBattleHealthBar.load()
@@ -1115,7 +1115,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stopAnimate()
         self.cleanupAttacks()
         self.setDizzy(0)
-        # self.removeHealthBar()
+        self.removeHealthBar()
         localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
         if self.newState != 'Victory':
             self.battleThreeMusic.stop()

@@ -1154,10 +1154,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.setDizzy(0)
             self.interruptMove()
             self.doMoveAttack(avId)
-        elif attackCode == ToontownGlobals.BossCogChaseAttack:
-            self.setDizzy(0)
-            self.interruptMove()
-            self.doChaseToonAttack(avId)
         elif attackCode == ToontownGlobals.BossCogGolfAttack:
             self.setDizzy(0)
             self.interruptMove()
@@ -1179,11 +1175,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         elif attackCode == ToontownGlobals.BossCogSwatRight:
             self.setDizzy(0)
             self.doAnimate('rtSwing', now=1)
-        elif attackCode == ToontownGlobals.BossCogAreaAttack:
-            self.saySomething(TTLocalizer.BossbotJumpTaunt)
-            base.playSfx(self.warningSfx)
-            self.setDizzy(0)
-            self.doAnimate('areaAttack', now=1)
         elif attackCode == ToontownGlobals.BossCogFrontAttack:
             self.setDizzy(0)
             self.doAnimate('frontAttack', now=1)

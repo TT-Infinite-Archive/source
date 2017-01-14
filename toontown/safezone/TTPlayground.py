@@ -1,18 +1,13 @@
-from pandac.PandaModules import Vec3, Point3
-
 from direct.interval.IntervalGlobal import *
-from direct.task.Task import Task
-
-from toontown.chat.ChatGlobals import *
 from toontown.classicchars import CCharPaths
 from toontown.safezone import Playground
-from toontown.suit import Suit, SuitDNA
-from toontown.toon import Toon, ToonDNA
 from toontown.toonbase import TTLocalizer
 
 from toontown.nametag.NametagGroup import *
 from panda3d.core import *
 from toontown.toonbase import ToontownGlobals
+from toontown.safezone import Butterfly
+from toontown.safezone import ButterflyGlobals
 
 import random
 
@@ -22,10 +17,12 @@ class TTPlayground(Playground.Playground):
         Playground.Playground.__init__(self, loader, parentFSM, doneEvent)
 
         self.skyBoxLoop = None
+        self.butterflies = []
 
     def enter(self, requestStatus):
         Playground.Playground.enter(self, requestStatus)
         taskMgr.doMethodLater(1, self.__birds, 'TT-birds')
+        self.createButterflies()
 
         if not base.wantTrolleyTTC:
             self.loadTrolleyConstruction()
@@ -49,6 +46,18 @@ class TTPlayground(Playground.Playground):
         self.cone3 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
         self.cone3.setPosHpr(-156, -71, 0.545, 150, 0, 0)
         self.cone3.reparentTo(render)
+
+    def createButterflies(self):
+        playground = ButterflyGlobals.TTC
+        areas = ButterflyGlobals.PLAYGROUND_TO_POINTS[playground]
+        for area in areas:
+            butterfly = Butterfly.Butterfly(area)
+            self.butterflies.append(butterfly)
+
+    def cleanupButterflies(self):
+        for butterfly in self.butterflies:
+            butterfly.cleanup()
+        del self.butterflies[:]
 
     def loadStormProps(self):
         # Storm: No birds.
@@ -381,6 +390,7 @@ class TTPlayground(Playground.Playground):
 
     def exit(self):
         taskMgr.remove('TT-birds')
+        self.cleanupButterflies()
 
         if not base.wantTrolleyTTC:
             self.unloadTrolleyConstruction()

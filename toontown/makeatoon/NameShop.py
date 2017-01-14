@@ -190,7 +190,8 @@ class NameShop(StateData.StateData):
                 self.firstHigh.reparentTo(self.namePanel)
                 self.suffixHigh.reparentTo(self.namePanel)
                 self.randomButton.reparentTo(self.namePanel, sort=2)
-                self.typeANameButton.reparentTo(self.namePanel, sort=2)
+                # self.typeANameButton.reparentTo(self.namePanel, sort=2)
+                self.typeANameButton.reparentTo(hidden) # Hide the type a name button until we add the proper functionality to it
             self.pickANameGUIElements.remove(self.titleScrollList)
             self.pickANameGUIElements.remove(self.firstnameScrollList)
             self.titleScrollList.destroy()
