@@ -51,7 +51,8 @@ GoldenCupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6, color=
 RedCupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.2, 0.2, 1.0))
 PieSliceModel = ActorFactory('phase_5/models/props/fruit-pie-slice', {})
 CreamPieSliceModel = ActorFactory('phase_5/models/props/cream-pie-slice', {})
-PieModel = ActorFactory('phase_3.5/models/props/tart', {})
+FruitPieModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.75)
+CreamPieModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.85)
 BirthdayCakeModel = ActorFactory('phase_5/models/props/birthday-cake-mod', {'stand': 'phase_5/models/props/birthday-cake-chan'})
 BirthdayCakeModel.addEvent('create', lambda actor: actor.loop('stand'))
 
