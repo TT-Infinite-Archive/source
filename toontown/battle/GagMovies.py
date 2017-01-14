@@ -4,11 +4,7 @@ from panda3d.core import Point3
 import MovieUtil
 from toontown.data import Sound, Gag
 from toontown.toonbase import TTLocalizer
-from toontown.util import PointLib, PlacerTool3D
-
-
-def place(node):
-    PlacerTool3D.PlacerTool3D(node, increment = 0.5)
+from toontown.util import PointLib
 
 
 def singleTargetThrowMovie(battle, tma):

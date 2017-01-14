@@ -1,62 +1,81 @@
 from direct.actor import Actor
-from panda3d.core import VBase4
+from direct.interval.IntervalGlobal import Sequence, ActorInterval, Func
+from panda3d.core import VBase4, VBase3
 
 
-class Model:
-    def __init__(self, name, filepath, animDict, scale=1.0, color=(1.0, 1.0, 1.0, 1.0)):
-        self.name = name
-        self.filepath = filepath
-        self.animDict = animDict
-        self.actor = None
+class ActorFactory:
+    def __init__(self, model=None, anims=None, scale=VBase3(1, 1, 1), color=VBase4(1, 1, 1, 1)):
+        self.model = model
+        self.anims = anims
         self.scale = scale
         self.color = color
         self.events = {}
 
     def getActor(self):
-        actor = Actor.Actor()
-        actor.loadModel(self.filepath)
-        actor.loadAnims(self.animDict)
-        if self.events.get('load'):
-            self.events['load'](actor)
-        actor.setName(self.name)
+        actor = TTActor(self.model, self.anims, self.events)
         actor.setScale(self.scale)
         actor.setColorScale(self.color)
-        actor.reparentTo(hidden)
         return actor
-
+        
     def addEvent(self, eventName, func):
         self.events[eventName] = func
 
-CupcakeModel = Model('tart', 'phase_3.5/models/props/tart', {}, 0.6)
-GoldenCupcakeModel = Model('tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
-RedCupcakeModel = Model('tart', 'phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.2, 0.2, 1.0))
-PieSliceModel = Model('pie-slice', 'phase_5/models/props/fruit-pie-slice', {})
-CreamPieSliceModel = Model('cream-pie-slice', 'phase_5/models/props/cream-pie-slice', {})
-PieModel = Model('pie', 'phase_3.5/models/props/tart', {})
-BirthdayCakeModel = Model('cake', 'phase_5/models/props/birthday-cake-mod', {'stand': 'phase_5/models/props/birthday-cake-chan'})
-BirthdayCakeModel.addEvent('load', lambda actor: actor.loop('stand'))
 
-TartSplatModel = Model(
-    'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
+class TTActor(Actor.Actor):
+    def __init__(self, model, anims, events):
+        Actor.Actor.__init__(self, model, anims)
+        self.anims = anims
+        self.events = events
+        if self.events.get('create'):
+            self.events['create'](self)
+
+    def destroy(self, deathAnim=True):
+        if self.anims.get('death') and deathAnim:
+            self.hide()
+            deathActor = TTActor(self.model, self.anims, {})
+            deathActor.copyActor(self, True)
+            Sequence(
+                ActorInterval(deathActor, 'death'),
+                Func(deathActor.destroy, False)
+            ).start()
+        self.delete()
+
+    def delete(self):
+        if self.events.get('destroy'):
+            self.events['destroy'](self)
+        Actor.Actor.delete(self)
+            
+
+CupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6)
+GoldenCupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
+RedCupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.2, 0.2, 1.0))
+PieSliceModel = ActorFactory('phase_5/models/props/fruit-pie-slice', {})
+CreamPieSliceModel = ActorFactory('phase_5/models/props/cream-pie-slice', {})
+PieModel = ActorFactory('phase_3.5/models/props/tart', {})
+BirthdayCakeModel = ActorFactory('phase_5/models/props/birthday-cake-mod', {'stand': 'phase_5/models/props/birthday-cake-chan'})
+BirthdayCakeModel.addEvent('create', lambda actor: actor.loop('stand'))
+
+TartSplatModel = ActorFactory(
+    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
     scale=0.3, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
 )
-FruitPieSliceSplatModel = Model(
-    'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
+FruitPieSliceSplatModel = ActorFactory(
+    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
     scale=0.5, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
 )
-CreamPieSliceSplatModel = Model(
-    'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
+CreamPieSliceSplatModel = ActorFactory(
+    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
     scale=0.5, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
 )
-FruitPieSplatModel = Model(
-    'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
+FruitPieSplatModel = ActorFactory(
+    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
     scale=0.7, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
 )
-CreamPieSplatModel = Model(
-    'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
+CreamPieSplatModel = ActorFactory(
+    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
     scale=0.7, color=VBase4(250.0 / 255.0, 241.0 / 255.0, 24.0 / 255.0, 1.0)
 )
-BirthdayCakeSplatModel = Model(
-    'splat', 'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
+BirthdayCakeSplatModel = ActorFactory(
+    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
     scale=0.9, color=VBase4(253.0 / 255.0, 119.0 / 255.0, 220.0 / 255.0, 1.0)
 )
