@@ -39,7 +39,7 @@ web-api-token invalid
 want-kaldron-network #f
 want-multiplayer #f
 want-pets #t
-want-parties #t
+want-parties #f
 want-achievements #f
 want-grouptracker #f
 
