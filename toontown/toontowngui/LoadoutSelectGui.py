@@ -218,8 +218,8 @@ class GagSelectGagButton(DirectButton):
             state=(DGG.NORMAL if gag is not None else DGG.DISABLED),
             command=self.__handleGagSelected
         )
-        self.gbi.bind(DGG.WITHIN, self.__handleEnterGag, extraArgs=[gag])
-        self.gbi.bind(DGG.WITHOUT, self.__handleExitGag, extraArgs=[gag])
+        self.gbi.bind(DGG.WITHIN, self.__handleEnterGag, extraArgs=[])
+        self.gbi.bind(DGG.WITHOUT, self.__handleExitGag, extraArgs=[])
         self.setEquipped(base.localAvatar.loadout.isEquipped(self.gag))
         self.setUnlocked(base.localAvatar.inventory.gagUnlocked(self.gag))
         self.accept(EventGlobals.LoadoutChanged, self.__handleLoadoutChanged)
@@ -256,7 +256,7 @@ class GagSelectGagButton(DirectButton):
             return
         messenger.send(EventGlobals.EQUIP_GAG, [self.gag])
 
-    def __handleEnterGag(self, gag, e=None):
+    def __handleEnterGag(self, e=None):
         messenger.send(EventGlobals.GAG_SELECT_GAG_ENTER, [self.gag])
         if self.tt:
             self.tt.destroy()
@@ -267,7 +267,7 @@ class GagSelectGagButton(DirectButton):
 
         self.tt = TTTooltip(description=description)
 
-    def __handleExitGag(self, gag, e=None):
+    def __handleExitGag(self, e=None):
         messenger.send(EventGlobals.GAG_SELECT_GAG_EXIT, [self.gag])
         if self.tt:
             self.tt.destroy()
