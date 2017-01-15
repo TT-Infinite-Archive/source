@@ -40,7 +40,7 @@ class ShtikerBook(DirectFrame, StateData.StateData):
             TTLocalizer.MapPageTitle,
             TTLocalizer.InventoryPageTitle,
             TTLocalizer.QuestPageToonTasks,
-            # TTLocalizer.TrackPageShortTitle,
+            TTLocalizer.TrackPageShortTitle,
             TTLocalizer.SuitPageTitle,
             TTLocalizer.FishPageTitle,
             TTLocalizer.KartPageTitle,
