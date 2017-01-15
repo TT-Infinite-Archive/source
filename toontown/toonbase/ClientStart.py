@@ -37,6 +37,11 @@ if __debug__:
         notify.info('Starting injector...')
         __builtin__.injector = Injector()
 
+from panda3d.core import *
+
+for dtool in ('children', 'parent', 'name'):
+    del NodePath.DtoolClassDict[dtool]
+
 from panda3d.core import loadPrcFileData
 
 from otp.settings.Settings import Settings

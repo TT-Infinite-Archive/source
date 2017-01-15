@@ -38,20 +38,6 @@ class PartyHood(Hood.Hood):
     def load(self):
         Hood.Hood.load(self)
 
-        if self.nightSkyFile:
-            self.nightSky = loader.loadModel(self.nightSkyFile)
-            self.nightSky.setTransparency(TransparencyAttrib.MAlpha)
-            self.nightSky.setTag('sky', 'Night')
-            self.nightSky.setScale(1.0)
-            self.nightSky.setFogOff()
-
-        if self.sunSkyFile:
-            self.sunSky = loader.loadModel(self.sunSkyFile)
-            self.sunSky.setTransparency(TransparencyAttrib.MAlpha)
-            self.sunSky.setTag('sky', 'Sun')
-            self.sunSky.setScale(1.0)
-            self.sunSky.setFogOff()
-
     def unload(self):
         del self.safeZoneLoaderClass
         if self.popupInfo:

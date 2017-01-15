@@ -16,7 +16,9 @@ from toontown.coghq import DistributedCountryClubRoom
 from toontown.coghq import CountryClubRoom
 from toontown.coghq import CountryClubRoomSpecs
 from toontown.coghq import FactoryCameraViews
-
+from pandac.PandaModules import CompassEffect, NodePath
+from pandac.PandaModules import TextEncoder
+from pandac.PandaModules import Vec4
 
 class DistributedCountryClub(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedCountryClub')
