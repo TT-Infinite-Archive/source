@@ -24,6 +24,7 @@ class DistributedDoorEntityLock(DistributedDoorEntityBase.LockBase, FourState.Fo
         self.leftNodePath = leftNodePath
         self.rightNodePath = rightNodePath
         self.initialStateIndex = stateIndex
+        self.stateIndex = -1
         FourState.FourState.__init__(self, self.stateNames, self.stateDurations)
 
     def delete(self):
@@ -95,6 +96,7 @@ class DistributedDoorEntity(DistributedDoorEntityBase.DistributedDoorEntityBase,
         self.innerDoorsTrack = None
         self.isVisReady = 0
         self.isOuterDoorOpen = 0
+        self.stateIndex = -1
         DistributedEntity.DistributedEntity.__init__(self, cr)
         FourState.FourState.__init__(self, self.stateNames, self.stateDurations)
         VisibilityBlocker.VisibilityBlocker.__init__(self)

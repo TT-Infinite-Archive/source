@@ -137,14 +137,12 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
     def enterFactoryExterior(self, requestStatus):
         self.placeClass = BossbotOfficeExterior.BossbotOfficeExterior
         self.enterPlace(requestStatus)
-        self.startRain()
 
     def exitFactoryExterior(self):
         taskMgr.remove('titleText')
         self.hood.hideTitleText()
         self.exitPlace()
         self.placeClass = None
-        self.stopRain()
 
     def enterCogHQBossBattle(self, requestStatus):
         self.notify.debug('BossbotCogHQLoader.enterCogHQBossBattle')
@@ -162,7 +160,6 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         self.notify.info('enterCountryClubInterior, requestStatus=%s' % requestStatus)
         self.countryClubId = requestStatus['countryClubId']
         self.enterPlace(requestStatus)
-        self.startRain()
 
     def exitCountryClubInterior(self):
         self.exitPlace()
