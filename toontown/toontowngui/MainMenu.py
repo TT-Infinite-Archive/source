@@ -363,11 +363,10 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon3.hide()
 
     def enterSinglePlayerLocal(self):
-        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing local play on Toontown Infinite: Classic Edition!"
+        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing in local play on Toontown Infinite: Classic Edition!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
-        OTPLocalizer.SpeedChatStaticText[
-            30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-reports text channel.'
+        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-report-classic text channel.'
         self.__startGameSession(True)
 
     def enterMultiplayerCPHost(self):
