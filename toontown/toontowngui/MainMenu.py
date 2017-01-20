@@ -68,7 +68,7 @@ class MainMenu(DirectObject, FSM):
 
         # Main Menu Buttons
         self.singlePlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.2),
+            pos=(0, 0, -0.25),
             text="Single Player",
             wantArrows=False,
             image_scale=buttonScale,
@@ -82,7 +82,7 @@ class MainMenu(DirectObject, FSM):
         self.buttons.append(self.singlePlayerButton)
 
         self.multiPlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.5),
+            pos=(0, 0, -0.6),
             text="Multiplayer",
             wantArrows=False,
             image_scale=buttonScale,
@@ -94,21 +94,6 @@ class MainMenu(DirectObject, FSM):
             command=lambda: self.request('Multiplayer')
         )
         self.buttons.append(self.multiPlayerButton)
-
-        self.kaldronNetworkButton = MATShuffleButton(
-            pos=(0, 0, -0.8),
-            text="Kaldron\nNetwork",
-            text_pos=(0, 0.02, 0),
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.08,
-            text2_scale=0.085,
-            text1_scale=0.085,
-            command=lambda: self.request('')
-        )
-        self.buttons.append(self.kaldronNetworkButton)
 
         # Load the lock icon image for disabled buttons
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
@@ -126,19 +111,6 @@ class MainMenu(DirectObject, FSM):
 
         self.lockIcon.hide()
 
-        # Lock icon for the Kaldron Interactive Network
-        self.lockIcon2 = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.80),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-
-        self.lockIcon2.hide()
-
         # Functionality for enabling and disabling the Multiplayer button
         self.multiPlayerButton['state'] = DGG.DISABLED
         self.multiPlayerButton.setColorScale(CGray)
@@ -147,15 +119,6 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon.destroy()
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
-
-        # Functionality for enabling and disabling the Kaldron Interactive Network button
-        self.kaldronNetworkButton['state'] = DGG.DISABLED
-        self.kaldronNetworkButton.setColorScale(CGray)
-
-        if base.wantKaldronNetwork:
-            self.lockIcon2.destroy()
-            self.kaldronNetworkButton['state'] = DGG.NORMAL
-            self.kaldronNetworkButton.setColorScale(CDefault)
 
         # Single Player Menu Buttons
         self.spLocalButton = MATShuffleButton(
@@ -334,8 +297,6 @@ class MainMenu(DirectObject, FSM):
         self.logo.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
-        if not base.wantKaldronNetwork:
-            self.lockIcon2.show()
         for button in self.buttons:
             button.show()
 
@@ -345,8 +306,6 @@ class MainMenu(DirectObject, FSM):
             button.hide()
         if not base.wantMultiplayer:
             self.lockIcon.hide()
-        if not base.wantKaldronNetwork:
-            self.lockIcon2.hide()
 
     def enterSinglePlayer(self):
         self.background.show()
