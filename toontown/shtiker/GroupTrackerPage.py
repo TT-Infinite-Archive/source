@@ -175,9 +175,9 @@ class GroupTrackerPage(DirectFrame):
     notify = directNotify.newCategory('GroupTrackerPage')
 
     def __init__(self, parent):
-        self.parent = parent
+        self._parent = parent
 
-        DirectFrame.__init__(self, parent=self.parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
+        DirectFrame.__init__(self, parent=self._parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
         self.groupWidgets = []
         self.playerWidgets = []
         self.images = []                # image nodes: Possible images to apply on groups

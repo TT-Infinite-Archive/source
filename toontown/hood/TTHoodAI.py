@@ -1,8 +1,6 @@
 from toontown.classicchars import DistributedMickeyAI
 from toontown.hood import HoodAI
 from toontown.hood import DistributedStormEventAI
-from toontown.safezone import ButterflyGlobals
-from toontown.safezone import DistributedButterflyAI
 from toontown.safezone import DistributedTrolleyAI
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
@@ -35,8 +33,6 @@ class TTHoodAI(HoodAI.HoodAI):
         if simbase.config.GetBool('want-classic-chars', True):
             if simbase.config.GetBool('want-mickey', True):
                 self.createClassicChar()
-        if simbase.config.GetBool('want-butterflies', True):
-            self.createButterflies()
         if self.air.newsManager.getStormEnabled():
             self.createStormEvent()
 
@@ -52,11 +48,6 @@ class TTHoodAI(HoodAI.HoodAI):
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2022], ('bss', 'ms', 'm', 'm', 0, 0, 0, 0, 0, 31, 0, 31, 0, 31), 'm', 1, NPCToons.NPC_YANG),
                 ToontownGlobals.ToontownCentral, posIndex=0)
 
-    def shutdown(self):
-        HoodAI.HoodAI.shutdown(self)
-
-        ButterflyGlobals.clearIndexes(self.zoneId)
-
     def createTrolley(self):
         self.trolley = DistributedTrolleyAI.DistributedTrolleyAI(self.air)
         self.trolley.generateWithRequired(self.zoneId)
@@ -66,16 +57,6 @@ class TTHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedMickeyAI.DistributedMickeyAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
-
-    def createButterflies(self):
-        playground = ButterflyGlobals.TTC
-        for area in xrange(ButterflyGlobals.NUM_BUTTERFLY_AREAS[playground]):
-            for b in xrange(ButterflyGlobals.NUM_BUTTERFLIES[playground]):
-                butterfly = DistributedButterflyAI.DistributedButterflyAI(self.air)
-                butterfly.setArea(playground, area)
-                butterfly.setState(0, 0, 0, 1, 1)
-                butterfly.generateWithRequired(self.zoneId)
-                self.butterflies.append(butterfly)
     
     def createStormEvent(self):
         self.stormEvent = DistributedStormEventAI.DistributedStormEventAI(self.air)

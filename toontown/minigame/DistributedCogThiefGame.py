@@ -4,7 +4,6 @@ from direct.interval.IntervalGlobal import Wait, LerpFunctionInterval, LerpHprIn
 from direct.gui.DirectGui import DirectLabel
 from direct.fsm import ClassicFSM
 from direct.fsm import State
-from direct.showbase import RandomNumGen
 from direct.task import Task
 from toontown.suit.SuitDNA import getRandomSuitByLevel
 from toontown.toonbase import TTLocalizer
@@ -19,6 +18,7 @@ from toontown.minigame.DistributedMinigame import DistributedMinigame
 from toontown.minigame import Trajectory
 from toontown.minigame import MinigameGlobals
 from toontown.minigame import CogThiefWalk
+import random
 CTGG = CogThiefGameGlobals
 
 
@@ -122,9 +122,9 @@ class DistributedCogThiefGame(DistributedMinigame):
         self.loadCogs()
         self.toonHitTracks = {}
         self.toonPieTracks = {}
-        self.sndOof = base.loadSfx('phase_4/audio/sfx/MG_cannon_hit_dirt.ogg')
-        self.sndRewardTick = base.loadSfx('phase_3.5/audio/sfx/tick_counter.ogg')
-        self.sndPerfect = base.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
+        self.sndOof = loader.loadSfx('phase_4/audio/sfx/MG_cannon_hit_dirt.ogg')
+        self.sndRewardTick = loader.loadSfx('phase_3.5/audio/sfx/tick_counter.ogg')
+        self.sndPerfect = loader.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
         self.timer = ToontownTimer.ToontownTimer()
         self.timer.posInTopRightCorner()
         self.timer.hide()
@@ -186,13 +186,13 @@ class DistributedCogThiefGame(DistributedMinigame):
 
         self.toonRNGs = []
         for i in xrange(self.numPlayers):
-            self.toonRNGs.append(RandomNumGen.RandomNumGen(self.randomNumGen))
+            self.toonRNGs.append(random.random())
 
         self.sndTable = {'hitBySuit': [None] * self.numPlayers,
          'falling': [None] * self.numPlayers}
         for i in xrange(self.numPlayers):
-            self.sndTable['hitBySuit'][i] = base.loadSfx('phase_4/audio/sfx/MG_Tag_C.ogg')
-            self.sndTable['falling'][i] = base.loadSfx('phase_4/audio/sfx/MG_cannon_whizz.ogg')
+            self.sndTable['hitBySuit'][i] = loader.loadSfx('phase_4/audio/sfx/MG_Tag_C.ogg')
+            self.sndTable['falling'][i] = loader.loadSfx('phase_4/audio/sfx/MG_cannon_whizz.ogg')
 
         base.playMusic(self.music, looping=1, volume=0.8)
         self.introTrack = self.getIntroTrack()
@@ -370,7 +370,7 @@ class DistributedCogThiefGame(DistributedMinigame):
             [getRandomSuitByLevel(CTGG.ZoneSuitLevels[zoneId]) for _ in xrange(4)] +\
             [getRandomSuitByLevel(CTGG.ZoneSuitLevels[zoneId] + 1) for _ in xrange(4)]
         for suitIndex in xrange(self.getNumCogs()):
-            st = self.randomNumGen.choice(suitTypes)
+            st = random.choice(suitTypes)
             suit = CogThief.CogThief(suitIndex, st, self, self.getCogSpeed())
             self.cogInfo[suitIndex]['suit'] = suit
 
@@ -418,7 +418,7 @@ class DistributedCogThiefGame(DistributedMinigame):
         toon = self.getAvatar(avId)
         if toon == None:
             return
-        rng = self.toonRNGs[self.avIdList.index(avId)]
+        random.seed(self.toonRNGs[self.avIdList.index(avId)])
         curPos = toon.getPos(render)
         oldTrack = self.toonHitTracks[avId]
         if oldTrack.isPlaying():
@@ -449,8 +449,9 @@ class DistributedCogThiefGame(DistributedMinigame):
         geomNode = toon.getGeomNode()
         startHpr = geomNode.getHpr()
         destHpr = Point3(startHpr)
-        hRot = rng.randrange(1, 8)
-        if rng.choice([0, 1]):
+        hRot = random.randrange(1, 8)
+        random.seed(self.toonRNGs[self.avIdList.index(avId)])
+        if random.choice([0, 1]):
             hRot = -hRot
         destHpr.setX(destHpr[0] + hRot * 360)
         spinHTrack = Sequence(LerpHprInterval(geomNode, flyDur, destHpr, startHpr=startHpr), Func(geomNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinH'))
@@ -462,8 +463,10 @@ class DistributedCogThiefGame(DistributedMinigame):
         geomNode.setZ(-toon.getHeight() / 2.0)
         startHpr = rotNode.getHpr()
         destHpr = Point3(startHpr)
-        pRot = rng.randrange(1, 3)
-        if rng.choice([0, 1]):
+        random.seed(self.toonRNGs[self.avIdList.index(avId)])
+        pRot = random.randrange(1, 3)
+        random.seed(self.toonRNGs[self.avIdList.index(avId)])
+        if random.choice([0, 1]):
             pRot = -pRot
         destHpr.setY(destHpr[1] + pRot * 360)
         spinPTrack = Sequence(LerpHprInterval(rotNode, flyDur, destHpr, startHpr=startHpr), Func(rotNode.setHpr, startHpr), name=toon.uniqueName('hitBySuit-spinP'))

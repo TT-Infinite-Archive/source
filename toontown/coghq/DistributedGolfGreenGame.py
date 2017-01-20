@@ -17,8 +17,6 @@ from toontown.toonbase import ToontownBattleGlobals
 from direct.distributed.ClockDelta import *
 from toontown.golf import BuildGeometry
 from direct.gui.DirectGui import *
-import random
-from direct.showbase import RandomNumGen
 import GameSprite3D
 from math import pi
 import math
@@ -277,14 +275,14 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         self.invModel = loader.loadModel('phase_3.5/models/gui/inventory_icons')
         self.model = model
         self.model1 = model1
-        self.soundFire = base.loadSfx('phase_6/audio/sfx/Golf_Hit_Ball.ogg')
-        self.soundLand = base.loadSfx('phase_4/audio/sfx/MG_maze_pickup.ogg')
-        self.soundBurst = base.loadSfx('phase_5/audio/sfx/Toon_bodyfall_synergy.ogg')
-        self.soundBomb = base.loadSfx('phase_4/audio/sfx/MG_cannon_fire_alt.ogg')
-        self.soundLose = base.loadSfx('phase_11/audio/sfx/LB_capacitor_discharge_3.ogg')
-        self.soundWin = base.loadSfx('phase_4/audio/sfx/MG_pairing_match_bonus_both.ogg')
-        self.soundDone = base.loadSfx('phase_3/audio/sfx/GUI_create_toon_back.ogg')
-        self.soundMove = base.loadSfx('phase_3.5/audio/sfx/SA_shred.ogg')
+        self.soundFire = loader.loadSfx('phase_6/audio/sfx/Golf_Hit_Ball.ogg')
+        self.soundLand = loader.loadSfx('phase_4/audio/sfx/MG_maze_pickup.ogg')
+        self.soundBurst = loader.loadSfx('phase_5/audio/sfx/Toon_bodyfall_synergy.ogg')
+        self.soundBomb = loader.loadSfx('phase_4/audio/sfx/MG_cannon_fire_alt.ogg')
+        self.soundLose = loader.loadSfx('phase_11/audio/sfx/LB_capacitor_discharge_3.ogg')
+        self.soundWin = loader.loadSfx('phase_4/audio/sfx/MG_pairing_match_bonus_both.ogg')
+        self.soundDone = loader.loadSfx('phase_3/audio/sfx/GUI_create_toon_back.ogg')
+        self.soundMove = loader.loadSfx('phase_3.5/audio/sfx/SA_shred.ogg')
         background = model.find('**/bg')
         itemBoard = model.find('**/item_board')
         self.focusPoint = self.baseNode.attachNewNode('GolfGreenGameFrame')

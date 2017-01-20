@@ -81,8 +81,8 @@ class DistributedRingGame(DistributedMinigame):
         DistributedMinigame.load(self)
         self.defineConstants()
         self.music = base.loadMusic('phase_4/audio/bgm/MG_toontag.ogg')
-        self.sndAmbience = base.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')
-        self.sndPerfect = base.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
+        self.sndAmbience = loader.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')
+        self.sndPerfect = loader.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
         loadBase = 'phase_4/models/minigames/'
         self.environModel = loader.loadModel(loadBase + 'swimming_game.bam')
         self.environModel.setPos(0, self.ENVIRON_LENGTH / 2.0, self.SEA_FLOOR_Z)
@@ -166,8 +166,8 @@ class DistributedRingGame(DistributedMinigame):
         self.sndTable = {'gotRing': [None] * self.numPlayers,
          'missedRing': [None] * self.numPlayers}
         for i in xrange(0, self.numPlayers):
-            self.sndTable['gotRing'][i] = base.loadSfx('phase_4/audio/sfx/ring_get.ogg')
-            self.sndTable['missedRing'][i] = base.loadSfx('phase_4/audio/sfx/ring_miss.ogg')
+            self.sndTable['gotRing'][i] = loader.loadSfx('phase_4/audio/sfx/ring_get.ogg')
+            self.sndTable['missedRing'][i] = loader.loadSfx('phase_4/audio/sfx/ring_miss.ogg')
 
         self.__addToonDropShadow(self.getAvatar(self.localAvId))
         self.__spawnUpdateEnvironTask()
@@ -528,10 +528,10 @@ class DistributedRingGame(DistributedMinigame):
 
             return 1
 
-        pattern = self.randomNumGen.choice(difficultyPatterns[self.getSafezoneId()])
+        pattern = random.choice(difficultyPatterns[self.getSafezoneId()])
         for i in xrange(0, self.__numRingGroups):
             numRings = self.numPlayers
-            trackGroup = RingTrackGroups.getRandomRingTrackGroup(pattern[i], numRings, self.randomNumGen)
+            trackGroup = RingTrackGroups.getRandomRingTrackGroup(pattern[i], numRings)
             ringGroup = RingGroup.RingGroup(trackGroup, self.ringModel, RingGameGlobals.MAX_TOONXZ, self.colorIndices)
             for r in xrange(numRings):
                 self.__addRingDropShadow(ringGroup.getRing(r))

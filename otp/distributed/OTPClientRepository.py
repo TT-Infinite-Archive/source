@@ -23,12 +23,12 @@ import sys
 import time
 import types
 import __builtin__
+import yaml
 
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
 from otp.avatar import Avatar
 from otp.avatar import DistributedAvatar
 from otp.avatar.DistributedPlayer import DistributedPlayer
-from otp.distributed import DCClassImports
 from otp.distributed import OtpDoGlobals
 from otp.distributed.OtpDoGlobals import *
 from otp.distributed.TelemetryLimiter import TelemetryLimiter
@@ -42,6 +42,7 @@ from otp.otpgui import OTPDialog
 from otp.uberdog import OtpAvatarManager
 from toontown.chat.ChatGlobals import *
 from toontown.toontowngui.MainMenu import MainMenu
+from toontown.singleplayer import SinglePlayerGlobals
 
 
 class OTPClientRepository(ClientRepositoryBase):
@@ -190,6 +191,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.enterFailedToConnect,
                   self.exitFailedToConnect, [
                       'connect',
+                      'mainMenu',
                       'shutdown']),
             State('failedToGetServerConstants',
                   self.enterFailedToGetServerConstants,
@@ -223,6 +225,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitNoShards, [
                       'noConnection',
                       'noShardsWait',
+                      'mainMenu',
                       'shutdown']),
             State('noShardsWait',
                   self.enterNoShardsWait,
@@ -238,6 +241,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitNoConnection, [
                       'login',
                       'connect',
+                      'mainMenu',
                       'shutdown']),
             State('afkTimeout',
                   self.enterAfkTimeout,
@@ -369,13 +373,19 @@ class OTPClientRepository(ClientRepositoryBase):
         self.dclassesByNumber = {}
         self.hashVal = 0
 
-        if isinstance(dcFileNames, str):
+        if isinstance(dcFileNames, types.StringTypes):
+            # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 
         if hasattr(__builtin__, 'dcData'):
             dcFileNames = [StringStream(dcData)]
 
-        if dcFileNames is not None:
+        dcImports = {}
+        if dcFileNames is None:
+            readResult = dcFile.readAll()
+            if not readResult:
+                self.notify.error('Could not read DC file.')
+        else:
             for dcFileName in dcFileNames:
                 if isinstance(dcFileName, StringStream):
                     readResult = dcFile.read(dcFileName, 'DC stream')
@@ -383,15 +393,73 @@ class OTPClientRepository(ClientRepositoryBase):
                     readResult = dcFile.read(dcFileName)
                 if not readResult:
                     self.notify.error('Could not read DC file.')
-        else:
-            dcFile.readAll()
 
-        self.hashVal = DCClassImports.hashVal
-        for i in xrange(dcFile.getNumClasses()):
+        # Output the DC data to a temporary file (for use with Astron).
+        dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
+        dcFile.write(dcFilePath, False)
+
+        # Generate a single player Astron config file.
+        path = os.path.join(base.tempDir, 'singleplayer.yml')
+        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+        with open(path, 'w') as f:
+            yaml.dump(data, f)
+
+        # Generate a multi player Astron config file.
+        path = os.path.join(base.tempDir, 'multiplayer.yml')
+        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+        with open(path, 'w') as f:
+            yaml.dump(data, f)
+
+        self.hashVal = dcFile.getHash()
+
+        # Now import all of the modules required by the DC file.
+        for n in range(dcFile.getNumImportModules()):
+            moduleName = dcFile.getImportModule(n)[:]
+
+            # Maybe the module name is represented as "moduleName/AI".
+            suffix = moduleName.split('/')
+            moduleName = suffix[0]
+            suffix=suffix[1:]
+            if self.dcSuffix in suffix:
+                moduleName += self.dcSuffix
+            elif self.dcSuffix == 'UD' and 'AI' in suffix:  # HACK:
+                moduleName += 'AI'
+
+            importSymbols = []
+            for i in range(dcFile.getNumImportSymbols(n)):
+                symbolName = dcFile.getImportSymbol(n, i)
+
+                # Maybe the symbol name is represented as "symbolName/AI".
+                suffix = symbolName.split('/')
+                symbolName = suffix[0]
+                suffix=suffix[1:]
+                if self.dcSuffix in suffix:
+                    symbolName += self.dcSuffix
+                elif self.dcSuffix == 'UD' and 'AI' in suffix:  # HACK:
+                    symbolName += 'AI'
+
+                importSymbols.append(symbolName)
+
+            self.importModule(dcImports, moduleName, importSymbols)
+
+        # Now get the class definition for the classes named in the DC
+        # file.
+        for i in range(dcFile.getNumClasses()):
             dclass = dcFile.getClass(i)
             number = dclass.getNumber()
-            className = dclass.getName()
-            classDef = DCClassImports.dcImports.get(className)
+            className = dclass.getName() + self.dcSuffix
+
+            # Does the class have a definition defined in the newly
+            # imported namespace?
+            classDef = dcImports.get(className)
+            if classDef is None and self.dcSuffix == 'UD':  # HACK:
+                className = dclass.getName() + 'AI'
+                classDef = dcImports.get(className)
+
+            # Also try it without the dcSuffix.
+            if classDef is None:
+                className = dclass.getName()
+                classDef = dcImports.get(className)
             if classDef is None:
                 self.notify.debug('No class definition for %s.' % className)
             else:
@@ -400,13 +468,68 @@ class OTPClientRepository(ClientRepositoryBase):
                         self.notify.warning('Module %s does not define class %s.' % (className, className))
                         continue
                     classDef = getattr(classDef, className)
-                if (type(classDef) != types.ClassType) and (type(classDef) != types.TypeType):
+
+                if type(classDef) != types.ClassType and type(classDef) != types.TypeType:
                     self.notify.error('Symbol %s is not a class name.' % className)
                 else:
                     dclass.setClassDef(classDef)
+
             self.dclassesByName[className] = dclass
             if number >= 0:
                 self.dclassesByNumber[number] = dclass
+
+        # Owner Views
+        if self.hasOwnerView():
+            ownerDcSuffix = self.dcSuffix + 'OV'
+            # dict of class names (without 'OV') that have owner views
+            ownerImportSymbols = {}
+
+            # Now import all of the modules required by the DC file.
+            for n in range(dcFile.getNumImportModules()):
+                moduleName = dcFile.getImportModule(n)
+
+                # Maybe the module name is represented as "moduleName/AI".
+                suffix = moduleName.split('/')
+                moduleName = suffix[0]
+                suffix=suffix[1:]
+                if ownerDcSuffix in suffix:
+                    moduleName = moduleName + ownerDcSuffix
+
+                importSymbols = []
+                for i in range(dcFile.getNumImportSymbols(n)):
+                    symbolName = dcFile.getImportSymbol(n, i)
+
+                    # Check for the OV suffix
+                    suffix = symbolName.split('/')
+                    symbolName = suffix[0]
+                    suffix=suffix[1:]
+                    if ownerDcSuffix in suffix:
+                        symbolName += ownerDcSuffix
+                    importSymbols.append(symbolName)
+                    ownerImportSymbols[symbolName] = None
+
+                self.importModule(dcImports, moduleName, importSymbols)
+
+            # Now get the class definition for the owner classes named
+            # in the DC file.
+            for i in range(dcFile.getNumClasses()):
+                dclass = dcFile.getClass(i)
+                if ((dclass.getName()+ownerDcSuffix) in ownerImportSymbols):
+                    number = dclass.getNumber()
+                    className = dclass.getName() + ownerDcSuffix
+
+                    # Does the class have a definition defined in the newly
+                    # imported namespace?
+                    classDef = dcImports.get(className)
+                    if classDef is None:
+                        self.notify.error('No class definition for %s.' % className)
+                    else:
+                        if type(classDef) == types.ModuleType:
+                            if not hasattr(classDef, className):
+                                self.notify.error('Module %s does not define class %s.' % (className, className))
+                            classDef = getattr(classDef, className)
+                        dclass.setOwnerClassDef(classDef)
+                        self.dclassesByName[className] = dclass
 
     def startLeakDetector(self):
         if hasattr(self, 'leakDetector'):
@@ -481,7 +604,7 @@ class OTPClientRepository(ClientRepositoryBase):
         whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)
         whisper.manage(base.marginManager)
         if not self.systemMessageSfx:
-            self.systemMessageSfx = base.loadSfx('phase_3/audio/sfx/clock03.ogg')
+            self.systemMessageSfx = loader.loadSfx('phase_3/audio/sfx/clock03.ogg')
         if self.systemMessageSfx:
             base.playSfx(self.systemMessageSfx)
 
@@ -600,12 +723,12 @@ class OTPClientRepository(ClientRepositoryBase):
         if not self.introDone:
             if style == OTPDialog.CancelOnly:
                 self.introduction.request('ExitDialog', message,
-                                          self.loginFSM.request, ['shutdown'])
+                                          self.loginFSM.request, ['mainMenu'])
             else:
                 self.introduction.request(
                     'YesNoDialog', message, self.loginFSM.request,
                     ['connect', [self.serverList]], self.loginFSM.request,
-                    ['shutdown'])
+                    ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.failedToConnectBox = dialogClass(message=message, doneEvent='failedToConnectAck', text_wordwrap=18, style=style)
@@ -618,7 +741,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('connect', [self.serverList])
             messenger.send('connectionRetrying')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -712,7 +835,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.introduction.request(
                 'YesNoDialog', OTPLocalizer.CRMissingGameRootObject,
                 self.loginFSM.request, ['waitForGameList'],
-                self.loginFSM.request, ['shutdown'])
+                self.loginFSM.request, ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.missingGameRootObjectBox = dialogClass(message=OTPLocalizer.CRMissingGameRootObject, doneEvent='missingGameRootObjectBoxAck', style=OTPDialog.TwoChoice)
@@ -724,7 +847,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if doneStatus == 'ok':
             self.loginFSM.request('waitForGameList')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -776,7 +899,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.introduction.request(
                 'YesNoDialog', OTPLocalizer.CRNoDistrictsTryAgain,
                 self.loginFSM.request, ['noShardsWait'], self.loginFSM.request,
-                ['shutdown'])
+                ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.noShardsBox = dialogClass(message=OTPLocalizer.CRNoDistrictsTryAgain, doneEvent='noShardsAck', style=OTPDialog.TwoChoice)
@@ -789,7 +912,7 @@ class OTPClientRepository(ClientRepositoryBase):
             messenger.send('connectionRetrying')
             self.loginFSM.request('noShardsWait')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -887,7 +1010,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
-            self.loginFSM.request('shutdown')
+            self.loginFSM.request('mainMenu')
 
     def exitNoConnection(self):
         self.handler = None
@@ -1662,7 +1785,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return Task.done
 
     def __handleCancelWaiting(self, value):
-        self.loginFSM.request('shutdown')
+        self.loginFSM.request('mainMenu')
 
     def setIsNotNewInstallation(self):
         launcher.setIsNotNewInstallation()
@@ -2072,7 +2195,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def enterMainMenu(self):
         self.mainMenu.request('Idle')
-        if self.isConnected():
+        if self.isConnected() and (base.isSinglePlayer or base.isHosting):
           self.mainMenu.LocalSinglePlayerStart.demand('Off')
 
     def exitMainMenu(self):

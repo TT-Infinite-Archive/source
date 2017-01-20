@@ -5,13 +5,14 @@ from direct.fsm import ClassicFSM, State
 from otp.level import BasicEntities
 from toontown.coghq import MovingPlatform
 from direct.distributed import DistributedObject
-from direct.directnotify import DirectNotifyGlobal
 from toontown.minigame import ToonBlitzGlobals
 
-class TwoDBlock(DistributedObject.DistributedObject):
-    notify = DirectNotifyGlobal.directNotify.newCategory('TwoDBlock')
+
+class TwoDBlock(DirectObject.DirectObject):
+    notify = directNotify.newCategory('TwoDBlock')
 
     def __init__(self, model, index, blockAttribs):
+        DirectObject.DirectObject.__init__(self)
         self.moveIval = None
         self.isMovingBlock = False
         self.index = index

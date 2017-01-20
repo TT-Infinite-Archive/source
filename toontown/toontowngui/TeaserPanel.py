@@ -8,6 +8,7 @@ from toontown.toonbase import TTLocalizer
 from direct.showbase import PythonUtil
 from direct.showbase.DirectObject import DirectObject
 from otp.login import LeaveToPayDialog
+from direct.gui.DirectGuiGlobals import NO_FADE_SORT_INDEX
 Pages = {'otherHoods': (TTLocalizer.TeaserOtherHoods,),
  'typeAName': (TTLocalizer.TeaserTypeAName,),
  'sixToons': (TTLocalizer.TeaserSixToons,),
@@ -159,8 +160,8 @@ class TeaserPanel(DirectObject):
 class FeatureBrowser(DirectScrolledList):
 
     def __init__(self, parent = aspect2dp, **kw):
-        self.parent = parent
-        optiondefs = (('parent', self.parent, None),
+        self._parent = parent
+        optiondefs = (('parent', self._parent, None),
          ('relief', None, None),
          ('numItemsVisible', 1, None),
          ('items', [], None))

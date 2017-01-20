@@ -1,9 +1,9 @@
+import fractions
 import os
 import random
-from sys import platform
 import sys
 import time
-import fractions
+from sys import platform
 
 from direct.directnotify import DirectNotifyGlobal
 from direct.filter.CommonFilters import CommonFilters
@@ -11,21 +11,20 @@ from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 
-from toontown.toonbase import ToontownGlobals, SettingsGlobals
-from toontown.toonbase import ToontownLoader
-from toontown.toonbase.Preloader import Preloader
+from otp.ai.MagicWordGlobal import *
 from otp.otpbase import OTPBase
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLauncherGlobals
-from otp.ai.MagicWordGlobal import *
 from toontown.margins import MarginGlobals
 from toontown.margins.MarginManager import MarginManager
 from toontown.nametag import NametagGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownAccess
 from toontown.toonbase import ToontownBattleGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownLoader
+from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
-
 
 if config.GetBool('want-leak-graph', False):
     from toontown.debug.LeakGraph import LeakGraph
@@ -45,6 +44,7 @@ class ToonBase(OTPBase.OTPBase):
         ratio = float(self.nativeWidth) / float(self.nativeHeight)
         fraction = fractions.Fraction(ratio).limit_denominator()
         self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
+        self.calcRatio = self.nativeRatio
 
         # Choose the best resolution if we're either fullscreen, or we don't
         # have a resolution defined in our settings:
@@ -304,14 +304,14 @@ class ToonBase(OTPBase.OTPBase):
             if not found:
                 return  # Can't do anything past this point.
 
-            with open(os.path.join(tempdir, filename), 'wb') as f:
+            with open(os.path.join(self.tempDir, filename), 'wb') as f:
                 f.write(vfs.readFile(p3filename, False))
 
         wp = WindowProperties()
         wp.setCursorFilename(
-            Filename.fromOsSpecific(os.path.join(tempdir, 'toonmono.cur')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, 'toonmono.cur')))
         wp.setIconFilename(
-            Filename.fromOsSpecific(os.path.join(tempdir, 'icon.ico')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, 'icon.ico')))
         self.win.requestProperties(wp)
 
     def addCullBins(self):
@@ -502,7 +502,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='localhost', port=7000):
+    def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
@@ -685,7 +685,6 @@ class ToonBase(OTPBase.OTPBase):
 
     def getSmallestResolution(self):
         resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
-
         if len(resolutions) < 2:
             ratios = ToontownGlobals.CommonDisplayResolutions.keys()
             ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
@@ -693,6 +692,7 @@ class ToonBase(OTPBase.OTPBase):
             while ratios:
                 ratio = ratios.pop()
                 if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
+                    self.calcRatio = ratio
                     resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
                     if resolutions[0][0] >= (self.nativeWidth - 125):
                         continue
@@ -700,7 +700,8 @@ class ToonBase(OTPBase.OTPBase):
                         continue
                     break
             else:
-                resolutions = ToontownGlobals.CommonDisplayResolutions[(4, 3)]
+                self.calcRatio = (4, 3)
+                resolutions = ToontownGlobals.CommonDisplayResolutions[self.calcRatio]
 
         res = resolutions[0]
         return res

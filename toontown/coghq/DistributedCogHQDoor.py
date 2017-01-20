@@ -9,13 +9,14 @@ from toontown.building import FADoorCodes
 from toontown.building import DoorTypes
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TeaserPanel
+from panda3d.core import VBase3
+
 
 class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
-
     def __init__(self, cr):
         DistributedDoor.DistributedDoor.__init__(self, cr)
-        self.openSfx = base.loadSfx('phase_9/audio/sfx/CHQ_door_open.ogg')
-        self.closeSfx = base.loadSfx('phase_9/audio/sfx/CHQ_door_close.ogg')
+        self.openSfx = loader.loadSfx('phase_9/audio/sfx/CHQ_door_open.ogg')
+        self.closeSfx = loader.loadSfx('phase_9/audio/sfx/CHQ_door_close.ogg')
 
     def wantsNametag(self):
         return 0

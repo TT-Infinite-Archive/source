@@ -30,8 +30,8 @@ class DistributedTrolley(DistributedObject.DistributedObject):
          State.State('waitCountdown', self.enterWaitCountdown, self.exitWaitCountdown, ['waitEmpty', 'leaving']),
          State.State('leaving', self.enterLeaving, self.exitLeaving, ['entering'])], 'off', 'off')
         self.fsm.enterInitialState()
-        self.trolleyAwaySfx = base.loadSfx('phase_4/audio/sfx/SZ_trolley_away.ogg')
-        self.trolleyBellSfx = base.loadSfx('phase_4/audio/sfx/SZ_trolley_bell.ogg')
+        self.trolleyAwaySfx = loader.loadSfx('phase_4/audio/sfx/SZ_trolley_away.ogg')
+        self.trolleyBellSfx = loader.loadSfx('phase_4/audio/sfx/SZ_trolley_bell.ogg')
         self.__toonTracks = {}
 
     def generate(self):
@@ -40,36 +40,10 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         self.trolleyStation = self.loader.geom.find('**/*trolley_station*')
         self.trolleyCar = self.trolleyStation.find('**/trolley_car')
 
-        # Toontown Central Trolley Station
-
-        self.constructionSign = loader.loadModel('phase_4/models/props/construction_sign.bam')
-        self.constructionSign.setPosHpr(-131.5, -66.776, 0.545, 127, 0, 0)
-        self.constructionSign.reparentTo(render)
-
-        self.cone = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
-        self.cone.setPosHpr(-136, -66, 0.545, 20, 0, 0)
-        self.cone.reparentTo(render)
-
-        self.cone2 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
-        self.cone2.setPosHpr(-143, -84, 0.545, 100, 0, 0)
-        self.cone2.reparentTo(render)
-
-        self.cone3 = loader.loadModel('phase_3.5/models/props/barrier_cone.bam')
-        self.cone3.setPosHpr(-156, -71, 0.545, 150, 0, 0)
-        self.cone3.reparentTo(render)
-
         if not base.wantTrolleyTTC:
             self.trolleyCar.hide()
-            self.constructionSign.show()
-            self.cone.show()
-            self.cone2.show()
-            self.cone3.show()
         else:
             self.trolleyCar.show()
-            self.constructionSign.hide()
-            self.cone.hide()
-            self.cone2.hide()
-            self.cone3.hide()
 
         self.trolleySphereNode = self.trolleyStation.find('**/trolley_sphere').node()
         exitFog = Fog('TrolleyExitFog')
@@ -86,7 +60,6 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         enterFog.setLinearFallback(70.0, 999.0, 1000.0)
         self.trolleyEnterFog = self.trolleyStation.attachNewNode(enterFog)
         self.trolleyEnterFogNode = enterFog
-        self.trolleyCar.setFogOff()
         self.keys = self.trolleyCar.findAllMatches('**/key')
         self.numKeys = self.keys.getNumPaths()
         self.keyInit = []
@@ -128,8 +101,6 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         if base.wantFog:
             trolleyEnterPos.append(Func(self.trolleyCar.setFog, self.trolleyEnterFogNode))
         trolleyEnterPos.append(self.trolleyCar.posInterval(TROLLEY_ENTER_TIME, trolleyEnterEndPos, startPos=trolleyEnterStartPos, blendType='easeOut'))
-        if base.wantFog:
-            trolleyEnterPos.append(Func(self.trolleyCar.setFogOff))
         trolleyEnterTrack = Sequence(trolleyAnimationReset, trolleyEnterPos, name='trolleyEnter')
         keyAngle = round(TROLLEY_ENTER_TIME) * 360
         dist = Vec3(trolleyEnterEndPos - trolleyEnterStartPos).length()
@@ -143,8 +114,6 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         if base.wantFog:
             trolleyExitPos.append(Func(self.trolleyCar.setFog, self.trolleyExitFogNode))
         trolleyExitPos.append(self.trolleyCar.posInterval(TROLLEY_EXIT_TIME, trolleyExitEndPos, startPos=trolleyExitStartPos, blendType='easeIn'))
-        if base.wantFog:
-            trolleyExitPos.append(Func(self.trolleyCar.setFogOff))
         trolleyExitBellInterval = SoundInterval(self.trolleyBellSfx, node=self.trolleyCar)
         trolleyExitAwayInterval = SoundInterval(self.trolleyAwaySfx, node=self.trolleyCar)
         keyAngle = round(TROLLEY_EXIT_TIME) * 360
@@ -156,11 +125,6 @@ class DistributedTrolley(DistributedObject.DistributedObject):
     def disable(self):
         DistributedObject.DistributedObject.disable(self)
         self.fsm.request('off')
-        if not base.wantTrolleyTTC:
-            self.constructionSign.removeNode()
-            self.cone.removeNode()
-            self.cone2.removeNode()
-            self.cone3.removeNode()
         self.clearToonTracks()
         self.trolleyExitFog.removeNode()
         del self.trolleyExitFog

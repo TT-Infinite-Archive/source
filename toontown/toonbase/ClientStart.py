@@ -11,20 +11,9 @@ import __builtin__
 
 __builtin__.process = 'client'
 
-import tempfile
-import atexit
-import shutil
-import os
+from panda3d.core import ConfigVariableString
 
-# Create a temporary directory
-__builtin__.tempdir = tempfile.mkdtemp()
-atexit.register(shutil.rmtree, tempdir)
-
-if hasattr(__builtin__, '__nirai__'):
-    # Output the DC file data to it (for use with Astron)
-    filepath = os.path.join(tempdir, 'game_data.dc')
-    with open(filepath, 'w') as f:
-        f.write(dcData)
+__builtin__.version = ConfigVariableString('server-version', 'n/a').getValue()
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
@@ -40,15 +29,20 @@ if __debug__:
 
     try:
         import wx
-    except:
-        notify.warning('Failed to start injector - wx module missing!')
+    except ImportError as e:
+        notify.warning('Failed to start injector -- %s' % e.message)
     else:
         from otp.otpbase.OTPInjectorDev import Injector
 
         notify.info('Starting injector...')
         __builtin__.injector = Injector()
 
-from panda3d.core import ConfigVariableString, loadPrcFileData
+from panda3d.core import *
+
+for dtool in ('children', 'parent', 'name'):
+    del NodePath.DtoolClassDict[dtool]
+
+from panda3d.core import loadPrcFileData
 
 from otp.settings.Settings import Settings
 
@@ -123,9 +117,9 @@ base.setBackgroundColor(Vec4(0, 0, 0, 0))
 base.graphicsEngine.renderFrame()
 
 DirectGuiGlobals.setDefaultRolloverSound(
-    base.loadSfx('phase_3/audio/sfx/GUI_rollover.ogg'))
+    loader.loadSfx('phase_3/audio/sfx/GUI_rollover.ogg'))
 DirectGuiGlobals.setDefaultClickSound(
-    base.loadSfx('phase_3/audio/sfx/GUI_create_toon_fwd.ogg'))
+    loader.loadSfx('phase_3/audio/sfx/GUI_create_toon_fwd.ogg'))
 DirectGuiGlobals.setDefaultDialogGeom(
     loader.loadModel('phase_3/models/gui/dialog_box_gui.bam'))
 
@@ -151,8 +145,7 @@ introduction = Introduction()
 
 from toontown.toontowngui.ClickToStart import ClickToStart
 
-version = ConfigVariableString('server-version', 'n/a')
-clickToStart = ClickToStart(version=version.getValue())
+clickToStart = ClickToStart(version=version)
 clickToStart.setColorScale(0, 0, 0, 0)
 
 music = None
@@ -240,8 +233,7 @@ disclaimerTrack = Sequence(
 
 from toontown.distributed import ToontownClientRepository
 
-base.cr = ToontownClientRepository.ToontownClientRepository(
-    version.getValue(), launcher)
+base.cr = ToontownClientRepository.ToontownClientRepository(version, launcher)
 base.cr.music = music
 base.cr.introduction = introduction
 base.cr.clickToStart = clickToStart

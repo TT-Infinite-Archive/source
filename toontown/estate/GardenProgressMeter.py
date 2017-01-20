@@ -12,7 +12,6 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from toontown.toon import Toon
-from direct.showbase import RandomNumGen
 from toontown.toonbase import TTLocalizer
 import random
 import random

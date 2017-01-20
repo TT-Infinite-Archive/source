@@ -9,6 +9,7 @@ from toontown.suit import SuitDNA
 from toontown.suit import Suit
 from toontown.battle import SuitBattleGlobals
 from toontown.toon import NPCToons
+from direct.gui.DirectGuiGlobals import NO_FADE_SORT_INDEX
 TTL = TTLocalizer
 
 class SummonCogDialog(DirectFrame, StateData.StateData):

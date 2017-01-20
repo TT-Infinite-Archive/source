@@ -33,15 +33,11 @@ class TTTownLoader(TownLoader.TownLoader):
         TownLoader.TownLoader.unload(self)
         Suit.unloadSuits(1)
 
-        if hasattr(self, 'profMoochtopher'):
-            self.moochPreSpeech.pause()
-            self.profMoochtopher.delete()
-
     def enter(self, requestStatus):
         TownLoader.TownLoader.enter(self, requestStatus)
 
         if base.cr.newsManager.isStormEnabled():
-            self.rain.start(camera, self.rainRender)
+            self.rain.start(base.camera, self.rainRender)
 
     def exit(self):
         TownLoader.TownLoader.exit(self)

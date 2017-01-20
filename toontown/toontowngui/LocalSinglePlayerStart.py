@@ -1,12 +1,17 @@
+import atexit
+import copy
+import socket
+
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
-from toontown.chat.WhisperPopup import WhisperPopup
+
 from toontown.chat import ChatGlobals
-from toontown.toonbase import ToontownGlobals, TTLocalizer
-from toontown.singleplayer.SinglePlayerGlobals import *
-from toontown.singleplayer.ProcessThread import ProcessThread
+from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-import copy, atexit, socket, os
+from toontown.singleplayer.ProcessThread import ProcessThread
+from toontown.singleplayer.SinglePlayerGlobals import *
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
+
 
 class LocalSinglePlayerStart(DirectFrame, FSM):
 
@@ -28,13 +33,13 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.logPort = 7021
             self.mongoPort = 7031
             self.mongoPath = 'data/singleplayer'
-            self.astronConfig = 'astrond.yml'
+            self.astronConfig = os.path.join(base.tempDir, 'singleplayer.yml')
         else:
             self.mdPort = 7010
             self.logPort = 7020
             self.mongoPort = 7030
             self.mongoPath = 'data/multiplayer'
-            self.astronConfig = 'astrond_mp.yml'
+            self.astronConfig = os.path.join(base.tempDir, 'multiplayer.yml')
         
         buttonScale = (-1, 1, 1)
 
@@ -71,6 +76,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         
         for thread in self.threads:
             thread.kill()
+
+        self.threads = []
     
     def enterOff(self):
         self.destroy()
@@ -83,12 +90,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     
     def enterStart(self):
         if self.isServerAlive():
-            if self.singlePlayer:
-                self.demand('ServerRunning')
-            else:
-                self.destroy()
-                base.connectToServer('localhost', self.getPort())
-            
+            self.demand('ServerRunning')
             return
 
         self.accept('processStarted', self.__processStarted)
@@ -106,7 +108,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('localhost', self.getPort())
+        base.connectToServer('127.0.0.1', self.getPort())
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]
@@ -114,7 +116,10 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.killThreads()
     
     def enterServerRunning(self):
-        self.label['text'] = TTLocalizer.ServerRunningAlready
+        if self.singlePlayer:
+            self.label['text'] = TTLocalizer.ServerRunningAlready
+        else:
+            self.label['text'] = TTLocalizer.MultiServerRunningAlready
         self.backButton.show()
     
     def __nextProcess(self):
@@ -132,13 +137,13 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             thread.processInfo.append(self.astronConfig)
         elif thread.processInfo[0].startswith('mongod'):
             thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
-        elif 'ServiceStart' in thread.processInfo[2]:
+        elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
 
         thread.start()
         self.threads.append(thread)
 
-        taskMgr.doMethodLater(15, lambda task: self.__processFailed(self.process[2]), 'processFailed')
+        taskMgr.doMethodLater(settings.get(SettingsGlobals.ProcessFailback, 60), lambda task: self.__processFailed(self.process[2]), 'processFailed')
     
     def __processStarted(self, name):
         taskMgr.remove('processFailed')

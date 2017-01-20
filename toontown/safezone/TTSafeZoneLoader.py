@@ -28,7 +28,7 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
             self.activityMusic = base.loadMusic(self.activityMusicFile)
             self.createSafeZone(self.dnaFile)
             self.parentFSMState.addChild(self.fsm)
-        self.birdSound = map(base.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
+        self.birdSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird2.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
         bank = self.geom.find('**/*toon_landmark_TT_bank_DNARoot')
