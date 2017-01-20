@@ -11,8 +11,8 @@ class ToontownTimeManager(DistributedObject.DistributedObject):
     ClockFormat = '%I:%M:%S %p'
     formatStr = '%Y-%m-%d %H:%M:%S'
 
-    def __init__(self, serverTimeAtLogin=0, clientTimeAtLogin=0,
-                 realTimeAtLogin=0):
+    def __init__(self, serverTimeAtLogin=0.0, clientTimeAtLogin=0.0,
+                 realTimeAtLogin=0.0):
         self.serverTimeZone = ToontownTimeZone()
         self.updateLoginTimes(serverTimeAtLogin, clientTimeAtLogin,
                               realTimeAtLogin)
@@ -26,19 +26,10 @@ class ToontownTimeManager(DistributedObject.DistributedObject):
         self.serverDateTime = datetime.fromtimestamp(
             self.serverTimeAtLogin, self.serverTimeZone)
 
-        if self.serverTimeAtLogin == 0:
-            self.serverDateTime = datetime.now(self.serverTimeZone)
-
     def getCurServerDateTime(self):
         secondsPassed = globalClock.getRealTime() - self.realTimeAtLogin
         dt = self.serverDateTime + timedelta(seconds=secondsPassed)
         return dt.astimezone(self.serverTimeZone)
-
-    def getTimetuple(self):
-        secondsPassed = globalClock.getRealTime() - self.realTimeAtLogin
-        dt = self.serverDateTime + timedelta(seconds=secondsPassed)
-        dt.astimezone(self.serverTimeZone)
-        return dt.timetuple()
 
     def convertStrToToontownTime(self, dateStr):
         try:

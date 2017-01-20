@@ -212,10 +212,6 @@ class Party(Place.Place):
                     host.setGMPartyIcon()
                 else:
                     np = NodePath(host.nametag.getIcon())
-                    if host.nametag.getGuildText():
-                        base.distributedParty.partyHat.setPos(0.0, 0.1, 3.25)
-                    else:
-                        base.distributedParty.partyHat.setPos(0.0, 0.1, 2.5)
                     base.distributedParty.partyHat.reparentTo(np)
 
     def __removePartyHat(self):

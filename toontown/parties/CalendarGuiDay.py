@@ -1,14 +1,14 @@
 import datetime
+import time
 from pandac.PandaModules import TextNode, Vec3, Vec4, PlaneNode, Plane, Point3
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList, DGG
+from direct.directnotify import DirectNotifyGlobal
 from direct.gui import DirectGuiGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.parties.PartyInfo import PartyInfo
 from toontown.parties import PartyGlobals
 from toontown.ai.NewsManager import NewsManager
-from toontown.util.ThreadedCall import ThreadedCall
-
 
 def myStrftime(myTime):
     result = ''
@@ -53,9 +53,7 @@ class CalendarGuiDay(DirectFrame):
 
     def load(self):
         dayAsset = loader.loadModel('phase_4/models/parties/tt_m_gui_sbk_calendar_box')
-        gui = self.attachNewNode('day-calendar')
-        dayAsset.copyTo(gui)
-        gui.reparentTo(self)
+        dayAsset.reparentTo(self)
         self.dayButtonLocator = self.find('**/loc_origin')
         self.numberLocator = self.find('**/loc_number')
         self.scrollLocator = self.find('**/loc_topLeftList')
@@ -79,12 +77,8 @@ class CalendarGuiDay(DirectFrame):
             marker.setColor(*color)
 
     def createGuiObjects(self):
-        self.dayButton = DirectButton(parent=self.dayButtonLocator, image=self.selectedFrame, relief=None,
-                                      command=self.__clickedOnDay, pressEffect=1, rolloverSound=None, clickSound=None)
-        self.numberWidget = DirectLabel(parent=self.numberLocator, relief=None, text=str(self.myDate.day),
-                                        text_scale=0.04, text_align=TextNode.ACenter,
-                                        text_font=ToontownGlobals.getInterfaceFont(),
-                                        text_fg=Vec4(110 / 255.0, 126 / 255.0, 255 / 255.0, 1))
+        self.dayButton = DirectButton(parent=self.dayButtonLocator, image=self.selectedFrame, relief=None, command=self.__clickedOnDay, pressEffect=1, rolloverSound=None, clickSound=None)
+        self.numberWidget = DirectLabel(parent=self.numberLocator, relief=None, text=str(self.myDate.day), text_scale=0.04, text_align=TextNode.ACenter, text_font=ToontownGlobals.getInterfaceFont(), text_fg=Vec4(110 / 255.0, 126 / 255.0, 255 / 255.0, 1))
         self.attachMarker(self.numberLocator)
         self.listXorigin = 0
         self.listFrameSizeX = self.scrollBottomRightLocator.getX() - self.scrollLocator.getX()
@@ -105,18 +99,14 @@ class CalendarGuiDay(DirectFrame):
         arrowUp = self.find('**/downScroll_up')
         arrowDown = self.find('**/downScroll_down')
         arrowHover = self.find('**/downScroll_hover')
-        self.scrollList = DirectScrolledList(parent=self.scrollLocator, relief=None, pos=(0, 0, 0),
-                                             incButton_image=(arrowUp, arrowDown, arrowHover, arrowUp),
-                                             incButton_relief=None,
-                                             incButton_scale=(self.arrowButtonXScale, 1, self.arrowButtonZScale),
-                                             incButton_pos=incButtonPos, incButton_image3_color=Vec4(1, 1, 1, 0.2),
-                                             decButton_image=(arrowUp, arrowDown, arrowHover, arrowUp),
-                                             decButton_relief=None,
-                                             decButton_scale=(self.arrowButtonXScale, 1, -self.arrowButtonZScale),
-                                             decButton_pos=decButtonPos, decButton_image3_color=Vec4(1, 1, 1, 0.2),
-                                             itemFrame_pos=(self.itemFrameXorigin, 0, -0.03), numItemsVisible=4,
-                                             incButtonCallback=self.scrollButtonPressed,
-                                             decButtonCallback=self.scrollButtonPressed)
+        self.scrollList = DirectScrolledList(parent=self.scrollLocator, relief=None, pos=(0, 0, 0), incButton_image=(arrowUp,
+         arrowDown,
+         arrowHover,
+         arrowUp), incButton_relief=None, incButton_scale=(self.arrowButtonXScale, 1, self.arrowButtonZScale), incButton_pos=incButtonPos, incButton_image3_color=Vec4(1, 1, 1, 0.2), decButton_image=(arrowUp,
+         arrowDown,
+         arrowHover,
+         arrowUp), decButton_relief=None, decButton_scale=(self.arrowButtonXScale, 1, -self.arrowButtonZScale), decButton_pos=decButtonPos, decButton_image3_color=Vec4(1, 1, 1, 0.2), itemFrame_pos=(self.itemFrameXorigin, 0, -0.03), numItemsVisible=4, incButtonCallback=self.scrollButtonPressed, decButtonCallback=self.scrollButtonPressed)
+        itemFrameParent = self.scrollList.itemFrame.getParent()
         self.scrollList.incButton.reparentTo(self.scrollDownLocator)
         self.scrollList.decButton.reparentTo(self.scrollUpLocator)
         arrowUp.removeNode()
@@ -178,10 +168,9 @@ class CalendarGuiDay(DirectFrame):
     def addWeeklyHolidays(self):
         if not self.filter == ToontownGlobals.CalendarFilterShowAll and not self.filter == ToontownGlobals.CalendarFilterShowOnlyHolidays:
             return
-
-        threads = []
         if base.cr.newsManager:
             holidays = base.cr.newsManager.getHolidaysForWeekday(self.myDate.weekday())
+            holidayName = ''
             holidayDesc = ''
             for holidayId in holidays:
                 if holidayId in TTLocalizer.HolidayNamesInCalendar:
@@ -189,22 +178,31 @@ class CalendarGuiDay(DirectFrame):
                     holidayDesc = TTLocalizer.HolidayNamesInCalendar[holidayId][1]
                 else:
                     holidayName = TTLocalizer.UnknownHoliday % holidayId
-
-                threads.append(ThreadedCall(self.addTitleAndDescToScrollList, (holidayName, holidayDesc)))
-
-            for t in threads:
-                t.join()
+                self.addTitleAndDescToScrollList(holidayName, holidayDesc)
 
             self.scrollList.refresh()
+        if base.config.GetBool('calendar-test-items', 0):
+            if self.myDate.date() + datetime.timedelta(days=-1) == base.cr.toontownTimeManager.getCurServerDateTime().date():
+                testItems = ('1:00 AM Party', '2:00 AM CEO', '11:15 AM Party', '5:30 PM CJ', '11:00 PM Party', 'Really Really Long String')
+                for text in testItems:
+                    newItem = DirectLabel(relief=None, text=text, text_scale=self.ScrollListTextSize, text_align=TextNode.ALeft)
+                    self.scrollList.addItem(newItem)
+
+            if self.myDate.date() + datetime.timedelta(days=-2) == base.cr.toontownTimeManager.getCurServerDateTime().date():
+                testItems = ('1:00 AM Party', '3:00 AM CFO', '11:00 AM Party')
+                textSize = self.ScrollListTextSize
+                for text in testItems:
+                    newItem = DirectLabel(relief=None, text=text, text_scale=textSize, text_align=TextNode.ALeft)
+                    self.scrollList.addItem(newItem)
 
     def updateArrowButtons(self):
         numItems = 0
         try:
             numItems = len(self.scrollList['items'])
-        except Exception:
+        except e:
             numItems = 0
 
-        if numItems <= self.scrollList['numItemsVisible']:
+        if numItems <= self.scrollList.numItemsVisible:
             self.scrollList.incButton.hide()
             self.scrollList.decButton.hide()
         else:
@@ -417,17 +415,13 @@ class CalendarGuiDay(DirectFrame):
     def addTitleAndDescToScrollList(self, title, desc):
         textSize = self.ScrollListTextSize
         descTextSize = 0.05
-        newItem = DirectButton(relief=None,
-                               text=title, text_scale=textSize, text_align=TextNode.ALeft, rolloverSound=None,
-                               clickSound=None, pressEffect=0, command=self.__clickedOnScrollItem)
+        newItem = DirectButton(relief=None, text=title, text_scale=textSize, text_align=TextNode.ALeft, rolloverSound=None, clickSound=None, pressEffect=0, command=self.__clickedOnScrollItem)
         scrollItemHeight = newItem.getHeight()
         descUnderItemZAdjust = scrollItemHeight * descTextSize / textSize
         descUnderItemZAdjust = max(0.0534, descUnderItemZAdjust)
         descUnderItemZAdjust = -descUnderItemZAdjust
         descZAdjust = descUnderItemZAdjust
-        newItem.description = DirectLabel(parent=newItem, pos=(0.115, 0, descZAdjust), text='',
-                                          text_wordwrap=15, pad=(0.02, 0.02), text_scale=descTextSize,
-                                          text_align=TextNode.ACenter, textMayChange=0)
+        newItem.description = DirectLabel(parent=newItem, pos=(0.115, 0, descZAdjust), text='', text_wordwrap=15, pad=(0.02, 0.02), text_scale=descTextSize, text_align=TextNode.ACenter, textMayChange=0)
         newItem.description.checkedHeight = False
         newItem.description.setBin('gui-popup', 0)
         newItem.description.hide()
@@ -466,8 +460,7 @@ class CalendarGuiDay(DirectFrame):
         partyTitle = partyTitle + ' ' + TTLocalizer.EventsPageCalendarTabParty
         textSize = self.ScrollListTextSize
         descTextSize = 0.05
-        newItem = DirectButton(relief=None, text=partyTitle, text_scale=textSize, text_align=TextNode.ALeft,
-                               rolloverSound=None, clickSound=None, pressEffect=0, command=self.__clickedOnScrollItem)
+        newItem = DirectButton(relief=None, text=partyTitle, text_scale=textSize, text_align=TextNode.ALeft, rolloverSound=None, clickSound=None, pressEffect=0, command=self.__clickedOnScrollItem)
         scrollItemHeight = newItem.getHeight()
         descUnderItemZAdjust = scrollItemHeight * descTextSize / textSize
         descUnderItemZAdjust = max(0.0534, descUnderItemZAdjust)
@@ -537,7 +530,7 @@ class MiniInviteVisual(DirectFrame):
         DirectFrame.__init__(self, parent, pos=(0.1, 0, -0.018))
         self.checkedHeight = True
         self.partyInfo = partyInfo
-        self._parent = parent
+        self.parent = parent
         self.inviteBackgrounds = loader.loadModel('phase_4/models/parties/partyStickerbook')
         backgrounds = ['calendar_popup_birthday',
          'calendar_popup_fun',
@@ -553,9 +546,9 @@ class MiniInviteVisual(DirectFrame):
         return
 
     def show(self):
-        self.reparentTo(self._parent)
+        self.reparentTo(self.parent)
         self.setPos(0.1, 0, -0.018)
-        newParent = self._parent.getParent().getParent()
+        newParent = self.parent.getParent().getParent()
         self.wrtReparentTo(newParent)
         if self.whosePartyLabel['text'] == ' ':
             host = base.cr.identifyAvatar(self.partyInfo.hostId)
@@ -581,7 +574,7 @@ class MiniInviteVisual(DirectFrame):
     def destroy(self):
         del self.checkedHeight
         del self.partyInfo
-        del self._parent
+        del self.parent
         del self.background
         del self.whosePartyLabel
         del self.whenTextLabel

@@ -1,16 +1,15 @@
+import calendar
 from datetime import timedelta, datetime
-from pandac.PandaModules import Vec4
-from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList
+from pandac.PandaModules import Vec4, TextNode
+from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList, DGG
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.parties.CalendarGuiDay import CalendarGuiDay
 
-
 class CalendarGuiMonth(DirectFrame):
     notify = directNotify.newCategory('CalendarGuiMonth')
 
-    def __init__(self, parent, startingDateTime, scale = 1.0, pos = (0, 0, -0.1), dayClickCallback = None,
-                 onlyFutureDaysClickable = False, onlyFutureMonthsClickable = False):
+    def __init__(self, parent, startingDateTime, scale = 1.0, pos = (0, 0, -0.1), dayClickCallback = None, onlyFutureDaysClickable = False, onlyFutureMonthsClickable = False):
         self.startDate = startingDateTime
         self.curDate = startingDateTime
         self.dayClickCallback = dayClickCallback
@@ -62,9 +61,7 @@ class CalendarGuiMonth(DirectFrame):
 
     def load(self):
         monthAsset = loader.loadModel('phase_4/models/parties/tt_m_gui_sbk_calendar')
-        gui = self.attachNewNode('calendar')
-        monthAsset.copyTo(gui)
-        gui.reparentTo(self)
+        monthAsset.reparentTo(self)
         self.monthLocator = self.find('**/locator_month/locator_month')
         self.attachMarker(self.monthLocator)
         self.weekDayLocators = []
@@ -91,22 +88,21 @@ class CalendarGuiMonth(DirectFrame):
         self.yearLocator.setPos(self.monthLocator, 0, 0, -0.03)
 
     def createGuiObjects(self):
-        self.monthLabel = DirectLabel(parent=self.monthLocator, relief=None,
-                                      text=TTLocalizer.Months[self.startDate.month], text_scale=0.075,
-                                      text_font=ToontownGlobals.getMinnieFont(),
-                                      text_fg=(40 / 255.0, 140 / 255.0, 246 / 255.0, 1.0))
-        self.yearLabel = DirectLabel(parent=self.yearLocator, relief=None,
-                                     text=str(self.startDate.year), text_scale=0.03,
-                                     text_font=ToontownGlobals.getMinnieFont(),
-                                     text_fg=(140 / 255.0, 140 / 255.0, 246 / 255.0, 1.0))
+        self.monthLabel = DirectLabel(parent=self.monthLocator, relief=None, text=TTLocalizer.Months[self.startDate.month], text_scale=0.075, text_font=ToontownGlobals.getMinnieFont(), text_fg=(40 / 255.0,
+         140 / 255.0,
+         246 / 255.0,
+         1.0))
+        self.yearLabel = DirectLabel(parent=self.yearLocator, relief=None, text=str(self.startDate.year), text_scale=0.03, text_font=ToontownGlobals.getMinnieFont(), text_fg=(140 / 255.0,
+         140 / 255.0,
+         246 / 255.0,
+         1.0))
         self.weekdayLabels = []
         for posIndex in xrange(7):
             adjustedNameIndex = (posIndex - 1) % 7
-            self.weekdayLabels.append(DirectLabel(parent=self.weekDayLocators[posIndex], relief=None,
-                                                  text=TTLocalizer.DayNamesAbbrev[adjustedNameIndex],
-                                                  text_font=ToontownGlobals.getInterfaceFont(),
-                                                  text_fg=(255 / 255.0, 146 / 255.0, 113 / 255.0, 1.0),
-                                                  text_scale=0.05))
+            self.weekdayLabels.append(DirectLabel(parent=self.weekDayLocators[posIndex], relief=None, text=TTLocalizer.DayNamesAbbrev[adjustedNameIndex], text_font=ToontownGlobals.getInterfaceFont(), text_fg=(255 / 255.0,
+             146 / 255.0,
+             113 / 255.0,
+             1.0), text_scale=0.05))
 
         self.createGuiDays()
         arrowUp = self.find('**/month_arrowR_up')
@@ -232,9 +228,3 @@ class CalendarGuiMonth(DirectFrame):
         newFilter = self.filterList.getSelectedIndex()
         for guiDay in self.guiDays:
             guiDay.changeFilter(newFilter)
-
-    def updateTime(self):
-        curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
-        self.curDate = curServerDate
-        self.startDate = curServerDate
-        self.changeMonth(0)
