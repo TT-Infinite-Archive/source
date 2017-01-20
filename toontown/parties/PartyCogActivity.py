@@ -35,6 +35,7 @@ class PartyCogActivity(DirectObject):
         self.resultsIval = None
         self.arenaModel = arenaModel
         self.texture = texture
+        return
 
     def load(self):
         self.arena = loader.loadModel(self.arenaModel)
@@ -120,6 +121,8 @@ class PartyCogActivity(DirectObject):
             self._doorStartPos.append(door.getPos())
             door.setPos(door, 0, 0, -7.0)
 
+        return
+
     def _destroyArenaDoors(self):
         for ival in self._arenaDoorIvals:
             ival.finish()
@@ -131,6 +134,7 @@ class PartyCogActivity(DirectObject):
             timer.removeNode()
 
         self._arenaDoorTimers = None
+        return
 
     def createDoorTimer(self, team):
         timer = ToontownTimer(useImage=False, highlightNearEnd=False)
@@ -236,6 +240,7 @@ class PartyCogActivity(DirectObject):
             self.ignore(eventName)
 
         self.toonPieEventNames = {}
+        return
 
     def enable(self):
         self.enableEnterGateCollision()
@@ -257,10 +262,11 @@ class PartyCogActivity(DirectObject):
         if not opening:
             pos = self._doorStartPos[team]
         else:
-            pos = self._doorStartPos[team] + Point3(0, 0, -7.0)
+            pos = (self._doorStartPos[team] + Point3(0, 0, -7.0),)
         ival = self._arenaDoors[team].posInterval(0.75, pos, blendType='easeIn')
         self._arenaDoorIvals[team] = ival
         ival.start()
+        return
 
     def openArenaDoorForTeam(self, team):
         self._playArenaDoorIval(team, opening=True)
@@ -371,6 +377,7 @@ class PartyCogActivity(DirectObject):
             player.setToonStartPosition(pos)
             if self.player is not None and toon == self.player.toon:
                 self.playToonIval(base.localAvatar.doId, self.player.getRunToStartPositionIval())
+        return
 
     def handleToonDisabled(self, toonId):
         self.finishToonIval(toonId)
@@ -381,6 +388,7 @@ class PartyCogActivity(DirectObject):
             if player == self.player:
                 self.player = None
             del self.players[toonId]
+        return
 
     def finishPieIvals(self, toonId):
         for ival in self.pieIvals:
@@ -402,6 +410,7 @@ class PartyCogActivity(DirectObject):
     def finishToonIval(self, toonId):
         if self.toonIdsToAnimIntervals.get(toonId) is not None and self.toonIdsToAnimIntervals[toonId].isPlaying():
             self.toonIdsToAnimIntervals[toonId].finish()
+        return
 
     def playToonIval(self, toonId, ival):
         self.finishToonIval(toonId)
@@ -426,6 +435,7 @@ class PartyCogActivity(DirectObject):
                 ival.finish()
 
         self.pieIvals = []
+        return
 
     def stopActivity(self):
         for player in self.players.values():
@@ -450,6 +460,7 @@ class PartyCogActivity(DirectObject):
             self.enableEnterGateCollision()
             self.enableSkyCollisions()
         del self.players[toon.doId]
+        return
 
     def pieThrow(self, avId, timestamp, heading, pos, power):
         toon = self.activity.getAvatar(avId)
@@ -487,6 +498,7 @@ class PartyCogActivity(DirectObject):
         pieTrack.start(elapsedTime)
         self.pieIvals.append(pieTrack)
         self.toonPieTracks[avId] = pieTrack
+        return
 
     def getTossPieInterval(self, toon, x, y, z, h, p, r, power, beginFlyIval = Sequence()):
         from toontown.toonbase import ToontownBattleGlobals
@@ -570,6 +582,7 @@ class PartyCogActivity(DirectObject):
         player = self.players.get(toonId)
         if player is not None:
             player.respondToPieHit(timestamp, pos)
+        return
 
     def setCogDistances(self, distances):
         self.cogManager.updateDistances(distances)
@@ -597,10 +610,12 @@ class PartyCogActivity(DirectObject):
                 self.resultsIval.pause()
             self.resultsIval = None
         self.ignore('DistributedPartyActivity-showJellybeanReward')
+        return
 
     def showTotals(self, totals):
-        self.winText[0][0].setText(TTLocalizer.PartyCogDistance % totals[0])
-        self.winText[1][0].setText(TTLocalizer.PartyCogDistance % totals[1])
+        newtotals = (totals[1] - totals[0] + PartyGlobals.CogActivityArenaLength / 2.0 * 3, totals[0] - totals[1] + PartyGlobals.CogActivityArenaLength / 2.0 * 3)
+        self.winText[0][0].setText(TTLocalizer.PartyCogDistance % newtotals[0])
+        self.winText[1][0].setText(TTLocalizer.PartyCogDistance % newtotals[1])
         for textPair in self.winText:
             textPair[1].unstash()
 

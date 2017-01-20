@@ -12,6 +12,7 @@ class DistributedPartyCannonAI(DistributedObjectAI):
         self.posHpr = [0, 0, 0, 0, 0, 0]
         self.avId = 0
 
+        
     def delete(self):
         taskMgr.remove('removeToon%d' % self.doId)
         DistributedObjectAI.delete(self)
@@ -50,12 +51,11 @@ class DistributedPartyCannonAI(DistributedObjectAI):
     def setCannonLit(self, rot, angle):
         avId = self.air.getAvatarIdFromSender()
         if avId == self.avId:
-            activity = self.air.doId2do.get(self.actId)
-            activity.d_setCannonWillFire(self.doId, rot, angle, avId)
-            self.sendUpdate('setCannonExit', [avId])
-            taskMgr.remove('removeToon%d' % self.doId)
-            self.avId = 0
+            activity = self.air.doId2do[self.actId]
+            activity.b_setCannonWillFire(self.doId, rot, angle, avId)
             self.d_setMovie(PartyGlobals.CANNON_MOVIE_CLEAR, avId)
+            self.sendUpdate('setCannonExit', [avId])
+            self.avId = 0
 
     def setFired(self):
         self.air.writeServerEvent('suspicious',self.air.getAvatarIdFromSender(),'Toon tried to call unused setFired!')
@@ -72,10 +72,11 @@ class DistributedPartyCannonAI(DistributedObjectAI):
         if avId != self.avId:
             self.air.writeServerEvent('suspicious',avId,'Toon tried to start timer for someone else!')
         taskMgr.doMethodLater(PartyGlobals.CANNON_TIMEOUT, self.__removeToon, 'removeToon%d' % self.doId, extraArgs=[avId])
-
+        
+        
     def __removeToon(self, avId):
         if avId != self.avId:
             return
-        self.sendUpdate('setCannonExit', [avId])
-        self.d_setMovie(PartyGlobals.CANNON_MOVIE_FORCE_EXIT, avId)
         self.avId = 0
+        self.d_setMovie(PartyGlobals.CANNON_MOVIE_FORCE_EXIT, avId)
+        self.sendUpdate('setCannonExit', [avId])

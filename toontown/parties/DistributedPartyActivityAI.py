@@ -1,25 +1,34 @@
+from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from direct.distributed.ClockDelta import globalClockDelta
-
-from toontown.toonbase.HolidayGlobals import JELLYBEAN_PARTIES_HOLIDAY, JELLYBEAN_PARTIES_HOLIDAY_MONTH
 from toontown.parties import PartyGlobals, PartyUtils
-
-
+"""
+dclass DistributedPartyActivity : DistributedObject {
+  setX(int16/10) broadcast required;
+  setY(int16/10) broadcast required;
+  setH(uint16%360/100) broadcast required;
+  setPartyDoId(uint32) broadcast required;
+  toonJoinRequest() airecv clsend;
+  toonExitRequest() airecv clsend;
+  toonExitDemand() airecv clsend;
+  toonReady() airecv clsend;
+  joinRequestDenied(uint8);
+  exitRequestDenied(uint8);
+  setToonsPlaying(uint32 []) broadcast ram;
+  setState(string, int16) broadcast ram;
+  showJellybeanReward(uint32, uint8, string);
+};
+"""
 class DistributedPartyActivityAI(DistributedObjectAI):
-    notify = directNotify.newCategory("DistributedPartyActivityAI")
-    MAX_PLAYERS = 0
+    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedPartyActivityAI")
 
-    def __init__(self, air, party, activityInfo):
+    def __init__(self, air, parent, activityTuple):
         DistributedObjectAI.__init__(self, air)
-
-        self.party = party
-        self.state = None
-
-        self.x = PartyUtils.convertDistanceFromPartyGrid(activityInfo[1], 0)
-        self.y = PartyUtils.convertDistanceFromPartyGrid(activityInfo[2], 1)
-        self.h = activityInfo[3] * PartyGlobals.PartyGridHeadingConverter
-
-        self.toonsPlaying = {}
+        self.parent = parent
+        x, y, h = activityTuple[1:] # ignore activity ID
+        self.x = PartyUtils.convertDistanceFromPartyGrid(x, 0)
+        self.y = PartyUtils.convertDistanceFromPartyGrid(y, 1)
+        self.h = h * PartyGlobals.PartyGridHeadingConverter
+        self.toonsPlaying = []
 
     def getX(self):
         return self.x
@@ -31,81 +40,42 @@ class DistributedPartyActivityAI(DistributedObjectAI):
         return self.h
 
     def getPartyDoId(self):
-        return self.party.doId
+        return self.parent
 
     def updateToonsPlaying(self):
-        self.sendUpdate('setToonsPlaying', [self.toonsPlaying.keys()])
+        self.sendUpdate('setToonsPlaying', [self.toonsPlaying])
 
     def toonJoinRequest(self):
+        print 'toon join request'
         avId = self.air.getAvatarIdFromSender()
-        if avId not in self.air.doId2do:
-            self.notify.warning('Unknown avatar %s tried to join!' % avId)
-            return
-
-        if avId in self.toonsPlaying:
-            self.notify.warning('Avatar %s tried to join twice!' % avId)
-            return
-
-        self.toonsPlaying[avId] = False
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.handleUnexpectedExit, extraArgs=[avId])
-
-    def handleUnexpectedExit(self, avId):
-        if avId in self.toonsPlaying:
-            del self.toonsPlaying[avId]
+        #todo hackyfun i should FSM
+        self.toonsPlaying.append(avId)
+        self.updateToonsPlaying()
 
     def toonExitRequest(self):
-        avId = self.air.getAvatarIdFromSender()
-        if avId not in self.toonsPlaying:
-            self.notify.warning('Unknown avatar %s tried to leave!' % avId)
-            return
-
-        del self.toonsPlaying[avId]
+        print 'toon exit request'
 
     def toonExitDemand(self):
+        print 'toon exit demand'
         avId = self.air.getAvatarIdFromSender()
-        if avId not in self.toonsPlaying:
-            self.notify.warning('Unknown avatar %s tried to leave!' % avId)
-            return
-
-        del self.toonsPlaying[avId]
+        self.toonsPlaying.remove(avId)
+        self.updateToonsPlaying()
 
     def toonReady(self):
-        avId = self.air.getAvatarIdFromSender()
-        if avId not in self.toonsPlaying:
-            self.notify.warning('Unknown avatar %s tried to become ready!' % avId)
-            return
+        print 'toon ready'
 
-        self.toonsPlaying[avId] = True
-
-        if self.allToonsReady():
-            self.balancePlayers()
-            self.setState('Active')
-
-    def balancePlayers(self):
+    def joinRequestDenied(self, todo0):
         pass
 
-    def allToonsReady(self):
-        for status in self.toonsPlaying.values():
-            if status is False:
-                return False
+    def exitRequestDenied(self, todo0):
+        pass
 
-        return True
+    def setToonsPlaying(self, todo0):
+        pass
 
-    def setState(self, state):
-        self.state = state
-        self.sendUpdate('setState', [state, globalClockDelta.getRealNetworkTime()])
+    def setState(self, todo0, todo1):
+        pass
 
-    def showJellybeanReward(self, earnedAmount, jarAmount, message):
-        self.sendUpdate('showJellybeanReward', [earnedAmount, jarAmount, message])
+    def showJellybeanReward(self, todo0, todo1, todo2):
+        pass
 
-    def activityIsFull(self):
-        return len(self.toonsPlaying) >= self.MAX_PLAYERS
-
-    def joinRequestDenied(self, avId, reason):
-        self.sendUpdateToAvatarId(avId, 'joinRequestDenied', [reason])
-
-    def exitRequestDenied(self, avId, reason):
-        self.sendUpdateToAvatarId(avId, 'exitRequestDenied', [reason])
-
-    def isDoubleJelleybeans(self):
-        return self.air.holidayManager.areHolidaysRunning([JELLYBEAN_PARTIES_HOLIDAY, JELLYBEAN_PARTIES_HOLIDAY_MONTH])
