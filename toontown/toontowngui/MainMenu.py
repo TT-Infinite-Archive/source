@@ -32,7 +32,11 @@ class MainMenu(DirectObject, FSM):
         self.mpButtons3 = []
 
         buttonScale = (-1.1, 1.1, 1.1)
+        buttonScale_clickhover = (-1.2, 1.2, 1.2)
+
+
         buttonScale2 = (-0.8, 0.8, 0.8)
+        buttonScale2_clickhover = (-0.9, 0.9, 0.9)
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -68,9 +72,11 @@ class MainMenu(DirectObject, FSM):
             text="Single Player",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.082,
+            text2_scale=0.087,
+            text1_scale=0.087,
             command=lambda: self.request('SinglePlayer')
         )
         self.buttons.append(self.singlePlayerButton)
@@ -80,9 +86,11 @@ class MainMenu(DirectObject, FSM):
             text="Multiplayer",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('Multiplayer')
         )
         self.buttons.append(self.multiPlayerButton)
@@ -93,9 +101,11 @@ class MainMenu(DirectObject, FSM):
             text_pos=(0, 0.02, 0),
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.08,
+            text2_scale=0.085,
+            text1_scale=0.085,
             command=lambda: self.request('')
         )
         self.buttons.append(self.kaldronNetworkButton)
@@ -153,9 +163,11 @@ class MainMenu(DirectObject, FSM):
             text="Local Play",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('SinglePlayerLocal')
         )
         self.spButtons.append(self.spLocalButton)
@@ -165,9 +177,11 @@ class MainMenu(DirectObject, FSM):
             text="Mods",
             wantArrows=False,
             image_scale=buttonScale2,
-            image2_scale=buttonScale2,
-            image1_scale=buttonScale2,
+            image2_scale=buttonScale2_clickhover,
+            image1_scale=buttonScale2_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('Mods')
         )
         self.spButtons.append(self.spMods)
@@ -178,9 +192,11 @@ class MainMenu(DirectObject, FSM):
             text="Custom Play",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.082,
+            text2_scale=0.087,
+            text1_scale=0.087,
             command=lambda: self.request('MultiplayerCP')
         )
 
@@ -191,9 +207,11 @@ class MainMenu(DirectObject, FSM):
             text="Mods",
             wantArrows=False,
             image_scale=buttonScale2,
-            image2_scale=buttonScale2,
-            image1_scale=buttonScale2,
+            image2_scale=buttonScale2_clickhover,
+            image1_scale=buttonScale2_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('Mods')
         )
         self.mpButtons.append(self.mpMods)
@@ -204,9 +222,11 @@ class MainMenu(DirectObject, FSM):
             text="Join",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('MultiplayerCPJoin')
         )
         self.mpButtons2.append(self.mpCPJoin)
@@ -216,9 +236,11 @@ class MainMenu(DirectObject, FSM):
             text="Host",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('MultiplayerCPHost')
         )
         self.mpButtons2.append(self.mpCPHost)
@@ -229,9 +251,11 @@ class MainMenu(DirectObject, FSM):
             text="Connect",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.10,
             command=lambda: self.request('MultiplayerCPConnect')
         )
         self.mpButtons3.append(self.mpCPConnect)
