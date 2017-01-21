@@ -39,6 +39,7 @@ class NewsManager(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.population = 0
         self.invading = 0
+        self.invadingSuit = None
 
         forcedHolidayDecorations = base.config.GetString('force-holiday-decorations', '')
         self.decorationHolidayIds = []
@@ -173,6 +174,9 @@ class NewsManager(DistributedObject.DistributedObject):
 
     def getInvading(self):
         return self.invading
+
+    def getInvadingSuit(self):
+        return self.invadingSuit
 
     def startHoliday(self, holidayId):
         if holidayId not in self.holidayIdList:
