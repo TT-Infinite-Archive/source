@@ -104,7 +104,7 @@ class MainMenu(DirectObject, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.50),
+            pos=(0.35, 0, -0.59),
             suppressMouse=True,
             state=DGG.DISABLED
         )
