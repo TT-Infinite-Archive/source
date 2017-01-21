@@ -21,11 +21,12 @@ parser.add_argument('--astron-ip', help="The IP address of the Astron Message Di
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
 parser.add_argument('--singleplayer', help="If passed, the server will start in singleplayer mode.", action='store_true')
-parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
+if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
 __builtin__.args = parser.parse_known_args()[0]
 
-for prc in args.config:
-    loadPrcFile(prc)
+if __debug__:
+    for prc in args.config:
+        loadPrcFile(prc)
 
 localconfig = ''
 if args.base_channel: localconfig += 'air-base-channel %s\n' % args.base_channel
