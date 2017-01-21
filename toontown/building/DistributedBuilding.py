@@ -698,10 +698,6 @@ class DistributedBuilding(DistributedObject.DistributedObject):
                 tracks.append(hideTrack)
                 if not toonSoundPlayed:
                     toonSoundPlayed = 1
-            for v in self.victorList:
-                if v in self.cr.doId2do:
-                    toon = self.cr.doId2do[v]
-                    self.tracks.append(Func(toon.restoreGoofyEffect, 0.5))
 
         self.stopTransition()
         bldgMTrack = tracks
@@ -726,6 +722,10 @@ class DistributedBuilding(DistributedObject.DistributedObject):
 
     def walkOutCameraTrack(self):
         track = Sequence(Func(base.camera.reparentTo, render), Func(base.camera.setPosHpr, self.elevatorNodePath, 0, -32.5, 9.4, 0, 348, 0), Func(base.camLens.setMinFov, 52.0/(4./3.)), Wait(VICTORY_RUN_TIME), Func(base.camera.setPosHpr, self.elevatorNodePath, 0, -32.5, 17, 0, 347, 0), Func(base.camLens.setMinFov, 75.0/(4./3.)), Wait(TO_TOON_BLDG_TIME), Func(base.camLens.setMinFov, 52.0/(4./3.)))
+        for v in self.victorList:
+            if v in self.cr.doId2do:
+                toon = self.cr.doId2do[v]
+                track.append(Func(toon.restoreGoofyEffect, 0.5))
         return track
 
     def plantVictorsOutsideBldg(self):
