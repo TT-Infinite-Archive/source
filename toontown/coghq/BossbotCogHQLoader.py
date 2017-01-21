@@ -142,6 +142,7 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         taskMgr.remove('titleText')
         self.hood.hideTitleText()
         self.exitPlace()
+        self.startRain()
         self.placeClass = None
 
     def enterCogHQBossBattle(self, requestStatus):
