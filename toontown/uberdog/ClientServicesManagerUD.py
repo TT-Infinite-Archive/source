@@ -225,6 +225,10 @@ class LoginAccountFSM(OperationFSM):
                 self.csm.air.dclassesByName['AccountUD'],
                 {'ACCESS_LEVEL': self.accessLevel})
 
+        # If this is a single player server, Don't allow
+        # any more connections.
+        if simbase.isSinglePlayer: self.csm.playerLoggedIn = True
+
         # If there's anybody on the account, kill them for redundant login:
         datagram = PyDatagram()
         datagram.addServerHeader(
@@ -984,6 +988,9 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # Temporary HMAC key:
         self.key = 'bWlub3Iub3BlbmFsLmZpeC5zdGFydC5vZi5oZWFsam9rZXM='
 
+        if simbase.isSinglePlayer:
+            self.playerLoggedIn = False
+
         # Instantiate our account DB interface:
         if accountdbType == 'developer':
             self.accountDB = DeveloperAccountDB(self)
@@ -1051,6 +1058,10 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.notify.debug('Received login cookie %r from %d' % (cookie, self.air.getMsgSender()))
 
         sender = self.air.getMsgSender()
+
+        if simbase.isSinglePlayer and self.playerLoggedIn:
+            # Only one connection is allowed in singleplayer mode.
+            self.killConnection(sender, 'Single Player servers only allows one connection.')
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):
