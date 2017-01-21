@@ -1,5 +1,6 @@
 from pandac.PandaModules import Point3, PlaneNode
 from direct.showbase.ShowBase import Plane
+from direct.showbase.RandomNumGen import RandomNumGen
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Func, Wait
 from toontown.toonbase import TTLocalizer
@@ -9,16 +10,16 @@ import CogdoFlyingGameGlobals as Globals
 from CogdoUtil import CogdoGameMovie
 import CogdoUtil
 
-
 class CogdoFlyingGameIntro(CogdoGameMovie):
 
-    def __init__(self, level):
+    def __init__(self, level, rng):
         CogdoGameMovie.__init__(self)
         self._level = level
+        self._rng = RandomNumGen(rng)
         self._exit = self._level.getExit()
 
     def _getRandomLine(self, lineList):
-        return CogdoUtil.getRandomDialogueLine(lineList)
+        return CogdoUtil.getRandomDialogueLine(lineList, self._rng)
 
     def displayLine(self, who, text):
         self._dialogueLabel.node().setText(text)
