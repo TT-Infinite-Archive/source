@@ -136,9 +136,11 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         if thread.processInfo[0].startswith('astrond'):
             thread.processInfo.append(self.astronConfig)
         elif thread.processInfo[0].startswith('mongod'):
-            thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
+            thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath
         elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
+            if self.singlePlayer:
+                thread.processInfo += ['--singleplayer']
 
         thread.start()
         self.threads.append(thread)
