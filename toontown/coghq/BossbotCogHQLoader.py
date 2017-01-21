@@ -165,4 +165,3 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         self.exitPlace()
         self.placeClass = None
         del self.countryClubId
-        self.stopRain()
