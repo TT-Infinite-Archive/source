@@ -14,6 +14,7 @@ VSync = 'vsync'
 Resolution = 'res'
 Fullscreen = 'fullscreen'
 AnimationSmoothing = 'animation-smoothing'
+ProcessFailback = 'process-failback'
 
 InitialSettings = {
     # Initial setting
@@ -28,6 +29,7 @@ InitialSettings = {
     ShowFps: False,
     VSync: False,
     AnimationSmoothing: True,
+    ProcessFailback: 60,
     Keymap: {
         "ACTION_BUTTON": "delete",
         "CHAT_HOTKEY": "t",

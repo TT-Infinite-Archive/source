@@ -9,7 +9,10 @@ class DistributedVPElevator(DistributedBossElevator.DistributedBossElevator):
     def __init__(self, cr):
         DistributedBossElevator.DistributedBossElevator.__init__(self, cr)
         self.type = ELEVATOR_VP
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if base.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
 
     def setupElevator(self):
         self.elevatorModel = loader.loadModel('phase_9/models/cogHQ/cogHQ_elevator')

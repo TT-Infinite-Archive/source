@@ -17,8 +17,8 @@ from toontown.toonbase import ToontownGlobals
 import CatchGameToonSD
 import Trajectory
 import math
+import random
 from direct.distributed import DistributedSmoothNode
-from direct.showbase.RandomNumGen import RandomNumGen
 import MinigameGlobals
 from toontown.toon import ToonDNA
 from toontown.suit import SuitDNA
@@ -96,10 +96,10 @@ class DistributedCatchGame(DistributedMinigame):
             model.flattenMedium()
 
         self.music = base.loadMusic('phase_4/audio/bgm/MG_toontag.ogg')
-        self.sndGoodCatch = base.loadSfx('phase_4/audio/sfx/SZ_DD_treasure.ogg')
-        self.sndOof = base.loadSfx('phase_4/audio/sfx/MG_cannon_hit_dirt.ogg')
-        self.sndAnvilLand = base.loadSfx('phase_4/audio/sfx/AA_drop_anvil_miss.ogg')
-        self.sndPerfect = base.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
+        self.sndGoodCatch = loader.loadSfx('phase_4/audio/sfx/SZ_DD_treasure.ogg')
+        self.sndOof = loader.loadSfx('phase_4/audio/sfx/MG_cannon_hit_dirt.ogg')
+        self.sndAnvilLand = loader.loadSfx('phase_4/audio/sfx/AA_drop_anvil_miss.ogg')
+        self.sndPerfect = loader.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
         self.toonSDs = {}
         avId = self.localAvId
         toonSD = CatchGameToonSD.CatchGameToonSD(avId, self)
@@ -582,7 +582,7 @@ class DistributedCatchGame(DistributedMinigame):
 
     def scheduleDrops(self):
         self.droppedObjNames = [self.fruitName] * self.numFruits + ['anvil'] * self.numAnvils
-        self.randomNumGen.shuffle(self.droppedObjNames)
+        random.shuffle(self.droppedObjNames)
         dropPlacer = self.DropPlacerType(self, self.getNumPlayers(), self.droppedObjNames)
         while not dropPlacer.doneDropping():
             self.dropSchedule.append(dropPlacer.getNextDrop())
@@ -676,10 +676,10 @@ class DistributedCatchGame(DistributedMinigame):
             objH = object.getH()
             absDelta = {'watermelon': 12,
              'anvil': 15}[dropObjName]
-            delta = (self.randomNumGen.random() * 2.0 - 1.0) * absDelta
+            delta = (random.random() * 2.0 - 1.0) * absDelta
             newH = objH + delta
         else:
-            newH = self.randomNumGen.random() * 360.0
+            newH = random.random() * 360.0
         object.setH(newH)
         sphereName = 'FallObj%s' % num
         radius = self.ObjRadius
@@ -740,15 +740,14 @@ class DistributedCatchGame(DistributedMinigame):
 
     def startSuitWalkTask(self):
         ival = Parallel(name='catchGameMetaSuitWalk')
-        rng = RandomNumGen(self.randomNumGen)
         delay = 0.0
         while delay < CatchGameGlobals.GameDuration:
-            delay += lerp(self.SuitPeriodRange[0], self.SuitPeriodRange[0], rng.random())
+            delay += lerp(self.SuitPeriodRange[0], self.SuitPeriodRange[0], random.random())
             walkIval = Sequence(name='catchGameSuitWalk')
             walkIval.append(Wait(delay))
 
-            def pickY(self = self, rng = rng):
-                return lerp(-self.StageHalfHeight, self.StageHalfHeight, rng.random())
+            def pickY(self = self):
+                return lerp(-self.StageHalfHeight, self.StageHalfHeight, random.random())
 
             m = [2.5,
              2.5,
@@ -756,9 +755,9 @@ class DistributedCatchGame(DistributedMinigame):
              2.1][self.getNumPlayers() - 1]
             startPos = Point3(-(self.StageHalfWidth * m), pickY(), 0)
             stopPos = Point3(self.StageHalfWidth * m, pickY(), 0)
-            if rng.choice([0, 1]):
+            if random.choice([0, 1]):
                 startPos, stopPos = stopPos, startPos
-            walkIval.append(self.getSuitWalkIval(startPos, stopPos, rng))
+            walkIval.append(self.getSuitWalkIval(startPos, stopPos))
             ival.append(walkIval)
 
         ival.start()
@@ -768,14 +767,14 @@ class DistributedCatchGame(DistributedMinigame):
         self.suitWalkIval.finish()
         del self.suitWalkIval
 
-    def getSuitWalkIval(self, startPos, stopPos, rng):
+    def getSuitWalkIval(self, startPos, stopPos):
         data = {}
         lerpNP = render.attachNewNode('catchGameSuitParent')
 
-        def setup(self = self, startPos = startPos, stopPos = stopPos, data = data, lerpNP = lerpNP, rng = rng):
+        def setup(self = self, startPos = startPos, stopPos = stopPos, data = data, lerpNP = lerpNP):
             if len(self.suits) == 0:
                 return
-            suit = rng.choice(self.suits)
+            suit = random.choice(self.suits)
             data['suit'] = suit
             self.suits.remove(suit)
             suit.reparentTo(lerpNP)

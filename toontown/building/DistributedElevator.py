@@ -26,15 +26,18 @@ class DistributedElevator(DistributedObject.DistributedObject):
         self.deferredSlots = []
         self.localToonOnBoard = 0
         self.boardedAvIds = {}
-        self.openSfx = base.loadSfx('phase_5/audio/sfx/elevator_door_open.ogg')
+        self.openSfx = loader.loadSfx('phase_5/audio/sfx/elevator_door_open.ogg')
         self.finalOpenSfx = None
-        self.closeSfx = base.loadSfx('phase_5/audio/sfx/elevator_door_close.ogg')
+        self.closeSfx = loader.loadSfx('phase_5/audio/sfx/elevator_door_close.ogg')
         self.elevatorFSM = None
         self.finalCloseSfx = None
         self.elevatorPoints = ElevatorPoints
         self.fillSlotTrack = None
         self.type = ELEVATOR_NORMAL
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if base.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
         self.__toonTracks = {}
         self.fsm = ClassicFSM.ClassicFSM('DistributedElevator', [State.State('off', self.enterOff, self.exitOff, ['opening',
           'waitEmpty',

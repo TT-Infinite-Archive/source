@@ -14,6 +14,7 @@ from toontown.toonbase import TTLocalizer
 from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import LerpScaleInterval
 
+
 class MainMenu(DirectObject, FSM):
     notify = directNotify.newCategory('MainMenu')
 
@@ -31,8 +32,11 @@ class MainMenu(DirectObject, FSM):
         self.mpButtons3 = []
 
         buttonScale = (-1.1, 1.1, 1.1)
-        buttonScale2 = (-0.8, 0.8, 0.8)
+        buttonScale_clickhover = (-1.2, 1.2, 1.2)
 
+
+        buttonScale2 = (-0.8, 0.8, 0.8)
+        buttonScale2_clickhover = (-0.9, 0.9, 0.9)
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -40,10 +44,11 @@ class MainMenu(DirectObject, FSM):
             scale=(2, 1, 1), pos=(0, 0, 0))
 
         # Load the Toontown Infinite logo
+        offset = -0.02
         self.logo = OnscreenImage(
             parent=base.aspect2d,
-            image='phase_3/maps/toontown-logo.png',
-            scale=(0.75, 0.35, 0.35), pos=(0, 0, 0.35)
+            image='phase_3/maps/toontown_infinite_logo.png',
+            scale=(0.75, 0.35, 0.40), pos=(offset, 0, 0.35)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -53,9 +58,9 @@ class MainMenu(DirectObject, FSM):
 
         # Pulsating animation for the logo
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.35), Vec3(0.70, 0.35, 0.325),
+            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.40), Vec3(0.70, 0.35, 0.375),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.325), Vec3(0.75, 0.35, 0.35),
+            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.375), Vec3(0.75, 0.35, 0.40),
                               blendType='easeInOut')
         )
         self.logoScaleTrack.loop()
@@ -65,10 +70,12 @@ class MainMenu(DirectObject, FSM):
             pos=(0, 0, -0.2),
             text="Single Player",
             wantArrows=False,
-            image_scale=buttonScale, 
-            image2_scale=buttonScale,
-            image1_scale=buttonScale, 
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.082,
+            text2_scale=0.087,
+            text1_scale=0.087,
             command=lambda: self.request('SinglePlayer')
         )
         self.buttons.append(self.singlePlayerButton)
@@ -77,10 +84,12 @@ class MainMenu(DirectObject, FSM):
             pos=(0, 0, -0.5),
             text="Multiplayer",
             wantArrows=False,
-            image_scale=buttonScale, 
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('Multiplayer')
         )
         self.buttons.append(self.multiPlayerButton)
@@ -91,9 +100,11 @@ class MainMenu(DirectObject, FSM):
             text_pos=(0, 0.02, 0),
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.08,
+            text2_scale=0.085,
+            text1_scale=0.085,
             command=lambda: self.request('')
         )
         self.buttons.append(self.kaldronNetworkButton)
@@ -145,16 +156,17 @@ class MainMenu(DirectObject, FSM):
             self.kaldronNetworkButton['state'] = DGG.NORMAL
             self.kaldronNetworkButton.setColorScale(CDefault)
 
-
         # Single Player Menu Buttons
         self.spLocalButton = MATShuffleButton(
             pos=(0, 0, -0.30),
             text="Local Play",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('SinglePlayerLocal')
         )
         self.spButtons.append(self.spLocalButton)
@@ -164,9 +176,11 @@ class MainMenu(DirectObject, FSM):
             text="Mods",
             wantArrows=False,
             image_scale=buttonScale2,
-            image2_scale=buttonScale2,
-            image1_scale=buttonScale2,
+            image2_scale=buttonScale2_clickhover,
+            image1_scale=buttonScale2_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('Mods')
         )
         self.spButtons.append(self.spMods)
@@ -177,9 +191,11 @@ class MainMenu(DirectObject, FSM):
             text="Custom Play",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.082,
+            text2_scale=0.087,
+            text1_scale=0.087,
             command=lambda: self.request('MultiplayerCP')
         )
 
@@ -190,9 +206,11 @@ class MainMenu(DirectObject, FSM):
             text="Mods",
             wantArrows=False,
             image_scale=buttonScale2,
-            image2_scale=buttonScale2,
-            image1_scale=buttonScale2,
+            image2_scale=buttonScale2_clickhover,
+            image1_scale=buttonScale2_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('Mods')
         )
         self.mpButtons.append(self.mpMods)
@@ -203,9 +221,11 @@ class MainMenu(DirectObject, FSM):
             text="Join",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('MultiplayerCPJoin')
         )
         self.mpButtons2.append(self.mpCPJoin)
@@ -215,13 +235,14 @@ class MainMenu(DirectObject, FSM):
             text="Host",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('MultiplayerCPHost')
         )
         self.mpButtons2.append(self.mpCPHost)
-
 
         # Multiplayer Menu Buttons: Join Menu
         self.mpCPConnect = MATShuffleButton(
@@ -229,41 +250,14 @@ class MainMenu(DirectObject, FSM):
             text="Connect",
             wantArrows=False,
             image_scale=buttonScale,
-            image2_scale=buttonScale,
-            image1_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.10,
             command=lambda: self.request('MultiplayerCPConnect')
         )
         self.mpButtons3.append(self.mpCPConnect)
-
-        # Load the image for the ip input bar
-        cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
-
-        # Load the ip input bar
-        self.ipInput = DirectEntry(
-            parent=self.background,
-            relief=DGG.GROOVE,
-            scale=0.08,
-            pos=(-0.33, 0, -0.50),
-            borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
-             state=DGG.NORMAL,
-             text_align=TextNode.ALeft,
-             text_scale=TTLocalizer.OPCodesInputTextScale,
-             width=10.5,
-             numLines=1,
-             focus=1,
-             backgroundFocus=0,
-             cursorKeys=1,
-             text_fg=(0,
-                      0,
-                      0,
-                      1),
-             suppressMouse=1,
-             autoCapitalize=0,
-             command=self.__submitIP)
 
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -279,7 +273,6 @@ class MainMenu(DirectObject, FSM):
             pos=(1.65, 0, -0.935), command=self.__handleQuit)
         self.quitButton.reparentTo(base.aspect2d)
         self.buttons.append(self.quitButton)
-
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -339,16 +332,21 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.setVolume(0.9)
                 base.cr.music.play()
 
+        
+        OTPLocalizer.SpeedChatStaticText[30500] = "Welcome to [SERVER NAME]'s Toontown Infinite server!"
+        OTPLocalizer.SpeedChatStaticText[30502] = "Are you livestreaming?"
+        OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
+        OTPLocalizer.SpeedChatStaticText[30506] = "When do you think those tunnels will open?"
+        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."
+
         self.background.show()
+        self.logo.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
         if not base.wantKaldronNetwork:
             self.lockIcon2.show()
         for button in self.buttons:
-          button.show()
-
-        self.logo.show()
-        self.ipInput.hide()
+            button.show()
 
     def exitIdle(self):
         self.background.hide()
@@ -364,6 +362,7 @@ class MainMenu(DirectObject, FSM):
         self.backButton.show()
         self.quitButton.show()
         base.isSinglePlayer = True
+        base.isHosting = False
         for spButton in self.spButtons:
             spButton.show()
 
@@ -397,19 +396,21 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon3.hide()
 
     def enterSinglePlayerLocal(self):
-        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing offline local play on Toontown Infinite!"
+        OTPLocalizer.SpeedChatStaticText[30500] = "I'm currently playing in local play on Toontown Infinite!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
-        OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open.'
-        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs in the Kaldron Interactive Discord channel.'
-        self.__startSinglePlayer(True)
-    
+        OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open...'
+        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-report text channel.'
+        self.__startGameSession(True)
+
     def enterMultiplayerCPHost(self):
-        self.__startSinglePlayer(False)
-    
-    def __startSinglePlayer(self, singlePlayer):
+        base.isHosting = True
+        self.__startGameSession(False)
+
+    def __startGameSession(self, singlePlayer):
         self.hide()
         self.background.show()
+        self.logo.show()
 
         self.LocalSinglePlayerStart = LocalSinglePlayerStart(self, singlePlayer)
         self.LocalSinglePlayerStart.request('Start')
@@ -468,6 +469,36 @@ class MainMenu(DirectObject, FSM):
         self.background.show()
         self.backButton3.show()
         self.quitButton.show()
+
+        # Load the image for the ip input bar for Multiplayer
+        cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
+
+        # Load the ip input bar
+        self.ipInput = DirectEntry(
+            parent=aspect2d,
+            relief=DGG.GROOVE,
+            scale=0.1,
+            pos=(0, 0, -0.50),
+            borderWidth=(0.05, 0.05),
+            frameColor=((1, 1, 1, 1),
+                        (1, 1, 1, 1),
+                        (0.5, 0.5, 0.5, 0.5)),
+            state=DGG.NORMAL,
+            text_align=TextNode.ACenter,
+            text_scale=TTLocalizer.OPCodesInputTextScale,
+            width=10.5,
+            numLines=1,
+            focus=1,
+            backgroundFocus=0,
+            cursorKeys=1,
+            text_fg=(0,
+                     0,
+                     0,
+                     1),
+            suppressMouse=1,
+            autoCapitalize=0,
+            command=self.__submitIP)
+
         self.ipInput.show()
         self.__enableIPEntry()
         self.ipInput.enterText('')
@@ -490,6 +521,21 @@ class MainMenu(DirectObject, FSM):
         if input == '':
             return
         messenger.send('wakeup')
+        self.request('MultiplayerCPConnect')
+
+    def enterMultiplayerCPConnect(self):
+        base.isHosting = False
+        ip = self.ipInput.get()
+        if ':' in ip:
+            ip, port = ip.split(':')
+            try:
+                port = int(port)
+            except:
+                # TODO: Better handle invalid addresses
+                port = 7000
+            base.connectToServer(ip, port)
+        else:
+            base.connectToServer(ip)
 
     def __enableIPEntry(self):
         self.ipInput['state'] = DGG.NORMAL
@@ -529,5 +575,4 @@ class MainMenu(DirectObject, FSM):
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
-        self.doneStatus = {'mode': 'exit'}
-        messenger.send(self.doneEvent, [self.doneStatus])
+        base.cr.loginFSM.request('shutdown')

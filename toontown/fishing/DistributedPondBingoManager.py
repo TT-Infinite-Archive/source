@@ -13,7 +13,6 @@ from toontown.fishing import FourCornerBingo
 from toontown.fishing import DiagonalBingo
 from toontown.fishing import ThreewayBingo
 from toontown.fishing import BlockoutBingo
-from direct.showbase import RandomNumGen
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer

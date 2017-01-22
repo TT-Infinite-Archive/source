@@ -79,7 +79,7 @@ JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
 lDaisyGardens = 'The Gardens'
-lDonaldsDock = "The Docks"
+lDonaldsDock = "The Harbor"
 lDonaldsDreamland = "Dreamland"
 lMinniesMelodyland = "Melodyland"
 lToontownCentral = 'Toontown Central'
@@ -706,7 +706,7 @@ QuestDialogDict = {160: {GREETING: '',
         LEAVING: '',
         COMPLETE: "Adding machines all fixed up?\x07Nice work.  I'm sure I've got something around here to reward you with..."},
  1054: {QUEST: '_toNpcName_ needs some help with his clown cars._where_'},
- 1055: {QUEST: "Yowza!  I can't find the tires to this here clown car anywhere!\x07Do ya think you could help me out?\x07I think Loopy Bob may have tossed them in the pond in the " + lToontownCentral + ' neighborhood.\x07If you stand on one of the docks there you can try and fish out the tires for me.',
+ 1055: {QUEST: "Yowza!  I can't find the tires to this here clown car anywhere!\x07Do ya think you could help me out?\x07I think Loopy Bob may have tossed them in the pond in the " + lToontownCentral + ' neighborhood.\x07If you stand on one of The Harbor there you can try and fish out the tires for me.',
         GREETING: 'Woohoo!',
         LEAVING: '',
         INCOMPLETE_PROGRESS: 'Are you having trouble fishing out all 4 tires?'},
@@ -1002,7 +1002,7 @@ QuestDialogDict = {160: {GREETING: '',
  2420: {QUEST: "Thank you!\x07Now I can send out this order.\x07Take down a building on this street to prevent the Cogs from doing this again and I'll get you your reward.",
         LEAVING: '',
         GREETING: ''},
- 2422: {QUEST: "I need help rebuilding my ship as my current one has sunken off the coast of The Docks from the Cogs!\x07How am I here?\x07Well I didn't say I was on it!\x07Go see Heave Ho.",
+ 2422: {QUEST: "I need help rebuilding my ship as my current one has sunken off the coast of The Harbor from the Cogs!\x07How am I here?\x07Well I didn't say I was on it!\x07Go see Heave Ho.",
         LEAVING: ''},
  2423: {QUEST: "A couple of tough looking Cogs have taken my oars!\x07If you Find them you can take them to Brian.",
         LEAVING: '',
@@ -3860,7 +3860,7 @@ SuperGoofyChatter = (['Welcome to my Super Speedway!',
   "It's fun to dress up for Halloween!",
   'I hope you are enjoying our Halloween fun!'], ['Gotta fly!',
   'Hi-Ho and away I go!',
-  "Should I fly or drive to The Docks?",
+  "Should I fly or drive to The Harbor?",
   'Gawrsh, have a Happy Halloween!'])
 DonaldChatter = (['Welcome to Dreamland.', "Hi, my name is %s. What's yours?" % Donald], ['Sometimes this place gives me the creeps.',
   'Be sure and try the maze in ' + lDaisyGardens + '.',
@@ -4643,7 +4643,7 @@ MusicGzPlaygolf = "Let's Play Golf!"
 MusicMmNbrhood = "Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
-MusicDdNbrhood = "The Docks"
+MusicDdNbrhood = "The Harbor"
 MusicDdSz = 'Waddling Way'
 MusicDdSzActivity = 'Sea Shanty'
 MusicThemeSong = "Toontown Infinite Theme"
@@ -4700,7 +4700,7 @@ MusicPartyWaltzDance = 'Party Waltz'
 MusicPartyGenericThemeJazzy = 'Party Jazz'
 MusicPartyGenericTheme = 'Party Jingle'
 MusicTcEncounter = 'Toontown Central Battle'
-MusicDdEncounter = 'Encounter at The Docks'
+MusicDdEncounter = 'Encounter at The Harbor'
 MusicDgEncounter = 'Encounter in The Gardens'
 MusicMmEncounter = 'Melodyland Encounter'
 MusicTbEncounter = 'Encounter in The Brrrgh'
@@ -5007,6 +5007,7 @@ OptionsPagePurchase = 'Subscribe'
 OptionsPageLogout = 'Logout'
 OptionsGoBack = 'Back'
 OptionsDisconnect = 'Disconnect'
+OptionsLeaveServer = 'Leave Server'
 OptionsReturnToToonSelect = 'Toon Select'
 OptionsPageMusicOnLabel = 'Music is on.'
 OptionsPageMusicOffLabel = 'Music is off.'
@@ -5026,8 +5027,9 @@ OptionsPageToggleOff = 'Turn Off'
 OptionsPageChange = 'Change'
 OptionsPageDisplaySettings = 'Display: %(screensize)s, %(api)s'
 OptionsPageDisplaySettingsNoApi = 'Display: %(screensize)s'
-OptionsPageExitConfirm = 'Are you sure you want to disconnect?'
-OptionsPageExitConfirmMultiplayer = 'Are you sure you want to disconnect the server? All Toons currently playing will also be disconnected.'
+OptionsPageExitConfirmSingleplayer = 'Are you sure you want to disconnect?'
+OptionsPageExitConfirmMultiplayer = 'Are you sure you want to leave this server?'
+OptionsPageExitConfirmMultiplayerHost = 'Are you sure you want to disconnect the server? All Toons currently playing will also be disconnected.'
 OptionsPagePickAToonConfirm = 'Are you sure you want to return to the Pick-A-Toon screen?'
 OptionsPageResolution = 'Resolution:'
 OptionsPageVideo = 'Video'
@@ -5048,6 +5050,10 @@ OptionsPageAcceptingWhispers = 'Accepting Whispers'
 OptionsPageFromStrangers = 'From Strangers'
 OptionsPageFromFriends = 'From Friends'
 OptionsPageEnableMusic = 'Enable Music'
+OptionsPageVSync = 'VSync'
+OptionsPageShowFps = 'Show FPS'
+OptionsPageAnimationSmoothing = 'Animation Smoothing'
+OptionsPageRequiresRestart = 'Requires Restart'
 SocialPageTitle = 'Social'
 GuildPageTitle = 'Guilds'
 GuildPagePromote = 'Promote'
@@ -5319,7 +5325,7 @@ NPCForceAcknowledgeMessage6 = 'Great job defeating those Cogs!\n\n\n\n\n\n\n\n\n
 NPCForceAcknowledgeMessage7 = "Don't forget to make a friend!\n\n\n\n\n\n\nClick on another player and use the New Friend button."
 NPCForceAcknowledgeMessage8 = 'Great! You made a new friend!\n\n\n\n\n\n\n\n\nYou should go back at Toon Headquarters now.'
 NPCForceAcknowledgeMessage9 = 'Good job using the phone!\n\n\n\n\n\n\n\n\nReturn to Toon Headquarters to claim your reward.'
-TTIAlphaWelcomeMessage = "Welcome to the Toontown Infinite Alpha!\n\nIf you find any bugs, please immediately report them on our Discord server in the #toontown-infinite-bugs text channel.\n\nThis is just the beginning. As time goes on, we'll be updating the game with more content.\n\nThanks for helping us test the game!"
+TTIAlphaWelcomeMessage = "Welcome to the Toontown Infinite Alpha!\n\nIf you find any bugs, please immediately report them on our Discord server in the #bug-report text channel.\n\nThis is just the beginning. As time goes on, we'll be updating the game with more content.\n\nThanks for helping us test the game!"
 ToonSleepString = '. . . ZZZ . . .'
 MovieTutorialReward1 = 'You received 1 Throw point! When you get 10, the gag will be as strong as it can be!'
 MovieTutorialReward2 = 'You also received 1 Squirt point!'
@@ -5521,7 +5527,7 @@ TownBattleSOSPetSearchTitle = 'Searching for doodle\n%s...'
 TownBattleSOSPetInfoTitle = '%s is %s'
 TownBattleSOSPetInfoOK = lOK
 TrolleyHFAMessage = 'You may not board the trolley until your Laff meter is smiling.'
-TrolleyCSMessage = 'This Trolley Station is under construction. The Toon Palooza is coming soon! Check back later!'
+TrolleyCSMessage = 'This Trolley Station is under construction.\n\nThe Toon Palooza is coming soon!\n\nIn time, there will be even more destinations that you may visit by riding on the Trolley! Come back later!'
 TrolleyTFAMessage = 'You may not board the trolley until ' + Mickey + ' says so.'
 TrolleyHopOff = 'Hop off'
 FishingExit = 'Exit'
@@ -6052,7 +6058,7 @@ QuestScriptTutorialBlocker_3 = "Oh! You don't know how to use SpeedChat!"
 QuestScriptTutorialBlocker_4 = 'Click on the button to say something.'
 QuestScriptTutorialBlocker_5 = 'Very good!\x07Where you are going there are many Toons to talk to.'
 QuestScriptTutorialBlocker_6 = "If you want to chat with other Toons using the keyboard, there's another button you can use."
-QuestScriptTutorialBlocker_7 = "It's called the SpeedChat Plus button. You need to turn on Speedchat Plus in your Account Manager on the Toontown Infinite Website to use it."
+QuestScriptTutorialBlocker_7 = "It's called the SpeedChat Plus button."
 QuestScriptTutorialBlocker_8 = 'Good luck! See you later!'
 QuestScriptGagShop_1 = 'Welcome to the Gag Shop!'
 QuestScriptGagShop_1a = 'This is where Toons come to buy gags to use against the Cogs.'
@@ -6136,6 +6142,7 @@ ResistanceToonToonupAllInstructions = 'all the Toons near you will gain full Laf
 ResistanceToonMoneyInstructions = 'all the Toons near you will gain %s Jellybeans'
 ResistanceToonMoneyAllInstructions = 'all the Toons near you will fill their Jellybean jars'
 ResistanceToonRestockInstructions = 'all the Toons near you will restock their "%s" gags'
+ResistanceToonDanceInstructions = 'all the Toons near you will start to dance'
 ResistanceToonRestockAllInstructions = 'all the Toons near you will restock all their gags'
 ResistanceToonHPBoost = "\x07You've done a lot of work for the Resistance.\x07The Toon Council has decided to give you another Laff point. Congratulations!"
 ResistanceToonLevelPromotion = "\x07Say--that C.F.O. Cog left behind your promotion papers.\x07I'll file them for you on the way out, so you'll get your promotion!"
@@ -10384,7 +10391,7 @@ achievementInfo = {
     5: ('Grand Goodbye',
         'Complete Toontown Central'),
     6: ('Bon Voyage!',
-        "Complete The Docks"),
+        "Complete The Harbor"),
     7: ('Blooming',
         'Complete The Gardens'),
     8: ('Warming symphonies',
@@ -10720,6 +10727,7 @@ Jellybeans = 'Jellybeans'
 BossLeaderboardLabel = 'Current Damage'
 
 ServerRunningAlready = 'A single player session is already in progress.'
+MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 StartingGame = 'Starting the game momentarily...'

@@ -79,7 +79,7 @@ want-resistance-grounds #f
 
 # Safe zone settings:
 want-treasure-planners #f
-want-suit-planners #f
+want-suit-planners #t
 
 # Classic characters:
 want-classic-chars #f
@@ -117,8 +117,8 @@ want-resistance-dance #f
 base-xp-multiplier 1.0
 
 # Cog buildings:
-want-cogbuildings #f
-want-cogdominiums #f
+want-cogbuildings #t
+want-cogdominiums #t
 
 # Optional:
 show-total-population #t

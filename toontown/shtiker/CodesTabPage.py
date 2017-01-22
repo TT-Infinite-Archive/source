@@ -9,16 +9,16 @@ class CodesTabPage(DirectFrame):
     notify = directNotify.newCategory('CodesTabPage')
 
     def __init__(self, parent=aspect2d):
-        self.parent = parent
+        self._parent = parent
         DirectFrame.__init__(
-            self, parent=self.parent, relief=None, pos=(
+            self, parent=self._parent, relief=None, pos=(
                 0.0, 0.0, 0.0), scale=(
                 1.0, 1.0, 1.0))
         self.load()
         return
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
         DirectFrame.destroy(self)
         return
 
@@ -30,8 +30,8 @@ class CodesTabPage(DirectFrame):
         self.resultPanelSuccessGui = cdrGui.find('**/tt_t_gui_sbk_cdrResultPanel_success')
         self.resultPanelFailureGui = cdrGui.find('**/tt_t_gui_sbk_cdrResultPanel_failure')
         self.resultPanelErrorGui = cdrGui.find('**/tt_t_gui_sbk_cdrResultPanel_error')
-        self.successSfx = base.loadSfx('phase_3.5/audio/sfx/tt_s_gui_sbk_cdrSuccess.ogg')
-        self.failureSfx = base.loadSfx('phase_3.5/audio/sfx/tt_s_gui_sbk_cdrFailure.ogg')
+        self.successSfx = loader.loadSfx('phase_3.5/audio/sfx/tt_s_gui_sbk_cdrSuccess.ogg')
+        self.failureSfx = loader.loadSfx('phase_3.5/audio/sfx/tt_s_gui_sbk_cdrFailure.ogg')
         self.instructionPanel = DirectFrame(parent=self,
                                             relief=None,
                                             image=instructionGui,

@@ -96,7 +96,7 @@ class FriendManager(DistributedObject.DistributedObject):
         if base.cr.avatarFriendsManager.checkIgnored(inviterId):
             self.up_inviteeFriendConsidering(4, context)
             return
-        if not base.localAvatar.acceptingNewFriends:
+        if not base.localAvatar.wantFriends:
             self.up_inviteeFriendConsidering(6, context)
             return
         self.up_inviteeFriendConsidering(self.__available, context)

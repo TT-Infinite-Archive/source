@@ -935,7 +935,31 @@ def skipCEO():
     if boss.state in ('PrepareBattleThree', 'BattleThree'):
         return "You can't skip this round."
     boss.exitIntroduction()
-    boss.b_setState('PrepareBattleThree')
+    for toonId in boss.involvedToons:
+        toon = simbase.air.doId2do.get(toonId)
+        if toon is not None:
+            posLoc = random.choice([ToontownGlobals.WaiterBattleAPosHpr, ToontownGlobals.WaiterBattleBPosHpr])
+            toon.b_setPosHpr(*posLoc)
+    boss.b_setState('PrepareBattleFour')
+
+@magicWord(category=CATEGORY_ADMINISTRATOR)
+def skipWaiters():
+    """
+    Skips to the final round of the CEO.
+    """
+    invoker = spellbook.getInvoker()
+    boss = None
+    for do in simbase.air.doId2do.values():
+        if isinstance(do, DistributedBossbotBossAI):
+            if invoker.doId in do.involvedToons:
+                boss = do
+                break
+    if not boss:
+        return "You aren't in a CEO!"
+    if boss.state in ('PrepareBattleThree', 'BattleThree'):
+        return "You can't skip this round."
+    boss.exitIntroduction()
+    boss.b_setState('PrepareBattleTwo')
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR)
@@ -954,3 +978,4 @@ def killCEO():
         return "You aren't in a CEO!"
     boss.b_setState('Victory')
     return 'Killed CEO.'
+

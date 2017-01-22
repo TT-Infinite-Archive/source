@@ -6,7 +6,10 @@ class DistributedBBElevatorAI(DistributedBossElevatorAI.DistributedBossElevatorA
     def __init__(self, air, bldg, zone, antiShuffle = 0, minLaff = 0):
         DistributedBossElevatorAI.DistributedBossElevatorAI.__init__(self, air, bldg, zone, antiShuffle=antiShuffle, minLaff=0)
         self.type = ELEVATOR_BB
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if simbase.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
 
     def checkBoard(self, av):
         result = 0

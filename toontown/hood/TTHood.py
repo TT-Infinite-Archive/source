@@ -23,7 +23,8 @@ class TTHood(ToonHood):
       ToontownGlobals.WINTER_DECORATIONS: ['phase_4/dna/winter_storage_TT.pdna', 'phase_4/dna/winter_storage_TT_sz.pdna'],
       ToontownGlobals.WACKY_WINTER_DECORATIONS: ['phase_4/dna/winter_storage_TT.pdna', 'phase_4/dna/winter_storage_TT_sz.pdna'],
       ToontownGlobals.HALLOWEEN_PROPS: ['phase_4/dna/halloween_props_storage_TT.pdna', 'phase_4/dna/halloween_props_storage_TT_sz.pdna'],
-      ToontownGlobals.SPOOKY_PROPS: ['phase_4/dna/halloween_props_storage_TT.pdna', 'phase_4/dna/halloween_props_storage_TT_sz.pdna']}
+      ToontownGlobals.SPOOKY_PROPS: ['phase_4/dna/halloween_props_storage_TT.pdna', 'phase_4/dna/halloween_props_storage_TT_sz.pdna']
+    }
 
 
 @magicWord(category=CATEGORY_CREATIVE)
@@ -42,6 +43,6 @@ def spooky():
         1.5, Vec4(0.55, 0.55, 0.65, 1), startColorScale=Vec4(1, 1, 1, 1),
         blendType='easeInOut')
     fadeOut.start()
-    spookySfx = base.loadSfx('phase_4/audio/sfx/spooky.ogg')
+    spookySfx = loader.loadSfx('phase_4/audio/sfx/spooky.ogg')
     spookySfx.play()
     return 'Activating the spooky effect...'

@@ -3,11 +3,15 @@ from direct.gui.DirectGui import DirectLabel
 
 
 class TTLabel(DirectLabel):
+    TitleSize = 5
+    GiantSize = 4
     LargeSize = 3
     MediumSize = 2
     NormalSize = 1
     SmallSize = 0
     Scales = {
+        TitleSize: 0.12,
+        GiantSize: 0.1,
         LargeSize: 0.072,
         MediumSize: 0.062,
         NormalSize: 0.052,
@@ -29,4 +33,3 @@ class TTLabel(DirectLabel):
         self.defineoptions(kw, optiondefs)
         DirectLabel.__init__(self, parent)
         self.initialiseoptions(TTLabel)
-

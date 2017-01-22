@@ -16,6 +16,7 @@ from toontown.minigame import MinigameAvatarScorePanel
 from toontown.toonbase import ToontownTimer
 from toontown.minigame import VineHeadFrame
 from toontown.minigame import VineBat
+import random
 
 class DistributedVineGame(DistributedMinigame):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedVineGame')
@@ -111,14 +112,14 @@ class DistributedVineGame(DistributedMinigame):
         self.gameBoardR.setPos(635, 0, 0)
         self.treasureModel = self.gameAssets.find('**/bananas')
         self.setupVineCourse()
-        self.grabSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_bananas.ogg')
-        self.jumpSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_jump.ogg')
-        self.catchSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_catch.ogg')
-        self.spiderHitSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_spider_hit.ogg')
-        self.batHitVineSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_bat_hit.ogg')
-        self.batHitMidairSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_bat_hit_midair.ogg')
-        self.winSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_finish.ogg')
-        self.fallSound = base.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_fall.ogg')
+        self.grabSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_bananas.ogg')
+        self.jumpSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_jump.ogg')
+        self.catchSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_catch.ogg')
+        self.spiderHitSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_spider_hit.ogg')
+        self.batHitVineSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_bat_hit.ogg')
+        self.batHitMidairSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_bat_hit_midair.ogg')
+        self.winSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_finish.ogg')
+        self.fallSound = loader.loadSfx('phase_4/audio/sfx/MG_sfx_vine_game_fall.ogg')
         self.loadBats()
         self.createBatIvals()
         bothPlatform = loader.loadModel('phase_4/models/minigames/vine_game_shelf')
@@ -191,8 +192,8 @@ class DistributedVineGame(DistributedMinigame):
         self.numTreasures = len(self.vines) - 1
         self.treasures = []
         for i in xrange(self.numTreasures):
-            height = self.randomNumGen.randrange(10, 25)
-            xPos = self.randomNumGen.randrange(12, 18)
+            height = random.randrange(10, 25)
+            xPos = random.randrange(12, 18)
             pos = Point3(self.vines[i].getX() + 15, 0, height)
             self.treasures.append(VineTreasure.VineTreasure(self.treasureModel, pos, i, self.doId))
 
@@ -1417,7 +1418,7 @@ class DistributedVineGame(DistributedMinigame):
         endX = -VineGameGlobals.VineXIncrement
         firstInterval = True
         while batIval.getDuration() < VineGameGlobals.GameDuration:
-            batHeight = self.randomNumGen.randrange(VineGameGlobals.BatMinHeight, VineGameGlobals.BatMaxHeight)
+            batHeight = random.randrange(VineGameGlobals.BatMinHeight, VineGameGlobals.BatMaxHeight)
             batIval.append(Func(self.bats[batIndex].startLap))
             if firstInterval:
                 newIval = LerpPosInterval(self.bats[batIndex], duration=timeToTraverseField * startMultiplier, pos=Point3(endX, 0, batHeight), startPos=Point3(startX * startMultiplier, 0, batHeight))

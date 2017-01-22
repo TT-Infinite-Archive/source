@@ -7,7 +7,6 @@ from toontown.fishing import BingoCardCell
 from toontown.fishing import BingoGlobals
 from toontown.fishing import FishBase
 from toontown.fishing import FishGlobals
-from direct.showbase import RandomNumGen
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase import TTLocalizer
@@ -32,7 +31,7 @@ class BingoCardGui(DirectFrame):
         self.initialiseoptions(BingoCardGui)
         self.game = None
         self.cellGuiList = []
-        self.parent = parent
+        self._parent = parent
         self.load()
         self.hide()
         self.taskNameFlashFish = 'flashMatchingFishTask'
@@ -126,7 +125,7 @@ class BingoCardGui(DirectFrame):
         self.gameType.hide()
         self.jpText = DirectLabel(parent=self, pos=(BG.GridXOffset, 0, 0.22), relief=None, state=DGG.NORMAL, text='', text_scale=TTLocalizer.BCGjpText, text_pos=(0, 0, 0), text_fg=(1, 1, 1, 1), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getInterfaceFont(), text_wordwrap=TTLocalizer.BCGjpTextWordwrap)
         self.gameOver = DirectLabel(parent=self, pos=(BG.GridXOffset, 0, 0), relief=None, state=DGG.NORMAL, text='', text_scale=textScale, text_fg=(1, 1, 1, 1), text_font=ToontownGlobals.getSignFont())
-        self.jpSign = DirectFrame(parent=self.parent, relief=None, state=DGG.NORMAL, pos=BG.CardPosition, scale=(0.035, 0.035, 0.035), text=TTLocalizer.FishBingoJackpot, text_scale=2, text_pos=(-1.5, 18.6), text_fg=(1, 1, 1, 1), image=self.model.find('**/jackpot'), image_pos=(0, 0, 0), image_hpr=(0, 90, 0), sortOrder=DGG.BACKGROUND_SORT_INDEX)
+        self.jpSign = DirectFrame(parent=self._parent, relief=None, state=DGG.NORMAL, pos=BG.CardPosition, scale=(0.035, 0.035, 0.035), text=TTLocalizer.FishBingoJackpot, text_scale=2, text_pos=(-1.5, 18.6), text_fg=(1, 1, 1, 1), image=self.model.find('**/jackpot'), image_pos=(0, 0, 0), image_hpr=(0, 90, 0), sortOrder=DGG.BACKGROUND_SORT_INDEX)
         self.makeJackpotLights(self.jpSign)
         self.hideJackpot()
         self.makeTutorial()
@@ -169,7 +168,7 @@ class BingoCardGui(DirectFrame):
                 self.cellGuiList[index].enable(callback)
 
     def generateCard(self, tileSeed, zoneId):
-        rng = RandomNumGen.RandomNumGen(tileSeed)
+        rng = random.Random(tileSeed)
         rowSize = self.game.getRowSize()
         fishList = FishGlobals.getPondGeneraList(zoneId)
         for i in xrange(len(fishList)):

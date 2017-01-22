@@ -6,12 +6,12 @@ from toontown.util import TTCardMaker
 
 class ConfirmDialog(DirectFrame):
     def __init__(self, parent=aspect2d, text=TTLocalizer.AreYouSure, buttonTexts=(TTLocalizer.lYes, TTLocalizer.lCancel), color=(1.0, 1.0, 1.0, 0.95), scale=(1.0, 1.0, 1.0), commands=(None, None)):
-        self.parent = parent
+        self._parent = parent
         self.text = text
         self.buttonTexts = buttonTexts
         self.commands = commands
 
-        DirectFrame.__init__(self, parent=self.parent, relief=None)
+        DirectFrame.__init__(self, parent=self._parent, relief=None)
 
         buttonModels = preloader.getModel('phase_3.5/models/gui/inventory_gui')
         upButton = buttonModels.find('**/InventoryButtonUp')
@@ -21,7 +21,7 @@ class ConfirmDialog(DirectFrame):
         background = TTCardMaker.makeCard('phase_3/maps/curved-gui-square.png')
 
         self.mainFrame = DirectFrame(
-            self.parent,
+            self._parent,
             relief=None,
             scale=scale,
             image=background,
@@ -66,7 +66,7 @@ class ConfirmDialog(DirectFrame):
         background.removeNode()
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
 
         self.mainFrame.destroy()
         DirectFrame.destroy(self)

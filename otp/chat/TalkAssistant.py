@@ -582,7 +582,7 @@ class TalkAssistant(DirectObject.DirectObject):
         offset = 0
         WantWhitelist = config.GetBool('want-whitelist', 1)
         for word in words:
-            if word and not self.whiteList.isWord(word) and WantWhitelist:
+            if WantWhitelist and word and not self.whiteList.isWord(word):
                 modifications.append((offset, offset+len(word)-1))
             offset += len(word) + 1
 

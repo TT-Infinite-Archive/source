@@ -30,6 +30,8 @@ class PartyHood(Hood.Hood):
         self.holidayStorageDNADict = {WINTER_DECORATIONS: ['phase_5.5/dna/winter_storage_estate.pdna'],
          WACKY_WINTER_DECORATIONS: ['phase_5.5/dna/winter_storage_estate.pdna']}
         self.skyFile = 'phase_3.5/models/props/TT_sky'
+        self.nightSkyFile = 'phase_8/models/props/DL_sky'
+        self.sunSkyFile = 'phase_6/models/props/MM_sky'
         self.popupInfo = None
         return
 

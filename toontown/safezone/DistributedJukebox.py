@@ -1,15 +1,15 @@
+from direct.actor.Actor import Actor, CollisionNode, CollisionTube
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObject import DistributedObject
-from direct.actor.Actor import Actor, CollisionNode, CollisionTube
-from toontown.toonbase import ToontownGlobals, SettingsGlobals
-from toontown.safezone import JukeboxGlobals
+# from direct.filter.CommonFilters import CommonFilters
 from panda3d.core import TextNode
-from toontown.util.VolumeInterval import VolumeInterval
-from toontown.toontowngui.JukeboxGui import JukeboxGui
-from direct.filter.CommonFilters import CommonFilters
-from toontown.util import PlacerTool3D
 
-filters = CommonFilters(base.win, base.cam)
+from toontown.safezone import JukeboxGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toontowngui.JukeboxGui import JukeboxGui
+from toontown.util.VolumeInterval import VolumeInterval
+
+# filters = CommonFilters(base.win, base.cam)
 
 
 class DistributedJukebox(DistributedObject):
@@ -116,7 +116,7 @@ class DistributedJukebox(DistributedObject):
         base.cr.playGame.getPlace().setState('purchase')
 
         # Blur the background when interacting with the jukebox
-        filters.setBlurSharpen(0)
+        # filters.setBlurSharpen(0)
 
     def exitGui(self):
         if not self.inGui:
@@ -126,8 +126,8 @@ class DistributedJukebox(DistributedObject):
         base.cr.playGame.getPlace().setState('walk')
 
         # Remove the blur when the user is done with the jukebox
-        filters.setBlurSharpen(1)
-        filters.delBlurSharpen()
+        # filters.setBlurSharpen(1)
+        # filters.delBlurSharpen()
 
     def d_requestPlaySong(self, songId):
         self.notify.debug('Sending request to play song %s' % songId)

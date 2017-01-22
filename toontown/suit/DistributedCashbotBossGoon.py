@@ -9,6 +9,10 @@ from toontown.coghq import DistributedCashbotBossObject
 from direct.showbase import PythonUtil
 import DistributedGoon
 from toontown.util.ThreadedCall import ThreadedCall
+from panda3d.core import CollisionSphere
+from pandac.PandaModules import Point3
+from pandac.PandaModules import Vec3
+from panda3d.core import VBase3
 
 
 class DistributedCashbotBossGoon(DistributedGoon.DistributedGoon, DistributedCashbotBossObject.DistributedCashbotBossObject):

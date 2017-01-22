@@ -26,6 +26,7 @@ from direct.task import Task
 from toontown.makeatoon.TTPickANamePattern import TTPickANamePattern
 from pandac.PandaModules import TextEncoder
 from toontown.toon import ToonDNA
+from direct.gui.DirectGuiGlobals import NO_FADE_SORT_INDEX
 MAX_NAME_WIDTH = TTLocalizer.NSmaxNameWidth
 ServerDialogTimeout = 3.0
 
@@ -189,7 +190,8 @@ class NameShop(StateData.StateData):
                 self.firstHigh.reparentTo(self.namePanel)
                 self.suffixHigh.reparentTo(self.namePanel)
                 self.randomButton.reparentTo(self.namePanel, sort=2)
-                self.typeANameButton.reparentTo(self.namePanel, sort=2)
+                # self.typeANameButton.reparentTo(self.namePanel, sort=2)
+                self.typeANameButton.reparentTo(hidden) # Hide the type a name button until we add the proper functionality to it
             self.pickANameGUIElements.remove(self.titleScrollList)
             self.pickANameGUIElements.remove(self.firstnameScrollList)
             self.titleScrollList.destroy()

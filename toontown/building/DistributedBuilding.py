@@ -355,20 +355,20 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         if base.config.GetBool('want-qa-regression', 0):
             self.notify.info('QA-REGRESSION: COGBUILDING: Cog Take Over')
         if self.cogDropSound == None:
-            self.cogDropSound = base.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_drop.ogg')
-            self.cogLandSound = base.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_land.ogg')
-            self.cogSettleSound = base.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_settle.ogg')
-            self.openSfx = base.loadSfx('phase_5/audio/sfx/elevator_door_open.ogg')
+            self.cogDropSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_drop.ogg')
+            self.cogLandSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_land.ogg')
+            self.cogSettleSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_settle.ogg')
+            self.openSfx = loader.loadSfx('phase_5/audio/sfx/elevator_door_open.ogg')
         return
 
     def loadAnimToToonSfx(self):
         if base.config.GetBool('want-qa-regression', 0):
             self.notify.info('QA-REGRESSION: COGBUILDING: Toon Take Over')
         if self.cogWeakenSound == None:
-            self.cogWeakenSound = base.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_weaken.ogg')
-            self.toonGrowSound = base.loadSfx(self.TAKEOVER_SFX_PREFIX + 'toonbldg_grow.ogg')
-            self.toonSettleSound = base.loadSfx(self.TAKEOVER_SFX_PREFIX + 'toonbldg_settle.ogg')
-            self.openSfx = base.loadSfx('phase_5/audio/sfx/elevator_door_open.ogg')
+            self.cogWeakenSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_weaken.ogg')
+            self.toonGrowSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'toonbldg_grow.ogg')
+            self.toonSettleSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'toonbldg_settle.ogg')
+            self.openSfx = loader.loadSfx('phase_5/audio/sfx/elevator_door_open.ogg')
         return
 
     def unloadSfx(self):
@@ -698,10 +698,6 @@ class DistributedBuilding(DistributedObject.DistributedObject):
                 tracks.append(hideTrack)
                 if not toonSoundPlayed:
                     toonSoundPlayed = 1
-            for v in self.victorList:
-                if v in self.cr.doId2do:
-                    toon = self.cr.doId2do[v]
-                    self.tracks.append(Func(toon.restoreGoofyEffect, 0.5))
 
         self.stopTransition()
         bldgMTrack = tracks
@@ -726,6 +722,10 @@ class DistributedBuilding(DistributedObject.DistributedObject):
 
     def walkOutCameraTrack(self):
         track = Sequence(Func(base.camera.reparentTo, render), Func(base.camera.setPosHpr, self.elevatorNodePath, 0, -32.5, 9.4, 0, 348, 0), Func(base.camLens.setMinFov, 52.0/(4./3.)), Wait(VICTORY_RUN_TIME), Func(base.camera.setPosHpr, self.elevatorNodePath, 0, -32.5, 17, 0, 347, 0), Func(base.camLens.setMinFov, 75.0/(4./3.)), Wait(TO_TOON_BLDG_TIME), Func(base.camLens.setMinFov, 52.0/(4./3.)))
+        for v in self.victorList:
+            if v in self.cr.doId2do:
+                toon = self.cr.doId2do[v]
+                track.append(Func(toon.restoreGoofyEffect, 0.5))
         return track
 
     def plantVictorsOutsideBldg(self):

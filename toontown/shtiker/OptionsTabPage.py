@@ -8,6 +8,7 @@ from otp.speedchat import SpeedChat, SCColorScheme, SCStaticTextTerminal
 from toontown.shtiker import OptionsPageGlobals, ControlRemapDialog
 from toontown.toontowngui import TTLabel, TTClickableLabel, TTButton, TTCheckBox, TTSlider, TTDialog, \
     TTRadioButton, TTRadioGroup
+from toontown.toontowngui.TTArrow import TTArrow
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, SettingsGlobals, ColorGlobals
 from toontown.util.PlacerTool3D import PlacerTool3D
 
@@ -26,7 +27,7 @@ class OptionsTabPage(DirectFrame):
     def __init__(self, parent=aspect2d):
         DirectFrame.__init__(self, parent=parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
 
-        self.parent = parent
+        self._parent = parent
         self.currentSizeIndex = None
         self.displaySettingsChanged = 0
         self.displaySettingsSize = (None, None)
@@ -43,7 +44,7 @@ class OptionsTabPage(DirectFrame):
         self.load()
 
     def destroy(self):
-        self.parent = None
+        self._parent = None
         self.ignoreAll()
         taskMgr.remove('testResolution-task')
         taskMgr.remove('revertResolution-task')
@@ -103,29 +104,24 @@ class OptionsTabPage(DirectFrame):
             pos=(-0.40, 0, rightYBase + 0.1),
             text=TTLocalizer.OptionsPageVideo
         )
-        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.nativeRatio])
+        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
         self.resIndex = self.getResIndex()
-        gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui.bam')
-        arrowImg = (gui.find('**/Horiz_Arrow_UP'), gui.find('**/Horiz_Arrow_DN'), gui.find('**/Horiz_Arrow_Rllvr'),gui.find('**/Horiz_Arrow_UP'))
         self.resolutionLabel = TTLabel.TTLabel(parent=self.rightFrame, text=TTLocalizer.DisplaySettingsResolution, pos=(-0.33, 0, 0.35))
         self.resolutionValueLabel = TTLabel.TTLabel(
             parent=self.rightFrame,
             text='%s x %s' % tuple(self.screenSizes[self.resIndex]),
             pos=(0.12, 0, 0.35)
         )
-        self.resolutionLeftArrow = DirectButton(
+        self.resolutionLeftArrow = TTArrow(
             parent=self.rightFrame,
-            relief=None,
-            image=arrowImg,
-            scale=(-1.0, 1.0, 1.0),
+            orientation=TTArrow.OrientationLeft,
             pos=(-0.11, 0, 0.36),
             command=self.__handleLeftResolutionClicked,
             extraArgs=[]
         )
-        self.resolutionRightArrow = DirectButton(
+        self.resolutionRightArrow = TTArrow(
             parent=self.rightFrame,
-            relief=None,
-            image=arrowImg,
+            orientation=TTArrow.OrientationRight,
             pos=(0.34, 0, 0.36),
             command=self.__handleRightResolutionClicked,
             extraArgs=[]
@@ -143,7 +139,7 @@ class OptionsTabPage(DirectFrame):
             text_align=TextNode.ALeft,
             pos=(-0.45, 0, 0.10)
         )
-        isFullscreen = settings.get('fullscreen', False)
+        isFullscreen = settings.get(SettingsGlobals.Fullscreen, False)
         self.fullscreenRadio = TTRadioButton.TTRadioButton(
             parent=self.rightFrame, selected=isFullscreen, value='fullscreen', pos=(-0.11, 0, 0.22)
         )
@@ -157,7 +153,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             pos=(-0.36, 0.0, -0.28),
             text_align=TextNode.ALeft,
-            text='VSync',
+            text=TTLocalizer.OptionsPageVSync,
         )
         self.vsyncCheckBox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
@@ -177,7 +173,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             pos=(-0.36, 0.0, -0.17),
             text_align=TextNode.ALeft,
-            text='Show FPS',
+            text=TTLocalizer.OptionsPageShowFps,
         )
         self.showFpsCheckBox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
@@ -189,7 +185,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             pos=(-0.36, 0.0, -0.39),
             text_align=TextNode.ALeft,
-            text='Animation Smoothing'
+            text=TTLocalizer.OptionsPageAnimationSmoothing
         )
         self.animationSmoothingCheckBox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
@@ -210,7 +206,7 @@ class OptionsTabPage(DirectFrame):
             pos=(-0.04, 0.0, -0.57),
             text_align=TextNode.ALeft,
             text_fg=ColorGlobals.CRed,
-            text='* Requires Restart'
+            text='* %s' % TTLocalizer.OptionsPageRequiresRestart
         )
         self.requiresRestart = False
         self.animationSmoothingRequiresRestartLabel.hide()
@@ -332,19 +328,14 @@ class OptionsTabPage(DirectFrame):
         )
         row += 1
 
-        self.speedChatStyleLeftArrow = DirectButton(
+        self.speedChatStyleLeftArrow = TTArrow(
             parent=self,
-            relief=None,
-            image=arrowImg,
-            image3_color=Vec4(1, 1, 1, 0.5),
-            scale=(-1.0, 1.0, 1.0),
+            orientation=TTArrow.OrientationLeft,
             pos=(0.25, 0, rightYBase - textRowHeight * row),
             command=self.__doSpeedChatStyleLeft)
-        self.speedChatStyleRightArrow = DirectButton(
+        self.speedChatStyleRightArrow = TTArrow(
             parent=self,
-            relief=None,
-            image=arrowImg,
-            image3_color=Vec4(1, 1, 1, 0.5),
+            orientation=TTArrow.OrientationRight,
             pos=(0.65, 0, rightYBase - textRowHeight * row),
             command=self.__doSpeedChatStyleRight
         )
@@ -381,10 +372,14 @@ class OptionsTabPage(DirectFrame):
             command=self.__doToggleWantFriends
         )
 
+        if (base.isSinglePlayer or base.isHosting):
+            text = TTLocalizer.OptionsDisconnect
+        else:
+            text = TTLocalizer.OptionsLeaveServer
         self.exitButton = TTButton.TTButton(
             parent=self,
             buttonScale=1.15,
-            text=TTLocalizer.OptionsDisconnect,
+            text=text,
             pos=(-0.45, 0, -0.53),
             command=self.__handleExitServerShowWithConfirm
         )
@@ -430,8 +425,6 @@ class OptionsTabPage(DirectFrame):
             disable=not base.wantCustomControls,
             command=self.__openKeyRemapDialog
         )
-        gui.removeNode()
-
         self.setOptionsState(self.VideoState)
 
     def enter(self):
@@ -441,7 +434,7 @@ class OptionsTabPage(DirectFrame):
         self.speedChatStyleText.enter()
         self.speedChatStyleIndex = base.localAvatar.getSpeedChatStyleIndex()
         self.updateSpeedChatStyle()
-        if self.parent.book.safeMode:
+        if self._parent.book.safeMode:
             self.exitButton.hide()
             self.toonselectButton.hide()
         else:
@@ -888,7 +881,20 @@ class OptionsTabPage(DirectFrame):
         self.__videoOptionsChanged()
 
     def getResIndex(self):
-        res = tuple(settings.get('res', base.getSmallestResolution()))
+        res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
+        if res not in self.screenSizes:
+            # The player's resolution is not in our screen sizes, this means they changed it to be something
+            # incompatible or our res detection couldn't find a resolution for their native ratio so we have invalid
+            # values for our self.screenSizes...
+            newRes = base.getSmallestResolution()
+            # Getting the new smallest resolution above will adapt
+            # base.calcRatio, so we must get a new set of
+            # screenSizes
+            self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
+            if res not in self.screenSizes:
+                # Our resolution is STILL not in these screen sizes, the user must be involved with this confusion
+                # so we will reset their res to the smallest resolution
+                res = newRes
         return self.screenSizes.index(res)
 
     def updateSpeedChatStyle(self):
@@ -911,13 +917,13 @@ class OptionsTabPage(DirectFrame):
             0,
             self.speedChatStyleText.getPos()[2])
         if self.speedChatStyleIndex > 0:
-            self.speedChatStyleLeftArrow['state'] = DGG.NORMAL
+            self.speedChatStyleLeftArrow.enable()
         else:
-            self.speedChatStyleLeftArrow['state'] = DGG.DISABLED
+            self.speedChatStyleLeftArrow.disable()
         if self.speedChatStyleIndex < len(OptionsPageGlobals.speedChatStyles) - 1:
-            self.speedChatStyleRightArrow['state'] = DGG.NORMAL
+            self.speedChatStyleRightArrow.enable()
         else:
-            self.speedChatStyleRightArrow['state'] = DGG.DISABLED
+            self.speedChatStyleRightArrow.disable()
         base.localAvatar.b_setSpeedChatStyleIndex(self.speedChatStyleIndex)
 
     def writeDisplaySettings(self, task=None):
@@ -928,13 +934,19 @@ class OptionsTabPage(DirectFrame):
         settings['fullscreen'] = self.displaySettingsFullscreen
 
     def __handleExitServerShowWithConfirm(self):
+        if base.isHosting:
+            message = TTLocalizer.OptionsPageExitConfirmMultiplayerHost
+        else:
+            message = TTLocalizer.OptionsPageExitConfirmMultiplayer
+        if base.isSinglePlayer:
+            message = TTLocalizer.OptionsPageExitConfirmSingleplayer
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent='confirmDone',
-            message=TTLocalizer.OptionsPageExitConfirm,
+            message=message,
             style=TTDialog.TwoChoice
         )
         self.confirm.show()
-        self.parent.doneStatus = {'mode': 'exit',
+        self._parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'disconnect'}
         self.accept('confirmDone', self.__handleConfirm)
 
@@ -944,7 +956,7 @@ class OptionsTabPage(DirectFrame):
             message=TTLocalizer.OptionsPagePickAToonConfirm,
             style=TTDialog.TwoChoice)
         self.confirm.show()
-        self.parent.doneStatus = {'mode': 'exit',
+        self._parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'closeShard'}
         self.accept('confirmDone', self.__handleConfirm)
 
@@ -955,7 +967,7 @@ class OptionsTabPage(DirectFrame):
         del self.confirm
         if status == 'ok':
             base.cr._userLoggingOut = True
-            messenger.send(self.parent.doneEvent)
+            messenger.send(self._parent.doneEvent)
 
     def __back(self):
         status = self.confirm.doneStatus
@@ -964,7 +976,7 @@ class OptionsTabPage(DirectFrame):
         del self.confirm
         if status == 'ok':
             base.cr._userLoggingOut = True
-            messenger.send(self.parent.doneEvent)
+            messenger.send(self._parent.doneEvent)
             # Have this button disconnect you and bring you all the way back to the main menu like the one on the Toon Select screen
             base.cr.loginFSM.request('mainMenu')
             base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')
