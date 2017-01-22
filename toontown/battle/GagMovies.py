@@ -207,9 +207,11 @@ def cannonAttack(battle, tma):
 
     cannon = Model.CannonModel.getActor()
     cannon.reparentTo(battle)
-    cannonPos = toon.getPos(battle)
-    cannonPos = (cannonPos[0], cannonPos[1], cannonPos[2] - 8)
-    cannon.setScale(0.6)
+    cannonPos = cannon.getPos()
+    cannonPos = (cannonPos[0], cannonPos[1] - 2, cannonPos[2] - 8)
+    cannonToPos = (cannonPos[0], cannonPos[1], cannonPos[2] + 8)
+
+    cannon.setScale(0.55)
     cannon.hide()
     kapow = Model.KapowModel.getActor()
     kapow.setBillboardPointEye()
@@ -222,7 +224,6 @@ def cannonAttack(battle, tma):
 
     cannonTrack = Sequence(
         # Initialize cannon and barrel
-        Func(shadow.hide),
         Func(cannon.show),
         Func(cannon.headsUp, suit),
         Func(cannon.setPos, cannonPos),
@@ -230,7 +231,7 @@ def cannonAttack(battle, tma):
         Func(barrel.setHpr, 0, 90, 0),
         # Make cannon raise from floor
         Parallel(
-            LerpPosInterval(cannon, 0.4, (0, 0, 0), blendType='easeOut'),
+            LerpPosInterval(cannon, 0.4, cannonToPos, blendType='easeOut'),
             SoundInterval(Sound.CannonAdjustSound.getSound(), duration=1, node=cannon),
             Sequence(
                 Wait(0.2),
@@ -264,7 +265,7 @@ def cannonAttack(battle, tma):
             LerpHprInterval(barrel, 0.4, (0, 90, 0), blendType='easeInOut'),
             Sequence(
                 Wait(0.2),
-                LerpPosInterval(cannon, 0.6, (0, 0, -8), blendType='easeIn'),
+                LerpPosInterval(cannon, 0.6, cannonPos, blendType='easeIn'),
             )
         ),
     )
@@ -289,7 +290,16 @@ def cannonAttack(battle, tma):
                 )
             ),
         )
-    return Sequence(toonTrack, Parallel(cannonTrack, suitTrack))
+    return Parallel(
+        toonTrack,
+        Sequence(
+            Wait(2.5),
+            Parallel(
+                cannonTrack,
+                suitTrack
+            )
+        )
+    )
 
 
 GagToMovieFunc = {
