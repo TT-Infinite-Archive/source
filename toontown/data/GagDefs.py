@@ -117,7 +117,7 @@ Gags = {
     6: Gag(6, 'Fruit Pie', DamageEffect(0, 24), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 4),
     7: Gag(7, 'Cream Pie', DamageEffect(0, 32), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 5),
     8: Gag(8, 'Birthday Cake', DamageEffect(0, 80), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 6),
-    9: Gag(9, 'Cannon', DamageEffect(0, 80), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityEpic, 7),
+    9: Gag(9, 'Cannon', DamageEffect(0, 80), Gag.TargetSingleEnemy, Track.TrackNone, Gag.RarityEpic, 7),
     PASS: Gag(99, 'Pass', None, 0, Track.TrackNone, Gag.RarityCommon, 0),
 }
 

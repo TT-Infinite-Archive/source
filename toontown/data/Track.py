@@ -16,7 +16,7 @@ TrackThrow = 6
 TrackDrop = 7
 
 Tracks = [
-    Track(0, TTLocalizer.lNone),
+    Track(0, TTLocalizer.lNormal),
     Track(1, TTLocalizer.TrackToonUp),
     Track(2, TTLocalizer.TrackLure),
     Track(3, TTLocalizer.TrackTrap),
