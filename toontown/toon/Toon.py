@@ -1247,6 +1247,11 @@ class Toon(Avatar.Avatar, ToonHead):
         visibleHands = [hand for hand in hands if not hand.isHidden()]
         return visibleHands[0] if len(visibleHands) > 0 else None
 
+    def getLeftHand(self):
+        hands = self.getLeftHands()
+        visibleHands = [hand for hand in hands if not hand.isHidden()]
+        return visibleHands[0] if len(visibleHands) > 0 else None
+
     def getRightHands(self):
         return self.rightHands
 

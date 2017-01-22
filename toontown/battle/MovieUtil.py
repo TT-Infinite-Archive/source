@@ -5,7 +5,7 @@ from direct.interval.IntervalGlobal import *
 
 import BattleParticles
 from BattleProps import *
-from toontown.data import Sound
+from toontown.data import Sound, Model
 from toontown.suit.SuitBuffGlobals import SuitBuffAvenger
 from toontown.toonbase import TTLocalizer
 
@@ -724,3 +724,29 @@ def animateAv(av, animName):
         ActorInterval(av, animName),
         Func(av.loop, 'neutral')
     )
+
+
+def toonButtonTrack(toon):
+    toonTrack = Sequence(
+        animateAv(toon, 'pushbutton')
+    )
+    button = Model.ButtonModel.getActor()
+    hand = toon.getLeftHand()
+    buttonTrack = Sequence(
+        # Show and grow
+        Func(button.reparentTo, hand),
+        Func(button.show),
+        LerpScaleInterval(button, 1.0, button.getScale(), startScale=Point3(0.01, 0.01, 0.01)),
+        # Wait for toon to press
+        Wait(2.5),
+        # Shrink and hide
+        LerpScaleInterval(button, 1.0, Point3(0.01, 0.01, 0.01), startScale=button.getScale()),
+        Func(button.hide),
+        Func(button.destroy)
+    )
+    return Parallel(toonTrack, buttonTrack)
+
+
+def getSuitHeadPos(suit, battle):
+    suitPos = suit.getPos(battle)
+    return Point3(suitPos[0], suitPos[1], suitPos[2] + suit.getHeight())

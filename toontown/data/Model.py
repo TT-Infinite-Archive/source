@@ -6,10 +6,13 @@ from panda3d.core import VBase4, VBase3
 class ActorFactory:
     def __init__(self, model=None, anims=None, scale=VBase3(1, 1, 1), color=VBase4(1, 1, 1, 1)):
         self.model = model
-        self.anims = anims
         self.scale = scale
         self.color = color
         self.events = {}
+        if anims is None:
+            self.anims = {}
+        else:
+            self.anims = anims
 
     def getActor(self):
         actor = TTActor(self.model, self.anims, self.events)
@@ -24,8 +27,10 @@ class ActorFactory:
 class TTActor(Actor.Actor):
     def __init__(self, model, anims, events):
         Actor.Actor.__init__(self, model, anims)
-        self.anims = anims
         self.events = events
+        if anims is None:
+            anims = {}
+        self.anims = anims
         if self.events.get('create'):
             self.events['create'](self)
 
@@ -55,6 +60,13 @@ FruitPieModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.75)
 CreamPieModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.85)
 BirthdayCakeModel = ActorFactory('phase_5/models/props/birthday-cake-mod', {'stand': 'phase_5/models/props/birthday-cake-chan'})
 BirthdayCakeModel.addEvent('create', lambda actor: actor.loop('stand'))
+ButtonModel = ActorFactory('phase_3.5/models/props/button')
+CannonModel = ActorFactory('phase_4/models/minigames/toon_cannon')
+KapowModel = ActorFactory(
+    'phase_5/models/props/kapow-mod',
+    {'kapow': 'phase_5/models/props/kapow-chan'},
+    scale=0.25
+)
 
 TartSplatModel = ActorFactory(
     'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
