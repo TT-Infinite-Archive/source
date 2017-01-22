@@ -26,5 +26,6 @@ SplatSound02 = Sound(5, 'splat-2', 'phase_5/audio/sfx/AA_slice_only.ogg', 0.4)
 SplatSound03 = Sound(6, 'splat-3', 'phase_4/audio/sfx/AA_wholepie_only.ogg', 0.4)
 CannonFireSound = Sound(7, 'kapow', 'phase_4/audio/sfx/MG_cannon_fire_alt.ogg', 1.58)
 CannonAdjustSound = Sound(8, 'cannon-adjust', 'phase_4/audio/sfx/MG_cannon_adjust.ogg', 1.22)
+ButtonPressSound = Sound(9, 'button-press', 'phase_5/audio/sfx/AA_drop_trigger_box.ogg', 0.366)
 
 

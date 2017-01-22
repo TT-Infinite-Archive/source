@@ -738,9 +738,16 @@ def toonButtonTrack(toon):
         Func(button.show),
         LerpScaleInterval(button, 1.0, button.getScale(), startScale=Point3(0.01, 0.01, 0.01)),
         # Wait for toon to press
-        Wait(2.5),
-        # Shrink and hide
-        LerpScaleInterval(button, 1.0, Point3(0.01, 0.01, 0.01), startScale=button.getScale()),
+        Wait(1.25),
+        # Play sound
+        Parallel(
+            SoundInterval(Sound.ButtonPressSound.getSound(), node=button),
+            Sequence(
+                Wait(1.25),
+                # Shrink and hide
+                LerpScaleInterval(button, 1.0, Point3(0.01, 0.01, 0.01), startScale=button.getScale())
+            )
+        ),
         Func(button.hide),
         Func(button.destroy)
     )
