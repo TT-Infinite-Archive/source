@@ -27,5 +27,10 @@ SplatSound03 = Sound(6, 'splat-3', 'phase_4/audio/sfx/AA_wholepie_only.ogg', 0.4
 CannonFireSound = Sound(7, 'kapow', 'phase_4/audio/sfx/MG_cannon_fire_alt.ogg', 1.58)
 CannonAdjustSound = Sound(8, 'cannon-adjust', 'phase_4/audio/sfx/MG_cannon_adjust.ogg', 1.22)
 ButtonPressSound = Sound(9, 'button-press', 'phase_5/audio/sfx/AA_drop_trigger_box.ogg', 0.366)
+ReceiveEvidenceSound = Sound(10, 'receive-evidence', 'phase_5/audio/sfx/LB_receive_evidence.ogg', 0.94)
+MailboxWobbleSound = Sound(11, 'mailbox-wobble', 'phase_5/audio/sfx/mailbox_full_wobble.ogg', 2.328)
+TagSound = Sound(12, 'tag-sound', 'phase_5/audio/sfx/MG_tag_1.ogg', 0.549)
+BikeHornSound = Sound(13, 'bike-horn-sound', 'phase_5/audio/sfx/AA_sound_bikehorn.ogg', 0.679)
+
 
 

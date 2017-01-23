@@ -11,6 +11,7 @@ ICON_CREAM_PIE = 8
 ICON_FRUIT_PIE = 9
 ICON_BIRTHDAY_CAKE = 10
 ICON_CANNON = 11
+ICON_BIKE_HORN = 12
 
 ICON_REPOSITORY = {
     0: None,
@@ -25,6 +26,7 @@ ICON_REPOSITORY = {
     ICON_FRUIT_PIE: Icon('Fruit Pie', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_fruitpie'),
     ICON_BIRTHDAY_CAKE: Icon('Birthday Cake', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_cake'),
     ICON_CANNON: ImageIcon('Cannon', 'phase_3.5/maps/toon_cannon.png', scale=0.00025),
+    ICON_BIKE_HORN: Icon('Bike Horn', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_bikehorn')
 }
 
 

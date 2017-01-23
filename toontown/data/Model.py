@@ -67,6 +67,8 @@ KapowModel = ActorFactory(
     {'kapow': 'phase_5/models/props/kapow-chan'},
     scale=0.25
 )
+BikeHornModel = ActorFactory('phase_5/models/props/bikehorn', scale=0.4)
+MegaphoneModel = ActorFactory('phase_5/models/props/megaphone')
 
 TartSplatModel = ActorFactory(
     'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},

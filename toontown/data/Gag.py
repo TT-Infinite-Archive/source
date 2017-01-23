@@ -1,7 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
 
-from toontown.data import Missile, Track, IconGlobals
+from toontown.data import Missile, Track, IconGlobals, Model
 from toontown.data.Effect import DamageEffect
 from toontown.toonbase import ColorGlobals, TTLocalizer
 
@@ -122,6 +122,7 @@ GagToIcon = {
     7: IconGlobals.getIcon(IconGlobals.ICON_CREAM_PIE),
     8: IconGlobals.getIcon(IconGlobals.ICON_BIRTHDAY_CAKE),
     9: IconGlobals.getIcon(IconGlobals.ICON_CANNON),
+    10: IconGlobals.getIcon(IconGlobals.ICON_BIKE_HORN),
     PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)
 }
 
@@ -137,3 +138,6 @@ GagToMissile = {
     8: Missile.BirthdayCakeMissile,
 }
 
+GagToProp = {
+    10: Model.BikeHornModel
+}
