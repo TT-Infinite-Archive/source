@@ -87,7 +87,7 @@ Songs = {
     THEME_CHRISTMAS: ToontownSong(THEME_CHRISTMAS, TTLocalizer.MusicChristmasThemeSong, 'phase_3/audio/bgm/tti_theme_christmas.ogg', 92),
     CREATE_A_TOON: ToontownSong(CREATE_A_TOON, TTLocalizer.MusicCreateAToon, 'phase_3/audio/bgm/create_a_toon.ogg', 175),
     TC_NBR: ToontownSong(TC_NBR, TTLocalizer.MusicTcNbrhood, 'phase_4/audio/bgm/TC_nbrhood.ogg', 58),
-    TC_SZ: ToontownSong(TC_SZ, TTLocalizer.MusicTcSz, 'phase_4/audio/bgm/TC_SZ.ogg', 56),
+    TC_SZ: ToontownSong(TC_SZ, TTLocalizer.MusicTcSz, 'phase_3.5/audio/bgm/TC_SZ.ogg', 56),
     TC_ACT: ToontownSong(TC_ACT, TTLocalizer.MusicTcSzActivity, 'phase_4/audio/bgm/TC_SZ_activity.ogg', 52),
     DD_NBR: ToontownSong(DD_NBR, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_nbrhood.ogg', 66),
     DD_SZ: ToontownSong(DD_SZ, TTLocalizer.MusicDdSz, 'phase_6/audio/bgm/DD_SZ.ogg', 32),

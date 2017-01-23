@@ -41,7 +41,7 @@ web-api-token invalid
 
 # Core features:
 want-kaldron-network #f
-want-multiplayer #f
+want-multiplayer #t
 want-pets #f
 want-parties #f
 want-achievements #f

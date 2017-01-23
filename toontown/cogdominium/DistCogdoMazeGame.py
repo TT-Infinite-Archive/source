@@ -1,13 +1,13 @@
 from direct.distributed.ClockDelta import globalClockDelta
 from toontown.toonbase import TTLocalizer
 from DistCogdoGame import DistCogdoGame
+from toontown.cogdominium.DistCogdoMazeGameBase import DistCogdoMazeGameBase
 from CogdoMazeGame import CogdoMazeGame
 from CogdoMaze import CogdoMazeFactory
 import CogdoMazeGameGlobals
 import CogdoMazeGameGlobals as Globals
 
-
-class DistCogdoMazeGame(DistCogdoGame):
+class DistCogdoMazeGame(DistCogdoGame, DistCogdoMazeGameBase):
     notify = directNotify.newCategory('DistCogdoMazeGame')
 
     def __init__(self, cr):
@@ -16,6 +16,7 @@ class DistCogdoMazeGame(DistCogdoGame):
         self._numSuits = (0, 0, 0)
 
     def delete(self):
+        del self.randomNumGen
         del self.game
         DistCogdoGame.delete(self)
 
@@ -26,6 +27,7 @@ class DistCogdoMazeGame(DistCogdoGame):
         return TTLocalizer.CogdoMazeGameInstructions
 
     def generate(self):
+        self.randomNumGen = self.createRandomNumGen()
         DistCogdoGame.generate(self)
 
     def placeEntranceElev(self, elev):
@@ -37,12 +39,12 @@ class DistCogdoMazeGame(DistCogdoGame):
 
     def enterLoaded(self):
         DistCogdoGame.enterLoaded(self)
-        mazeFactory = self.createMazeFactory()
+        mazeFactory = self.createMazeFactory(self.createRandomNumGen())
         bossCode = None
         if self._numSuits[0] > 0:
             bossCode = ''
             for u in xrange(self._numSuits[0]):
-                bossCode += '%X' % random.randint(0, 15)
+                bossCode += '%X' % self.randomNumGen.randint(0, 15)
 
         self.game.load(mazeFactory, self._numSuits, bossCode)
         return
@@ -85,9 +87,6 @@ class DistCogdoMazeGame(DistCogdoGame):
         DistCogdoGame.exitFinish(self)
         self.game.endFinish()
         self.game.offstage()
-
-    def createMazeFactory(self):
-        return CogdoMazeFactory(Globals.NumQuadrants[0], Globals.NumQuadrants[1])
 
     def setNumSuits(self, numSuits):
         self._numSuits = numSuits

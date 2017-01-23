@@ -9,7 +9,10 @@ class DistributedCFOElevator(DistributedBossElevator.DistributedBossElevator):
     def __init__(self, cr):
         DistributedBossElevator.DistributedBossElevator.__init__(self, cr)
         self.type = ELEVATOR_CFO
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if base.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
 
     def setupElevator(self):
         self.elevatorModel = loader.loadModel('phase_10/models/cogHQ/CFOElevator')

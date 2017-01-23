@@ -14,7 +14,10 @@ class DistributedElevatorAI(DistributedObjectAI.DistributedObjectAI):
     def __init__(self, air, bldg, numSeats = 4, antiShuffle = 0, minLaff = 0):
         DistributedObjectAI.DistributedObjectAI.__init__(self, air)
         self.type = ELEVATOR_NORMAL
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if simbase.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
         self.bldg = bldg
         self.bldgDoId = bldg.getDoId()
         self.seats = []

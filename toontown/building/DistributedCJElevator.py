@@ -9,7 +9,10 @@ class DistributedCJElevator(DistributedBossElevator.DistributedBossElevator):
     def __init__(self, cr):
         DistributedBossElevator.DistributedBossElevator.__init__(self, cr)
         self.type = ELEVATOR_CJ
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if base.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
 
     def setupElevator(self):
         self.elevatorModel = loader.loadModel('phase_11/models/lawbotHQ/LB_Elevator')

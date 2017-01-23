@@ -70,6 +70,10 @@ want-resistance-grounds #f
 # Cog headquarters:
 want-cog-headquarters #t
 
+# Cog buildings:
+want-cogbuildings #t
+want-cogdominiums #t
+
 # Cashbot boss:
 want-resistance-toonup #t
 want-resistance-restock #t

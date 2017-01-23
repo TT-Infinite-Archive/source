@@ -87,6 +87,7 @@ class AIBase:
         self.wantSwitchboardHacks = self.config.GetBool('want-switchboard-hacks', 0)
         self.GEMdemoWhisperRecipientDoid = self.config.GetBool('gem-demo-whisper-recipient-doid', 0)
         self.sqlAvailable = self.config.GetBool('sql-available', 1)
+        self.isSinglePlayer = self.config.GetBool('want-singleplayer', 0)
         self.backups = BackupManager.BackupManager(
             filepath=self.config.GetString('backups-filepath', 'backups/'),
             extension=self.config.GetString('backups-extension', '.json'))
