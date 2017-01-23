@@ -3,7 +3,7 @@ import random
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
 from toontown.battle import BattleAttack
-from toontown.data import Gag
+from toontown.data import Gag, GagDefs
 
 
 class BattleCalculatorAI:
@@ -30,7 +30,7 @@ class BattleCalculatorAI:
             tma = BattleAttack.MovieAttack()
             tma.fromList(ta.toList() + [False])
             # Get the gag object for this attack id
-            gag = Gag.Gags.get(ta.attackId)
+            gag = GagDefs.Gags.get(ta.attackId)
             # Check if its a real gag
             if gag is not None:
                 # Check if attack hit

@@ -2,7 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectButton import DirectButton, DGG
 from direct.gui.DirectFrame import DirectFrame
 
-from toontown.data import Gag, Track
+from toontown.data import Gag, Track, GagDefs
 from toontown.toon.ClerkLoadoutGui import ClerkLoadoutGui
 from toontown.toonbase import ToontownGlobals, EventGlobals, TTLocalizer
 from toontown.toontowngui.TTGui import TTLabel, TTArrow, TTArrowSelectorGroup, TTSeperator, TTFrame, TTTooltip
@@ -119,7 +119,7 @@ class LoadoutSelectGui(DirectFrame):
     def loadGags(self, filterIdx=0, callback=None):
         self.status['text'] = TTLocalizer.lLoading
         self.cleanupGagIcons()
-        gags = [gag for gag in Gag.Gags.values() if gag.uid not in Gag.AlwaysEquipped]
+        gags = [gag for gag in GagDefs.Gags.values() if gag.uid not in Gag.AlwaysEquipped]
         if filterIdx != 0:
             # We want to filter tracks
             trackId = 0
@@ -215,6 +215,7 @@ class GagSelectGagButton(DirectButton):
             parent=self,
             relief=None,
             image=None if gag is None else gag.icon,
+            image_scale=1.0 if gag is None else gag.displayObject.scale,
             state=(DGG.NORMAL if gag is not None else DGG.DISABLED),
             command=self.__handleGagSelected
         )

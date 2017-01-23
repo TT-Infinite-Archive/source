@@ -5,7 +5,7 @@ from direct.fsm import StateData
 import TownBattleChooseAvatarPanel
 import TownBattleToonPanel
 import TownBattleWaitPanel
-from toontown.data import Gag
+from toontown.data import Gag, GagDefs
 from toontown.toonbase import ToontownTimer, EventGlobals
 
 
@@ -171,7 +171,7 @@ class TownBattle(StateData.StateData):
         self.notify.debug('attackSelected: %s' % attackId)
         self.attackId = attackId
         self.updateChosenAttacks()
-        gag = Gag.Gags[attackId]
+        gag = GagDefs.Gags[attackId]
         if gag.requiresTarget():
             self.fsm.request('ChooseTarget')
         else:
@@ -186,7 +186,7 @@ class TownBattle(StateData.StateData):
     def enterChooseTarget(self):
         if self.choosePanel is None:
             return
-        self.choosePanel.setAttack(Gag.Gags.get(self.attackId))
+        self.choosePanel.setAttack(GagDefs.Gags.get(self.attackId))
         self.accept(EventGlobals.ChooserPick, self.__handleChoosePanelPick)
         self.accept(EventGlobals.ChooserBack, self.__handleChoosePanelBack)
         self.choosePanel.show()
@@ -222,7 +222,7 @@ class TownBattle(StateData.StateData):
         self.waitPanel.hide()
 
     def __handleAttackWaitBack(self):
-        gag = Gag.Gags[self.attackId]
+        gag = GagDefs.Gags[self.attackId]
         if gag.requiresTarget():
             self.fsm.request('ChooseTarget')
         else:

@@ -2,7 +2,8 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import DirectFrame
 from panda3d.core import Vec4
 
-from toontown.data.Gag import Gags, Gag
+from toontown.data.GagDefs import Gags
+from toontown.data.Gag import Gag
 from toontown.toon import LaffMeter
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel

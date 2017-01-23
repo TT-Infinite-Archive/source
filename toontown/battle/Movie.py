@@ -447,7 +447,7 @@ class Movie(DirectObject.DirectObject):
         for tma in self.toonMovieAttacks:
             if tma.attackId == PASS:
                 continue
-            attack = Gag.Gags.get(tma.attackId)
+            attack = GagDefs.Gags.get(tma.attackId)
             if attack is None:
                 continue
             elif attack.targetsAlly() and type == HEAL:

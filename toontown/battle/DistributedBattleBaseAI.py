@@ -11,7 +11,7 @@ from toontown.battle import BattleGlobals
 from toontown.battle import SuitBattleGlobals
 from toontown.battle.BattleBase import BattleBase
 from toontown.battle.BattleCalculatorAI import BattleCalculatorAI
-from toontown.data import Gag
+from toontown.data import Gag, GagDefs
 from toontown.toonbase import ToontownGlobals
 
 
@@ -652,7 +652,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             # This attack is not equipped, and needs to be equipped
             self.notify.warning('Toon %s tried to use an attack he doesnt have equipped' % toonId)
             return
-        attack = Gag.Gags.get(attackId)
+        attack = GagDefs.Gags.get(attackId)
         if attack is None and attackId != SuitBattleGlobals.NO_ATTACK:
             # Invalid attackId
             self.notify.warning('Toon %s tried to use an invalid attack %s' % (toonId, attackId))
@@ -779,7 +779,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         for tma in self.toonMovieAttacks:
             if not tma.hit:
                 continue
-            gag = Gag.Gags.get(tma.attackId)
+            gag = GagDefs.Gags.get(tma.attackId)
             if gag is None:
                 self.notify.warning('Attempted to apply invalid gag with id %s' % tma.attackId)
                 return

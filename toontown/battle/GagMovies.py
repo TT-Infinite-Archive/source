@@ -2,7 +2,7 @@ from direct.interval.IntervalGlobal import *
 from panda3d.core import Point3
 
 import MovieUtil
-from toontown.data import Sound, Gag, Model
+from toontown.data import Sound, Gag, Model, GagDefs
 from toontown.toonbase import TTLocalizer
 from toontown.util import PointLib
 
@@ -10,7 +10,7 @@ from toontown.util import PointLib
 def singleTargetThrowMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suit = battle.findSuit(tma.targetId)
-    attack = Gag.Gags[tma.attackId]
+    attack = GagDefs.Gags[tma.attackId]
     missile = Gag.GagToMissile.get(tma.attackId)
     prop = missile.model.getActor()
     hand = toon.getRightHand()
@@ -81,7 +81,7 @@ def singleTargetThrowMovie(battle, tma):
 def multiTargetThrowMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suits = battle.activeSuits
-    attack = Gag.Gags[tma.attackId]
+    attack = GagDefs.Gags[tma.attackId]
     missile = Gag.GagToMissile.get(tma.attackId)
     prop = missile.model.getActor()
     hand = toon.getRightHand()
@@ -193,7 +193,7 @@ def cannonAttack(battle, tma):
     suitHeadPos = MovieUtil.getSuitHeadPos(suit, battle)
     origHpr = toon.getHpr(battle)
     suitColorScale = suit.getColorScale()
-    attack = Gag.Gags[tma.attackId]
+    attack = GagDefs.Gags[tma.attackId]
     if not toon or not suit:
         return Sequence()
     toonTrack = Sequence(
@@ -302,6 +302,70 @@ def cannonAttack(battle, tma):
     )
 
 
+def soundAttack(battle, tma):
+    toon = battle.findToon(tma.attackerId)
+    suits = battle.activeSuits
+    origHpr = toon.getHpr(battle)
+    attack = GagDefs.Gags[tma.attackId]
+    megaphone = Model.MegaphoneModel.getActor()
+    megaphoneScale = megaphone.getScale()
+    instrument = Gag.GagToProp[tma.attackId].getActor()
+    instrument.reparentTo(megaphone)
+    instrument.setPos(-1.1, -1.4, 0.1)
+    instrument.setHpr(145, 0, 0)
+    instrument.hide()
+    instScale = instrument.getScale()
+    rHand = toon.getRightHand()
+    toonTrack = Sequence(
+        # Make the toon do the animation
+        MovieUtil.animateAv(toon, 'sound'),
+    )
+    propTrack = Sequence(
+        # Wait for hand to go fetch
+        Wait(0.4),
+        # Pull out megaphone
+        Func(megaphone.reparentTo, rHand),
+        LerpScaleInterval(megaphone, 0.25, megaphoneScale, startScale=0.001, blendType='easeOut'),
+        # Show instrument
+        Parallel(
+            Func(instrument.show),
+            LerpScaleInterval(instrument, 0.2, instScale, startScale=(0.001), blendType='easeInOut'),
+            SoundInterval(Sound.TagSound.getSound(), node=megaphone)
+        ),
+        # Wait for toon to push forward
+        Wait(1.3),
+        SoundInterval(Sound.BikeHornSound.getSound(), node=instrument),
+        # Make props shrink
+        Parallel(
+            LerpScaleInterval(instrument, 0.2, 0.001, startScale=instScale, blendType='easeInOut'),
+            Sequence(
+                Wait(1.5),
+                LerpScaleInterval(megaphone, 0.25, 0.001, startScale=megaphoneScale, blendType='easeOut')
+            )
+        ),
+        # Cleanup props
+        Func(instrument.destroy),
+        Func(megaphone.destroy)
+    )
+    if tma.hit:
+        suitTrack = Sequence(
+            # Wait for sound to go off
+            Wait(2.8)
+        )
+        hitTrack = Parallel()
+        for suit in suits:
+            hitTrack.append(Parallel(
+                MovieUtil.animateAv(suit, 'pie-small-react'),
+                Func(attack.effect.applyTo, suit),
+                Func(suit.updateHealthBar)
+            ))
+        suitTrack.append(hitTrack)
+    else:
+        # TODO: Implement miss
+        suitTrack = Sequence()
+    return Parallel(toonTrack, propTrack, suitTrack)
+
+
 GagToMovieFunc = {
     0: None,
     1: singleTargetThrowMovie,
@@ -313,5 +377,6 @@ GagToMovieFunc = {
     7: singleTargetThrowMovie,
     8: singleTargetThrowMovie,
     9: cannonAttack,
+    10: soundAttack,
     Gag.PASS: None
 }

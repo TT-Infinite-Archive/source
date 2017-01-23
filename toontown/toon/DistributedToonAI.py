@@ -23,7 +23,7 @@ from toontown.catalog import CatalogItemList
 from toontown.chat import ResistanceChat
 from toontown.coghq import CogDisguiseGlobals
 from toontown.collectibles import StatsAI, CollectibleInventoryGlobals, CollectibleInventoryAI
-from toontown.data import Gag
+from toontown.data import Gag, GagDefs
 from toontown.estate import FlowerBasket, FlowerCollection, GardenGlobals
 from toontown.fishing import FishCollection, FishTank
 from toontown.golf import GolfGlobals
@@ -5470,7 +5470,7 @@ def unlockGag(gagId):
 @magicWord(category=CATEGORY_PROGRAMMER, types=[int, int])
 def removeGag(gagId):
     invoker = spellbook.getInvoker()
-    if gagId not in Gag.Gags:
+    if gagId not in GagDefs.Gags:
         return 'Invalid gag id %s' % gagId
 
     if invoker.inventory.removeGag(gagId):

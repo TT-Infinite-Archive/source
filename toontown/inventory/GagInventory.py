@@ -2,7 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
 
 from toontown.toonbase import EventGlobals
-from toontown.data.Gag import Gags
+from toontown.data.GagDefs import Gags
 
 
 class GagInventory(DirectObject):
