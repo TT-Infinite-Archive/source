@@ -24,7 +24,7 @@ ICON_REPOSITORY = {
     ICON_CREAM_PIE: Icon('Cream Pie', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_creampie'),
     ICON_FRUIT_PIE: Icon('Fruit Pie', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_fruitpie'),
     ICON_BIRTHDAY_CAKE: Icon('Birthday Cake', 'phase_3.5/models/gui/inventory_icons', nodePathName='inventory_cake'),
-    ICON_CANNON: ImageIcon('Cannon', 'phase_3.5/maps/toon_cannon.png')
+    ICON_CANNON: ImageIcon('Cannon', 'phase_3.5/maps/toon_cannon.png', scale=0.00025),
 }
 
 
