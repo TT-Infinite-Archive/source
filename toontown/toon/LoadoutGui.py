@@ -266,6 +266,7 @@ class GagInfoFrame(DirectFrame):
         self.setTitleColor(gag.rarityColor)
         self.setDescription(gag.description)
         self.setIcon(gag.icon)
+        self.icon['image_scale'] = gag.displayObject.scale
 
     def unsetGag(self):
         self.hide()
