@@ -34,7 +34,10 @@ class DistributedElevator(DistributedObject.DistributedObject):
         self.elevatorPoints = ElevatorPoints
         self.fillSlotTrack = None
         self.type = ELEVATOR_NORMAL
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if base.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
         self.__toonTracks = {}
         self.fsm = ClassicFSM.ClassicFSM('DistributedElevator', [State.State('off', self.enterOff, self.exitOff, ['opening',
           'waitEmpty',

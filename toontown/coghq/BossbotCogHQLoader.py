@@ -142,6 +142,7 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         taskMgr.remove('titleText')
         self.hood.hideTitleText()
         self.exitPlace()
+        self.startRain()
         self.placeClass = None
 
     def enterCogHQBossBattle(self, requestStatus):
@@ -165,4 +166,3 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         self.exitPlace()
         self.placeClass = None
         del self.countryClubId
-        self.stopRain()

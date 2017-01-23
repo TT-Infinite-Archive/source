@@ -15,7 +15,10 @@ class DistributedMintElevatorExtAI(DistributedElevatorExtAI.DistributedElevatorE
         self.mintId = mintId
         self.cogDept = ToontownGlobals.cogHQZoneId2deptIndex(self.mintId)
         self.type = ELEVATOR_MINT
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if simbase.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
 
     def getMintId(self):
         return self.mintId

@@ -293,6 +293,13 @@ class MainMenu(DirectObject, FSM):
                 base.cr.music.setVolume(0.9)
                 base.cr.music.play()
 
+        
+        OTPLocalizer.SpeedChatStaticText[30500] = "Welcome to [SERVER NAME]'s Toontown Infinite server!"
+        OTPLocalizer.SpeedChatStaticText[30502] = "Are you livestreaming?"
+        OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
+        OTPLocalizer.SpeedChatStaticText[30506] = "When do you think those tunnels will open?"
+        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."
+
         self.background.show()
         self.logo.show()
         if not base.wantMultiplayer:
