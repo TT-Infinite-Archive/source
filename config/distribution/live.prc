@@ -36,8 +36,9 @@ web-api-endpoint https://localhost:8000/api/
 web-api-token invalid
 
 # Core features:
-want-multiplayer #f
-want-pets #t
+want-kaldron-network #f
+want-multiplayer #t
+want-pets #f
 want-parties #f
 want-achievements #f
 want-grouptracker #f

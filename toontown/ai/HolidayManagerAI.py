@@ -223,6 +223,8 @@ class HolidayManagerAI:
         taskMgr.remove('fireworkShowTask')
 
 
+# Disable the startHoliday magic word. Instead, the host will be able to enable certain holidays through the preferences before starting their server.
+"""
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def startHoliday(holidayId):
     if simbase.air.holidayManager.isHolidayRunning(holidayId):
@@ -241,3 +243,4 @@ def stopHoliday(holidayId):
     simbase.air.holidayManager.magicWordHolidays.remove(holidayId)
     simbase.air.holidayManager.endHoliday(holidayId)
     return 'Successfully stopped holiday %d.' % holidayId
+"""
