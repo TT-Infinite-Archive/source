@@ -10728,7 +10728,7 @@ StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 DedicatedServerDone = 'Done. This server is now live.'
 StartingGame = 'Starting the game momentarily...'
-StartingFailed = 'The %s has failed to start.\n\nPlease make sure the "astron" folder is not missing from your game installation.'
+StartingFailed = 'The %s has failed to start.\n\nSee logs for more information.'
 
 # Debug for Dev Distribution
 MongoDB = 'MongoDB Server'
