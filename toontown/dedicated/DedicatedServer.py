@@ -11,6 +11,7 @@ import yaml
 
 from direct.directnotify.DirectNotifyGlobal import *
 from panda3d.direct import DCFile
+from panda3d.core import StringStream
 from direct.fsm.FSM import FSM
 from toontown.singleplayer.ProcessThread import ProcessThread
 from toontown.singleplayer.SinglePlayerGlobals import *
