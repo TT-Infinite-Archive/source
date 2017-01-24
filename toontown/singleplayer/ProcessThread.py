@@ -30,8 +30,8 @@ class ProcessThread(threading.Thread):
         return self.process.pid
 
     def failed(self):
-        messenger.send('processFailed', [self.name])
         self.killed = True
+        messenger.send('processFailed', [self.name])
 
     def started(self):
         messenger.send('processStarted', [self.name])
