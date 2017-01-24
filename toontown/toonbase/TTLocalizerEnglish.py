@@ -3343,9 +3343,9 @@ FADoorCodes_TALK_TO_HQ_TOM = 'Go get your reward from Toon Headquarters!'
 FADoorCodes_SUIT_APPROACHING = None
 FADoorCodes_BUILDING_TAKEOVER = "Watch out! There's a Cog in there!"
 FADoorCodes_SB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Sellbot Disguise first!\n\nBuild your Sellbot Disguise out of parts from the Factory."
-FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise out of parts from the Mints."
-FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise out of parts from the DA Offices."
-FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise out of parts from the Cog Golf Courses."
+FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise by doing ToonTasks in Dreamland."
+FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise by doing the ToonTasks in The Brrrgh."
+FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise by doing the ToonTasks in Acorn Acres."
 KnockKnockJokes = [['Who', "Bad echo in here, isn't there?"],
  ['Dozen', 'Dozen anybody want to let me in?'],
  ['Freddie', 'Freddie or not, here I come.'],
@@ -9877,9 +9877,9 @@ GolfTimeTieBreakWinner = '%(name)s wins the total aiming time tie breaker!!!'
 RoamingTrialerWeekendStart = 'Tour Toontown is starting! Free players may now enter any neighborhood!'
 RoamingTrialerWeekendOngoing = 'Welcome to Tour Toontown! Free players may now enter any neighborhood!'
 RoamingTrialerWeekendEnd = "That's all for Tour Toontown."
-MoreXpHolidayStart = 'Good news! Exclusive Test Toon double gag experience time has started.'
-MoreXpHolidayOngoing = 'Welcome! Exclusive Test Toon double gag experience time is currently ongoing.'
-MoreXpHolidayEnd = 'Exclusive Test Toon double gag experience time has ended. Thanks for helping us Test things!'
+MoreXpHolidayStart = 'Good news! Double gag experience time has started.'
+MoreXpHolidayOngoing = 'Welcome! Double gag experience time is currently ongoing.'
+MoreXpHolidayEnd = 'Double gag experience time has ended.'
 DoubleProgressionHolidayStart = 'Good news! Double game progression time is live!'
 DoubleProgressionHolidayEnd = "Double game progression has ended. We hope you enjoyed the event!"
 JellybeanDayHolidayStart = "It's Jellybean Day! Get Double Jellybean rewards at Parties!"
@@ -10726,6 +10726,7 @@ ServerRunningAlready = 'A single player session is already in progress.'
 MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
+DedicatedServerDone = 'Done. This server is now live.'
 StartingGame = 'Starting the game momentarily...'
 StartingFailed = 'The %s has failed to start.\n\nSee logs for more information.'
 
@@ -10736,6 +10737,7 @@ District = 'District'
 Uberdog = 'Uberdog Server'
 
 ServerDown = 'Oops! The %s has gone down! A game restart is highly recommended.'
+ServerDownRestart = 'Oops! the %s has gone down! The server will restart momentarily...'
 JukeboxQueueTitle = 'Queue'
 JukeboxSongSelectorTitle = 'Song Picker'
 JukeboxCurrentlyPlayingTitle = 'Currently Playing'
