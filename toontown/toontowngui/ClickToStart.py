@@ -15,18 +15,19 @@ class ClickToStart(DirectObject):
         DirectObject.__init__(self)
 
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
-        self.backgroundModel = loader.loadModel(
-            'phase_3/models/gui/loading-background.bam')
-        self.backgroundModel.reparentTo(self.backgroundNodePath)
-        self.backgroundNodePath.find('**/fg').removeNode()
+        self.background = OnscreenImage(
+            parent=self.backgroundNodePath,
+            image='phase_3/maps/background.jpg'
+        )
+        self.background.setTransparency(TransparencyAttrib.MAlpha)
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             bgTex = loader.loadTexture(
                 'phase_3/maps/loading_bg_clouds_halloween.jpg')
             self.backgroundNodePath.find('**/bg').setTexture(bgTex, 1)
-        self.backgroundNodePath.setScale(1, 1, 1)
+            self.backgroundNodePath.setScale(1, 1, 1)
 
         self.logo = OnscreenImage(
-            parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_logo.png',
+            parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_classic_logo.png',
             scale=(0.75, 1, 0.40), pos=(0, 0, -0.90))
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -92,9 +93,9 @@ class ClickToStart(DirectObject):
             self.backgroundNodePath.removeNode()
             self.backgroundNodePath = None
 
-        if self.backgroundModel is not None:
-            self.backgroundModel.removeNode()
-            self.backgroundModel = None
+        if self.background is not None:
+            self.background.removeNode()
+            self.background = None
 
     def start(self):
         base.transitions.fadeOut(t=0)

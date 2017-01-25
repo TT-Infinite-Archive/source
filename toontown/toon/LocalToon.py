@@ -48,12 +48,12 @@ from toontown.shtiker import MapPage
 from toontown.shtiker import NPCFriendPage
 from toontown.shtiker import OptionsPage
 from toontown.shtiker import QuestPage
-# from toontown.shtiker import ShardPage
+from toontown.shtiker import ShardPage
 from toontown.shtiker import ShtikerBook
 from toontown.shtiker import SocialPage
 from toontown.shtiker import SuitPage
 from toontown.shtiker import TIPPage
-# from toontown.shtiker import TrackPage
+from toontown.shtiker import TrackPage
 from toontown.shtiker import CollectiblePage
 from toontown.toon import ElevatorNotifier
 from toontown.toon import ToonDNA
@@ -382,9 +382,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.optionsPage = OptionsPage.OptionsPage()
         self.optionsPage.load()
         self.book.addPage(self.optionsPage, pageName=TTLocalizer.OptionsPageTitle)
-        # self.shardPage = ShardPage.ShardPage()
-        # self.shardPage.load()
-        # self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
+        self.shardPage = ShardPage.ShardPage()
+        self.shardPage.load()
+        self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
         self.mapPage = MapPage.MapPage()
         self.mapPage.load()
         self.book.addPage(self.mapPage, pageName=TTLocalizer.MapPageTitle)
@@ -394,9 +394,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.questPage = QuestPage.QuestPage()
         self.questPage.load()
         self.book.addPage(self.questPage, pageName=TTLocalizer.QuestPageToonTasks)
-        # self.trackPage = TrackPage.TrackPage()
-        # self.trackPage.load()
-        # self.book.addPage(self.trackPage, pageName=TTLocalizer.TrackPageShortTitle)
+        self.trackPage = TrackPage.TrackPage()
+        self.trackPage.load()
+        self.book.addPage(self.trackPage, pageName=TTLocalizer.TrackPageShortTitle)
         self.suitPage = SuitPage.SuitPage()
         self.suitPage.load()
         self.book.addPage(self.suitPage, pageName=TTLocalizer.SuitPageTitle)
