@@ -47,7 +47,7 @@ class PairingGameCard(PlayingCardNodePath):
         oneCard.reparentTo(self)
         cardBack = oneCard.find('**/sign2')
         cardBack.setColorScale(0.12, 0.35, 0.5, 1.0)
-        cardModel = loader.loadModel('phase_3.5/models/gui/playingCard')
+        cardModel = loader.loadModel('phase_3.5/models/gui/tti_classic_playingCard')
         logo = cardModel.find('**/logo')
         logo.reparentTo(self)
         logo.setScale(0.45)

@@ -835,7 +835,7 @@ CollectibleCheesyEffectGoofy = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectGoofy,
     desc='Equip this to replace your Toon\'s body with Gooby\'s!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/gooby_ce_icon.png',
     scale=0.001,
 )
@@ -844,7 +844,7 @@ CollectibleCheesyEffectBigHead = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectBigHead,
     desc='Equip this to make your Toon\'s head big!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/big_head_ce_icon.png',
     scale=0.001,
 )
@@ -853,7 +853,7 @@ CollectibleCheesyEffectSmallHead = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectSmallHead,
     desc='Equip this to make your Toon\'s head small!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/small_head_ce_icon.png',
     scale=0.001,
 )
@@ -862,7 +862,7 @@ CollectibleCheesyEffectBigLegs = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectBigLegs,
     desc='Equip this to make your Toon\'s legs big!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/big_legs_ce_icon.png',
     scale=0.001,
 )
@@ -871,7 +871,7 @@ CollectibleCheesyEffectSmallLegs = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectSmallLegs,
     desc='Equip this to make your Toon\'s legs small!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/small_legs_ce_icon.png',
     scale=0.001,
 )
@@ -880,7 +880,7 @@ CollectibleCheesyEffectBigToon = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectBigToon,
     desc='Equip this to make your Toon big!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/big_toon_ce_icon.png',
     scale=0.001,
 )
@@ -889,7 +889,7 @@ CollectibleCheesyEffectSmallToon = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectSmallToon,
     desc='Equip this to make your Toon small!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/small_toon_ce_icon.png',
     scale=0.001,
 )
@@ -898,7 +898,7 @@ CollectibleCheesyEffectFlatProfile = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectFlatProfile,
     desc='Equip this to make your Toon flat vertically!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/flat_portrait_ce_icon.png',
     scale=0.001,
 )
@@ -907,7 +907,7 @@ CollectibleCheesyEffectFlatPortrait = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectFlatPortrait,
     desc='Equip this to make your Toon flat horizontally!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/flat_profile_ce_icon.png',
     scale=0.001,
 )
@@ -916,7 +916,7 @@ CollectibleCheesyEffectTransparent = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectTransparent,
     desc='Equip this to make your Toon transparent!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/transparent_ce_icon.png',
     scale=0.001,
 )
@@ -925,7 +925,7 @@ CollectibleCheesyEffectNoColor = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectNoColor,
     desc='Equip this to make your Toon colorless!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/no_color_ce_icon.png',
     scale=0.001,
 )
@@ -934,7 +934,7 @@ CollectibleCheesyEffectInvisible = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectInvisible,
     desc='Equip this to make your Toon invisible!',
-    flavorText='Acquired from Crates of Amusement',
+    flavorText='Acquired from ToonTasks',
     filepath='phase_3.5/maps/invisible_ce_icon.png',
     scale=0.001,
 )

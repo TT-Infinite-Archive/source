@@ -550,7 +550,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         return base.cr.isFriend(avId) or base.cr.playerFriendsManager.isAvatarOwnerPlayerFriend(avId)
 
     def setTalkWhisper(self, fromAV, fromAC, avatarName, chat, mods, flags):
-        if not localAvatar.wantNonFriendWhispers:
+        if not localAvatar.acceptingNonFriendWhispers:
             if not self.isAvFriend(fromAV):
                 return
         if base.cr.ttiFriendsManager.checkIgnored(fromAV):
@@ -580,7 +580,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if not self._isValidWhisperSource(handle):
             self.notify.warning('setWhisperSCEmoteFrom non-toon %s' % fromId)
             return
-        if not localAvatar.wantNonFriendWhispers:
+        if not localAvatar.acceptingNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
         if base.cr.ttiFriendsManager.checkIgnored(fromId):
@@ -602,7 +602,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if not self._isValidWhisperSource(handle):
             self.notify.warning('setWhisperSCFrom non-toon %s' % fromId)
             return
-        if not localAvatar.wantNonFriendWhispers:
+        if not localAvatar.acceptingNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
         if base.cr.ttiFriendsManager.checkIgnored(fromId):
@@ -621,7 +621,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         handle = base.cr.identifyFriend(fromId)
         if handle == None:
             return
-        if not localAvatar.wantNonFriendWhispers:
+        if not localAvatar.acceptingNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
         return DistributedPlayer.DistributedPlayer.setWhisperSCCustomFrom(self, fromId, msgIndex)
@@ -638,7 +638,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if sender is None:
             return
 
-        if not localAvatar.wantNonFriendWhispers:
+        if not localAvatar.acceptingNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
 

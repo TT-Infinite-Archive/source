@@ -40,15 +40,16 @@ class MainMenu(DirectObject, FSM):
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
-            parent=base.aspect2d, image='phase_3/maps/loading_bg_clouds.jpg',
+            parent=base.aspect2d, image='phase_3/maps/background.jpg',
             scale=(2, 1, 1), pos=(0, 0, 0))
 
         # Load the Toontown Infinite logo
-        offset = -0.02
+        offset = -0.04
+
         self.logo = OnscreenImage(
             parent=base.aspect2d,
-            image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.75, 0.35, 0.40), pos=(offset, 0, 0.35)
+            image='phase_3/maps/toontown_infinite_classic_logo.png',
+            scale=(0.8, 0.35, 0.45), pos=(offset, 0, 0.40)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -58,16 +59,16 @@ class MainMenu(DirectObject, FSM):
 
         # Pulsating animation for the logo
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.40), Vec3(0.70, 0.35, 0.375),
+            LerpScaleInterval(self.logo, 4, Vec3(0.80, 0.35, 0.45), Vec3(0.75, 0.35, 0.425),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.375), Vec3(0.75, 0.35, 0.40),
+            LerpScaleInterval(self.logo, 4, Vec3(0.75, 0.35, 0.425), Vec3(0.80, 0.35, 0.45),
                               blendType='easeInOut')
         )
         self.logoScaleTrack.loop()
 
         # Main Menu Buttons
         self.singlePlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.2),
+            pos=(0, 0, -0.25),
             text="Single Player",
             wantArrows=False,
             image_scale=buttonScale,
@@ -81,7 +82,7 @@ class MainMenu(DirectObject, FSM):
         self.buttons.append(self.singlePlayerButton)
 
         self.multiPlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.5),
+            pos=(0, 0, -0.6),
             text="Multiplayer",
             wantArrows=False,
             image_scale=buttonScale,
@@ -94,21 +95,6 @@ class MainMenu(DirectObject, FSM):
         )
         self.buttons.append(self.multiPlayerButton)
 
-        self.kaldronNetworkButton = MATShuffleButton(
-            pos=(0, 0, -0.8),
-            text="Kaldron\nNetwork",
-            text_pos=(0, 0.02, 0),
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.08,
-            text2_scale=0.085,
-            text1_scale=0.085,
-            command=lambda: self.request('')
-        )
-        self.buttons.append(self.kaldronNetworkButton)
-
         # Load the lock icon image for disabled buttons
         lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
 
@@ -118,25 +104,12 @@ class MainMenu(DirectObject, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.50),
+            pos=(0.35, 0, -0.59),
             suppressMouse=True,
             state=DGG.DISABLED
         )
 
         self.lockIcon.hide()
-
-        # Lock icon for the Kaldron Interactive Network
-        self.lockIcon2 = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.35, 0, -0.80),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-
-        self.lockIcon2.hide()
 
         # Functionality for enabling and disabling the Multiplayer button
         self.multiPlayerButton['state'] = DGG.DISABLED
@@ -146,15 +119,6 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon.destroy()
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
-
-        # Functionality for enabling and disabling the Kaldron Interactive Network button
-        self.kaldronNetworkButton['state'] = DGG.DISABLED
-        self.kaldronNetworkButton.setColorScale(CGray)
-
-        if base.wantKaldronNetwork:
-            self.lockIcon2.destroy()
-            self.kaldronNetworkButton['state'] = DGG.NORMAL
-            self.kaldronNetworkButton.setColorScale(CDefault)
 
         # Single Player Menu Buttons
         self.spLocalButton = MATShuffleButton(
@@ -323,10 +287,7 @@ class MainMenu(DirectObject, FSM):
 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
-            if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
-                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme_halloween.ogg')
-            else:
-                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
+            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_classic_theme.ogg')
             if base.cr.music is not None:
                 base.cr.music.setLoop(1)
                 base.cr.music.setVolume(0.9)
@@ -336,15 +297,12 @@ class MainMenu(DirectObject, FSM):
         OTPLocalizer.SpeedChatStaticText[30500] = "Welcome to the server!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you livestreaming?"
         OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
-        OTPLocalizer.SpeedChatStaticText[30506] = "When do you think those tunnels will open?"
-        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."
+        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report-classic text channel."
 
         self.background.show()
         self.logo.show()
         if not base.wantMultiplayer:
             self.lockIcon.show()
-        if not base.wantKaldronNetwork:
-            self.lockIcon2.show()
         for button in self.buttons:
             button.show()
 
@@ -354,8 +312,6 @@ class MainMenu(DirectObject, FSM):
             button.hide()
         if not base.wantMultiplayer:
             self.lockIcon.hide()
-        if not base.wantKaldronNetwork:
-            self.lockIcon2.hide()
 
     def enterSinglePlayer(self):
         self.background.show()
@@ -396,11 +352,10 @@ class MainMenu(DirectObject, FSM):
             self.lockIcon3.hide()
 
     def enterSinglePlayerLocal(self):
-        OTPLocalizer.SpeedChatStaticText[30500] = "I'm playing in local play on Toontown Infinite!"
+        OTPLocalizer.SpeedChatStaticText[30500] = "I'm playing local play on Toontown Infinite: Classic Edition!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
         OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
-        OTPLocalizer.SpeedChatStaticText[30506] = 'I wonder when those tunnels will open...'
-        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-report text channel.'
+        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-report-classic text channel.'
         self.__startGameSession(True)
 
     def enterMultiplayerCPHost(self):
