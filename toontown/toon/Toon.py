@@ -2609,7 +2609,7 @@ class Toon(Avatar.Avatar, ToonHead):
             track.append(Func(dust.start))
             track.append(Wait(0.5))
         if toGoofy:
-            if self.playingAnim == 'readBook':
+            if self.playingAnim == 'readBook' or self.isDisguised:
                 # If equipping from book, Don't turn into Gooby yet,
                 # Save it until we close the book.
                 self.wasGoofy = 1
@@ -2663,7 +2663,9 @@ class Toon(Avatar.Avatar, ToonHead):
             self.goofy.setPlayRate(self.playingRate, 'walk')
         elif self.playingAnim in ('jump-idle', 'running-jump-idle'):
             self.goofy.pose('run', 2)
-        if self.isLocal:
+        else:
+            self.goofy.loop('neutral')
+        if self.isLocal():
             base.localAvatar.initCameraPositions()
             base.localAvatar.setCameraPositionByIndex(base.localAvatar.cameraIndex)
 
