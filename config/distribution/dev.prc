@@ -48,8 +48,8 @@ dc-file astron/dclass/vanilla.dc
 # Core features:
 want-kaldron-network #f
 want-multiplayer #t
-want-pets #f
-want-parties #f
+want-pets #t
+want-parties #t
 want-achievements #f
 want-grouptracker #f
 
@@ -79,7 +79,7 @@ want-resistance-restock #t
 want-resistance-dance #t
 
 # Trolley minigames:
-want-ttc-trolley #f
+want-ttc-trolley #t
 want-photo-game #f
 want-travel-game #f
 
@@ -96,13 +96,14 @@ show-population #f
 want-instant-parties #t
 want-quest-verification #t
 want-heartbeat #f
+want-yin-yang #t
 
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
 
 # Safezone interactables:
-want-ttc-jukebox #t
+want-ttc-jukebox #f
 
 # Mod tools:
 want-mods #f
