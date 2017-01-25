@@ -150,7 +150,12 @@ clickToStart.setColorScale(0, 0, 0, 0)
 
 music = None
 if base.musicManagerIsValid:
-    music = loader.loadMusic('phase_3/audio/bgm/tti_classic_theme.ogg')
+    if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
+        music = loader.loadMusic('phase_3/audio/bgm/tti_theme_halloween.ogg')
+    if ToontownGlobals.WACKY_WINTER_DECORATIONS in base.clientHolidayIdList:
+        music = loader.loadMusic('phase_3/audio/bgm/tti_theme_christmas.ogg')
+    else:
+        music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
 
 from toontown.toonbase import TTLocalizer
 from otp.otpbase import OTPLocalizer

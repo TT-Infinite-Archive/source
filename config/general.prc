@@ -1,5 +1,5 @@
 # Window settings:
-window-title Toontown Infinite: Classic Edition
+window-title Toontown Infinite
 win-origin -1 -1
 icon-filename phase_3/etc/icon.ico
 cursor-filename phase_3/etc/toonmono.cur
@@ -96,13 +96,13 @@ want-goofy #f
 want-minigames #t
 want-photo-game #f
 want-travel-game #f
-want-ttc-trolley #t
+want-ttc-trolley #f
 
 # Picnic table board games:
 want-game-tables #f
 
 # Cog headquarters:
-want-cog-headquarters #t
+want-cog-headquarters #f
 want-sellbot-headquarters #t
 want-cashbot-headquarters #t
 want-lawbot-headquarters #t

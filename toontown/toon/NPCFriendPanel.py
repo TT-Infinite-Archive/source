@@ -75,7 +75,7 @@ class NPCFriendCard(DirectFrame):
         self.defineoptions(kw, optiondefs)
         DirectFrame.__init__(self, parent=parent)
         self.initialiseoptions(NPCFriendCard)
-        cardModel = loader.loadModel('phase_3.5/models/gui/tti_classic_playingCard')
+        cardModel = loader.loadModel('phase_3.5/models/gui/playingCard')
         self.front = DirectFrame(parent=self, relief=None, image=cardModel.find('**/card_front'))
         self.front.hide()
         self.back = DirectFrame(parent=self, relief=None, image=cardModel.find('**/card_back'), geom=cardModel.find('**/logo'))
