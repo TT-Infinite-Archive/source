@@ -116,10 +116,6 @@ want-resistance-dance #f
 # Cog battles:
 base-xp-multiplier 1.0
 
-# Cog buildings:
-want-cogbuildings #t
-want-cogdominiums #t
-
 # Optional:
 show-total-population #t
 want-mat-all-tailors #t

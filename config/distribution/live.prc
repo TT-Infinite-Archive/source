@@ -59,6 +59,10 @@ want-resistance-grounds #f
 # Cog headquarters:
 want-cog-headquarters #t
 
+# Cog buildings:
+want-cogbuildings #t
+want-cogdominiums #t
+
 # Sellbot boss:
 disable-sos-card 91917
 disable-sos-card 91918
