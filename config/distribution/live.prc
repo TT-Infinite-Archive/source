@@ -5,10 +5,6 @@ distribution live
 server-version SERVER_VERSION
 accountdb-type developer
 
-# Temporary configuration for SP Alpha
-# until we get our web account API up and running
-access-level-clamp 100 100
-
 # MongoDB:
 mongodb-url mongodb://localhost/game
 
@@ -42,7 +38,7 @@ web-api-token invalid
 # Core features:
 want-kaldron-network #f
 want-multiplayer #t
-want-pets #f
+want-pets #t
 want-parties #f
 want-achievements #f
 want-grouptracker #f
@@ -50,22 +46,18 @@ want-grouptracker #f
 # Safe zones:
 want-safe-zones #t
 want-toontown-central #t
-want-donalds-dock #f
-want-daisys-garden #f
-want-minnies-melodyland #f
-want-the-burrrgh #f
-want-donalds-dreamland #f
-want-goofy-speedway #f
-want-outdoor-zone #f
-want-golf-zone #f
+want-donalds-dock #t
+want-daisys-garden #t
+want-minnies-melodyland #t
+want-the-burrrgh #t
+want-donalds-dreamland #t
+want-goofy-speedway #t
+want-outdoor-zone #t
+want-golf-zone #t
 want-resistance-grounds #f
 
 # Cog headquarters:
-want-cog-headquarters #f
-
-# Cog buildings:
-want-cogbuildings #f
-want-cogdominiums #f
+want-cog-headquarters #t
 
 # Cog buildings:
 want-cogbuildings #t
@@ -81,11 +73,11 @@ want-photo-game #f
 want-travel-game #f
 
 # Chat:
-want-whitelist #f
+want-whitelist #t
 want-blacklist #f
 
 # Developer options:
-want-yin-yang #f
+want-yin-yang #t
 force-skip-tutorial #t
 show-population #f
 want-phone-quest #f
@@ -97,7 +89,7 @@ want-leak-graph-client #f
 want-dev-debug #f
 
 # Safezone interactables:
-want-ttc-jukebox #t
+want-ttc-jukebox #f
 
 # Mod tools:
 want-mods #f
