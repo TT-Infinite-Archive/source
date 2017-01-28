@@ -151,6 +151,82 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
         self.friendsList.append((friendId, friendCode))
 
+    @magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR, types=[str])
+    def system(message):
+        """
+        Broadcasts a message to the server.
+        """
+        # TODO: Make this go through the UberDOG, rather than the AI server.
+        for doId, do in simbase.air.doId2do.items():
+            if isinstance(do, DistributedPlayerAI):
+                if str(doId)[0] != str(simbase.air.districtId)[0]:
+                    do.d_setSystemMessage(0, message)
+
+    @magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR, types=[str, str, int])
+    def accessLevel(accessLevel, storage='PERSISTENT', showGM=1):
+        """
+        Modify the target's access level.
+        """
+        accessName2Id = {
+            'user': CATEGORY_USER.defaultAccess,
+            'u': CATEGORY_USER.defaultAccess,
+            'communitymanager': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
+            'community': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
+            'c': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
+            'moderator': CATEGORY_MODERATOR.defaultAccess,
+            'mod': CATEGORY_MODERATOR.defaultAccess,
+            'm': CATEGORY_MODERATOR.defaultAccess,
+            'creative': CATEGORY_CREATIVE.defaultAccess,
+            'creativity': CATEGORY_CREATIVE.defaultAccess,
+            'c': CATEGORY_CREATIVE.defaultAccess,
+            'programmer': CATEGORY_PROGRAMMER.defaultAccess,
+            'coder': CATEGORY_PROGRAMMER.defaultAccess,
+            'p': CATEGORY_PROGRAMMER.defaultAccess,
+            'administrator': CATEGORY_ADMINISTRATOR.defaultAccess,
+            'admin': CATEGORY_ADMINISTRATOR.defaultAccess,
+            'a': CATEGORY_ADMINISTRATOR.defaultAccess,
+            'systemadministrator': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
+            'systemadmin': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
+            'sysadministrator': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
+            'sysadmin': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
+            'system': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
+            'sys': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
+            's': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess
+        }
+        try:
+            accessLevel = int(accessLevel)
+        except:
+            if accessLevel not in accessName2Id:
+                return 'Invalid access level!'
+            accessLevel = accessName2Id[accessLevel]
+        if accessLevel not in accessName2Id.values():
+            return 'Invalid access level!'
+        target = spellbook.getTarget()
+        invoker = spellbook.getInvoker()
+        if invoker == target:
+            return "You can't set your own access level!"
+        if not accessLevel < invoker.getAdminAccess():
+            return "The target's access level must be lower than yours!"
+        if target.getAdminAccess() == accessLevel:
+            return "{0}'s access level is already {1}!".format(target.getName(), accessLevel)
+        target.b_setAdminAccess(accessLevel)
+        if showGM:
+            target.b_setGM(accessLevel)
+        temporary = storage.upper() in ('SESSION', 'TEMP', 'TEMPORARY')
+        if not temporary:
+            target.air.dbInterface.updateObject(
+                target.air.dbId,
+                target.getDISLid(),
+                target.air.dclassesByName['AccountAI'],
+                {'ACCESS_LEVEL': accessLevel})
+        if not temporary:
+            target.d_setSystemMessage(0, '{0} set your access level to {1}!'.format(invoker.getName(), accessLevel))
+            return "{0}'s access level has been set to {1}.".format(target.getName(), accessLevel)
+        else:
+            target.d_setSystemMessage(0, '{0} set your access level to {1} temporarily!'.format(invoker.getName(),
+                                                                                                accessLevel))
+            return "{0}'s access level has been set to {1} temporarily.".format(target.getName(), accessLevel)
+
     def setChatMode(self, chatMode):
         self.chatMode = chatMode
 

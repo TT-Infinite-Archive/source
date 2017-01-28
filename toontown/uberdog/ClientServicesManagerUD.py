@@ -86,6 +86,37 @@ class DeveloperAccountDB(AccountDB):
 class ProductionDB(AccountDB):
     notify = directNotify.newCategory('ProductionDB')
 
+    def __init__(self, csm):
+        AccountDB.__init__(self, csm)
+        if simbase.isSinglePlayer:
+            self.accessLevel = 700
+        else:
+            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will decide who gets what access via rpc.
+        self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
+
+    def lookupUserId(self, userId):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
+        dict = {'userId': userId, 'success': True}
+
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
+
+        return dict
+
+    def lookup(self, userId, callback):
+        dict = self.lookupUserId(userId)
+        callback(dict)
+        return dict
+
+# Kaldron Network ProductionDB
+"""
+class ProductionDB(AccountDB):
+    notify = directNotify.newCategory('ProductionDB')
+
     def submitNameRequest(self, avId, name, callback, errback):
         payload = {'distribution': config.GetString('distribution'), 'name': name}
         self.csm.air.webApi.execute('names/%d' % avId, payload, 'post', callback=callback, errback=errback)
@@ -121,7 +152,7 @@ class ProductionDB(AccountDB):
         }
 
         callback(response)
-
+"""
 
 # --- FSMs ---
 class OperationFSM(FSM):

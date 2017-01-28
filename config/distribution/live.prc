@@ -3,10 +3,17 @@ distribution live
 
 # Server:
 server-version SERVER_VERSION
-accountdb-type developer
+accountdb-type production
+
+# Temporary configuration for Alpha
+access-level-clamp 100 700
 
 # MongoDB:
 mongodb-url mongodb://localhost/game
+
+# RPC:
+want-rpc-server #f
+rpc-server-endpoint http://localhost:8080/
 
 # UberDOG:
 generate-root-object #t
