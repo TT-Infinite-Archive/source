@@ -10,7 +10,7 @@ model-path ../resources
 # Server:
 server-version dev
 accountdb-type developer
-access-level-clamp 700 700
+access-level-clamp 400 400
 
 # MongoDB:
 mongodb-url mongodb://localhost/game

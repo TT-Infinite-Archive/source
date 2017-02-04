@@ -6,7 +6,7 @@ server-version SERVER_VERSION
 accountdb-type production
 
 # Temporary configuration for Alpha
-access-level-clamp 100 700
+access-level-clamp 100 400
 
 # MongoDB:
 mongodb-url mongodb://localhost/game
