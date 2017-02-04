@@ -91,7 +91,7 @@ class ProductionDB(AccountDB):
         if simbase.isSinglePlayer:
             self.accessLevel = 700
         else:
-            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will need to set their access to 700 via mongo view or rpc.
+            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will need to set their access to 700 via mongo compass or rpc.
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
