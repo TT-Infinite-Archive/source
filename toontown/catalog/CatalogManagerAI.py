@@ -36,7 +36,7 @@ class CatalogManagerAI(DistributedObjectAI):
         self.sendUpdateToAvatarId(avId, 'setPopularItems', [popularItems])
 
 
-@magicWord(category=CATEGORY_PROGRAMMER, types=[])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[])
 def deliverCatalog():
     invoker = spellbook.getInvoker()
     simbase.air.catalogManager.deliverCatalogFor(invoker)

@@ -29,7 +29,7 @@ accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
 
 accessLevelClamp = ConfigVariableString(
-    'access-level-clamp', '100 700',
+    'access-level-clamp', '100 400',
     "Specifies the range in which every user's access level will be confined to.").getValue()
 accessLevelMin = int(accessLevelClamp.split(' ', 1)[0])
 accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
@@ -61,7 +61,7 @@ class DeveloperAccountDB(AccountDB):
     
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 700
+        self.accessLevel = 400
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
     
     def lookupUserId(self, userId):
@@ -89,7 +89,7 @@ class ProductionDB(AccountDB):
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
         if simbase.isSinglePlayer:
-            self.accessLevel = 700
+            self.accessLevel = 400
         else:
             self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will decide who gets what access via rpc.
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])

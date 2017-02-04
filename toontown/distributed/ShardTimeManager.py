@@ -56,12 +56,12 @@ class ShardTimeManager(ShardTimeManagerBase):
             return ShardTimeManagerGlobals.NIGHT_COLOR_SCALE
 
 
-@magicWord(category=CATEGORY_CREATIVE, types=[int])
+@magicWord(category=CATEGORY_MODERATOR, types=[int])
 def timeZone(tz):
     base.cr.shardTimeManager.setTimeZone(tz)
 
 
-@magicWord(category=CATEGORY_CREATIVE, types=[int])
+@magicWord(category=CATEGORY_MODERATOR, types=[int])
 def time(minutes):
     # Set the current time, disregards time zone.
     base.cr.shardTimeManager.setCurrentTime(minutes)

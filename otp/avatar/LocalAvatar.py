@@ -1327,7 +1327,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         return 0
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def crash():
     """
     Crashes your client.
@@ -1335,7 +1335,7 @@ def crash():
     base.localAvatar = None
     return 'Crashed!'
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def run():
     """
     Toggles debugging run speed.
@@ -1343,7 +1343,7 @@ def run():
     inputState.set('debugRunning', inputState.isSet('debugRunning') != True)
     return 'Toggled debug run speed.'
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def collisionsOff():
     """
     Turns collisions off.
@@ -1351,7 +1351,7 @@ def collisionsOff():
     base.localAvatar.collisionsOff()
     return 'Collisions are disabled.'
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def collisionsOn():
     """
     Turns collisions on.
@@ -1371,14 +1371,14 @@ def gravity(value):
     else:
         base.localAvatar.ToontownControlManager.currentControls.setGravity(value)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[float, float, float])
+@magicWord(category=CATEGORY_MODERATOR, types=[float, float, float])
 def xyz(x, y, z):
     """
     Modifies the position of the invoker.
     """
     base.localAvatar.setPos(x, y, z)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[float, float, float])
+@magicWord(category=CATEGORY_MODERATOR, types=[float, float, float])
 def hpr(h, p, r):
     """
     Modifies the rotation of the invoker.

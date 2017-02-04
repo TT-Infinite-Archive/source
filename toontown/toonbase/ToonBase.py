@@ -707,7 +707,7 @@ class ToonBase(OTPBase.OTPBase):
         return res
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def picker(mode=0):
     from toontown.util.TTPicker import TTPicker
     from toontown.util.PlacerTool3D import PlacerTool3D

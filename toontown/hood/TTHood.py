@@ -27,7 +27,7 @@ class TTHood(ToonHood):
     }
 
 
-@magicWord(category=CATEGORY_CREATIVE)
+@magicWord(category=CATEGORY_MODERATOR)
 def spooky():
     """
     Activates the 'spooky' effect on the current area.

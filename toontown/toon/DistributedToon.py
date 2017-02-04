@@ -2753,10 +2753,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             gmType = self._gmType
         iconInfo = [
             (None, None),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'),
             ('phase_3.5/models/gui/tt_m_gui_gm_toonResistance_fist', '**/*fistIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'),
             ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'),
             ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*')
         ]
@@ -2873,7 +2870,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         reason = 'You have been warned by a moderator for: %s' % reason
         self.setSystemMessage(base.localAvatar.doId, reason)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def globalTeleport():
     """
     Activates the global teleport cheat.
@@ -2900,11 +2897,11 @@ def promote(deptIndex):
     invoker.sendUpdate('requestPromotion', [deptIndex])
     return 'Your promotion request has been sent.'
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def autodoor():
     base.cr.doFind('DistributedCogHQDoor').sendUpdate('requestEnter')
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def autoboard():
     invoker = spellbook.getInvoker()
     base.cr.doFind('Boarding').sendUpdate('requestLeave',[invoker.doId])

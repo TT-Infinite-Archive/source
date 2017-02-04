@@ -928,7 +928,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
 
         return activeGoons
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def startCraneRound():
     """
     Skips to the crane round of the CFO.
@@ -951,7 +951,7 @@ def startCraneRound():
     boss.b_setState('BattleThree')
     return 'Starting the crane round...'
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def restartCraneRound():
     """
     Restarts the crane round in the CFO.
@@ -970,7 +970,7 @@ def restartCraneRound():
     boss.b_setState('BattleThree')
     return 'Restarting the crane round...'
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def skipCFO():
     """
     Skips the current round in the CFO.
