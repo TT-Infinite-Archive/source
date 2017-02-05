@@ -38,7 +38,7 @@ accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 700 access automatically upon login.
+# each user with 400 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -91,7 +91,7 @@ class ProductionDB(AccountDB):
         if simbase.isSinglePlayer:
             self.accessLevel = 400
         else:
-            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will need to set their access to 700 via mongo compass or rpc.
+            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will need to set their access to 400 via mongo compass or rpc.
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
