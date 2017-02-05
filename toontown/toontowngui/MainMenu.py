@@ -68,7 +68,7 @@ class MainMenu(DirectObject, FSM):
         # Main Menu Buttons
         self.singlePlayerButton = MATShuffleButton(
             pos=(0, 0, -0.2),
-            text="Single Player",
+            text="Singleplayer",
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
