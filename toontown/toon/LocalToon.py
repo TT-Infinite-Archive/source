@@ -48,7 +48,7 @@ from toontown.shtiker import MapPage
 from toontown.shtiker import NPCFriendPage
 from toontown.shtiker import OptionsPage
 from toontown.shtiker import QuestPage
-from toontown.shtiker import ShardPage
+# from toontown.shtiker import ShardPage
 from toontown.shtiker import PlayerPage
 from toontown.shtiker import ShtikerBook
 from toontown.shtiker import SocialPage
@@ -309,7 +309,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.newsButtonMgr.request('Off')
         self.book.unload()
         del self.optionsPage
-        del self.shardPage
+        # del self.shardPage
         del self.playerPage
         del self.mapPage
         del self.invPage
@@ -384,12 +384,12 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.optionsPage = OptionsPage.OptionsPage()
         self.optionsPage.load()
         self.book.addPage(self.optionsPage, pageName=TTLocalizer.OptionsPageTitle)
-        self.shardPage = ShardPage.ShardPage()
-        self.shardPage.load()
-        self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
+        # self.shardPage = ShardPage.ShardPage()
+        # self.shardPage.load()
+        # self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
         self.playerPage = PlayerPage.PlayerPage()
         self.playerPage.load()
-        self.book.addPage(self.shardPage, pageName=TTLocalizer.PlayerPageTitle)
+        self.book.addPage(self.playerPage, pageName=TTLocalizer.PlayerPageTitle)
         self.mapPage = MapPage.MapPage()
         self.mapPage.load()
         self.book.addPage(self.mapPage, pageName=TTLocalizer.MapPageTitle)

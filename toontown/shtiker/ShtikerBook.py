@@ -36,7 +36,7 @@ class ShtikerBook(DirectFrame, StateData.StateData):
         self.setPos(0, 0, 0.1)
         self.pageOrder = [
             TTLocalizer.OptionsPageTitle,
-            TTLocalizer.ShardPageTitle,
+            # TTLocalizer.ShardPageTitle,
             TTLocalizer.PlayerPageTitle,
             TTLocalizer.MapPageTitle,
             TTLocalizer.InventoryPageTitle,
@@ -223,10 +223,10 @@ class ShtikerBook(DirectFrame, StateData.StateData):
             iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
             iconGeom = iconModels.find('**/switch')
             iconModels.detachNode()
-        elif pageName == TTLocalizer.ShardPageTitle:
-            iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
-            iconGeom = iconModels.find('**/district')
-            iconModels.detachNode()
+        # elif pageName == TTLocalizer.ShardPageTitle:
+            # iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
+            # iconGeom = iconModels.find('**/district')
+            # iconModels.detachNode()
         elif pageName == TTLocalizer.PlayerPageTitle:
             iconModels = loader.loadModel('phase_3.5/models/gui/sos_textures')
             iconGeom = iconModels.find('**/district')
