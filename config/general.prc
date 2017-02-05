@@ -35,6 +35,11 @@ server-timezone EST/EDT/-5
 server-port 7000
 account-server-endpoint https://toontowninfinite.com/api/
 
+# RPC:
+want-rpc-server #f
+rpc-server-endpoint http://localhost:8080/
+rpc-server-secret eWd54mrNYuREmTA6
+
 # Performance:
 sync-video #f
 texture-power-2 none

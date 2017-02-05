@@ -11,10 +11,6 @@ access-level-clamp 100 400
 # MongoDB:
 mongodb-url mongodb://localhost/game
 
-# RPC:
-want-rpc-server #f
-rpc-server-endpoint http://localhost:8080/
-
 # UberDOG:
 generate-root-object #t
 generate-global-object 4688 CentralLogger
@@ -32,10 +28,6 @@ generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 generate-global-object 4901 MegaInvasionManager
-
-# RPC:
-want-rpc-server #f
-rpc-server-endpoint http://localhost:8080/
 
 # Web API:
 want-web-api #f
