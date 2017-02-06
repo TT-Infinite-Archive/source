@@ -1,8 +1,13 @@
-from toontown.data import Track
-from toontown.data.Gag import Gag, PASS
+from toontown.data import Missile, Track, IconGlobals, Model, EffectGlobals
+from toontown.data.Gag import Gag, ThrowGag, PASS
 from toontown.data.Effect import DamageEffect
 
 DefaultGag = Gag(0, 'Nothing but a chuckle', None, 0, Track.TrackNone, Gag.RarityCommon, 0)
+Cupcake = ThrowGag(1, 'Cupcake', EffectGlobals.CupcakeDamage, Gag.TargetSingleEnemy, Gag.RarityCommon, 1, Missile.CupcakeMissile)
+SlicedFruitPie = ThrowGag(2, 'Sliced Fruit Pie', DamageEffect(0, 12), Gag.TargetSingleEnemy, Gag.RarityCommon, 2, Missile.PieSliceMissile)
+GoldenCupcake = ThrowGag(3, 'Golden Cupcake', DamageEffect(0, 999), Gag.TargetEnemies, Gag.RarityLegendary, 9, Missile.GoldenCupcakeMissile)
+RedCupcake = ThrowGag(4, 'Red Cupcake', DamageEffect(0, 1), Gag.TargetEnemies, Gag.RarityRare, 1, Missile.RedCupcakeMissile, chance=0.5)
+SlicedCreamPie = ThrowGag(5, 'Sliced Cream Pie', DamageEffect(0, 16), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 3)
 Gags = {
     0: DefaultGag,
     1: Gag(1, 'Cupcake', DamageEffect(0, 6), Gag.TargetSingleEnemy, Track.TrackThrow, Gag.RarityCommon, 1),

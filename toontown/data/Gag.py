@@ -1,7 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
 
-from toontown.data import Missile, Track, IconGlobals, Model
+from toontown.data import Missile, IconGlobals, Model, Track, EffectGlobals
 from toontown.data.Effect import DamageEffect
 from toontown.toonbase import ColorGlobals, TTLocalizer
 
@@ -21,11 +21,12 @@ class Gag(DirectObject):
     RarityEpic = 2
     RarityLegendary = 3
 
-    def __init__(self, uid, name, effect, targetType, track, rarity, level, chance=1.0):
+    def __init__(self, uid, name, effectId, targetType, track, rarity, level, chance=1.0):
         DirectObject.__init__(self)
         self.uid = uid
         self.name = name
-        self.effect = effect
+        self.effectId = effectId
+        self.effect = EffectGlobals.getEffect(effectId)
         self.targetType = targetType
         self.track = track
         self.chance = chance
@@ -102,6 +103,13 @@ class Gag(DirectObject):
             return self.effect.amount
         else:
             return 0
+
+
+class ThrowGag(Gag):
+    def __init__(self, uid, name, effectId, targetType, rarity, level, missile, chance=1.0, track=Track.TrackThrow):
+        Gag.__init__(self, uid, name, effectId, targetType, track, rarity, level, chance)
+        self.missile = missile
+
 
 NO_ATTACK = 0
 PASS = 99
