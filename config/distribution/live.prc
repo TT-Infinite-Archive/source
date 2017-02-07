@@ -72,8 +72,8 @@ want-photo-game #f
 want-travel-game #f
 
 # Chat:
-want-whitelist #f
-want-blacklist #f
+want-whitelist #t
+want-blacklist #t
 
 # Developer options:
 want-yin-yang #f
