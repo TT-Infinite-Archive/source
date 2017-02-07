@@ -72,7 +72,7 @@ want-photo-game #f
 want-travel-game #f
 
 # Chat:
-want-whitelist #f
+want-whitelist #t
 want-blacklist #f
 
 # Developer options:
