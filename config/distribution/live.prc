@@ -73,7 +73,7 @@ want-travel-game #f
 
 # Chat:
 want-whitelist #t
-want-blacklist #f
+want-blacklist #t
 
 # Developer options:
 want-yin-yang #t
