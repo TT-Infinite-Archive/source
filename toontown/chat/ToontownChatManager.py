@@ -56,6 +56,7 @@ class ToontownChatManager(ChatManager.ChatManager):
         self.chatInputSpeedChat = TTChatInputSpeedChat(self)
         self.normalPos = Vec3(0.25, 0, -0.196)
         self.whisperPos = Vec3(0.3, 0, -0.3)
+        self.SCWhisperpos = Vec3(0, 0, 0)
         self.speedChatPlusPos = Vec3(-0.35, 0, 0.71)
         self.chatInputWhiteList = TTChatInputWhiteList()
         if self.defaultToWhiteList:
@@ -132,6 +133,8 @@ class ToontownChatManager(ChatManager.ChatManager):
         return
 
     def enterMainMenu(self):
+        self.chatInputNormal.setPos(self.normalPos)
+        self.chatInputNormal.reparentTo(base.a2dTopLeft)
         if self.chatInputWhiteList.isActive():
             self.notify.debug('enterMainMenu calling checkObscured')
             ChatManager.ChatManager.checkObscurred(self)
