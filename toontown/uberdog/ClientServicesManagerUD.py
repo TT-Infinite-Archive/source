@@ -628,28 +628,17 @@ class SetNameTypedFSM(AvatarOperationFSM):
             return
 
         if fields['WishNameState'][0] != 'OPEN':
-            self.demand('Kill', 'Avatar is not in a namable state!')
+            self.demand('Kill', 'Avatar is not in a nameable state!')
             return
 
         self.demand('JudgeName')
 
-    def judgeNameCallback(self, response):
-        status = response.get('status', NAME_SUBMISSION_ERROR)
-        if status == NAME_SUBMISSION_ERROR:
-            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, False])
-            self.demand('Off')
-            return
-
-        resp = True
-
-        if status == NAME_SUBMITTED:
-            self.csm.air.dbInterface.updateObject(
-                self.csm.air.dbId,
-                self.avId,
-                self.csm.air.dclassesByName['DistributedToonUD'],
-                {'WishNameState': ('PENDING',),
-                 'WishName': (self.name,)})
-        elif status == NAME_APPROVED:
+    def enterJudgeName(self):
+        chatAgent = self.csm.air.getGlobalObject('ChatAgent')
+        badName = chatAgent.checkBadNames(self.name, nameCheck=True)
+        if badName:
+            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, 0])
+        else:
             self.csm.air.dbInterface.updateObject(
                 self.csm.air.dbId,
                 self.avId,
@@ -657,35 +646,8 @@ class SetNameTypedFSM(AvatarOperationFSM):
                 {'WishNameState': ('APPROVED',),
                  'WishName': (self.name,),
                  'setName': (self.name,)})
-        else:
-            self.notify.warning('Received unknown name status %s for avId %s' % (status, self.avId))
-            self.demand('Kill', 'Invalid name status %s' % status)
-            return
-
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, resp])
+            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, 1])
         self.demand('Off')
-
-    def judgeNameError(self):
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, False])
-        self.demand('Off')
-
-    def isNameAcceptableCallback(self, response):
-        status = response.get('acceptable', False)
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, status])
-        self.demand('Off')
-
-    def isNameAcceptableError(self):
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, False])
-        self.demand('Off')
-
-    def enterJudgeName(self):
-        if self.avId:
-            self.csm.accountDB.submitNameRequest(self.avId, self.name, self.judgeNameCallback, self.judgeNameError)
-            self.csm.air.writeServerEvent('avatarWishname', self.avId, self.name)
-            return
-
-        # Looks like they are just checking if the name hasn't already been denied
-        self.csm.accountDB.isNameAcceptable(self.name, self.isNameAcceptableCallback, self.isNameAcceptableError)
 
 
 class SetNamePatternFSM(AvatarOperationFSM):

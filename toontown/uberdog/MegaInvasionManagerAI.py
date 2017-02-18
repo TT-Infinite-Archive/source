@@ -11,7 +11,7 @@ class MegaInvasionManagerAI(DistributedObjectGlobalAI):
 
     def announceGenerate(self):
         DistributedObjectGlobalAI.announceGenerate(self)
-        self.air.netMessenger.accept('shardStatus', self, self.handleShardStatus)
+        self.accept('shardStatus', self.handleShardStatus)
         self.recallInvasion = False
         self.waitingOnStatus = False
         self.index = None

@@ -17,6 +17,7 @@ from NPCToons import npcFriends
 import ToonDNA
 from otp.ai.AIBaseGlobal import *
 from otp.ai.MagicWordGlobal import *
+from otp.distributed import OtpDoGlobals
 from otp.avatar import DistributedAvatarAI
 from otp.avatar import DistributedPlayerAI
 from otp.otpbase import OTPGlobals
@@ -245,10 +246,36 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             self.b_setPatchVersion(patchVersion)
 
             messenger.send('avatarEntered', [self])
+            self.checkForBadName()
 
         from toontown.toon.DistributedNPCToonBaseAI import DistributedNPCToonBaseAI
         if not isinstance(self, DistributedNPCToonBaseAI):
             self.sendUpdate('setDefaultShard', [self.air.districtId])
+
+    def checkForBadName(self, requestName=False, name=None):
+        if name is None:
+            name = self.getName()
+
+        simbase.air.sendNetEvent('nameCheck', [name], channels=[OtpDoGlobals.MESSENGER_CHANNEL_UD])
+
+        def resetName(responseStatus):
+            if responseStatus and (not requestName):
+                self.resetName(responseStatus)
+            elif not responseStatus and requestName:
+                self.b_setName(name)
+                return
+
+        self.acceptOnce('badNameResponse', resetName)
+
+    def resetName(self, responseStatus):
+        if responseStatus:
+            dna = self.dna
+            colorString = TTLocalizer.NumToColor[dna.headColor]
+            animalType = TTLocalizer.AnimalToSpecies[dna.getAnimal()]
+            self.b_setName(colorString + ' ' + animalType)
+            self.sendUpdate('WishNameState', ['REJECTED'])
+
+        self.ignore('badNameResponse')
 
     def setLocation(self, parentId, zoneId):
         DistributedPlayerAI.DistributedPlayerAI.setLocation(self, parentId, zoneId)
@@ -4851,12 +4878,7 @@ def name(name=''):
     Modify the target's name.
     """
     target = spellbook.getTarget()
-    _name = target.getName()
-    target.b_setName(name)
-    if name:
-        return "Set %s's name to %s!" % (_name, name)
-    else:
-        return "%s's name is now empty!" % _name
+    target.checkForBadName(requestName=True, name=name)
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int, int])
 def hat(hatIndex, hatTex=0):

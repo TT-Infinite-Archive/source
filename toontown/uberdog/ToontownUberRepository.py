@@ -31,6 +31,7 @@ class ToontownUberRepository(ToontownInternalRepository):
 
     def handleConnected(self):
         ToontownInternalRepository.handleConnected(self)
+        self.registerForChannel(OtpDoGlobals.MESSENGER_CHANNEL_UD)
 
         if config.GetBool('generate-root-object', False):
             rootObj = DistributedDirectoryAI(self)
