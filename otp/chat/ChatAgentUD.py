@@ -39,10 +39,10 @@ class ChatAgentUD(DistributedObjectGlobalUD):
 
         simbase.air.sendNetEvent('badNameResponse', [isBadName], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
 
-    def chatMessage(self, message, channel):
-        sender = self.air.getAvatarIdFromSender()
+    def chatMessage(self, message, name, channel):
+        senderId = self.air.getAvatarIdFromSender()
         accountId = self.air.getAccountIdFromSender()
-        if sender == 0:
+        if senderId == 0:
             self.air.writeServerEvent('suspicious',
                                       self.air.getAccountIdFromSender(),
                                       'Account sent chat without an avatar',
@@ -53,43 +53,24 @@ class ChatAgentUD(DistributedObjectGlobalUD):
             # Check if this account is muted.
             return
 
-        modifications = []
-        words = message.split(' ')
-        offset = 0
-        for word in words:
-            if self.wantWhiteList and word and not self.whiteList.isWord(word):
-                modifications.append((offset, offset + len(word) - 1))
-            offset += len(word) + 1
-
-        if self.wantBlackList:
-            seqMods = self.lookForSequences(words)
-            modifications.extend(seqMods)
-
-        cleanMessage = message
-        for modStart, modStop in modifications:
-            cleanMessage = cleanMessage[:modStart] + '*'*(modStop-modStart+1) + cleanMessage[modStop+1:]
-
-        if self.wantBlackList and self.detectBadWords(message):
-            return
-
-        self.air.writeServerEvent('chat-said', sender, message, cleanMessage)
+        self.air.writeServerEvent('chat-said', senderId, message, message)
 
         if config.GetBool('want-chat-logging', False):
             def handleQueryObjectLocationResp(parentId, zoneId):
                 self.air.mongodb.chat.messages.insert_one(
                     {'type': ChannelToType[channel],
                      'timestamp': int(time.time()),
-                     'sender': sender,
+                     'sender': senderId,
                      'recipient': 0,
                      'location': [parentId, zoneId],
                      'message': message})
 
-            self.air.queryObjectLocation(sender, handleQueryObjectLocationResp)
+            self.air.queryObjectLocation(senderId, handleQueryObjectLocationResp)
 
-        DistributedAvatar = self.air.dclassesByName['DistributedAvatarUD']
-        dg = DistributedAvatar.aiFormatUpdate(
-            'setTalk', sender, sender, self.air.ourChannel,
-            [0, 0, '', message, modifications, 0, channel])
+        dclass = self.air.dclassesByName['DistributedAvatarUD']
+        dg = dclass.aiFormatUpdate(
+            'setTalk', senderId, senderId, self.air.ourChannel,
+            [senderId, accountId, name, message, [], 0, channel])
         self.air.send(dg)
 
     def muteAccount(self, accountId, timestamp, timeLeft):

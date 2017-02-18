@@ -88,7 +88,6 @@ class FriendHandle:
         text = copy.copy(message)
         flag = 0
         trueFriends = False
-        admin = False
 
         for friendId, flags in base.localAvatar.friendsList:
             if flags & ToontownGlobals.FriendChat:
@@ -96,8 +95,6 @@ class FriendHandle:
 
         if base.cr.getFriendFlags(self.doId) & ToontownGlobals.FriendChat or flag:
             trueFriends = True
-        elif base.localAvatar.adminAccess >= 200:
-            admin = True
         else:
             for mod in mods:
                 index = mod[0]
@@ -117,9 +114,6 @@ class FriendHandle:
                 newwords.append(word)
             elif trueFriends:
                 newwords.append('\x01WLDisplay\x01' + word + '\x02')
-                scrubbed = 1
-            elif admin:
-                newwords.append('\x01WLEnter\x01' + word + '\x02')
                 scrubbed = 1
             elif not base.localAvatar.canChat():
                 newwords.append('\x01WLDisplay\x01' + self.chatGarbler.garbleSingle(self, word) + '\x02')

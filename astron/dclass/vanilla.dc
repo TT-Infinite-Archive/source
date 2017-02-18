@@ -608,7 +608,7 @@ dclass OtpAvatarManager : DistributedObject {
 
 dclass ChatAgent : DistributedObject {
   adminChat(uint32, string);
-  chatMessage(string(0-256), uint16 channel) clsend;
+  chatMessage(string(0-256), string name, uint16 channel) clsend;
   muteAccount(uint32, uint32, uint32);
   checkMuted(uint32);
 };

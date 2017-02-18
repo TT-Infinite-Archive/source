@@ -580,16 +580,20 @@ class TalkAssistant(DirectObject.DirectObject):
         modifications = []
         words = message.split(' ')
         offset = 0
+
         WantWhitelist = config.GetBool('want-whitelist', 1)
+        friendsList = base.localAvatar.getFriendsList()
+        for friendEntry in friendsList:
+            if friendEntry[0] == receiverAvId and friendEntry[1]:
+                WantWhitelist = False
+
         for word in words:
             if WantWhitelist and word and not self.whiteList.isWord(word):
                 modifications.append((offset, offset+len(word)-1))
             offset += len(word) + 1
 
         cleanMessage = message
-
         message, scrubbed = base.localAvatar.scrubTalk(cleanMessage, modifications)
-
         base.cr.ttiFriendsManager.sendUpdate('sendTalkWhisper', [receiverAvId, message])
 
     def sendAccountTalk(self, message, receiverAccount):
