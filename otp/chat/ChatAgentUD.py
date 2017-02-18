@@ -26,13 +26,16 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         self.mutedDict = {}
         self.accept('nameCheck', self.checkBadNames)
 
-    def checkBadNames(self, toonName):
+    def checkBadNames(self, toonName, nameCheck=False):
         isBadName = self.detectBadWords(toonName)
         sequenceChecks = self.lookForSequences(toonName.split(' '))
         for check in sequenceChecks:
             if check[0]:
                 isBadName = True
                 break
+
+        if nameCheck:
+            return isBadName
 
         simbase.air.sendNetEvent('badNameResponse', [isBadName], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
 
