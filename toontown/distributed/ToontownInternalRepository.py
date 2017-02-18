@@ -8,6 +8,7 @@ from direct.distributed.PyDatagram import PyDatagram
 from panda3d.core import loadPrcFile
 
 from otp.distributed.OtpDoGlobals import *
+from toontown.distributed.ToontownNetMessengerAI import ToontownNetMessengerAI
 from toontown.toonbase import EventGlobals
 
 if config.GetBool('want-web-api', False):
@@ -44,12 +45,6 @@ class ToontownInternalRepository(AstronInternalRepository):
             self.webApi = WebserverAPIClient(endpoint, token)
         else:
             self.webApi = None
-
-        self.netMessenger.register(0, 'shardStatus')
-        self.netMessenger.register(1, 'queryShardStatus')
-        self.netMessenger.register(2, 'startInvasion')
-        self.netMessenger.register(3, 'stopInvasion')
-        self.netMessenger.register(4, 'reloadConfig')
 
     def readDCFile(self, dcFileNames=None):
         dcFile = self.getDcFile()
@@ -201,7 +196,14 @@ class ToontownInternalRepository(AstronInternalRepository):
                         self.dclassesByName[className] = dclass
 
     def handleConnected(self):
-        self.netMessenger.accept('reloadConfig', self, self.handleReloadConfig)
+        self.__messenger = ToontownNetMessengerAI(self)
+        self.accept('reloadConfig', self.handleReloadConfig)
+
+    def prepareMessage(self, message, sentArgs=[], channels=None):
+        return self.__messenger.prepare(message, sentArgs, channels)
+
+    def sendNetEvent(self, message, sentArgs=[], channels=None):
+        self.__messenger.send(message, sentArgs, channels)
 
     def getAvatarIdFromSender(self):
         return int(self.getMsgSender() & 0xFFFFFFFF)
@@ -263,6 +265,9 @@ class ToontownInternalRepository(AstronInternalRepository):
             self.handleGetActivatedResp(di)
         elif msgType == STATESERVER_OBJECT_GET_LOCATION_RESP:
             self.handleQueryObjectLocationResp(msgType, di)
+        elif msgType == self.__messenger.msgType:
+            self.__messenger.handle(msgType, di)
+            return
         elif msgType >= 20000:
             # These messages belong to the NetMessenger:
             self.netMessenger.handle(msgType, di)

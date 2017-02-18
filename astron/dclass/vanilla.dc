@@ -543,7 +543,7 @@ dclass AvatarHandle : TalkPath_whisper {
 
 dclass DistributedAvatar : DistributedSmoothNode, TalkPath_whisper {
   string DcObjectType db;
-  setName(string = "[Name not set]") required broadcast db airecv;
+  setName(string = "[Name not set]") required broadcast db airecv ownrecv;
   friendsNotify(DoId avId, int8 status) ownrecv airecv;
   checkAvOnShard(DoId) clsend airecv;
   confirmAvOnShard(DoId avId, int8 isOnShard);

@@ -236,6 +236,7 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def handleConnected(self):
         ToontownInternalRepository.handleConnected(self)
+        self.registerForChannel(MESSENGER_CHANNEL_AI)
 
         if self.config.GetBool('want-threaded-ai-start', False):
             threading.Thread(target=self.startDistrict).start()

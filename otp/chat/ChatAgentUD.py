@@ -4,8 +4,9 @@ from direct.distributed.DistributedObjectGlobalUD import \
     DistributedObjectGlobalUD
 
 from toontown.chat.TTWhiteList import TTWhiteList
+from otp.distributed import OtpDoGlobals
 from otp.chat.ChatGlobals import ChannelToType
-from toontown.chat.TTSequenceList import TTSequenceList
+from toontown.chat.TTBlacklist import BLACKLIST, SEQUENCES
 import time
 
 
@@ -22,11 +23,18 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         if self.wantWhiteList:
             self.whiteList = TTWhiteList()
 
-        self.sequenceList = None
-        if self.wantBlackList:
-            self.sequenceList = TTSequenceList()
-
         self.mutedDict = {}
+        self.accept('nameCheck', self.checkBadNames)
+
+    def checkBadNames(self, toonName):
+        isBadName = self.detectBadWords(toonName)
+        sequenceChecks = self.lookForSequences(toonName.split(' '))
+        for check in sequenceChecks:
+            if check[0]:
+                isBadName = True
+                break
+
+        simbase.air.sendNetEvent('badNameResponse', [isBadName], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
 
     def chatMessage(self, message, channel):
         sender = self.air.getAvatarIdFromSender()
@@ -50,12 +58,16 @@ class ChatAgentUD(DistributedObjectGlobalUD):
                 modifications.append((offset, offset + len(word) - 1))
             offset += len(word) + 1
 
+        if self.wantBlackList:
+            seqMods = self.lookForSequences(words)
+            modifications.extend(seqMods)
+
         cleanMessage = message
         for modStart, modStop in modifications:
             cleanMessage = cleanMessage[:modStart] + '*'*(modStop-modStart+1) + cleanMessage[modStop+1:]
 
-        if self.wantBlackList:
-            modifications += self.cleanSequences(cleanMessage)
+        if self.wantBlackList and self.detectBadWords(message):
+            return
 
         self.air.writeServerEvent('chat-said', sender, message, cleanMessage)
 
@@ -113,24 +125,37 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         self.air.dbInterface.queryObject(
             self.air.dbId, accountId, __handleRetrieve)
 
-    # Check for black-listed word sequences and scrub accordingly.
-    def cleanSequences(self, message):
-        modifications = []
-        offset = 0
+    def detectBadWords(self, message):
         words = message.split()
-        for wordit in xrange(len(words)):
-            word = words[wordit].lower()
-            seqlist = self.sequenceList.getList(word)
-            if len(seqlist) > 0:
-                for seqit in xrange(len(seqlist)):
-                    sequence = seqlist[seqit]
-                    splitseq = sequence.split()
-                    if len(words) - (wordit + 1) >= len(splitseq):
-                        cmplist = words[wordit + 1:]
-                        del cmplist[len(splitseq):]
-                        cmplist = [word.lower() for word in cmplist]
-                        if cmp(cmplist, splitseq) == 0:
-                            modifications.append((offset, offset + len(word) + len(sequence) - 1))
-            offset += len(word) + 1
+        for word in words:
+            if word.lower().strip(',.!?\'\"') in BLACKLIST or message.lower().strip(',.!?\'\"') in BLACKLIST:
+                return True
 
-        return modifications
+            phrase = ''
+            for letter in word:
+                phrase += letter
+                if phrase.lower().strip(',.!?\'\"') in BLACKLIST:
+                    return True
+
+        return False
+
+    def lookForSequences(self, words):
+        flaggedIndexes = []
+        seqCheckList = [(i, SEQUENCES.get(word.lower().strip(',.!?\'\"'))) for i, word in enumerate(words)
+                        if word.lower().strip(',.!?\'\"') in SEQUENCES and self.whiteList.isWord(word)]
+        for candidate in seqCheckList:
+            currentIndex = candidate[0]
+            strings = candidate[1]
+            for string in strings:
+                subseqStrings = string.split()
+                rangeEnd = len(subseqStrings) + 1
+                cleanSlice = [word.lower().strip(',.!?\'\"') for word in
+                              words[currentIndex + 1:currentIndex + rangeEnd]]
+                if not cleanSlice:
+                    break
+                if cleanSlice != subseqStrings:
+                    continue
+                flaggedIndexes.extend(range(currentIndex, currentIndex + rangeEnd))
+                break
+
+        return [(i, self.wantWhiteList) for i in flaggedIndexes]

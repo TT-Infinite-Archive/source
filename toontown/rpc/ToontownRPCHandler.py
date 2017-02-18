@@ -168,7 +168,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
         if channel == self.air.ourChannel:
             self.air.handleReloadConfig(self.air.ourChannel)
         else:
-            self.air.netMessenger.send('reloadConfig', [channel])
+            self.air.sendNetEvent('reloadConfig', [channel])
 
     # --- MESSAGES ---
 
@@ -846,7 +846,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
             <int flags> = Extra invasion flags.
             <int type> = The invasion type.
         """
-        self.air.netMessenger.send(
+        self.air.sendNetEvent(
             'startInvasion',
             [shardId, suitDeptIndex, suitTypeIndex, flags, type])
 
@@ -860,7 +860,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
             [int shardId] = The ID of the shard that is running the invasion to
                 be terminated.
         """
-        self.air.netMessenger.send('stopInvasion', [shardId])
+        self.air.sendNetEvent('stopInvasion', [shardId])
 
     # --- NAME REVIEW ---
 
