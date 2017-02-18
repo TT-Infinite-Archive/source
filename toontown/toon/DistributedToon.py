@@ -193,6 +193,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         self.partiesInvitedTo = []
         self.partyReplyInfoBases = []
         self.uniteTrack = None
+        self.animState = ''
 
     def disable(self):
         for soundSequence in self.soundSequenceList:
@@ -890,6 +891,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def d_setAnimState(self, animName, animMultiplier = 1.0, timestamp = None, extraArgs = []):
         timestamp = globalClockDelta.getFrameNetworkTime()
+        self.animState = animName
         self.sendUpdate('setAnimState', [animName, animMultiplier, timestamp])
 
     def setAnimState(self, animName, animMultiplier = 1.0, timestamp = None, animType = None, callback = None, extraArgs = []):
@@ -904,8 +906,12 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 animMultiplier = 1.0
         if self.animFSM.getStateNamed(animName):
             self.animFSM.request(animName, [animMultiplier, ts, callback, extraArgs])
+        self.animState = animName
         self.cleanupPieInHand()
         return
+
+    def getAnimState(self):
+        return self.animState
 
     def b_setEmoteState(self, animIndex, animMultiplier):
         self.setEmoteState(animIndex, animMultiplier)

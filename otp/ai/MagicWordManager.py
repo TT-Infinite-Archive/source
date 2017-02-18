@@ -23,6 +23,9 @@ class MagicWordManager(DistributedObject.DistributedObject):
         if not self.cr.wantMagicWords:
             return
 
+        if base.localAvatar.getAnimState() in ('TeleportIn', 'TeleportOut', 'TeleportedOut'):
+            return
+
         if magicWord.startswith('~~'):
             if lastClickedNametag == None:
                 target = base.localAvatar
