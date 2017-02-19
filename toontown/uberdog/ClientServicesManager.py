@@ -4,6 +4,7 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
+from toontown.toonbase import UserFunnel
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
@@ -29,7 +30,7 @@ class ClientServicesManager(DistributedObjectGlobal):
     # --- LOGIN LOGIC ---
     def performLogin(self, doneEvent):
         self.loginDoneEvent = doneEvent
-        self.sendUpdate('requestAuthToken')
+        self.sendUpdate('requestAuthToken', [UserFunnel.getMAC(), UserFunnel.getIP()])
 
     def receiveAuthToken(self, authToken):
         lookupTable = generateLookupTable(authToken[::2])

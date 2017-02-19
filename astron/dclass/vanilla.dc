@@ -4,6 +4,7 @@ from direct.distributed import DistributedSmoothNode/AI
 from direct.distributed import DistributedCartesianGrid/AI
 from direct.distributed import DistributedCamera/AI/OV
 from otp.distributed import Account/AI/UD
+from otp.ai import BanManager/AI
 from otp.ai import TimeManager/AI
 from otp.ai import MagicWordManager/AI
 from otp.avatar import DistributedAvatar/AI/UD
@@ -411,6 +412,11 @@ struct OSInfo {
 struct CPUSpeed {
   int32/1000 maxSpeed;
   int32/1000 currentSpeed;
+};
+
+dclass BanManager: DistributedObject {
+  requestUserInfo();
+  sendUserInfo(string, string) clsend airecv;
 };
 
 dclass TimeManager : DistributedObject {
@@ -3824,7 +3830,7 @@ struct PotentialToon {
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
-  requestAuthToken() clsend;
+  requestAuthToken(string, string) clsend;
   receiveAuthToken(string authToken);
 
   login(string cookie, string authToken) clsend;
