@@ -1,9 +1,11 @@
 from direct.gui.DirectGui import DirectFrame, DirectButton, DirectLabel
-from direct.gui.DirectGui import DirectScrolledList, DirectCheckButton
+from direct.gui.DirectGui import DirectCheckButton
 from direct.gui.DirectCheckBox import DirectCheckBox
 from direct.gui import DirectGuiGlobals
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase.DirectScrolledList import DirectScrolledList
 from pandac.PandaModules import Vec3, Vec4, PlaneNode, Plane, Point3, TextNode, VBase4, NodePath
+
 
 class ScrolledFriendList(DirectScrolledList):
 
@@ -17,7 +19,17 @@ class ScrolledFriendList(DirectScrolledList):
         self.incButtonCallback = None
         self.decButtonCallback = None
         self.setForceHeight()
-        return
+
+    def destroy(self):
+        self.__incButtonCallback = self.incButtonCallback
+        self.__decButtonCallback = self.decButtonCallback
+
+        DirectScrolledList.destroy(self)
+        if self.incButtonCallback:
+            self.incButtonCallback = None
+
+        if self.decButtonCallback:
+            self.decButtonCallback = None
 
     def scrollButtonPressed(self):
         pass
