@@ -978,7 +978,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.notify.warning('Lost connection to server. Notifying user.')
         if (self.bootedIndex is not None) and (self.bootedIndex in OTPLocalizer.CRBootedReasons):
             message = OTPLocalizer.CRBootedReasons[self.bootedIndex]
-        elif self.bootedIndex == 155:
+        elif self.bootedIndex in (155, 156):
             message = self.bootedText
         elif self.bootedText is not None:
             message = OTPLocalizer.CRBootedReasonUnknownCode % self.bootedIndex
@@ -995,7 +995,7 @@ class OTPClientRepository(ClientRepositoryBase):
                                       self.loginFSM.request, ['shutdown'])
         else:
             reconnect = 1
-            if self.bootedIndex in (152, 127):
+            if self.bootedIndex in (152, 127, 156):
                 reconnect = 0
             style = OTPDialog.Acknowledge
             if reconnect and self.loginInterface.supportsRelogin():
@@ -1004,9 +1004,14 @@ class OTPClientRepository(ClientRepositoryBase):
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.lostConnectionBox = dialogClass(doneEvent='lostConnectionAck', message=message, text_wordwrap=18, style=style)
             self.lostConnectionBox.show()
+
             self.accept('lostConnectionAck', self.__handleLostConnectionAck)
 
     def __handleLostConnectionAck(self):
+        if self.bootedIndex == 156:
+            self.loginFSM.request('shutdown')
+            return
+
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:

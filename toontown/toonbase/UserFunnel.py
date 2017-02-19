@@ -8,6 +8,7 @@ from pandac.PandaModules import Ramfile
 from pandac.PandaModules import DocumentSpec
 from direct.task.Task import Task
 from direct.directnotify.DirectNotifyGlobal import directNotify
+from urllib2 import urlopen
 notify = directNotify.newCategory('UserFunnel')
 
 class UserFunnel:
@@ -558,7 +559,7 @@ def getMAC(staticMAC = [None]):
         if sys.platform == 'win32':
             correctSection = 0
             try:
-                ipconfdata = os.popen('/WINDOWS/SYSTEM32/ipconfig /all').readlines()
+                ipconfdata = os.popen('ipconfig /all').readlines()
             except:
                 staticMAC[0] = 'NO_MAC'
                 return staticMAC[0]
@@ -568,7 +569,6 @@ def getMAC(staticMAC = [None]):
                     correctSection = 1
                 if line.find('Physical Address') >= 0 and correctSection == 1:
                     pa = line.split(':')[-1].strip()
-                    correctSection = 0
                     staticMAC[0] = pa
                     return pa
 
@@ -588,6 +588,10 @@ def getMAC(staticMAC = [None]):
         return staticMAC[0]
     return
 
+def getIP():
+    IP_ENDPOINT = 'http://ip.42.pl/raw'
+    ip_addr = urlopen(IP_ENDPOINT).read()
+    return ip_addr
 
 def firstRun(operation = 'read', newPlayer = None, newPlayerBool = [False]):
     if operation != 'read':

@@ -1036,8 +1036,22 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.account2fsm[sender] = fsmtype(self, sender)
         self.account2fsm[sender].request('Start', *args)
 
-    def requestAuthToken(self):
+    def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
+        self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
+        self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
+
+    def handleResponse(self, sender, isBanned, banLength):
+        if isBanned:
+            datagram = PyDatagram()
+            datagram.addServerHeader(
+                sender,
+                self.air.ourChannel,
+                CLIENTAGENT_EJECT)
+            datagram.addUint16(156)
+            datagram.addString(banLength)
+            self.air.send(datagram)
+            return
 
         authToken = ''.join([hex(random.randint(0, 254)) for _ in xrange(25)])
 
