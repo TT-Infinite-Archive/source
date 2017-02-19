@@ -1068,7 +1068,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         if simbase.isSinglePlayer and self.playerLoggedIn:
             # Only one connection is allowed in singleplayer mode.
-            self.killConnection(sender, 'Single Player servers only allows one connection.')
+            self.killConnection(sender, 'Singleplayer servers only allows one connection.')
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):

@@ -132,7 +132,6 @@ class AvatarChooser(StateData.StateData):
         self.disconnectButton.reparentTo(base.a2dBottomLeft)
 
 
-
         """
         self.logoutButton = DirectButton(
             relief=None, image=(quitHover, quitHover, quitHover),

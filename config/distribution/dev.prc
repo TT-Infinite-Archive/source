@@ -42,7 +42,6 @@ web-api-token invalid
 dc-file astron/dclass/vanilla.dc
 
 # Core features:
-want-kaldron-network #f
 want-multiplayer #t
 want-pets #f
 want-parties #f
