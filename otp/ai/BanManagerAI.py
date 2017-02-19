@@ -134,14 +134,16 @@ class BanManagerAI(DistributedObjectAI):
         for ban in self.banList:
             if mac_addr in ban:
                 timestamp = int(ban.split(':')[1])
+                isBanned = True
                 break
 
             if ip_addr in ban:
                 timestamp = int(ban.split(':')[1])
+                isBanned = True
                 break
 
-        if (not timestamp) or (timestamp > int(time.time())):
-            isBanned = True
+        if timestamp and int(time.time()) > timestamp:
+            isBanned = False
 
         if timestamp != 0:
             # This is by far the ugliest math I've ever written, save your brain cells..
