@@ -5427,6 +5427,9 @@ def disguise(command, suitIndex, value):
             invoker.giveGenericCogPart('fullSuit', suitIndex)
         return 'Parts set.'
     elif command == 'tier':
+        if value > (SuitDNA.suitsPerDept - 1):
+            return 'Invalid value: %s' % value
+
         invoker.cogTypes[suitIndex] = value
         invoker.d_setCogTypes(invoker.cogTypes)
         return 'Tier set.'
