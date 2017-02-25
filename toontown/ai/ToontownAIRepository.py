@@ -139,6 +139,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.friendManager.generateWithRequired(2)
         self.questManager = QuestManagerAI(self)
         self.banManager = BanManagerAI.BanManagerAI(self)
+        self.banManager.generateWithRequired(2)
         self.achievementsManager = AchievementsManagerAI(self)
         self.suitInvasionManager = SuitInvasionManagerAI(self)
         self.trophyMgr = DistributedTrophyMgrAI(self)

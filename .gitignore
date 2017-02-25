@@ -21,6 +21,7 @@ backups/
 crashes/
 contentpacks/
 toondata/
+banned_players.txt
 
 # Virtual environments:
 venv/
