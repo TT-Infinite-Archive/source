@@ -5004,7 +5004,7 @@ OptionsPageTitle = 'Options'
 MoreOptionsPageTitle = 'More Options'
 OptionsTabTitle = 'Options\n& Codes'
 OptionsPagePurchase = 'Subscribe'
-OptionsPageLogout = 'Logout'
+OptionsPageLogout = 'Log Out'
 OptionsGoBack = 'Back'
 OptionsDisconnect = 'Disconnect'
 OptionsLeaveServer = 'Leave Server'
@@ -10722,6 +10722,16 @@ Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
 
+
+# Main Menu
+WelcomeMessage = 'Welcome to Toontown Infinite!'
+LogIn = "Already have an account? Log in!"
+SignUp = "New to Toontown Infinite? Sign Up!"
+Username = "Username"
+Password = "Password"
+Birthday = "Birthday"
+Email = "Email"
+Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
 ServerRunningAlready = 'A Singleplayer session is already in progress.'
 MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
 StartingServerLive = 'Loading...'

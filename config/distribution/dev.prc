@@ -43,6 +43,7 @@ dc-file astron/dclass/vanilla.dc
 
 # Core features:
 want-multiplayer #t
+want-server-browser #f
 want-pets #f
 want-parties #f
 want-achievements #f

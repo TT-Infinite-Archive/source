@@ -155,6 +155,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverVersion = serverVersion
         self.waitingForDatabase = None
         self.mainMenu = MainMenu()
+        self.homeScreen = MainMenu()
 
         self.loginFSM = ClassicFSM('loginFSM', [
             State('loginOff',
@@ -192,6 +193,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitFailedToConnect, [
                       'connect',
                       'mainMenu',
+                      'homeScreen',
                       'shutdown']),
             State('failedToGetServerConstants',
                   self.enterFailedToGetServerConstants,
@@ -226,6 +228,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'noShardsWait',
                       'mainMenu',
+                      'homeScreen',
                       'shutdown']),
             State('noShardsWait',
                   self.enterNoShardsWait,
@@ -242,6 +245,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'login',
                       'connect',
                       'mainMenu',
+                      'homescreen',
                       'shutdown']),
             State('afkTimeout',
                   self.enterAfkTimeout,
@@ -258,7 +262,8 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'chooseAvatar',
                       'shutdown',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('chooseAvatar',
                   self.enterChooseAvatar,
                   self.exitChooseAvatar, [
@@ -269,7 +274,8 @@ class OTPClientRepository(ClientRepositoryBase):
                       'waitForDeleteAvatarResponse',
                       'shutdown',
                       'login',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('createAvatar',
                   self.enterCreateAvatar,
                   self.exitCreateAvatar, [
@@ -305,10 +311,19 @@ class OTPClientRepository(ClientRepositoryBase):
                       'afkTimeout',
                       'periodTimeout',
                       'noShards',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('mainMenu',
                   self.enterMainMenu,
                   self.exitMainMenu, [
+                      'gameOff',
+                      'waitForGameList',
+                      'chooseAvatar',
+                      'connect',
+                      'shutdown']),
+            State('homeScreen',
+                  self.enterHomeScreen,
+                  self.exitHomeScreen, [
                       'gameOff',
                       'waitForGameList',
                       'chooseAvatar',
@@ -2205,3 +2220,9 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def exitMainMenu(self):
         self.mainMenu.hide()
+
+    def enterHomeScreen(self):
+        self.homeScreen.request('HomeScreen')
+
+    def exitHomeScreen(self):
+        self.homeScreen.hide()
