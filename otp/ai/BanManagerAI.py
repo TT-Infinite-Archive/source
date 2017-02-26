@@ -183,6 +183,7 @@ class BanManagerAI(DistributedObjectAI):
             banList = open(self.BAN_LIST_FILE, 'a')
             banList.write('%s:%s\n%s:%s' % (mac_addr, duration, ip_addr, duration))
             banList.close()
+            self.banList.extend([mac_addr, ip_addr])
 
             if avId in self.banQueue:
                 self.banQueue.remove(avId)
