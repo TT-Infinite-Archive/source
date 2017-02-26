@@ -208,7 +208,7 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  126: 'You are not authorized to use administrator privileges.',
  127: 'A problem has occurred with your Toon.  Please contact Member Services via phone or email and reference Error Code 127.  Thank you.',
  151: "Your account details have been modified.",
- 152: "There has been a reported violation of our Terms of Use connected to '%(name)s'. For more details, please review the message sent to the e-mail address associated with '%(name)s'.",
+ 152: "You have been banned from this server. For more details, please contact the host.\nYou may continue playing Toontown Infinite in Singleplayer or on another server. Try improving your behavior to avoid any other bans.",
  153: 'The district you were playing on has been reset.  Everyone who was playing on that district has been disconnected.  However, you should be able to connect again and go right back into the game.',
  154: 'Toontown Infinite has been temporarily closed for scheduled downtime. Everyone who was playing on the Kaldron Network has been disconnected from the game.\n\nIf you wish to continue playing, you may go into custom play until maintenance is complete.\n\nFor more information, please visit the Toontown Infinite website.',
  288: 'Sorry, you have used up all of your available minutes this month.',

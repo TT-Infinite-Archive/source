@@ -152,11 +152,10 @@ class BanManagerAI(DistributedObjectAI):
             hours = max(0, int((difference / 3600)-(24 * days)))
             minutes = max(0, int((difference - ((86400 * days) + (3600 * hours)))/60))
             seconds = max(0, int(difference - ((86400 * days) + (3600 * hours) + (60 * minutes))))
-            banLengthString = 'You have been banned from this server. Your ban will expire in:\n' \
+            banLengthString = 'You have been temporarily banned from this server. Your ban will expire in:\n' \
                               '{0}d, {1}h, {2}m, {3}s'.format(days, hours, minutes, seconds)
         else:
-            banLengthString = 'You have been permanently banned from this server. ' \
-                              'You will not be able to play on this server anymore.'
+            banLengthString = 'You have been permanently banned and will no longer be able to play on this server.'
 
         self.air.sendNetEvent('banCheckResponse-%s' % sender, [sender, isBanned, banLengthString])
 

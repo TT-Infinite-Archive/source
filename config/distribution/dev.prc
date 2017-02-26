@@ -45,7 +45,7 @@ dc-file astron/dclass/vanilla.dc
 want-kaldron-network #f
 want-multiplayer #t
 want-pets #f
-want-parties #f
+want-parties #t
 want-achievements #f
 want-grouptracker #f
 
