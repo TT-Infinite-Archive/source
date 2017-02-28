@@ -1367,9 +1367,9 @@ def gravity(value):
     if value < 0:
         return 'Invalid gravity value!'
     if value == 0:
-        base.localAvatar.ToontownControlManager.currentControls.setGravity(ToontownGlobals.GravityValue * 2.0)
+        base.localAvatar.controlManager.currentControls.setGravity(ToontownGlobals.GravityValue * 2.0)
     else:
-        base.localAvatar.ToontownControlManager.currentControls.setGravity(value)
+        base.localAvatar.controlManager.currentControls.setGravity(value)
 
 @magicWord(category=CATEGORY_MODERATOR, types=[float, float, float])
 def xyz(x, y, z):
