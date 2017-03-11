@@ -30,7 +30,11 @@ class ClientServicesManager(DistributedObjectGlobal):
     # --- LOGIN LOGIC ---
     def performLogin(self, doneEvent):
         self.loginDoneEvent = doneEvent
-        self.sendUpdate('requestAuthToken', [UserFunnel.getMAC(), UserFunnel.getIP()])
+        getMAC = UserFunnel.getMAC()
+        getIP = UserFunnel.getIP()
+        print 'requestAuthToken sending %s and %s' % (getMAC, getIP)
+
+        self.sendUpdate('requestAuthToken', [getMAC, getIP])
 
     def receiveAuthToken(self, authToken):
         lookupTable = generateLookupTable(authToken[::2])
