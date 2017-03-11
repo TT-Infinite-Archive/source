@@ -977,6 +977,5 @@ class OptionsTabPage(DirectFrame):
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
-            # Have this button disconnect you and bring you all the way back to the main menu like the one on the Toon Select screen
-            base.cr.loginFSM.request('mainMenu')
+            base.cr.loginFSM.request('homeScreen')
             base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')

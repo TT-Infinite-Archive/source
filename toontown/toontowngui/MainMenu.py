@@ -186,6 +186,7 @@ class MainMenu(DirectFrame, FSM):
         )
         self.buttons2.append(self.modsButton)
 
+        """
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.logOutButton = DirectButton(
@@ -199,6 +200,7 @@ class MainMenu(DirectFrame, FSM):
             pos=(-1.65, 0, -0.935), command=lambda: self.request('Idle'))
         self.logOutButton.reparentTo(base.aspect2d)
         self.buttons2.append(self.logOutButton)
+        """
 
         # Log In button for the login screen
         self.logInButton2 = MATShuffleButton(
@@ -447,7 +449,7 @@ class MainMenu(DirectFrame, FSM):
             text_pos=TTLocalizer.ACquitButtonPos,
             text_scale=TTLocalizer.ACbackButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-1.65, 0, -0.935), command=lambda: self.request('HomeScreen'))
+            pos=(-1.65, 0, -0.935), command=lambda: self.request('Idle')) # self.request('HomeScreen'))
 
         self.backButton2.hide()
         self.backButton2.reparentTo(base.aspect2d)
@@ -481,6 +483,17 @@ class MainMenu(DirectFrame, FSM):
         OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
         OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report-classic text channel."
 
+        for button2 in self.buttons2:
+            button2.show()
+        if not base.wantMultiplayer:
+            self.lockIconMP.show()
+        if not base.wantMods:
+            self.lockIconMods.show()
+        self.background.show()
+        self.logo.show()
+        self.quitButton.show()
+
+        """
         self.background.show()
         self.logo.show()
         self.quitButton.show()
@@ -499,13 +512,23 @@ class MainMenu(DirectFrame, FSM):
         self.label.show()
         self.label2.show()
         self.label3.show()
+        """
 
     def exitIdle(self):
+        for button2 in self.buttons2:
+            button2.hide()
+        if not base.wantMultiplayer:
+            self.lockIconMP.hide()
+        if not base.wantMods:
+            self.lockIconMods.hide()
+
+        """
         for button in self.buttons:
             button.hide()
         self.label.hide()
         self.label2.hide()
         self.label3.hide()
+        """
 
     def enterSignInScreen(self):
         self.backButton.show()
@@ -806,6 +829,7 @@ class MainMenu(DirectFrame, FSM):
 
         # If user is logging out request Idle
 
+    """
     def enterHomeScreen(self):
         for button2 in self.buttons2:
             button2.show()
@@ -824,6 +848,7 @@ class MainMenu(DirectFrame, FSM):
             self.lockIconMP.hide()
         if not base.wantMods:
             self.lockIconMods.hide()
+    """
 
     def enterSingleplayer(self):
         OTPLocalizer.SpeedChatStaticText[30500] = "I'm playing Singleplayer on Toontown Infinite!"
