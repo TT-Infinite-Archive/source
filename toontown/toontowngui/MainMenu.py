@@ -387,7 +387,7 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('MultiplayerHelp')
         )
 
-        self.label11['text'] = TTLocalizer.EnterIP
+        self.label11['text'] = TTLocalizer.EnterAddress
         self.label11.reparentTo(aspect2d)
         self.label11.hide()
 
