@@ -298,7 +298,7 @@ class MainMenu(DirectFrame, FSM):
             relief=None,
             image=lockImage,
             image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.34, 0, -0.18),
+            pos=(0.34, 0, -0.49),
             suppressMouse=True,
             state=DGG.DISABLED
         )
@@ -324,7 +324,7 @@ class MainMenu(DirectFrame, FSM):
 
         # Multiplayer Menu Buttons
         self.serverBrowserButton = MATShuffleButton(
-            pos=(0, 0, -0.20),
+            pos=(0, 0, -0.5),
             text="Server\nBrowser",
             text_pos=(0, 0.02, 0),
             wantArrows=False,
@@ -338,7 +338,7 @@ class MainMenu(DirectFrame, FSM):
         )
 
         self.directConnectButton = MATShuffleButton(
-            pos=(-0.5, 0, -0.50),
+            pos=(-0.35, 0, -0.2),
             text="Direct\nConnect",
             text_pos=(0, 0.02, 0),
             wantArrows=False,
@@ -352,7 +352,7 @@ class MainMenu(DirectFrame, FSM):
         )
 
         self.hostButton = MATShuffleButton(
-            pos=(0.5, 0, -0.50),
+            pos=(0.35, 0, -0.2),
             text="Host",
             wantArrows=False,
             image_scale=buttonScale,
@@ -472,7 +472,7 @@ class MainMenu(DirectFrame, FSM):
 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
-            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_classic_theme.ogg')
+            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
             if base.cr.music is not None:
                 base.cr.music.setLoop(1)
                 base.cr.music.setVolume(0.9)
