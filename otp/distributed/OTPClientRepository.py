@@ -738,7 +738,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if not self.introDone:
             if style == OTPDialog.CancelOnly:
                 self.introduction.request('ExitDialog', message,
-                                          self.loginFSM.request, ['homeScreen'])
+                                          self.loginFSM.request, ['mainMenu'])
             else:
                 self.introduction.request(
                     'YesNoDialog', message, self.loginFSM.request,
@@ -756,7 +756,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('connect', [self.serverList])
             messenger.send('connectionRetrying')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('homeScreen')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -914,7 +914,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.introduction.request(
                 'YesNoDialog', OTPLocalizer.CRNoDistrictsTryAgain,
                 self.loginFSM.request, ['noShardsWait'], self.loginFSM.request,
-                ['homeScreen'])
+                ['mainMenu'])
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.noShardsBox = dialogClass(message=OTPLocalizer.CRNoDistrictsTryAgain, doneEvent='noShardsAck', style=OTPDialog.TwoChoice)
@@ -927,7 +927,7 @@ class OTPClientRepository(ClientRepositoryBase):
             messenger.send('connectionRetrying')
             self.loginFSM.request('noShardsWait')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('homeScreen')
+            self.loginFSM.request('mainMenu')
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -1030,7 +1030,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
-            self.loginFSM.request('homeScreen')
+            self.loginFSM.request('mainMenu')
 
     def exitNoConnection(self):
         self.handler = None
@@ -1805,7 +1805,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return Task.done
 
     def __handleCancelWaiting(self, value):
-        self.loginFSM.request('homeScreen')
+        self.loginFSM.request('mainMenu')
 
     def setIsNotNewInstallation(self):
         launcher.setIsNotNewInstallation()

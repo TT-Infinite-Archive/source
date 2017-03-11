@@ -76,6 +76,10 @@ class MainMenu(DirectFrame, FSM):
                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
                                  pos=(0, 0, -0.54))
 
+        self.label11 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
+                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
+                                 pos=(0, 0, -0.36))
+
         self.labels.append(self.label)
         self.labels.append(self.label2)
         self.labels.append(self.label3)
@@ -86,6 +90,7 @@ class MainMenu(DirectFrame, FSM):
         self.labels.append(self.label8)
         self.labels.append(self.label9)
         self.labels.append(self.label10)
+        self.labels.append(self.label11)
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -406,6 +411,10 @@ class MainMenu(DirectFrame, FSM):
         )
         self.connectButton.hide()
 
+        self.label11['text'] = TTLocalizer.EnterIP
+        self.label11.reparentTo(aspect2d)
+        self.label11.hide()
+
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -521,6 +530,7 @@ class MainMenu(DirectFrame, FSM):
             self.lockIconMP.hide()
         if not base.wantMods:
             self.lockIconMods.hide()
+        self.quitButton.hide()
 
         """
         for button in self.buttons:
@@ -885,6 +895,7 @@ class MainMenu(DirectFrame, FSM):
 
     def enterDirectConnect(self):
         self.backButton3.show()
+        self.label11.show()
 
         # Load the image for the ip input bar for Multiplayer
         cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
@@ -923,6 +934,7 @@ class MainMenu(DirectFrame, FSM):
     def exitDirectConnect(self):
         self.backButton3.hide()
         self.ipInput.hide()
+        self.label11.hide()
         self.__disableIPEntry()
         self.connectButton.hide()
         for label in self.labels:
