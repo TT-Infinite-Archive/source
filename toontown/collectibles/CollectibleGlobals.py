@@ -835,7 +835,7 @@ CollectibleCheesyEffectGoofy = CollectibleItem.CheesyEffectItem(
     category=CICategoryCheesyEffect,
     id=CheesyEffectGoofy,
     desc='Equip this to replace your Toon\'s body with Gooby\'s!',
-    flavorText='Acquired from ToonTasks',
+    flavorText='Acquired from ???',
     filepath='phase_3.5/maps/gooby_ce_icon.png',
     scale=0.001,
 )
