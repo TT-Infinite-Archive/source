@@ -490,7 +490,7 @@ class MainMenu(DirectFrame, FSM):
         OTPLocalizer.SpeedChatStaticText[30500] = "Welcome to the server!"
         OTPLocalizer.SpeedChatStaticText[30502] = "Are you livestreaming?"
         OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
-        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report-classic text channel."
+        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."
 
         for button2 in self.buttons2:
             button2.show()

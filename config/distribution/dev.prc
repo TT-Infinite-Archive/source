@@ -99,7 +99,7 @@ want-leak-graph-ai #f
 want-leak-graph-client #f
 
 # Safezone interactables:
-want-ttc-jukebox #f
+want-ttc-jukebox #t
 
 # Mod tools:
 want-mods #f

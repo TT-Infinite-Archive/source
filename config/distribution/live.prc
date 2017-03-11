@@ -87,7 +87,7 @@ want-leak-graph-client #f
 want-dev-debug #f
 
 # Safezone interactables:
-want-ttc-jukebox #f
+want-ttc-jukebox #t
 
 # Mod tools:
 want-mods #f

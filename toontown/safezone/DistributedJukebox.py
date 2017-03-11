@@ -8,9 +8,12 @@ from toontown.safezone import JukeboxGlobals
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toontowngui.JukeboxGui import JukeboxGui
 from toontown.util.VolumeInterval import VolumeInterval
+from direct.filter.CommonFilters import CommonFilters
 
 # filters = CommonFilters(base.win, base.cam)
 
+
+filters = CommonFilters(base.win, base.cam)
 
 class DistributedJukebox(DistributedObject):
     notify = directNotify.newCategory('DistributedJukebox')
@@ -116,7 +119,7 @@ class DistributedJukebox(DistributedObject):
         base.cr.playGame.getPlace().setState('purchase')
 
         # Blur the background when interacting with the jukebox
-        # filters.setBlurSharpen(0)
+        filters.setBlurSharpen(0)
 
     def exitGui(self):
         if not self.inGui:
@@ -126,8 +129,8 @@ class DistributedJukebox(DistributedObject):
         base.cr.playGame.getPlace().setState('walk')
 
         # Remove the blur when the user is done with the jukebox
-        # filters.setBlurSharpen(1)
-        # filters.delBlurSharpen()
+        filters.setBlurSharpen(1)
+        filters.delBlurSharpen()
 
     def d_requestPlaySong(self, songId):
         self.notify.debug('Sending request to play song %s' % songId)

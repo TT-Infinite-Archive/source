@@ -17,7 +17,7 @@ class ClickToStart(DirectObject):
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.background = OnscreenImage(
             parent=self.backgroundNodePath,
-            image='phase_3/maps/background.jpg'
+            image='phase_3/maps/loading_bg_clouds.jpg'
         )
         self.background.setTransparency(TransparencyAttrib.MAlpha)
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
@@ -27,7 +27,7 @@ class ClickToStart(DirectObject):
             self.backgroundNodePath.setScale(1, 1, 1)
 
         self.logo = OnscreenImage(
-            parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_classic_logo.png',
+            parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_logo.png',
             scale=(0.75, 1, 0.40), pos=(0, 0, -0.90))
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
