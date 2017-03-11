@@ -80,6 +80,10 @@ class MainMenu(DirectFrame, FSM):
                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
                                  pos=(0, 0, -0.36))
 
+        self.label12 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
+                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25,
+                                 pos=(0, 0, -0.36))
+
         self.labels.append(self.label)
         self.labels.append(self.label2)
         self.labels.append(self.label3)
@@ -91,6 +95,7 @@ class MainMenu(DirectFrame, FSM):
         self.labels.append(self.label9)
         self.labels.append(self.label10)
         self.labels.append(self.label11)
+        self.labels.append(self.label12)
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -369,23 +374,27 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('HostMultiplayer')
         )
 
-        self.dedicatedServerButton = MATShuffleButton(
+        self.helpButton = MATShuffleButton(
             pos=(0, 0, -0.8),
-            text="Dedicated\nServer",
-            text_pos=(0, 0.02, 0),
+            text="Help",
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
             image1_scale=buttonScale_clickhover,
-            text_scale=0.08,
-            text2_scale=0.085,
-            text1_scale=0.085,
-            command=lambda: self.request('MultiplayerDSHelp')
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('MultiplayerHelp')
         )
+
+        self.label11['text'] = TTLocalizer.EnterIP
+        self.label11.reparentTo(aspect2d)
+        self.label11.hide()
+
         self.mpButtons.append(self.hostButton)
         self.mpButtons.append(self.serverBrowserButton)
         self.mpButtons.append(self.directConnectButton)
-        self.mpButtons.append(self.dedicatedServerButton)
+        self.mpButtons.append(self.helpButton)
 
         # Functionality for enabling and disabling the Server Browser button
         self.serverBrowserButton['state'] = DGG.DISABLED
@@ -411,9 +420,9 @@ class MainMenu(DirectFrame, FSM):
         )
         self.connectButton.hide()
 
-        self.label11['text'] = TTLocalizer.EnterIP
-        self.label11.reparentTo(aspect2d)
-        self.label11.hide()
+        self.label12['text'] = TTLocalizer.Help
+        self.label12.reparentTo(aspect2d)
+        self.label12.hide()
 
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -892,6 +901,14 @@ class MainMenu(DirectFrame, FSM):
             mpButton.hide()
         if not base.wantServerBrowser:
             self.lockIconSB.hide()
+
+    def enterMultiplayerHelp(self):
+        self.label12.show()
+        self.backButton3.show()
+
+    def exitMultiplayerHelp(self):
+        self.label12.hide()
+        self.backButton3.hide()
 
     def enterDirectConnect(self):
         self.backButton3.show()

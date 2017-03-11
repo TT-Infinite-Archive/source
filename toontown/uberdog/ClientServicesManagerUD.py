@@ -112,48 +112,6 @@ class ProductionDB(AccountDB):
         callback(dict)
         return dict
 
-# Kaldron Network ProductionDB
-"""
-class ProductionDB(AccountDB):
-    notify = directNotify.newCategory('ProductionDB')
-
-    def submitNameRequest(self, avId, name, callback, errback):
-        payload = {'distribution': config.GetString('distribution'), 'name': name}
-        self.csm.air.webApi.execute('names/%d' % avId, payload, 'post', callback=callback, errback=errback)
-
-    def isNameAcceptable(self, name, callback, errback):
-        payload = {'name': name}
-        self.csm.air.webApi.execute('acceptable-name', payload, 'get', callback=callback, errback=errback)
-
-    def lookup(self, cookie, callback):
-        payload = {'distribution': config.GetString('distribution'), 'cookie': cookie}
-        self.csm.air.webApi.execute('cookies/consume', payload, 'delete', callback=self.lookupCallback,
-                                    errback=self.lookupErrback, extraArgs=[callback])
-
-    def lookupCallback(self, result, callback):
-        response = {'success': False}
-
-        if result['success'] is False:
-            response['reason'] = 'Failed to authenticate login credentials.'
-        else:
-            response['success'] = True
-            response['userId'] = result['userId']
-            response['accessLevel'] = min(max(result['accessLevel'], accessLevelMin), accessLevelMax)
-
-            lookup = self.lookupUserId(result['userId'])
-            response['accountId'] = lookup['accountId']
-
-        callback(response)
-
-    def lookupErrback(self, callback):
-        response = {
-            'success': False,
-            'reason': 'Failed to contact the account server.'
-        }
-
-        callback(response)
-"""
-
 # --- FSMs ---
 class OperationFSM(FSM):
     TARGET_CONNECTION = False
