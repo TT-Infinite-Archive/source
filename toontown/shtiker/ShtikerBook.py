@@ -263,7 +263,7 @@ class ShtikerBook(DirectFrame, StateData.StateData):
             iconColor = Vec4(0.7, 0.7, 0.7, 1)
             iconModels.detachNode()
         elif pageName == TTLocalizer.NPCFriendPageTitle:
-            iconModels = loader.loadModel('phase_3.5/models/gui/tti_classic_playingCard')
+            iconModels = loader.loadModel('phase_3.5/models/gui/playingCard')
             iconImage = iconModels.find('**/card_back')
             iconGeom = iconModels.find('**/logo')
             iconScale = 0.22

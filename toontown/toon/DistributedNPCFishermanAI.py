@@ -13,7 +13,7 @@ class DistributedNPCFishermanAI(DistributedNPCToonBaseAI):
         self.busy = 0
 
     def announceGenerate(self):
-        pass
+        self.b_setHat(18, 0, 0)
 
     def delete(self):
         taskMgr.remove(self.uniqueName('clearMovie'))

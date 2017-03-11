@@ -78,16 +78,16 @@ Dale = 'Dale'
 JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'Daisy Gardens'
-lDonaldsDock = "Donald's Dock"
-lDonaldsDreamland = "Donald's Dreamland"
-lMinniesMelodyland = "Minnie's Melodyland"
+lDaisyGardens = 'The Gardens'
+lDonaldsDock = "The Harbor"
+lDonaldsDreamland = "Dreamland"
+lMinniesMelodyland = "Melodyland"
 lToontownCentral = 'Toontown Central'
 lToonHQ = 'Toon HQ'
 lSellbotHQ = 'Sellbot HQ'
-lGoofySpeedway = 'Goofy Speedway'
-lOutdoorZone = "Chip 'n Dale's Acorn Acres"
-lGolfZone = "Chip 'n Dale's MiniGolf"
+lGoofySpeedway = 'Toontown Speedway'
+lOutdoorZone = "Acorn Acres"
+lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
 lResistanceGrounds = 'Resistance Grounds'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
@@ -3343,9 +3343,9 @@ FADoorCodes_TALK_TO_HQ_TOM = 'Go get your reward from Toon Headquarters!'
 FADoorCodes_SUIT_APPROACHING = None
 FADoorCodes_BUILDING_TAKEOVER = "Watch out! There's a Cog in there!"
 FADoorCodes_SB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Sellbot Disguise first!\n\nBuild your Sellbot Disguise out of parts from the Factory."
-FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise out of parts from the Mints."
-FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise out of parts from the DA Offices."
-FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise out of parts from the Cog Golf Courses."
+FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise by doing ToonTasks in Dreamland."
+FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise by doing the ToonTasks in The Brrrgh."
+FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise by doing the ToonTasks in Acorn Acres."
 KnockKnockJokes = [['Who', "Bad echo in here, isn't there?"],
  ['Dozen', 'Dozen anybody want to let me in?'],
  ['Freddie', 'Freddie or not, here I come.'],
@@ -3860,7 +3860,7 @@ SuperGoofyChatter = (['Welcome to my Super Speedway!',
   "It's fun to dress up for Halloween!",
   'I hope you are enjoying our Halloween fun!'], ['Gotta fly!',
   'Hi-Ho and away I go!',
-  "Should I fly or drive to Donald's Dock?",
+  "Should I fly or drive to The Harbor?",
   'Gawrsh, have a Happy Halloween!'])
 DonaldChatter = (['Welcome to Dreamland.', "Hi, my name is %s. What's yours?" % Donald], ['Sometimes this place gives me the creeps.',
   'Be sure and try the maze in ' + lDaisyGardens + '.',
@@ -4643,7 +4643,7 @@ MusicGzPlaygolf = "Let's Play Golf!"
 MusicMmNbrhood = "Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
-MusicDdNbrhood = "Donald's Dock"
+MusicDdNbrhood = "The Harbor"
 MusicDdSz = 'Waddling Way'
 MusicDdSzActivity = 'Sea Shanty'
 MusicThemeSong = "Toontown Infinite Theme"
@@ -4661,7 +4661,7 @@ MusicTbSzActivity = 'Snow Problem'
 MusicDlNbrhood = "Dreamland"
 MusicDlSz = 'Sleepwalking'
 MusicDlSzActivity = 'Counting Sheep'
-MusicDgNbrhood = "Dasiy Gardens"
+MusicDgNbrhood = "The Gardens"
 MusicDgSz = 'Waltz of the Flowers'
 MusicEncntrHallOfFame = 'The Hall of Fame'
 MusicEncntrSuitHqNbrhood = 'Dollars and Cents'
@@ -5005,7 +5005,7 @@ OptionsPageTitle = 'Options'
 MoreOptionsPageTitle = 'More Options'
 OptionsTabTitle = 'Options\n& Codes'
 OptionsPagePurchase = 'Subscribe'
-OptionsPageLogout = 'Log Out'
+OptionsPageLogout = 'Logout'
 OptionsGoBack = 'Back'
 OptionsDisconnect = 'Disconnect'
 OptionsLeaveServer = 'Leave Server'
@@ -5966,7 +5966,7 @@ NCApostrophes = 'That name has too many apostrophes.'
 RemoveTrophy = lToonHQ + ': ' + TheCogs + ' took over one of the buildings you rescued!'
 STOREOWNER_TOOKTOOLONG = 'Need more time to think?'
 STOREOWNER_GOODBYE = 'See you later!'
-STOREOWNER_NEEDJELLYBEANS = 'You need to ride the Trolley to get some Jellybeans.'
+STOREOWNER_NEEDJELLYBEANS = 'You need to ride the Trolley to The Toon Palooza to get some Jellybeans.'
 STOREOWNER_GREETING = 'Choose what you want to buy.'
 STOREOWNER_BROWSING = 'You can browse, but you need a clothing ticket to buy.'
 STOREOWNER_BROWSING_JBS = 'You can browse, but you need at least 200 Jellybeans to buy.'
@@ -10392,15 +10392,15 @@ achievementInfo = {
     5: ('Grand Goodbye',
         'Complete Toontown Central'),
     6: ('Bon Voyage!',
-        "Complete Donald's Dock"),
+        "Complete The Harbor"),
     7: ('Blooming',
-        'Complete Dasiy Gardens'),
+        'Complete The Gardens'),
     8: ('Warming symphonies',
-        "Complete Minnie's Melodyland"),
+        "Complete Melodyland"),
     9: ('You cold Yeti?',
         'Complete The Brrrgh'),
     10: ("Dreaming Goodbyes",
-         "Complete Donald's Dreamland"),
+         "Complete Dreamland"),
     11: ('Task master',
          'Complete all classic toontasks'),
     12: ('Sold out',
@@ -10723,18 +10723,8 @@ Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
 
-
-# Main Menu
-WelcomeMessage = 'Welcome to Toontown Infinite!'
-LogIn = "Already have an account? Log in!"
-SignUp = "New to Toontown Infinite? Sign Up!"
-Username = "Username"
-Password = "Password"
-Birthday = "Birthday"
-Email = "Email"
-Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
-ServerRunningAlready = 'A Singleplayer session is already in progress.'
-MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
+ServerRunningAlready = 'A single player session is already in progress.'
+MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 DedicatedServerDone = 'Done. This server is now live.'

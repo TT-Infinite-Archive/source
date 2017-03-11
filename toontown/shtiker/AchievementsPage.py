@@ -24,7 +24,7 @@ class AchievementsPage(ShtikerPage.ShtikerPage):
         start_pos = LVecBase3(0.72, 1, -0.21)
         seperation = LVecBase3(0.45, 0, 0.4)
 
-        cardModel = loader.loadModel('phase_3.5/models/gui/tti_classic_playingCard')
+        cardModel = loader.loadModel('phase_3.5/models/gui/playingCard')
 
         incButton = (self.gui.find('**/FndsLst_ScrollUp'),
                      self.gui.find('**/FndsLst_ScrollDN'),
