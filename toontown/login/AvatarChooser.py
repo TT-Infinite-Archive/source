@@ -132,7 +132,6 @@ class AvatarChooser(StateData.StateData):
         self.disconnectButton.reparentTo(base.a2dBottomLeft)
 
 
-
         """
         self.logoutButton = DirectButton(
             relief=None, image=(quitHover, quitHover, quitHover),
@@ -340,7 +339,7 @@ class AvatarChooser(StateData.StateData):
         elif base.isSinglePlayer:
             base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
         
-        base.cr.loginFSM.request('mainMenu')
+        base.cr.loginFSM.request('homeScreen')
 
     def __backConfirm(self):
         status = self.confirm.doneStatus
@@ -350,4 +349,4 @@ class AvatarChooser(StateData.StateData):
         if status == 'ok':
             if base.isSinglePlayer or base.isHosting:
                 base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
-            base.cr.loginFSM.request('mainMenu')
+            base.cr.loginFSM.request('homeScreen')

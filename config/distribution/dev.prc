@@ -42,12 +42,12 @@ web-api-token invalid
 dc-file astron/dclass/vanilla.dc
 
 # Core features:
-want-kaldron-network #f
 want-multiplayer #t
 want-pets #t
 want-parties #t
 want-achievements #f
 want-grouptracker #f
+want-server-browser #f
 
 # Safe zones:
 want-safe-zones #t
