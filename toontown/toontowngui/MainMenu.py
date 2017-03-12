@@ -16,6 +16,8 @@ from direct.interval.IntervalGlobal import LerpScaleInterval
 from toontown.util import PlacerTool3D
 from toontown.toontowngui import TTDialog
 
+import socket
+
 
 class MainMenu(DirectFrame, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -488,6 +490,11 @@ class MainMenu(DirectFrame, FSM):
 
         self.hide()
 
+    def isServerAlive(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.33)
+        return sock.connect_ex(('127.0.0.1', 7000)) == 0
+
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
             base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
@@ -888,6 +895,11 @@ class MainMenu(DirectFrame, FSM):
         self.quitButton.hide()
 
     def enterMultiplayer(self):
+        if self.isServerAlive():
+            self.hostButton['text'] = 'Connect'
+        else:
+            self.hostButton['text'] = 'Host'
+
         self.backButton2.show()
         base.isSinglePlayer = False
         for mpButton in self.mpButtons:
