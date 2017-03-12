@@ -2846,10 +2846,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if not gmType:
             gmType = self._gmType
         iconInfo = [
-            (None, None),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toonResistance_fist', '**/*fistIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*')
+            (None, None), # User
+            (None, None), # User 2
+            ('phase_3/models/props/gm_icons.bam', '**/access_level_300'), # Mod
+            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'), # Admin
+            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'), # Host
         ]
         index = (gmType / 100) - 1
         icon = loader.loadModel(iconInfo[index][0])

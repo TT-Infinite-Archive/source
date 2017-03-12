@@ -510,7 +510,7 @@ class QuestManagerAI:
         av.b_setQuests(questList)
 
 
-@magicWord(category=CATEGORY_ADMINISTRATOR, types=[str, int, int])
+@magicWord(category=CATEGORY_USER2, types=[str, int, int])
 def quests(command, arg0=0, arg1=0):
     invoker = spellbook.getInvoker()
     currQuests = invoker.getQuests()

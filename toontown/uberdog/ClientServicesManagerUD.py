@@ -29,7 +29,7 @@ accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
 
 accessLevelClamp = ConfigVariableString(
-    'access-level-clamp', '100 400',
+    'access-level-clamp', '100 500',
     "Specifies the range in which every user's access level will be confined to.").getValue()
 accessLevelMin = int(accessLevelClamp.split(' ', 1)[0])
 accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
@@ -38,7 +38,7 @@ accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 400 access automatically upon login.
+# each user with 500 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -61,7 +61,7 @@ class DeveloperAccountDB(AccountDB):
     
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 400
+        self.accessLevel = 500
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
     
     def lookupUserId(self, userId):
@@ -89,9 +89,9 @@ class ProductionDB(AccountDB):
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
         if simbase.isSinglePlayer:
-            self.accessLevel = 400
+            self.accessLevel = 500
         else:
-            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will need to set their access to 400 via mongo compass or rpc.
+            self.accessLevel = 200 # We set everyone in MP to 200 access by default so people can use commands, however we need an option in the future that allows the host to decide if they want their server to have cheaters or not. If they don't, they select that option then everyone is set to 100 access by default instead for that server. The host will need to set their access to 500 via mongo compass or rpc.
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):

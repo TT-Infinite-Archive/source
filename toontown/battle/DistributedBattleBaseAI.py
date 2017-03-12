@@ -1833,7 +1833,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
     def getFireCount(self):
         return self.fireCount
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER2)
 def skipMovie():
     invoker = spellbook.getInvoker()
     battleId = invoker.getBattleId()

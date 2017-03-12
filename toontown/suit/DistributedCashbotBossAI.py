@@ -928,7 +928,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
 
         return activeGoons
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER2)
 def startCraneRound():
     """
     Skips to the crane round of the CFO.
@@ -951,7 +951,7 @@ def startCraneRound():
     boss.b_setState('BattleThree')
     return 'Starting the crane round...'
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER2)
 def restartCraneRound():
     """
     Restarts the crane round in the CFO.
@@ -970,7 +970,7 @@ def restartCraneRound():
     boss.b_setState('BattleThree')
     return 'Restarting the crane round...'
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER2)
 def skipCFO():
     """
     Skips the current round in the CFO.
@@ -993,7 +993,7 @@ def skipCFO():
         boss.b_setState('PrepareBattleTwo')
     return 'Skipping the first round...'
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER2)
 def killCFO():
     """
     Kills the CFO.
@@ -1010,7 +1010,7 @@ def killCFO():
     boss.b_setState('Victory')
     return 'Killed CFO.'
 
-@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
+@magicWord(category=CATEGORY_USER2, types=[int])
 def hitCFO(dmg):
     """
     Kills the CFO.
