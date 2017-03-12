@@ -18,6 +18,9 @@ class BackupManager:
         if not os.path.exists(filename):
             return default
         with open(filename, 'r') as f:
+            if not len(f.readlines()):
+                return json.loads('{}')
+
             return json.load(f)
 
     def save(self, category, info, data):
