@@ -170,6 +170,8 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         accessName2Id = {
             'user': CATEGORY_USER.defaultAccess,
             'u': CATEGORY_USER.defaultAccess,
+            'user2': CATEGORY_USER2.defaultAccess,
+            'u2': CATEGORY_USER2.defaultAccess,
             'moderator': CATEGORY_MODERATOR.defaultAccess,
             'mod': CATEGORY_MODERATOR.defaultAccess,
             'm': CATEGORY_MODERATOR.defaultAccess,
