@@ -52,6 +52,8 @@ DreamlandCameraNear = 1.0
 DreamlandCameraFar = 2000.0
 ResistanceGroundsCameraNear = 1.0
 ResistanceGroundsCameraFar = 6000.0
+ConstructionZoneCameraNear = 1.0
+ConstructionZoneCameraFar = 2000
 SellbotHQCameraNear = 1.0
 SellbotHQCameraFar = 2000.0
 MaxMailboxContents = 30
@@ -169,7 +171,7 @@ TheBrrrgh = 3000
 MinniesMelodyland = 4000
 DaisyGardens = 5000
 OutdoorZone = 6000
-FunnyFarm = 7000
+ResistanceGrounds = 7000
 GoofySpeedway = 8000
 DonaldsDreamland = 9000
 BarnacleBoulevard = 1100
@@ -178,7 +180,6 @@ LighthouseLane = 1300
 SillyStreet = 2100
 LoopyLane = 2200
 PunchlinePlace = 2300
-ResistanceGrounds = 14000
 WalrusWay = 3100
 SleetStreet = 3200
 PolarPlace = 3300
@@ -191,16 +192,6 @@ OakStreet = 5300
 LullabyLane = 9100
 PajamaPlace = 9200
 ToonHall = 2513
-HoodHierarchy = {
-    ToontownCentral: (SillyStreet, LoopyLane, PunchlinePlace),
-    DonaldsDock: (BarnacleBoulevard, SeaweedStreet, LighthouseLane),
-    TheBrrrgh: (WalrusWay, SleetStreet, PolarPlace),
-    MinniesMelodyland: (AltoAvenue, BaritoneBoulevard, TenorTerrace),
-    DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
-    DonaldsDreamland: (LullabyLane, PajamaPlace),
-    ResistanceGrounds: (),
-    GoofySpeedway: ()
-}
 WelcomeValleyToken = 0
 BossbotHQ = 10000
 BossbotLobby = 10100
@@ -228,11 +219,23 @@ Tutorial = 15000
 MyEstate = 16000
 GolfZone = 17000
 PartyHood = 18000
+ConstructionZone = 19000
 HoodsAlwaysVisited = [17000, 18000]
 WelcomeValleyBegin = 22000
 WelcomeValleyEnd = 61000
 DynamicZonesBegin = 61000
 DynamicZonesEnd = 1 << 20
+HoodHierarchy = {
+    ToontownCentral: (SillyStreet, LoopyLane, PunchlinePlace),
+    DonaldsDock: (BarnacleBoulevard, SeaweedStreet, LighthouseLane),
+    TheBrrrgh: (WalrusWay, SleetStreet, PolarPlace),
+    MinniesMelodyland: (AltoAvenue, BaritoneBoulevard, TenorTerrace),
+    DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
+    DonaldsDreamland: (LullabyLane, PajamaPlace),
+    ResistanceGrounds: (),
+    ConstructionZone: (),
+    GoofySpeedway: ()
+}
 cogDept2index = {
     'c': 0,
     'l': 1,
@@ -292,6 +295,7 @@ HoodIdToName = {
     DaisyGardens: TTLocalizer.lDaisyGardens,
     DonaldsDreamland: TTLocalizer.lDonaldsDreamland,
     ResistanceGrounds: TTLocalizer.lResistanceGrounds,
+    ConstructionZone: TTLocalizer.lConstructionZone,
     GoofySpeedway: TTLocalizer.lGoofySpeedway,
     OutdoorZone: TTLocalizer.lOutdoorZone,
     BossbotHQ: TTLocalizer.BossbotHQ[2],
@@ -407,7 +411,6 @@ Hoods = (
     MinniesMelodyland,
     DaisyGardens,
     OutdoorZone,
-    FunnyFarm,
     GoofySpeedway,
     DonaldsDreamland,
     BossbotHQ,
@@ -524,7 +527,6 @@ phaseMap = {
     GoofySpeedway: 6,
     TheBrrrgh: 8,
     DaisyGardens: 8,
-    FunnyFarm: 8,
     DonaldsDreamland: 8,
     OutdoorZone: 6,
     BossbotHQ: 12,
@@ -533,7 +535,8 @@ phaseMap = {
     LawbotHQ: 11,
     GolfZone: 6,
     PartyHood: 13,
-    ResistanceGrounds: 6
+    ResistanceGrounds: 6,
+    ConstructionZone: 6
 }
 streetPhaseMap = {
     ToontownCentral: 5,
@@ -542,7 +545,6 @@ streetPhaseMap = {
     GoofySpeedway: 6,
     TheBrrrgh: 8,
     DaisyGardens: 8,
-    FunnyFarm: 8,
     DonaldsDreamland: 8,
     OutdoorZone: 8,
     BossbotHQ: 12,
@@ -559,10 +561,10 @@ dnaMap = {
     GoofySpeedway: 'goofy_speedway',
     TheBrrrgh: 'the_burrrgh',
     DaisyGardens: 'daisys_garden',
-    FunnyFarm: 'not done yet',
     DonaldsDreamland: 'donalds_dreamland',
     OutdoorZone: 'outdoor_zone',
     ResistanceGrounds: 'resistance_grounds',
+    ConstructionZone: 'construction_zone',
     BossbotHQ: 'cog_hq_bossbot',
     SellbotHQ: 'cog_hq_sellbot',
     CashbotHQ: 'cog_hq_cashbot',
@@ -576,7 +578,6 @@ hoodNameMap = {
     MinniesMelodyland: TTLocalizer.MinniesMelodyland,
     DaisyGardens: TTLocalizer.DaisyGardens,
     OutdoorZone: TTLocalizer.OutdoorZone,
-    FunnyFarm: TTLocalizer.FunnyFarm,
     GoofySpeedway: TTLocalizer.GoofySpeedway,
     DonaldsDreamland: TTLocalizer.DonaldsDreamland,
     BossbotHQ: TTLocalizer.BossbotHQ,
@@ -587,7 +588,8 @@ hoodNameMap = {
     MyEstate: TTLocalizer.MyEstate,
     GolfZone: TTLocalizer.GolfZone,
     PartyHood: TTLocalizer.PartyHood,
-    ResistanceGrounds: TTLocalizer.ResistanceGrounds
+    ResistanceGrounds: TTLocalizer.ResistanceGrounds,
+    ConstructionZone: TTLocalizer.ConstructionZone
 }
 safeZoneCountMap = {
     MyEstate: 8,
@@ -598,12 +600,12 @@ safeZoneCountMap = {
     GoofySpeedway: 500,
     TheBrrrgh: 8,
     DaisyGardens: 9,
-    FunnyFarm: 500,
     DonaldsDreamland: 5,
     OutdoorZone: 500,
     GolfZone: 500,
     PartyHood: 500,
-    ResistanceGrounds: 500
+    ResistanceGrounds: 500,
+    ConstructionZone: 500
 }
 townCountMap = {
     MyEstate: 8,
@@ -614,7 +616,6 @@ townCountMap = {
     GoofySpeedway: 40,
     TheBrrrgh: 40,
     DaisyGardens: 40,
-    FunnyFarm: 40,
     DonaldsDreamland: 40,
     OutdoorZone: 40,
     PartyHood: 20
@@ -628,7 +629,6 @@ hoodCountMap = {
     GoofySpeedway: 2,
     TheBrrrgh: 2,
     DaisyGardens: 2,
-    FunnyFarm: 2,
     DonaldsDreamland: 2,
     OutdoorZone: 2,
     BossbotHQ: 2,
@@ -637,7 +637,8 @@ hoodCountMap = {
     LawbotHQ: 2,
     GolfZone: 2,
     PartyHood: 2,
-    ResistanceGrounds: 2
+    ResistanceGrounds: 2,
+    ConstructionZone: 2
 }
 NoTeleportZones = (
     CashbotLobby,

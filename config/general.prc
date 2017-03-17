@@ -80,7 +80,8 @@ want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
-want-resistance-grounds #f
+want-resistance-grounds #t
+want-construction-zone #t
 
 # Safe zone settings:
 want-treasure-planners #f

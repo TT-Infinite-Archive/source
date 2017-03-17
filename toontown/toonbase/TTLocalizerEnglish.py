@@ -89,7 +89,8 @@ lGoofySpeedway = 'Toontown Speedway'
 lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
-lResistanceGrounds = 'Resistance Grounds'
+lResistanceGrounds = 'Toon Resistance Grounds'
+lConstructionZone = '???'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),
  1100: ('to', 'on', 'Barnacle Boulevard'),
@@ -111,7 +112,7 @@ GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  5100: ('to', 'on', 'Elm Street'),
  5200: ('to', 'on', 'Maple Street'),
  5300: ('to', 'on', 'Oak Street'),
- 7000: ('to', 'on', 'The Unpainted Neighborhood'),
+ 7000: ('to', 'on', 'Toon Resistance Grounds'),
  9000: ('to the', 'in the', 'Neighborhood'),
  9100: ('to', 'on', 'Lullaby Lane'),
  9200: ('to', 'on', 'Pajama Place'),
@@ -144,10 +145,10 @@ TheBrrrgh = ('to', 'in', lTheBrrrgh)
 MinniesMelodyland = ('to', 'in', lMinniesMelodyland)
 DaisyGardens = ('to', 'in', lDaisyGardens)
 OutdoorZone = ('to', 'in', lOutdoorZone)
-FunnyFarm = ('to', 'in', 'The Unpainted Neighborhood')
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
 ResistanceGrounds = ('to the', 'in the', lResistanceGrounds)
+ConstructionZone = ('to the', 'in the', lConstructionZone)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
 SellbotHQ = ('to', 'in', 'Sellbot HQ')
 CashbotHQ = ('to', 'in', 'Cashbot HQ')

@@ -149,6 +149,10 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.ResistanceGrounds: (
             [0, 0, 0, 0, 0, 0],
         ),
+        # TODO: Add legitimate drop points
+        ToontownGlobals.ConstructionZone: (
+            [0, 0, 0, 0, 0, 0],
+        ),
         ToontownGlobals.Tutorial: (
             [130.9, -8.6, -1.3, 105.5, 0, 0],
         ),
@@ -189,7 +193,6 @@ class HoodMgr(DirectObject.DirectObject):
         'mm': ToontownGlobals.MinniesMelodyland,
         'dg': ToontownGlobals.DaisyGardens,
         'oz': ToontownGlobals.OutdoorZone,
-        'ff': ToontownGlobals.FunnyFarm,
         'gs': ToontownGlobals.GoofySpeedway,
         'dl': ToontownGlobals.DonaldsDreamland,
         'bosshq': ToontownGlobals.BossbotHQ,
@@ -197,7 +200,8 @@ class HoodMgr(DirectObject.DirectObject):
         'cashhq': ToontownGlobals.CashbotHQ,
         'lawhq': ToontownGlobals.LawbotHQ,
         'gz': ToontownGlobals.GolfZone,
-        'rg': ToontownGlobals.ResistanceGrounds
+        'rg': ToontownGlobals.ResistanceGrounds,
+        'cz': ToontownGlobals.ConstructionZone
     }
     hoodId2Name = {
         ToontownGlobals.DonaldsDock: 'dd',
@@ -207,7 +211,6 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.MinniesMelodyland: 'mm',
         ToontownGlobals.DaisyGardens: 'dg',
         ToontownGlobals.OutdoorZone: 'oz',
-        ToontownGlobals.FunnyFarm: 'ff',
         ToontownGlobals.GoofySpeedway: 'gs',
         ToontownGlobals.DonaldsDreamland: 'dl',
         ToontownGlobals.BossbotHQ: 'bosshq',
@@ -215,7 +218,8 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.CashbotHQ: 'cashhq',
         ToontownGlobals.LawbotHQ: 'lawhq',
         ToontownGlobals.GolfZone: 'gz',
-        ToontownGlobals.ResistanceGrounds: 'rg'
+        ToontownGlobals.ResistanceGrounds: 'rg',
+        ToontownGlobals.ConstructionZone: 'cz'
     }
     dbgDropMode = 0
     currentDropPoint = 0

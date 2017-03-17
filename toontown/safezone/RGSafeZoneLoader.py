@@ -1,11 +1,16 @@
 from toontown.safezone import SafeZoneLoader
 from toontown.safezone import RGPlayground
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownGlobals
+from direct.gui import DirectGui
+from pandac.PandaModules import *
+from toontown.hood import ZoneUtil
 
 
 class RGSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
+
     def __init__(self, hood, parentFSM, doneEvent):
         SafeZoneLoader.SafeZoneLoader.__init__(self, hood, parentFSM, doneEvent)
-
         self.playgroundClass = RGPlayground.RGPlayground
         self.musicFile = 'phase_6/audio/bgm/RG_nbrhood.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'  # TODO: Change music.
@@ -24,9 +29,17 @@ class RGSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.submergeSound = loader.loadSfx('phase_5.5/audio/sfx/AV_jump_in_water.ogg')
         self.waterSound = loader.loadSfx('phase_6/audio/sfx/SZ_DD_waterlap.ogg')
         water = self.geom.find('**/water')
-        water.setTransparency(1)
-        water.setColorScale(1, 1, 1, 1)
-        water.setBin('water', 51, 1)
+        # water.setTransparency(1)
+        # water.setColorScale(1, 1, 1, 1)
+        # water.setBin('water', 51, 1)
+
+        top = self.geom.find('**/linktunnel_bosshq_10000_DNARoot')
+        sign = top.find('**/Sign_5')
+        sign.node().setEffect(DecalEffect.make())
+        locator = top.find('**/sign_origin')
+        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.BossbotHQ[-1]), font=ToontownGlobals.getSuitFont(), scale=TTLocalizer.GZSZLsignText, fg=(0, 0, 0, 1), mayChange=False, parent=sign)
+        signText.setPosHpr(locator, 0, 0, -0.3, 0, 0, 0)
+        signText.setDepthWrite(0)
 
     def unload(self):
         SafeZoneLoader.SafeZoneLoader.unload(self)

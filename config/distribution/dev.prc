@@ -60,7 +60,8 @@ want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
-want-resistance-grounds #f
+want-resistance-grounds #t
+want-construction-zone #t
 
 # Cog headquarters:
 want-cog-headquarters #t
