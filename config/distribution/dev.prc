@@ -61,7 +61,7 @@ want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
 want-resistance-grounds #t
-want-construction-zone #t
+want-strike-zone #t
 
 # Cog headquarters:
 want-cog-headquarters #t

@@ -52,8 +52,8 @@ DreamlandCameraNear = 1.0
 DreamlandCameraFar = 2000.0
 ResistanceGroundsCameraNear = 1.0
 ResistanceGroundsCameraFar = 6000.0
-ConstructionZoneCameraNear = 1.0
-ConstructionZoneCameraFar = 2000
+StrikeZoneCameraNear = 1.0
+StrikeZoneCameraFar = 2000
 SellbotHQCameraNear = 1.0
 SellbotHQCameraFar = 2000.0
 MaxMailboxContents = 30
@@ -219,7 +219,7 @@ Tutorial = 15000
 MyEstate = 16000
 GolfZone = 17000
 PartyHood = 18000
-ConstructionZone = 19000
+StrikeZone = 19000
 HoodsAlwaysVisited = [17000, 18000]
 WelcomeValleyBegin = 22000
 WelcomeValleyEnd = 61000
@@ -233,7 +233,7 @@ HoodHierarchy = {
     DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
     DonaldsDreamland: (LullabyLane, PajamaPlace),
     ResistanceGrounds: (),
-    ConstructionZone: (),
+    StrikeZone: (),
     GoofySpeedway: ()
 }
 cogDept2index = {
@@ -295,7 +295,7 @@ HoodIdToName = {
     DaisyGardens: TTLocalizer.lDaisyGardens,
     DonaldsDreamland: TTLocalizer.lDonaldsDreamland,
     ResistanceGrounds: TTLocalizer.lResistanceGrounds,
-    ConstructionZone: TTLocalizer.lConstructionZone,
+    StrikeZone: TTLocalizer.lStrikeZone,
     GoofySpeedway: TTLocalizer.lGoofySpeedway,
     OutdoorZone: TTLocalizer.lOutdoorZone,
     BossbotHQ: TTLocalizer.BossbotHQ[2],
@@ -536,7 +536,7 @@ phaseMap = {
     GolfZone: 6,
     PartyHood: 13,
     ResistanceGrounds: 6,
-    ConstructionZone: 6
+    StrikeZone: 6
 }
 streetPhaseMap = {
     ToontownCentral: 5,
@@ -564,7 +564,7 @@ dnaMap = {
     DonaldsDreamland: 'donalds_dreamland',
     OutdoorZone: 'outdoor_zone',
     ResistanceGrounds: 'resistance_grounds',
-    ConstructionZone: 'construction_zone',
+    StrikeZone: 'construction_zone',
     BossbotHQ: 'cog_hq_bossbot',
     SellbotHQ: 'cog_hq_sellbot',
     CashbotHQ: 'cog_hq_cashbot',
@@ -589,7 +589,7 @@ hoodNameMap = {
     GolfZone: TTLocalizer.GolfZone,
     PartyHood: TTLocalizer.PartyHood,
     ResistanceGrounds: TTLocalizer.ResistanceGrounds,
-    ConstructionZone: TTLocalizer.ConstructionZone
+    StrikeZone: TTLocalizer.StrikeZone
 }
 safeZoneCountMap = {
     MyEstate: 8,
@@ -605,7 +605,7 @@ safeZoneCountMap = {
     GolfZone: 500,
     PartyHood: 500,
     ResistanceGrounds: 500,
-    ConstructionZone: 500
+    StrikeZone: 500
 }
 townCountMap = {
     MyEstate: 8,
@@ -638,7 +638,7 @@ hoodCountMap = {
     GolfZone: 2,
     PartyHood: 2,
     ResistanceGrounds: 2,
-    ConstructionZone: 2
+    StrikeZone: 2
 }
 NoTeleportZones = (
     CashbotLobby,

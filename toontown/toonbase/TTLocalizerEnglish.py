@@ -90,7 +90,7 @@ lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
 lResistanceGrounds = 'Toon Resistance Grounds'
-lConstructionZone = '???'
+lStrikeZone = 'Strike Zone'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),
  1100: ('to', 'on', 'Barnacle Boulevard'),
@@ -148,7 +148,7 @@ OutdoorZone = ('to', 'in', lOutdoorZone)
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
 ResistanceGrounds = ('to the', 'in the', lResistanceGrounds)
-ConstructionZone = ('to the', 'in the', lConstructionZone)
+StrikeZone = ('to the', 'in the', lStrikeZone)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
 SellbotHQ = ('to', 'in', 'Sellbot HQ')
 CashbotHQ = ('to', 'in', 'Cashbot HQ')

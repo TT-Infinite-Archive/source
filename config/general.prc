@@ -81,7 +81,7 @@ want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
 want-resistance-grounds #t
-want-construction-zone #t
+want-strike-zone #t
 
 # Safe zone settings:
 want-treasure-planners #f

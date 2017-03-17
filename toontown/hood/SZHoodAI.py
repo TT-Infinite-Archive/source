@@ -2,11 +2,11 @@ from toontown.hood.HoodAI import HoodAI
 from toontown.toonbase import ToontownGlobals
 
 
-class CZHoodAI(HoodAI):
+class SZHoodAI(HoodAI):
     def __init__(self, air):
         HoodAI.__init__(self, air,
-                        ToontownGlobals.ConstructionZone,
-                        ToontownGlobals.ConstructionZone)
+                        ToontownGlobals.StrikeZone,
+                        ToontownGlobals.StrikeZone)
 
         self.startup()
 

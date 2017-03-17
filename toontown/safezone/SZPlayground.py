@@ -1,6 +1,6 @@
 from toontown.safezone import Playground
 
-class CZPlayground(Playground.Playground):
+class SZPlayground(Playground.Playground):
     def enter(self, requestStatus):
         Playground.Playground.enter(self, requestStatus)
 

@@ -150,7 +150,7 @@ class HoodMgr(DirectObject.DirectObject):
             [0, 0, 0, 0, 0, 0],
         ),
         # TODO: Add legitimate drop points
-        ToontownGlobals.ConstructionZone: (
+        ToontownGlobals.StrikeZone: (
             [0, 0, 0, 0, 0, 0],
         ),
         ToontownGlobals.Tutorial: (
@@ -201,7 +201,7 @@ class HoodMgr(DirectObject.DirectObject):
         'lawhq': ToontownGlobals.LawbotHQ,
         'gz': ToontownGlobals.GolfZone,
         'rg': ToontownGlobals.ResistanceGrounds,
-        'cz': ToontownGlobals.ConstructionZone
+        'sz': ToontownGlobals.StrikeZone
     }
     hoodId2Name = {
         ToontownGlobals.DonaldsDock: 'dd',
@@ -219,7 +219,7 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.LawbotHQ: 'lawhq',
         ToontownGlobals.GolfZone: 'gz',
         ToontownGlobals.ResistanceGrounds: 'rg',
-        ToontownGlobals.ConstructionZone: 'cz'
+        ToontownGlobals.StrikeZone: 'sz'
     }
     dbgDropMode = 0
     currentDropPoint = 0
