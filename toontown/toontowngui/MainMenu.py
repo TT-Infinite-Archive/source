@@ -101,6 +101,7 @@ class MainMenu(DirectFrame, FSM):
         self.background = OnscreenImage(
             parent=base.aspect2d, image='phase_3/maps/loading_bg_clouds.jpg',
             scale=(2, 1, 1), pos=(0, 0, 0))
+        self.background.setBin('background', 0)
 
         # Load the Toontown Infinite logo
         offset = -0.04
@@ -195,6 +196,21 @@ class MainMenu(DirectFrame, FSM):
             # command=lambda: self.request('Mods')
         )
         self.buttons2.append(self.modsButton)
+        
+        self.optionsButton = MATShuffleButton(
+            parent = base.a2dBottomLeft,
+            pos=(.4, 0, .2),
+            text="Options",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            # command=lambda: self.request('Options')
+        )
+        self.buttons2.append(self.optionsButton)
 
         """
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
