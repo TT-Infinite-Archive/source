@@ -1,20 +1,20 @@
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
-from otp.otpbase import OTPLocalizer
-
-from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-from toontown.toonbase.ColorGlobals import CGray, CDefault
-from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
-from toontown.util import TTCardMaker
-
-from pandac.PandaModules import *
-from toontown.toonbase import ToontownGlobals
 from direct.gui.DirectGui import *
-from toontown.toonbase import TTLocalizer
-from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import LerpScaleInterval
-from toontown.util import PlacerTool3D
+from direct.interval.IntervalGlobal import Sequence
+from pandac.PandaModules import *
+
+from otp.otpbase import OTPLocalizer
+from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from toontown.shtiker.OptionsTabPage import OptionsTabPage
+from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownGlobals
+from toontown.toonbase.ColorGlobals import CGray, CDefault
 from toontown.toontowngui import TTDialog
+from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
+from toontown.util import PlacerTool3D
+from toontown.util import TTCardMaker
 
 
 class MainMenu(DirectFrame, FSM):
@@ -100,9 +100,16 @@ class MainMenu(DirectFrame, FSM):
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
             parent=base.aspect2d, image='phase_3/maps/loading_bg_clouds.jpg',
-            scale=(2, 1, 1), pos=(0, 0, 0))
+            pos=(0, 0, 0))
         self.background.setBin('background', 0)
-
+        self.background.setScale(render2d, Vec3(1)) # Scale the background to fill screen on any ratio
+        
+        
+        def windowEvent(win):
+            self.background.setScale(render2d, Vec3(1))
+        
+        self.accept('window-event', windowEvent) # Listen if a window event happens to resize background
+        
         # Load the Toontown Infinite logo
         offset = -0.04
 
@@ -208,7 +215,7 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.10,
             text2_scale=0.105,
             text1_scale=0.105,
-            # command=lambda: self.request('Options')
+            command=lambda: self.request('Options')
         )
         self.buttons2.append(self.optionsButton)
 
@@ -443,19 +450,20 @@ class MainMenu(DirectFrame, FSM):
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
-        self.quitButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.AvatarChooserQuit,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACquitButtonPos,
-            text_scale=TTLocalizer.ACquitButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(1.65, 0, -0.935), command=self.__handleQuit)
-        self.quitButton.reparentTo(base.aspect2d)
-
-        self.quitButton.hide()
-        self.quitButton.reparentTo(base.aspect2d)
+        self.quitButton = MATShuffleButton(
+            parent = base.a2dBottomRight,
+            pos=(-.4, 0, .2),
+            text="Quit",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=self.__handleQuit
+        )
+        self.buttons2.append(self.quitButton)
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
@@ -884,6 +892,22 @@ class MainMenu(DirectFrame, FSM):
         if not base.wantMods:
             self.lockIconMods.hide()
     """
+    
+    def enterOptions(self):
+        self.optionsScreen = OptionsTabPage()
+        self.optionsScreen.show()
+        self.optionsButton.show()
+        self.optionsButton['command'] = lambda: self.request('Idle')
+        self.optionsButton['text'] = "Back"
+        self.logo.hide()
+        
+    def exitOptions(self):
+        if self.optionsScreen is not None:
+            self.optionsScreen.unload()
+            self.optionsScreen = None
+        self.optionsButton['command'] = lambda: self.request('Options')
+        self.optionsButton['text'] = "Options"
+        self.logo.show()
 
     def enterSingleplayer(self):
         OTPLocalizer.SpeedChatStaticText[30500] = "I'm playing Singleplayer on Toontown Infinite!"
@@ -1005,6 +1029,9 @@ class MainMenu(DirectFrame, FSM):
 
     def enterOff(self):
         self.hide()
+        
+        self.ignore('window-event')
+        
         if self.logoScaleTrack is not None:
             self.logoScaleTrack.finish()
             self.logoScaleTrack = None
