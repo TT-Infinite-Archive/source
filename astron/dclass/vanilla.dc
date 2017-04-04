@@ -4,6 +4,7 @@ from direct.distributed import DistributedSmoothNode/AI
 from direct.distributed import DistributedCartesianGrid/AI
 from direct.distributed import DistributedCamera/AI/OV
 from otp.distributed import Account/AI/UD
+from otp.ai import BanManager/AI
 from otp.ai import TimeManager/AI
 from otp.ai import MagicWordManager/AI
 from otp.avatar import DistributedAvatar/AI/UD
@@ -413,6 +414,11 @@ struct CPUSpeed {
   int32/1000 currentSpeed;
 };
 
+dclass BanManager: DistributedObject {
+  requestUserInfo();
+  sendUserInfo(string, string) clsend airecv;
+};
+
 dclass TimeManager : DistributedObject {
   requestServerTime(uint8 context) airecv clsend;
   serverTime(uint8 context, int32 timestap, uint32 timeOfDay);
@@ -543,7 +549,7 @@ dclass AvatarHandle : TalkPath_whisper {
 
 dclass DistributedAvatar : DistributedSmoothNode, TalkPath_whisper {
   string DcObjectType db;
-  setName(string = "[Name not set]") required broadcast db airecv;
+  setName(string = "[Name not set]") required broadcast db airecv ownrecv;
   friendsNotify(DoId avId, int8 status) ownrecv airecv;
   checkAvOnShard(DoId) clsend airecv;
   confirmAvOnShard(DoId avId, int8 isOnShard);
@@ -608,7 +614,7 @@ dclass OtpAvatarManager : DistributedObject {
 
 dclass ChatAgent : DistributedObject {
   adminChat(uint32, string);
-  chatMessage(string(0-256), uint16 channel) clsend;
+  chatMessage(string(0-256), string name, uint16 channel) clsend;
   muteAccount(uint32, uint32, uint32);
   checkMuted(uint32);
 };
@@ -3825,7 +3831,7 @@ struct PotentialToon {
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
-  requestAuthToken() clsend;
+  requestAuthToken(string, string) clsend;
   receiveAuthToken(string authToken);
 
   login(string cookie, string authToken) clsend;

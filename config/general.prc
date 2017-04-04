@@ -35,6 +35,11 @@ server-timezone EST/EDT/-5
 server-port 7000
 account-server-endpoint https://toontowninfinite.com/api/
 
+# RPC:
+want-rpc-server #f
+rpc-server-endpoint http://localhost:8080/
+rpc-server-secret eWd54mrNYuREmTA6
+
 # Performance:
 sync-video #f
 texture-power-2 none
@@ -79,7 +84,7 @@ want-toon-palooza #t
 
 # Safe zone settings:
 want-treasure-planners #f
-want-suit-planners #f
+want-suit-planners #t
 
 # Classic characters:
 want-classic-chars #f
@@ -96,13 +101,13 @@ want-goofy #f
 want-minigames #t
 want-photo-game #f
 want-travel-game #f
-want-ttc-trolley #f
+want-ttc-trolley #t
 
 # Picnic table board games:
 want-game-tables #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 want-sellbot-headquarters #t
 want-cashbot-headquarters #t
 want-lawbot-headquarters #t
@@ -115,10 +120,6 @@ want-resistance-dance #f
 
 # Cog battles:
 base-xp-multiplier 1.0
-
-# Cog buildings:
-want-cogbuildings #f
-want-cogdominiums #f
 
 # Optional:
 show-total-population #t

@@ -4,9 +4,15 @@ from direct.distributed.DistributedObjectGlobalUD import \
     DistributedObjectGlobalUD
 
 from toontown.chat.TTWhiteList import TTWhiteList
+from otp.distributed import OtpDoGlobals
 from otp.chat.ChatGlobals import ChannelToType
-from toontown.chat.TTSequenceList import TTSequenceList
+from toontown.chat.TTBlacklist import BLACKLIST, SEQUENCES
 import time
+
+
+class DummyWhiteList(TTWhiteList):
+    def isWord(*args):
+        return True
 
 
 class ChatAgentUD(DistributedObjectGlobalUD):
@@ -18,20 +24,30 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         self.wantWhiteList = config.GetBool('want-whitelist', True)
         self.wantBlackList = config.GetBool('want-blacklist', True)
 
-        self.whiteList = None
+        self.whiteList = DummyWhiteList()
         if self.wantWhiteList:
             self.whiteList = TTWhiteList()
 
-        self.sequenceList = None
-        if self.wantBlackList:
-            self.sequenceList = TTSequenceList()
-
         self.mutedDict = {}
+        self.accept('nameCheck', self.checkBadNames)
 
-    def chatMessage(self, message, channel):
-        sender = self.air.getAvatarIdFromSender()
+    def checkBadNames(self, toonName, nameCheck=False):
+        isBadName = self.detectBadWords(toonName)
+        sequenceChecks = self.lookForSequences(toonName.split(' '))
+        for check in sequenceChecks:
+            if check[0]:
+                isBadName = True
+                break
+
+        if nameCheck:
+            return isBadName
+
+        simbase.air.sendNetEvent('badNameResponse', [isBadName], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
+
+    def chatMessage(self, message, name, channel):
+        senderId = self.air.getAvatarIdFromSender()
         accountId = self.air.getAccountIdFromSender()
-        if sender == 0:
+        if senderId == 0:
             self.air.writeServerEvent('suspicious',
                                       self.air.getAccountIdFromSender(),
                                       'Account sent chat without an avatar',
@@ -42,39 +58,24 @@ class ChatAgentUD(DistributedObjectGlobalUD):
             # Check if this account is muted.
             return
 
-        modifications = []
-        words = message.split(' ')
-        offset = 0
-        for word in words:
-            if self.wantWhiteList and word and not self.whiteList.isWord(word):
-                modifications.append((offset, offset + len(word) - 1))
-            offset += len(word) + 1
-
-        cleanMessage = message
-        for modStart, modStop in modifications:
-            cleanMessage = cleanMessage[:modStart] + '*'*(modStop-modStart+1) + cleanMessage[modStop+1:]
-
-        if self.wantBlackList:
-            modifications += self.cleanSequences(cleanMessage)
-
-        self.air.writeServerEvent('chat-said', sender, message, cleanMessage)
+        self.air.writeServerEvent('chat-said', senderId, message, message)
 
         if config.GetBool('want-chat-logging', False):
             def handleQueryObjectLocationResp(parentId, zoneId):
                 self.air.mongodb.chat.messages.insert_one(
                     {'type': ChannelToType[channel],
                      'timestamp': int(time.time()),
-                     'sender': sender,
+                     'sender': senderId,
                      'recipient': 0,
                      'location': [parentId, zoneId],
                      'message': message})
 
-            self.air.queryObjectLocation(sender, handleQueryObjectLocationResp)
+            self.air.queryObjectLocation(senderId, handleQueryObjectLocationResp)
 
-        DistributedAvatar = self.air.dclassesByName['DistributedAvatarUD']
-        dg = DistributedAvatar.aiFormatUpdate(
-            'setTalk', sender, sender, self.air.ourChannel,
-            [0, 0, '', message, modifications, 0, channel])
+        dclass = self.air.dclassesByName['DistributedAvatarUD']
+        dg = dclass.aiFormatUpdate(
+            'setTalk', senderId, senderId, self.air.ourChannel,
+            [senderId, accountId, name, message, [], 0, channel])
         self.air.send(dg)
 
     def muteAccount(self, accountId, timestamp, timeLeft):
@@ -113,24 +114,37 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         self.air.dbInterface.queryObject(
             self.air.dbId, accountId, __handleRetrieve)
 
-    # Check for black-listed word sequences and scrub accordingly.
-    def cleanSequences(self, message):
-        modifications = []
-        offset = 0
+    def detectBadWords(self, message):
         words = message.split()
-        for wordit in xrange(len(words)):
-            word = words[wordit].lower()
-            seqlist = self.sequenceList.getList(word)
-            if len(seqlist) > 0:
-                for seqit in xrange(len(seqlist)):
-                    sequence = seqlist[seqit]
-                    splitseq = sequence.split()
-                    if len(words) - (wordit + 1) >= len(splitseq):
-                        cmplist = words[wordit + 1:]
-                        del cmplist[len(splitseq):]
-                        cmplist = [word.lower() for word in cmplist]
-                        if cmp(cmplist, splitseq) == 0:
-                            modifications.append((offset, offset + len(word) + len(sequence) - 1))
-            offset += len(word) + 1
+        for word in words:
+            if word.lower().strip(',.!?\'\"') in BLACKLIST or message.lower().strip(',.!?\'\"') in BLACKLIST:
+                return True
 
-        return modifications
+            phrase = ''
+            for letter in word:
+                phrase += letter
+                if phrase.lower().strip(',.!?\'\"') in BLACKLIST:
+                    return True
+
+        return False
+
+    def lookForSequences(self, words):
+        flaggedIndexes = []
+        seqCheckList = [(i, SEQUENCES.get(word.lower().strip(',.!?\'\"'))) for i, word in enumerate(words)
+                        if word.lower().strip(',.!?\'\"') in SEQUENCES and self.whiteList.isWord(word)]
+        for candidate in seqCheckList:
+            currentIndex = candidate[0]
+            strings = candidate[1]
+            for string in strings:
+                subseqStrings = string.split()
+                rangeEnd = len(subseqStrings) + 1
+                cleanSlice = [word.lower().strip(',.!?\'\"') for word in
+                              words[currentIndex + 1:currentIndex + rangeEnd]]
+                if not cleanSlice:
+                    break
+                if cleanSlice != subseqStrings:
+                    continue
+                flaggedIndexes.extend(range(currentIndex, currentIndex + rangeEnd))
+                break
+
+        return [(i, self.wantWhiteList) for i in flaggedIndexes]

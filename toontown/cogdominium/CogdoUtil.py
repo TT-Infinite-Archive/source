@@ -1,5 +1,4 @@
 from pandac.PandaModules import ColorBlendAttrib
-import random
 ModelPhase = 5
 ModelTypes = {'animation': 'a',
  'model': 'm',
@@ -46,8 +45,8 @@ class DevVariableContainer:
         self.__dict__[name] = self._enabled and value
 
 
-def getRandomDialogueLine(lineList):
-    return lineList[random.randint(0, len(lineList) - 1)]
+def getRandomDialogueLine(lineList, rng):
+    return lineList[rng.randint(0, len(lineList) - 1)]
 
 
 class CogdoGameMovie:

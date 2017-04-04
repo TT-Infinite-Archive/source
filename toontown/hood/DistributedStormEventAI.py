@@ -40,7 +40,7 @@ class DistributedStormEventAI(DistributedObjectAI, FSM):
     def exitIdle(self):
         pass
 
-@magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR)
+@magicWord(category=CATEGORY_HOST)
 def stormState(state):
     if (not simbase.air.newsManager.getStormEnabled()) or (not simbase.config.GetBool('want-storm-cutscene', False)):
         simbase.air.writeServerEvent('warning', avId=spellbook.getInvoker().doId, issue="Attempted to change the storm state while it's disabled.")

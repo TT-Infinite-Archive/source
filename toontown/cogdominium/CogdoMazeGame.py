@@ -1,6 +1,7 @@
 from pandac.PandaModules import Point3, CollisionSphere, CollisionNode
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.PythonUtil import Functor
+from direct.showbase.RandomNumGen import RandomNumGen
 from direct.task.Task import Task
 from toontown.toonbase import ToontownGlobals
 from toontown.minigame.MazeSuit import MazeSuit
@@ -31,7 +32,7 @@ class CogdoMazeGame(DirectObject):
     def load(self, cogdoMazeFactory, numSuits, bossCode):
         self._initAudio()
         self.maze = cogdoMazeFactory.createCogdoMaze()
-        suitSpawnSpot = self.maze.createRandomSpotsList(numSuits)
+        suitSpawnSpot = self.maze.createRandomSpotsList(numSuits, self.distGame.randomNumGen)
         self.guiMgr = CogdoMazeGuiManager(self.maze, bossCode)
         self.suits = []
         self.suitsById = {}
@@ -43,24 +44,28 @@ class CogdoMazeGame(DirectObject):
         self.gagCounter = 0
         self.gags = []
         self.hackTemp = False
+        self.dropGen = RandomNumGen(self.distGame.doId)
         self.gagTimeoutTasks = []
         self.finished = False
         self.lastBalloonTimestamp = None
         difficulty = self.distGame.getDifficulty()
         serialNum = 0
         for i in xrange(numSuits[0]):
-            suit = CogdoMazeBossSuit(serialNum, self.maze, difficulty, startTile=suitSpawnSpot[0][i])
+            suitRng = RandomNumGen(self.distGame.doId + serialNum * 10)
+            suit = CogdoMazeBossSuit(serialNum, self.maze, suitRng, difficulty, startTile=suitSpawnSpot[0][i])
             self.addSuit(suit)
             self.guiMgr.mazeMapGui.addSuit(suit.suit)
             serialNum += 1
 
         for i in xrange(numSuits[1]):
-            suit = CogdoMazeFastMinionSuit(serialNum, self.maze, difficulty, startTile=suitSpawnSpot[1][i])
+            suitRng = RandomNumGen(self.distGame.doId + serialNum * 10)
+            suit = CogdoMazeFastMinionSuit(serialNum, self.maze, suitRng, difficulty, startTile=suitSpawnSpot[1][i])
             self.addSuit(suit)
             serialNum += 1
 
         for i in xrange(numSuits[2]):
-            suit = CogdoMazeSlowMinionSuit(serialNum, self.maze, difficulty, startTile=suitSpawnSpot[2][i])
+            suitRng = RandomNumGen(self.distGame.doId + serialNum * 10)
+            suit = CogdoMazeSlowMinionSuit(serialNum, self.maze, suitRng, difficulty, startTile=suitSpawnSpot[2][i])
             self.addSuit(suit)
             serialNum += 1
 
@@ -84,7 +89,7 @@ class CogdoMazeGame(DirectObject):
 
         self.pickups = []
         self.gagModel = CogdoUtil.loadMazeModel('waterBalloon')
-        self._movie = CogdoMazeGameIntro(self.maze, self._exit)
+        self._movie = CogdoMazeGameIntro(self.maze, self._exit, self.distGame.randomNumGen)
         self._movie.load()
         return
 
@@ -372,6 +377,19 @@ class CogdoMazeGame(DirectObject):
     def handleBossShake(self, suit, strength):
         if Globals.BossShakeEnabled:
             self.shakeCamera(suit.suit, strength, Globals.BossMaxDistance)
+
+    def randomDrop(self, centerTX, centerTY, radius):
+        dropArray = []
+        for i in xrange(1, distance):
+            dropArray.append(i)
+            dropArray.append(-1 * i)
+
+        offsetTX = self.distGame.randomNumGen.choice(dropArray)
+        offsetTY = self.distGame.randomNumGen.choice(dropArray)
+        dropTX = sourceTX + offsetTX
+        dropTY = sourceTY + offsetTY
+        if self.maze.isWalkable(dropTX, dropTY):
+            self.generateDrop(dropTX, dropTY)
 
     def generateDrop(self, TX, TY):
         drop = self.maze.tile2world(TX, TY)

@@ -155,6 +155,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverVersion = serverVersion
         self.waitingForDatabase = None
         self.mainMenu = MainMenu()
+        self.homeScreen = MainMenu()
 
         self.loginFSM = ClassicFSM('loginFSM', [
             State('loginOff',
@@ -192,6 +193,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitFailedToConnect, [
                       'connect',
                       'mainMenu',
+                      'homeScreen',
                       'shutdown']),
             State('failedToGetServerConstants',
                   self.enterFailedToGetServerConstants,
@@ -226,6 +228,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'noShardsWait',
                       'mainMenu',
+                      'homeScreen',
                       'shutdown']),
             State('noShardsWait',
                   self.enterNoShardsWait,
@@ -242,6 +245,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'login',
                       'connect',
                       'mainMenu',
+                      'homescreen',
                       'shutdown']),
             State('afkTimeout',
                   self.enterAfkTimeout,
@@ -258,7 +262,8 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'chooseAvatar',
                       'shutdown',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('chooseAvatar',
                   self.enterChooseAvatar,
                   self.exitChooseAvatar, [
@@ -269,7 +274,8 @@ class OTPClientRepository(ClientRepositoryBase):
                       'waitForDeleteAvatarResponse',
                       'shutdown',
                       'login',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('createAvatar',
                   self.enterCreateAvatar,
                   self.exitCreateAvatar, [
@@ -305,10 +311,19 @@ class OTPClientRepository(ClientRepositoryBase):
                       'afkTimeout',
                       'periodTimeout',
                       'noShards',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('mainMenu',
                   self.enterMainMenu,
                   self.exitMainMenu, [
+                      'gameOff',
+                      'waitForGameList',
+                      'chooseAvatar',
+                      'connect',
+                      'shutdown']),
+            State('homeScreen',
+                  self.enterHomeScreen,
+                  self.exitHomeScreen, [
                       'gameOff',
                       'waitForGameList',
                       'chooseAvatar',
@@ -978,7 +993,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.notify.warning('Lost connection to server. Notifying user.')
         if (self.bootedIndex is not None) and (self.bootedIndex in OTPLocalizer.CRBootedReasons):
             message = OTPLocalizer.CRBootedReasons[self.bootedIndex]
-        elif self.bootedIndex == 155:
+        elif self.bootedIndex in (155, 156):
             message = self.bootedText
         elif self.bootedText is not None:
             message = OTPLocalizer.CRBootedReasonUnknownCode % self.bootedIndex
@@ -995,7 +1010,7 @@ class OTPClientRepository(ClientRepositoryBase):
                                       self.loginFSM.request, ['shutdown'])
         else:
             reconnect = 1
-            if self.bootedIndex in (152, 127):
+            if self.bootedIndex in (152, 127, 156):
                 reconnect = 0
             style = OTPDialog.Acknowledge
             if reconnect and self.loginInterface.supportsRelogin():
@@ -1004,9 +1019,14 @@ class OTPClientRepository(ClientRepositoryBase):
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.lostConnectionBox = dialogClass(doneEvent='lostConnectionAck', message=message, text_wordwrap=18, style=style)
             self.lostConnectionBox.show()
+
             self.accept('lostConnectionAck', self.__handleLostConnectionAck)
 
     def __handleLostConnectionAck(self):
+        if self.bootedIndex == 156:
+            self.loginFSM.request('shutdown')
+            return
+
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
@@ -2200,3 +2220,9 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def exitMainMenu(self):
         self.mainMenu.hide()
+
+    def enterHomeScreen(self):
+        self.homeScreen.request('HomeScreen')
+
+    def exitHomeScreen(self):
+        self.homeScreen.hide()

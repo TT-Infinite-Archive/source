@@ -79,6 +79,7 @@ BOSSBOT_FACTORY_2 = 75
 BOSSBOT_FACTORY_3 = 76
 CEO_1 = 77
 CEO_2 = 78
+JELLYFISH_JAM = 79
 
 Songs = {
     0: None,
@@ -87,7 +88,7 @@ Songs = {
     THEME_CHRISTMAS: ToontownSong(THEME_CHRISTMAS, TTLocalizer.MusicChristmasThemeSong, 'phase_3/audio/bgm/tti_theme_christmas.ogg', 92),
     CREATE_A_TOON: ToontownSong(CREATE_A_TOON, TTLocalizer.MusicCreateAToon, 'phase_3/audio/bgm/create_a_toon.ogg', 175),
     TC_NBR: ToontownSong(TC_NBR, TTLocalizer.MusicTcNbrhood, 'phase_4/audio/bgm/TC_nbrhood.ogg', 58),
-    TC_SZ: ToontownSong(TC_SZ, TTLocalizer.MusicTcSz, 'phase_4/audio/bgm/TC_SZ.ogg', 56),
+    TC_SZ: ToontownSong(TC_SZ, TTLocalizer.MusicTcSz, 'phase_3.5/audio/bgm/TC_SZ.ogg', 56),
     TC_ACT: ToontownSong(TC_ACT, TTLocalizer.MusicTcSzActivity, 'phase_4/audio/bgm/TC_SZ_activity.ogg', 52),
     DD_NBR: ToontownSong(DD_NBR, TTLocalizer.MusicDdNbrhood, 'phase_6/audio/bgm/DD_nbrhood.ogg', 66),
     DD_SZ: ToontownSong(DD_SZ, TTLocalizer.MusicDdSz, 'phase_6/audio/bgm/DD_SZ.ogg', 32),
@@ -160,6 +161,7 @@ Songs = {
     BOSSBOT_FACTORY_3: ToontownSong(BOSSBOT_FACTORY_3, TTLocalizer.MusicBossbotFactoryV3, 'phase_12/audio/bgm/Bossbot_Factory_v3.ogg', 30),
     CEO_1: ToontownSong(CEO_1, TTLocalizer.MusicBossbotCeoV1, 'phase_12/audio/bgm/BossBot_CEO_v1.ogg', 30),
     CEO_2: ToontownSong(CEO_2, TTLocalizer.MusicBossbotCeoV2, 'phase_12/audio/bgm/BossBot_CEO_v2.ogg', 30),
+    JELLYFISH_JAM: ToontownSong(JELLYFISH_JAM, TTLocalizer.JellyfishJam, 'phase_13/audio/bgm/party_jellyfish_jam.ogg', 279),
 }
 
 

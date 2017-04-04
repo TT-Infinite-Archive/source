@@ -159,6 +159,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
         self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
         self.wantMods = self.config.GetBool('want-mods', False)
+        self.wantServerBrowser = self.config.GetBool('want-server-browser', False)
         self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
         self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
         if self.inactivityTimeout:
@@ -707,7 +708,7 @@ class ToonBase(OTPBase.OTPBase):
         return res
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def picker(mode=0):
     from toontown.util.TTPicker import TTPicker
     from toontown.util.PlacerTool3D import PlacerTool3D

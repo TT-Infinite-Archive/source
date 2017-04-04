@@ -36,3 +36,5 @@ elif process == 'ai':
     import toontown.ai.ServiceStart
 elif process == 'uberdog':
     import toontown.uberdog.ServiceStart
+elif process == 'dedicated':
+    import toontown.dedicated.DedicatedStart

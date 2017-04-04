@@ -9,7 +9,10 @@ class DistributedBBElevator(DistributedBossElevator.DistributedBossElevator):
     def __init__(self, cr):
         DistributedBossElevator.DistributedBossElevator.__init__(self, cr)
         self.type = ELEVATOR_BB
-        self.countdownTime = ElevatorData[self.type]['countdown']
+        if base.isSinglePlayer:
+            self.countdownTime = ElevatorData[self.type]['solo_countdown']
+        else:
+            self.countdownTime = ElevatorData[self.type]['countdown']
         self.elevatorPoints = BossbotElevatorPoints
 
     def setupElevator(self):

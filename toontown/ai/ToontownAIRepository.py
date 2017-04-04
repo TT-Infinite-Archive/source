@@ -140,6 +140,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.friendManager.generateWithRequired(2)
         self.questManager = QuestManagerAI(self)
         self.banManager = BanManagerAI.BanManagerAI(self)
+        self.banManager.generateWithRequired(2)
         self.achievementsManager = AchievementsManagerAI(self)
         self.suitInvasionManager = SuitInvasionManagerAI(self)
         self.trophyMgr = DistributedTrophyMgrAI(self)
@@ -239,6 +240,7 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def handleConnected(self):
         ToontownInternalRepository.handleConnected(self)
+        self.registerForChannel(MESSENGER_CHANNEL_AI)
 
         if self.config.GetBool('want-threaded-ai-start', False):
             threading.Thread(target=self.startDistrict).start()

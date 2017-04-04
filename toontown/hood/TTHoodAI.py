@@ -64,6 +64,6 @@ class TTHoodAI(HoodAI.HoodAI):
 
     def createJukeBox(self):
         self.jukebox = DistributedJukeboxAI(self.air, 5)
-        self.jukebox.setPosHpr(-119.815, 79.913, 0.525, 39, 0, 0)
+        self.jukebox.setPosHpr(-105.604, 88.585, 0.525, 34, 0, 0)
         self.jukebox.generateWithRequired(self.zoneId)
 

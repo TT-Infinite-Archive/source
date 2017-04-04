@@ -1327,7 +1327,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         return 0
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_USER2)
 def crash():
     """
     Crashes your client.
@@ -1335,7 +1335,7 @@ def crash():
     base.localAvatar = None
     return 'Crashed!'
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_USER2)
 def run():
     """
     Toggles debugging run speed.
@@ -1343,7 +1343,7 @@ def run():
     inputState.set('debugRunning', inputState.isSet('debugRunning') != True)
     return 'Toggled debug run speed.'
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_USER2)
 def collisionsOff():
     """
     Turns collisions off.
@@ -1351,7 +1351,7 @@ def collisionsOff():
     base.localAvatar.collisionsOff()
     return 'Collisions are disabled.'
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_USER2)
 def collisionsOn():
     """
     Turns collisions on.
@@ -1359,7 +1359,7 @@ def collisionsOn():
     base.localAvatar.collisionsOn()
     return 'Collisions are enabled.'
 
-@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
+@magicWord(category=CATEGORY_USER2, types=[int])
 def gravity(value):
     """
     Modifies the invoker's gravity. For default, use 0.
@@ -1367,18 +1367,18 @@ def gravity(value):
     if value < 0:
         return 'Invalid gravity value!'
     if value == 0:
-        base.localAvatar.ToontownControlManager.currentControls.setGravity(ToontownGlobals.GravityValue * 2.0)
+        base.localAvatar.controlManager.currentControls.setGravity(ToontownGlobals.GravityValue * 2.0)
     else:
-        base.localAvatar.ToontownControlManager.currentControls.setGravity(value)
+        base.localAvatar.controlManager.currentControls.setGravity(value)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[float, float, float])
+@magicWord(category=CATEGORY_USER2, types=[float, float, float])
 def xyz(x, y, z):
     """
     Modifies the position of the invoker.
     """
     base.localAvatar.setPos(x, y, z)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[float, float, float])
+@magicWord(category=CATEGORY_USER2, types=[float, float, float])
 def hpr(h, p, r):
     """
     Modifies the rotation of the invoker.

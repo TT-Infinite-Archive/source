@@ -5,10 +5,10 @@ class ShardStatusReceiver:
         self.shards = {}
 
         # Accept the shardStatus event:
-        self.air.netMessenger.accept('shardStatus', self, self.handleShardStatus)
+        self.accept('shardStatus', self.handleShardStatus)
 
         # Query the status of any existing shards:
-        self.air.netMessenger.send('queryShardStatus')
+        self.air.sendNetEvent('queryShardStatus')
 
     def handleShardStatus(self, channel, status):
         self.shards.setdefault(channel, {}).update(status)
