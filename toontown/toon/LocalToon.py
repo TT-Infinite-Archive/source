@@ -453,7 +453,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.accept('InputState-turnLeft', self.__toonMoved)
         self.accept('InputState-turnRight', self.__toonMoved)
         self.accept('InputState-slide', self.__toonMoved)
-
+        
+        self.controlManager.reload()
+        self.chatMgr.reloadWASD()
+        
         self.achievementGui = AchievementGui.AchievementGui()
 
         QuestParser.init()
