@@ -745,9 +745,10 @@ class OptionsTabPage(DirectFrame):
             self.configureControlsButton.enable()
 
         base.reloadControls()
-        base.localAvatar.controlManager.reload()
-        base.localAvatar.chatMgr.reloadWASD()
-        base.localAvatar.controlManager.disable()
+        if self.hasAvatar:
+            base.localAvatar.controlManager.reload()
+            base.localAvatar.chatMgr.reloadWASD()
+            base.localAvatar.controlManager.disable()
 
     def __doSpeedChatStyleLeft(self):
         if self.speedChatStyleIndex > 0:
