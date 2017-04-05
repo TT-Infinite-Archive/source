@@ -462,46 +462,54 @@ class MainMenu(DirectFrame, FSM):
         quitHover = gui.find('**/QuitBtn_RLVR')
 
         # Back Button
-        self.backButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
+        self.backButton = MATShuffleButton(
+            parent = base.a2dBottomLeft,
+            pos=(.4, 0, .2),
             text=TTLocalizer.OptionsGoBack,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACquitButtonPos,
-            text_scale=TTLocalizer.ACbackButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-1.65, 0, -0.935), command=lambda: self.request('Idle'))
-
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Idle')
+        )
         self.backButton.hide()
-        self.backButton.reparentTo(base.aspect2d)
-
+        
         # Back Button 2
-        self.backButton2 = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
+        self.backButton2 = MATShuffleButton(
+            parent = base.a2dBottomLeft,
+            pos=(.4, 0, .2),
             text=TTLocalizer.OptionsGoBack,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACquitButtonPos,
-            text_scale=TTLocalizer.ACbackButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-1.65, 0, -0.935), command=lambda: self.request('Idle')) # self.request('HomeScreen'))
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Idle')
+        )
 
         self.backButton2.hide()
-        self.backButton2.reparentTo(base.aspect2d)
 
         # Back Button 3
-        self.backButton3 = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
+        self.backButton3 = MATShuffleButton(
+            parent = base.a2dBottomLeft,
+            pos=(.4, 0, .2),
             text=TTLocalizer.OptionsGoBack,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACquitButtonPos,
-            text_scale=TTLocalizer.ACbackButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-1.65, 0, -0.935), command=lambda: self.request('Multiplayer'))
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Multiplayer')
+        )
 
         self.backButton3.hide()
-        self.backButton3.reparentTo(base.aspect2d)
 
         self.hide()
 
