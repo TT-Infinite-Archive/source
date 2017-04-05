@@ -99,9 +99,9 @@ class MainMenu(DirectFrame, FSM):
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
-            parent=base.aspect2d, image='phase_3/maps/loading_bg_clouds.jpg',
-           scale=(2, 1, 1), pos=(0, 0, 0))
+            parent=render2d, image='phase_3/maps/loading_bg_clouds.jpg', pos=(0, 0, 0))
         self.background.setBin('background', 0)
+        self.background.setScale(render2d, Vec3(1))
         
         # Load the Toontown Infinite logo
         offset = -0.04
