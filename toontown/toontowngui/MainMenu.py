@@ -100,15 +100,8 @@ class MainMenu(DirectFrame, FSM):
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
             parent=base.aspect2d, image='phase_3/maps/loading_bg_clouds.jpg',
-            pos=(0, 0, 0))
+           scale=(2, 1, 1), pos=(0, 0, 0))
         self.background.setBin('background', 0)
-        self.background.setScale(render2d, Vec3(1)) # Scale the background to fill screen on any ratio
-        
-        
-        def windowEvent(win):
-            self.background.setScale(render2d, Vec3(1))
-        
-        self.accept('window-event', windowEvent) # Listen if a window event happens to resize background
         
         # Load the Toontown Infinite logo
         offset = -0.04
@@ -1029,9 +1022,7 @@ class MainMenu(DirectFrame, FSM):
 
     def enterOff(self):
         self.hide()
-        
-        self.ignore('window-event')
-        
+
         if self.logoScaleTrack is not None:
             self.logoScaleTrack.finish()
             self.logoScaleTrack = None
