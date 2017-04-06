@@ -27,3 +27,4 @@ banned_players.txt
 venv/
 astron/sp-database/
 astron/mp-database/
+*.mdmp

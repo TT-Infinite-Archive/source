@@ -117,7 +117,8 @@ class ControlRemap:
         self.fsm.enterInitialState()
         self.dialog.accept('doneRemapping', self.exit)
         messenger.send('disable-hotkeys')
-        base.localAvatar.chatMgr.disableBackgroundFocus()
+        if hasattr(base, 'localAvatar'):
+            base.localAvatar.chatMgr.disableBackgroundFocus()
 
     def enterShow(self):
         pass
@@ -188,11 +189,12 @@ class ControlRemap:
         settings.write()
 
         base.reloadControls()
-        base.localAvatar.controlManager.reload()
-        base.localAvatar.chatMgr.reloadWASD()
+        if hasattr(base, 'localAvatar'):
+            base.localAvatar.controlManager.reload()
+            base.localAvatar.chatMgr.reloadWASD()
         self.unload()
-
-        base.localAvatar.controlManager.disable()
+        if hasattr(base, 'localAvatar'):
+            base.localAvatar.controlManager.disable()
         messenger.send('controlsRemapped')
 
     def exitSave(self):
