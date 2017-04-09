@@ -1021,12 +1021,13 @@ class MainMenu(DirectFrame, FSM):
         
         if not hasattr(self, 'bookmarksList'):
             self.bookmarksList = DirectScrolledList(parent = self,
-                decButton_pos= (0, 0, -.08),
+                decButton_pos= (0, 0, 0.9),
                 decButton_image = (gui.find('**/FndsLst_ScrollUp'),
                     gui.find('**/FndsLst_ScrollDN'),
                     gui.find('**/FndsLst_ScrollUp_Rllvr'),
                     gui.find('**/FndsLst_ScrollUp')),
                 decButton_relief = None,
+                decButton_scale = (1.5, 1.5, 1.5),
                 
                 incButton_pos= (0, 0, -0.9),
                 incButton_image = (gui.find('**/FndsLst_ScrollUp'),
@@ -1034,41 +1035,42 @@ class MainMenu(DirectFrame, FSM):
                     gui.find('**/FndsLst_ScrollUp_Rllvr'),
                     gui.find('**/FndsLst_ScrollUp')),
                 incButton_relief = None,
-                incButton_scale = (1.0, 1.0, -1.0),
+                incButton_scale = (1.5, 1.5, -1.5),
 
-                itemFrame_relief = None,
                 
                 items = [],
-                numItemsVisible = 4,
-                forceHeight = .2,
-                itemFrame_frameSize = (-0.6, 0.5, -0.6, 0.3),
-                itemFrame_pos = (0, 0, -.2),
+                numItemsVisible = 16,
+                forceHeight = .096,
+                itemFrame_frameSize = (-1, 1, -1.5, .1),
+                itemFrame_pos = (0, 0, .7),
+                itemFrame_frameColor = (0.85, 0.95, 1, 1)
                 )
         self.bookmarksList.show()
         self.makeBookmarksButtons()
+        self.logo.hide()
          
     def exitBookmarks(self):
         self.backButton3.hide()
         self.bookmarksList.hide()
+        self.logo.show()
 
     def makeBookmarksButtons(self):
         self.bookmarksList.removeAllItems()
         
         trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui.bam')
-        buttonScale = (-.6, .6, .6)
-        buttonScale_clickhover = (-.7, .7, .7)
+        buttonScale = (-1.1, .6, .6)
+        buttonScale_clickhover = (-1.2, .7, .7)
         for bookmark in self.bookmarks:
             name = bookmark[0]
             address = bookmark[1]
-            button = MATShuffleButton(
+            button = DirectButton(
+                relief = None,
                 text="%s" %(name),
-                wantArrows=False,
-                image_scale=buttonScale,
-                image2_scale=buttonScale_clickhover,
-                image1_scale=buttonScale_clickhover,
-                text_scale = 0.042,
-                text2_scale = 0.047,
-                text1_scale = 0.047,
+                text_scale = 0.082,
+                text2_scale = 0.087,
+                text1_scale = 0.087,
+                text_fg = (1, 1, 1, 1),
+                text_shadow = (0, 0, 0, 1),
                 command = self.__submitIP,
                 extraArgs = [address])
             
@@ -1085,12 +1087,12 @@ class MainMenu(DirectFrame, FSM):
                 text_scale = 0.15,
                 text_pos = (0, -0.1),
                 relief = None,
-                scale = .5,
+                scale = .2,
                 command = self.deleteFromBookmarks,
                 extraArgs = [name, address],
                 pos = (0, 0, 0))
             deleteButton.reparentTo(button)
-            deleteButton.setPos(.5, 0, 0)
+            deleteButton.setPos(.9, 0, .03)
                     
 
             self.bookmarksList.addItem(button)
