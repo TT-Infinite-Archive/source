@@ -1,3 +1,6 @@
+import os
+from direct.distributed.PyDatagram import PyDatagram
+from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
 from direct.gui.DirectGui import *
@@ -350,7 +353,7 @@ class MainMenu(DirectFrame, FSM):
 
         # Multiplayer Menu Buttons
         self.serverBrowserButton = MATShuffleButton(
-            pos=(0, 0, -0.5),
+            pos=(-.35, 0, -0.5),
             text="Server\nBrowser",
             text_pos=(0, 0.02, 0),
             wantArrows=False,
@@ -361,6 +364,20 @@ class MainMenu(DirectFrame, FSM):
             text2_scale=0.085,
             text1_scale=0.085,
             command=lambda: self.request('MultiplayerSB')
+        )
+        
+        self.bookmarksButton = MATShuffleButton(
+            pos=(.35, 0, -0.5),
+            text="Bookmarked\nServers",
+            text_pos=(0, 0.02, 0),
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.08,
+            text2_scale=0.085,
+            text1_scale=0.085,
+            command=lambda: self.request('Bookmarks')
         )
 
         self.directConnectButton = MATShuffleButton(
@@ -411,6 +428,7 @@ class MainMenu(DirectFrame, FSM):
         self.mpButtons.append(self.serverBrowserButton)
         self.mpButtons.append(self.directConnectButton)
         self.mpButtons.append(self.helpButton)
+        self.mpButtons.append(self.bookmarksButton)
 
         # Functionality for enabling and disabling the Server Browser button
         self.serverBrowserButton['state'] = DGG.DISABLED
@@ -423,7 +441,7 @@ class MainMenu(DirectFrame, FSM):
 
         # Multiplayer Menu Buttons: Join Menu
         self.connectButton = MATShuffleButton(
-            pos=(0, 0, -0.75),
+            pos=(.35, 0, -0.75),
             text="Connect",
             wantArrows=False,
             image_scale=buttonScale,
@@ -435,6 +453,22 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('StartDirectConnect')
         )
         self.connectButton.hide()
+        
+        # Multiplayer Menu Buttons: Add current ip to Bookmarks
+        self.addToBookmarksButton = MATShuffleButton(
+            pos=(-.35, 0, -0.75),
+            text_pos=(0, 0.02, 0),
+            text="Add To\nBookmarks",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.10,
+            command=self.addToBookmarks
+        )
+        self.addToBookmarksButton.hide()
 
         self.label12['text'] = TTLocalizer.Help
         self.label12.reparentTo(aspect2d)
@@ -512,6 +546,36 @@ class MainMenu(DirectFrame, FSM):
         self.backButton3.hide()
 
         self.hide()
+        
+        # Load Bookmarks file
+        self.bookmarks = []
+        
+        if self.bookmarks == []:
+            if not os.path.exists("bookmarks.dat"):
+                with open("bookmarks.dat", 'wb') as file:
+        
+                    data = PyDatagram()
+                    data.add_uint8(0)
+                    
+                    file.write(PyDatagramIterator(data).get_remaining_bytes())
+                    
+            file = open("bookmarks.dat", 'rb')
+            data = file.read()
+            file.close()
+            
+            dg = PyDatagram(data)
+            data = PyDatagramIterator(dg)
+            
+            def getBookmark(index, dgi):
+                name = dgi.get_string()
+                address = dgi.get_string()
+                if address != '':
+                    self.bookmarks.append([name, address])
+            
+            for index in xrange(data.get_uint8()):
+                getBookmark(index, data)
+            
+            print(self.bookmarks)
 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
@@ -950,7 +1014,87 @@ class MainMenu(DirectFrame, FSM):
     def exitMultiplayerHelp(self):
         self.label12.hide()
         self.backButton3.hide()
+        
+    def enterBookmarks(self):
+        self.backButton3.show()
+        gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
+        
+        if not hasattr(self, 'bookmarksList'):
+            self.bookmarksList = DirectScrolledList(parent = self,
+                decButton_pos= (0, 0, -.08),
+                decButton_image = (gui.find('**/FndsLst_ScrollUp'),
+                    gui.find('**/FndsLst_ScrollDN'),
+                    gui.find('**/FndsLst_ScrollUp_Rllvr'),
+                    gui.find('**/FndsLst_ScrollUp')),
+                decButton_relief = None,
+                
+                incButton_pos= (0, 0, -0.9),
+                incButton_image = (gui.find('**/FndsLst_ScrollUp'),
+                    gui.find('**/FndsLst_ScrollDN'),
+                    gui.find('**/FndsLst_ScrollUp_Rllvr'),
+                    gui.find('**/FndsLst_ScrollUp')),
+                incButton_relief = None,
+                incButton_scale = (1.0, 1.0, -1.0),
 
+                itemFrame_relief = None,
+                
+                items = [],
+                numItemsVisible = 4,
+                forceHeight = .2,
+                itemFrame_frameSize = (-0.6, 0.5, -0.6, 0.3),
+                itemFrame_pos = (0, 0, -.2),
+                )
+        self.bookmarksList.show()
+        self.makeBookmarksButtons()
+         
+    def exitBookmarks(self):
+        self.backButton3.hide()
+        self.bookmarksList.hide()
+
+    def makeBookmarksButtons(self):
+        self.bookmarksList.removeAllItems()
+        
+        trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui.bam')
+        buttonScale = (-.6, .6, .6)
+        buttonScale_clickhover = (-.7, .7, .7)
+        for bookmark in self.bookmarks:
+            name = bookmark[0]
+            address = bookmark[1]
+            button = MATShuffleButton(
+                text="%s" %(name),
+                wantArrows=False,
+                image_scale=buttonScale,
+                image2_scale=buttonScale_clickhover,
+                image1_scale=buttonScale_clickhover,
+                text_scale = 0.042,
+                text2_scale = 0.047,
+                text1_scale = 0.047,
+                command = self.__submitIP,
+                extraArgs = [address])
+            
+            deleteButton = DirectButton(parent = button,
+                geom = (trashcanGui.find('**/TrashCan_CLSD'),
+                    trashcanGui.find('**/TrashCan_OPEN'),
+                    trashcanGui.find('**/TrashCan_RLVR')),
+                text = ('',
+                    TTLocalizer.AvatarChoiceDelete,
+                    TTLocalizer.AvatarChoiceDelete,
+                    ''),
+                text_fg = (1, 1, 1, 1),
+                text_shadow = (0, 0, 0, 1),
+                text_scale = 0.15,
+                text_pos = (0, -0.1),
+                relief = None,
+                scale = .5,
+                command = self.deleteFromBookmarks,
+                extraArgs = [name, address],
+                pos = (0, 0, 0))
+            deleteButton.reparentTo(button)
+            deleteButton.setPos(.5, 0, 0)
+                    
+
+            self.bookmarksList.addItem(button)
+        
     def enterDirectConnect(self):
         self.backButton3.show()
         self.label11.show()
@@ -988,6 +1132,7 @@ class MainMenu(DirectFrame, FSM):
         self.__enableIPEntry()
         self.ipInput.enterText('')
         self.connectButton.show()
+        self.addToBookmarksButton.show()
 
     def exitDirectConnect(self):
         self.backButton3.hide()
@@ -995,21 +1140,52 @@ class MainMenu(DirectFrame, FSM):
         self.label11.hide()
         self.__disableIPEntry()
         self.connectButton.hide()
+        self.addToBookmarksButton.hide()
+
         for label in self.labels:
             label.hide()
 
     def __submitIP(self, input=None):
+        print(input)
         if input is None:
             input = self.ipInput.get()
-        self.ipInput['focus'] = 1
+            self.ipInput['focus'] = 1
         if input == '':
             return
+        self.targetIp = input
         messenger.send('wakeup')
         self.request('StartDirectConnect')
-
+        
+    def addToBookmarks(self):
+        def makeBookmark(name, address, dg):
+            dg.add_string(name)
+            dg.add_string(address)
+            
+        if hasattr(self, 'ipInput'):
+            if self.ipInput.get() == '':
+                return
+            name = self.ipInput.get() # TODO: Add custom naming of bookmarks
+            address = self.ipInput.get()
+            bookmark = [name, address]
+            if not bookmark in self.bookmarks:
+                self.bookmarks.append(bookmark)
+            with open("bookmarks.dat", 'wb') as file:
+                dg = PyDatagram()
+                dg.add_uint8(len(self.bookmarks))
+                for bookmark in self.bookmarks:
+                    makeBookmark(bookmark[0], bookmark[1], dg)
+                file.write(PyDatagramIterator(dg).getRemainingBytes())
+                print(self.bookmarks)
+                
+    def deleteFromBookmarks(self, name, address):
+        data = [name, address]
+        self.bookmarks.remove(data)
+        self.makeBookmarksButtons()
+        self.addToBookmarks()
+                
     def enterStartDirectConnect(self):
         base.isHosting = False
-        ip = self.ipInput.get()
+        ip = self.targetIp
         if ':' in ip:
             ip, port = ip.split(':')
             try:
