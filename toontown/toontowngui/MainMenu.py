@@ -466,7 +466,7 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.09,
             text2_scale=0.095,
             text1_scale=0.10,
-            command=self.addToBookmarks
+            command=self.createBookmark
         )
         self.addToBookmarksButton.hide()
 
@@ -1065,7 +1065,7 @@ class MainMenu(DirectFrame, FSM):
             address = bookmark[1]
             button = DirectButton(
                 relief = None,
-                text="%s" %(name),
+                text="%s[%s]" %(name, address),
                 text_scale = 0.082,
                 text2_scale = 0.087,
                 text1_scale = 0.087,
@@ -1158,6 +1158,46 @@ class MainMenu(DirectFrame, FSM):
         messenger.send('wakeup')
         self.request('StartDirectConnect')
         
+    def createBookmark(self):
+        if self.ipInput.get() == '':
+            return
+        def done():
+            self.addToBookmarks()
+            self.addToBookmarksDialog.hide()
+        self.addToBookmarksDialog = TTDialog.TTGlobalDialog(
+                    dialogName='AddToBookmarkDialog', doneEvent='addBookmark', style=TTDialog.Acknowledge,
+                    text="Choose a name for this bookmark", text_wordwrap=24,
+                    text_pos=(0, 0), suppressKeys = True, suppressMouse = True
+                )
+        scale = self.addToBookmarksDialog.component('image0').getScale()
+        scale.setX(((scale[0] * 2.5) / base.getAspectRatio()) * 1.2)
+        scale.setZ(scale[2] * 2.5)
+        self.addToBookmarksDialog.component('image0').setScale(scale)
+        self.addToBookmarksDialog.accept('addBookmark', done)
+        self.serverNameInput = DirectEntry(
+            parent=self.addToBookmarksDialog,
+            relief=DGG.GROOVE,
+            scale=0.1,
+            pos=(0, 0, 0.2),
+            borderWidth=(0.05, 0.05),
+            frameColor=((1, 1, 1, 1),
+                        (1, 1, 1, 1),
+                        (0.5, 0.5, 0.5, 0.5)),
+            state=DGG.NORMAL,
+            text_align=TextNode.ACenter,
+            text_scale=TTLocalizer.OPCodesInputTextScale,
+            width=10.5,
+            numLines=1,
+            focus=1,
+            backgroundFocus=0,
+            cursorKeys=1,
+            text_fg=(0,
+                     0,
+                     0,
+                     1),
+            suppressMouse=1,
+            autoCapitalize=0)
+        
     def addToBookmarks(self):
         def makeBookmark(name, address, dg):
             dg.add_string(name)
@@ -1166,7 +1206,15 @@ class MainMenu(DirectFrame, FSM):
         if hasattr(self, 'ipInput'):
             if self.ipInput.get() == '':
                 return
-            name = self.ipInput.get() # TODO: Add custom naming of bookmarks
+            try: # This wants to crash so i'll do this for now
+                if self.serverNameInput.get() == '':
+                    if self.ipInput != '':
+                        self.name = self.ipInput.get()
+                    else:
+                        return
+            except:
+                return
+            name = self.serverNameInput.get() # TODO: Add custom naming of bookmarks
             address = self.ipInput.get()
             bookmark = [name, address]
             if not bookmark in self.bookmarks:
@@ -1178,13 +1226,23 @@ class MainMenu(DirectFrame, FSM):
                     makeBookmark(bookmark[0], bookmark[1], dg)
                 file.write(PyDatagramIterator(dg).getRemainingBytes())
                 print(self.bookmarks)
-                
+                    
     def deleteFromBookmarks(self, name, address):
+        def makeBookmark(name, address, dg):
+            dg.add_string(name)
+            dg.add_string(address)
         data = [name, address]
         self.bookmarks.remove(data)
         self.makeBookmarksButtons()
         self.addToBookmarks()
-                
+        with open("bookmarks.dat", 'wb') as file:
+            dg = PyDatagram()
+            dg.add_uint8(len(self.bookmarks))
+            for bookmark in self.bookmarks:
+                makeBookmark(bookmark[0], bookmark[1], dg)
+            file.write(PyDatagramIterator(dg).getRemainingBytes())
+            print(self.bookmarks)
+            
     def enterStartDirectConnect(self):
         base.isHosting = False
         ip = self.targetIp
