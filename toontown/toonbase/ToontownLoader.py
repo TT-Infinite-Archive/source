@@ -111,7 +111,7 @@ class ToontownLoader(Loader.Loader):
 
     def loadMusic(self, soundPath):
         if hasattr(base, 'wantClassicMusic') and base.wantClassicMusic:
-            soundPath.replace('.ogg', '_og.ogg')
+            soundPath = soundPath.replace('.ogg', '_og.ogg')
         ret = Loader.Loader.loadMusic(self, soundPath)
         self.tick()
         return ret
