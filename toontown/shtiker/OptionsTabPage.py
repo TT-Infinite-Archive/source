@@ -223,7 +223,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             text_size=TTLabel.TTLabel.MediumSize,
             pos=(rightXBase + 0.02, 0, rightYBase + 0.1),
-            text=TTLocalizer.OptionsPageVolume
+            text=TTLocalizer.OptionsPageSound
         )
 
         # Music
@@ -268,6 +268,21 @@ class OptionsTabPage(DirectFrame):
             pos=(-0.1, 0, rightYBase - textRowHeight * row - 0.07),
             enabled=base.sfxActive,
             command=self.setSoundVolume
+        )
+        
+        # Classic Music
+        row += 1.5
+        self.classicMusicLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text=TTLocalizer.OptionsPageClassicMusic,
+            text_align=TextNode.ALeft,
+        )
+        self.classicMusicCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.wantClassicMusic,
+            command=self.__doToggleClassicMusic
         )
 
         # -- Social
@@ -550,6 +565,8 @@ class OptionsTabPage(DirectFrame):
         self.soundCheckBox.show()
         self.soundLabel.show()
         self.soundSlider.show()
+        self.classicMusicCheckBox.show()
+        self.classicMusicLabel.show()
 
     def hideSoundGui(self):
         self.volumeTitle.hide()
@@ -559,7 +576,9 @@ class OptionsTabPage(DirectFrame):
         self.soundCheckBox.hide()
         self.soundLabel.hide()
         self.soundSlider.hide()
-
+        self.classicMusicCheckBox.hide()
+        self.classicMusicLabel.hide()
+        
     def showGameplayGui(self):
         self.controlsTitle.show()
         self.wantCustomControlsLabel.show()
@@ -648,6 +667,15 @@ class OptionsTabPage(DirectFrame):
             base.enableMusic(1)
             settings[SettingsGlobals.Music] = True
             self.musicSlider.enable()
+            
+    def __doToggleClassicMusic(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantClassicMusic:
+            settings[SettingsGlobals.ClassicMusic] = False
+            base.wantClassicMusic = False
+        else:
+            settings[SettingsGlobals.ClassicMusic] = True
+            base.wantClassicMusic = True
 
     def __doToggleVSync(self):
         messenger.send(EventGlobals.WakeUp)
