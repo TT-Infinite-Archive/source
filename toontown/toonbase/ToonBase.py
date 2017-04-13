@@ -266,6 +266,8 @@ class ToonBase(OTPBase.OTPBase):
         
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
 
+        self.wantClassicMusic = settings.get('classic-music', False)
+        
         self.leakGraph = None
         if config.GetBool('want-leak-graph-client', False):
             self.leakGraph = LeakGraph('tti-client-process')
