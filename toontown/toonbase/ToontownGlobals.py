@@ -551,7 +551,8 @@ streetPhaseMap = {
     SellbotHQ: 9,
     CashbotHQ: 10,
     LawbotHQ: 11,
-    PartyHood: 13
+    PartyHood: 13,
+    StrikeZone: 6,
 }
 dnaMap = {
     Tutorial: 'toontown_central',
@@ -564,12 +565,12 @@ dnaMap = {
     DonaldsDreamland: 'donalds_dreamland',
     OutdoorZone: 'outdoor_zone',
     ResistanceGrounds: 'resistance_grounds',
-    StrikeZone: 'construction_zone',
+    StrikeZone: 'strike_zone',
     BossbotHQ: 'cog_hq_bossbot',
     SellbotHQ: 'cog_hq_sellbot',
     CashbotHQ: 'cog_hq_cashbot',
     LawbotHQ: 'cog_hq_lawbot',
-    GolfZone: 'golf_zone'
+    GolfZone: 'golf_zone',
 }
 hoodNameMap = {
     DonaldsDock: TTLocalizer.DonaldsDock,

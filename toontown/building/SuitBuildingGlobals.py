@@ -291,6 +291,8 @@ buildingMinMax = {
                                   config.GetInt('lullaby-lane-building-max', 12)],
     ToontownGlobals.PajamaPlace: [config.GetInt('pajama-place-building-min', 6),
                                   config.GetInt('pajama-place-building-max', 12)],
+    ToontownGlobals.StrikeZone: [config.GetInt('pajama-place-building-min', 0),
+                                  config.GetInt('pajama-place-building-max', 0)],
     ToontownGlobals.SellbotHQ: [0, 0],
     ToontownGlobals.SellbotFactoryExt: [0, 0],
     ToontownGlobals.CashbotHQ: [0, 0],
@@ -316,6 +318,7 @@ buildingChance = {
     ToontownGlobals.PolarPlace: config.GetFloat('polar-place-building-chance', 100.0),
     ToontownGlobals.LullabyLane: config.GetFloat('lullaby-lane-building-chance', 100.0),
     ToontownGlobals.PajamaPlace: config.GetFloat('pajama-place-building-chance', 100.0),
+    ToontownGlobals.StrikeZone: config.GetFloat('pajama-place-building-chance', 0),
     ToontownGlobals.SellbotHQ: 0.0,
     ToontownGlobals.SellbotFactoryExt: 0.0,
     ToontownGlobals.CashbotHQ: 0.0,
@@ -341,6 +344,7 @@ zone2plannerId = {
     5300: [36, 37, 39, 40, 41, 42, 43, 44],
     9100: [36, 37, 39, 40, 41, 42, 43, 44, 45, 46],
     9200: [36, 37, 39, 40, 41, 42, 43, 44, 45, 46],
+    19000: [36, 37, 39, 40, 41, 42, 43, 44, 45, 46],
 }
 
 
@@ -357,4 +361,5 @@ zone2MinMaxLevel = {
     4000: (5, 10),
     5000: (6, 11),
     9000: (7, 12),
+    19000: (8, 13),
 }

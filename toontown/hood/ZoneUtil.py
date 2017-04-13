@@ -239,3 +239,14 @@ def getWakeInfo(hoodId = None, zoneId = None):
         pass
 
     return (showWake, wakeWaterHeight)
+
+def genDNAFileName(zoneId):
+    zoneId = getCanonicalZoneId(zoneId)
+    hoodId = getCanonicalHoodId(zoneId)
+    hood = dnaMap[hoodId]
+    if zoneId == StrikeZone:
+        phase = 6
+    if hoodId == zoneId:
+        zoneId = 'sz'
+    return 'phase_%s/dna/%s_%s.pdna' % (phase, hood, zoneId)
+

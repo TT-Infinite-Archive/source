@@ -43,6 +43,6 @@ class BankBuildingAI:
         insideDoor.generateWithRequired(self.interiorZone)
         self.door = door
         self.insideDoor = insideDoor
-    
+
     def isSuitBuilding(self):
         return False

@@ -1,2 +1,2 @@
 cd ../
-mongod.exe --port 7030 --dbpath mp-database
+mongod.exe --port 7030 --dbpath data/multiplayer

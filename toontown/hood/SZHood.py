@@ -30,7 +30,7 @@ class SZHood(ToonHood):
 
         render.setColorScale(Vec4(0.55, 0.35, 0.35, 1))
 
-        base.cr.shardTimeManager.setCurrentTime(2000)
+        base.cr.shardTimeManager.setCurrentTime(1000)
 
     def processTime(self):
         pass

@@ -4,8 +4,7 @@ daemon:
 general:
     eventlogger: 127.0.0.1:7020
     dc_files:
-        - dclass/otp.dc
-        - dclass/toon.dc
+        - dclass/vanilla.dc
 
 uberdogs:
     - class: CentralLogger
