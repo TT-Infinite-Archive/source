@@ -70,9 +70,6 @@ class OptionsTabPage(DirectFrame):
         self.rightFrame = DirectFrame(
             parent=self, relief=None, pos=(0.5, 0.0, 0.0), frameSize=(-0.4, 0.3, -0.5, 0.5)
         )
-        self.centerFrame = DirectFrame(
-            parent=self, relief=None, pos=(0.05, 0.0, 0.0), frameSize=(-0.4, 0.3, -0.5, 0.5)
-        )
 
         self.videoButton = TTClickableLabel.TTClickableLabel(
             self.leftFrame,
@@ -218,16 +215,6 @@ class OptionsTabPage(DirectFrame):
         self.animationSmoothingRequiresRestartLabel.hide()
         self.vsyncRequiresRestartLabel.hide()
         self.requiresRestartLabel.hide()
-
-        self.toggleSoundtrackLabel = TTLabel.TTLabel(
-            parent=self.centerFrame,
-            pos=(-0.04, 0, -0.57),
-            text_align=TextNode.ALeft,
-            text_fg=ColorGlobals.CRed,
-            text='* %s' % TTLocalizer.OptionsPageToggleSoundtrack
-        )
-        self.toggledSoundtrack = False
-        self.toggleSoundtrackLabel.hide()
 
         # -- Sound
 
@@ -475,7 +462,6 @@ class OptionsTabPage(DirectFrame):
     def exit(self):
         self.ignore('confirmDone')
         self.hide()
-        self.toggledSoundtrack = False
         if self.hasAvatar:
             self.speedChatStyleText.exit()
         if self.displaySettingsChanged:
@@ -581,8 +567,6 @@ class OptionsTabPage(DirectFrame):
         self.soundSlider.show()
         self.classicMusicCheckBox.show()
         self.classicMusicLabel.show()
-        if self.toggledSoundtrack:
-            self.toggleSoundtrackLabel.show()
 
     def hideSoundGui(self):
         self.volumeTitle.hide()
@@ -594,7 +578,6 @@ class OptionsTabPage(DirectFrame):
         self.soundSlider.hide()
         self.classicMusicCheckBox.hide()
         self.classicMusicLabel.hide()
-        self.toggleSoundtrackLabel.hide()
         
     def showGameplayGui(self):
         self.controlsTitle.show()
@@ -693,8 +676,6 @@ class OptionsTabPage(DirectFrame):
         else:
             settings[SettingsGlobals.ClassicMusic] = True
             base.wantClassicMusic = True
-        self.toggleSoundtrackLabel.show()
-        self.toggledSoundtrack = True
 
     def __doToggleVSync(self):
         messenger.send(EventGlobals.WakeUp)
