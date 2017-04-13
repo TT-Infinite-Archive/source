@@ -15,6 +15,7 @@ Resolution = 'res'
 Fullscreen = 'fullscreen'
 AnimationSmoothing = 'animation-smoothing'
 ProcessFailback = 'process-failback'
+ClassicMusic = 'classic-music'
 
 InitialSettings = {
     # Initial setting
@@ -30,6 +31,7 @@ InitialSettings = {
     VSync: False,
     AnimationSmoothing: True,
     ProcessFailback: 60,
+    ClassicMusic: False,
     Keymap: {
         "ACTION_BUTTON": "delete",
         "CHAT_HOTKEY": "t",
