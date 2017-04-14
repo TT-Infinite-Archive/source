@@ -90,7 +90,7 @@ lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
 lResistanceGrounds = 'Toon Resistance Grounds'
-lStrikeZone = 'Strike Zone'
+lStrikeZone = 'Governaught Strike Zone'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),
  1100: ('to', 'on', 'Barnacle Boulevard'),

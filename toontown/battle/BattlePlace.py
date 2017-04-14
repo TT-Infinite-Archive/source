@@ -107,7 +107,10 @@ class BattlePlace(Place.Place):
         zoneId = ZoneUtil.getCanonicalZoneId(zoneId)
         hoodId = ZoneUtil.getCanonicalHoodId(zoneId)
         hood = ToontownGlobals.dnaMap[hoodId]
-        phase = ToontownGlobals.streetPhaseMap[hoodId]
+        if zoneId == ToontownGlobals.StrikeZone:
+            phase = 6
+        else:
+            phase = ToontownGlobals.streetPhaseMap[hoodId]
         if hoodId == zoneId:
             zoneId = 'sz'
         return 'phase_%s/dna/%s_%s.pdna' % (phase, hood, zoneId)

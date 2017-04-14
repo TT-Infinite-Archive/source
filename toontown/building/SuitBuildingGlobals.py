@@ -257,6 +257,7 @@ CLEAR_OUT_TOON_BLDG_TIME = 4
 TO_SUIT_BLDG_TIME = 8
 
 buildingMinMax = {
+    ToontownGlobals.StrikeZone: (0, 0),
     ToontownGlobals.SillyStreet: [config.GetInt('silly-street-building-min', 0),
                                   config.GetInt('silly-street-building-max', 3)],
     ToontownGlobals.LoopyLane: [config.GetInt('loopy-lane-building-min', 0),
@@ -291,8 +292,6 @@ buildingMinMax = {
                                   config.GetInt('lullaby-lane-building-max', 12)],
     ToontownGlobals.PajamaPlace: [config.GetInt('pajama-place-building-min', 6),
                                   config.GetInt('pajama-place-building-max', 12)],
-    ToontownGlobals.StrikeZone: [config.GetInt('pajama-place-building-min', 0),
-                                  config.GetInt('pajama-place-building-max', 0)],
     ToontownGlobals.SellbotHQ: [0, 0],
     ToontownGlobals.SellbotFactoryExt: [0, 0],
     ToontownGlobals.CashbotHQ: [0, 0],
@@ -318,12 +317,12 @@ buildingChance = {
     ToontownGlobals.PolarPlace: config.GetFloat('polar-place-building-chance', 100.0),
     ToontownGlobals.LullabyLane: config.GetFloat('lullaby-lane-building-chance', 100.0),
     ToontownGlobals.PajamaPlace: config.GetFloat('pajama-place-building-chance', 100.0),
-    ToontownGlobals.StrikeZone: config.GetFloat('pajama-place-building-chance', 0),
     ToontownGlobals.SellbotHQ: 0.0,
     ToontownGlobals.SellbotFactoryExt: 0.0,
     ToontownGlobals.CashbotHQ: 0.0,
     ToontownGlobals.LawbotHQ: 0.0,
-    ToontownGlobals.BossbotHQ: 0.0
+    ToontownGlobals.BossbotHQ: 0.0,
+    ToontownGlobals.StrikeZone: 0.0
 }
 
 zone2plannerId = {
