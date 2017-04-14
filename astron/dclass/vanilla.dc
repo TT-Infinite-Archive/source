@@ -349,6 +349,12 @@ from toontown.parties.GlobalPartyManager/AI/UD import GlobalPartyManager/AI/UD
 from toontown.uberdog import MegaInvasionManager/AI/UD
 from toontown.guilds import GuildManager/AI/UD
 from toontown.battle import DistributedBattleVault/AI
+from toontown.building import DistributedStrikeElevator/AI
+from toontown.strike import StrikeLobby/AI
+from toontown.strike import DistributedCorporateStrike/AI
+from toontown.strike import DistributedStrikeParticipant/AI
+from toontown.strike import DistributedStrikeEnemy/AI
+from toontown.strike import DistributedOperationSaveToontown/AI
 
 typedef uint8 bool;
 
@@ -4200,3 +4206,35 @@ dclass DistributedJukebox : DistributedObject {
   // Client Request
   requestPlaySong(uint32 songId) clsend airecv;
 };
+
+dclass StrikeLobby : DistributedObject {};
+
+dclass DistributedStrikeElevator : DistributedElevatorExt {
+  setStrikeId(int16) required broadcast ram;
+  setStrikeZone(uint32);
+};
+
+dclass DistributedCorporateStrike : DistributedObject {
+  setState(string state) broadcast ram;
+  barrierDone() clsend airecv;
+  setDropPoint(int16/10, int16/10, int16/10, int16%360/10);
+  setRound(uint16) broadcast;
+  setParticipantIds(uint32[1-4]) broadcast;
+};
+
+dclass DistributedStrikeParticipant : DistributedObject {
+  setAvId(uint32) required broadcast;
+  setPoints(uint16) required broadcast;
+  setHp(uint16) required broadcast;
+  setMaxHp(uint16) required broadcast;
+  setPosition(int16/10, int16/10) clsend airecv;
+  enterSpawnSphere(string) clsend airecv;
+};
+
+dclass DistributedStrikeEnemy : DistributedObject {
+  setType(string) required broadcast;
+  setInitialPos(int16/10, int16/10, int16/10, int16%360/10) broadcast required;
+  setPosition(int16/10, int16/10, int16/10, int16%360/10, int16) broadcast;
+};
+
+dclass DistributedOperationSaveToontown : DistributedCorporateStrike {};
