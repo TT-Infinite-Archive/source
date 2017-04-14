@@ -537,7 +537,8 @@ phaseMap = {
     GolfZone: 6,
     PartyHood: 13,
     ResistanceGrounds: 6,
-    StrikeZone: 6
+    StrikeZone: 6,
+    StrikeZoneBoss: 6
 }
 streetPhaseMap = {
     ToontownCentral: 5,

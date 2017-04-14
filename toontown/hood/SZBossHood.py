@@ -5,11 +5,11 @@ from direct.fsm.ClassicFSM import ClassicFSM
 from direct.fsm.State import State
 
 
-class SZBossHood(Place):
+class SZBossPlace(Place):
     def __init__(self, loader, doneEvent):
         Place.__init__(self, loader, doneEvent)
 
-        self.fsm = ClassicFSM('SZBossHood', [
+        self.fsm = ClassicFSM('SZBossPlace', [
             State('start', self.enterStart, self.exitStart, ['walk']),
             State('walk', self.enterWalk, self.exitWalk, ['start', 'dead']),
             State('dead', self.enterDead, self.exitDead, ['walk']),
@@ -47,7 +47,7 @@ class SZBossHood(Place):
     def exitDead(self):
         pass
 
-class StrikeBossHood(Hood):
+class SZBossHood(Hood):
     def __init__(self, parentFSM, doneEvent, dnaStore, hoodId):
         Hood.__init__(self, parentFSM, doneEvent, dnaStore, hoodId)
 
@@ -60,5 +60,5 @@ class StrikeBossHood(Hood):
         pass
 
     def loadLoader(self, requestStatus):
-        self.place = SZBossHood(self, 'strike-place-done')
+        self.place = SZBossPlace(self, 'strike-place-done')
         self.place.load()

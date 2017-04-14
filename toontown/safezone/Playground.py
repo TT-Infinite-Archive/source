@@ -139,6 +139,7 @@ class Playground(BattlePlace.BattlePlace):
                         self.exitHFA, [
                             'HFAReject',
                             'teleportOut',
+                            'movieOut',
                             'tunnelOut']),
             State.State('HFAReject',
                         self.enterHFAReject,
@@ -190,6 +191,7 @@ class Playground(BattlePlace.BattlePlace):
                         self.enterStopped,
                         self.exitStopped, [
                             'walk',
+                            'DFA',
                             'trialerFA']),
             State.State('fishing',
                         self.enterFishing,
