@@ -1,5 +1,5 @@
 from toontown.toonbase.ToontownGlobals import SellbotFactoryExt, SellbotLobby, CashbotHQ, CashbotLobby,\
-    LawbotOfficeExt, LawbotLobby, BossbotHQ, BossbotLobby
+    LawbotOfficeExt, LawbotLobby, BossbotHQ, BossbotLobby, OutdoorZone
 from toontown.toonbase import TTLocalizer
 
 # Indexes
@@ -38,23 +38,25 @@ BOSSBOT_CEO = 33
 
 JELLYBEAN_FEST = 34
 
+CORPORATE_STRIKE_OST = 40
+
 CATEGORY_NO_UPDATE = 99
 
 GROUP_TYPE_NORMAL = 0
 GROUP_TYPE_JELLYBEAN = 1
 
-
 SPECIAL_GROUPS = [GROUP_TYPE_JELLYBEAN]
 
 ZONE_TO_CATEGORY_LIST = {
     SellbotFactoryExt: [SELLBOT_FACTORY_FRONT, SELLBOT_FACTORY_SIDE],
-    SellbotLobby: [SELLBOT_VP, ],
+    SellbotLobby: [SELLBOT_VP],
     CashbotHQ: [CASHBOT_COIN_MINT, CASHBOT_DOLLAR_MINT, CASHBOT_BULLION_MINT],
-    CashbotLobby: [CASHBOT_CFO, ],
+    CashbotLobby: [CASHBOT_CFO],
     LawbotOfficeExt: [LAWBOT_A_OFFICE, LAWBOT_B_OFFICE, LAWBOT_C_OFFICE, LAWBOT_D_OFFICE],
-    LawbotLobby: [LAWBOT_CJ, ],
+    LawbotLobby: [LAWBOT_CJ],
     BossbotHQ: [BOSSBOT_FRONT_THREE, BOSSBOT_MIDDLE_SIX, BOSSBOT_BACK_NINE],
-    BossbotLobby: [BOSSBOT_CEO, ],
+    BossbotLobby: [BOSSBOT_CEO],
+    OutdoorZone: [CORPORATE_STRIKE_OST]
 }
 
 CATEGORY_TO_ZONE = {
@@ -73,9 +75,9 @@ CATEGORY_TO_ZONE = {
     BOSSBOT_FRONT_THREE: BossbotHQ,
     BOSSBOT_MIDDLE_SIX: BossbotHQ,
     BOSSBOT_BACK_NINE: BossbotHQ,
-    BOSSBOT_CEO: BossbotLobby
+    BOSSBOT_CEO: BossbotLobby,
+    CORPORATE_STRIKE_OST: OutdoorZone
 }
-
 
 CATEGORY_TO_MAX_PLAYERS = {
     SELLBOT_FACTORY_FRONT: 4,
@@ -97,6 +99,8 @@ CATEGORY_TO_MAX_PLAYERS = {
     BOSSBOT_MIDDLE_SIX: 4,
     BOSSBOT_BACK_NINE: 4,
     BOSSBOT_CEO: 8,
+
+    CORPORATE_STRIKE_OST: 4,
 
     JELLYBEAN_FEST: 500
 }
@@ -122,7 +126,9 @@ CATEGORY_TO_IMAGE_ID = {
     BOSSBOT_FRONT_THREE: 0,
     BOSSBOT_MIDDLE_SIX: 0,
     BOSSBOT_BACK_NINE: 0,
-    BOSSBOT_CEO: 0
+    BOSSBOT_CEO: 0,
+
+    CORPORATE_STRIKE_OST: 0
 }
 
 INFORM_COMING = 0

@@ -8,7 +8,7 @@ from toontown.launcher import DownloadForceAcknowledge
 import TrialerForceAcknowledge
 import ZoneUtil
 from toontown.friends import FriendsListManager
-from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownGlobals
 from toontown.toon.Toon import teleportDebug
 from toontown.estate import HouseGlobals
 from toontown.toonbase import TTLocalizer
@@ -125,13 +125,12 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         localCallbacks.clear()
         return
 
-    def setState(self, state, args=None):
-        args = [] if args is None else args
+    def setState(self, state):
         if hasattr(self, 'fsm'):
             curState = self.fsm.getName()
             if state == 'pet' or curState == 'pet':
                 self.preserveFriendsList()
-                self.fsm.request(state, args)
+            self.fsm.request(state)
 
     def getState(self):
         if hasattr(self, 'fsm'):
@@ -210,8 +209,10 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         self.walkStateData.enter()
         if teleportIn == 0:
             self.walkStateData.fsm.request('walking')
-        messenger.send(EventGlobals.EnterWalk)
         self.acceptOnce(self.walkDoneEvent, self.handleWalkDone)
+        if base.cr.productName in ['DisneyOnline-US', 'ES'] and not base.cr.isPaid() and base.localAvatar.tutorialAck:
+            base.localAvatar.chatMgr.obscure(0, 0)
+            base.localAvatar.chatMgr.normalButton.show()
         self.accept('teleportQuery', self.handleTeleportQuery)
         base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.questPage.acceptOnscreenHooks()
@@ -222,14 +223,15 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
 
     def exitWalk(self):
         self.exitFLM()
+        if base.cr.productName in ['DisneyOnline-US', 'ES'] and not base.cr.isPaid() and base.localAvatar.tutorialAck and not base.cr.whiteListChatEnabled:
+            base.localAvatar.chatMgr.obscure(1, 0)
         self.disablePeriodTimer()
-        messenger.send(EventGlobals.WakeUp)
-        messenger.send(EventGlobals.ExitWalk)
+        messenger.send('wakeup')
         self.walkStateData.exit()
         self.ignore(self.walkDoneEvent)
         base.localAvatar.setTeleportAvailable(0)
         self.ignore('teleportQuery')
-        if base.cr.playGame.hood is not None:
+        if base.cr.playGame.hood != None:
             base.cr.playGame.hood.hideTitleText()
         base.localAvatar.questPage.hideQuestsOnscreen()
         base.localAvatar.questPage.ignoreOnscreenHooks()
@@ -237,6 +239,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         base.localAvatar.invPage.hideInventoryOnscreen()
         base.localAvatar.questMap.hide()
         base.localAvatar.questMap.ignoreOnscreenHooks()
+        return
 
     def handleWalkDone(self, doneStatus):
         mode = doneStatus['mode']
@@ -394,10 +397,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         if base.cr.timeManager:
             base.cr.timeManager.setDisconnectReason(ToontownGlobals.DisconnectBookExit)
         base.transitions.fadeScreen(1.0)
-        if self.exitTo == 'disconnect':
-            base.cr.gameFSM.request('closeShard', ['mainMenu'])
-        else:
-            base.cr.gameFSM.request(self.exitTo)
+        base.cr.gameFSM.request(self.exitTo)
 
     def goHomeNow(self, curZoneId):
         if localAvatar.hasActiveBoardingGroup():
@@ -607,6 +607,14 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         messenger.send(self.doneEvent)
 
     def exitTunnelOut(self):
+        pass
+
+    def enterMovieOut(self, requestStatus):
+        base.localAvatar.stopQuestMap()
+        self.doneStatus = requestStatus
+        messenger.send(self.doneEvent)
+
+    def exitMovieOut(self):
         pass
 
     def enterTeleportOut(self, requestStatus, callback):

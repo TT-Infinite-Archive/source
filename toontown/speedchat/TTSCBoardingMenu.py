@@ -29,7 +29,8 @@ ZoneIdsToMsgs = {10000: [GroupPhrases, [5100, 5101, 5102], [5200, 5201, 5202]],
           5115], [5212,
           5213,
           5214,
-          5215]]}
+          5215]],
+19000: [GroupPhrases, [5111], [5211]]}
 
 class TTSCBoardingMenu(SCMenu):
 

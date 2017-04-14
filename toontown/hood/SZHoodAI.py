@@ -1,6 +1,8 @@
 from toontown.hood.HoodAI import HoodAI
 from toontown.toonbase import ToontownGlobals
 from toontown.suit.DistributedSuitPlannerAI import DistributedSuitPlannerAI
+from toontown.strike.CorporateStrikeManagerAI import CorporateStrikeManagerAI
+from toontown.strike import StrikeAreaGlobals
 
 
 class SZHoodAI(HoodAI):
@@ -14,6 +16,10 @@ class SZHoodAI(HoodAI):
     def startup(self):
         HoodAI.startup(self)
         self.createSuitPlanner()
+
+        self.strikeManager = CorporateStrikeManagerAI(self.air)
+        self.strikeManager.registerStrike(StrikeAreaGlobals.STRIKE_BOSS)
+        self.strikeManager.generate(self.zoneId)
 
     def createSuitPlanner(self):
         suitPlanner = DistributedSuitPlannerAI(self.air, self.zoneId)

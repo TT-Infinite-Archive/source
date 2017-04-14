@@ -174,6 +174,10 @@ class Playground(BattlePlace.BattlePlace):
                         self.enterTunnelOut,
                         self.exitTunnelOut, [
                             'final']),
+            State.State('movieOut',
+                        self.enterMovieOut,
+                        self.exitMovieOut, [
+                            'final']),
             State.State('quest',
                         self.enterQuest,
                         self.exitQuest, [
@@ -185,7 +189,8 @@ class Playground(BattlePlace.BattlePlace):
             State.State('stopped',
                         self.enterStopped,
                         self.exitStopped, [
-                            'walk']),
+                            'walk',
+                            'trialerFA']),
             State.State('fishing',
                         self.enterFishing,
                         self.exitFishing, [
@@ -484,6 +489,8 @@ class Playground(BattlePlace.BattlePlace):
         if doneStatus['mode'] == 'complete':
             if requestStatus.get('partyHat', 0):
                 outHow = {'teleportIn': 'tunnelOut'}
+            elif requestStatus['how'] == 'movie':
+                outHow = {'movie': 'movieOut'}
             else:
                 outHow = {'teleportIn': 'teleportOut',
                  'tunnelIn': 'tunnelOut',

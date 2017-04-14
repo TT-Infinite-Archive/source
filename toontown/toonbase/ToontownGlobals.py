@@ -220,6 +220,7 @@ MyEstate = 16000
 GolfZone = 17000
 PartyHood = 18000
 StrikeZone = 19000
+StrikeZoneBoss = 20000
 HoodsAlwaysVisited = [17000, 18000]
 WelcomeValleyBegin = 22000
 WelcomeValleyEnd = 61000
