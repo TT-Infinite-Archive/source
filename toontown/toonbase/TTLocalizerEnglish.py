@@ -90,7 +90,7 @@ lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
 lResistanceGrounds = 'Toon Resistance Grounds'
-lStrikeZone = 'Governaught Strike Zone'
+lStrikeZone = 'Governaught HQ'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),
  1100: ('to', 'on', 'Barnacle Boulevard'),
@@ -148,7 +148,7 @@ OutdoorZone = ('to', 'in', lOutdoorZone)
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
 ResistanceGrounds = ('to the', 'in the', lResistanceGrounds)
-StrikeZone = ('to the', 'in the', lStrikeZone)
+StrikeZone = ('to', 'in the', lStrikeZone)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
 SellbotHQ = ('to', 'in', 'Sellbot HQ')
 CashbotHQ = ('to', 'in', 'Cashbot HQ')
@@ -159,7 +159,7 @@ WelcomeValley = ('to', 'in', 'Welcome Valley')
 GolfZone = ('to', 'in', lGolfZone)
 PartyHood = ('to the', 'in the', lPartyHood)
 Factory = 'Factory'
-CogNation = 'Cog Nation'
+CogNation = 'Cog Headquarters'
 Headquarters = 'Headquarters'
 SellbotFrontEntrance = 'Front Entrance'
 SellbotSideEntrance = 'Side Entrance'
@@ -10769,3 +10769,5 @@ BehaviorName = {
  0: 'None',
  1: 'Having a picnic'
 }
+
+StrikeZoneBoss = 'Plaza Boss'
