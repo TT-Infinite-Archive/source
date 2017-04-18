@@ -123,8 +123,6 @@ class ToonBase(OTPBase.OTPBase):
             self.notify.debug('Enabling particles')
             self.enableParticles()
 
-        self.accept(ToontownGlobals.ScreenshotHotkey, self.takeScreenShot)
-
         # OS X Specific Actions
         if platform == "darwin":
             self.acceptOnce(ToontownGlobals.QuitGameHotKeyOSX, self.exitOSX)
@@ -253,6 +251,7 @@ class ToonBase(OTPBase.OTPBase):
         self.MOVE_RIGHT = 'arrow_right'
         self.JUMP = 'control'
         self.ACTION_BUTTON = 'delete'
+        self.SCREENSHOT_KEY = 'f9'
         
         keymap = settings.get('keymap', {})
         if self.wantCustomControls:
@@ -263,8 +262,11 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = keymap.get('JUMP', self.JUMP)
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
+            self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
         
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
+        
+        self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
 
         self.wantClassicMusic = settings.get('classic-music', False)
         
@@ -637,6 +639,7 @@ class ToonBase(OTPBase.OTPBase):
         base.win.requestProperties(wp)
 
     def reloadControls(self):
+        self.ignore(self.SCREENSHOT_KEY) # Ignore the current screenshot key to replace it
         keymap = settings.get('keymap', {})
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
         if self.wantCustomControls:
@@ -647,6 +650,7 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = keymap.get('JUMP', self.JUMP)
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
+            self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
         else:
             self.MOVE_UP = 'arrow_up'
             self.MOVE_DOWN = 'arrow_down'
@@ -654,6 +658,9 @@ class ToonBase(OTPBase.OTPBase):
             self.MOVE_RIGHT = 'arrow_right'
             self.JUMP = 'control'
             self.ACTION_BUTTON = 'delete'
+            self.SCREENSHOT_KEY = 'f9'
+            
+        self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
     def __tick(self, t=None):
         if platform != 'win32':
