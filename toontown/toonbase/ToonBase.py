@@ -105,6 +105,7 @@ class ToonBase(OTPBase.OTPBase):
         self.musicManager.setVolume(settings.get(SettingsGlobals.MusicVolume, 0.6))
         self.setSfxVolume(settings.get(SettingsGlobals.SoundVolume, 0.6))
         self.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
+        self.screenshotSfx = self.loader.loadSfx('phase_4/audio/sfx/Photo_shutter.ogg')
         tpm = TextPropertiesManager.getGlobalPtr()
         candidateActive = TextProperties()
         candidateActive.setTextColor(0, 0, 1, 1)
@@ -367,10 +368,13 @@ class ToonBase(OTPBase.OTPBase):
             base.transitions.fadeScreen(alpha=0.01)
 
     def takeScreenShot(self):
+        if hasattr(self, 'screenShotNotice') and self.screenShotNotice:
+            self.screenShotNotice.destroy()
+            taskMgr.remove('clearScreenshot')
         if not os.path.exists(TTLocalizer.ScreenshotPath):
             os.mkdir(TTLocalizer.ScreenshotPath)
             self.notify.info('Made new directory to save screenshots.')
-
+        self.screenshotSfx.play()
         namePrefix = TTLocalizer.ScreenshotPath + launcher.logPrefix + 'screenshot'
         timedif = globalClock.getRealTime() - self.lastScreenShotTime
         if self.glitchCount > 10 and self.walking:
@@ -407,11 +411,22 @@ class ToonBase(OTPBase.OTPBase):
         self.graphicsEngine.renderFrame()
         self.screenshot(namePrefix=namePrefix,
                         imageComment=ctext + ' ' + self.screenshotStr)
+        screenshot = self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
         self.lastScreenShotTime = globalClock.getRealTime()
+        pandafile = Filename(str(ExecutionEnvironment.getCwd()) + '/' + str(screenshot))
+        winfile = pandafile.toOsSpecific()
+        self.screenShotNotice = DirectLabel(text = "Screenshot Saved" + ':\n' + winfile, scale = 0.05, pos = (0.0, 0.0, -0.8), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
+        self.screenShotNotice.reparentTo(aspect2d, 7000)
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
             coordTextLabel.destroy()
+            
+        def clearScreenshotMsg(task):
+            self.screenShotNotice.destroy()
+            return task.done
+
+        taskMgr.doMethodLater(5.0, clearScreenshotMsg, 'clearScreenshot')
 
     def addScreenshotString(self, str):
         if len(self.screenshotStr):
