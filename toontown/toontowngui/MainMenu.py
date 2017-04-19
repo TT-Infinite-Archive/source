@@ -574,9 +574,7 @@ class MainMenu(DirectFrame, FSM):
             
             for index in xrange(data.get_uint8()):
                 getBookmark(index, data)
-            
-            print(self.bookmarks)
-
+                
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
             base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
@@ -1148,7 +1146,6 @@ class MainMenu(DirectFrame, FSM):
             label.hide()
 
     def __submitIP(self, input=None):
-        print(input)
         if input is None:
             input = self.ipInput.get()
             self.ipInput['focus'] = 1
@@ -1225,7 +1222,6 @@ class MainMenu(DirectFrame, FSM):
                 for bookmark in self.bookmarks:
                     makeBookmark(bookmark[0], bookmark[1], dg)
                 file.write(PyDatagramIterator(dg).getRemainingBytes())
-                print(self.bookmarks)
                     
     def deleteFromBookmarks(self, name, address):
         def makeBookmark(name, address, dg):
@@ -1241,7 +1237,6 @@ class MainMenu(DirectFrame, FSM):
             for bookmark in self.bookmarks:
                 makeBookmark(bookmark[0], bookmark[1], dg)
             file.write(PyDatagramIterator(dg).getRemainingBytes())
-            print(self.bookmarks)
             
     def enterStartDirectConnect(self):
         base.isHosting = False
