@@ -40,7 +40,8 @@ InitialSettings = {
         "MOVE_LEFT": "a",
         "MOVE_RIGHT": "d",
         "MOVE_UP": "w",
-        "OPTIONS_PAGE_HOTKEY": "escape"
+        "OPTIONS_PAGE_HOTKEY": "escape",
+        "SCREENSHOT_KEY": "f9"
     }
 }
 
