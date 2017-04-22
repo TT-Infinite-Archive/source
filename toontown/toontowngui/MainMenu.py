@@ -547,6 +547,8 @@ class MainMenu(DirectFrame, FSM):
 
         self.hide()
         
+        self.bookmarkInfoDialog = None
+        
         # Load Bookmarks file
         self.bookmarks = []
         
@@ -1039,40 +1041,65 @@ class MainMenu(DirectFrame, FSM):
                 items = [],
                 numItemsVisible = 16,
                 forceHeight = .096,
-                itemFrame_frameSize = (-1, 1, -1.5, .1),
+                itemFrame_frameSize = (-.6, .6, -1.5, .1),
                 itemFrame_pos = (0, 0, .7),
                 itemFrame_frameColor = (0.85, 0.95, 1, 1)
                 )
+            self.bookmarksList.setPos(0.8, 0, 0)
         self.bookmarksList.show()
         self.makeBookmarksButtons()
         self.logo.hide()
+        self.background['image'] = 'phase_3.5/maps/big_book.jpg'
          
     def exitBookmarks(self):
         self.backButton3.hide()
         self.bookmarksList.hide()
+        self.bookmarkInfoDialog.hide()
         self.logo.show()
+        self.background['image'] = 'phase_3/maps/loading_bg_clouds.jpg'
 
     def makeBookmarksButtons(self):
         self.bookmarksList.removeAllItems()
-        
-        trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui.bam')
-        buttonScale = (-1.1, .6, .6)
-        buttonScale_clickhover = (-1.2, .7, .7)
         for bookmark in self.bookmarks:
             name = bookmark[0]
             address = bookmark[1]
             button = DirectButton(
                 relief = None,
-                text="%s[%s]" %(name, address),
+                text="%s" %(name),
                 text_scale = 0.082,
                 text2_scale = 0.087,
                 text1_scale = 0.087,
-                text_fg = (1, 1, 1, 1),
-                text_shadow = (0, 0, 0, 1),
-                command = self.__submitIP,
-                extraArgs = [address])
+                text_fg = (0, 0, 0, 1),
+                command = self.showBookmarkInfo,
+                extraArgs = [name, address])
+                 
+            self.bookmarksList.addItem(button)
+        
+    def showBookmarkInfo(self, name, address):
+        buttonScale = (-1.1, 1.1, 1.1)
+        buttonScale_clickhover = (-1.2, 1.2, 1.2)
+        if self.bookmarkInfoDialog:
+            self.bookmarkInfoDialog.removeNode()
+            self.bookmarkInfoDialog = None
+        def done():
+            self.bookmarkInfoDialog.hide()
+            self.__submitIP(address)
+                
+        if not self.bookmarkInfoDialog:
+
+            self.bookmarkInfoDialog = self.attachNewNode('bookmarkInfoDialog')
+            self.bookmarkInfoDialog.setPos(-0.8, 0, 0)
             
-            deleteButton = DirectButton(parent = button,
+            infoTitle = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (0, 0, 0.5), text_align = TextNode.ACenter, text_font = ToontownGlobals.getToonFont(), text_scale = 0.1, text_wordwrap = 25, text = "Bookmark Information")
+            nameLabel = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (-.5, 0, 0.2), text_fg = (0, 0, 0, 1), text_align = TextNode.ALeft, text_font = ToontownGlobals.getToonFont(), text_scale = 0.06, text_wordwrap = 25, text = "\1candidate_inactive\1Name:\2 %s" %name)
+            addressLabel = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (-.5, 0, 0.1), text_fg = (0, 0, 0, 1), text_align = TextNode.ALeft, text_font = ToontownGlobals.getToonFont(), text_scale = 0.06, text_wordwrap = 25, text = "\1candidate_inactive\1Address:\2 %s" %address)
+            connectButton = MATShuffleButton(parent = self.bookmarkInfoDialog, pos=(0, 0, -0.3), text="Connect", wantArrows=False,
+            image_scale=buttonScale, image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover, text_scale=0.082, text2_scale=0.087,
+            text1_scale=0.087, command=done)
+            
+            trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui.bam')
+            deleteButton = DirectButton(parent = self.bookmarkInfoDialog,
                 geom = (trashcanGui.find('**/TrashCan_CLSD'),
                     trashcanGui.find('**/TrashCan_OPEN'),
                     trashcanGui.find('**/TrashCan_RLVR')),
@@ -1085,16 +1112,11 @@ class MainMenu(DirectFrame, FSM):
                 text_scale = 0.15,
                 text_pos = (0, -0.1),
                 relief = None,
-                scale = .2,
+                scale = .4,
                 command = self.deleteFromBookmarks,
                 extraArgs = [name, address],
-                pos = (0, 0, 0))
-            deleteButton.reparentTo(button)
-            deleteButton.setPos(.9, 0, .03)
-                    
-
-            self.bookmarksList.addItem(button)
-        
+                pos = (-.4, 0, -.3))
+    
     def enterDirectConnect(self):
         self.backButton3.show()
         self.label11.show()
@@ -1224,6 +1246,8 @@ class MainMenu(DirectFrame, FSM):
                 file.write(PyDatagramIterator(dg).getRemainingBytes())
                     
     def deleteFromBookmarks(self, name, address):
+        if self.bookmarkInfoDialog:
+            self.bookmarkInfoDialog.hide()
         def makeBookmark(name, address, dg):
             dg.add_string(name)
             dg.add_string(address)
