@@ -1115,7 +1115,7 @@ class MainMenu(DirectFrame, FSM):
                 scale = .4,
                 command = self.deleteFromBookmarks,
                 extraArgs = [name, address],
-                pos = (-.4, 0, -.3))
+                pos = (.4, 0, -.3))
     
     def enterDirectConnect(self):
         self.backButton3.show()
