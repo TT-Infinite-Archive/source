@@ -522,7 +522,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='127.0.0.1', port=7000):
+    def connectToServer(self, gameserver='127.0.0.1', port=7000, isMultiplayer = True):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
@@ -535,7 +535,7 @@ class ToonBase(OTPBase.OTPBase):
         if not gameserver.hasPort():
             gameserver.setPort(port)
 
-        base.cr.loginFSM.request('connect', [[gameserver]])
+        base.cr.loginFSM.request('connect', [[gameserver], isMultiplayer])
 
     def __speedHackCheckTick(self, task):
         elapsed = time.time() - self.lastSpeedHackCheck
