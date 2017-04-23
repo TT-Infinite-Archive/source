@@ -441,7 +441,7 @@ class MainMenu(DirectFrame, FSM):
 
         # Multiplayer Menu Buttons: Join Menu
         self.connectButton = MATShuffleButton(
-            pos=(.35, 0, -0.75),
+            pos=(-0.35, 0, -0.75),
             text="Connect",
             wantArrows=False,
             image_scale=buttonScale,
@@ -456,9 +456,8 @@ class MainMenu(DirectFrame, FSM):
         
         # Multiplayer Menu Buttons: Add current ip to Bookmarks
         self.addToBookmarksButton = MATShuffleButton(
-            pos=(-.35, 0, -0.75),
-            text_pos=(0, 0.02, 0),
-            text="Add To\nBookmarks",
+            pos=(0.35, 0, -0.75),
+            text="Bookmark",
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
@@ -479,7 +478,7 @@ class MainMenu(DirectFrame, FSM):
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.quitButton = MATShuffleButton(
             parent = base.a2dBottomRight,
-            pos=(-.4, 0, .2),
+            pos=(-0.4, 0, .2),
             text="Quit",
             wantArrows=False,
             image_scale=buttonScale,
@@ -498,7 +497,7 @@ class MainMenu(DirectFrame, FSM):
         # Back Button
         self.backButton = MATShuffleButton(
             parent = base.a2dBottomLeft,
-            pos=(.4, 0, .2),
+            pos=(0.4, 0, 0.2),
             text=TTLocalizer.OptionsGoBack,
             wantArrows=False,
             image_scale=buttonScale,
@@ -514,7 +513,7 @@ class MainMenu(DirectFrame, FSM):
         # Back Button 2
         self.backButton2 = MATShuffleButton(
             parent = base.a2dBottomLeft,
-            pos=(.4, 0, .2),
+            pos=(0.4, 0, 0.2),
             text=TTLocalizer.OptionsGoBack,
             wantArrows=False,
             image_scale=buttonScale,
@@ -531,7 +530,7 @@ class MainMenu(DirectFrame, FSM):
         # Back Button 3
         self.backButton3 = MATShuffleButton(
             parent = base.a2dBottomLeft,
-            pos=(.4, 0, .2),
+            pos=(0.5, 0, 0.2),
             text=TTLocalizer.OptionsGoBack,
             wantArrows=False,
             image_scale=buttonScale,
@@ -1054,7 +1053,8 @@ class MainMenu(DirectFrame, FSM):
     def exitBookmarks(self):
         self.backButton3.hide()
         self.bookmarksList.hide()
-        self.bookmarkInfoDialog.hide()
+        if self.bookmarkInfoDialog:
+            self.bookmarkInfoDialog.hide()
         self.logo.show()
         self.background['image'] = 'phase_3/maps/loading_bg_clouds.jpg'
 
