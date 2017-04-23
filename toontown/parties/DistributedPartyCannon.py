@@ -431,9 +431,13 @@ class DistributedPartyCannon(DistributedObject, Cannon):
     def fire(self):
         if base.localAvatar.doId == self.controllingToonAvId:
             self.__disableCannonControl()
+            self.d_setFired()
         self.playFireSequence()
         self.controllingToonAvId = None
         return
+
+    def d_setFired(self):
+        self.sendUpdate('setFired', [])
 
     def ignoreDisableForAvId(self, avId):
         toon = base.cr.doId2do.get(avId)
