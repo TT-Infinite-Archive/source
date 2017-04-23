@@ -554,39 +554,34 @@ def getreg(regVar):
     return data[regVarStart + 1:regVarEnd]
 
 
-def getMAC(staticMAC = [None]):
-    if staticMAC[0] == None:
-        if sys.platform == 'win32':
-            correctSection = 0
-            try:
-                ipconfdata = os.popen('ipconfig /all').readlines()
-            except:
-                staticMAC[0] = 'NO_MAC'
-                return staticMAC[0]
+def getMAC():
+    mac_addr = None
+    if sys.platform == 'win32':
+        try:
+            mac_data = os.popen('getmac').readlines()
+        except:
+            mac_addr = 'NO_MAC'
+            return mac_addr
 
-            for line in ipconfdata:
-                if line.find('Local Area Connection') >= 0:
-                    correctSection = 1
-                if line.find('Physical Address') >= 0 and correctSection == 1:
-                    pa = line.split(':')[-1].strip()
-                    staticMAC[0] = pa
-                    return pa
+        for line in mac_data:
+            split_resp = line.split('   ')[0]
+            if split_resp.count('-') == 5:
+                mac_addr = split_resp
+                break
 
-        if sys.platform == 'darwin':
-            macconfdata = os.popen('/usr/sbin/system_profiler SPNetworkDataType |/usr/bin/grep MAC').readlines()
-            result = '-1'
-            if macconfdata:
-                if macconfdata[0].find('MAC Address') != -1:
-                    pa = macconfdata[0][macconfdata[0].find(':') + 2:macconfdata[0].find(':') + 22].strip('\n')
-                    staticMAC[0] = pa.replace(':', '-')
-                    result = staticMAC[0]
-            return result
-        if sys.platform != 'darwin' and sys.platform != 'win32':
-            print 'System is not running OSX or MS-Windows.'
-            return '-2'
+    elif sys.platform == 'darwin':
+        macconfdata = os.popen('/usr/sbin/system_profiler SPNetworkDataType |/usr/bin/grep MAC').readlines()
+        result = '-1'
+        if macconfdata:
+            if macconfdata[0].find('MAC Address') != -1:
+                pa = macconfdata[0][macconfdata[0].find(':') + 2:macconfdata[0].find(':') + 22].strip('\n')
+                mac_addr = pa.replace(':', '-')
+
     else:
-        return staticMAC[0]
-    return
+        mac_data = os.system('ifconfig -a')
+        mac_addr = mac_data.split('\n')[1].split('HWaddr ')[1]
+
+    return mac_addr
 
 def getIP():
     IP_ENDPOINT = 'http://ip.42.pl/raw'

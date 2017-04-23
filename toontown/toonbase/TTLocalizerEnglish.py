@@ -3343,9 +3343,9 @@ FADoorCodes_TALK_TO_HQ_TOM = 'Go get your reward from Toon Headquarters!'
 FADoorCodes_SUIT_APPROACHING = None
 FADoorCodes_BUILDING_TAKEOVER = "Watch out! There's a Cog in there!"
 FADoorCodes_SB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Sellbot Disguise first!\n\nBuild your Sellbot Disguise out of parts from the Factory."
-FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise by doing ToonTasks in Dreamland."
-FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise by doing the ToonTasks in The Brrrgh."
-FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise by doing the ToonTasks in Acorn Acres."
+FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise out of parts from the Mints."
+FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise out of parts from the DA Offices."
+FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise out of parts from the Cog Golf Courses."
 KnockKnockJokes = [['Who', "Bad echo in here, isn't there?"],
  ['Dozen', 'Dozen anybody want to let me in?'],
  ['Freddie', 'Freddie or not, here I come.'],
@@ -5005,7 +5005,7 @@ OptionsPageTitle = 'Options'
 MoreOptionsPageTitle = 'More Options'
 OptionsTabTitle = 'Options\n& Codes'
 OptionsPagePurchase = 'Subscribe'
-OptionsPageLogout = 'Logout'
+OptionsPageLogout = 'Log Out'
 OptionsGoBack = 'Back'
 OptionsDisconnect = 'Disconnect'
 OptionsLeaveServer = 'Leave Server'
@@ -5055,6 +5055,7 @@ OptionsPageVSync = 'VSync'
 OptionsPageShowFps = 'Show FPS'
 OptionsPageAnimationSmoothing = 'Animation Smoothing'
 OptionsPageRequiresRestart = 'Requires Restart'
+OptionsPageClassicMusic = 'Classic Soundtrack'
 SocialPageTitle = 'Social'
 GuildPageTitle = 'Guilds'
 GuildPagePromote = 'Promote'
@@ -5528,7 +5529,7 @@ TownBattleSOSPetSearchTitle = 'Searching for doodle\n%s...'
 TownBattleSOSPetInfoTitle = '%s is %s'
 TownBattleSOSPetInfoOK = lOK
 TrolleyHFAMessage = 'You may not board the trolley until your Laff meter is smiling.'
-TrolleyCSMessage = 'This Trolley Station is under construction.\n\nThe Toon Palooza is coming soon!\n\nIn time, there will be even more destinations that you may visit by riding on the Trolley! Come back later!'
+TrolleyCSMessage = 'This Trolley Station is under construction.'
 TrolleyTFAMessage = 'You may not board the trolley until ' + Mickey + ' says so.'
 TrolleyHopOff = 'Hop off'
 FishingExit = 'Exit'
@@ -5966,7 +5967,7 @@ NCApostrophes = 'That name has too many apostrophes.'
 RemoveTrophy = lToonHQ + ': ' + TheCogs + ' took over one of the buildings you rescued!'
 STOREOWNER_TOOKTOOLONG = 'Need more time to think?'
 STOREOWNER_GOODBYE = 'See you later!'
-STOREOWNER_NEEDJELLYBEANS = 'You need to ride the Trolley to The Toon Palooza to get some Jellybeans.'
+STOREOWNER_NEEDJELLYBEANS = 'You need to ride the Trolley to get some Jellybeans.'
 STOREOWNER_GREETING = 'Choose what you want to buy.'
 STOREOWNER_BROWSING = 'You can browse, but you need a clothing ticket to buy.'
 STOREOWNER_BROWSING_JBS = 'You can browse, but you need at least 200 Jellybeans to buy.'
@@ -10514,7 +10515,8 @@ def getAchievementClassifier(classifier):
 RemapPrompt = 'Choose the keys you wish to remap.'
 RemapPopup = 'Press the button you wish to remap this control to.'
 Controls = ['Move Up:', 'Move Left:', 'Move Down:', 'Move Right:',
-            'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:']
+            'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:',
+            'Screenshot Key:']
 
 GuildChatWarning = 'You are currently not in a Guild. Use "/all" to return to normal chat.'
 GuildDialogMovieStart = 'Are you here to create your very own Guild?'
@@ -10722,6 +10724,20 @@ ClickToStartHalloweenLabel = '\x01shadow\x01Click anywhere to begin\n...if you d
 Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
+
+# Main Menu
+WelcomeMessage = 'Welcome to Toontown Infinite!'
+LogIn = "Already have an account? Log in!"
+SignUp = "New to Toontown Infinite? Sign Up!"
+Username = "Username"
+Password = "Password"
+Birthday = "Birthday"
+Email = "Email"
+Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
+EnterAddress = "Enter a Server Address"
+Help = "The help page is coming soon.\n\nCheck back later!"
+ServerRunningAlready = 'A Singleplayer session is already in progress.'
+MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
 
 ServerRunningAlready = 'A single player session is already in progress.'
 MultiServerRunningAlready = 'You are already hosting a multiplayer session.'

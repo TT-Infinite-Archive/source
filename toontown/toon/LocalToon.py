@@ -53,7 +53,7 @@ from toontown.shtiker import ShtikerBook
 from toontown.shtiker import SocialPage
 from toontown.shtiker import SuitPage
 from toontown.shtiker import TIPPage
-# from toontown.shtiker import TrackPage
+from toontown.shtiker import TrackPage
 from toontown.shtiker import CollectiblePage
 from toontown.toon import ElevatorNotifier
 from toontown.toon import ToonDNA
@@ -394,9 +394,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.questPage = QuestPage.QuestPage()
         self.questPage.load()
         self.book.addPage(self.questPage, pageName=TTLocalizer.QuestPageToonTasks)
-        # self.trackPage = TrackPage.TrackPage()
-        # self.trackPage.load()
-        # self.book.addPage(self.trackPage, pageName=TTLocalizer.TrackPageShortTitle)
+        self.trackPage = TrackPage.TrackPage()
+        self.trackPage.load()
+        self.book.addPage(self.trackPage, pageName=TTLocalizer.TrackPageShortTitle)
         self.suitPage = SuitPage.SuitPage()
         self.suitPage.load()
         self.book.addPage(self.suitPage, pageName=TTLocalizer.SuitPageTitle)
@@ -453,7 +453,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.accept('InputState-turnLeft', self.__toonMoved)
         self.accept('InputState-turnRight', self.__toonMoved)
         self.accept('InputState-slide', self.__toonMoved)
-
+        
+        self.controlManager.reload()
+        self.chatMgr.reloadWASD()
+        
         self.achievementGui = AchievementGui.AchievementGui()
 
         QuestParser.init()

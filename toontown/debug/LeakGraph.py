@@ -107,7 +107,7 @@ class LeakGraph(threading.Thread):
             return color
         return self.generateColor()
 
-@magicWord(category=CATEGORY_PROGRAMMER, types=[])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[])
 def stopLeakGraph():
     simbase.air.leakGraph.stop = True
     return 'Stopping LeakGraph at next interval...'

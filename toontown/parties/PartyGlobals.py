@@ -114,6 +114,8 @@ UnreleasedActivityIds = (
  # These AIs need to be written before they can be used:
  ActivityIds.PartyTugOfWar,
  ActivityIds.PartyCog,
+ ActivityIds.PartyJukebox,
+ ActivityIds.PartyJukebox40,
  # --------------------
  ActivityIds.PartyWinterCog,
  ActivityIds.PartyValentineJukebox,

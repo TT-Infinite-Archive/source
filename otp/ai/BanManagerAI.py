@@ -20,6 +20,7 @@ class BanFSM(FSM):
         # Needed variables for the actual banning.
         self.comment = comment
         self.duration = duration
+        self.releaseTimestamp = None
         self.DISLid = None
         self.accountId = None
         self.avName = None
@@ -34,8 +35,8 @@ class BanFSM(FSM):
         # Send the client a 'CLIENTAGENT_EJECT' with the players name.
         datagram = PyDatagram()
         datagram.addServerHeader(
-                av.GetPuppetConnectionChannel(self.avId),
-                self.air.ourChannel, CLIENTAGENT_EJECT)
+            av.GetPuppetConnectionChannel(self.avId),
+            self.air.ourChannel, CLIENTAGENT_EJECT)
         datagram.addUint16(152)
         datagram.addString(self.avName)
         self.air.send(datagram)
@@ -50,8 +51,7 @@ class BanFSM(FSM):
             return
 
         if self.duration != 0:
-            now = datetime.datetime.now()
-            self.duration = int(time.mktime((now + datetime.timedelta(days=self.duration)).timetuple()))
+            self.releaseTimestamp = int(time.time()) + (int(self.duration) * 3600)
 
         self.request('Waiting')
 
@@ -72,6 +72,7 @@ class BanFSM(FSM):
         self.accountId = None
         self.comment = None
         self.duration = None
+        self.releaseTimestamp = None
 
     def enterStart(self):
         self.getAvatarDetails()
@@ -147,16 +148,16 @@ class BanManagerAI(DistributedObjectAI):
 
         if timestamp != 0:
             # This is by far the ugliest math I've ever written, save your brain cells..
-            difference = int(timestamp) - time.time()
+            difference = int(timestamp - time.time())
             days = max(0, int(difference / 86400))
-            hours = max(0, int((difference / 3600)-(24 * days)))
-            minutes = max(0, int((difference - ((86400 * days) + (3600 * hours)))/60))
+            hours = max(0, int((difference / 3600) - (24 * days)))
+            minutes = max(0, int((difference - ((86400 * days) + (3600 * hours))) / 60))
             seconds = max(0, int(difference - ((86400 * days) + (3600 * hours) + (60 * minutes))))
-            banLengthString = 'You have been banned from this server. Your ban will expire in:\n' \
+
+            banLengthString = 'You have been temporarily banned from this server. Your ban will expire in:\n' \
                               '{0}d, {1}h, {2}m, {3}s'.format(days, hours, minutes, seconds)
         else:
-            banLengthString = 'You have been permanently banned from this server. ' \
-                              'You will not be able to play on this server anymore.'
+            banLengthString = 'You have been permanently banned and will no longer be able to play on this server.'
 
         self.air.sendNetEvent('banCheckResponse-%s' % sender, [sender, isBanned, banLengthString])
 
@@ -177,13 +178,13 @@ class BanManagerAI(DistributedObjectAI):
             taskMgr.remove(banTaskName)
 
         if self.banQueue[0] == avId:
-            duration = banFSM.duration
+            releaseTimestamp = banFSM.releaseTimestamp
 
             # We are at the top of the queue, we will process this first.
             banList = open(self.BAN_LIST_FILE, 'a')
-            banList.write('%s:%s\n%s:%s' % (mac_addr, duration, ip_addr, duration))
+            banList.write('%s:%s\n%s:%s' % (mac_addr, releaseTimestamp, ip_addr, releaseTimestamp))
             banList.close()
-            self.banList.extend([mac_addr, ip_addr])
+            self.banList.extend(['%s:%s' % (mac_addr, releaseTimestamp), '%s:%s' % (ip_addr, releaseTimestamp)])
 
             if avId in self.banQueue:
                 self.banQueue.remove(avId)
@@ -222,6 +223,7 @@ def kick(reason='No reason specified'):
     datagram.addString('You were kicked by a moderator for the following reason: %s' % reason)
     simbase.air.send(datagram)
     return "Kicked %s from the game server!" % target.getName()
+
 
 @magicWord(category=CATEGORY_MODERATOR, types=[int, str])
 def ban(duration, reason):

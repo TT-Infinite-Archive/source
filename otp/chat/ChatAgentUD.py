@@ -10,6 +10,11 @@ from toontown.chat.TTBlacklist import BLACKLIST, SEQUENCES
 import time
 
 
+class DummyWhiteList(TTWhiteList):
+    def isWord(*args):
+        return True
+
+
 class ChatAgentUD(DistributedObjectGlobalUD):
     notify = DirectNotifyGlobal.directNotify.newCategory("ChatAgentUD")
 
@@ -19,7 +24,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
         self.wantWhiteList = config.GetBool('want-whitelist', True)
         self.wantBlackList = config.GetBool('want-blacklist', True)
 
-        self.whiteList = None
+        self.whiteList = DummyWhiteList()
         if self.wantWhiteList:
             self.whiteList = TTWhiteList()
 

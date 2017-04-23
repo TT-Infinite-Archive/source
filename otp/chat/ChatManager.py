@@ -344,10 +344,14 @@ class ChatManager(DirectObject.DirectObject):
         self.chatInputSpeedChat.hide()
 
     def enterWhisperChat(self, avatarName, avatarId):
+        if base.wantCustomControls:
+            base.localAvatar.controlManager.disableWASD()
         result = self.chatInputNormal.activateByData(avatarId)
         return result
 
     def exitWhisperChat(self):
+        if base.wantCustomControls:
+            base.localAvatar.controlManager.enableWASD()
         self.chatInputNormal.deactivate()
 
     def enterWhisperChatPlayer(self, avatarName, playerId):

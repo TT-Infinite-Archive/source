@@ -208,7 +208,7 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  126: 'You are not authorized to use administrator privileges.',
  127: 'A problem has occurred with your Toon.  Please contact Member Services via phone or email and reference Error Code 127.  Thank you.',
  151: "Your account details have been modified.",
- 152: "There has been a reported violation of our Terms of Use connected to '%(name)s'. For more details, please review the message sent to the e-mail address associated with '%(name)s'.",
+ 152: "You have been banned from this server. For more details, please contact the host.\nYou may continue playing Toontown Infinite in Singleplayer or on another server. Try improving your behavior to avoid any other bans.",
  153: 'The district you were playing on has been reset.  Everyone who was playing on that district has been disconnected.  However, you should be able to connect again and go right back into the game.',
  154: 'Toontown Infinite has been temporarily closed for scheduled downtime. Everyone who was playing on the Kaldron Network has been disconnected from the game.\n\nIf you wish to continue playing, you may go into custom play until maintenance is complete.\n\nFor more information, please visit the Toontown Infinite website.',
  288: 'Sorry, you have used up all of your available minutes this month.',
@@ -284,7 +284,7 @@ SCMenuBattleSound = 'SOUND'
 SCMenuBattleThrow = 'THROW'
 SCMenuBattleSquirt = 'SQUIRT'
 SCMenuBattleDrop = 'DROP'
-SCMenuGagShop = 'TOON PALOOZA'
+SCMenuGagShop = 'TROLLEY'
 SCMenuFactory = 'FACTORY'
 SCMenuCogGolf = 'COUNTRY CLUB'
 SCMenuKartRacing = 'RACING'
@@ -1975,12 +1975,12 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30503: "I'm livestreaming right now!",
  30504: "I can't wait for the next Toontown Infinite update!",
  30505: "Whatcha' think of all the new changes so far?",
- 30506: "When do you think those tunnels will open?",
+ 30506: "Toontown Infinite is designed to preserve Toontown forever!",
  30507: "I can't stand that bug!",
  30508: "Have you found any bugs yet?",
  30509: "I hope that bug gets fixed soon.",
  30510: "Those bugs can be obnoxious at times.",
- 30511: "What types of bugs have you ran into so far?",
+ 30511: "What bugs have you ran into so far?",
  30512: "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."}
 SpeedChatStaticTextPirates = {50001: 'Aye',
  50002: 'Nay',

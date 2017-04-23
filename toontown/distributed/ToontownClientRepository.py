@@ -212,10 +212,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.sendSetAvatarIdMsg(0)
         self.clearFriendState()
         if (self.music is None) and base.musicManagerIsValid:
-            if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
-                self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme_halloween.ogg')
-            else:
-                self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
+            self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
         base.playMusic(self.music, looping=1, volume=0.9, interrupt=None)
         self.handler = self.handleMessageType
         self.avChoiceDoneEvent = 'avatarChooserDone'

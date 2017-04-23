@@ -263,42 +263,42 @@ class OTPBase(ShowBase):
             traceback.print_exc()
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_USER2)
 def oobe():
     """
     Toggle the 'out of body experience' view.
     """
     base.oobe()
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def oobeCull():
     """
     Toggle the 'out of body experience' view with culling debugging.
     """
     base.oobeCull()
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_USER2)
 def wire():
     """
     Toggle the 'wireframe' view.
     """
     base.toggleWireframe()
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def idNametags():
     """
     Display avatar IDs inside nametags.
     """
     messenger.send('nameTagShowAvId')
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def nameNametags():
     """
     Display only avatar names inside nametags.
     """
     messenger.send('nameTagShowName')
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def a2d():
     """
     Toggle aspect2d.
@@ -308,14 +308,14 @@ def a2d():
     else:
         aspect2d.hide()
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def placer():
     """
     Toggle the camera placer.
     """
     base.camera.place()
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def explorer():
     """
     Toggle the scene graph explorer.
@@ -323,7 +323,7 @@ def explorer():
     base.render.explore()
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def neglect():
     """
     toggle the neglection of network updates on the invoker's client.
@@ -336,7 +336,7 @@ def neglect():
         return 'You are now neglecting network updates.'
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[float, float, float, float])
+@magicWord(category=CATEGORY_USER2, types=[float, float, float, float])
 def backgroundColor(r=None, g=1, b=1, a=1):
     """
     set the background color. Specify no arguments for the default background

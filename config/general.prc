@@ -101,13 +101,13 @@ want-goofy #f
 want-minigames #t
 want-photo-game #f
 want-travel-game #f
-want-ttc-trolley #f
+want-ttc-trolley #t
 
 # Picnic table board games:
 want-game-tables #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 want-sellbot-headquarters #t
 want-cashbot-headquarters #t
 want-lawbot-headquarters #t
@@ -120,10 +120,6 @@ want-resistance-dance #f
 
 # Cog battles:
 base-xp-multiplier 1.0
-
-# Cog buildings:
-want-cogbuildings #t
-want-cogdominiums #t
 
 # Optional:
 show-total-population #t

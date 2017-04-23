@@ -29,7 +29,7 @@ accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
 
 accessLevelClamp = ConfigVariableString(
-    'access-level-clamp', '100 700',
+    'access-level-clamp', '100 500',
     "Specifies the range in which every user's access level will be confined to.").getValue()
 accessLevelMin = int(accessLevelClamp.split(' ', 1)[0])
 accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
@@ -38,7 +38,7 @@ accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 700 access automatically upon login.
+# each user with 500 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -61,7 +61,7 @@ class DeveloperAccountDB(AccountDB):
     
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 700
+        self.accessLevel = 500
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
     
     def lookupUserId(self, userId):
@@ -89,9 +89,9 @@ class ProductionDB(AccountDB):
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
         if simbase.isSinglePlayer:
-            self.accessLevel = 700
+            self.accessLevel = 500
         else:
-            self.accessLevel = 100 # We set everyone in MP to 100 access by default. The host will need to set their access to 700 via mongo compass or rpc.
+            self.accessLevel = 200 # We set everyone in MP to 200 access by default so people can use commands, however we need an option in the future that allows the host to decide if they want their server to have cheaters or not. If they don't, they select that option then everyone is set to 100 access by default instead for that server. The host will need to set their access to 500 via mongo compass or rpc.
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
@@ -111,48 +111,6 @@ class ProductionDB(AccountDB):
         dict = self.lookupUserId(userId)
         callback(dict)
         return dict
-
-# Kaldron Network ProductionDB
-"""
-class ProductionDB(AccountDB):
-    notify = directNotify.newCategory('ProductionDB')
-
-    def submitNameRequest(self, avId, name, callback, errback):
-        payload = {'distribution': config.GetString('distribution'), 'name': name}
-        self.csm.air.webApi.execute('names/%d' % avId, payload, 'post', callback=callback, errback=errback)
-
-    def isNameAcceptable(self, name, callback, errback):
-        payload = {'name': name}
-        self.csm.air.webApi.execute('acceptable-name', payload, 'get', callback=callback, errback=errback)
-
-    def lookup(self, cookie, callback):
-        payload = {'distribution': config.GetString('distribution'), 'cookie': cookie}
-        self.csm.air.webApi.execute('cookies/consume', payload, 'delete', callback=self.lookupCallback,
-                                    errback=self.lookupErrback, extraArgs=[callback])
-
-    def lookupCallback(self, result, callback):
-        response = {'success': False}
-
-        if result['success'] is False:
-            response['reason'] = 'Failed to authenticate login credentials.'
-        else:
-            response['success'] = True
-            response['userId'] = result['userId']
-            response['accessLevel'] = min(max(result['accessLevel'], accessLevelMin), accessLevelMax)
-
-            lookup = self.lookupUserId(result['userId'])
-            response['accountId'] = lookup['accountId']
-
-        callback(response)
-
-    def lookupErrback(self, callback):
-        response = {
-            'success': False,
-            'reason': 'Failed to contact the account server.'
-        }
-
-        callback(response)
-"""
 
 # --- FSMs ---
 class OperationFSM(FSM):
@@ -1068,7 +1026,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         if simbase.isSinglePlayer and self.playerLoggedIn:
             # Only one connection is allowed in singleplayer mode.
-            self.killConnection(sender, 'Single Player servers only allows one connection.')
+            self.killConnection(sender, 'Singleplayer servers only allows one connection.')
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):
