@@ -1892,7 +1892,6 @@ dclass DistributedPartyCannon : DistributedObject {
   setMovie(uint8, uint32) broadcast ram;
   setCannonPosition(int32/100, uint32/100) airecv clsend;
   setCannonLit(int32/100, uint32/100) airecv clsend;
-  setFired() airecv clsend;
   setLanded(uint32) airecv clsend;
   updateCannonPosition(uint32, int32/100, uint32/100) broadcast ram;
   setCannonExit(uint32) broadcast;
