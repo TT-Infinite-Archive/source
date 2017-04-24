@@ -450,7 +450,7 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.09,
             text2_scale=0.095,
             text1_scale=0.10,
-            command=lambda: self.request('StartDirectConnect')
+            command=self.__submitIP
         )
         self.connectButton.hide()
         
@@ -1171,6 +1171,7 @@ class MainMenu(DirectFrame, FSM):
         if input is None:
             input = self.ipInput.get()
             self.ipInput['focus'] = 1
+
         if input == '':
             return
         self.targetIp = input
@@ -1181,13 +1182,16 @@ class MainMenu(DirectFrame, FSM):
         if self.ipInput.get() == '':
             return
         def done():
-            self.addToBookmarks()
+            if self.addToBookmarksDialog.doneStatus == 'ok':
+                self.addToBookmarks()
             self.addToBookmarksDialog.hide()
+            base.transitions.noFade()
         self.addToBookmarksDialog = TTDialog.TTGlobalDialog(
-                    dialogName='AddToBookmarkDialog', doneEvent='addBookmark', style=TTDialog.Acknowledge,
+                    dialogName='AddToBookmarkDialog', doneEvent='addBookmark', style=TTDialog.TwoChoice,
                     text="Choose a name for this bookmark", text_wordwrap=24,
                     text_pos=(0, 0), suppressKeys = True, suppressMouse = True
                 )
+        base.transitions.fadeScreen(.5)
         scale = self.addToBookmarksDialog.component('image0').getScale()
         scale.setX(((scale[0] * 2.5) / base.getAspectRatio()) * 1.2)
         scale.setZ(scale[2] * 2.5)
@@ -1264,7 +1268,10 @@ class MainMenu(DirectFrame, FSM):
             
     def enterStartDirectConnect(self):
         base.isHosting = False
-        ip = self.targetIp
+        if not hasattr(self, 'targetIp'):
+            ip = self.ipInput.get()
+        else:
+            ip = self.targetIp
         if ':' in ip:
             ip, port = ip.split(':')
             try:
