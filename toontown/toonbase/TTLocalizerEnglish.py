@@ -78,10 +78,10 @@ Dale = 'Dale'
 JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'The Gardens'
+lDaisyGardens = 'Daisy Gardens'
 lDonaldsDock = "The Harbor"
 lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Melodyland"
+lMinniesMelodyland = "Musical Melodyland"
 lToontownCentral = 'Toontown Central'
 lToonHQ = 'Toon HQ'
 lSellbotHQ = 'Sellbot HQ'
@@ -89,7 +89,6 @@ lGoofySpeedway = 'Toontown Speedway'
 lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
-lResistanceGrounds = 'Resistance Grounds'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),
  1100: ('to', 'on', 'Barnacle Boulevard'),
@@ -147,7 +146,6 @@ OutdoorZone = ('to', 'in', lOutdoorZone)
 FunnyFarm = ('to', 'in', 'The Unpainted Neighborhood')
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
-ResistanceGrounds = ('to the', 'in the', lResistanceGrounds)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
 SellbotHQ = ('to', 'in', 'Sellbot HQ')
 CashbotHQ = ('to', 'in', 'Cashbot HQ')
@@ -4640,7 +4638,7 @@ MusicGsRaceRr = 'Route 66'
 MusicGsRaceSs = 'Ready, Set, Go!'
 MusicGzSz = 'The Putt-Putt Polka'
 MusicGzPlaygolf = "Let's Play Golf!"
-MusicMmNbrhood = "Melodyland"
+MusicMmNbrhood = "Musical Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
 MusicDdNbrhood = "The Harbor"
@@ -4702,7 +4700,7 @@ MusicPartyGenericTheme = 'Party Jingle'
 MusicTcEncounter = 'Toontown Central Battle'
 MusicDdEncounter = 'Encounter at The Harbor'
 MusicDgEncounter = 'Encounter in The Gardens'
-MusicMmEncounter = 'Melodyland Encounter'
+MusicMmEncounter = 'Musical Melodyland Encounter'
 MusicTbEncounter = 'Encounter in The Brrrgh'
 MusicDlEncounter = 'Dreamland Encounter'
 JellyfishJam = 'Jellyfish Jam'
@@ -10397,7 +10395,7 @@ achievementInfo = {
     7: ('Blooming',
         'Complete The Gardens'),
     8: ('Warming symphonies',
-        "Complete Melodyland"),
+        "Complete Musical Melodyland"),
     9: ('You cold Yeti?',
         'Complete The Brrrgh'),
     10: ("Dreaming Goodbyes",
