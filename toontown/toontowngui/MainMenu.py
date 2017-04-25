@@ -530,7 +530,7 @@ class MainMenu(DirectFrame, FSM):
         # Back Button 3
         self.backButton3 = MATShuffleButton(
             parent = base.a2dBottomLeft,
-            pos=(0.5, 0, 0.2),
+            pos=(0.4, 0, 0.2),
             text=TTLocalizer.OptionsGoBack,
             wantArrows=False,
             image_scale=buttonScale,
@@ -543,6 +543,23 @@ class MainMenu(DirectFrame, FSM):
         )
 
         self.backButton3.hide()
+
+        # Back Button 3
+        self.backButton4 = MATShuffleButton(
+            parent = base.a2dBottomLeft,
+            pos=(0.5, 0, 0.2),
+            text=TTLocalizer.OptionsGoBack,
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Multiplayer')
+        )
+
+        self.backButton4.hide()
 
         self.hide()
         
@@ -1015,7 +1032,7 @@ class MainMenu(DirectFrame, FSM):
         self.backButton3.hide()
         
     def enterBookmarks(self):
-        self.backButton3.show()
+        self.backButton4.show()
         gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
         
         if not hasattr(self, 'bookmarksList'):
@@ -1051,7 +1068,7 @@ class MainMenu(DirectFrame, FSM):
         self.background['image'] = 'phase_3.5/maps/big_book.jpg'
          
     def exitBookmarks(self):
-        self.backButton3.hide()
+        self.backButton4.hide()
         self.bookmarksList.hide()
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
