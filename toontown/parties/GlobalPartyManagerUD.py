@@ -160,7 +160,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
             return party['start'] < now
 
     def isTooLate(self, party):
-        now = datetime.now()
+        now = datetime.now(ToontownTimeZone())
         delta = timedelta(minutes=15)
         endStartable = party['start'] + delta
         return endStartable < now
