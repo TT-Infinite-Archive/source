@@ -45,10 +45,10 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def load(self):
         self.scrollButtonGui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
-        self.hostingGui = loader.loadModel('phase_4/models/parties/schtickerbookHostingGUI')
-        self.invitationGui = loader.loadModel('phase_4/models/parties/schtickerbookInvitationGUI')
-        self.activityIconsModel = loader.loadModel('phase_4/models/parties/eventSignIcons')
-        self.decorationModels = loader.loadModel('phase_4/models/parties/partyDecorations')
+        self.hostingGui = preloader.getModel('phase_4/models/parties/schtickerbookHostingGUI')
+        self.invitationGui = preloader.getModel('phase_4/models/parties/schtickerbookInvitationGUI')
+        self.activityIconsModel = preloader.getModel('phase_4/models/parties/eventSignIcons')
+        self.decorationModels = preloader.getModel('phase_4/models/parties/partyDecorations')
         self.loadTabs()
         self.loadHostingTab()
         self.loadInvitationsTab()
