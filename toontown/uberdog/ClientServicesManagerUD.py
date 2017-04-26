@@ -20,7 +20,7 @@ NAME_APPROVED = 0
 NAME_SUBMITTED = 1
 NAME_SUBMISSION_ERROR = 2
 
-
+firstAccount = 100000000
 accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 
 # If this config variable is set. All accounts new and old will use
@@ -174,6 +174,10 @@ class LoginAccountFSM(OperationFSM):
         self.demand('SetAccount')
 
     def enterCreateAccount(self):
+        accessLevel = self.accessLevel
+        if self.csm.air.dbId - firstAccount == 0:
+            accessLevel = 500
+
         self.account = {
             'ACCOUNT_AV_SET': [0] * 6,
             'ESTATE_ID': 0,
@@ -181,7 +185,7 @@ class LoginAccountFSM(OperationFSM):
             'CREATED': time.ctime(),
             'LAST_LOGIN': time.ctime(),
             'ACCOUNT_ID': str(self.userId),
-            'ACCESS_LEVEL': self.accessLevel,
+            'ACCESS_LEVEL': accessLevel,
             'MONEY': 0,
             'CHAT_MODE': 1
         }
