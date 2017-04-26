@@ -1794,7 +1794,7 @@ dclass DistributedPartyTeamActivity : DistributedPartyActivity {
   setPlayersPerTeam(uint8, uint8) broadcast required;
   setDuration(uint8) broadcast required;
   setCanSwitchTeams(bool) broadcast required;
-  setState(string, int16, uint32) broadcast ram;
+  setState(string, int16, uint32 []) broadcast ram;
   setToonsPlaying(uint32 [0-8], uint32 [0-8]) required broadcast ram;
   setAdvantage(uint16/100);
   switchTeamRequestDenied(uint8);
@@ -3802,6 +3802,8 @@ dclass DistributedPartyManager : DistributedObject {
 
 dclass GlobalPartyManager : DistributedObjectGlobal {
     partyManagerAIHello(uint32 channel);
+    heartbeat(uint32 channel);
+    heartbeatResponse() airecv;
     queryParty(uint32 hostId);
     addParty(DoId avId, uint64 partyId, string start, string end, int8 isPrivate,
              int8 inviteTheme, activity [], decoration [], DoIdList inviteeIds);
@@ -3811,7 +3813,13 @@ dclass GlobalPartyManager : DistributedObjectGlobal {
     requestPartySlot(uint64 partyId, uint32 avId, uint32 gateId);
     partyDone(uint64 partyId);
     allocIds(uint16 count);
-    avatarJoined(uint32);
+
+    changePrivateRequest(uint32 hostId, uint64 partyId, int8 isPrivate);
+    changePartyStatusRequest(uint32 hostId, uint64 partyId, int8 partyStatus);
+
+    markInviteAsReadButNotReplied(uint32 avId, uint64 inviteKey);
+    respondToInvite(uint32 fromId, uint32 todo0, uint16 context, uint64 inviteKey, uint8 inviteStatus);
+
 };
 
 struct PotentialToon {

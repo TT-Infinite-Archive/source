@@ -40,11 +40,11 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
         self.oldClear = base.win.getClearColor()
         base.win.setClearColor(Vec4(0.47, 0.69, 0.3, 1.0))
         SafeZoneLoader.SafeZoneLoader.load(self)
-        self.underwaterSound = loader.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')
-        self.swimSound = loader.loadSfx('phase_4/audio/sfx/AV_swim_single_stroke.ogg')
-        self.submergeSound = loader.loadSfx('phase_5.5/audio/sfx/AV_jump_in_water.ogg')
-        self.birdSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg', 'phase_4/audio/sfx/SZ_TC_bird2.ogg', 'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
-        self.cricketSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg', 'phase_4/audio/sfx/SZ_TC_bird2.ogg', 'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
+        self.underwaterSound = base.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')
+        self.swimSound = base.loadSfx('phase_4/audio/sfx/AV_swim_single_stroke.ogg')
+        self.submergeSound = base.loadSfx('phase_5.5/audio/sfx/AV_jump_in_water.ogg')
+        self.birdSound = map(base.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg', 'phase_4/audio/sfx/SZ_TC_bird2.ogg', 'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
+        self.cricketSound = map(base.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg', 'phase_4/audio/sfx/SZ_TC_bird2.ogg', 'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
 
     def unload(self):
         self.ignoreAll()
@@ -80,6 +80,7 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
 
     def loadClouds(self):
         self.loadCloudPlatforms()
+        self.startCloudPlatforms()
         if base.cloudPlatformsEnabled and 0:
             self.setCloudSwitch(1)
         if self.cloudSwitch:
@@ -182,7 +183,6 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
         return
 
     def startCloudPlatforms(self):
-        return
         if len(self.clouds):
             self.cloudTrack = self.__cloudTrack()
             self.cloudTrack.loop()

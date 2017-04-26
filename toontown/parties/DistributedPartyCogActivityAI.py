@@ -89,10 +89,10 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             self.balancePlayers()
             self.setState('Active')
             taskMgr.doMethodLater(self.DURATION, self.enterConclusion, self.uniqueName('duration'))
-
+            
     def enterConclusion(self, task):
         self.setState('Conclusion', [self.getTeamDistance(PartyGlobals.TeamActivityTeams.LeftTeam),
-                                     self.getTeamDistance(PartyGlobals.TeamActivityTeams.RightTeam)])
+            self.getTeamDistance(PartyGlobals.TeamActivityTeams.RightTeam)])
         if self.scores:
             avId, topScore = self.getHighScore()
             av = simbase.air.doId2do.get(avId)
@@ -190,10 +190,9 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeams.LeftTeam)
             if self.getWinningTeam() == PartyGlobals.TeamActivityTeams.LeftTeam:
                 bonus = PartyGlobals.CogActivityWinBeans
-                message += TTLocalizer.PartyCogRewardBonus % (
-                bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))
+                message += TTLocalizer.PartyCogRewardBonus % (bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))
             self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])
-            av.addMoney(reward)
+            av.addMoney(reward)                
         for avId in self.rightTeam:
             av = simbase.air.doId2do.get(avId)
             reward = self.getBeansToAward(avId)
@@ -201,8 +200,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeams.RightTeam)
             if self.getWinningTeam() == PartyGlobals.TeamActivityTeams.RightTeam:
                 bonus = PartyGlobals.CogActivityWinBeans
-                message += TTLocalizer.PartyCogRewardBonus % (
-                bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))
+                message += TTLocalizer.PartyCogRewardBonus % (bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))            
             self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])
             av.addMoney(reward)
 

@@ -45,10 +45,10 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def load(self):
         self.scrollButtonGui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
-        self.hostingGui = preloader.getModel('phase_4/models/parties/schtickerbookHostingGUI')
-        self.invitationGui = preloader.getModel('phase_4/models/parties/schtickerbookInvitationGUI')
-        self.activityIconsModel = preloader.getModel('phase_4/models/parties/eventSignIcons')
-        self.decorationModels = preloader.getModel('phase_4/models/parties/partyDecorations')
+        self.hostingGui = loader.loadModel('phase_4/models/parties/schtickerbookHostingGUI')
+        self.invitationGui = loader.loadModel('phase_4/models/parties/schtickerbookInvitationGUI')
+        self.activityIconsModel = loader.loadModel('phase_4/models/parties/eventSignIcons')
+        self.decorationModels = loader.loadModel('phase_4/models/parties/partyDecorations')
         self.loadTabs()
         self.loadHostingTab()
         self.loadInvitationsTab()
@@ -89,7 +89,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.hostingDecorationList, self.hostingDecorationLabel = self.createListAndLabel(self.hostedPartyDisplay, self.hostingGui, 'decorations', 1)
         self.hostingDateLabel = DirectLabel(parent=self.hostedPartyDisplay, relief=None, text='', scale=TTLocalizer.EPhostingDateLabel, text_align=TextNode.ACenter, text_wordwrap=10, textMayChange=True, pos=self.hostingGui.find('**/date_locator').getPos())
         pos = self.hostingGui.find('**/cancel_text_locator').getPos()
-        self.hostingCancelButton = DirectButton(parent=self.hostedPartyDisplay, relief=None, geom=(self.hostingGui.find('**/cancelPartyButton_up'),
+        self.hostingCancelButton = DirectButton(parent=hidden, relief=None, geom=(self.hostingGui.find('**/cancelPartyButton_up'),
          self.hostingGui.find('**/cancelPartyButton_down'),
          self.hostingGui.find('**/cancelPartyButton_rollover'),
          self.hostingGui.find('**/cancelPartyButton_inactive')), text=TTLocalizer.EventsPageHostTabCancelButton, text_scale=TTLocalizer.EPhostingCancelButton, text_pos=(pos[0], pos[2]), command=self.__doCancelParty)
@@ -148,8 +148,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
          146 / 255.0,
          113 / 255.0,
          1), textMayChange=0)
-        curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
-        self.calendarGuiMonth = CalendarGuiMonth(self.calendarDisplay, curServerDate, onlyFutureMonthsClickable=True)
+        self.calendarGuiMonth = None # To be set upon tab's first opening.
         pos = (0.35, 0, -0.69)
         self.toontownTimeGui = ServerTimeGui(self.calendarDisplay, pos)
         return
@@ -424,6 +423,10 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def unload(self):
         self.scrollButtonGui.removeNode()
+        self.hostingGui.removeNode()
+        self.invitationGui.removeNode()
+        self.activityIconsModel.removeNode()
+        self.decorationModels.removeNode()
         del self.titleLabel
         self.hostingGuestList.removeAndDestroyAllItems()
         self.hostingGuestList.destroy()
@@ -487,7 +490,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         taskMgr.remove(self.DownloadArticlesTaskName)
         ShtikerPage.ShtikerPage.unload(self)
         return
-
 
     def enter(self):
         self.updatePage()
@@ -568,7 +570,10 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.invitationDisplay.hide()
             self.calendarDisplay.show()
             self.newsDisplay.hide()
-            self.calendarGuiMonth.updateTime()
+            if not self.calendarGuiMonth:
+                curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
+                self.calendarGuiMonth = CalendarGuiMonth(self.calendarDisplay, curServerDate, onlyFutureMonthsClickable=True)
+            self.calendarGuiMonth.changeMonth(0)
         elif self.mode == EventsPage_News:
             self.titleLabel['text'] = ''
             self.hostTab['state'] = DirectGuiGlobals.NORMAL
