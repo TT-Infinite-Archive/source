@@ -86,6 +86,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
         self.toonsPlaying[avId] = True
 
         if self.allToonsReady():
+            self.cancelCountdown()
             self.balancePlayers()
             self.setState('Active')
             taskMgr.doMethodLater(self.DURATION, self.enterConclusion, self.uniqueName('duration'))
