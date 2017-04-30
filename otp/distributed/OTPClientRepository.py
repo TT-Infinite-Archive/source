@@ -575,7 +575,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def getServerVersion(self):
         return self.serverVersion
 
-    def enterConnect(self, serverList):
+    def enterConnect(self, serverList, isMultiplayer = True):
         self.serverList = serverList
         if not self.introDone:
             if self.introduction.getCurrentOrNextState() not in (
@@ -585,7 +585,8 @@ class OTPClientRepository(ClientRepositoryBase):
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
             # Show the connecting box only if you are connecting to an MP server
-            self.connectingBox.hide()
+            if not isMultiplayer:
+                self.connectingBox.hide()
             self.renderFrame()
         self.handler = self.handleConnecting
         self.connect(self.serverList, successCallback=self._sendHello,

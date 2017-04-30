@@ -205,8 +205,7 @@ class HoodMgr(DirectObject.DirectObject):
         'sellhq': ToontownGlobals.SellbotHQ,
         'cashhq': ToontownGlobals.CashbotHQ,
         'lawhq': ToontownGlobals.LawbotHQ,
-        'gz': ToontownGlobals.GolfZone,
-        'rg': ToontownGlobals.ResistanceGrounds
+        'gz': ToontownGlobals.GolfZone
     }
     hoodId2Name = {
         ToontownGlobals.DonaldsDock: 'dd',
@@ -223,8 +222,7 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.SellbotHQ: 'sellhq',
         ToontownGlobals.CashbotHQ: 'cashhq',
         ToontownGlobals.LawbotHQ: 'lawhq',
-        ToontownGlobals.GolfZone: 'gz',
-        ToontownGlobals.ResistanceGrounds: 'rg'
+        ToontownGlobals.GolfZone: 'gz'
     }
     dbgDropMode = 0
     currentDropPoint = 0

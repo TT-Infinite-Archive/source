@@ -1,6 +1,5 @@
 from toontown.classicchars import DistributedMickeyAI
 from toontown.hood import HoodAI
-from toontown.hood import DistributedStormEventAI
 from toontown.safezone import DistributedTrolleyAI
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
@@ -17,7 +16,6 @@ class TTHoodAI(HoodAI.HoodAI):
 
         self.trolley = None
         self.classicChar = None
-        self.stormEvent = None
         self.butterflies = []
         self.jukebox = None
 
@@ -33,8 +31,6 @@ class TTHoodAI(HoodAI.HoodAI):
         if simbase.config.GetBool('want-classic-chars', True):
             if simbase.config.GetBool('want-mickey', True):
                 self.createClassicChar()
-        if self.air.newsManager.getStormEnabled():
-            self.createStormEvent()
 
         if simbase.air.wantYinYang or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
             NPCToons.createNPC(
@@ -57,10 +53,6 @@ class TTHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedMickeyAI.DistributedMickeyAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
-    
-    def createStormEvent(self):
-        self.stormEvent = DistributedStormEventAI.DistributedStormEventAI(self.air)
-        self.stormEvent.generateWithRequired(self.zoneId)
 
     def createJukeBox(self):
         self.jukebox = DistributedJukeboxAI(self.air, 5)

@@ -103,7 +103,7 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def d_toonSwitchTeamRequest(self):
         if not self._canSwitchTeams:
             return
-        self.sendUpdate('toonSwitchTeamRequest')
+        self.sendUpdate('toonSwitchTeamRequest', [])
 
     def switchTeamRequestDenied(self, reason):
         self.notify.debug('switchTeamRequestDenied')

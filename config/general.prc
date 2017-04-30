@@ -147,8 +147,5 @@ want-live-updates #t
 # Heartbeat
 want-heartbeat #t
 
-# Events
-want-storm-event #f
-
 # Toon patches:
 toon-patch-version 0

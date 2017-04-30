@@ -3,6 +3,7 @@ from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivity
 from toontown.toonbase import TTLocalizer
 import PartyGlobals
 
+
 class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedPartyCannonActivityAI")
     
@@ -11,8 +12,8 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
         self.cloudColors = {}
         self.cloudsHit = {}
 
-    def setMovie(self, todo0, todo1):
-        pass
+    def setMovie(self, movie, avId):
+        self.sendUpdate('setMovie', [movie, avId])
 
     def setLanded(self, toonId):
         avId = self.air.getAvatarIdFromSender()
@@ -22,10 +23,12 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
         if not avId in self.toonsPlaying:
             self.air.writeServerEvent('suspicious',avId,'Toon tried to land while not playing the cannon activity!')
             return
-        self.toonsPlaying.remove(avId)
+        del self.toonsPlaying[avId]
         reward = self.cloudsHit[avId] * PartyGlobals.CannonJellyBeanReward
         if reward > PartyGlobals.CannonMaxTotalReward:
             reward = PartyGlobals.CannonMaxTotalReward
+        if self.isDoubleJelleybeans():
+            reward *= 2
         av = self.air.doId2do.get(avId, None)
         if not av:
             self.air.writeServerEvent('suspicious',avId,'Toon tried to award beans while not in district!')
@@ -37,10 +40,10 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
         self.sendUpdate('setMovie', [PartyGlobals.CANNON_MOVIE_LANDED, avId])
         del self.cloudsHit[avId]
 
-    def b_setCannonWillFire(self, cannonId, rot, angle, toonId):
-        self.toonsPlaying.append(toonId)
-        self.cloudsHit[toonId] = 0
+    def d_setCannonWillFire(self, cannonId, rot, angle, toonId):
         self.sendUpdate('setCannonWillFire', [cannonId, rot, angle])
+        self.toonsPlaying[toonId] = True
+        self.cloudsHit[toonId] = 0
 
     def cloudsColorRequest(self):
         avId = self.air.getAvatarIdFromSender()
@@ -58,13 +61,12 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
     def setToonTrajectoryAi(self, launchTime, x, y, z, h, p, r, vx, vy, vz):
         self.sendUpdate('setToonTrajectory', [self.air.getAvatarIdFromSender(), launchTime, x, y, z, h, p, r, vx, vy, vz])
 
-    def setToonTrajectory(self, todo0, todo1, todo2, todo3, todo4, todo5, todo6, todo7, todo8, todo9, todo10):
-        pass
+    def setToonTrajectory(self, avId, launchTime, x, y, z, h, p, r, vx, vy, vz):
+        return
 
     def updateToonTrajectoryStartVelAi(self, vx, vy, vz):
         avId = self.air.getAvatarIdFromSender()
         self.sendUpdate('updateToonTrajectoryStartVel', [avId, vx, vy, vz])
 
-    def updateToonTrajectoryStartVel(self, todo0, todo1, todo2, todo3):
+    def updateToonTrajectoryStartVel(self, avId, vx, vy, vz):
         pass
-

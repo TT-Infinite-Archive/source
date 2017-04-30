@@ -2,7 +2,7 @@ import math
 from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
-from direct.task.Task import Task
+from direct.task import Task
 from toontown.toontowngui import TTDialog
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import ToontownGlobals
@@ -78,7 +78,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         self.flyColNode = None
         self.flyColNodePath = None
         self._flyingCollisionTaskName = None
-        return
+
 
     def generateInit(self):
         DistributedPartyActivity.generateInit(self)
@@ -244,7 +244,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
             self.flyingToonCloudsHit = 0
         cannon.updateModel(zRot, angle)
         toonId = cannon.getToonInside().doId
-        task = Task(self.__fireCannonTask)
+        task = Task.Task(self.__fireCannonTask)
         task.toonId = toonId
         task.cannon = cannon
         taskMgr.add(task, self.taskNameFireCannon)
@@ -267,7 +267,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
             self.notify.debug('start velocity: ' + str(startVel))
             self.notify.debug('time of launch: ' + str(launchTime))
         cannon.removeToonReadyToFire()
-        shootTask = Task(self.__shootTask, self.taskNameShoot)
+        shootTask = Task.Task(self.__shootTask, self.taskNameShoot)
         shootTask.info = {'toonId': toonId,
          'cannon': cannon}
         if self.isLocalToonId(toonId):
@@ -300,7 +300,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
             info['toon'] = self.localFlyingToon
             info['hRot'] = cannon.getRotation()
             base.camera.wrtReparentTo(self.localFlyingToon)
-            flyTask = Task(self.__localFlyTask, self.taskNameFly)
+            flyTask = Task.Task(self.__localFlyTask, self.taskNameFly)
             flyTask.info = info
             seqTask = Task.sequence(shootTask, flyTask)
             self.__startCollisionHandler()
@@ -393,7 +393,6 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         return Task.done
 
     def d_setLanded(self, toonId):
-        printStack()
         self.notify.debug('d_setLanded %s' % toonId)
         if self.isLocalToonId(toonId):
             if self.cr:

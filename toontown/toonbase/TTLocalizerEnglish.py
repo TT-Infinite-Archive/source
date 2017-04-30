@@ -78,10 +78,10 @@ Dale = 'Dale'
 JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'The Gardens'
+lDaisyGardens = 'Daisy Gardens'
 lDonaldsDock = "The Harbor"
 lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Melodyland"
+lMinniesMelodyland = "Musical Melodyland"
 lToontownCentral = 'Toontown Central'
 lToonHQ = 'Toon HQ'
 lSellbotHQ = 'Sellbot HQ'
@@ -148,7 +148,6 @@ OutdoorZone = ('to', 'in', lOutdoorZone)
 ToonPalooza = ('to', 'in', 'The Toon Palooza')
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
-ResistanceGrounds = ('to the', 'in the', lResistanceGrounds)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
 SellbotHQ = ('to', 'in', 'Sellbot HQ')
 CashbotHQ = ('to', 'in', 'Cashbot HQ')
@@ -4641,7 +4640,7 @@ MusicGsRaceRr = 'Route 66'
 MusicGsRaceSs = 'Ready, Set, Go!'
 MusicGzSz = 'The Putt-Putt Polka'
 MusicGzPlaygolf = "Let's Play Golf!"
-MusicMmNbrhood = "Melodyland"
+MusicMmNbrhood = "Musical Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
 MusicDdNbrhood = "The Harbor"
@@ -4703,7 +4702,7 @@ MusicPartyGenericTheme = 'Party Jingle'
 MusicTcEncounter = 'Toontown Central Battle'
 MusicDdEncounter = 'Encounter at The Harbor'
 MusicDgEncounter = 'Encounter in The Gardens'
-MusicMmEncounter = 'Melodyland Encounter'
+MusicMmEncounter = 'Musical Melodyland Encounter'
 MusicTbEncounter = 'Encounter in The Brrrgh'
 MusicDlEncounter = 'Dreamland Encounter'
 JellyfishJam = 'Jellyfish Jam'
@@ -4755,7 +4754,7 @@ PartyActivityNameDict = {0: {'generic': 'Jukebox',
  8: {'generic': 'Deluxe Jukebox',
      'invite': 'a deluxe jukebox',
      'editor': 'Deluxe Jukebox',
-     'description': 'Your own deluxe jukebox with double the tunes for double the deal!'},
+     'description': 'Listen to music with your own deluxe jukebox!'},
  9: {'generic': 'Dance Floor\n20 moves',
      'invite': 'a 20 move Dance Floor',
      'editor': 'Dance Floor - 20',
@@ -5056,6 +5055,7 @@ OptionsPageVSync = 'VSync'
 OptionsPageShowFps = 'Show FPS'
 OptionsPageAnimationSmoothing = 'Animation Smoothing'
 OptionsPageRequiresRestart = 'Requires Restart'
+OptionsPageClassicMusic = 'Classic Soundtrack'
 SocialPageTitle = 'Social'
 GuildPageTitle = 'Guilds'
 GuildPagePromote = 'Promote'
@@ -10397,7 +10397,7 @@ achievementInfo = {
     7: ('Blooming',
         'Complete The Gardens'),
     8: ('Warming symphonies',
-        "Complete Melodyland"),
+        "Complete Musical Melodyland"),
     9: ('You cold Yeti?',
         'Complete The Brrrgh'),
     10: ("Dreaming Goodbyes",
@@ -10515,7 +10515,8 @@ def getAchievementClassifier(classifier):
 RemapPrompt = 'Choose the keys you wish to remap.'
 RemapPopup = 'Press the button you wish to remap this control to.'
 Controls = ['Move Up:', 'Move Left:', 'Move Down:', 'Move Right:',
-            'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:']
+            'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:',
+            'Screenshot Key:']
 
 GuildChatWarning = 'You are currently not in a Guild. Use "/all" to return to normal chat.'
 GuildDialogMovieStart = 'Are you here to create your very own Guild?'

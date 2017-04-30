@@ -120,8 +120,8 @@ class DistributedPartyCannon(DistributedObject, Cannon):
         self.parentNode.setPosHpr(x, y, z, h, p, r)
 
     def setActivityDoId(self, doId):
-        self.activityDoId = doId
-        self.activity = base.cr.doId2do[doId]
+        self.activityDoId = int(doId)
+        self.activity = base.cr.doId2do.get(int(doId))
 
     def activate(self):
         self.accept(self.getEnterCollisionName(), self.__handleToonCollisionWithCannon)

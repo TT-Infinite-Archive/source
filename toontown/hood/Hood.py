@@ -179,9 +179,7 @@ class Hood(StateData.StateData):
         hoodText = base.cr.hoodMgr.getFullnameFromId(self.id)
         if self.id != Tutorial:
             streetName = StreetNames.get(ZoneUtil.getCanonicalBranchZone(zoneId))
-            if zoneId in (10000, 11000, 12000, 13000):
-                hoodText = TTLocalizer.CogNation + '\n' + hoodText
-            elif streetName:
+            if streetName:
                 hoodText = hoodText + '\n' + streetName[-1]
         return hoodText
 

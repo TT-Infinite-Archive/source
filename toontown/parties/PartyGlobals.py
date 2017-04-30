@@ -104,16 +104,14 @@ PartyEditorActivityOrder = [ ActivityIds.PartyClock,
  ActivityIds.PartyDance20,
  ActivityIds.PartyValentineDance,
  ActivityIds.PartyValentineDance20,
- ActivityIds.PartyTugOfWar,
  ActivityIds.PartyCatch,
  ActivityIds.PartyWinterCatch,
- ActivityIds.PartyCog,
  ActivityIds.PartyWinterCog,
+ ActivityIds.PartyTugOfWar,
+ ActivityIds.PartyCog,
  ActivityIds.PartyFireworks]
 UnreleasedActivityIds = (
  # These AIs need to be written before they can be used:
- ActivityIds.PartyTugOfWar,
- ActivityIds.PartyCog,
  ActivityIds.PartyJukebox,
  ActivityIds.PartyJukebox40,
  # --------------------

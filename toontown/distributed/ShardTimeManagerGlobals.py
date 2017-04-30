@@ -17,7 +17,7 @@ MIDDAY_START_PERIOD = ((DAWN_START_PERIOD*36.0+TRANSITION_LENGTH)/36.0)  # This 
 DUSK_START_PERIOD = ((MIDDAY_START_PERIOD*36.0+SEGMENT_LENGTH)/36.0)  # This is how far we get into the day before dusk starts
 NIGHT_START_PERIOD = ((DUSK_START_PERIOD*36.0+TRANSITION_LENGTH)/36.0)  # This is how far we get into the day before night starts
 
-# All of the different parts of the day and when they start in toontown minutes.
+# All of the different parts of the day and when they start in Toontown minutes.
 # A toontown minute is defined in real world seconds at the top of the file.
 DAWN_START = math.floor(DAY * DAWN_START_PERIOD)  # Dawn is the start of the transition from night to day
 MIDDAY_START = math.floor(DAY * MIDDAY_START_PERIOD)
