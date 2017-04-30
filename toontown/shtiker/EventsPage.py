@@ -103,8 +103,24 @@ class EventsPage(ShtikerPage.ShtikerPage):
         checkedImage = self.hostingGui.find('**/checked_button')
         uncheckedImage = self.hostingGui.find('**/unchecked_button')
         self.publicButton = DirectCheckButton(parent=self.hostedPartyDisplay, relief=None, scale=0.1, boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None), boxImageScale=10, boxRelief=None, text=TTLocalizer.EventsPageHostTabToggleToPublic, text_align=TextNode.ALeft, text_scale=TTLocalizer.EPpublicButton, pos=pos, command=self.__changePublicPrivate, indicator_pos=(-0.7, 0, 0.2))
-        pos = self.hostingGui.find('**/private_text_locator').getPos()
-        self.privateButton = DirectCheckButton(parent=self.hostedPartyDisplay, relief=None, scale=0.1, boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None), boxImageScale=10, boxRelief=None, text=TTLocalizer.EventsPageHostTabToggleToPrivate, text_align=TextNode.ALeft, text_scale=TTLocalizer.EPprivateButton, pos=pos, command=self.__changePublicPrivate, indicator_pos=(-0.7, 0, 0.2))
+        if base.isSinglePlayer:
+            pos = self.hostingGui.find('**/private_text_locator').getPos()
+            self.privateButton = DirectCheckButton(parent=hidden, relief=None, scale=0.1,
+                                                   boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None),
+                                                   boxImageScale=10, boxRelief=None,
+                                                   text=TTLocalizer.EventsPageHostTabToggleToPrivate,
+                                                   text_align=TextNode.ALeft, text_scale=TTLocalizer.EPprivateButton,
+                                                   pos=pos, command=self.__changePublicPrivate,
+                                                   indicator_pos=(-0.7, 0, 0.2))
+        else:
+            pos = self.hostingGui.find('**/private_text_locator').getPos()
+            self.privateButton = DirectCheckButton(parent=self.hostedPartyDisplay, relief=None, scale=0.1,
+                                                   boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None),
+                                                   boxImageScale=10, boxRelief=None,
+                                                   text=TTLocalizer.EventsPageHostTabToggleToPrivate,
+                                                   text_align=TextNode.ALeft, text_scale=TTLocalizer.EPprivateButton,
+                                                   pos=pos, command=self.__changePublicPrivate,
+                                                   indicator_pos=(-0.7, 0, 0.2))
         self.confirmCancelPartyEvent = 'confirmCancelPartyEvent'
         self.accept(self.confirmCancelPartyEvent, self.confirmCancelOfParty)
         self.confirmCancelPartyGui = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('confirmCancelPartyGui'), doneEvent=self.confirmCancelPartyEvent, message=TTLocalizer.EventsPageConfirmCancel % int(PartyGlobals.PartyRefundPercentage * 100.0), style=TTDialog.YesNo, okButtonText=OTPLocalizer.DialogYes, cancelButtonText=OTPLocalizer.DialogNo)
