@@ -188,7 +188,8 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         return None
 
     def startCountdown(self):
-        taskMgr.doMethodLater(self.COUNTDOWN_TIME, self.countdownFinished, self.uniqueName('countdown'))
+        if not taskMgr.hasTaskNamed(self.uniqueName('countdown')):
+            taskMgr.doMethodLater(self.COUNTDOWN_TIME, self.countdownFinished, self.uniqueName('countdown'))
 
     def cancelCountdown(self):
         taskMgr.remove(self.uniqueName('countdown'))
