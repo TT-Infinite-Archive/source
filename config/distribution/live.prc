@@ -27,6 +27,7 @@ generate-global-object 4477 GlobalPartyManager
 generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
+generate-global-object 4479 PlayerManager
 generate-global-object 4901 MegaInvasionManager
 
 # Web API:

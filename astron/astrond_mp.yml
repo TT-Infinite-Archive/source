@@ -52,12 +52,16 @@ uberdogs:
       id: 4477
       anonymous: false
 
-    - class: GuildManager
-      id: 4701
-      anonymous: false
-
     - class: GlobalGroupTracker
       id: 4478
+      anonymous: false
+
+    - class: PlayerManager
+      id: 4479
+      anonymous: false
+    
+    - class: GuildManager
+      id: 4701
       anonymous: false
 
 messagedirector:

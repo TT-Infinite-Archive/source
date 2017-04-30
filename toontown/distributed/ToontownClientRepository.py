@@ -49,6 +49,7 @@ from toontown.makeatoon import TTPickANamePattern
 from toontown.parties import ToontownTimeManager
 from toontown.toon import Toon, DistributedToon
 from ToontownMsgTypes import *
+from toontown.uberdog import PlayerManager
 import HoodMgr
 import PlayGame
 from toontown.toontowngui import ToontownLoadingBlocker
@@ -100,6 +101,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.codeRedemptionManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TOONTOWN_CODE_REDEMPTION_MANAGER, 'TTCodeRedemptionMgr')
         self.guildManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_GUILDS_MANAGER, 'GuildManager')
         self.globalGroupTracker = self.generateGlobalObject(OTP_DO_ID_GLOBAL_GROUP_TRACKER, 'GlobalGroupTracker')
+        self.playerManager = self.generateGlobalObject(OTP_DO_ID_PLAYER_MANAGER, 'PlayerManager')
 
         self.streetSign = None
         self.furnitureManager = None

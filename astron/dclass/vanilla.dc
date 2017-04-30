@@ -242,6 +242,7 @@ from toontown.racing.DistributedStartingBlock/AI import DistributedViewingBlock/
 from toontown.uberdog.ClientServicesManager/UD import ClientServicesManager/UD
 from toontown.uberdog.DistributedDeliveryManager/AI/UD import DistributedDeliveryManager/AI/UD
 from toontown.uberdog.DistributedDataStoreManager/AI/UD import DistributedDataStoreManager/AI/UD
+from toontown.uberdog import PlayerManager/UD
 from toontown.suit import DistributedLawbotBoss/AI
 from toontown.coghq import DistributedLawbotBossGavel/AI
 from toontown.suit import DistributedLawbotBossSuit/AI
@@ -4066,6 +4067,13 @@ struct LeaderboardRankEntry {
     uint32 guildId;
     string guildName;
     uint32 points;
+};
+
+struct PlayerAvatarInfo {
+    uint32 avId;
+    string name;
+    uint16 laff;
+    uint16 accessLevel;
 }
 
 dclass Guild {
@@ -4167,6 +4175,11 @@ dclass GuildManager : DistributedObjectGlobal {
 
   guildError(int8 errorId);
 };
+
+dclass PlayerManager : DistributedObjectGlobal {
+    setPlayerList(PlayerAvatarInfo[] players);
+    getPlayerList();
+}
 
 dclass GlobalGroupTracker : DistributedObjectGlobal {
     // Client Requests

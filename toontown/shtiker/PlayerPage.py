@@ -84,7 +84,7 @@ class PlayerPage(ShtikerPage.ShtikerPage):
             pos=(0.0, 0.0, 0.0),
             numItemsVisible=10,
             forceHeight=0.11,
-            items=self.shards,
+            items=self.playerListItems,
             frameSize=(-0.675, 0.675, -0.6, 0.6),
 
             incButton_image=arrowButton,
@@ -107,8 +107,11 @@ class PlayerPage(ShtikerPage.ShtikerPage):
         listGui.removeNode()
 
     def update(self):
-        # TODO: Get player information from player manager
-        pass
+        for player in base.cr.playerManager.players:
+            plItem = PlayerListItem(self.playerList, player, base.cr.playerManager.players.index(player))
+            self.playerList.addItem(plItem, refresh=0)
+            self.playerListItems.append(plItem)
+        self.playerList.refresh()
 
     def unload(self):
         for plItem in self.playerListItems:
@@ -119,23 +122,21 @@ class PlayerPage(ShtikerPage.ShtikerPage):
         ShtikerPage.ShtikerPage.unload(self)
 
     def enter(self):
+        base.cr.playerManager.d_getPlayerList()
         self.update()
         ShtikerPage.ShtikerPage.enter(self)
 
 
 class PlayerListItem(DirectFrame):
-    def __init__(self, parent, name, species, laff, access, directList, index):
+    def __init__(self, parent, player, index):
         DirectFrame.__init__(self, parent)
-        self.name = name
-        self.species = species
-        self.laff = laff
-        self.access = access
+        self.player = player
 
         frameColor = (0.9, 0.9, 0.9, 0)
         textScale = (0.06, 0.06)
         textColor = (0, 0, 0, 1)
 
-        listFrameSize = directList['frameSize']
+        listFrameSize = self.parent['frameSize']
         if index % 2 == 0:
             frameColor = (0.9, 0.9, 0.9, 0)
 
@@ -150,25 +151,25 @@ class PlayerListItem(DirectFrame):
         self.nameLabel = TTLabel(
             self.mainFrame,
             pos=(-0.45, 0.0, 0),
-            text=name,
+            text=self.shortenedName,
             text_fg=textColor
         )
         self.speciesLabel = TTLabel(
             self.mainFrame,
             pos=(-0.45, 0.0, 0),
-            text=species,
+            text=self.player.species,
             text_fg=textColor,
         )
         self.laffLabel = TTLabel(
             self.mainFrame,
             pos=(-0.45, 0.0, 0),
-            text=laff,
+            text=self.player.laff,
             text_fg=textColor
         )
         self.accessLabel = TTLabel(
             self.mainFrame,
             pos=(0.29, 0.0, -0.015),
-            text=access,
+            text=self.player.access,
             text_fg=textColor,
             text_scale=textScale
         )
@@ -181,7 +182,7 @@ class PlayerListItem(DirectFrame):
 
     @property
     def shortenedName(self):
-        name = self.name
+        name = self.player.name
         if len(name) >= 20:
             name = '%s...' % name[0:20]
         return name
