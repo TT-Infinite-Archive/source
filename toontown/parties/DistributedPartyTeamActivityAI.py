@@ -198,7 +198,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
             LEFT_TEAM: self.leftTeam,
             RIGHT_TEAM: self.rightTeam
         }
-        self.setState('Active')
+        self.setState('Rules')
 
     def clearGame(self):
         self.leftTeam = []
