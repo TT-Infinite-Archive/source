@@ -1,11 +1,17 @@
 from toontown.toonbase.TTLocalizerEnglishProperty import *
 from toontown.catalog import CatalogAccessoryItemGlobals
 from otp.otpbase import OTPLocalizer as OL
+import sys, os
+
 OL.SpeedChatStaticText = OL.SpeedChatStaticTextToontown.copy()
 for key in OL.SpeedChatStaticTextCommon.iterkeys():
     OL.SpeedChatStaticText[key] = OL.SpeedChatStaticTextCommon[key]
 
-commitmantst = 'kptmptest - removable'
+if sys.platform == 'android':
+    CurrentDirectory = '/sdcard/TTI'
+else:
+    CurrentDirectory = ''
+
 InterfaceFont = 'phase_3/models/fonts/ImpressBT.ttf'
 ToonFont = 'phase_3/models/fonts/ImpressBT.ttf'
 SuitFont = 'phase_3/models/fonts/vtRemingtonPortable.ttf'
@@ -51,7 +57,7 @@ NametagFontNames = (
 )
 NametagLabel = ' Nametag'
 UnpaidNameTag = 'Basic'
-ScreenshotPath = 'screenshots/'
+ScreenshotPath = os.path.join(CurrentDirectory, 'screenshots')
 GM_NAMES = (
  'TOON COUNCIL',
  'TOON TROOPER',
@@ -10768,3 +10774,5 @@ BehaviorName = {
  0: 'None',
  1: 'Having a picnic'
 }
+
+AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'

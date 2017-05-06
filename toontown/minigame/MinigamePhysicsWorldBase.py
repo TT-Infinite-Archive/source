@@ -1,16 +1,26 @@
 from pandac.PandaModules import Quat
-from pandac.PandaModules import OdeWorld, OdeSimpleSpace, OdeJointGroup, OdeUtil
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import globalClockDelta
+import sys
+
+if sys.platform != 'android':
+    from panda3d.ode import OdeWorld, OdeSimpleSpace, OdeJointGroup, OdeUtil
 
 class MinigamePhysicsWorldBase:
     notify = DirectNotifyGlobal.directNotify.newCategory('MinigamePhysicsWorldBase')
 
     def __init__(self, canRender = 0):
         self.canRender = canRender
-        self.world = OdeWorld()
-        self.space = OdeSimpleSpace()
-        self.contactgroup = OdeJointGroup()
+        
+        if sys.platform != 'android':
+            self.world = OdeWorld()
+            self.space = OdeSimpleSpace()
+            self.contactgroup = OdeJointGroup()
+        else:
+            self.world = None
+            self.space = None
+            self.contactgroup = None
+        
         self.bodyList = []
         self.geomList = []
         self.massList = []
@@ -80,12 +90,17 @@ class MinigamePhysicsWorldBase:
         for data in self.meshDataList:
             data.destroy()
 
-        self.contactgroup.empty()
-        self.world.destroy()
-        self.space.destroy()
+        if self.contactgroup:
+            self.contactgroup.empty()
+        
+        if self.world:
+            self.world.destroy()
+        
+        if self.space:
+            self.space.destroy()
+        
         self.world = None
         self.space = None
-        return
 
     def setupSimulation(self):
         if self.canRender:

@@ -8,6 +8,7 @@ import gc
 gc.disable()
 
 import __builtin__
+import os, sys
 
 __builtin__.process = 'client'
 
@@ -45,10 +46,11 @@ for dtool in ('children', 'parent', 'name'):
 from panda3d.core import loadPrcFileData
 
 from otp.settings.Settings import Settings
+from toontown.toonbase import ToontownGlobals
 
-preferencesPath = ConfigVariableString('preferences-path', 'preferences.json')
-notify.info('Reading %s...' % preferencesPath.getValue())
-__builtin__.settings = Settings(preferencesPath.getValue())
+preferencesPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
+notify.info('Reading %s...' % preferencesPath)
+__builtin__.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
@@ -63,8 +65,6 @@ loadPrcFileData('Settings: musicVol',
                 'audio-master-music-volume %s' % settings[SettingsGlobals.MusicVolume])
 loadPrcFileData('Settings: sfxVol',
                 'audio-master-sfx-volume %s' % settings[SettingsGlobals.SoundVolume])
-loadPrcFileData('Settings: loadDisplay',
-                'load-display %s' % settings[SettingsGlobals.LoadDisplay])
 loadPrcFileData('Settings: showFps',
                 'show-frame-rate-meter %s' % (1 if settings[SettingsGlobals.ShowFps] else 0))
 loadPrcFileData('Settings: vsync',
@@ -72,21 +72,27 @@ loadPrcFileData('Settings: vsync',
 loadPrcFileData('Settings: animationSmoothing',
                 'interpolate-frames %s' % (1 if settings[SettingsGlobals.AnimationSmoothing] else 0))
 
-import os
+if sys.platform != 'android':
+    loadPrcFileData('Settings: loadDisplay',
+                    'load-display %s' % settings[SettingsGlobals.LoadDisplay])
+else:
+    loadPrcFileData('Settings: loadDisplay',
+                    'load-display pandagles')
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
 
-contentPacksPath = ConfigVariableString('content-packs-path', 'contentpacks')
-if not os.path.exists(contentPacksPath.getValue()):
-    os.makedirs(contentPacksPath.getValue())
-__builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath.getValue())
+contentPacksPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('content-packs-path', 'contentpacks').getValue())
+if not os.path.exists(contentPacksPath):
+    os.makedirs(contentPacksPath)
+__builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath)
 contentPacksMgr.applyAll()
 
-if not os.path.isdir('astron/data/singleplayer'):
-    os.makedirs('astron/data/singleplayer')
+if sys.platform != 'android':
+    if not os.path.isdir('astron/data/singleplayer'):
+        os.makedirs('astron/data/singleplayer')
 
-if not os.path.isdir('astron/data/multiplayer'):
-    os.makedirs('astron/data/multiplayer')
+    if not os.path.isdir('astron/data/multiplayer'):
+        os.makedirs('astron/data/multiplayer')
 
 from toontown.launcher.TTILauncher import TTILauncher
 
@@ -95,7 +101,6 @@ __builtin__.launcher = TTILauncher()
 notify.info('Starting the game...')
 
 from direct.gui import DirectGuiGlobals
-from toontown.toonbase import ToontownGlobals
 
 DirectGuiGlobals.setDefaultFontFunc(ToontownGlobals.getInterfaceFont)
 

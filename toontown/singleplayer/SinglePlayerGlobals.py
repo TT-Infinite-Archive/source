@@ -4,9 +4,9 @@ import sys
 
 from panda3d.core import ConfigVariableList
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizer, ToontownGlobals
 
-LogsPath = os.path.join(os.getcwd(), 'logs')
+LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
 if hasattr(__builtin__, '__nirai__'):
     UberdogTarget = [__nirai__.filename, '--uberdog']
     AITarget = [__nirai__.filename, '--ai']

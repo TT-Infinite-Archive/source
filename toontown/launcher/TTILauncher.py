@@ -1,6 +1,7 @@
 from pandac.PandaModules import *
 from direct.directnotify import DirectNotifyGlobal, Notifier
 from otp.launcher.LauncherBase import LauncherBase
+from toontown.toonbase import ToontownGlobals
 import os
 import sys
 import time
@@ -28,17 +29,22 @@ class TTILauncher(LauncherBase):
         self.http = HTTPClient()
 
         self.logPrefix = 'infinite-'
+        
+        if sys.platform == 'android':
+            # Can't really set stdout on here without Android freaking out.
+            return
 
         ltime = 1 and time.localtime()
         logSuffix = '%02d%02d%02d_%02d%02d%02d' % (ltime[0] - 2000,  ltime[1], ltime[2],
                                                    ltime[3], ltime[4], ltime[5])
 
-
-        if not os.path.exists('logs/'):
-            os.mkdir('logs/')
+        folder = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
+        
+        if not os.path.exists(folder):
+            os.mkdir(folder)
             self.notify.info('Made new directory to save logs.')
 
-        logfile = os.path.join('logs', self.logPrefix + logSuffix + '.log')
+        logfile = os.path.join(folder, self.logPrefix + logSuffix + '.log')
 
         log = open(logfile, 'a')
         logOut = LogAndOutput(sys.stdout, log)

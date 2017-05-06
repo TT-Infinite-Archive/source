@@ -8,6 +8,9 @@ from toontown.toonbase import TTLocalizer
 from toontown.racing import RaceGlobals
 from direct.fsm import State
 from toontown.safezone import GolfKart
+from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toontowngui import TTDialog
+import sys
 
 class GZPlayground(Playground.Playground):
 
@@ -19,6 +22,17 @@ class GZPlayground(Playground.Playground):
         state = self.fsm.getStateNamed('walk')
         state.addTransition('golfKartBlock')
         self.golfKartDoneEvent = 'golfKartDone'
+        self.trolley = None
+        self.warningDialog = None
+    
+    def destroyWarningDialog(self):
+        if self.warningDialog:
+            self.warningDialog.destroy()
+            self.warningDialog = None
+    
+    def warningDone(self, *args):
+        self.destroyWarningDialog()
+        self.fsm.request('walk')
 
     def load(self):
         Playground.Playground.load(self)
@@ -89,6 +103,14 @@ class GZPlayground(Playground.Playground):
         return
 
     def enterGolfKartBlock(self, golfKart):
+        if sys.platform == 'android':
+            base.localAvatar.b_setAnimState('neutral', 1)
+            self.destroyWarningDialog()
+            
+            self.warningDialog = TTDialog.TTDialog(text=TTLocalizer.AndroidGolfMessage, command=self.warningDone, style=TTDialog.Acknowledge)
+            self.warningDialog.show()
+            return
+
         base.localAvatar.laffMeter.start()
         base.localAvatar.b_setAnimState('off', 1)
         self.accept(self.golfKartDoneEvent, self.handleGolfKartDone)
@@ -98,10 +120,13 @@ class GZPlayground(Playground.Playground):
 
     def exitGolfKartBlock(self):
         base.localAvatar.laffMeter.stop()
-        self.ignore(self.trolleyDoneEvent)
-        self.trolley.unload()
-        self.trolley.exit()
-        del self.trolley
+        self.destroyWarningDialog()
+        self.ignore(self.golfKartDoneEvent)
+        
+        if self.trolley:
+            self.trolley.unload()
+            self.trolley.exit()
+            self.trolley = None
 
     def detectedGolfKartCollision(self, golfKart):
         self.notify.debug('detectedGolfkartCollision()')

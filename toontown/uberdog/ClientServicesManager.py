@@ -8,6 +8,7 @@ from toontown.toonbase import UserFunnel
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
+import sys
 
 
 def generateLookupTable(key):
@@ -103,7 +104,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     # --- AVATAR CHOICE ---
     def sendChooseAvatar(self, avId):
-        self.sendUpdate('chooseAvatar', [avId])
+        self.sendUpdate('chooseAvatar', [avId, sys.platform])
 
     def systemMessage(self, message):
         whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)

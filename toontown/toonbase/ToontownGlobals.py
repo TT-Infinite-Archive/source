@@ -2,8 +2,14 @@ import TTLocalizer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import Enum, invertDict
 from panda3d.core import BitMask32, Vec4
+import sys
 
 from toontown.toonbase.HolidayGlobals import *
+
+if sys.platform == 'android':
+    CurrentDirectory = '/sdcard/TTI'
+else:
+    CurrentDirectory = ''
 
 MapHotkeyOn = 'alt'
 MapHotkeyOff = 'alt-up'

@@ -727,8 +727,9 @@ class LoadAvatarFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('LoadAvatarFSM')
     POST_ACCOUNT_STATE = 'GetTargetAvatar'
 
-    def enterStart(self, avId):
+    def enterStart(self, avId, platform):
         self.avId = avId
+        self.platform = platform
         self.demand('RetrieveAccount')
 
     def enterGetTargetAvatar(self):
@@ -819,7 +820,8 @@ class LoadAvatarFSM(AvatarOperationFSM):
             self.avId, 0, 0, self.csm.air.dclassesByName['DistributedToonUD'],
             {'setAdminAccess': [forceAccessLevel if forceAccessLevel else self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
-             'setChatMode': [self.account.get('CHAT_MODE', 1)]})
+             'setChatMode': [self.account.get('CHAT_MODE', 1)],
+             'setPlatform': [self.platform]})
 
         # Let the TTIFriendsManager know about the account's chat mode.
         friendsManager = self.csm.air.getGlobalObject('TTIFriendsManager')
@@ -1068,7 +1070,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def acknowledgeAvatarName(self, avId):
         self.runAccountFSM(AcknowledgeNameFSM, avId)
 
-    def chooseAvatar(self, avId):
+    def chooseAvatar(self, avId, platform):
         currentAvId = self.air.getAvatarIdFromSender()
         accountId = self.air.getAccountIdFromSender()
         if currentAvId and avId:
@@ -1080,7 +1082,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             return
 
         if avId:
-            self.runAccountFSM(LoadAvatarFSM, avId)
+            self.runAccountFSM(LoadAvatarFSM, avId, platform)
             chatAgent = self.air.getGlobalObject('ChatAgent')
             chatAgent.checkMuted(accountId)
         else:

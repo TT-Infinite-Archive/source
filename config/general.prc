@@ -149,3 +149,8 @@ want-heartbeat #t
 
 # Toon patches:
 toon-patch-version 0
+
+# Intel:
+stencil-bits 1
+depth-bits 24
+allow-incomplete-render #f

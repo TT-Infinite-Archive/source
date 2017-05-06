@@ -4,7 +4,7 @@ import time
 import tempfile
 import atexit
 import shutil
-
+import sys
 import OTPGlobals
 import OTPRender
 import __builtin__
@@ -16,8 +16,11 @@ class OTPBase(ShowBase):
 
     def __init__(self, windowType = None):
         # Create a temporary directory:
-        self.tempDir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, self.tempDir)
+        if sys.platform == 'android':
+            self.tempDir = ''
+        else:
+            self.tempDir = tempfile.mkdtemp()
+            atexit.register(shutil.rmtree, self.tempDir)
 
         self.wantEnviroDR = False
         ShowBase.__init__(self, windowType=windowType)

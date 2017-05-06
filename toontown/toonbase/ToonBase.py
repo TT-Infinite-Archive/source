@@ -297,6 +297,9 @@ class ToonBase(OTPBase.OTPBase):
         MarginGlobals.updateMarginVisibles()
 
     def setCursorAndIcon(self):
+        if sys.platform == 'android':
+            return
+
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
@@ -413,7 +416,7 @@ class ToonBase(OTPBase.OTPBase):
                         imageComment=ctext + ' ' + self.screenshotStr)
         screenshot = self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
         self.lastScreenShotTime = globalClock.getRealTime()
-        pandafile = Filename(str(ExecutionEnvironment.getCwd()) + '/' + str(screenshot))
+        pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
         winfile = pandafile.toOsSpecific()
         self.screenShotNotice = DirectLabel(text = "Screenshot Saved" + ':\n' + winfile, scale = 0.05, pos = (0.0, 0.0, -0.8), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
         self.screenShotNotice.reparentTo(aspect2d, 7000)
