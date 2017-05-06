@@ -1,6 +1,5 @@
 import atexit
 import copy
-import socket
 import sys
 import types
 import __builtin__
@@ -41,6 +40,7 @@ class DedicatedServer(FSM):
         self.astronConfig = os.path.join(self.tempDir, 'multiplayer.yml')
 
     def isServerAlive(self):
+        import socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.33)
         return sock.connect_ex(('127.0.0.1', 7000)) == 0

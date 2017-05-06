@@ -1,6 +1,5 @@
 import atexit
 import copy
-import socket
 
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
@@ -67,6 +66,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         return [thread.getPid() for thread in self.threads if thread.hasPid()]
     
     def isServerAlive(self):
+        import socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.33)
         return sock.connect_ex(('127.0.0.1', self.getPort())) == 0
