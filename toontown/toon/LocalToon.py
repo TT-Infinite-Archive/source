@@ -185,6 +185,10 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.prevToonIdx = 0
             self.toonNameCache = []
             self.switchingShards = False
+            self.touchStarted = False
+            self.touchPoint = None
+            self.lastTouch = 0
+            self.touchPresses = []
 
     def setDefaultShard(self, shard):
         if shard not in self.cr.activeDistrictMap:
@@ -370,8 +374,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             if self.__catalogNotifyDialog:
                 self.__catalogNotifyDialog.cleanup()
             del self.__catalogNotifyDialog
-
-        return
+            self.cleanupTouchInterface()
 
     def initInterface(self):
         self.newsButtonMgr = NewsPageButtonManager.NewsPageButtonManager()
@@ -454,6 +457,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.accept('InputState-turnRight', self.__toonMoved)
         self.accept('InputState-slide', self.__toonMoved)
         
+        self.initTouchInterface()
         self.controlManager.reload()
         self.chatMgr.reloadWASD()
         
@@ -474,6 +478,106 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.kartPage.setAvatar(self)
             self.kartPage.load()
             self.book.addPage(self.kartPage, pageName=TTLocalizer.KartPageTitle)
+    
+    def initTouchInterface(self):
+        if self.touchStarted or sys.platform != 'android':
+            return
+
+        self.accept('mouse1', self.__startTouch)
+        self.accept('mouse1-up', self.__stopTouch)
+        self.touchStarted = True
+    
+    def cleanupTouchInterface(self):
+        if not self.touchStarted:
+            return
+        
+        self.stopTouchPresses()
+        self.ignore('mouse1-down')
+        self.ignore('mouse1-up')
+        self.touchStarted = False
+        
+    def stopTouchPresses(self):
+        for press in self.touchPresses:
+            messenger.send(press + '-up')
+        
+        self.touchPresses = []
+    
+    def __touchInterfaceTask(self, task):
+        if not base.mouseWatcherNode.hasMouse():
+            self.__stopTouch()
+            return
+
+        mouse = base.win.getPointer(0)
+        x = max(0, min(mouse.getX() / base.win.getXSize(), 1))
+        y = max(0, min(mouse.getY() / base.win.getYSize(), 1))
+        x -= self.touchPoint[0]
+        y -= self.touchPoint[1]
+        radius = 0.045
+        
+        if x <= -radius:
+            self.removeTouch(base.MOVE_RIGHT)
+            self.addTouch(base.MOVE_LEFT)
+        elif x >= radius:
+            self.removeTouch(base.MOVE_LEFT)
+            self.addTouch(base.MOVE_RIGHT)
+        else:
+            self.removeTouch(base.MOVE_LEFT)
+            self.removeTouch(base.MOVE_RIGHT)
+        
+        if y <= -radius:
+            self.removeTouch(base.MOVE_DOWN)
+            self.addTouch(base.MOVE_UP)
+        elif y >= radius:
+            self.removeTouch(base.MOVE_UP)
+            self.addTouch(base.MOVE_DOWN)
+        else:
+            self.removeTouch(base.MOVE_UP)
+            self.removeTouch(base.MOVE_DOWN)
+
+        return task.cont
+    
+    def removeTouch(self, press):
+        if press in self.touchPresses:
+            self.touchPresses.remove(press)
+            messenger.send(press + '-up')
+    
+    def addTouch(self, press):
+        if press not in self.touchPresses:
+            self.touchPresses.append(press)
+            messenger.send(press)
+    
+    def __startTouch(self, *args):
+        if not base.mouseWatcherNode.hasMouse():
+            return
+
+        mouse = base.win.getPointer(0)
+        mouseX = max(0, min(mouse.getX() / base.win.getXSize(), 1))
+        mouseY = max(0, min(mouse.getY() / base.win.getYSize(), 1))
+        
+        if mouseX < 0.075 and mouseY > 0.88:
+            messenger.send('tab')
+            return
+        
+        self.touchPoint = (mouseX, mouseY)
+        self.stopTouchPresses()
+        
+        if (time.time() - self.lastTouch) <= 0.25:
+            self.addTouch('jump')
+            messenger.send('touchDoubleTap')
+        
+        for controls in self.controlManager.controls.values():
+            controls.avatarControlRotateSpeed = 50 * 1.25
+        
+        self.lastTouch = time.time()
+        
+        taskMgr.add(self.__touchInterfaceTask, self.uniqueName('touchInterface'))
+    
+    def __stopTouch(self, *args):
+        for controls in self.controlManager.controls.values():
+            controls.avatarControlRotateSpeed = ToontownGlobals.ToonRotateSpeed
+
+        self.stopTouchPresses()
+        taskMgr.remove(self.uniqueName('touchInterface'))
 
     def setWantBattles(self, wantBattles):
         self.wantBattles = wantBattles
