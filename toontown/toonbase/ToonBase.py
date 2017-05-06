@@ -39,11 +39,15 @@ class ToonBase(OTPBase.OTPBase):
         self.cr = None
 
         # Get the native display info:
-        self.nativeWidth = self.pipe.getDisplayWidth()
-        self.nativeHeight = self.pipe.getDisplayHeight()
-        ratio = float(self.nativeWidth) / float(self.nativeHeight)
-        fraction = fractions.Fraction(ratio).limit_denominator()
-        self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
+        if sys.platform != 'android':
+            self.nativeWidth = self.pipe.getDisplayWidth()
+            self.nativeHeight = self.pipe.getDisplayHeight()
+            ratio = float(self.nativeWidth) / float(self.nativeHeight)
+            fraction = fractions.Fraction(ratio).limit_denominator()
+            self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
+        else:
+            self.nativeRatio = (16, 9)
+
         self.calcRatio = self.nativeRatio
 
         # Choose the best resolution if we're either fullscreen, or we don't
@@ -706,6 +710,9 @@ class ToonBase(OTPBase.OTPBase):
                 self.sfxManagerList[i].stopAllSounds()
 
     def getSmallestResolution(self):
+        if sys.platform == 'android':
+            return (1920, 1080)
+
         resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
         if len(resolutions) < 2:
             ratios = ToontownGlobals.CommonDisplayResolutions.keys()
