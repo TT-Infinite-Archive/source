@@ -1,4 +1,3 @@
-import urllib
 from pandac.PandaModules import Vec4, Vec3, TextNode, PNMImage, StringStream, Texture, HTTPClient, DocumentSpec, Ramfile, Point3
 from direct.task.Task import Task
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList, DirectCheckButton, OnscreenText
@@ -789,6 +788,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.articleImages = {}
         self.articleText = {}
         try:
+            import urllib
             urlfile = urllib.urlopen(self.getNewsUrl())
         except IOError:
             self.notify.warning('Could not open %s' % self.getNewsUrl())
@@ -804,6 +804,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             img = PNMImage()
             self.articleImages[index] = img
             try:
+                import urllib
                 self.notify.info('opening %s' % imageUrl)
                 imageFile = urllib.urlopen(imageUrl)
                 data = imageFile.read()
@@ -1026,6 +1027,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         result = True
         urlStrings = ''
         try:
+            import urllib
             urlfile = urllib.urlopen(fileUrl)
             urlStrings = urlfile.read()
             urlfile.close()

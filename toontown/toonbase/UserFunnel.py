@@ -8,7 +8,6 @@ from pandac.PandaModules import Ramfile
 from pandac.PandaModules import DocumentSpec
 from direct.task.Task import Task
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from urllib2 import urlopen
 notify = directNotify.newCategory('UserFunnel')
 
 class UserFunnel:
@@ -584,6 +583,7 @@ def getMAC():
     return mac_addr
 
 def getIP():
+    from urllib2 import urlopen
     IP_ENDPOINT = 'http://ip.42.pl/raw'
     ip_addr = urlopen(IP_ENDPOINT).read()
     return ip_addr
