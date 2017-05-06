@@ -388,21 +388,22 @@ class OTPClientRepository(ClientRepositoryBase):
                 if not readResult:
                     self.notify.error('Could not read DC file.')
 
-        # Output the DC data to a temporary file (for use with Astron).
-        dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
-        dcFile.write(dcFilePath, False)
+        if sys.platform != 'android':
+            # Output the DC data to a temporary file (for use with Astron).
+            dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
+            dcFile.write(dcFilePath, False)
 
-        # Generate a single player Astron config file.
-        path = os.path.join(base.tempDir, 'singleplayer.yml')
-        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
-        with open(path, 'w') as f:
-            yaml.dump(data, f)
+            # Generate a single player Astron config file.
+            path = os.path.join(base.tempDir, 'singleplayer.yml')
+            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+            with open(path, 'w') as f:
+                yaml.dump(data, f)
 
-        # Generate a multi player Astron config file.
-        path = os.path.join(base.tempDir, 'multiplayer.yml')
-        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
-        with open(path, 'w') as f:
-            yaml.dump(data, f)
+            # Generate a multi player Astron config file.
+            path = os.path.join(base.tempDir, 'multiplayer.yml')
+            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+            with open(path, 'w') as f:
+                yaml.dump(data, f)
 
         self.hashVal = dcFile.getHash()
 
