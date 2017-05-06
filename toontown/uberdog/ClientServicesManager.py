@@ -4,12 +4,11 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
-from toontown.toonbase import UserFunnel
+from toontown.toonbase import ToontownGlobals
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
 import sys
-
 
 def generateLookupTable(key):
     return [hex(ord(str(key)[i % len(str(key))]) & ord(key[4]) & i) for i in xrange(255)]
@@ -31,11 +30,12 @@ class ClientServicesManager(DistributedObjectGlobal):
     # --- LOGIN LOGIC ---
     def performLogin(self, doneEvent):
         self.loginDoneEvent = doneEvent
-        getMAC = UserFunnel.getMAC()
-        getIP = UserFunnel.getIP()
-        print 'requestAuthToken sending %s and %s' % (getMAC, getIP)
+        
+        mac = ToontownGlobals.getMac()
+        getIP = ToontownGlobals.getIp()
+        print 'requestAuthToken sending %s and %s' % (mac, getIP)
 
-        self.sendUpdate('requestAuthToken', [getMAC, getIP])
+        self.sendUpdate('requestAuthToken', [mac, getIP])
 
     def receiveAuthToken(self, authToken):
         lookupTable = generateLookupTable(authToken[::2])

@@ -11,6 +11,8 @@ if sys.platform == 'android':
 else:
     CurrentDirectory = ''
 
+import struct, uuid, base64
+
 MapHotkeyOn = 'alt'
 MapHotkeyOff = 'alt-up'
 MapHotkey = 'alt'
@@ -130,6 +132,18 @@ BuildingNametagFont = None
 MinnieFont = None
 SuitFont = None
 FontAwesome = None
+
+def getMac():
+    mac = struct.pack('<Q', uuid.getnode()).rstrip('\x00')
+        
+    if len(mac) == 0:
+        mac = '\x00'
+
+    return base64.urlsafe_b64encode(mac).rstrip('=')
+
+def getIp():
+    # Temporarily: please move to Astron's IP system
+    return '127.0.0.1'
 
 def getToonFont():
     global ToonFont
