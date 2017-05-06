@@ -1,5 +1,4 @@
 import os
-import subprocess
 import threading
 import time
 
@@ -43,6 +42,7 @@ class ProcessThread(threading.Thread):
     
     def run(self):
         try:
+            import subprocess
             print('Creating log file....')
             name = self.name.split(' ', 1)[0].lower()
             path = os.path.join(LogsPath, name)
