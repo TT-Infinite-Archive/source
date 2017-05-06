@@ -11,7 +11,7 @@ LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
 if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
-if hasattr(__builtin__, '__nirai__'):
+elif hasattr(__builtin__, '__nirai__'):
     UberdogTarget = [__nirai__.filename, '--uberdog']
     AITarget = [__nirai__.filename, '--ai']
 else:
