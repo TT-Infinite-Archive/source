@@ -64,27 +64,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.createAvatarClass = None
         self.systemMessageSfx = None
         self.introDone = False
-        if self.productName == 'DisneyOnline-US':
-            if self.launcher:
-                if self.launcher.isDummy():
-                    reg_deployment = self.launcher.getDeployment()
-                else:
-                    reg_deployment = self.launcher.getRegistry('DEPLOYMENT')
-                    if reg_deployment != 'UK' and reg_deployment != 'AP':
-
-                        reg_deployment = self.launcher.getRegistry('GAME_DEPLOYMENT')
-                    self.notify.info('reg_deployment=%s' % reg_deployment)
-
-                if reg_deployment == 'UK':
-                    self.productName = 'DisneyOnline-UK'
-                elif reg_deployment == 'AP':
-                    self.productName = 'DisneyOnline-AP'
-
-
         self.blue = None
-        if self.launcher:
-            self.blue = self.launcher.getBlue()
-
 
         self.playToken = None
         if self.launcher:
@@ -96,7 +76,6 @@ class OTPClientRepository(ClientRepositoryBase):
             self.http = self.launcher.http
         else:
             self.http = HTTPClient()
-
 
         self.accountOldAuth = config.GetBool('account-old-auth', 0)
 
@@ -652,7 +631,6 @@ class OTPClientRepository(ClientRepositoryBase):
     def __handleLoginDone(self, doneStatus):
         mode = doneStatus['mode']
         if mode == 'success':
-            self.setIsNotNewInstallation()
             if hasattr(self, 'toontownTimeManager'):
                 timestamp = time.gmtime(doneStatus['timestamp'])
                 dateString = time.strftime(self.toontownTimeManager.formatStr, timestamp)
@@ -696,7 +674,6 @@ class OTPClientRepository(ClientRepositoryBase):
     def __handleCreateAccountDone(self, doneStatus):
         mode = doneStatus['mode']
         if mode == 'success':
-            self.setIsNotNewInstallation()
             self.loginFSM.request('waitForGameList')
         elif mode == 'reject':
             self.loginFSM.request('reject')
@@ -1808,9 +1785,6 @@ class OTPClientRepository(ClientRepositoryBase):
     def __handleCancelWaiting(self, value):
         self.loginFSM.request('mainMenu')
 
-    def setIsNotNewInstallation(self):
-        launcher.setIsNotNewInstallation()
-
     def renderFrame(self):
         gsg = base.win.getGsg()
         if gsg:
@@ -1826,7 +1800,6 @@ class OTPClientRepository(ClientRepositoryBase):
         elapsed = globalClock.getRealTime() - self.periodTimerStarted
         self.runningPeriodTimeRemaining = self.periodTimerSecondsRemaining - elapsed
         self.notify.debug('periodTimeRemaining: %s' % self.runningPeriodTimeRemaining)
-        launcher.recordPeriodTimeRemaining(self.runningPeriodTimeRemaining)
         taskMgr.doMethodLater(freq, self.recordPeriodTimer, 'periodTimerRecorder')
         return Task.done
 

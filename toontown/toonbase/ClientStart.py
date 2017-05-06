@@ -114,7 +114,6 @@ if base.win is None:
     notify.error('Unable to open window; aborting.')
 
 launcher.setPandaErrorCode(0)
-launcher.setPandaWindowOpen()
 
 from panda3d.core import Vec4
 

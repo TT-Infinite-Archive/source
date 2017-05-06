@@ -569,12 +569,6 @@ class ToonBase(OTPBase.OTPBase):
 
     def setExitErrorCode(self, code):
         self.exitErrorCode = code
-        if os.name == 'nt':
-            exitCode2exitPage = {OTPLauncherGlobals.ExitEnableChat: 'chat',
-                                 OTPLauncherGlobals.ExitSetParentPassword: 'setparentpassword',
-                                 OTPLauncherGlobals.ExitPurchase: 'purchase'}
-            if code in exitCode2exitPage:
-                launcher.setRegistry('EXIT_PAGE', exitCode2exitPage[code])
 
     def getExitErrorCode(self):
         return self.exitErrorCode
