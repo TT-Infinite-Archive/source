@@ -566,18 +566,19 @@ class MainMenu(DirectFrame, FSM):
         self.bookmarkInfoDialog = None
         
         # Load Bookmarks file
+        self.bookmarkPath = os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat')
         self.bookmarks = []
         
         if self.bookmarks == []:
-            if not os.path.exists("bookmarks.dat"):
-                with open("bookmarks.dat", 'wb') as file:
+            if not os.path.exists(self.bookmarkPath):
+                with open(self.bookmarkPath, 'wb') as file:
         
                     data = PyDatagram()
                     data.add_uint8(0)
                     
                     file.write(PyDatagramIterator(data).get_remaining_bytes())
                     
-            file = open("bookmarks.dat", 'rb')
+            file = open(self.bookmarkPath, 'rb')
             data = file.read()
             file.close()
             
@@ -1259,7 +1260,7 @@ class MainMenu(DirectFrame, FSM):
             bookmark = [name, address]
             if not bookmark in self.bookmarks:
                 self.bookmarks.append(bookmark)
-            with open("bookmarks.dat", 'wb') as file:
+            with open(self.bookmarkPath, 'wb') as file:
                 dg = PyDatagram()
                 dg.add_uint8(len(self.bookmarks))
                 for bookmark in self.bookmarks:
@@ -1276,7 +1277,7 @@ class MainMenu(DirectFrame, FSM):
         self.bookmarks.remove(data)
         self.makeBookmarksButtons()
         self.addToBookmarks()
-        with open("bookmarks.dat", 'wb') as file:
+        with open(self.bookmarkPath, 'wb') as file:
             dg = PyDatagram()
             dg.add_uint8(len(self.bookmarks))
             for bookmark in self.bookmarks:
