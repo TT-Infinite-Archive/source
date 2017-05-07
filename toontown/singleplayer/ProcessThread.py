@@ -41,6 +41,7 @@ class ProcessThread(threading.Thread):
             self.killed = True
     
     def run(self):
+        print('Starting %s in %s' % (self.processInfo, self.folder))
         try:
             import subprocess
             print('Creating log file....')
