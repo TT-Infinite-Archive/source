@@ -135,7 +135,7 @@ FontAwesome = None
 
 def getMac():
     if sys.platform != 'android':
-        return ':'.join(('%012X' % uuid.getmac())[i:i+2] for i in range(0, 12, 2))
+        return ':'.join(('%012X' % uuid.get_mac())[i:i+2] for i in range(0, 12, 2))
     else:
         # On Android uuid.getmac() simply returns a random uuid.
         # Hopefully this isn't the case with getnode.
