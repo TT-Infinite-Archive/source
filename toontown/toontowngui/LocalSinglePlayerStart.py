@@ -31,13 +31,13 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.mdPort = 7011
             self.logPort = 7021
             self.mongoPort = 7031
-            self.mongoPath = 'data/singleplayer'
+            self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'singleplayer')
             self.astronConfig = os.path.join(base.tempDir, 'singleplayer.yml')
         else:
             self.mdPort = 7010
             self.logPort = 7020
             self.mongoPort = 7030
-            self.mongoPath = 'data/multiplayer'
+            self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
             self.astronConfig = os.path.join(base.tempDir, 'multiplayer.yml')
         
         buttonScale = (-1, 1, 1)

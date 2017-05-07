@@ -6,7 +6,7 @@ import __builtin__
 import tempfile
 import shutil
 import yaml
-
+import os
 
 from direct.directnotify.DirectNotifyGlobal import *
 from panda3d.direct import DCFile
@@ -36,7 +36,7 @@ class DedicatedServer(FSM):
         self.mdPort = 7010
         self.logPort = 7020
         self.mongoPort = 7030
-        self.mongoPath = 'data/multiplayer'
+        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
         self.astronConfig = os.path.join(self.tempDir, 'multiplayer.yml')
 
     def isServerAlive(self):
