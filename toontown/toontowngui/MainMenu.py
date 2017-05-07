@@ -18,7 +18,7 @@ from toontown.toontowngui import TTDialog
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker
-
+import sys
 
 class MainMenu(DirectFrame, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -184,7 +184,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.095,
             command=lambda: self.request('Multiplayer')
         )
-        self.buttons2.append(self.multiPlayerButton)
+        self.multiPlayerButton.hide()
 
         self.modsButton = MATShuffleButton(
             pos=(0, 0, -0.8),
@@ -607,14 +607,20 @@ class MainMenu(DirectFrame, FSM):
         OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
         OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."
 
-        for button2 in self.buttons2:
-            button2.show()
+        if sys.platform == 'android':
+            for button2 in self.buttons2:
+                    button2.hide()
+        else:
+            for button2 in self.buttons2:
+                    button2.show()
         if not base.wantMultiplayer:
             self.lockIconMP.show()
-        if not base.wantMods:
-            self.lockIconMods.show()
+        if not sys.platform == 'android':
+            if not base.wantMods:
+                self.lockIconMods.show()
         self.background.show()
         self.logo.show()
+        self.multiPlayerButton.show()
         self.quitButton.show()
 
         """
@@ -639,12 +645,15 @@ class MainMenu(DirectFrame, FSM):
         """
 
     def exitIdle(self):
-        for button2 in self.buttons2:
-            button2.hide()
+        if not sys.platform == 'android':
+            for button2 in self.buttons2:
+                    button2.hide()
+        self.multiPlayerButton.hide()
         if not base.wantMultiplayer:
             self.lockIconMP.hide()
-        if not base.wantMods:
-            self.lockIconMods.hide()
+        if not sys.platform == 'android':
+            if not base.wantMods:
+                self.lockIconMods.hide()
         self.quitButton.hide()
 
         """
@@ -1341,6 +1350,8 @@ class MainMenu(DirectFrame, FSM):
 
         for label in self.labels:
             label.hide()
+
+        self.multiPlayerButton.hide()
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
