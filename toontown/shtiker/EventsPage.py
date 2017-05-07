@@ -438,10 +438,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def unload(self):
         self.scrollButtonGui.removeNode()
-        self.hostingGui.removeNode()
-        self.invitationGui.removeNode()
-        self.activityIconsModel.removeNode()
-        self.decorationModels.removeNode()
         del self.titleLabel
         self.hostingGuestList.removeAndDestroyAllItems()
         self.hostingGuestList.destroy()
