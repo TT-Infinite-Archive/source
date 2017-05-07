@@ -134,12 +134,15 @@ SuitFont = None
 FontAwesome = None
 
 def getMac():
-    mac = struct.pack('<Q', uuid.getnode()).rstrip('\x00')
-        
-    if len(mac) == 0:
-        mac = '\x00'
+    try:
+        return ':'.join(('%012X' % uuid.getmac())[i:i+2] for i in range(0, 12, 2))
+    except:
+        mac = struct.pack('<Q', uuid.getnode()).rstrip('\x00')
+            
+        if len(mac) == 0:
+            mac = '\x00'
 
-    return base64.urlsafe_b64encode(mac).rstrip('=')
+        return base64.urlsafe_b64encode(mac).rstrip('=')
 
 def getIp():
     # Temporarily: please move to Astron's IP system
