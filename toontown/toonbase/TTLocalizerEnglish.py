@@ -10,7 +10,7 @@ for key in OL.SpeedChatStaticTextCommon.iterkeys():
 if sys.platform == 'android':
     CurrentDirectory = '/sdcard/TTI'
 else:
-    CurrentDirectory = ''
+    CurrentDirectory = os.getcwd()
 
 InterfaceFont = 'phase_3/models/fonts/ImpressBT.ttf'
 ToonFont = 'phase_3/models/fonts/ImpressBT.ttf'

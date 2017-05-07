@@ -9,7 +9,7 @@ from toontown.toonbase.HolidayGlobals import *
 if sys.platform == 'android':
     CurrentDirectory = '/sdcard/TTI'
 else:
-    CurrentDirectory = ''
+    CurrentDirectory = os.getcwd()
 
 import struct, uuid, base64
 
