@@ -2,7 +2,7 @@ import TTLocalizer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import Enum, invertDict
 from panda3d.core import BitMask32, Vec4
-import sys
+import sys, os
 
 from toontown.toonbase.HolidayGlobals import *
 
