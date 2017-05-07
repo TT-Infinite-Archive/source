@@ -1,6 +1,7 @@
 import os
 import threading
 import time
+import sys
 
 from direct.directnotify import DirectNotifyGlobal
 
