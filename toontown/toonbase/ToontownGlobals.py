@@ -134,17 +134,7 @@ SuitFont = None
 FontAwesome = None
 
 def getMac():
-    if sys.platform != 'android':
-        return ':'.join(('%012X' % uuid.get_mac())[i:i+2] for i in range(0, 12, 2))
-    else:
-        # On Android uuid.getmac() simply returns a random uuid.
-        # Hopefully this isn't the case with getnode.
-        mac = struct.pack('<Q', uuid.getnode()).rstrip('\x00')
-            
-        if len(mac) == 0:
-            mac = '\x00'
-
-        return base64.urlsafe_b64encode(mac).rstrip('=')
+    return ':'.join(('%012X' % uuid.getnode())[i:i+2] for i in range(0, 12, 2))
 
 def getIp():
     # Temporarily: please move to Astron's IP system
