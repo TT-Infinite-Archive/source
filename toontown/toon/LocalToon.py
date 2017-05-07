@@ -562,7 +562,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.stopTouchPresses()
         
         if (time.time() - self.lastTouch) <= 0.25:
-            self.addTouch('jump')
+            self.addTouch(base.JUMP)
             messenger.send('touchDoubleTap')
         
         for controls in self.controlManager.controls.values():
