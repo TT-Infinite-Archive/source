@@ -58,10 +58,7 @@ class TTILauncher:
         self.nout.addStandardOutput()
 
     def getPlayToken(self):
-        if sys.platform == 'android':
-            return ToontownGlobals.getMac()
-        else:
-            return self.getValue('TTI_PLAYCOOKIE')
+        return self.getValue('TTI_PLAYCOOKIE')
 
     def getGameServer(self):
         return self.getValue('TTI_GAMESERVER')
