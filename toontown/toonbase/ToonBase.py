@@ -257,6 +257,7 @@ class ToonBase(OTPBase.OTPBase):
         self.JUMP = 'control'
         self.ACTION_BUTTON = 'delete'
         self.SCREENSHOT_KEY = 'f9'
+        self.INTERACT_KEY = 'shift'
         
         keymap = settings.get('keymap', {})
         if self.wantCustomControls:
@@ -268,12 +269,16 @@ class ToonBase(OTPBase.OTPBase):
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
         
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
 
         self.wantClassicMusic = settings.get('classic-music', False)
+        
+        self.wantDoorInteract = settings.get('door-interaction-key')
+        self.wantNpcInteract = settings.get('npc-interaction-key')
         
         self.leakGraph = None
         if config.GetBool('want-leak-graph-client', False):
@@ -668,6 +673,7 @@ class ToonBase(OTPBase.OTPBase):
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         else:
             self.MOVE_UP = 'arrow_up'
             self.MOVE_DOWN = 'arrow_down'
@@ -676,6 +682,7 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = 'control'
             self.ACTION_BUTTON = 'delete'
             self.SCREENSHOT_KEY = 'f9'
+            self.INTERACT_KEY = 'shift'
             
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
