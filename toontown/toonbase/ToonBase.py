@@ -422,8 +422,9 @@ class ToonBase(OTPBase.OTPBase):
         self.lastScreenShotTime = globalClock.getRealTime()
         pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
         winfile = pandafile.toOsSpecific()
-        self.screenShotNotice = DirectLabel(text = "Screenshot Saved" + ':\n' + winfile, scale = 0.05, pos = (0.0, 0.0, -0.8), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
-        self.screenShotNotice.reparentTo(aspect2d, 7000)
+        self.screenShotNotice = DirectLabel(text = "Screenshot Saved" + ':\n' + winfile, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
+        self.screenShotNotice.reparentTo(base.a2dBottomCenter)
+        self.screenShotNotice.setBin('gui-popup', 0)
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
