@@ -163,6 +163,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.savedCheesyExpireTime = 0
         self.ghostMode = 0
         self.immortalMode = 0
+        self.unlimitedGags = 0
         self.numPies = 0
         self.pieType = 0
         self._isGM = False
@@ -5448,6 +5449,16 @@ def immortal():
     invoker = spellbook.getInvoker()
     invoker.setImmortalMode(not invoker.immortalMode)
     return 'Immortal Mode: %s' % ('ON' if invoker.immortalMode else 'OFF')
+
+@magicWord(category=CATEGORY_USER2)
+def unlimitedGags():
+    invoker = spellbook.getInvoker()
+    if invoker.unlimitedGags:
+        invoker.unlimitedGags = False
+        return 'Unlimited Gags disabled.'
+    else:
+        invoker.unlimitedGags = True
+        return 'Unlimited Gags enabled.'
 
 @magicWord(category=CATEGORY_USER2, types=[int])
 def gagPouch(value):

@@ -130,6 +130,16 @@ class InventoryBase(DirectObject.DirectObject):
         elif self.numItem(track, level) == -1:
             return -1
 
+    def useUnlimited(self, track, level):
+        if type(track) == type(''):
+            track = Tracks.index(track)
+        if self.numItem(track, level) > 0:
+            self.inventory[track][level] -= 0
+            self.calcTotalProps()
+            return 1
+        elif self.numItem(track, level) == -0:
+            return -1
+
     def setItem(self, track, level, amount):
         if type(track) == type(''):
             track = Tracks.index(track)

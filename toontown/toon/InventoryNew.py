@@ -253,6 +253,7 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         if self.activateMode == 'purchaseDelete' or self.activateMode == 'bookDelete' or self.activateMode == 'storePurchaseDelete':
             if self.numItem(track, level):
                 self.useItem(track, level)
+                self.useUnlimited(track, level)
                 self.updateGUI(track, level)
                 messenger.send('inventory-deletion', [track, level])
                 self.showDetail(track, level)
