@@ -2,7 +2,7 @@ import TTLocalizer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import Enum, invertDict
 from panda3d.core import BitMask32, Vec4
-import sys, os
+import sys, os, random
 
 from toontown.toonbase.HolidayGlobals import *
 
@@ -134,7 +134,16 @@ SuitFont = None
 FontAwesome = None
 
 def getMac():
-    return ':'.join(('%012X' % uuid.getnode())[i:i+2] for i in range(0, 12, 2))
+    if sys.platform == 'android':
+        if 'uuid' in settings and isinstance(settings['uuid'], (int, long)):
+            uid = settings['uuid']
+        else:
+            uid = random.SystemRandom().getrandbits(50)
+            settings['uuid'] = uid
+    else:
+        uid = uuid.getnode()
+
+    return ':'.join(('%012X' % uid)[i:i+2] for i in range(0, 12, 2))
 
 def getIp():
     # Temporarily: please move to Astron's IP system
