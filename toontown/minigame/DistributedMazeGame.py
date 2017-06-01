@@ -5,6 +5,7 @@ from direct.interval.MetaInterval import Sequence, Parallel
 from direct.gui.DirectGui import DirectWaitBar, DGG
 from direct.showbase import PythonUtil
 from direct.fsm import ClassicFSM, State
+from direct.showbase import RandomNumGen
 from direct.task.Task import Task
 from direct.distributed.ClockDelta import globalClockDelta
 from pandac.PandaModules import Point3, Vec3
@@ -21,8 +22,6 @@ import Trajectory
 import Maze
 import MinigameAvatarScorePanel
 import MinigameGlobals
-import random
-
 
 class DistributedMazeGame(DistributedMinigame):
     notify = directNotify.newCategory('DistributedMazeGame')
@@ -551,7 +550,7 @@ class DistributedMazeGame(DistributedMinigame):
         self.notify.debug('onstage')
         DistributedMinigame.onstage(self)
         self.maze.onstage()
-        random.shuffle(self.startPosHTable)
+        self.randomNumGen.shuffle(self.startPosHTable)
         lt = base.localAvatar
         lt.reparentTo(render)
         lt.hideName()
@@ -567,7 +566,7 @@ class DistributedMazeGame(DistributedMinigame):
         self.__spawnCameraTask()
         self.toonRNGs = []
         for i in xrange(self.numPlayers):
-            self.toonRNGs.append(random.random())
+            self.toonRNGs.append(RandomNumGen.RandomNumGen(self.randomNumGen))
 
         self.treasures = []
         for i in xrange(self.maze.numTreasures):
@@ -580,12 +579,12 @@ class DistributedMazeGame(DistributedMinigame):
         self.sndTable = {'hitBySuit': [None] * self.numPlayers,
          'falling': [None] * self.numPlayers}
         for i in xrange(self.numPlayers):
-            self.sndTable['hitBySuit'][i] = loader.loadSfx('phase_4/audio/sfx/MG_Tag_C.ogg')
-            self.sndTable['falling'][i] = loader.loadSfx('phase_4/audio/sfx/MG_cannon_whizz.ogg')
+            self.sndTable['hitBySuit'][i] = base.loadSfx('phase_4/audio/sfx/MG_Tag_C.ogg')
+            self.sndTable['falling'][i] = base.loadSfx('phase_4/audio/sfx/MG_cannon_whizz.ogg')
 
         self.grabSounds = []
         for i in xrange(5):
-            self.grabSounds.append(loader.loadSfx('phase_4/audio/sfx/MG_maze_pickup.ogg'))
+            self.grabSounds.append(base.loadSfx('phase_4/audio/sfx/MG_maze_pickup.ogg'))
 
         self.grabSoundIndex = 0
         for avId in self.avIdList:
@@ -777,7 +776,7 @@ class DistributedMazeGame(DistributedMinigame):
         toon = self.getAvatar(avId)
         if toon == None:
             return
-        random.seed(self.toonRNGs[self.avIdList.index(avId)])
+        rng = self.toonRNGs[self.avIdList.index(avId)]
         curPos = toon.getPos(render)
         oldTrack = self.toonHitTracks[avId]
         if oldTrack.isPlaying():
@@ -798,7 +797,7 @@ class DistributedMazeGame(DistributedMinigame):
             gravMult=1.0)
         flyDur = trajectory.calcTimeOfImpactOnPlane(0.0)
         while 1:
-            endTile = [random.randint(2, self.maze.width-1), random.randint(2, self.maze.height-1)]
+            endTile = [rng.randint(2, self.maze.width-1), rng.randint(2, self.maze.height-1)]
             if self.maze.isWalkable(endTile[0], endTile[1]):
                 break
         endWorldCoords = self.maze.tile2world(endTile[0], endTile[1])
@@ -841,10 +840,8 @@ class DistributedMazeGame(DistributedMinigame):
         geomNode = toon.getGeomNode()
         startHpr = geomNode.getHpr()
         destHpr = Point3(startHpr)
-        random.seed(self.toonRNGs[self.avIdList.index(avId)])
-        hRot = random.randrange(1, 8)
-        random.seed(self.toonRNGs[self.avIdList.index(avId)])
-        if random.choice([0, 1]):
+        hRot = rng.randrange(1, 8)
+        if rng.choice([0, 1]):
             hRot = -hRot
         destHpr.setX(destHpr[0] + hRot*360)
         spinHTrack = Sequence(
@@ -859,10 +856,8 @@ class DistributedMazeGame(DistributedMinigame):
         geomNode.setZ(-toon.getHeight()/2.0)
         startHpr = rotNode.getHpr()
         destHpr = Point3(startHpr)
-        random.seed(self.toonRNGs[self.avIdList.index(avId)])
-        pRot = random.randrange(1,3)
-        random.seed(self.toonRNGs[self.avIdList.index(avId)])
-        if random.choice([0, 1]):
+        pRot = rng.randrange(1,3)
+        if rng.choice([0, 1]):
             pRot = -pRot
         destHpr.setY(destHpr[1] + pRot*360)
         spinPTrack = Sequence(
@@ -1011,9 +1006,9 @@ class DistributedMazeGame(DistributedMinigame):
         fasterPeriods = fasterTable[safeZone][self.numSuits]
         suitPeriods = slowerPeriods + fasterPeriods
         self.notify.debug('suit periods: ' + `suitPeriods`)
-        random.shuffle(suitPeriods)
+        self.randomNumGen.shuffle(suitPeriods)
         for i in xrange(self.numSuits):
-            self.suits.append(MazeSuit(i, self.maze, suitPeriods[i], self.getDifficulty()))
+            self.suits.append(MazeSuit(i, self.maze, self.randomNumGen, suitPeriods[i], self.getDifficulty()))
 
     def __unloadSuits(self):
         self.notify.debug('unloadSuits')

@@ -104,13 +104,18 @@ PartyEditorActivityOrder = [ ActivityIds.PartyClock,
  ActivityIds.PartyDance20,
  ActivityIds.PartyValentineDance,
  ActivityIds.PartyValentineDance20,
- ActivityIds.PartyTugOfWar,
  ActivityIds.PartyCatch,
  ActivityIds.PartyWinterCatch,
- ActivityIds.PartyCog,
  ActivityIds.PartyWinterCog,
+ ActivityIds.PartyTugOfWar,
+ ActivityIds.PartyCog,
  ActivityIds.PartyFireworks]
-UnreleasedActivityIds = (ActivityIds.PartyWinterCog,
+UnreleasedActivityIds = (
+ # These AIs need to be written before they can be used:
+ ActivityIds.PartyJukebox,
+ ActivityIds.PartyJukebox40,
+ # --------------------
+ ActivityIds.PartyWinterCog,
  ActivityIds.PartyValentineJukebox,
  ActivityIds.PartyValentineJukebox40,
  ActivityIds.PartyValentineTrampoline,
@@ -118,6 +123,22 @@ UnreleasedActivityIds = (ActivityIds.PartyWinterCog,
  ActivityIds.PartyWinterCatch,
  ActivityIds.PartyValentineDance,
  ActivityIds.PartyValentineDance20)
+UnreleasedActivityIdsSP = (
+ # These AIs need to be written before they can be used:
+ ActivityIds.PartyJukebox,
+ ActivityIds.PartyJukebox40,
+ ActivityIds.PartyTugOfWar,
+ ActivityIds.PartyCog,
+ # --------------------
+ ActivityIds.PartyWinterCog,
+ ActivityIds.PartyValentineJukebox,
+ ActivityIds.PartyValentineJukebox40,
+ ActivityIds.PartyValentineTrampoline,
+ ActivityIds.PartyWinterTrampoline,
+ ActivityIds.PartyWinterCatch,
+ ActivityIds.PartyValentineDance,
+ ActivityIds.PartyValentineDance20)
+
 MutuallyExclusiveActivities = ((ActivityIds.PartyJukebox, ActivityIds.PartyJukebox40),
  (ActivityIds.PartyValentineJukebox, ActivityIds.PartyValentineJukebox40),
  (ActivityIds.PartyDance, ActivityIds.PartyDance20),

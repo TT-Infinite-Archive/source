@@ -35,6 +35,14 @@ class DistributedPartyDanceActivityBaseAI(DistributedPartyActivityAI):
         self.toons.append(avId)
         self.headings.append(av.getH())
         self.sendUpdate('setToonsPlaying', [self.toons, self.headings])
+        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.handleUnexpectedExit, extraArgs=[avId])
+
+    def handleUnexpectedExit(self, avId):
+        if avId in self.toons:
+            index = self.toons.index(avId)
+            self.toons.remove(avId)
+            self.headings.pop(index)
+        self.sendUpdate('setToonsPlaying', [self.toons, self.headings])
         
     def toonExitRequest(self):
         avId = self.air.getAvatarIdFromSender()

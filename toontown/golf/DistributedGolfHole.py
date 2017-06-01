@@ -1,7 +1,7 @@
 import math
 import random
 import time
-from pandac.PandaModules import TextNode, BitMask32, Point3, Vec3, Vec4, deg2Rad, Mat3, NodePath, VBase4, OdeTriMeshData, OdeTriMeshGeom, OdeRayGeom, CollisionTraverser, CollisionSegment, CollisionNode, CollisionHandlerQueue
+from pandac.PandaModules import TextNode, BitMask32, Point3, Vec3, Vec4, deg2Rad, Mat3, NodePath, VBase4, CollisionTraverser, CollisionSegment, CollisionNode, CollisionHandlerQueue
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from otp.otpbase import OTPGlobals
@@ -20,6 +20,10 @@ from direct.interval.IntervalGlobal import Sequence, Parallel, LerpScaleInterval
 from direct.actor import Actor
 from toontown.golf import GolfHoleBase
 from toontown.distributed import DelayDelete
+import sys
+
+if sys.platform != 'android':
+    from panda3d.ode import OdeRayGeom
 
 class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, GolfHoleBase.GolfHoleBase):
     defaultTransitions = {'Off': ['Cleanup', 'ChooseTee', 'WatchTee'],

@@ -73,23 +73,7 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
             self.updateWhitelist()
 
     def getWhitelistUrl(self):
-        result = base.config.GetString('fallback-whitelist-url', 'http://cdn.toontown.disney.go.com/toontown/en/')
-        override = base.config.GetString('whitelist-url', '')
-        if override:
-            self.notify.info('got an override url,  using %s for the whitelist' % override)
-            result = override
-        else:
-            try:
-                launcherUrl = base.launcher.getValue('GAME_WHITELIST_URL', '')
-                if launcherUrl:
-                    result = launcherUrl
-                    self.notify.info('got GAME_WHITELIST_URL from launcher using %s' % result)
-                else:
-                    self.notify.info('blank GAME_WHITELIST_URL from launcher, using %s' % result)
-            except:
-                self.notify.warning('got exception getting GAME_WHITELIST_URL from launcher, using %s' % result)
-
-        return result
+        return base.config.GetString('fallback-whitelist-url', 'http://cdn.toontown.disney.go.com/toontown/en/')
 
     def addDownloadingTextTask(self):
         self.removeDownloadingTextTask()

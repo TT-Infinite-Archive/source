@@ -535,15 +535,6 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
 
     def sendTalkWhisper(self, toId, message):
         fromId = self.air.getAvatarIdFromSender()
-        # TODO: Remove dependency on the ChatAgentUD:
-        # accountId = self.air.getAccountIdFromSender()
-        # chatAgent = self.air.getGlobalObject('ChatAgent')
-        # if accountId in chatAgent.mutedDict:
-        #     # This account has been muted.
-        #     self.sendUpdateToAvatarId(
-        #         fromId, 'denyWhisper',
-        #         [chatAgent.mutedDict.get(accountId, 0)])
-        #     return
 
         currStamp = time.time()
         if fromId in self.whisperRequests:

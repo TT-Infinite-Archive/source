@@ -17,7 +17,7 @@ class ToontownDistrictAI(DistributedDistrictAI):
 
         # We want to handle shard status queries so that a ShardStatusReceiver
         # being created after we're generated will know where we're at:
-        self.air.netMessenger.accept('queryShardStatus', self, self.handleShardStatusQuery)
+        self.accept('queryShardStatus', self.handleShardStatusQuery)
 
         # Send a shard status update with the information we have:
         self.handleShardStatusQuery()
@@ -28,8 +28,7 @@ class ToontownDistrictAI(DistributedDistrictAI):
             'name': self.name,
             'created': self.created
         }
-        datagram = self.air.netMessenger.prepare('shardStatus', [self.air.ourChannel, status])
-        self.air.addPostRemove(datagram)
+        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
 
     def handleShardStatusQuery(self):
         # Send a shard status update with the information we have:
@@ -38,7 +37,7 @@ class ToontownDistrictAI(DistributedDistrictAI):
             'name': self.name,
             'created': self.created
         }
-        self.air.netMessenger.send('shardStatus', [self.air.ourChannel, status])
+        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
 
     def setName(self, name):
         DistributedDistrictAI.setName(self, name)

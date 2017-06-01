@@ -4,6 +4,7 @@ from direct.distributed import DistributedSmoothNode/AI
 from direct.distributed import DistributedCartesianGrid/AI
 from direct.distributed import DistributedCamera/AI/OV
 from otp.distributed import Account/AI/UD
+from otp.ai import BanManager/AI
 from otp.ai import TimeManager/AI
 from otp.ai import MagicWordManager/AI
 from otp.avatar import DistributedAvatar/AI/UD
@@ -121,7 +122,6 @@ from toontown.building import DistributedBankInterior/AI
 from toontown.building import DistributedBankCollectable/AI
 from toontown.building import DistributedLibraryInterior/AI
 from toontown.building import DistributedDoor/AI
-from toontown.hood import DistributedStormEvent/AI
 from toontown.building import DistributedAnimDoor/AI
 from toontown.estate import DistributedHouseDoor/AI
 from toontown.coghq import DistributedCogHQDoor/AI
@@ -413,6 +413,11 @@ struct CPUSpeed {
   int32/1000 currentSpeed;
 };
 
+dclass BanManager: DistributedObject {
+  requestUserInfo();
+  sendUserInfo(string, string) clsend airecv;
+};
+
 dclass TimeManager : DistributedObject {
   requestServerTime(uint8 context) airecv clsend;
   serverTime(uint8 context, int32 timestap, uint32 timeOfDay);
@@ -543,7 +548,7 @@ dclass AvatarHandle : TalkPath_whisper {
 
 dclass DistributedAvatar : DistributedSmoothNode, TalkPath_whisper {
   string DcObjectType db;
-  setName(string = "[Name not set]") required broadcast db airecv;
+  setName(string = "[Name not set]") required broadcast db airecv ownrecv;
   friendsNotify(DoId avId, int8 status) ownrecv airecv;
   checkAvOnShard(DoId) clsend airecv;
   confirmAvOnShard(DoId avId, int8 isOnShard);
@@ -578,6 +583,7 @@ dclass DistributedPlayer : DistributedAvatar {
   setAdminAccess(uint16 = 0) broadcast ownrecv required airecv;
   setAsGM(bool = 0) required ram broadcast ownrecv airecv;
   setChatMode(uint16 = 0) broadcast ownrecv required airecv;
+  setPlatform(string = "") required broadcast ram;
 };
 
 dclass MagicWordManager : DistributedObject {
@@ -608,7 +614,7 @@ dclass OtpAvatarManager : DistributedObject {
 
 dclass ChatAgent : DistributedObject {
   adminChat(uint32, string);
-  chatMessage(string(0-256), uint16 channel) clsend;
+  chatMessage(string(0-256), string name, uint16 channel) clsend;
   muteAccount(uint32, uint32, uint32);
   checkMuted(uint32);
 };
@@ -1779,7 +1785,7 @@ dclass DistributedPartyActivity : DistributedObject {
   exitRequestDenied(uint8);
   setToonsPlaying(uint32 []) broadcast ram;
   setState(string, int16) broadcast ram;
-  showJellybeanReward(uint32, uint8, string);
+  showJellybeanReward(uint8, uint32, string);
 };
 
 dclass DistributedPartyTeamActivity : DistributedPartyActivity {
@@ -1789,7 +1795,7 @@ dclass DistributedPartyTeamActivity : DistributedPartyActivity {
   setPlayersPerTeam(uint8, uint8) broadcast required;
   setDuration(uint8) broadcast required;
   setCanSwitchTeams(bool) broadcast required;
-  setState(string, int16, uint32) broadcast ram;
+  setState(string, int16, uint32 []) broadcast ram;
   setToonsPlaying(uint32 [0-8], uint32 [0-8]) required broadcast ram;
   setAdvantage(uint16/100);
   switchTeamRequestDenied(uint8);
@@ -1985,7 +1991,6 @@ dclass NewsManager : DistributedObject {
   setOncelyCalendarHolidays(oncelyCalendarHoliday []) required broadcast ram;
   setRelativelyCalendarHolidays(relativelyCalendarHoliday []) required broadcast ram;
   setMultipleStartHolidays(multipleStartHoliday []) required broadcast ram;
-  setStormEnabled(bool) required broadcast ram;
   sendSystemMessage(string, uint8) broadcast ram;
 };
 
@@ -2322,10 +2327,6 @@ dclass DistributedDoor : DistributedObject {
   avatarExit(uint32) broadcast;
   setState(string, int16) required broadcast ram;
   setExitDoorState(string, int16) required broadcast ram;
-};
-
-dclass DistributedStormEvent : DistributedObject {
-  setState(string, uint32) broadcast ram;
 };
 
 dclass DistributedAnimDoor : DistributedDoor {
@@ -3802,6 +3803,8 @@ dclass DistributedPartyManager : DistributedObject {
 
 dclass GlobalPartyManager : DistributedObjectGlobal {
     partyManagerAIHello(uint32 channel);
+    heartbeat(uint32 channel);
+    heartbeatResponse() airecv;
     queryParty(uint32 hostId);
     addParty(DoId avId, uint64 partyId, string start, string end, int8 isPrivate,
              int8 inviteTheme, activity [], decoration [], DoIdList inviteeIds);
@@ -3811,7 +3814,13 @@ dclass GlobalPartyManager : DistributedObjectGlobal {
     requestPartySlot(uint64 partyId, uint32 avId, uint32 gateId);
     partyDone(uint64 partyId);
     allocIds(uint16 count);
-    avatarJoined(uint32);
+
+    changePrivateRequest(uint32 hostId, uint64 partyId, int8 isPrivate);
+    changePartyStatusRequest(uint32 hostId, uint64 partyId, int8 partyStatus);
+
+    markInviteAsReadButNotReplied(uint32 avId, uint64 inviteKey);
+    respondToInvite(uint32 fromId, uint32 todo0, uint16 context, uint64 inviteKey, uint8 inviteStatus);
+
 };
 
 struct PotentialToon {
@@ -3824,7 +3833,7 @@ struct PotentialToon {
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
-  requestAuthToken() clsend;
+  requestAuthToken(string, string) clsend;
   receiveAuthToken(string authToken);
 
   login(string cookie, string authToken) clsend;
@@ -3847,7 +3856,7 @@ dclass ClientServicesManager : DistributedObjectGlobal {
 
   deleteAvatar(uint32 avId) clsend;
 
-  chooseAvatar(uint32 avId) clsend;
+  chooseAvatar(uint32 avId, string platform) clsend;
 
   systemMessage(string message);
 };

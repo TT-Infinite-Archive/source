@@ -1,7 +1,5 @@
 # Embedded file name: /Users/pierredavidbelanger/Dev/chatter-bot-api/python/chatterbotapi.py
 import md5
-import urllib
-import urllib2
 import uuid
 import xml.dom.minidom
 
@@ -70,6 +68,7 @@ class _CleverbotSession(ChatterBotSession):
         self.vars['cleanslate'] = 'false'
 
     def think_thought(self, thought):
+        import urllib, urllib2
         self.vars['stimulus'] = thought.text
         data = urllib.urlencode(self.vars)
         data_to_digest = data[9:self.bot.endIndex]
@@ -122,6 +121,7 @@ class _PandorabotsSession(ChatterBotSession):
         self.vars['custid'] = uuid.uuid1()
 
     def think_thought(self, thought):
+        import urllib, urllib2
         self.vars['input'] = thought.text
         data = urllib.urlencode(self.vars)
         url_response = urllib2.urlopen('http://www.pandorabots.com/pandora/talk-xml', data)

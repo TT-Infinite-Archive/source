@@ -1,6 +1,5 @@
 import atexit
 import copy
-import socket
 
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
@@ -32,13 +31,13 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.mdPort = 7011
             self.logPort = 7021
             self.mongoPort = 7031
-            self.mongoPath = 'data/singleplayer'
+            self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'singleplayer')
             self.astronConfig = os.path.join(base.tempDir, 'singleplayer.yml')
         else:
             self.mdPort = 7010
             self.logPort = 7020
             self.mongoPort = 7030
-            self.mongoPath = 'data/multiplayer'
+            self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
             self.astronConfig = os.path.join(base.tempDir, 'multiplayer.yml')
         
         buttonScale = (-1, 1, 1)
@@ -67,6 +66,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         return [thread.getPid() for thread in self.threads if thread.hasPid()]
     
     def isServerAlive(self):
+        import socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.33)
         return sock.connect_ex(('127.0.0.1', self.getPort())) == 0
@@ -108,7 +108,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('127.0.0.1', self.getPort())
+        base.connectToServer('127.0.0.1', self.getPort(), isMultiplayer = False)
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]

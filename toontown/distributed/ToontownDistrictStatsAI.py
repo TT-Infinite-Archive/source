@@ -24,19 +24,19 @@ class ToontownDistrictStatsAI(DistributedObjectAI):
 
         # Send a shard status update containing our timezone:
         status = {'timezone': self.timeZone}
-        self.air.netMessenger.send('shardStatus', [self.air.ourChannel, status])
+        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
 
     def announceGenerate(self):
         DistributedObjectAI.announceGenerate(self)
 
         # We want to handle shard status queries so that a ShardStatusReceiver
         # being created after we're generated will know where we're at:
-        self.air.netMessenger.accept('queryShardStatus', self, self.handleShardStatusQuery)
+        self.accept('queryShardStatus', self.handleShardStatusQuery)
 
     def handleShardStatusQuery(self):
         # Send a shard status update containing our population:
         status = {'population': self.avatarCount}
-        self.air.netMessenger.send('shardStatus', [self.air.ourChannel, status])
+        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
 
     def settoontownDistrictId(self, districtId):
         self.districtId = districtId
@@ -56,7 +56,7 @@ class ToontownDistrictStatsAI(DistributedObjectAI):
 
         # Send a shard status update containing our population:
         status = {'population': self.avatarCount}
-        self.air.netMessenger.send('shardStatus', [self.air.ourChannel, status])
+        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
 
     def d_setAvatarCount(self, avatarCount):
         self.sendUpdate('setAvatarCount', [avatarCount])

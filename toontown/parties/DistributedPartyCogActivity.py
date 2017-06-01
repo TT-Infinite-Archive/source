@@ -51,7 +51,7 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
         return TTLocalizer.PartyCogInstructions
 
     def pieThrow(self, toonId, timestamp, h, x, y, z, power):
-        if toonId not in self.toonIds:
+        if [toonId] not in self.toonIds:
             return
         if toonId != base.localAvatar.doId:
             self.view.pieThrow(toonId, timestamp, h, Point3(x, y, z), power)
@@ -178,11 +178,10 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
     def startConclusion(self, data):
         DistributedPartyTeamActivity.startConclusion(self, data)
         if self.isLocalToonPlaying:
-            score = (int(data / 10000), data % 10000)
             winner = 2
-            if score[PartyGlobals.TeamActivityTeams.LeftTeam] > score[PartyGlobals.TeamActivityTeams.RightTeam]:
+            if data[PartyGlobals.TeamActivityTeams.LeftTeam] > data[PartyGlobals.TeamActivityTeams.RightTeam]:
                 winner = PartyGlobals.TeamActivityTeams.LeftTeam
-            elif score[PartyGlobals.TeamActivityTeams.LeftTeam] < score[PartyGlobals.TeamActivityTeams.RightTeam]:
+            elif data[PartyGlobals.TeamActivityTeams.LeftTeam] < data[PartyGlobals.TeamActivityTeams.RightTeam]:
                 winner = PartyGlobals.TeamActivityTeams.RightTeam
             if winner < 2:
                 if self.getTeam(base.localAvatar.doId) == winner:
@@ -191,7 +190,7 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
                     resultsText = TTLocalizer.PartyTeamActivityWins % TTLocalizer.PartyCogTeams[winner]
             else:
                 resultsText = TTLocalizer.PartyTeamActivityGameTie
-            self.view.showResults(resultsText, winner, score)
+            self.view.showResults(resultsText, winner, data)
 
     def finishConclusion(self):
         self.view.hideResults()

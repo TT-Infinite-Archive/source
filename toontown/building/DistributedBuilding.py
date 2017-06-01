@@ -628,10 +628,6 @@ class DistributedBuilding(DistributedObject.DistributedObject):
                 tracks.append(hideTrack)
                 if not toonSoundPlayed:
                     toonSoundPlayed = 1
-            for v in self.victorList:
-                if v in self.cr.doId2do:
-                    toon = self.cr.doId2do[v]
-                    hideTrack.append(Func(toon.restoreGoofyEffect, 0.5))
 
         self.stopTransition()
         bldgMTrack = tracks
