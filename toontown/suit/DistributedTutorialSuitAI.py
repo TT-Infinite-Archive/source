@@ -25,9 +25,9 @@ class DistributedTutorialSuitAI(DistributedSuitBaseAI):
         DistributedSuitBaseAI.__init__(self, air, None)
 
         suitDNA = SuitDNA.SuitDNA()
-        suitDNA.newSuit('f')
+        suitDNA.newSuit('tbc')
         self.dna = suitDNA
-        self.setLevel(1)
+        self.setLevel(12)
 
     def destroy(self):
         del self.dna
@@ -48,12 +48,8 @@ class DistributedTutorialSuitAI(DistributedSuitBaseAI):
             return
 
         battle = DistributedBattleTutorialAI(
-            self.air,
-            battleMgr=FakeBattleManager(avId),
-            pos=Point3(0, 0, 0),
-            suit=self,
-            toonId=avId,
-            zoneId=20001)
+            self.air, FakeBattleManager(avId), Point3(35, 20, -0.5), self,
+            avId, 20001)
         battle.generateWithRequired(self.zoneId)
         battle.battleCellId = 0
 

@@ -11,10 +11,12 @@ import random
 import ToonInteriorColors
 from toontown.hood import ZoneUtil
 from toontown.char import Char
+from toontown.suit import SuitDNA
+from toontown.suit import Suit
 from toontown.quest import QuestParser
 from toontown.toon import DistributedNPCSpecialQuestGiver
-from toontown.hood import TutorialHood
 from toontown.toonbase import TTLocalizer
+from toontown.chat.ChatGlobals import CFSpeech
 
 
 class DistributedTutorialInterior(DistributedObject.DistributedObject):
@@ -29,6 +31,16 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
     def disable(self):
         self.interior.removeNode()
         del self.interior
+        self.street.removeNode()
+        del self.street
+        self.sky.removeNode()
+        del self.sky
+        self.mickeyMovie.cleanup()
+        del self.mickeyMovie
+        self.suitWalkTrack.finish()
+        del self.suitWalkTrack
+        self.suit.delete()
+        del self.suit
         self.ignore('enterTutorialInterior')
 
         DistributedObject.DistributedObject.disable(self)
@@ -71,10 +83,27 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         self.dnaStore = base.cr.playGame.dnaStore
         self.randomGenerator = random.Random()
         self.randomGenerator.seed(self.zoneId)
-        self.interior = loader.loadModel('phase_5.5/models/estate/tt_m_ara_int_estateHouseC')
+        self.interior = loader.loadModel('phase_3.5/models/modules/toon_interior_tutorial')
         self.interior.reparentTo(render)
         dnaStore = DNAStorage()
-
+        node = loader.loadDNAFile(self.cr.playGame.hood.dnaStore, 'phase_3.5/dna/tutorial_street.pdna')
+        self.street = render.attachNewNode(node)
+        self.street.flattenMedium()
+        self.street.setPosHpr(-17, 42, -0.5, 180, 0, 0)
+        self.street.find('**/tb2:toon_landmark_TT_A1_DNARoot').stash()
+        self.street.find('**/tb1:toon_landmark_hqTT_DNARoot/**/door_flat_0').stash()
+        self.street.findAllMatches('**/+CollisionNode').stash()
+        self.skyFile = 'phase_3.5/models/props/TT_sky'
+        # self.music = loader.loadMusic('phase_3.5/audio/bgm/TC_SZ_activity.ogg')
+        # self.music.setLoop(1)
+        # self.music.play()
+        self.sky = loader.loadModel(self.skyFile)
+        self.sky.setScale(0.8)
+        self.sky.reparentTo(render)
+        self.sky.setDepthTest(0)
+        self.sky.setDepthWrite(0)
+        self.sky.setBin('background', 100)
+        self.sky.find('**/Sky').reparentTo(self.sky, -1)
         hoodId = ZoneUtil.getCanonicalHoodId(self.zoneId)
         self.colors = ToonInteriorColors.colors[hoodId]
         self.replaceRandomInModel(self.interior)
@@ -97,8 +126,13 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         del self.dnaStore
         del self.randomGenerator
         self.interior.flattenMedium()
-        base.localAvatar.setPosHpr(-2, 12, 0, -10, 0, 0)
-        self.cr.doId2do[self.npcId].setPosHpr(-8.709, 17.837, 0.025, 212.567, 0, 0)
+        npcOrigin = self.interior.find('**/npc_origin_' + `(self.npc.posIndex)`)
+        if not npcOrigin.isEmpty():
+            self.npc.reparentTo(npcOrigin)
+            self.npc.clearMat()
+        self.createSuit()
+        # self.cr.doId2do[self.npcId].setChatAbsolute(TTLocalizer.QuestScriptTutorialMickey_4, CFSpeech)
+        self.mickeyMovie = QuestParser.NPCMoviePlayer('tutorial_mickey', base.localAvatar, self.npc)
         place = base.cr.playGame.getPlace()
         if place and hasattr(place, 'fsm') and place.fsm.getCurrentState().getName():
             self.notify.info('Tutorial movie: Place ready.')
@@ -111,6 +145,26 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
 
     def playMovie(self):
         self.notify.info('Tutorial movie: Play.')
+        self.mickeyMovie.play()
+
+        fovZoom = LerpFunc(base.localAvatar.setCameraFov, 1, 52, 75, 'easeOut', [], "zoom")
+
+        self.toonEntering = Sequence(Wait(7), Func(fovZoom.start))
+        self.toonEntering.start()
+
+
+    def createSuit(self):
+        self.suit = Suit.Suit()
+        suitDNA = SuitDNA.SuitDNA()
+        suitDNA.newSuit('tbc')
+        self.suit.setDNA(suitDNA)
+        self.suit.nametag.setNametag2d(None)
+        self.suit.nametag.setNametag3d(None)
+        self.suit.loop('neutral')
+        self.suit.setPosHpr(-20, 8, 0, 0, 0, 0)
+        self.suit.reparentTo(self.interior)
+        self.suitWalkTrack = Sequence(self.suit.hprInterval(0.1, Vec3(0, 0, 0)), Func(self.suit.loop, 'walk'), self.suit.posInterval(2, Point3(-20, 20, 0)), Func(self.suit.loop, 'neutral'), Wait(1.0), self.suit.hprInterval(0.1, Vec3(180, 0, 0)), Func(self.suit.loop, 'walk'), self.suit.posInterval(2, Point3(-20, 10, 0)), Func(self.suit.loop, 'neutral'), Wait(1.0))
+        self.suitWalkTrack.loop()
 
     def setZoneIdAndBlock(self, zoneId, block):
         self.zoneId = zoneId
@@ -121,3 +175,7 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
 
     def getTutorialNpc(self):
         return self.cr.doId2do[self.npcId]
+
+    def setTutorialNpcId(self, npcId):
+        self.npcId = npcId
+        self.npc = self.cr.doId2do[npcId]

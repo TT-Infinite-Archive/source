@@ -64,27 +64,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.createAvatarClass = None
         self.systemMessageSfx = None
         self.introDone = False
-        if self.productName == 'DisneyOnline-US':
-            if self.launcher:
-                if self.launcher.isDummy():
-                    reg_deployment = self.launcher.getDeployment()
-                else:
-                    reg_deployment = self.launcher.getRegistry('DEPLOYMENT')
-                    if reg_deployment != 'UK' and reg_deployment != 'AP':
-
-                        reg_deployment = self.launcher.getRegistry('GAME_DEPLOYMENT')
-                    self.notify.info('reg_deployment=%s' % reg_deployment)
-
-                if reg_deployment == 'UK':
-                    self.productName = 'DisneyOnline-UK'
-                elif reg_deployment == 'AP':
-                    self.productName = 'DisneyOnline-AP'
-
-
         self.blue = None
-        if self.launcher:
-            self.blue = self.launcher.getBlue()
-
 
         self.playToken = None
         if self.launcher:
@@ -96,7 +76,6 @@ class OTPClientRepository(ClientRepositoryBase):
             self.http = self.launcher.http
         else:
             self.http = HTTPClient()
-
 
         self.accountOldAuth = config.GetBool('account-old-auth', 0)
 
@@ -155,6 +134,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverVersion = serverVersion
         self.waitingForDatabase = None
         self.mainMenu = MainMenu()
+        self.homeScreen = MainMenu()
 
         self.loginFSM = ClassicFSM('loginFSM', [
             State('loginOff',
@@ -192,6 +172,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitFailedToConnect, [
                       'connect',
                       'mainMenu',
+                      'homeScreen',
                       'shutdown']),
             State('failedToGetServerConstants',
                   self.enterFailedToGetServerConstants,
@@ -226,6 +207,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'noShardsWait',
                       'mainMenu',
+                      'homeScreen',
                       'shutdown']),
             State('noShardsWait',
                   self.enterNoShardsWait,
@@ -242,6 +224,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'login',
                       'connect',
                       'mainMenu',
+                      'homescreen',
                       'shutdown']),
             State('afkTimeout',
                   self.enterAfkTimeout,
@@ -258,7 +241,8 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'chooseAvatar',
                       'shutdown',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('chooseAvatar',
                   self.enterChooseAvatar,
                   self.exitChooseAvatar, [
@@ -269,7 +253,8 @@ class OTPClientRepository(ClientRepositoryBase):
                       'waitForDeleteAvatarResponse',
                       'shutdown',
                       'login',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('createAvatar',
                   self.enterCreateAvatar,
                   self.exitCreateAvatar, [
@@ -305,10 +290,19 @@ class OTPClientRepository(ClientRepositoryBase):
                       'afkTimeout',
                       'periodTimeout',
                       'noShards',
-                      'mainMenu']),
+                      'mainMenu',
+                      'homeScreen']),
             State('mainMenu',
                   self.enterMainMenu,
                   self.exitMainMenu, [
+                      'gameOff',
+                      'waitForGameList',
+                      'chooseAvatar',
+                      'connect',
+                      'shutdown']),
+            State('homeScreen',
+                  self.enterHomeScreen,
+                  self.exitHomeScreen, [
                       'gameOff',
                       'waitForGameList',
                       'chooseAvatar',
@@ -394,21 +388,22 @@ class OTPClientRepository(ClientRepositoryBase):
                 if not readResult:
                     self.notify.error('Could not read DC file.')
 
-        # Output the DC data to a temporary file (for use with Astron).
-        dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
-        dcFile.write(dcFilePath, False)
+        if sys.platform != 'android':
+            # Output the DC data to a temporary file (for use with Astron).
+            dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
+            dcFile.write(dcFilePath, False)
 
-        # Generate a single player Astron config file.
-        path = os.path.join(base.tempDir, 'singleplayer.yml')
-        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
-        with open(path, 'w') as f:
-            yaml.dump(data, f)
+            # Generate a single player Astron config file.
+            path = os.path.join(base.tempDir, 'singleplayer.yml')
+            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+            with open(path, 'w') as f:
+                yaml.dump(data, f)
 
-        # Generate a multi player Astron config file.
-        path = os.path.join(base.tempDir, 'multiplayer.yml')
-        data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
-        with open(path, 'w') as f:
-            yaml.dump(data, f)
+            # Generate a multi player Astron config file.
+            path = os.path.join(base.tempDir, 'multiplayer.yml')
+            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+            with open(path, 'w') as f:
+                yaml.dump(data, f)
 
         self.hashVal = dcFile.getHash()
 
@@ -560,7 +555,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def getServerVersion(self):
         return self.serverVersion
 
-    def enterConnect(self, serverList):
+    def enterConnect(self, serverList, isMultiplayer = True):
         self.serverList = serverList
         if not self.introDone:
             if self.introduction.getCurrentOrNextState() not in (
@@ -570,7 +565,8 @@ class OTPClientRepository(ClientRepositoryBase):
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
             # Show the connecting box only if you are connecting to an MP server
-            self.connectingBox.hide()
+            if not isMultiplayer:
+                self.connectingBox.hide()
             self.renderFrame()
         self.handler = self.handleConnecting
         self.connect(self.serverList, successCallback=self._sendHello,
@@ -636,7 +632,6 @@ class OTPClientRepository(ClientRepositoryBase):
     def __handleLoginDone(self, doneStatus):
         mode = doneStatus['mode']
         if mode == 'success':
-            self.setIsNotNewInstallation()
             if hasattr(self, 'toontownTimeManager'):
                 timestamp = time.gmtime(doneStatus['timestamp'])
                 dateString = time.strftime(self.toontownTimeManager.formatStr, timestamp)
@@ -680,7 +675,6 @@ class OTPClientRepository(ClientRepositoryBase):
     def __handleCreateAccountDone(self, doneStatus):
         mode = doneStatus['mode']
         if mode == 'success':
-            self.setIsNotNewInstallation()
             self.loginFSM.request('waitForGameList')
         elif mode == 'reject':
             self.loginFSM.request('reject')
@@ -978,7 +972,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.notify.warning('Lost connection to server. Notifying user.')
         if (self.bootedIndex is not None) and (self.bootedIndex in OTPLocalizer.CRBootedReasons):
             message = OTPLocalizer.CRBootedReasons[self.bootedIndex]
-        elif self.bootedIndex == 155:
+        elif self.bootedIndex in (155, 156):
             message = self.bootedText
         elif self.bootedText is not None:
             message = OTPLocalizer.CRBootedReasonUnknownCode % self.bootedIndex
@@ -995,7 +989,7 @@ class OTPClientRepository(ClientRepositoryBase):
                                       self.loginFSM.request, ['shutdown'])
         else:
             reconnect = 1
-            if self.bootedIndex in (152, 127):
+            if self.bootedIndex in (152, 127, 156):
                 reconnect = 0
             style = OTPDialog.Acknowledge
             if reconnect and self.loginInterface.supportsRelogin():
@@ -1004,9 +998,14 @@ class OTPClientRepository(ClientRepositoryBase):
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.lostConnectionBox = dialogClass(doneEvent='lostConnectionAck', message=message, text_wordwrap=18, style=style)
             self.lostConnectionBox.show()
+
             self.accept('lostConnectionAck', self.__handleLostConnectionAck)
 
     def __handleLostConnectionAck(self):
+        if self.bootedIndex == 156:
+            self.loginFSM.request('shutdown')
+            return
+
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
@@ -1787,9 +1786,6 @@ class OTPClientRepository(ClientRepositoryBase):
     def __handleCancelWaiting(self, value):
         self.loginFSM.request('mainMenu')
 
-    def setIsNotNewInstallation(self):
-        launcher.setIsNotNewInstallation()
-
     def renderFrame(self):
         gsg = base.win.getGsg()
         if gsg:
@@ -1805,7 +1801,6 @@ class OTPClientRepository(ClientRepositoryBase):
         elapsed = globalClock.getRealTime() - self.periodTimerStarted
         self.runningPeriodTimeRemaining = self.periodTimerSecondsRemaining - elapsed
         self.notify.debug('periodTimeRemaining: %s' % self.runningPeriodTimeRemaining)
-        launcher.recordPeriodTimeRemaining(self.runningPeriodTimeRemaining)
         taskMgr.doMethodLater(freq, self.recordPeriodTimer, 'periodTimerRecorder')
         return Task.done
 
@@ -2200,3 +2195,9 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def exitMainMenu(self):
         self.mainMenu.hide()
+
+    def enterHomeScreen(self):
+        self.homeScreen.request('HomeScreen')
+
+    def exitHomeScreen(self):
+        self.homeScreen.hide()

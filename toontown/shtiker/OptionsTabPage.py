@@ -41,6 +41,9 @@ class OptionsTabPage(DirectFrame):
 
         self.warning = None
         self.videoDialog = None
+        self.hasAvatar = True
+        if not hasattr(base, 'localAvatar'):
+            self.hasAvatar = False
         self.load()
 
     def destroy(self):
@@ -220,7 +223,7 @@ class OptionsTabPage(DirectFrame):
             parent=self.rightFrame,
             text_size=TTLabel.TTLabel.MediumSize,
             pos=(rightXBase + 0.02, 0, rightYBase + 0.1),
-            text=TTLocalizer.OptionsPageVolume
+            text=TTLocalizer.OptionsPageSound
         )
 
         # Music
@@ -266,6 +269,21 @@ class OptionsTabPage(DirectFrame):
             enabled=base.sfxActive,
             command=self.setSoundVolume
         )
+        
+        # Classic Music
+        row += 1.5
+        self.classicMusicLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text=TTLocalizer.OptionsPageClassicMusic,
+            text_align=TextNode.ALeft,
+        )
+        self.classicMusicCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.wantClassicMusic,
+            command=self.__doToggleClassicMusic
+        )
 
         # -- Social
         row = 0
@@ -277,119 +295,119 @@ class OptionsTabPage(DirectFrame):
             pos=(rightXBase - 0.02, 0, rightYBase + 0.1),
             text=TTLocalizer.OptionsPageChat
         )
-
-        # Whisper Settings
-        self.whispersLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageAcceptingWhispers,
-            text_align=TextNode.ALeft
-        )
-        self.whispersCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.localAvatar.wantWhispers,
-            command=self.__doToggleWantWhispers
-        )
-        row += 0.75
-        self.whispersAnyoneLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageFromStrangers,
-            text_align=TextNode.ALeft,
-            text_size=TTLabel.TTLabel.SmallSize
-        )
-        self.whispersAnyoneCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
-            disable=not base.localAvatar.wantWhispers,
-            checked=base.localAvatar.wantNonFriendWhispers,
-            command=self.__doToggleWantNonFriendWhispers
-        )
-        row += 0.75
-        self.whispersFriendsLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageFromFriends,
-            text_align=TextNode.ALeft,
-            text_size=TTLabel.TTLabel.SmallSize
-        )
-        self.whispersFriendsCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
-            disable=not base.localAvatar.wantWhispers,
-            checked=base.localAvatar.wantFriendWhispers,
-            command=self.__doToggleWantFriendWhispers
-        )
-        row += 1
-        self.speedChatStyleLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageSpeedChatStyleLabel,
-            text_align=TextNode.ALeft
-        )
-        row += 1
-
-        self.speedChatStyleLeftArrow = TTArrow(
-            parent=self,
-            orientation=TTArrow.OrientationLeft,
-            pos=(0.25, 0, rightYBase - textRowHeight * row),
-            command=self.__doSpeedChatStyleLeft)
-        self.speedChatStyleRightArrow = TTArrow(
-            parent=self,
-            orientation=TTArrow.OrientationRight,
-            pos=(0.65, 0, rightYBase - textRowHeight * row),
-            command=self.__doSpeedChatStyleRight
-        )
-        self.speedChatStyleText = SpeedChat.SpeedChat(
-            name='OptionsPageStyleText',
-            structure=[2000],
-            backgroundModelName='phase_3/models/gui/ChatPanel',
-            guiModelName='phase_3.5/models/gui/speedChatGui'
-        )
-        self.speedChatStyleText.setScale(self.speed_chat_scale)
-        self.speedChatStyleText.setPos(0.37, 0, rightYBase - textRowHeight * row + 0.03)
-        self.speedChatStyleText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
-
-        row += 2
-        # - Friends
-        self.friendsTitle = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text_size=TTLabel.TTLabel.MediumSize,
-            pos=(rightXBase - 0.08, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageFriends,
-            text_align=TextNode.ALeft
-        )
-        row += 1
-        self.acceptingFriendsLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageAcceptingFriends,
-            text_align=TextNode.ALeft
-        )
-        self.acceptingFriendsCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.localAvatar.wantFriends,
-            command=self.__doToggleWantFriends
-        )
-
-        if (base.isSinglePlayer or base.isHosting):
-            text = TTLocalizer.OptionsDisconnect
-        else:
-            text = TTLocalizer.OptionsLeaveServer
-        self.exitButton = TTButton.TTButton(
-            parent=self,
-            buttonScale=1.15,
-            text=text,
-            pos=(-0.45, 0, -0.53),
-            command=self.__handleExitServerShowWithConfirm
-        )
-        self.toonselectButton = TTButton.TTButton(
-            parent=self,
-            buttonScale=1.15,
-            text=TTLocalizer.OptionsReturnToToonSelect,
-            pos=(-0.45, 0, -0.33),
-            command=self.__handleExitToToonSelectShowWithConfirm
-        )
+        if self.hasAvatar:
+            # Whisper Settings
+            self.whispersLabel = TTLabel.TTLabel(
+                parent=self.rightFrame,
+                pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text=TTLocalizer.OptionsPageAcceptingWhispers,
+                text_align=TextNode.ALeft
+            )
+            self.whispersCheckBox = TTCheckBox.TTCheckBox(
+                parent=self.rightFrame,
+                pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+                checked=base.localAvatar.wantWhispers,
+                command=self.__doToggleWantWhispers
+            )
+            row += 0.75
+            self.whispersAnyoneLabel = TTLabel.TTLabel(
+                parent=self.rightFrame,
+                pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text=TTLocalizer.OptionsPageFromStrangers,
+                text_align=TextNode.ALeft,
+                text_size=TTLabel.TTLabel.SmallSize
+            )
+            self.whispersAnyoneCheckBox = TTCheckBox.TTCheckBox(
+                parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
+                disable=not base.localAvatar.wantWhispers,
+                checked=base.localAvatar.wantNonFriendWhispers,
+                command=self.__doToggleWantNonFriendWhispers
+            )
+            row += 0.75
+            self.whispersFriendsLabel = TTLabel.TTLabel(
+                parent=self.rightFrame,
+                pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text=TTLocalizer.OptionsPageFromFriends,
+                text_align=TextNode.ALeft,
+                text_size=TTLabel.TTLabel.SmallSize
+            )
+            self.whispersFriendsCheckBox = TTCheckBox.TTCheckBox(
+                parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
+                disable=not base.localAvatar.wantWhispers,
+                checked=base.localAvatar.wantFriendWhispers,
+                command=self.__doToggleWantFriendWhispers
+            )
+            row += 1
+            self.speedChatStyleLabel = TTLabel.TTLabel(
+                parent=self.rightFrame,
+                pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text=TTLocalizer.OptionsPageSpeedChatStyleLabel,
+                text_align=TextNode.ALeft
+            )
+            row += 1
+    
+            self.speedChatStyleLeftArrow = TTArrow(
+                parent=self,
+                orientation=TTArrow.OrientationLeft,
+                pos=(0.25, 0, rightYBase - textRowHeight * row),
+                command=self.__doSpeedChatStyleLeft)
+            self.speedChatStyleRightArrow = TTArrow(
+                parent=self,
+                orientation=TTArrow.OrientationRight,
+                pos=(0.65, 0, rightYBase - textRowHeight * row),
+                command=self.__doSpeedChatStyleRight
+            )
+            self.speedChatStyleText = SpeedChat.SpeedChat(
+                name='OptionsPageStyleText',
+                structure=[2000],
+                backgroundModelName='phase_3/models/gui/ChatPanel',
+                guiModelName='phase_3.5/models/gui/speedChatGui'
+            )
+            self.speedChatStyleText.setScale(self.speed_chat_scale)
+            self.speedChatStyleText.setPos(0.37, 0, rightYBase - textRowHeight * row + 0.03)
+            self.speedChatStyleText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
+    
+            row += 2
+            # - Friends
+            self.friendsTitle = TTLabel.TTLabel(
+                parent=self.rightFrame,
+                text_size=TTLabel.TTLabel.MediumSize,
+                pos=(rightXBase - 0.08, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text=TTLocalizer.OptionsPageFriends,
+                text_align=TextNode.ALeft
+            )
+            row += 1
+            self.acceptingFriendsLabel = TTLabel.TTLabel(
+                parent=self.rightFrame,
+                pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text=TTLocalizer.OptionsPageAcceptingFriends,
+                text_align=TextNode.ALeft
+            )
+            self.acceptingFriendsCheckBox = TTCheckBox.TTCheckBox(
+                parent=self.rightFrame,
+                pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+                checked=base.localAvatar.wantFriends,
+                command=self.__doToggleWantFriends
+            )
+    
+            if (base.isSinglePlayer or base.isHosting):
+                text = TTLocalizer.OptionsDisconnect
+            else:
+                text = TTLocalizer.OptionsLeaveServer
+            self.exitButton = TTButton.TTButton(
+                parent=self,
+                buttonScale=1.15,
+                text=text,
+                pos=(-0.45, 0, -0.53),
+                command=self.__handleExitServerShowWithConfirm
+            )
+            self.toonselectButton = TTButton.TTButton(
+                parent=self,
+                buttonScale=1.15,
+                text=TTLocalizer.OptionsReturnToToonSelect,
+                pos=(-0.45, 0, -0.33),
+                command=self.__handleExitToToonSelectShowWithConfirm
+            )
 
         # -- Gameplay
 
@@ -444,7 +462,8 @@ class OptionsTabPage(DirectFrame):
     def exit(self):
         self.ignore('confirmDone')
         self.hide()
-        self.speedChatStyleText.exit()
+        if self.hasAvatar:
+            self.speedChatStyleText.exit()
         if self.displaySettingsChanged:
             taskMgr.doMethodLater(
                 self.DisplaySettingsDelay,
@@ -459,13 +478,14 @@ class OptionsTabPage(DirectFrame):
             self.ignore(self.displaySettings.doneEvent)
             self.displaySettings.unload()
         self.displaySettings = None
-        self.exitButton.destroy()
-        self.toonselectButton.destroy()
-        del self.exitButton
-        del self.toonselectButton
-        self.speedChatStyleText.exit()
-        self.speedChatStyleText.destroy()
-        del self.speedChatStyleText
+        if self.hasAvatar:
+            self.exitButton.destroy()
+            self.toonselectButton.destroy()
+            del self.exitButton
+            del self.toonselectButton
+            self.speedChatStyleText.exit()
+            self.speedChatStyleText.destroy()
+            del self.speedChatStyleText
         self.currentSizeIndex = None
         self.leftFrame.destroy()
         self.rightFrame.destroy()
@@ -545,6 +565,8 @@ class OptionsTabPage(DirectFrame):
         self.soundCheckBox.show()
         self.soundLabel.show()
         self.soundSlider.show()
+        self.classicMusicCheckBox.show()
+        self.classicMusicLabel.show()
 
     def hideSoundGui(self):
         self.volumeTitle.hide()
@@ -554,7 +576,9 @@ class OptionsTabPage(DirectFrame):
         self.soundCheckBox.hide()
         self.soundLabel.hide()
         self.soundSlider.hide()
-
+        self.classicMusicCheckBox.hide()
+        self.classicMusicLabel.hide()
+        
     def showGameplayGui(self):
         self.controlsTitle.show()
         self.wantCustomControlsLabel.show()
@@ -568,36 +592,43 @@ class OptionsTabPage(DirectFrame):
         self.configureControlsButton.hide()
 
     def showSocialGui(self):
-        self.friendsTitle.show()
+        rightXBase = -0.4
+        rightYBase = 0.4
         self.chatTitle.show()
-        self.whispersCheckBox.show()
-        self.whispersLabel.show()
-        self.whispersAnyoneCheckBox.show()
-        self.whispersAnyoneLabel.show()
-        self.whispersFriendsCheckBox.show()
-        self.whispersFriendsLabel.show()
-        self.acceptingFriendsLabel.show()
-        self.acceptingFriendsCheckBox.show()
-        self.speedChatStyleLabel.show()
-        self.speedChatStyleLeftArrow.show()
-        self.speedChatStyleRightArrow.show()
-        self.speedChatStyleText.show()
+        if not self.hasAvatar:
+            self.chatTitle['text'] = "You need to be in game to access these settings!"
+            self.chatTitle.setPos(0, 0, rightYBase + 0.1)
+        if self.hasAvatar:
+            self.friendsTitle.show()
+            self.whispersCheckBox.show()
+            self.whispersLabel.show()
+            self.whispersAnyoneCheckBox.show()
+            self.whispersAnyoneLabel.show()
+            self.whispersFriendsCheckBox.show()
+            self.whispersFriendsLabel.show()
+            self.acceptingFriendsLabel.show()
+            self.acceptingFriendsCheckBox.show()
+            self.speedChatStyleLabel.show()
+            self.speedChatStyleLeftArrow.show()
+            self.speedChatStyleRightArrow.show()
+            self.speedChatStyleText.show()
 
     def hideSocialGui(self):
-        self.friendsTitle.hide()
         self.chatTitle.hide()
-        self.whispersCheckBox.hide()
-        self.whispersLabel.hide()
-        self.whispersAnyoneCheckBox.hide()
-        self.whispersAnyoneLabel.hide()
-        self.whispersFriendsCheckBox.hide()
-        self.whispersFriendsLabel.hide()
-        self.acceptingFriendsLabel.hide()
-        self.acceptingFriendsCheckBox.hide()
-        self.speedChatStyleLabel.hide()
-        self.speedChatStyleLeftArrow.hide()
-        self.speedChatStyleRightArrow.hide()
-        self.speedChatStyleText.hide()
+        if self.hasAvatar:
+            self.friendsTitle.hide()
+            self.whispersCheckBox.hide()
+            self.whispersLabel.hide()
+            self.whispersAnyoneCheckBox.hide()
+            self.whispersAnyoneLabel.hide()
+            self.whispersFriendsCheckBox.hide()
+            self.whispersFriendsLabel.hide()
+            self.acceptingFriendsLabel.hide()
+            self.acceptingFriendsCheckBox.hide()
+            self.speedChatStyleLabel.hide()
+            self.speedChatStyleLeftArrow.hide()
+            self.speedChatStyleRightArrow.hide()
+            self.speedChatStyleText.hide()
 
     def getMusicVolume(self):
         # We want it as a value between 0-100
@@ -636,6 +667,15 @@ class OptionsTabPage(DirectFrame):
             base.enableMusic(1)
             settings[SettingsGlobals.Music] = True
             self.musicSlider.enable()
+            
+    def __doToggleClassicMusic(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantClassicMusic:
+            settings[SettingsGlobals.ClassicMusic] = False
+            base.wantClassicMusic = False
+        else:
+            settings[SettingsGlobals.ClassicMusic] = True
+            base.wantClassicMusic = True
 
     def __doToggleVSync(self):
         messenger.send(EventGlobals.WakeUp)
@@ -733,9 +773,10 @@ class OptionsTabPage(DirectFrame):
             self.configureControlsButton.enable()
 
         base.reloadControls()
-        base.localAvatar.controlManager.reload()
-        base.localAvatar.chatMgr.reloadWASD()
-        base.localAvatar.controlManager.disable()
+        if self.hasAvatar:
+            base.localAvatar.controlManager.reload()
+            base.localAvatar.chatMgr.reloadWASD()
+            base.localAvatar.controlManager.disable()
 
     def __doSpeedChatStyleLeft(self):
         if self.speedChatStyleIndex > 0:
@@ -977,6 +1018,5 @@ class OptionsTabPage(DirectFrame):
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
-            # Have this button disconnect you and bring you all the way back to the main menu like the one on the Toon Select screen
-            base.cr.loginFSM.request('mainMenu')
+            base.cr.loginFSM.request('homeScreen')
             base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')

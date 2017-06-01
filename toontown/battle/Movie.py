@@ -341,10 +341,8 @@ class Movie(DirectObject.DirectObject):
 
     def playTutorialReward_3(self, value):
         self.tutRewardDialog_2.cleanup()
-        from toontown.toon import Toon
-        from toontown.toon import ToonDNA
 
-        def doneChat1(page, elapsed = 0):
+        def doneChat1(page, elapsed=0):
             self.track2.start()
 
         def doneChat2(elapsed):
@@ -354,41 +352,66 @@ class Movie(DirectObject.DirectObject):
         def uniqueName(hook):
             return 'TutorialTom-' + hook
 
-        self.tutorialTom = Toon.Toon()
-        dna = ToonDNA.ToonDNA()
-        dnaList = ('dls', 'ms', 'm', 'm', 7, 0, 7, 7, 2, 6, 2, 6, 2, 16)
-        dna.newToonFromProperties(*dnaList)
-        self.tutorialTom.setDNA(dna)
-        self.tutorialTom.setName(TTLocalizer.NPCToonNames[20000])
-        self.tutorialTom.setPickable(0)
-        self.tutorialTom.setPlayerType(NametagGlobals.CCNonPlayer)
+        from toontown.toon import NPCToons
+        self.tutorialTom = NPCToons.createLocalNPC(20001)
         self.tutorialTom.uniqueName = uniqueName
-        if base.config.GetString('language', 'english') == 'japanese':
-            self.tomDialogue03 = loader.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward01.ogg')
-            self.tomDialogue04 = loader.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward02.ogg')
-            self.tomDialogue05 = loader.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward03.ogg')
-            self.musicVolume = base.config.GetFloat('tutorial-music-volume', 0.5)
+        if config.GetString('language', 'english') == 'japanese':
+            self.tomDialogue03 = base.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward01.ogg')
+            self.tomDialogue04 = base.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward02.ogg')
+            self.tomDialogue05 = base.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward03.ogg')
+            self.musicVolume = config.GetFloat('tutorial-music-volume', 0.5)
         else:
             self.tomDialogue03 = None
             self.tomDialogue04 = None
             self.tomDialogue05 = None
             self.musicVolume = 0.9
         music = base.cr.playGame.place.loader.battleMusic
-        if self.questList:
-            self.track1 = Sequence(Wait(1.0), Func(self.rewardPanel.initQuestFrame, base.localAvatar, copy.deepcopy(base.localAvatar.quests)), Wait(1.0), Sequence(*self.questList), Wait(1.0), Func(self.rewardPanel.hide), Func(base.camera.setPosHpr, render, 34, 19.88, 3.48, -90, -2.36, 0), Func(base.localAvatar.animFSM.request, 'neutral'), Func(base.localAvatar.setPosHpr, 40.31, 22.0, -0.47, 150.0, 360.0, 0.0), Wait(0.5), Func(self.tutorialTom.reparentTo, render), Func(self.tutorialTom.show), Func(self.tutorialTom.setPosHpr, 40.29, 17.9, -0.47, 11.31, 0.0, 0.07), Func(self.tutorialTom.animFSM.request, 'TeleportIn'), Wait(1.517), Func(self.tutorialTom.animFSM.request, 'neutral'), Func(self.acceptOnce, self.tutorialTom.uniqueName('doneChatPage'), doneChat1), Func(self.tutorialTom.addActive), Func(music.setVolume, self.musicVolume), Func(self.tutorialTom.setLocalPageChat, TTLocalizer.MovieTutorialReward3, 0, None, [self.tomDialogue03]), name='tutorial-reward-3a')
-            self.track2 = Sequence(Func(self.acceptOnce, self.tutorialTom.uniqueName('doneChatPage'), doneChat2), Func(self.tutorialTom.setLocalPageChat, TTLocalizer.MovieTutorialReward4, 1, None, [self.tomDialogue04]), Func(self.tutorialTom.setPlayRate, 1.5, 'right-hand-start'), Func(self.tutorialTom.play, 'right-hand-start'), Wait(self.tutorialTom.getDuration('right-hand-start') / 1.5), Func(self.tutorialTom.loop, 'right-hand'), name='tutorial-reward-3b')
-            self.track3 = Parallel(Sequence(Func(self.tutorialTom.setPlayRate, -1.8, 'right-hand-start'), Func(self.tutorialTom.play, 'right-hand-start'), Wait(self.tutorialTom.getDuration('right-hand-start') / 1.8), Func(self.tutorialTom.animFSM.request, 'neutral'), name='tutorial-reward-3ca'), Sequence(Wait(0.5), Func(self.tutorialTom.setChatAbsolute, TTLocalizer.MovieTutorialReward5, CFSpeech | CFTimeout, self.tomDialogue05), Wait(1.0), Func(self.tutorialTom.animFSM.request, 'TeleportOut'), Wait(self.tutorialTom.getDuration('teleport')), Wait(1.0), Func(self.playTutorialReward_4, 0), name='tutorial-reward-3cb'), name='tutorial-reward-3c')
-            self.track1.start()
-        else:
-            self.playTutorialReward_4(0)
+        self.track1 = Sequence(Wait(1.0), Func(self.rewardPanel.initQuestFrame, base.localAvatar,
+                                               copy.deepcopy(base.localAvatar.quests)), Wait(1.0),
+                               Sequence(*self.questList), Wait(1.0), Func(self.rewardPanel.hide),
+                               Func(base.camera.setPosHpr, render, 34, 19.88, 3.48, -90, -2.36, 0),
+                               Func(base.localAvatar.animFSM.request, 'neutral'),
+                               Func(base.localAvatar.setPosHpr, 40.31, 22.0, -0.47, 150.0, 360.0, 0.0), Wait(0.5),
+                               Func(self.tutorialTom.reparentTo, render), Func(self.tutorialTom.show),
+                               Func(self.tutorialTom.setPosHpr, 40.29, 17.9, -0.47, 11.31, 0.0, 0.07),
+                               Func(self.tutorialTom.animFSM.request, 'TeleportIn'), Wait(1.517),
+                               Func(self.tutorialTom.animFSM.request, 'neutral'),
+                               Func(self.acceptOnce, self.tutorialTom.uniqueName('doneChatPage'), doneChat1),
+                               Func(self.tutorialTom.addActive), Func(music.setVolume, self.musicVolume),
+                               Func(self.tutorialTom.setLocalPageChat, TTLocalizer.MovieTutorialReward3, 0, None,
+                                    [self.tomDialogue03]), name='tutorial-reward-3a')
+        self.track2 = Sequence(Func(self.acceptOnce, self.tutorialTom.uniqueName('doneChatPage'), doneChat2),
+                               Func(self.tutorialTom.setLocalPageChat, TTLocalizer.MovieTutorialReward4, 1, None,
+                                    [self.tomDialogue04]), Func(self.tutorialTom.setPlayRate, 1.5, 'right-hand-start'),
+                               Func(self.tutorialTom.play, 'right-hand-start'),
+                               Wait(self.tutorialTom.getDuration('right-hand-start') / 1.5),
+                               Func(self.tutorialTom.loop, 'right-hand'), name='tutorial-reward-3b')
+        self.track3 = Parallel(Sequence(Func(self.tutorialTom.setPlayRate, -1.8, 'right-hand-start'),
+                                        Func(self.tutorialTom.play, 'right-hand-start'),
+                                        Wait(self.tutorialTom.getDuration('right-hand-start') / 1.8),
+                                        Func(self.tutorialTom.animFSM.request, 'neutral'), name='tutorial-reward-3ca'),
+                               Sequence(Wait(0.5),
+                                        Func(self.tutorialTom.setChatAbsolute, TTLocalizer.MovieTutorialReward5,
+                                             CFSpeech | CFTimeout, self.tomDialogue05), Wait(1.0),
+                                        Parallel(
+                                            Func(self.tutorialTom.animFSM.request, 'TeleportOut'),
+                                            Wait(self.tutorialTom.getDuration('teleport')), Wait(1.0),
+                                            Func(base.transitions.fadeOut, 4)),
+                                        Func(self.playTutorialReward_4, 0), name='tutorial-reward-3cb'),
+                               name='tutorial-reward-3c')
+        self.track1.start()
         return
 
     def playTutorialReward_4(self, value):
         base.localAvatar.setH(270)
+        base.localAvatar.disableAvatarControls()
         self.tutorialTom.removeActive()
         self.tutorialTom.delete()
         self.questList = None
         self.rewardCallback()
+
+        # self.trackEndBattle = Sequence(Wait(0.2), Func(base.localAvatar.disableAvatarControls), Wait(2.0), Func(base.transitions.fadeOut, 2))
+        # self.trackEndBattle.start()
         return
 
     def stop(self):

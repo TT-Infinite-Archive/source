@@ -29,7 +29,7 @@ accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
 
 accessLevelClamp = ConfigVariableString(
-    'access-level-clamp', '100 700',
+    'access-level-clamp', '100 500',
     "Specifies the range in which every user's access level will be confined to.").getValue()
 accessLevelMin = int(accessLevelClamp.split(' ', 1)[0])
 accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
@@ -38,7 +38,7 @@ accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 700 access automatically upon login.
+# each user with 500 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -61,7 +61,7 @@ class DeveloperAccountDB(AccountDB):
     
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 700
+        self.accessLevel = 500
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
     
     def lookupUserId(self, userId):
@@ -86,42 +86,31 @@ class DeveloperAccountDB(AccountDB):
 class ProductionDB(AccountDB):
     notify = directNotify.newCategory('ProductionDB')
 
-    def submitNameRequest(self, avId, name, callback, errback):
-        payload = {'distribution': config.GetString('distribution'), 'name': name}
-        self.csm.air.webApi.execute('names/%d' % avId, payload, 'post', callback=callback, errback=errback)
-
-    def isNameAcceptable(self, name, callback, errback):
-        payload = {'name': name}
-        self.csm.air.webApi.execute('acceptable-name', payload, 'get', callback=callback, errback=errback)
-
-    def lookup(self, cookie, callback):
-        payload = {'distribution': config.GetString('distribution'), 'cookie': cookie}
-        self.csm.air.webApi.execute('cookies/consume', payload, 'delete', callback=self.lookupCallback,
-                                    errback=self.lookupErrback, extraArgs=[callback])
-
-    def lookupCallback(self, result, callback):
-        response = {'success': False}
-
-        if result['success'] is False:
-            response['reason'] = 'Failed to authenticate login credentials.'
+    def __init__(self, csm):
+        AccountDB.__init__(self, csm)
+        if simbase.isSinglePlayer:
+            self.accessLevel = 500
         else:
-            response['success'] = True
-            response['userId'] = result['userId']
-            response['accessLevel'] = min(max(result['accessLevel'], accessLevelMin), accessLevelMax)
+            self.accessLevel = 200 # We set everyone in MP to 200 access by default so people can use commands, however we need an option in the future that allows the host to decide if they want their server to have cheaters or not. If they don't, they select that option then everyone is set to 100 access by default instead for that server. The host will need to set their access to 500 via mongo compass or rpc.
+        self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
-            lookup = self.lookupUserId(result['userId'])
-            response['accountId'] = lookup['accountId']
+    def lookupUserId(self, userId):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
+        dict = {'userId': userId, 'success': True}
 
-        callback(response)
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
 
-    def lookupErrback(self, callback):
-        response = {
-            'success': False,
-            'reason': 'Failed to contact the account server.'
-        }
+        return dict
 
-        callback(response)
-
+    def lookup(self, userId, callback):
+        dict = self.lookupUserId(userId)
+        callback(dict)
+        return dict
 
 # --- FSMs ---
 class OperationFSM(FSM):
@@ -597,28 +586,17 @@ class SetNameTypedFSM(AvatarOperationFSM):
             return
 
         if fields['WishNameState'][0] != 'OPEN':
-            self.demand('Kill', 'Avatar is not in a namable state!')
+            self.demand('Kill', 'Avatar is not in a nameable state!')
             return
 
         self.demand('JudgeName')
 
-    def judgeNameCallback(self, response):
-        status = response.get('status', NAME_SUBMISSION_ERROR)
-        if status == NAME_SUBMISSION_ERROR:
-            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, False])
-            self.demand('Off')
-            return
-
-        resp = True
-
-        if status == NAME_SUBMITTED:
-            self.csm.air.dbInterface.updateObject(
-                self.csm.air.dbId,
-                self.avId,
-                self.csm.air.dclassesByName['DistributedToonUD'],
-                {'WishNameState': ('PENDING',),
-                 'WishName': (self.name,)})
-        elif status == NAME_APPROVED:
+    def enterJudgeName(self):
+        chatAgent = self.csm.air.getGlobalObject('ChatAgent')
+        badName = chatAgent.checkBadNames(self.name, nameCheck=True)
+        if badName:
+            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, 0])
+        else:
             self.csm.air.dbInterface.updateObject(
                 self.csm.air.dbId,
                 self.avId,
@@ -626,35 +604,8 @@ class SetNameTypedFSM(AvatarOperationFSM):
                 {'WishNameState': ('APPROVED',),
                  'WishName': (self.name,),
                  'setName': (self.name,)})
-        else:
-            self.notify.warning('Received unknown name status %s for avId %s' % (status, self.avId))
-            self.demand('Kill', 'Invalid name status %s' % status)
-            return
-
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, resp])
+            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, 1])
         self.demand('Off')
-
-    def judgeNameError(self):
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, False])
-        self.demand('Off')
-
-    def isNameAcceptableCallback(self, response):
-        status = response.get('acceptable', False)
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, status])
-        self.demand('Off')
-
-    def isNameAcceptableError(self):
-        self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, False])
-        self.demand('Off')
-
-    def enterJudgeName(self):
-        if self.avId:
-            self.csm.accountDB.submitNameRequest(self.avId, self.name, self.judgeNameCallback, self.judgeNameError)
-            self.csm.air.writeServerEvent('avatarWishname', self.avId, self.name)
-            return
-
-        # Looks like they are just checking if the name hasn't already been denied
-        self.csm.accountDB.isNameAcceptable(self.name, self.isNameAcceptableCallback, self.isNameAcceptableError)
 
 
 class SetNamePatternFSM(AvatarOperationFSM):
@@ -776,8 +727,9 @@ class LoadAvatarFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('LoadAvatarFSM')
     POST_ACCOUNT_STATE = 'GetTargetAvatar'
 
-    def enterStart(self, avId):
+    def enterStart(self, avId, platform):
         self.avId = avId
+        self.platform = platform
         self.demand('RetrieveAccount')
 
     def enterGetTargetAvatar(self):
@@ -868,7 +820,8 @@ class LoadAvatarFSM(AvatarOperationFSM):
             self.avId, 0, 0, self.csm.air.dclassesByName['DistributedToonUD'],
             {'setAdminAccess': [forceAccessLevel if forceAccessLevel else self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
-             'setChatMode': [self.account.get('CHAT_MODE', 1)]})
+             'setChatMode': [self.account.get('CHAT_MODE', 1)],
+             'setPlatform': [self.platform]})
 
         # Let the TTIFriendsManager know about the account's chat mode.
         friendsManager = self.csm.air.getGlobalObject('TTIFriendsManager')
@@ -1043,8 +996,22 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.account2fsm[sender] = fsmtype(self, sender)
         self.account2fsm[sender].request('Start', *args)
 
-    def requestAuthToken(self):
+    def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
+        self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
+        self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
+
+    def handleResponse(self, sender, isBanned, banLength):
+        if isBanned:
+            datagram = PyDatagram()
+            datagram.addServerHeader(
+                sender,
+                self.air.ourChannel,
+                CLIENTAGENT_EJECT)
+            datagram.addUint16(156)
+            datagram.addString(banLength)
+            self.air.send(datagram)
+            return
 
         authToken = ''.join([hex(random.randint(0, 254)) for _ in xrange(25)])
 
@@ -1061,7 +1028,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         if simbase.isSinglePlayer and self.playerLoggedIn:
             # Only one connection is allowed in singleplayer mode.
-            self.killConnection(sender, 'Single Player servers only allows one connection.')
+            self.killConnection(sender, 'Singleplayer servers only allows one connection.')
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):
@@ -1103,7 +1070,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def acknowledgeAvatarName(self, avId):
         self.runAccountFSM(AcknowledgeNameFSM, avId)
 
-    def chooseAvatar(self, avId):
+    def chooseAvatar(self, avId, platform):
         currentAvId = self.air.getAvatarIdFromSender()
         accountId = self.air.getAccountIdFromSender()
         if currentAvId and avId:
@@ -1115,7 +1082,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             return
 
         if avId:
-            self.runAccountFSM(LoadAvatarFSM, avId)
+            self.runAccountFSM(LoadAvatarFSM, avId, platform)
             chatAgent = self.air.getGlobalObject('ChatAgent')
             chatAgent.checkMuted(accountId)
         else:

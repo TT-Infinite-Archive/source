@@ -10,7 +10,7 @@ model-path ../resources
 # Server:
 server-version dev
 accountdb-type developer
-access-level-clamp 600 700
+access-level-clamp 400 400
 
 # MongoDB:
 mongodb-url mongodb://localhost/game
@@ -33,10 +33,6 @@ generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4478 GlobalGroupTracker
 generate-global-object 4901 MegaInvasionManager
 
-# RPC:
-want-rpc-server #f
-rpc-server-endpoint http://localhost:8080/
-
 # Web API:
 want-web-api #f
 web-api-endpoint https://localhost:8000/api/
@@ -46,12 +42,12 @@ web-api-token invalid
 dc-file astron/dclass/vanilla.dc
 
 # Core features:
-want-kaldron-network #f
 want-multiplayer #t
-want-pets #f
-want-parties #f
+want-pets #t
+want-parties #t
 want-achievements #f
 want-grouptracker #f
+want-server-browser #f
 
 # Safe zones:
 want-safe-zones #t
@@ -79,7 +75,7 @@ want-resistance-restock #t
 want-resistance-dance #t
 
 # Trolley minigames:
-want-ttc-trolley #f
+want-ttc-trolley #t
 want-photo-game #f
 want-travel-game #f
 
@@ -96,6 +92,7 @@ force-skip-tutorial #f
 want-instant-parties #t
 want-quest-verification #t
 want-heartbeat #f
+want-yin-yang #t
 
 # Debug tools:
 want-leak-graph-ai #f

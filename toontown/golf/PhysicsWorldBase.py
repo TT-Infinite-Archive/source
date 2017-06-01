@@ -11,7 +11,10 @@ from direct.task import Task
 from direct.distributed.ClockDelta import *
 import BuildGeometry
 from toontown.golf import GolfGlobals
-import random, time
+import random, time, sys
+
+if sys.platform != 'android':
+    from panda3d.ode import OdeBody, OdeBoxGeom, OdeHingeJoint, OdeJoint, OdeJointGroup, OdeMass, OdePlaneGeom, OdeSimpleSpace, OdeSliderJoint, OdeSphereGeom, OdeTriMeshData, OdeTriMeshGeom, OdeWorld
 
 def scalp(vec, scal):
     vec0 = vec[0] * scal
@@ -29,9 +32,16 @@ class PhysicsWorldBase:
 
     def __init__(self, canRender = 0):
         self.canRender = canRender
-        self.world = OdeWorld()
-        self.space = OdeSimpleSpace()
-        self.contactgroup = OdeJointGroup()
+        
+        if sys.platform != 'android':
+            self.world = OdeWorld()
+            self.space = OdeSimpleSpace()
+            self.contactgroup = OdeJointGroup()
+        else:
+            self.world = None
+            self.space = None
+            self.contactgroup = None
+
         self.bodyList = []
         self.geomList = []
         self.massList = []
@@ -105,9 +115,17 @@ class PhysicsWorldBase:
 
         self.floor.destroy()
         self.floor = None
-        self.contactgroup.empty()
-        self.world.destroy()
-        self.space.destroy()
+        
+        if self.contactgroup:
+            self.contactgroup.empty()
+        
+        if self.world:
+            self.world.destroy()
+        
+        if self.space:
+            self.space.destroy()
+        
+        self.contactgroup = None
         self.world = None
         self.space = None
 

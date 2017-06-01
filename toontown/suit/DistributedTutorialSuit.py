@@ -26,15 +26,11 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
 
     def announceGenerate(self):
         DistributedSuitBase.DistributedSuitBase.announceGenerate(self)
-        # Reparent this suit to the plaza island
-        self.accept('islands-loaded', self.__handleIslandsLoaded)
-        self.setPos(0, 0, 0)
         self.setState('Walk')
 
     def disable(self):
         self.notify.debug('DistributedSuit %d: disabling' % self.getDoId())
         self.setState('Off')
-        self.ignore('islands-loaded')
         DistributedSuitBase.DistributedSuitBase.disable(self)
 
     def delete(self):
@@ -45,9 +41,6 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
             self.notify.debug('DistributedSuit %d: deleting' % self.getDoId())
             del self.fsm
             DistributedSuitBase.DistributedSuitBase.delete(self)
-
-    def __handleIslandsLoaded(self, e=None):
-        self.reparentTo(base.cr.playGame.hood.loader.islands[1])
 
     def d_requestBattle(self, pos, hpr):
         self.cr.playGame.getPlace().setState('WaitForBattle')
@@ -60,23 +53,19 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
         self.setState('WaitForBattle')
 
     def enterWalk(self):
-        #self.reparentTo(base.cr.playGame.hood.loader.islands[0])
         self.enableBattleDetect('walk', self.__handleToonCollision)
         self.loop('walk', 0)
         pathPoints = [
-            Point3(8.318, -22.948, 0.025),
-            Point3(7.968, 27.224, 0.025),
-            Point3(-12.919, 26.818, 0.025),
-            Point3(-12.561, -23.045, 0.025),
-            Point3(8.318, -22.948, 0.025)
+            Vec3(55, 25, -0.5),
+            Vec3(25, 25, -0.5),
+            Vec3(25, 15, -0.5),
+            Vec3(55, 15, -0.5),
+            Vec3(55, 25, -0.5)
         ]
         self.tutWalkTrack = self.makePathTrack(self, pathPoints, 4.5, 'tutFlunkyWalk')
         self.tutWalkTrack.loop()
 
     def exitWalk(self):
         self.disableBattleDetect()
-        self.tutWalkTrack.finish()
+        self.tutWalkTrack.pause()
         self.tutWalkTrack = None
-
-    def subclassManagesParent(self):
-        return 1

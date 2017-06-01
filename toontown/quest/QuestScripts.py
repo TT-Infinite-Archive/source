@@ -14,61 +14,23 @@ WAIT 1
 FINISH_QUEST_MOVIE
 
 ID tutorial_mickey
-LOAD_SFX soundRun "phase_3.5/audio/sfx/AV_footstep_runloop.wav"
-LOAD_CC_DIALOGUE mickeyTutorialDialogue_1 "phase_3/audio/dial/CC_%s_tutorial02.mp3"
-LOAD_CC_DIALOGUE mickeyTutorialDialogue_2 "phase_3.5/audio/dial/CC_tom_tutorial_%s01.mp3"
-LOAD_CC_DIALOGUE mickeyTutorialDialogue_3a "phase_3/audio/dial/CC_%s_tutorial03.mp3"
-LOAD_CC_DIALOGUE mickeyTutorialDialogue_3b "phase_3/audio/dial/CC_%s_tutorial05.mp3"
-LOAD_DIALOGUE mickeyTutorialDialogue_4 "phase_3.5/audio/dial/CC_tom_tutorial_mickey02.mp3"
 LOCK_LOCALTOON
 REPARENTTO camera render
 POSHPRSCALE camera 11 7 3 52 0 0 1 1 1
-LOAD_CLASSIC_CHAR classicChar
-REPARENTTO classicChar render
-POS classicChar 0 0 0 
-HPR classicChar 0 0 0
-POS localToon 0 0 0
+POS localToon 0 0 5
 HPR localToon 0 0 0
 WAIT 2
-PLAY_SFX soundRun 1
-LOOP_ANIM classicChar "run"
-LOOP_ANIM localToon "run"
 LERP_POS localToon -1.8 14.4 0 2
-LERP_POS classicChar 0 17 0 2
-WAIT 2
+WAIT 1.1
+LOOP_ANIM localToon "slip-backward"
+WAIT 2.3
 #LERP_HPR localToon -110 0 0 0.5
-LERP_HPR localToon -70 0 0 0.5
-LERP_HPR classicChar -120 0 0 0.5
-WAIT 0.5
-STOP_SFX soundRun
+#LERP_HPR localToon -70 0 0 0.55
+WAIT 0.4
 LOOP_ANIM localToon "neutral"
-PLAY_ANIM classicChar "left-point-start" 1
-WAIT 1.63
-LOOP_ANIM classicChar "left-point"
-CC_CHAT_CONFIRM classicChar "QuestScriptTutorial%s_1" mickeyTutorialDialogue_1
-PLAY_ANIM classicChar "left-point-start" -1.5
 WAIT 1.0867
-LOOP_ANIM classicChar "neutral"
-CC_CHAT_TO_CONFIRM npc classicChar "QuestScriptTutorial%s_2" "CFReversed" mickeyTutorialDialogue_2
-PLAY_ANIM classicChar "right-point-start" 1
-WAIT 1.0867
-LOOP_ANIM classicChar "right-point"
-CC_CHAT_CONFIRM classicChar "QuestScriptTutorial%s_3" mickeyTutorialDialogue_3a mickeyTutorialDialogue_3b
-PLAY_SFX soundRun 1
-LOOP_ANIM classicChar "run"
-LERP_HPR classicChar -180 0 0 0.5
-WAIT 0.5
-LERP_POS classicChar 0 0 0 2
-WAIT 2
-STOP_SFX soundRun
-REPARENTTO classicChar hidden
-UNLOAD_CHAR classicChar
-#CHAT npc QuestScriptTutorialMickey_4 mickeyTutorialDialogue_4
-REPARENTTO camera localToon
-POS localToon 1.6 9.8 0
-HPR localToon 14 0 0
+# REPARENTTO camera localToon
 FREE_LOCALTOON
-LOCAL_CHAT_PERSIST npc QuestScriptTutorialMickey_4 mickeyTutorialDialogue_4
 
 ID quest_assign_101
 CLEAR_CHAT npc
@@ -100,9 +62,186 @@ POSHPRSCALE squirt1 -1.05 7 0 0 0 0 1.875 1.875 1.875
 POSHPRSCALE squirt2 -1.05 7 0 0 0 0 1.875 1.875 1.875
 REPARENTTO camera npc
 POS camera -2.2 5.2 3.3
+HPR camera 215 5 0
+WRTREPARENTTO camera localToon
+#PLAY_ANIM npc "right-hand-start" 1
+WAIT 1
+REPARENTTO cogs camera
+LERP_SCALE cogs 1.875 1.875 1.875 0.5
+WAIT 1.0833
+#LOOP_ANIM npc "right-hand" 1
+FUNCTION npc "angryEyes"
+FUNCTION npc "blinkEyes"
+LOCAL_CHAT_CONFIRM npc QuestScript101_1 "CFReversed" tomDialogue_01
+LOCAL_CHAT_CONFIRM npc QuestScript101_2 "CFReversed" tomDialogue_02
+REPARENTTO cogs hidden
+REPARENTTO toonBuilding camera
+LOCAL_CHAT_CONFIRM npc QuestScript101_3 "CFReversed" tomDialogue_03
+REPARENTTO toonBuilding hidden
+REPARENTTO cogBuilding camera
+FUNCTION npc "sadEyes"
+FUNCTION npc "blinkEyes"
+LOCAL_CHAT_CONFIRM npc QuestScript101_4 "CFReversed" tomDialogue_04
+REPARENTTO cogBuilding hidden
+REPARENTTO squirt1 camera
+FUNCTION npc "normalEyes"
+FUNCTION npc "blinkEyes"
+LOCAL_CHAT_CONFIRM npc QuestScript101_5 "CFReversed" tomDialogue_05
+REPARENTTO squirt1 hidden
+REPARENTTO squirt2 camera
+LOCAL_CHAT_CONFIRM npc QuestScript101_6 "CFReversed" tomDialogue_06
+PLAY_ANIM npc 'right-hand-start' -1.8
+LERP_SCALE squirt2 1 1 0.01 0.5
+WAIT 0.5
+REPARENTTO squirt2 hidden
+WAIT 0.6574
+LOOP_ANIM npc 'neutral' 1
+LOCAL_CHAT_CONFIRM npc QuestScript101_7 "CFReversed" tomDialogue_07
+# Make it look like the client has no inventory. Since the toon.dc
+# specifies that the user really does have 1 of each item, we will 
+# just put on a show for the client of not having any items then
+# handing them out.
+SET_INVENTORY 4 0 0
+SET_INVENTORY 5 0 0
+REPARENTTO inventory camera
+SHOW inventory
+SET_INVENTORY_DETAIL -1
+POSHPRSCALE inventory -0.77 7.42 1.11 0 0 0 0.01 0.01 0.01
+SET_INVENTORY_YPOS 4 0  -0.1
+SET_INVENTORY_YPOS 5 0  -0.1
+LERP_SCALE inventory 3 0.01 3 1
+WAIT 1
+REPARENTTO flower npc "**/1000/**/def_joint_right_hold"
+POSHPRSCALE flower 0.10 -0.14 0.20 180.00 287.10 168.69 0.70 0.70 0.70
+PLAY_ANIM npc 'right-hand-start' 1.8
+WAIT 1.1574
+LOOP_ANIM npc 'right-hand' 1.1
+WAIT 0.8
+WRTREPARENTTO flower camera
+LERP_POSHPRSCALE flower -1.75 4.77 0.00 30.00 180.00 16.39 0.75 0.75 0.75 0.589
+WAIT 1.094
+LERP_POSHPRSCALE flower -1.76 7.42 -0.63 179.96 -89.9 -153.43 0.12 0.12 0.12 1
+PLAY_ANIM npc 'right-hand-start' -1.5
+WAIT 1
+ADD_INVENTORY 5 0 1
+POSHPRSCALE inventory -0.77 7.42 1.11 0 0 0 3 0.01 3
+REPARENTTO flower hidden
+REPARENTTO tart npc "**/1000/**/def_joint_right_hold"
+POSHPRSCALE tart 0.19 0.02 0.00 0.00 0.00 349.38 0.34 0.34 0.34
+PLAY_ANIM npc 'right-hand-start' 1.8
+WAIT 1.1574
+LOOP_ANIM npc 'right-hand' 1.1
+WAIT 0.8
+WRTREPARENTTO tart camera
+LERP_POSHPRSCALE tart -1.37 4.56 0 329.53 39.81 346.76 0.6 0.6 0.6 0.589
+WAIT 1.094
+LERP_POSHPRSCALE tart -1.66 7.42 -0.36 0 30 30 0.12 0.12 0.12 1.0
+PLAY_ANIM npc 'right-hand-start' -1.5
+WAIT 1
+ADD_INVENTORY 4 0 1
+POSHPRSCALE inventory -0.77 7.42 1.11 0 0 0 3 0.01 3
+REPARENTTO tart hidden
+#PLAY_ANIM npc 'neutral' 1
+#WAIT 2.0833
+PLAY_ANIM npc 'right-hand-start' 1
+WAIT 1.0
+HIDE inventory
+REPARENTTO inventory hidden
+SET_INVENTORY_YPOS 4 0  0
+SET_INVENTORY_YPOS 5 0  0
+SET_INVENTORY_DETAIL 0
+POSHPRSCALE inventory 0 0 0 0 0 0 1 1 1
+OBSCURE_LAFFMETER 0
+SHOW laffMeter
+POS laffMeter 0 0 0
+SCALE laffMeter 0.075 0.075 0.075
+LERP_POS laffMeter 1.7 0 0.87 1
+LERP_SCALE laffMeter 0.2 0.2 0.2 0.6
+WAIT 1.0833
+LOOP_ANIM npc "right-hand"
+LOCAL_CHAT_CONFIRM npc QuestScript101_8 "CFReversed" tomDialogue_08
+LOCAL_CHAT_CONFIRM npc QuestScript101_9 "CFReversed" tomDialogue_09
+FUNCTION npc "sadEyes"
+FUNCTION npc "blinkEyes"
+LAFFMETER 15 15
+WAIT 0.1
+LAFFMETER 14 15
+WAIT 0.1
+LAFFMETER 13 15
+WAIT 0.1
+LAFFMETER 12 15
+WAIT 0.1
+LAFFMETER 11 15
+WAIT 0.1
+LAFFMETER 10 15
+WAIT 0.1
+LAFFMETER 9 15
+WAIT 0.1
+LAFFMETER 8 15
+WAIT 0.1
+LAFFMETER 7 15
+WAIT 0.1
+LAFFMETER 6 15
+WAIT 0.1
+LAFFMETER 5 15
+WAIT 0.1
+LAFFMETER 4 15
+WAIT 0.1
+LAFFMETER 3 15
+WAIT 0.1
+LAFFMETER 2 15
+WAIT 0.1
+LAFFMETER 1 15
+WAIT 0.1
+LAFFMETER 0 15
+LOCAL_CHAT_CONFIRM npc QuestScript101_10 "CFReversed" tomDialogue_10
+FUNCTION npc "normalEyes"
+FUNCTION npc "blinkEyes"
+LAFFMETER 15 15
+WAIT 0.5
+LERP_POS laffMeter 0.15 0.15 0.15 1
+LERP_SCALE laffMeter 0.085 0.085 0.085 0.6
+PLAY_ANIM npc "right-hand-start" -2
+WAIT 1.0625
+LOOP_ANIM npc "neutral"
+WAIT 0.5
+LERP_HPR npc -50 0 0 0.5
+FUNCTION npc "surpriseEyes"
+PLAY_ANIM npc "right-point-start" 1.5
+WAIT 0.6944
+LOOP_ANIM npc "right-point"
+LOCAL_CHAT_CONFIRM npc QuestScript101_11 "CFReversed" tomDialogue_11
+LOCAL_CHAT_CONFIRM npc QuestScript101_12 "CFReversed" tomDialogue_12
+PLAY_ANIM npc "right-point-start" -1
+LERP_HPR npc -0.068 0 0 0.75
+WAIT 1.0417
+FUNCTION npc "angryEyes"
+FUNCTION npc "blinkEyes"
+LOOP_ANIM npc "neutral"
+FUNCTION localToon "questPage.showQuestsOnscreenTutorial"
+LOCAL_CHAT_CONFIRM npc QuestScript101_13 "CFReversed" tomDialogue_13
+FUNCTION localToon "questPage.hideQuestsOnscreenTutorial"
+LOCAL_CHAT_CONFIRM npc QuestScript101_14 1 "CFReversed" tomDialogue_14
+FUNCTION npc "normalEyes"
+FUNCTION npc "blinkEyes"
+# Cleanup
+UPON_TIMEOUT FUNCTION tart "removeNode"
+UPON_TIMEOUT FUNCTION flower "removeNode"
+UPON_TIMEOUT FUNCTION cogs "removeNode"
+UPON_TIMEOUT FUNCTION toonBuilding "removeNode"
+UPON_TIMEOUT FUNCTION cogBuilding "removeNode"
+UPON_TIMEOUT FUNCTION squirt1 "removeNode"
+UPON_TIMEOUT FUNCTION squirt2 "removeNode"
+UPON_TIMEOUT LOOP_ANIM npc "neutral"
+UPON_TIMEOUT HIDE inventory
+UPON_TIMEOUT SET_INVENTORY_DETAIL 0
+UPON_TIMEOUT SHOW laffMeter
+UPON_TIMEOUT POS laffMeter 0.15 0.15 0.15
+UPON_TIMEOUT SCALE laffMeter 0.085 0.085 0.085
+UPON_TIMEOUT POSHPRSCALE inventory 0 0 0 0 0 0 1 1 1
+POS localToon 0.776 14.6 0
+HPR localToon 47.5 0 0
 FINISH_QUEST_MOVIE
-
-
 ID quest_incomplete_110
 DEBUG "quest assign 110"
 LOAD_DIALOGUE harryDialogue_01 "phase_3.5/audio/dial/CC_harry_tutorial_questscript01.mp3"
@@ -172,7 +311,6 @@ UPON_TIMEOUT COLOR_SCALE bookOpenButton 1 1 1 1
 UPON_TIMEOUT TOON_HEAD npc 0 0 0
 UPON_TIMEOUT SHOW bookOpenButton
 FINISH_QUEST_MOVIE
-
 ID tutorial_blocker
 LOAD_DIALOGUE blockerDialogue_01 "phase_3.5/audio/dial/CC_flippy_tutorial_blocker01.mp3"
 LOAD_DIALOGUE blockerDialogue_02 "phase_3.5/audio/dial/CC_flippy_tutorial_blocker02.mp3"
@@ -238,7 +376,6 @@ UPON_TIMEOUT ARROWS_OFF
 UPON_TIMEOUT OBSCURE_CHAT 0 0 
 UPON_TIMEOUT REPARENTTO camera localToon
 FINISH_QUEST_MOVIE
-
 ID gag_intro
 SEND_EVENT "disableGagPanel"
 SEND_EVENT "disableBackToPlayground"
@@ -313,33 +450,26 @@ UPON_TIMEOUT ARROWS_OFF
 UPON_TIMEOUT SHOW inventory
 UPON_TIMEOUT SEND_EVENT "enableGagPanel"
 UPON_TIMEOUT SEND_EVENT "enableBackToPlayground"
-
 ID quest_incomplete_120
 CHAT_CONFIRM npc QuestScript120_1
 # ANIM
 CHAT_CONFIRM npc QuestScript120_2 1
 FINISH_QUEST_MOVIE
-
 ID quest_assign_121
 CHAT_CONFIRM npc QuestScript121_1 1
 FINISH_QUEST_MOVIE
-
 ID quest_assign_130
 CHAT_CONFIRM npc QuestScript130_1 1
 FINISH_QUEST_MOVIE
-
 ID quest_assign_131
 CHAT_CONFIRM npc QuestScript131_1 1
 FINISH_QUEST_MOVIE
-
 ID quest_assign_140
 CHAT_CONFIRM npc QuestScript140_1 1
 FINISH_QUEST_MOVIE
-
 ID quest_assign_141
 CHAT_CONFIRM npc QuestScript141_1 1
 FINISH_QUEST_MOVIE
-
 ID quest_incomplete_145
 CHAT_CONFIRM npc QuestScript145_1 1
 LOAD frame "phase_4/models/gui/tfa_images" "FrameBlankA"
@@ -356,8 +486,6 @@ REPARENTTO frame hidden
 CHAT_CONFIRM npc QuestScript145_2 1
 UPON_TIMEOUT FUNCTION frame "removeNode"
 FINISH_QUEST_MOVIE
-
-
 ID quest_incomplete_150
 CHAT_CONFIRM npc QuestScript150_1
 ARROWS_ON  1.65 0.51 -120 1.65 0.51 -120

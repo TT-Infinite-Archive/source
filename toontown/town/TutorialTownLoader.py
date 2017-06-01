@@ -27,8 +27,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.prologueIntro = None
         self.islands = []
         self.currentIsland = None
-        self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm_loop.ogg'
-        self.activityMusicFile = ''
+        self.musicFile = 'phase_3.5/audio/bgm/TC_SZ.ogg'
+        self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
 
         font = ToontownGlobals.getMinnieFont()
 
@@ -54,19 +54,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
 
-        dna = ToonDNA.ToonDNA()
-        dnaList = ('pls', 'ls', 'l', 'm', 20, 0, 20, 20, 98, 27, 0, 27, 38, 27)
-        dna.newToonFromProperties(*dnaList)
-        base.localAvatar.setDNA(dna)
-
-        # TODO: Set Surlee's dna color to 9
-
-        base.localAvatar.setName('Doctor Surlee')
-        # base.cr.playGame.getPlace().exitWalk()
-
     def enterStreet(self, requestStatus):
         TTTownLoader.TTTownLoader.enterStreet(self, requestStatus)
-        self.loadInfinite()
+        base.localAvatar.setCameraFov(52)
+        # self.loadInfinite()
         messenger.send('islands-loaded')
 
     def exit(self):
@@ -84,6 +75,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.nodeDict[20001]
 
     def enterIntroduction(self):
+        # base.cr.playGame.getPlace().exitWalk()
 
         nametag2d = render2d.findAllMatches('**/Nametag2d')
         nametag2d.hide()
@@ -96,20 +88,31 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.label2.setPos(0, self.calcLabelY())
         self.label2.reparentTo(aspect2d)
 
-        self.infiniteDebutMusic = loader.loadMusic('phase_3/audio/bgm/toontown_infinite_prologue_1.ogg')
-        base.playMusic(self.infiniteDebutMusic, looping=0)
+        # self.infiniteDebutMusic = loader.loadMusic('phase_3/audio/bgm/toontown_infinite_prologue_1.ogg')
+        # base.playMusic(self.infiniteDebutMusic, looping=0)
 
-        self.logo = OnscreenImage(
-            parent=base.a2dTopCenter, image='phase_3/maps/toontown-logo.png',
-            scale=(0.9, 1, 0.4), pos=(0, 0, -0.90))
-        self.logo.setTransparency(TransparencyAttrib.MAlpha)
+        # self.logo = OnscreenImage(
+            # parent=base.a2dTopCenter, image='phase_3/maps/toontown-logo.png',
+            # scale=(0.9, 1, 0.4), pos=(0, 0, -0.90))
+        # self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         if self.prologueIntro is not None:
             self.prologueIntro.finish()
             self.prologueIntro = None
 
         self.prologueIntro = Sequence(
-            Func(base.camera.setPos, 0, 0, 100),
+            Wait(3),
+            Func(base.localAvatar.disableAvatarControls),
+            Func(base.transitions.fadeOut, 2),
+            Wait(2),
+            Func(base.localAvatar.detachCamera),
+            Func(base.localAvatar.collisionsOff),
+            Func(base.localAvatar.stopTrackAnimToSpeed),
+            Func(base.localAvatar.stopUpdateSmartCamera),
+            Wait(3),
+            Parallel(
+                Func(base.camera.setPos, 0, 0, 200),
+                Func(base.transitions.fadeIn, 2)),
             Wait(8),
             LerpColorScaleInterval(
                 self.label, 2, Vec4(1, 1, 1, 1), Vec4(0, 0, 0, 0),
@@ -129,12 +132,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             Wait(5),
             LerpPosHprInterval(base.camera, 6, Vec3(0, 0, 100), Vec3(0, 0, 0),
                                Vec3(0, 0, -200), Vec3(0, 0, 0), blendType='easeInOut'),
-            #Func(self.exitIntroduction())
         )
         self.prologueIntro.start()
 
     def exitIntroduction(self):
-        base.cr.playGame.getPlace().enterWalk()
         if self.prologueIntro is not None:
             self.prologueIntro.finish()
             self.prologueIntro = None
@@ -152,6 +153,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def loadInfinite(self):
         # We use this space node to put all space objects in it so that we can simulate gravity pulls
         self.space = render.attachNewNode('SpaceNode')
+        self.enterIntroduction()
 
         self.startInfiniteLowGravity()
         render.setColorScale(0.4, 0.4, 0.45, 1)
@@ -187,13 +189,14 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.islands.append(island)
 
         # Tutorial Terrace Island
+        # Upon entering this island, unload the infinite and show the tutorial street with the flunky. This is the end of the space course.
         island2 = Island(self.space)
         loader.loadModel('phase_3.5/models/props/tutorial_street.bam').reparentTo(island2)
         island2.setPosHpr(-479, -53, -25, 150, 35, -20)
         island2.setup(80, 2)
         self.islands.append(island2)
 
-        # The Docks Island
+        # The Harbor Boat
         ddBoat = Island(self.space)
         loader.loadModel('phase_6/models/modules/donalds_boat.bam').reparentTo(ddBoat)
         ddBoat.setPosHpr(-340, -135, 50, 215, 0, -65)

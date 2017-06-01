@@ -267,7 +267,7 @@ def badGuildName(wantSelf=0):
     return 'Revoked %s as a guild name' % target.getGuildName()
 
 
-@magicWord(category=CATEGORY_PROGRAMMER, types=[int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def joinGuild(guildId=0):
     target = spellbook.getTarget()
     invoker = spellbook.getInvoker()
@@ -284,7 +284,7 @@ def joinGuild(guildId=0):
     simbase.air.guildManager.d_adminJoinGuild(invoker.doId, guildId)
 
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def leaveGuild():
     invoker = spellbook.getInvoker()
     if invoker is None or invoker.getGuildId() == 0:
