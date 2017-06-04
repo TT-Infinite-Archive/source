@@ -11660,7 +11660,7 @@ NPCToonDict = {20000: (-1,
          16),
         'm',
         0,
-        NPC_REGULAR),
+        NPC_SPECIALQUESTGIVER),
 # Allen
 91923: (-1,
         lnames[91923],
@@ -11743,7 +11743,7 @@ else:
      1,
      NPC_REGULAR)
 del lnames
-BlockerPositions = {TTLocalizer.Flippy: (Point3(207.4, 18.81, -0.475), 90.0)}
+BlockerPositions = {TTLocalizer.Flippy: (Point3(207.4, 18.81, -0.475), 90.0), TTLocalizer.Gideon: (Point3(83.353, 20.002, -0.475), 90.0)}
 zone2NpcDict = {}
 
 def generateZone2NpcDict():

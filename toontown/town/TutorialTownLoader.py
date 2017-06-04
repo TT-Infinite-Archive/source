@@ -29,6 +29,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.currentIsland = None
         self.musicFile = 'phase_3.5/audio/bgm/TC_SZ.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
+        self.music = base.loadMusic(self.musicFile)
 
         font = ToontownGlobals.getMinnieFont()
 
@@ -50,6 +51,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.createHood(dnaFile, loadStorage=0)
         self.alterDictionaries()
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
+        # self.loadInfinite()
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
@@ -62,6 +64,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
     def exit(self):
         TTTownLoader.TTTownLoader.exit(self)
+        self.unloadInfinite()
 
     def loadBattleAnims(self):
         Toon.loadTutorialBattleAnims()
@@ -75,7 +78,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.nodeDict[20001]
 
     def enterIntroduction(self):
-        # base.cr.playGame.getPlace().exitWalk()
 
         nametag2d = render2d.findAllMatches('**/Nametag2d')
         nametag2d.hide()
@@ -88,8 +90,9 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.label2.setPos(0, self.calcLabelY())
         self.label2.reparentTo(aspect2d)
 
-        # self.infiniteDebutMusic = loader.loadMusic('phase_3/audio/bgm/toontown_infinite_prologue_1.ogg')
-        # base.playMusic(self.infiniteDebutMusic, looping=0)
+        self.infiniteIntroBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_intro.ogg')
+        self.infiniteDebutBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_debut.ogg')
+        self.infiniteBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_bgm.ogg')
 
         # self.logo = OnscreenImage(
             # parent=base.a2dTopCenter, image='phase_3/maps/toontown-logo.png',
@@ -101,15 +104,13 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             self.prologueIntro = None
 
         self.prologueIntro = Sequence(
-            Wait(3),
+            Func(self.music.stop),
+            Func(self.infiniteIntroBGM.play),
             Func(base.localAvatar.disableAvatarControls),
-            Func(base.transitions.fadeOut, 2),
-            Wait(2),
             Func(base.localAvatar.detachCamera),
             Func(base.localAvatar.collisionsOff),
             Func(base.localAvatar.stopTrackAnimToSpeed),
             Func(base.localAvatar.stopUpdateSmartCamera),
-            Wait(3),
             Parallel(
                 Func(base.camera.setPos, 0, 0, 200),
                 Func(base.transitions.fadeIn, 2)),
@@ -132,6 +133,19 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             Wait(5),
             LerpPosHprInterval(base.camera, 6, Vec3(0, 0, 100), Vec3(0, 0, 0),
                                Vec3(0, 0, -200), Vec3(0, 0, 0), blendType='easeInOut'),
+            Wait(2),
+            Func(base.transitions.fadeOut, 3),
+            Wait(3),
+            Func(base.transitions.fadeIn, 3),
+            Func(base.localAvatar.attachCamera),
+            Func(base.localAvatar.collisionsOn),
+            Func(base.localAvatar.startTrackAnimToSpeed),
+            Func(base.localAvatar.startUpdateSmartCamera),
+            Wait(4),
+            Func(base.localAvatar.enableAvatarControls),
+            Func(self.infiniteDebutBGM.play),
+            Wait(161),
+            Func(self.infiniteBGM.play, looping=1)
         )
         self.prologueIntro.start()
 
@@ -148,7 +162,9 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.label2.setPos(0, 0)
         self.label2.setText('')
 
-        self.infiniteDebutMusic.stop()
+        self.infiniteIntro.stop()
+        self.infiniteDebut.stop()
+        self.infiniteBGM.stop()
 
     def loadInfinite(self):
         # We use this space node to put all space objects in it so that we can simulate gravity pulls
@@ -158,9 +174,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.startInfiniteLowGravity()
         render.setColorScale(0.4, 0.4, 0.45, 1)
         base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
-
-        self.infiniteDebutMusic = loader.loadMusic('phase_3.5/audio/bgm/infinite_debut.ogg')
-        base.playMusic(self.infiniteDebutMusic, looping=0)
 
         # Skybox
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/infinite_sky.bam')

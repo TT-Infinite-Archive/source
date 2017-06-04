@@ -15,6 +15,7 @@ from toontown.suit import SuitDNA
 from toontown.suit import Suit
 from toontown.quest import QuestParser
 from toontown.toon import DistributedNPCSpecialQuestGiver
+from toontown.toon import Toon
 from toontown.toonbase import TTLocalizer
 from toontown.chat.ChatGlobals import CFSpeech
 
@@ -147,16 +148,14 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         self.notify.info('Tutorial movie: Play.')
         self.mickeyMovie.play()
 
-        fovZoom = LerpFunc(base.localAvatar.setCameraFov, 1, 52, 75, 'easeOut', [], "zoom")
-
-        self.toonEntering = Sequence(Wait(7), Func(fovZoom.start))
-        self.toonEntering.start()
-
+        # fovZoom = LerpFunc(base.localAvatar.setCameraFov, 1, 52, 75, 'easeOut', [], "zoom")
+        # self.toonEntering = Sequence(Wait(7), Func(fovZoom.start))
+        # self.toonEntering.start()
 
     def createSuit(self):
         self.suit = Suit.Suit()
         suitDNA = SuitDNA.SuitDNA()
-        suitDNA.newSuit('tbc')
+        suitDNA.newSuit('f')
         self.suit.setDNA(suitDNA)
         self.suit.nametag.setNametag2d(None)
         self.suit.nametag.setNametag3d(None)

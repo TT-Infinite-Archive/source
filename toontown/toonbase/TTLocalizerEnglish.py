@@ -79,6 +79,7 @@ SuperGoofy = 'SuperGoofy'
 Pluto = 'Pluto'
 WesternPluto = 'WesternPluto'
 Flippy = 'Flippy'
+Gideon = 'Gideon'
 Chip = 'Chip'
 Dale = 'Dale'
 JailbirdDale = 'JailbirdDale'
@@ -642,7 +643,13 @@ TheBrrrghTrackQuestDict = {GREETING: '',
  LEAVING: 'Good luck.  Return to me when you have mastered your new skill.'}
 QuestDialog_3225 = {QUEST: "Oh, thanks for coming, _avName_!\x07The Cogs in the neighborhood frightened away my delivery person.\x07I don't have anyone to deliver this salad to _toNpcName_!\x07Can you do it for me? Thanks so much!_where_"}
 QuestDialog_2910 = {QUEST: 'Back so soon?\x07Great job on the spring.\x07The final item is a counter weight.\x07Stop by and see _toNpcName_ and bring back whatever you can get._where_'}
-QuestDialogDict = {160: {GREETING: '',
+QuestDialogDict = {100: {GREETING: 'Test test its working. Defeat the Hollywoods yo.\x07Next page.\x07Fuck the streets of New York, your an n word.\x07GAH!',
+       QUEST: "Gunga",
+       INCOMPLETE_PROGRESS: TheCogs + ' are out in the streets, through the tunnels.',
+       INCOMPLETE_WRONG_NPC: 'Good job defeating those Cogs. Now go to the Toon Headquarters for your next step!',
+       COMPLETE: 'Good job yo',
+       LEAVING: QuestsDefaultLeaving},
+160: {GREETING: '',
        QUEST: "Ok, now I think you are ready for something more rewarding.\x07If you can defeat 3 Bossbots I'll give you a little bonus.",
        INCOMPLETE_PROGRESS: TheCogs + ' are out in the streets, through the tunnels.',
        INCOMPLETE_WRONG_NPC: 'Good job defeating those Cogs. Now go to the Toon Headquarters for your next step!',
@@ -3338,11 +3345,11 @@ DoorWhoAppendix = ' who?'
 DoorNametag = 'Door'
 FADoorCodes_UNLOCKED = None
 FADoorCodes_TALK_TO_TOM = 'You need gags! Go talk to Tutorial Tom!'
-FADoorCodes_DEFEAT_FLUNKY_HQ = 'Come back here when you have defeated the Flunky!'
+FADoorCodes_DEFEAT_FLUNKY_HQ = "The door to this Toon Headquarters appears to be locked."
 FADoorCodes_TALK_TO_HQ = 'Go get your reward from HQ Harry!'
 FADoorCodes_WRONG_DOOR_HQ = 'Wrong door! Take the other door to the neighborhood!'
 FADoorCodes_GO_TO_PLAYGROUND = 'Wrong way! You need to go to the neighborhood!'
-FADoorCodes_DEFEAT_FLUNKY_TOM = 'Walk up to The Big Cheese and fight it!'
+FADoorCodes_DEFEAT_FLUNKY_TOM = 'Walk up to the Flunky and fight it!'
 FADoorCodes_TALK_TO_HQ_TOM = 'Go get your reward from Toon Headquarters!'
 FADoorCodes_SUIT_APPROACHING = None
 FADoorCodes_BUILDING_TAKEOVER = "Watch out! There's a Cog in there!"
@@ -5334,11 +5341,12 @@ NPCForceAcknowledgeMessage8 = 'Great! You made a new friend!\n\n\n\n\n\n\n\n\nYo
 NPCForceAcknowledgeMessage9 = 'Good job using the phone!\n\n\n\n\n\n\n\n\nReturn to Toon Headquarters to claim your reward.'
 TTIAlphaWelcomeMessage = "Welcome to the Toontown Infinite Alpha!\n\nIf you find any bugs, please immediately report them on our Discord server in the #bug-report text channel.\n\nThis is just the beginning. As time goes on, we'll be updating the game with more content.\n\nThanks for helping us test the game!"
 ToonSleepString = '. . . ZZZ . . .'
-MovieTutorialReward1 = 'You received 1 Throw point! When you get 10, the gag will be as strong as it can be!'
-MovieTutorialReward2 = 'You also received 1 Squirt point!'
+MovieTutorialReward1 = 'You received 1 Throw point! When you get 10, you will get a new gag!'
+MovieTutorialReward2 = 'You received 1 Squirt point! When you get 10, you will get a new gag!'
 MovieTutorialReward3 = 'Good job! You completed your first ToonTask!'
-MovieTutorialReward4 = "Error. Simulation offline. For more information please read this simulation's crash report located in G:/Programs/Toon-Torial-Simulation/logs/tutorial-crash-report.txt."
-MovieTutorialReward5 = "Terminating session..."
+MovieTutorialReward4 = 'Go to Toon Headquarters for your reward!'
+MovieTutorialReward5 = 'Have fun!'
+gideonTutorialBattleDialogue1 = 'Wait! Stop!'
 BattleGlobalTracks = ['toon-up',
  'trap',
  'lure',
@@ -6034,21 +6042,21 @@ QuestScriptTutorialMickey_4 = "Come to me. Now."
 QuestScriptTutorialMinnie_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMinnie_2 = 'Sure, %s!'
 QuestScriptTutorialMinnie_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
-QuestScript101_1 = 'These are Governaughts. They are robots that have taken over Toontown.'
-QuestScript101_2 = 'There are many different kinds of Governaughts and...'
-QuestScript101_3 = '...they turned all the Toon buildings...'
-QuestScript101_4 = '...into Governaught buildings!'
-QuestScript101_5 = "But even with the new technology the Governaughts have, they still have no immunity to those jokes! That's why you're here."
-QuestScript101_6 = "You are being recruited! Sorry to tell you on such short notice! Oh, and there is no turning back."
-QuestScript101_7 = 'We still need you to know a lot about those "Gags" though. So here, take these for now. Pretty old school compared to what those Toons are cooking up today but it will do.'
-QuestScript101_8 = "Oh, and you also need a Laff meter to track your happiness I guess. You won't be needing this too much longer though, but all of this is just for research."
-QuestScript101_9 = "You ran this course thousands of times, but due to the loop you've probably forgot everything. That's why this program exists."
-QuestScript101_10 = 'Alright. Going sad is a bad thing and healthy Toons are happy Toons. Got it?'
-QuestScript101_11 = 'Alright good. See that rusty old Cog just outside? Go defeat it. It is only a level 12 so you should have no problem with it.' # Governaughts do not know better. A 15 laff Toon with two level 1 gags cant defeat a level 12 Cog. Philip lost his memory.
-QuestScript101_12 = 'We are analyzing everything you do in this simulation so please perform nicely.'
-QuestScript101_13 = 'Here take this once rolled up parchment paper that states your objective on it in case you forget.'
-QuestScript101_14 = "Now Hurry up! Go defeat The Big Cheese! We don't have all day!"
-QuestScript110_1 = 'Good work defeating the Cog. Let me give you a Shticker Book...'
+QuestScript101_1 = 'These are Cogs. They are robots that are trying to take over Toontown.'
+QuestScript101_2 = 'There are many different kinds of Cogs and...'
+QuestScript101_3 = '...they turn happy Toon buildings...'
+QuestScript101_4 = '...into ugly Cog buildings!'
+QuestScript101_5 = "But Cogs can't take a joke!"
+QuestScript101_6 = 'A good gag will stop them.'
+QuestScript101_7 = 'There are lots of gags, but take these to start.'
+QuestScript101_8 = 'Oh! You also need a Laff meter!'
+QuestScript101_9 = "If your Laff meter gets too low, you'll be sad!"
+QuestScript101_10 = 'A happy Toon is a healthy Toon!'
+QuestScript101_11 = "OH NO! There's a Cog outside my shop!"
+QuestScript101_12 = 'HELP ME, PLEASE! Defeat that Cog!'
+QuestScript101_13 = 'Here is your first ToonTask!'
+QuestScript101_14 = 'Hurry up! Go defeat that Flunky!'
+QuestScript110_1 = 'Good work defeating the Flunky. Let me give you a Shticker Book...'
 QuestScript110_2 = 'The book is full of good stuff.'
 QuestScript110_3 = "Open it, and I'll show you."
 QuestScript110_4 = "The map shows where you've been."

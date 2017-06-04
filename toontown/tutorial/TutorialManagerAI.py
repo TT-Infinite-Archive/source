@@ -12,6 +12,7 @@ from toontown.toon import NPCToons
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.collectibles import CollectibleInventoryGlobals
+from toontown.toon.DistributedNPCBlockerAI import DistributedNPCBlockerAI
 
 
 class TutorialFSM(FSM):
@@ -56,11 +57,21 @@ class TutorialFSM(FSM):
             self.suit.requestDelete()
 
     def enterHQ(self):
-        self.building.door.setDoorLock(FADoorCodes.TALK_TO_HQ)
-        self.hq.door0.setDoorLock(FADoorCodes.UNLOCKED)
-        self.hq.door1.setDoorLock(FADoorCodes.UNLOCKED)
-        self.hq.insideDoor0.setDoorLock(FADoorCodes.TALK_TO_HQ)
-        self.hq.insideDoor1.setDoorLock(FADoorCodes.TALK_TO_HQ)
+        # Call these later on:
+        # self.building.door.setDoorLock(FADoorCodes.TALK_TO_HQ)
+        # self.hq.door0.setDoorLock(FADoorCodes.UNLOCKED)
+        # self.hq.door1.setDoorLock(FADoorCodes.UNLOCKED)
+        # self.hq.insideDoor0.setDoorLock(FADoorCodes.TALK_TO_HQ)
+        # self.hq.insideDoor1.setDoorLock(FADoorCodes.TALK_TO_HQ)
+
+
+        # Spawn the real Gideon right after the Flunky battle.
+        npcDesc = NPCToons.NPCToonDict.get(91922)
+        self.gideon = NPCToons.createNPC(self.air, 91922, npcDesc, self.zones['street'])
+        self.gideon.setTutorial(1)
+        self.gideon.setHq(1)
+        self.gideon.d_setPos(48.700, 19.945, -0.475)
+        self.gideon.d_setH(90)
 
     def enterTunnel(self):
         npcDesc = NPCToons.NPCToonDict.get(20001)

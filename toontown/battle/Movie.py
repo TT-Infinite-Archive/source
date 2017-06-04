@@ -353,7 +353,11 @@ class Movie(DirectObject.DirectObject):
             return 'TutorialTom-' + hook
 
         from toontown.toon import NPCToons
-        self.tutorialTom = NPCToons.createLocalNPC(20001)
+        toon = Toon.Toon()
+        self.tutorialTom = NPCToons.createLocalNPC(20000)
+        self.gideon = NPCToons.createLocalNPC(91922)
+        self.gideon.setPosHpr(83.353, 20.002, -0.475, -269.146, 0, 0)
+
         self.tutorialTom.uniqueName = uniqueName
         if config.GetString('language', 'english') == 'japanese':
             self.tomDialogue03 = base.loadSfx('phase_3.5/audio/dial/CC_tom_movie_tutorial_reward01.ogg')
@@ -366,6 +370,10 @@ class Movie(DirectObject.DirectObject):
             self.tomDialogue05 = None
             self.musicVolume = 0.9
         music = base.cr.playGame.place.loader.battleMusic
+
+        walkInterval = self.gideon.posInterval(4, Point3(48.700, 19.945, -0.475), startPos=Point3(83.353, 20.002, -0.475))
+        cameraInterval = base.camera.posInterval(4, Point3(74, 19.88, 3.48), startPos=Point3(34, 19.88, 3.48))
+
         self.track1 = Sequence(Wait(1.0), Func(self.rewardPanel.initQuestFrame, base.localAvatar,
                                                copy.deepcopy(base.localAvatar.quests)), Wait(1.0),
                                Sequence(*self.questList), Wait(1.0), Func(self.rewardPanel.hide),
@@ -393,12 +401,22 @@ class Movie(DirectObject.DirectObject):
                                Sequence(Wait(0.5),
                                         Func(self.tutorialTom.setChatAbsolute, TTLocalizer.MovieTutorialReward5,
                                              CFSpeech | CFTimeout, self.tomDialogue05), Wait(1.0),
-                                        Parallel(
-                                            Func(self.tutorialTom.animFSM.request, 'TeleportOut'),
-                                            Wait(self.tutorialTom.getDuration('teleport')), Wait(1.0),
-                                            Func(base.transitions.fadeOut, 4)),
-                                        Func(self.playTutorialReward_4, 0), name='tutorial-reward-3cb'),
-                               name='tutorial-reward-3c')
+                                        Func(base.localAvatar.animFSM.request, 'Sad'),
+                                        Func(self.gideon.reparentTo, render), Func(self.gideon.show),
+                                        # Func(cameraInterval.start),
+                                        Func(walkInterval.start),
+                                        Func(self.gideon.setChatAbsolute, TTLocalizer.gideonTutorialBattleDialogue1, CFSpeech | CFTimeout),
+                                        Func(self.gideon.animFSM.request, 'run'),
+                                        Wait(4),
+                                        Func(walkInterval.finish),
+                                        Func(self.gideon.animFSM.request, 'neutral'),
+                                        Func(base.transitions.fadeOut, 4),
+                                        Wait(4),
+                                        Func(music.stop),
+                                        Func(self.gideon.reparentTo, hidden), Func(self.gideon.hide),
+                                        Wait(2),
+                                        # Continue
+                                        Func(self.playTutorialReward_4, 0), name='tutorial-reward-3cb'), name='tutorial-reward-3c')
         self.track1.start()
         return
 
