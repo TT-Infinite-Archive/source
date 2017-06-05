@@ -4073,7 +4073,6 @@ struct PlayerAvatarInfo {
     uint32 avId;
     string name;
     uint16 laff;
-    uint16 accessLevel;
 }
 
 dclass Guild {
@@ -4177,8 +4176,7 @@ dclass GuildManager : DistributedObjectGlobal {
 };
 
 dclass PlayerManager : DistributedObjectGlobal {
-    setPlayerList(PlayerAvatarInfo[] players);
-    getPlayerList();
+    setPlayerList(PlayerAvatarInfo[] players) broadcast;
 }
 
 dclass GlobalGroupTracker : DistributedObjectGlobal {

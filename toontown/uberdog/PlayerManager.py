@@ -1,5 +1,5 @@
 from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
-
+from PlayerManagerPlayer import PlayerManagerPlayer
 
 class PlayerManager(DistributedObjectGlobal):
     notify = directNotify.newCategory('PlayerManager')
@@ -12,9 +12,9 @@ class PlayerManager(DistributedObjectGlobal):
         DistributedObjectGlobal.announceGenerate(self)
         self.players = []
 
-    def d_getPlayerList(self):
-        self.sendUpdate('getPlayerList', [])
-
     def setPlayerList(self, players):
         self.notify.debug('Got update player list %s' % players)
-        self.players = players
+        for p in players:
+            player = PlayerManagerPlayer()
+            player.fromList(p)
+            self.players.append(player)

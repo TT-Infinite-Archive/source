@@ -870,7 +870,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
         guildManager = self.csm.air.getGlobalObject('GuildManager')
         guildManager.toonOnline(self.avId, self.avatar.get('setGuildId', [0])[0])
         playerManager = self.csm.air.getGlobalObject('PlayerManager')
-        playerManager.toonOnline(self.avId)
+        playerManager.toonOnline(self.avId, self.avatar)
 
         self.csm.air.writeServerEvent('avatarChosen', self.avId, self.target)
         self.demand('Off')

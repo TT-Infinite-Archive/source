@@ -172,7 +172,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
             'u': CATEGORY_USER.defaultAccess,
             'communitymanager': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
             'community': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
-            'c': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
+            'cm': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
             'moderator': CATEGORY_MODERATOR.defaultAccess,
             'mod': CATEGORY_MODERATOR.defaultAccess,
             'm': CATEGORY_MODERATOR.defaultAccess,

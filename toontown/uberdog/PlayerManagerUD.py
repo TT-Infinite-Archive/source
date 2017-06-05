@@ -14,24 +14,21 @@ class PlayerManagerUD(DistributedObjectGlobalUD):
     def announceGenerate(self):
         DistributedObjectGlobalUD.announceGenerate(self)
 
-    def toonOnline(self, avId):
-        self.notify.debug('Av %s online' % avId)
+    def toonOnline(self, avId, avFields):
+        self.notify.debug('Av %s online %s' % (avId, avFields))
         if avId in self.players:
             self.notify.warning('Toon %s came online but is already online.' % avId)
             return
-        av = self.air.doId2do.get(avId)
-        if av is None:
-            self.notify.warning('Toon %s online but avatar doesn\'t exist.' % avId)
-            return
         player = PlayerManagerPlayer({
-            'name': av.name,
-            'species': av.dna.species,
-            'laff': av.getHp(),
-            'access': av.getAccess()
+            'avId': avId,
+            'name': avFields.get('setName')[0],
+            'laff': avFields.get('setMaxHp')[0]
         })
         self.players[avId] = player
-        self.d_setPlayerList(avId)
-        self.accept(self.air.getAvatarExitEvent(avId), self.toonOffline, extraArgs=[avId])
+        e = self.air.getAvatarExitEvent(avId)
+        self.playerExitEvents.append(e)
+        self.accept(e, self.toonOffline, extraArgs=[avId])
+        self.d_setPlayerList()
 
     def toonOffline(self, avId):
         self.notify.debug('Av %s offline' % avId)
@@ -41,13 +38,10 @@ class PlayerManagerUD(DistributedObjectGlobalUD):
         event = simbase.air.getAvatarExitEvent(avId)
         self.playerExitEvents.remove(event)
         del self.players[avId]
+        self.d_setPlayerList()
 
-    def getPlayerList(self):
-        avId = self.air.getAvatarIdFromSender()
-        self.d_setPlayerList(avId)
-
-    def d_setPlayerList(self, avId):
-        self.sendUpdateToAvatarId(avId, 'setPlayerList', [self.players])
+    def d_setPlayerList(self):
+        self.sendUpdate('setPlayerList', [self.getPlayerLists()])
 
     def getPlayerLists(self):
         return [player.toList() for player in self.players]

@@ -42,6 +42,7 @@ class PlayerPage(ShtikerPage.ShtikerPage):
             text_font=ToontownGlobals.getInterfaceFont(),
             pos=(-0.45, 0.0, 0.6)
         )
+        '''
         self.speciesHeading = TTLabel(
             self.mainFrame,
             relief=None,
@@ -51,6 +52,7 @@ class PlayerPage(ShtikerPage.ShtikerPage):
             text_font=ToontownGlobals.getInterfaceFont(),
             pos=(-0.1, 0.0, 0.6)
         )
+        '''
         self.laffHeading = TTLabel(
             self.mainFrame,
             relief=None,
@@ -60,6 +62,7 @@ class PlayerPage(ShtikerPage.ShtikerPage):
             text_font=ToontownGlobals.getInterfaceFont(),
             pos=(0.1, 0.0, 0.6)
         )
+        '''
         self.accessLevelHeading = TTLabel(
             self.mainFrame,
             relief=None,
@@ -69,6 +72,7 @@ class PlayerPage(ShtikerPage.ShtikerPage):
             text_font=ToontownGlobals.getInterfaceFont(),
             pos=(0.3, 0.0, 0.6)
         )
+        '''
         self.totalPopLabel = OnscreenText(
             parent=self.mainFrame,
             text='',
@@ -154,18 +158,21 @@ class PlayerListItem(DirectFrame):
             text=self.shortenedName,
             text_fg=textColor
         )
+        '''
         self.speciesLabel = TTLabel(
             self.mainFrame,
             pos=(-0.45, 0.0, 0),
             text=self.player.species,
             text_fg=textColor,
         )
+        '''
         self.laffLabel = TTLabel(
             self.mainFrame,
             pos=(-0.45, 0.0, 0),
             text=self.player.laff,
             text_fg=textColor
         )
+        '''
         self.accessLabel = TTLabel(
             self.mainFrame,
             pos=(0.29, 0.0, -0.015),
@@ -173,6 +180,7 @@ class PlayerListItem(DirectFrame):
             text_fg=textColor,
             text_scale=textScale
         )
+        '''
 
     def destroy(self):
         if self.mainFrame is not None:
