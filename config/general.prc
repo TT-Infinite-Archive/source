@@ -101,13 +101,13 @@ want-goofy #f
 want-minigames #t
 want-photo-game #f
 want-travel-game #f
-want-ttc-trolley #f
+want-ttc-trolley #t
 
 # Picnic table board games:
 want-game-tables #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 want-sellbot-headquarters #t
 want-cashbot-headquarters #t
 want-lawbot-headquarters #t
@@ -120,10 +120,6 @@ want-resistance-dance #f
 
 # Cog battles:
 base-xp-multiplier 1.0
-
-# Cog buildings:
-want-cogbuildings #t
-want-cogdominiums #t
 
 # Optional:
 show-total-population #t
@@ -151,8 +147,10 @@ want-live-updates #t
 # Heartbeat
 want-heartbeat #t
 
-# Events
-want-storm-event #f
-
 # Toon patches:
 toon-patch-version 0
+
+# Intel:
+stencil-bits 1
+depth-bits 24
+allow-incomplete-render #f

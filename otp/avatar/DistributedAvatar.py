@@ -252,7 +252,7 @@ class DistributedAvatar(DistributedActor, Avatar):
     def getDialogueArray(self):
         return None
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_MODERATOR)
 def warp():
     """
     warp the target to the invoker's current position, and rotation.
@@ -264,7 +264,7 @@ def warp():
     target.setPosHpr(invoker.getPos(), invoker.getHpr())
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[str])
+@magicWord(category=CATEGORY_USER2, types=[str])
 def loop(anim):
     """
     animate the target using animation [anim] on the entire actor.
@@ -273,7 +273,7 @@ def loop(anim):
     target.loop(anim)
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[str, int, str])
+@magicWord(category=CATEGORY_USER2, types=[str, int, str])
 def pose(anim, frame, part=None):
     """
     freeze the target on frame [frame] of animation [anim] on the entire actor,
@@ -283,7 +283,7 @@ def pose(anim, frame, part=None):
     target.pose(anim, frame, partName=part)
 
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[str, int, int, str])
+@magicWord(category=CATEGORY_USER2, types=[str, int, int, str])
 def pingpong(anim, start=None, end=None, part=None):
     """
     animate the target by bouncing back and forth between the start and end, or
@@ -293,7 +293,7 @@ def pingpong(anim, start=None, end=None, part=None):
     target = spellbook.getTarget()
     target.pingpong(anim, partName=part, fromFrame=start, toFrame=end)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[str])
+@magicWord(category=CATEGORY_USER2, types=[str])
 def rightHand(prop=None):
     """
     parents the optional <prop> to the target's right hand node.
@@ -309,7 +309,7 @@ def rightHand(prop=None):
         requestedProp = globalPropPool.getProp(prop)
         requestedProp.reparentTo(rightHand)
 
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER, types=[str])
+@magicWord(category=CATEGORY_USER2, types=[str])
 def leftHand(prop=None):
     """
     parents the optional <prop> to the target's left hand node.

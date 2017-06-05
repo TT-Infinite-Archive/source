@@ -1,13 +1,12 @@
 import atexit
 import copy
-import socket
 import sys
 import types
 import __builtin__
 import tempfile
 import shutil
 import yaml
-
+import os
 
 from direct.directnotify.DirectNotifyGlobal import *
 from panda3d.direct import DCFile
@@ -37,10 +36,11 @@ class DedicatedServer(FSM):
         self.mdPort = 7010
         self.logPort = 7020
         self.mongoPort = 7030
-        self.mongoPath = 'data/multiplayer'
+        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
         self.astronConfig = os.path.join(self.tempDir, 'multiplayer.yml')
 
     def isServerAlive(self):
+        import socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.33)
         return sock.connect_ex(('127.0.0.1', 7000)) == 0

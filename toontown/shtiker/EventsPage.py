@@ -1,4 +1,3 @@
-import urllib
 from pandac.PandaModules import Vec4, Vec3, TextNode, PNMImage, StringStream, Texture, HTTPClient, DocumentSpec, Ramfile, Point3
 from direct.task.Task import Task
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList, DirectCheckButton, OnscreenText
@@ -89,7 +88,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.hostingDecorationList, self.hostingDecorationLabel = self.createListAndLabel(self.hostedPartyDisplay, self.hostingGui, 'decorations', 1)
         self.hostingDateLabel = DirectLabel(parent=self.hostedPartyDisplay, relief=None, text='', scale=TTLocalizer.EPhostingDateLabel, text_align=TextNode.ACenter, text_wordwrap=10, textMayChange=True, pos=self.hostingGui.find('**/date_locator').getPos())
         pos = self.hostingGui.find('**/cancel_text_locator').getPos()
-        self.hostingCancelButton = DirectButton(parent=self.hostedPartyDisplay, relief=None, geom=(self.hostingGui.find('**/cancelPartyButton_up'),
+        self.hostingCancelButton = DirectButton(parent=hidden, relief=None, geom=(self.hostingGui.find('**/cancelPartyButton_up'),
          self.hostingGui.find('**/cancelPartyButton_down'),
          self.hostingGui.find('**/cancelPartyButton_rollover'),
          self.hostingGui.find('**/cancelPartyButton_inactive')), text=TTLocalizer.EventsPageHostTabCancelButton, text_scale=TTLocalizer.EPhostingCancelButton, text_pos=(pos[0], pos[2]), command=self.__doCancelParty)
@@ -103,8 +102,24 @@ class EventsPage(ShtikerPage.ShtikerPage):
         checkedImage = self.hostingGui.find('**/checked_button')
         uncheckedImage = self.hostingGui.find('**/unchecked_button')
         self.publicButton = DirectCheckButton(parent=self.hostedPartyDisplay, relief=None, scale=0.1, boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None), boxImageScale=10, boxRelief=None, text=TTLocalizer.EventsPageHostTabToggleToPublic, text_align=TextNode.ALeft, text_scale=TTLocalizer.EPpublicButton, pos=pos, command=self.__changePublicPrivate, indicator_pos=(-0.7, 0, 0.2))
-        pos = self.hostingGui.find('**/private_text_locator').getPos()
-        self.privateButton = DirectCheckButton(parent=self.hostedPartyDisplay, relief=None, scale=0.1, boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None), boxImageScale=10, boxRelief=None, text=TTLocalizer.EventsPageHostTabToggleToPrivate, text_align=TextNode.ALeft, text_scale=TTLocalizer.EPprivateButton, pos=pos, command=self.__changePublicPrivate, indicator_pos=(-0.7, 0, 0.2))
+        if base.isSinglePlayer:
+            pos = self.hostingGui.find('**/private_text_locator').getPos()
+            self.privateButton = DirectCheckButton(parent=hidden, relief=None, scale=0.1,
+                                                   boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None),
+                                                   boxImageScale=10, boxRelief=None,
+                                                   text=TTLocalizer.EventsPageHostTabToggleToPrivate,
+                                                   text_align=TextNode.ALeft, text_scale=TTLocalizer.EPprivateButton,
+                                                   pos=pos, command=self.__changePublicPrivate,
+                                                   indicator_pos=(-0.7, 0, 0.2))
+        else:
+            pos = self.hostingGui.find('**/private_text_locator').getPos()
+            self.privateButton = DirectCheckButton(parent=self.hostedPartyDisplay, relief=None, scale=0.1,
+                                                   boxBorder=0.08, boxImage=(uncheckedImage, checkedImage, None),
+                                                   boxImageScale=10, boxRelief=None,
+                                                   text=TTLocalizer.EventsPageHostTabToggleToPrivate,
+                                                   text_align=TextNode.ALeft, text_scale=TTLocalizer.EPprivateButton,
+                                                   pos=pos, command=self.__changePublicPrivate,
+                                                   indicator_pos=(-0.7, 0, 0.2))
         self.confirmCancelPartyEvent = 'confirmCancelPartyEvent'
         self.accept(self.confirmCancelPartyEvent, self.confirmCancelOfParty)
         self.confirmCancelPartyGui = TTDialog.TTGlobalDialog(dialogName=self.uniqueName('confirmCancelPartyGui'), doneEvent=self.confirmCancelPartyEvent, message=TTLocalizer.EventsPageConfirmCancel % int(PartyGlobals.PartyRefundPercentage * 100.0), style=TTDialog.YesNo, okButtonText=OTPLocalizer.DialogYes, cancelButtonText=OTPLocalizer.DialogNo)
@@ -148,8 +163,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
          146 / 255.0,
          113 / 255.0,
          1), textMayChange=0)
-        curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
-        self.calendarGuiMonth = CalendarGuiMonth(self.calendarDisplay, curServerDate, onlyFutureMonthsClickable=True)
+        self.calendarGuiMonth = None # To be set upon tab's first opening.
         pos = (0.35, 0, -0.69)
         self.toontownTimeGui = ServerTimeGui(self.calendarDisplay, pos)
         return
@@ -488,7 +502,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         ShtikerPage.ShtikerPage.unload(self)
         return
 
-
     def enter(self):
         self.updatePage()
         ShtikerPage.ShtikerPage.enter(self)
@@ -568,7 +581,10 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.invitationDisplay.hide()
             self.calendarDisplay.show()
             self.newsDisplay.hide()
-            self.calendarGuiMonth.updateTime()
+            if not self.calendarGuiMonth:
+                curServerDate = base.cr.toontownTimeManager.getCurServerDateTime()
+                self.calendarGuiMonth = CalendarGuiMonth(self.calendarDisplay, curServerDate, onlyFutureMonthsClickable=True)
+            self.calendarGuiMonth.changeMonth(0)
         elif self.mode == EventsPage_News:
             self.titleLabel['text'] = ''
             self.hostTab['state'] = DirectGuiGlobals.NORMAL
@@ -768,6 +784,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.articleImages = {}
         self.articleText = {}
         try:
+            import urllib
             urlfile = urllib.urlopen(self.getNewsUrl())
         except IOError:
             self.notify.warning('Could not open %s' % self.getNewsUrl())
@@ -783,6 +800,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             img = PNMImage()
             self.articleImages[index] = img
             try:
+                import urllib
                 self.notify.info('opening %s' % imageUrl)
                 imageFile = urllib.urlopen(imageUrl)
                 data = imageFile.read()
@@ -1005,6 +1023,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         result = True
         urlStrings = ''
         try:
+            import urllib
             urlfile = urllib.urlopen(fileUrl)
             urlStrings = urlfile.read()
             urlfile.close()

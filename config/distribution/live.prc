@@ -6,7 +6,7 @@ server-version SERVER_VERSION
 accountdb-type production
 
 # Temporary configuration for Alpha
-access-level-clamp 100 700
+access-level-clamp 100 400
 
 # MongoDB:
 mongodb-url mongodb://localhost/game
@@ -36,32 +36,31 @@ web-api-endpoint https://localhost:8000/api/
 web-api-token invalid
 
 # Core features:
-want-kaldron-network #f
 want-multiplayer #t
-want-pets #f
-want-parties #f
+want-pets #t
+want-parties #t
 want-achievements #f
 want-grouptracker #f
 
 # Safe zones:
 want-safe-zones #t
 want-toontown-central #t
-want-donalds-dock #f
-want-daisys-garden #f
-want-minnies-melodyland #f
-want-the-burrrgh #f
-want-donalds-dreamland #f
-want-goofy-speedway #f
-want-outdoor-zone #f
-want-golf-zone #f
+want-donalds-dock #t
+want-daisys-garden #t
+want-minnies-melodyland #t
+want-the-burrrgh #t
+want-donalds-dreamland #t
+want-goofy-speedway #t
+want-outdoor-zone #t
+want-golf-zone #t
 want-resistance-grounds #f
 
 # Cog headquarters:
-want-cog-headquarters #f
+want-cog-headquarters #t
 
 # Cog buildings:
-want-cogbuildings #f
-want-cogdominiums #f
+want-cogbuildings #t
+want-cogdominiums #t
 
 # Sellbot boss:
 disable-sos-card 91917
@@ -73,11 +72,11 @@ want-photo-game #f
 want-travel-game #f
 
 # Chat:
-want-whitelist #f
-want-blacklist #f
+want-whitelist #t
+want-blacklist #t
 
 # Developer options:
-want-yin-yang #f
+want-yin-yang #t
 force-skip-tutorial #t
 show-population #f
 want-phone-quest #f

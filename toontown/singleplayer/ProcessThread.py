@@ -1,12 +1,14 @@
 import os
-import subprocess
 import threading
 import time
+import sys
 
 from direct.directnotify import DirectNotifyGlobal
 
 from toontown.singleplayer.SinglePlayerGlobals import LogsPath
 
+if sys.platform != 'android':
+    import subprocess
 
 class ProcessThread(threading.Thread):
     notify = DirectNotifyGlobal.directNotify.newCategory('ProcessThread')
@@ -42,6 +44,7 @@ class ProcessThread(threading.Thread):
             self.killed = True
     
     def run(self):
+        print('Starting %s in %s' % (self.processInfo, self.folder))
         try:
             print('Creating log file....')
             name = self.name.split(' ', 1)[0].lower()

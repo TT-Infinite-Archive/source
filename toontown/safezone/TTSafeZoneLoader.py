@@ -10,11 +10,7 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         SafeZoneLoader.SafeZoneLoader.__init__(self, hood, parentFSM, doneEvent)
         self.playgroundClass = TTPlayground.TTPlayground
 
-        if base.cr.newsManager.isStormEnabled():
-            self.musicFile = 'phase_4/audio/bgm/ttc_storm_bgm.ogg'
-        else:
-            self.musicFile = 'phase_4/audio/bgm/TC_nbrhood.ogg'
-
+        self.musicFile = 'phase_4/audio/bgm/TC_nbrhood.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
         self.dnaFile = 'phase_4/dna/toontown_central_sz.pdna'
         self.safeZoneStorageDNAFile = 'phase_4/dna/storage_TT_sz.pdna'
@@ -44,20 +40,10 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
     def enter(self, requestStatus):
         SafeZoneLoader.SafeZoneLoader.enter(self, requestStatus)
 
-        if base.cr.newsManager.isStormEnabled():
-            self.rain.start(camera, self.rainRender)
-
     def exit(self):
         SafeZoneLoader.SafeZoneLoader.exit(self)
-
-        if base.cr.newsManager.isStormEnabled():
-            self.rain.cleanup()
-            self.rainRender.removeNode()
 
     def unload(self):
         SafeZoneLoader.SafeZoneLoader.unload(self)
         del self.birdSound
-
-        if base.cr.newsManager.isStormEnabled():
-            del self.rain
 

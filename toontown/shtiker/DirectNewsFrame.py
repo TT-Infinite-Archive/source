@@ -369,23 +369,7 @@ class DirectNewsFrame(DirectObject.DirectObject):
                 self.redownloadNews()
 
     def getInGameNewsUrl(self):
-        result = base.config.GetString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/')
-        override = base.config.GetString('in-game-news-url', '')
-        if override:
-            self.notify.info('got an override url,  using %s for in game news' % override)
-            result = override
-        else:
-            try:
-                launcherUrl = base.launcher.getValue('GAME_IN_GAME_NEWS_URL', '')
-                if launcherUrl:
-                    result = launcherUrl
-                    self.notify.info('got GAME_IN_GAME_NEWS_URL from launcher using %s' % result)
-                else:
-                    self.notify.info('blank GAME_IN_GAME_NEWS_URL from launcher, using %s' % result)
-            except:
-                self.notify.warning('got exception getting GAME_IN_GAME_NEWS_URL from launcher, using %s' % result)
-
-        return result
+        return base.config.GetString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/')
 
     def calcIssueVersion(self, dateStr):
         majorVer = 1

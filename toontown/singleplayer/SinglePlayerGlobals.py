@@ -4,15 +4,21 @@ import sys
 
 from panda3d.core import ConfigVariableList
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizer, ToontownGlobals
 
-LogsPath = os.path.join(os.getcwd(), 'logs')
-if hasattr(__builtin__, '__nirai__'):
+LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
+print str(LogsPath)
+if sys.platform == 'android':
+    UberdogTarget = []
+    AITarget = []
+elif hasattr(__builtin__, '__nirai__'):
     UberdogTarget = [__nirai__.filename, '--uberdog']
     AITarget = [__nirai__.filename, '--ai']
 else:
     if sys.platform.startswith('linux'):
         PythonPath = '/usr/bin/python2'
+    elif sys.platform.startswith('win') and os.environ['COMPUTERNAME'] == 'DESKTOP-24G6C5N': # My computer wont use the proper python file ~Drew
+        PythonPath = "C:/Panda3D-1.10.0/python/python.exe"
     else:
         PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
     UberdogTarget = [PythonPath, '-m', 'toontown.uberdog.ServiceStart']

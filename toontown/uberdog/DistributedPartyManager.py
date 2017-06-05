@@ -1,5 +1,4 @@
 from direct.distributed.DistributedObject import DistributedObject
-from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.ChatGlobals import *
 from toontown.parties import PartyGlobals
@@ -87,7 +86,7 @@ class DistributedPartyManager(DistributedObject):
             if base.localAvatar.doId == hostId:
                 for partyInfo in base.localAvatar.hostedParties:
                     if partyInfo.partyId == partyId:
-                        partyInfo.status == PartyGlobals.PartyStatus.Started
+                        partyInfo.status = PartyGlobals.PartyStatus.Started
 
         messenger.send('requestPartyZoneComplete', [hostId, partyId, zoneId])
 
@@ -165,7 +164,7 @@ class DistributedPartyManager(DistributedObject):
             base.cr.playGame.getPlace().handleBookClose()
             return
         hoodId = ToontownGlobals.PartyHood
-        if shardId == base.localAvatar.defaultShard:
+        if shardId == base.localAvatar.defaultShard or shardId == (base.localAvatar.defaultShard - 1):
             shardId = None
         base.cr.playGame.getPlace().requestLeave({'loader': 'safeZoneLoader',
          'where': 'party',

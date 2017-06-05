@@ -21,6 +21,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         self.DISLid = 0
         self.adminAccess = 0
         self.chatMode = 0
+        self.platform = ''
 
     if __dev__:
 
@@ -141,6 +142,19 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
     def getAdminAccess(self):
         return self.adminAccess
+    
+    def setPlatform(self, platform):
+        self.platform = platform
+    
+    def d_setPlatform(self, platform):
+        self.sendUpdate('setPlatform', [platform])
+    
+    def b_setPlatform(self, platform):
+        self.setPlatform(platform)
+        self.d_setPlatform(platform)
+    
+    def getPlatform(self):
+        return self.platform
 
     def extendFriendsList(self, friendId, friendCode):
         for i in xrange(len(self.friendsList)):
@@ -151,7 +165,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
         self.friendsList.append((friendId, friendCode))
 
-    @magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR, types=[str])
+    @magicWord(category=CATEGORY_HOST, types=[str])
     def system(message):
         """
         Broadcasts a message to the server.
@@ -162,7 +176,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
                 if str(doId)[0] != str(simbase.air.districtId)[0]:
                     do.d_setSystemMessage(0, message)
 
-    @magicWord(category=CATEGORY_SYSTEM_ADMINISTRATOR, types=[str, str, int])
+    @magicWord(category=CATEGORY_HOST, types=[str, str, int])
     def accessLevel(accessLevel, storage='PERSISTENT', showGM=1):
         """
         Modify the target's access level.
@@ -170,28 +184,18 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         accessName2Id = {
             'user': CATEGORY_USER.defaultAccess,
             'u': CATEGORY_USER.defaultAccess,
-            'communitymanager': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
-            'community': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
-            'cm': CATEGORY_COMMUNITY_MANAGER.defaultAccess,
+            'user2': CATEGORY_USER2.defaultAccess,
+            'u2': CATEGORY_USER2.defaultAccess,
             'moderator': CATEGORY_MODERATOR.defaultAccess,
             'mod': CATEGORY_MODERATOR.defaultAccess,
             'm': CATEGORY_MODERATOR.defaultAccess,
-            'creative': CATEGORY_CREATIVE.defaultAccess,
-            'creativity': CATEGORY_CREATIVE.defaultAccess,
-            'c': CATEGORY_CREATIVE.defaultAccess,
-            'programmer': CATEGORY_PROGRAMMER.defaultAccess,
-            'coder': CATEGORY_PROGRAMMER.defaultAccess,
-            'p': CATEGORY_PROGRAMMER.defaultAccess,
             'administrator': CATEGORY_ADMINISTRATOR.defaultAccess,
             'admin': CATEGORY_ADMINISTRATOR.defaultAccess,
             'a': CATEGORY_ADMINISTRATOR.defaultAccess,
-            'systemadministrator': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
-            'systemadmin': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
-            'sysadministrator': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
-            'sysadmin': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
-            'system': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
-            'sys': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess,
-            's': CATEGORY_SYSTEM_ADMINISTRATOR.defaultAccess
+            'host': CATEGORY_HOST.defaultAccess,
+            'owner': CATEGORY_HOST.defaultAccess,
+            'o': CATEGORY_HOST.defaultAccess,
+            'h': CATEGORY_HOST.defaultAccess
         }
         try:
             accessLevel = int(accessLevel)

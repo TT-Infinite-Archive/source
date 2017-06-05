@@ -1,11 +1,17 @@
 from toontown.toonbase.TTLocalizerEnglishProperty import *
 from toontown.catalog import CatalogAccessoryItemGlobals
 from otp.otpbase import OTPLocalizer as OL
+import sys, os
+
 OL.SpeedChatStaticText = OL.SpeedChatStaticTextToontown.copy()
 for key in OL.SpeedChatStaticTextCommon.iterkeys():
     OL.SpeedChatStaticText[key] = OL.SpeedChatStaticTextCommon[key]
 
-commitmantst = 'kptmptest - removable'
+if sys.platform == 'android':
+    CurrentDirectory = '/sdcard/TTI'
+else:
+    CurrentDirectory = os.getcwd()
+
 InterfaceFont = 'phase_3/models/fonts/ImpressBT.ttf'
 ToonFont = 'phase_3/models/fonts/ImpressBT.ttf'
 SuitFont = 'phase_3/models/fonts/vtRemingtonPortable.ttf'
@@ -51,7 +57,7 @@ NametagFontNames = (
 )
 NametagLabel = ' Nametag'
 UnpaidNameTag = 'Basic'
-ScreenshotPath = 'screenshots/'
+ScreenshotPath = os.path.join(CurrentDirectory, 'screenshots')
 GM_NAMES = (
  'TOON COUNCIL',
  'TOON TROOPER',
@@ -78,10 +84,10 @@ Dale = 'Dale'
 JailbirdDale = 'JailbirdDale'
 PoliceChip = 'PoliceChip'
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'The Gardens'
+lDaisyGardens = 'Daisy Gardens'
 lDonaldsDock = "The Harbor"
 lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Melodyland"
+lMinniesMelodyland = "Musical Melodyland"
 lToontownCentral = 'Toontown Central'
 lToonHQ = 'Toon HQ'
 lSellbotHQ = 'Sellbot HQ'
@@ -89,7 +95,6 @@ lGoofySpeedway = 'Toontown Speedway'
 lOutdoorZone = "Acorn Acres"
 lGolfZone = "Toontown MiniGolf"
 lPartyHood = 'Party Grounds'
-lResistanceGrounds = 'Resistance Grounds'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Neighborhood'),
  1100: ('to', 'on', 'Barnacle Boulevard'),
@@ -147,7 +152,6 @@ OutdoorZone = ('to', 'in', lOutdoorZone)
 FunnyFarm = ('to', 'in', 'The Unpainted Neighborhood')
 GoofySpeedway = ('to', 'in', lGoofySpeedway)
 DonaldsDreamland = ('to', 'in', lDonaldsDreamland)
-ResistanceGrounds = ('to the', 'in the', lResistanceGrounds)
 BossbotHQ = ('to', 'in', 'Bossbot HQ')
 SellbotHQ = ('to', 'in', 'Sellbot HQ')
 CashbotHQ = ('to', 'in', 'Cashbot HQ')
@@ -3343,9 +3347,9 @@ FADoorCodes_TALK_TO_HQ_TOM = 'Go get your reward from Toon Headquarters!'
 FADoorCodes_SUIT_APPROACHING = None
 FADoorCodes_BUILDING_TAKEOVER = "Watch out! There's a Cog in there!"
 FADoorCodes_SB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Sellbot Disguise first!\n\nBuild your Sellbot Disguise out of parts from the Factory."
-FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise by doing ToonTasks in Dreamland."
-FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise by doing the ToonTasks in The Brrrgh."
-FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise by doing the ToonTasks in Acorn Acres."
+FADoorCodes_CB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Cashbot Disguise first!\n\nBuild your Cashbot Disguise out of parts from the Mints."
+FADoorCodes_LB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Lawbot Disguise first!\n\nBuild your Lawbot Disguise out of parts from the DA Offices."
+FADoorCodes_BB_DISGUISE_INCOMPLETE = "You'll get caught going in there as a Toon! You need to complete your Bossbot Disguise first!\n\nBuild your Bossbot Disguise out of parts from the Cog Golf Courses."
 KnockKnockJokes = [['Who', "Bad echo in here, isn't there?"],
  ['Dozen', 'Dozen anybody want to let me in?'],
  ['Freddie', 'Freddie or not, here I come.'],
@@ -4605,7 +4609,7 @@ PartyPlannerInvitationWhoseSentence = '%s Party'
 PartyPlannerInvitationTheme = 'Theme'
 PartyPlannerInvitationWhenSentence = 'It will be on %s,\nat %s Toontown Time.\nHope you can make it!'
 PartyPlannerInvitationWhenSentenceNoFriends = 'It will be on %s,\nat %s Toontown Time.\nToontastic!'
-PartyPlannerComingSoon = 'Coming Soon'
+PartyPlannerUnavailable = 'Unavailable'
 PartyPlannerCantBuy = "Can't Buy"
 PartyPlannerGenericName = 'Party Planner'
 PartyJukeboxOccupied = 'Someone else is using the jukebox. Try again later.'
@@ -4640,7 +4644,7 @@ MusicGsRaceRr = 'Route 66'
 MusicGsRaceSs = 'Ready, Set, Go!'
 MusicGzSz = 'The Putt-Putt Polka'
 MusicGzPlaygolf = "Let's Play Golf!"
-MusicMmNbrhood = "Melodyland"
+MusicMmNbrhood = "Musical Melodyland"
 MusicMmSz = 'Dancing in the Streets'
 MusicMmSzActivity = 'Here Comes Treble'
 MusicDdNbrhood = "The Harbor"
@@ -4702,9 +4706,11 @@ MusicPartyGenericTheme = 'Party Jingle'
 MusicTcEncounter = 'Toontown Central Battle'
 MusicDdEncounter = 'Encounter at The Harbor'
 MusicDgEncounter = 'Encounter in The Gardens'
-MusicMmEncounter = 'Melodyland Encounter'
+MusicMmEncounter = 'Musical Melodyland Encounter'
 MusicTbEncounter = 'Encounter in The Brrrgh'
 MusicDlEncounter = 'Dreamland Encounter'
+JellyfishJam = 'Jellyfish Jam'
+CatDogTheme = 'CatDog Theme'
 JukeboxAddSong = 'Add\nSong'
 JukeboxReplaceSong = 'Replace\nSong'
 JukeboxQueueLabel = 'Playing Next:'
@@ -4753,7 +4759,7 @@ PartyActivityNameDict = {0: {'generic': 'Jukebox',
  8: {'generic': 'Deluxe Jukebox',
      'invite': 'a deluxe jukebox',
      'editor': 'Deluxe Jukebox',
-     'description': 'Your own deluxe jukebox with double the tunes for double the deal!'},
+     'description': 'Listen to music with your own deluxe jukebox!'},
  9: {'generic': 'Dance Floor\n20 moves',
      'invite': 'a 20 move Dance Floor',
      'editor': 'Dance Floor - 20',
@@ -5004,7 +5010,7 @@ OptionsPageTitle = 'Options'
 MoreOptionsPageTitle = 'More Options'
 OptionsTabTitle = 'Options\n& Codes'
 OptionsPagePurchase = 'Subscribe'
-OptionsPageLogout = 'Logout'
+OptionsPageLogout = 'Log Out'
 OptionsGoBack = 'Back'
 OptionsDisconnect = 'Disconnect'
 OptionsLeaveServer = 'Leave Server'
@@ -5054,6 +5060,7 @@ OptionsPageVSync = 'VSync'
 OptionsPageShowFps = 'Show FPS'
 OptionsPageAnimationSmoothing = 'Animation Smoothing'
 OptionsPageRequiresRestart = 'Requires Restart'
+OptionsPageClassicMusic = 'Classic Soundtrack'
 SocialPageTitle = 'Social'
 GuildPageTitle = 'Guilds'
 GuildPagePromote = 'Promote'
@@ -5532,7 +5539,7 @@ TownBattleSOSPetSearchTitle = 'Searching for doodle\n%s...'
 TownBattleSOSPetInfoTitle = '%s is %s'
 TownBattleSOSPetInfoOK = lOK
 TrolleyHFAMessage = 'You may not board the trolley until your Laff meter is smiling.'
-TrolleyCSMessage = 'This Trolley Station is under construction.\n\nThe Toon Palooza is coming soon!\n\nIn time, there will be even more destinations that you may visit by riding on the Trolley! Come back later!'
+TrolleyCSMessage = 'This Trolley Station is under construction.'
 TrolleyTFAMessage = 'You may not board the trolley until ' + Mickey + ' says so.'
 TrolleyHopOff = 'Hop off'
 FishingExit = 'Exit'
@@ -5774,7 +5781,7 @@ CogThiefPerfect = 'PERFECT!'
 MinigameRulesPanelPlay = 'PLAY'
 GagShopName = "Gag Shop"
 GagShopPlayAgain = 'PLAY\nAGAIN'
-GagShopBackToPlayground = 'EXIT BACK TO THE\nNEIGHBORHOOD'
+GagShopBackToPlayground = 'GO BACK TO THE\nNEIGHBORHOOD'
 GagShopYouHave = 'You have %s Jellybeans to spend'
 GagShopYouHaveOne = 'You have 1 Jellybean to spend'
 GagShopTooManyProps = 'Sorry, you have too many props'
@@ -5877,9 +5884,9 @@ NameShopNameMaster = 'NameMasterEnglish.txt'
 NameShopPay = 'Subscribe'
 NameShopPlay = 'Free Trial'
 NameShopOnlyPaid = 'Only paid users\nmay name their Toons.\nUntil you subscribe\nyour name will be\n'
-NameShopContinueSubmission = 'Continue Submission'
+NameShopContinueSubmission = 'Enter Toontown'
 NameShopChooseAnother = 'Choose Another Name'
-NameShopToonCouncil = 'The Toon Council\nwill review your\nname.  ' + 'Review may\ntake a few days.\nWhile you wait\nyour name will be\n '
+NameShopToonCouncil = 'The Toon Council\nhas approved your\nname!'
 PleaseTypeName = 'Please type your name:'
 AllNewNames = 'All new names must be\napproved by the Toon Council.'
 NameMessages = 'Be creative, and remember:\nno NPC names, please.'
@@ -5970,7 +5977,7 @@ NCApostrophes = 'That name has too many apostrophes.'
 RemoveTrophy = lToonHQ + ': ' + TheCogs + ' took over one of the buildings you rescued!'
 STOREOWNER_TOOKTOOLONG = 'Need more time to think?'
 STOREOWNER_GOODBYE = 'See you later!'
-STOREOWNER_NEEDJELLYBEANS = 'You need to ride the Trolley to The Toon Palooza to get some Jellybeans.'
+STOREOWNER_NEEDJELLYBEANS = 'You need to ride the Trolley to get some Jellybeans.'
 STOREOWNER_GREETING = 'Choose what you want to buy.'
 STOREOWNER_BROWSING = 'You can browse, but you need a clothing ticket to buy.'
 STOREOWNER_BROWSING_JBS = 'You can browse, but you need at least 200 Jellybeans to buy.'
@@ -10400,7 +10407,7 @@ achievementInfo = {
     7: ('Blooming',
         'Complete The Gardens'),
     8: ('Warming symphonies',
-        "Complete Melodyland"),
+        "Complete Musical Melodyland"),
     9: ('You cold Yeti?',
         'Complete The Brrrgh'),
     10: ("Dreaming Goodbyes",
@@ -10518,7 +10525,8 @@ def getAchievementClassifier(classifier):
 RemapPrompt = 'Choose the keys you wish to remap.'
 RemapPopup = 'Press the button you wish to remap this control to.'
 Controls = ['Move Up:', 'Move Left:', 'Move Down:', 'Move Right:',
-            'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:']
+            'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:',
+            'Screenshot Key:']
 
 GuildChatWarning = 'You are currently not in a Guild. Use "/all" to return to normal chat.'
 GuildDialogMovieStart = 'Are you here to create your very own Guild?'
@@ -10727,6 +10735,20 @@ Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
 
+# Main Menu
+WelcomeMessage = 'Welcome to Toontown Infinite!'
+LogIn = "Already have an account? Log in!"
+SignUp = "New to Toontown Infinite? Sign Up!"
+Username = "Username"
+Password = "Password"
+Birthday = "Birthday"
+Email = "Email"
+Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
+EnterAddress = "Enter a Server Address"
+Help = "The help page is coming soon.\n\nCheck back later!"
+ServerRunningAlready = 'A Singleplayer session is already in progress.'
+MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
+
 ServerRunningAlready = 'A single player session is already in progress.'
 MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
 StartingServerLive = 'Loading...'
@@ -10757,3 +10779,5 @@ BehaviorName = {
  0: 'None',
  1: 'Having a picnic'
 }
+
+AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
