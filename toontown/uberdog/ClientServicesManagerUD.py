@@ -875,6 +875,8 @@ class UnloadAvatarFSM(OperationFSM):
         friendsManager.toonOffline(self.avId)
         guildManager = self.csm.air.getGlobalObject('GuildManager')
         guildManager.toonOffline(self.avId)
+        playerManager = self.csm.air.getGlobalObject('PlayerManager')
+        playerManager.toonOffline(self.avId)
 
         # Clear off POSTREMOVE:
         datagram = PyDatagram()

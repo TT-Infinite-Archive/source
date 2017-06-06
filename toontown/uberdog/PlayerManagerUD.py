@@ -1,5 +1,6 @@
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from PlayerManagerPlayer import PlayerManagerPlayer
+from direct.distributed.PyDatagram import *
 
 
 class PlayerManagerUD(DistributedObjectGlobalUD):
@@ -25,9 +26,15 @@ class PlayerManagerUD(DistributedObjectGlobalUD):
             'laff': avFields.get('setMaxHp')[0]
         })
         self.players[avId] = player
-        e = self.air.getAvatarExitEvent(avId)
-        self.playerExitEvents.append(e)
-        self.accept(e, self.toonOffline, extraArgs=[avId])
+
+        # Post removes just in-case the client uncleanly disconnects
+        clientChannel = self.GetPuppetConnectionChannel(avId)
+        dgcleanup = self.dclass.aiFormatUpdate('toonOffline', self.doId, self.doId, self.air.ourChannel, [avId])
+        dg = PyDatagram()
+        dg.addServerHeader(clientChannel, self.air.ourChannel, CLIENTAGENT_ADD_POST_REMOVE)
+        dg.addString(dgcleanup.getMessage())
+        self.air.send(dg)
+
         self.d_setPlayerList()
 
     def toonOffline(self, avId):
