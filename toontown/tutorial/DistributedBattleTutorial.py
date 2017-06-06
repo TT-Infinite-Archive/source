@@ -11,5 +11,9 @@ class DistributedBattleTutorial(DistributedBattle.DistributedBattle):
     def playReward(self, ts):
         self.movie.playTutorialReward(ts, self.uniqueName('reward'), self.handleRewardDone)
 
-    def exitReward(self):
-        base.cr.playGame.hood.loader.loadInfinite()
+    # def exitReward(self):
+        # base.cr.playGame.hood.loader.loadInfinite()
+
+    # def enterFaceOff(self, ts):
+        # pass
+        # Unload Infinite and load dummy infinite for battle

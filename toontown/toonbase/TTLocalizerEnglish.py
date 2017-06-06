@@ -643,7 +643,7 @@ TheBrrrghTrackQuestDict = {GREETING: '',
  LEAVING: 'Good luck.  Return to me when you have mastered your new skill.'}
 QuestDialog_3225 = {QUEST: "Oh, thanks for coming, _avName_!\x07The Cogs in the neighborhood frightened away my delivery person.\x07I don't have anyone to deliver this salad to _toNpcName_!\x07Can you do it for me? Thanks so much!_where_"}
 QuestDialog_2910 = {QUEST: 'Back so soon?\x07Great job on the spring.\x07The final item is a counter weight.\x07Stop by and see _toNpcName_ and bring back whatever you can get._where_'}
-QuestDialogDict = {100: {GREETING: 'Test test its working. Defeat the Hollywoods yo.\x07Next page.\x07Fuck the streets of New York, your an n word.\x07GAH!',
+QuestDialogDict = {100: {GREETING: "GAH!\x07This is bad! Very bad!\x07Just as I expected too.\x07Tutorial Terrace has be ripped from it's rightful place.\x07Fuck the streets of New York, your an n word.\x07GAH!",
        QUEST: "Gunga",
        INCOMPLETE_PROGRESS: TheCogs + ' are out in the streets, through the tunnels.',
        INCOMPLETE_WRONG_NPC: 'Good job defeating those Cogs. Now go to the Toon Headquarters for your next step!',

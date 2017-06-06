@@ -27,7 +27,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.prologueIntro = None
         self.islands = []
         self.currentIsland = None
-        self.musicFile = 'phase_3.5/audio/bgm/TC_SZ.ogg'
+        self.mmPianoLoop = None
+        self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
         self.music = base.loadMusic(self.musicFile)
 
@@ -51,7 +52,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.createHood(dnaFile, loadStorage=0)
         self.alterDictionaries()
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
-        # self.loadInfinite()
+        self.loadInfinite()
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
@@ -59,6 +60,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def enterStreet(self, requestStatus):
         TTTownLoader.TTTownLoader.enterStreet(self, requestStatus)
         base.localAvatar.setCameraFov(52)
+        self.music.stop()
+        self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/TC_SZ.ogg')
+        self.ttStreetMusic.play()
+        self.ttStreetMusic.setLoop(1)
         # self.loadInfinite()
         messenger.send('islands-loaded')
 
@@ -78,7 +83,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.nodeDict[20001]
 
     def enterIntroduction(self):
-
         nametag2d = render2d.findAllMatches('**/Nametag2d')
         nametag2d.hide()
 
@@ -92,6 +96,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         self.infiniteIntroBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_intro.ogg')
         self.infiniteDebutBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_debut.ogg')
+        self.infiniteDebutBGM.setLoop(1)
         self.infiniteBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_bgm.ogg')
 
         # self.logo = OnscreenImage(
@@ -113,7 +118,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             Func(base.localAvatar.stopUpdateSmartCamera),
             Parallel(
                 Func(base.camera.setPos, 0, 0, 200),
-                Func(base.transitions.fadeIn, 2)),
+                Func(base.transitions.fadeIn, 3)),
             Wait(8),
             LerpColorScaleInterval(
                 self.label, 2, Vec4(1, 1, 1, 1), Vec4(0, 0, 0, 0),
@@ -143,9 +148,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             Func(base.localAvatar.startUpdateSmartCamera),
             Wait(4),
             Func(base.localAvatar.enableAvatarControls),
-            Func(self.infiniteDebutBGM.play),
-            Wait(161),
-            Func(self.infiniteBGM.play, looping=1)
+            Func(self.infiniteDebutBGM.play)
         )
         self.prologueIntro.start()
 
@@ -162,15 +165,14 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.label2.setPos(0, 0)
         self.label2.setText('')
 
-        self.infiniteIntro.stop()
-        self.infiniteDebut.stop()
+        self.infiniteIntroBGM.stop()
+        self.infiniteDebutBGM.stop()
         self.infiniteBGM.stop()
 
     def loadInfinite(self):
         # We use this space node to put all space objects in it so that we can simulate gravity pulls
         self.space = render.attachNewNode('SpaceNode')
         self.enterIntroduction()
-
         self.startInfiniteLowGravity()
         render.setColorScale(0.4, 0.4, 0.45, 1)
         base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
@@ -188,26 +190,37 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         # Islands
 
-        # Toontown Central Island
+        # Toontown Central Plaza Island
         island = Island(self.space)
-        loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam').reparentTo(island)
-        islandBuilding = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
-        islandBuilding.setPosHpr(0, -63, -4, 90, 0, 0)
-        islandBuilding.reparentTo(island)
-
         island.setPosHpr(-250, -135, 0, 140, 35, 0)
         island.setIslandName('Toontown Central Plaza', (1.0, 0.5, 0.4, 1.0))
         island.setAtmosphereMusic(self.music, 'phase_4/audio/bgm/TC_nbrhood.ogg')
         island.setup(80, 2)
         self.islands.append(island)
+        loader.loadModel('phase_4/models/props/infinite_plaza_platform.bam').reparentTo(island)
+        islandBuilding = loader.loadModel('phase_4/models/props/infinite_plaza_buildings.bam')
+        islandBuilding.setPosHpr(0, -63, -4, 90, 0, 0)
+        islandBuilding.reparentTo(island)
 
-        # Tutorial Terrace Island
+        # Melodyland Island
         # Upon entering this island, unload the infinite and show the tutorial street with the flunky. This is the end of the space course.
         island2 = Island(self.space)
-        loader.loadModel('phase_3.5/models/props/tutorial_street.bam').reparentTo(island2)
+        loader.loadModel('phase_6/models/neighborhoods/minnies_melody_land_inf_island.bam').reparentTo(island2)
         island2.setPosHpr(-479, -53, -25, 150, 35, -20)
-        island2.setup(80, 2)
+        island2.setup(130, 2)
         self.islands.append(island2)
+
+        self.mmHQ = FloatingObject(self.space)
+        loader.loadModel('phase_6/models/modules/hqMM.bam').reparentTo(self.mmHQ)
+        self.mmHQ.setPosHpr(-500, -20, 0, 205, -25, -30)
+        self.mmHQ.setup(3)
+
+        self.mmPiano = FloatingObject(self.space)
+        loader.loadModel('phase_6/models/props/MM_Piano.bam').reparentTo(self.mmPiano)
+        self.mmPiano.setPosHpr(-475, 0, -20, 0, 0, 0)
+        self.mmPiano.setup(3)
+        self.mmPianoLoop = self.mmPiano.hprInterval(220, Vec3(360, 0, 0))
+        self.mmPianoLoop.loop()
 
         # The Harbor Boat
         ddBoat = Island(self.space)
@@ -225,20 +238,13 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.keyblade.setScale(0.2)
         self.keyblade.setup(1)
 
-        # Meteors
-
-        self.labMeteor = loader.loadModel('phase_3.5/models/props/tutorial_shop_meteor.bam')
-        self.labMeteor.reparentTo(self.space)
-        self.labMeteor.setPos(-7, 26, -37)
-        self.labMeteor.setScale(20)
-
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
         self.space.removeNode()
 
-        if self.infiniteSkyLoop:
-            self.infiniteSkyLoop.finish()
-            self.infiniteSkyLoop = None
+        if self.mmPianoLoop:
+            self.mmPianoLoop.finish()
+            self.mmPianoLoop = None
 
     def startInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.8)
