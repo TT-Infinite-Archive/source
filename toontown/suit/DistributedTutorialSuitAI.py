@@ -21,11 +21,11 @@ class FakeBattleManager:
 class DistributedTutorialSuitAI(DistributedSuitBaseAI):
     notify = directNotify.newCategory('DistributedTutorialSuitAI')
 
-    def __init__(self, air):
+    def __init__(self, air, type = 'f'):
         DistributedSuitBaseAI.__init__(self, air, None)
 
         suitDNA = SuitDNA.SuitDNA()
-        suitDNA.newSuit('f')
+        suitDNA.newSuit(type)
         self.dna = suitDNA
         self.setLevel(1)
 

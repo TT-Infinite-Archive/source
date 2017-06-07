@@ -72,6 +72,14 @@ class TutorialFSM(FSM):
         self.gideon.setHq(1)
         self.gideon.d_setPos(48.700, 19.945, -0.475)
         self.gideon.d_setH(90)
+        
+        # This spawns a new tutorial cog for the second battle
+        self.suit = DistributedTutorialSuitAI(self.air, 'c');
+        self.suit.generateWithRequired(self.zones['street']);
+
+    def exitHQ(self):
+        if self.suit:
+            self.suit.requestDelete();
 
     def enterTunnel(self):
         npcDesc = NPCToons.NPCToonDict.get(20001)
