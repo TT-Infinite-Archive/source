@@ -52,7 +52,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.createHood(dnaFile, loadStorage=0)
         self.alterDictionaries()
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
-        self.loadInfinite()
+        # self.loadInfinite()
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
@@ -64,7 +64,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/TC_SZ.ogg')
         self.ttStreetMusic.play()
         self.ttStreetMusic.setLoop(1)
-        # self.loadInfinite()
         messenger.send('islands-loaded')
 
     def exit(self):
@@ -229,6 +228,15 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         ddBoat.setup(20, 4)
         self.islands.append(ddBoat)
 
+        # House B
+        self.houseB = loader.loadModel('phase_5.5/models/estate/houseB.bam')
+        self.houseB.reparentTo(render)
+        self.houseB.setPosHpr(75, 0, 5, 140, 0, 0) # Interval to -80, -20, 110, 210, 0, 0
+
+        houseInterval = self.houseB.posInterval(120, Point3(-80, -20, 110),
+                                               startPos=Point3(75, 0, 5))
+        houseInterval.loop()
+
         # Misc Objects
 
         # Key Blade
@@ -237,6 +245,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.keyblade.setPosHpr(-63, 21, 3, 50, -45, 55)
         self.keyblade.setScale(0.2)
         self.keyblade.setup(1)
+
+        # PlacerTool3D(houseB, increment=5)
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
