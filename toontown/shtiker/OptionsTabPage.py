@@ -285,6 +285,21 @@ class OptionsTabPage(DirectFrame):
             checked = base.wantClassicMusic,
             command = self.__doToggleClassicMusic
         )
+        
+        # Surface related footsteps
+        row += 1
+        self.newFootstepsLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text=TTLocalizer.OptionsPageSurfaceFootsteps,
+            text_align=TextNode.ALeft,
+        )
+        self.newFootstepsCheckBox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=settings.get(SettingsGlobals.NewFootsteps, True),
+            command=self.__doToggleNewFootsteps
+        )
 
         # -- Social
         row = 0
@@ -594,6 +609,8 @@ class OptionsTabPage(DirectFrame):
         self.soundSlider.show()
         self.classicMusicCheckBox.show()
         self.classicMusicLabel.show()
+        self.newFootstepsCheckBox.show()
+        self.newFootstepsLabel.show()
 
     def hideSoundGui(self):
         self.volumeTitle.hide()
@@ -605,6 +622,9 @@ class OptionsTabPage(DirectFrame):
         self.soundSlider.hide()
         self.classicMusicCheckBox.hide()
         self.classicMusicLabel.hide()
+        self.newFootstepsCheckBox.hide()
+        self.newFootstepsLabel.hide()
+
 
     def showGameplayGui(self):
         self.controlsTitle.show()
@@ -711,6 +731,13 @@ class OptionsTabPage(DirectFrame):
         else:
             settings[SettingsGlobals.ClassicMusic] = True
             base.wantClassicMusic = True
+
+    def __doToggleNewFootsteps(self):
+        messenger.send(EventGlobals.WakeUp)
+        if settings.get(SettingsGlobals.NewFootsteps, True):
+            settings[SettingsGlobals.NewFootsteps] = False
+        else:
+            settings[SettingsGlobals.NewFootsteps] = True
 
     def __doToggleVSync(self):
         messenger.send(EventGlobals.WakeUp)
