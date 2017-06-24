@@ -6,6 +6,7 @@ from toontown.toon import ToonDNA
 
 from MakeAToonGlobals import *
 from MakeAToonGUI import MATFrame, MATShuffleButton
+from panda3d.core import Vec4
 import ShuffleButton
 import random
 
@@ -74,12 +75,14 @@ class BodyShop(StateData.StateData):
     def showButtons(self):
         self.parentFrame.show()
         for btn in self.speciesButtons:
-            btn.show()
+            btn['image_color'] = (self.toon.style.getHeadColor());
+            btn['image3_color'] = (self.toon.style.getHeadColor() - Vec4(0, 0, 0, .4));
+            btn.show();
             
     def hideButtons(self):
         self.parentFrame.hide()
         for btn in self.speciesButtons:
-            btn.hide()
+            btn.hide();
 
     def exit(self):
         try:
@@ -238,7 +241,7 @@ class BodyShop(StateData.StateData):
                 headModel = gui.find('**/pighead');
             imagecolor = ((1, 1, 1, 1), (1, 1, 1, 1), (.8, .8, .8, 1), (.5, .5, .5, .5));
             btn = MATShuffleButton(wantArrows=False, image_scale = (0.06, 0.06, 0.06), image_color = (1, 1, 1, 1),
-                image1_color = (1, 1, 1, 1), image2_color = (.8, .8, .8, 1), image3_color = (.5, .5, .5, 1),
+                image3_color = (.5, .5, .5, 1),
                 image1_scale = (0.07, 0.07, 0.07), image2_scale = (0.07, 0.07, 0.07),
                 image = headModel,
                 text = ('', name, name, name), text_scale = .08,
