@@ -373,10 +373,23 @@ class ToonBase(OTPBase.OTPBase):
         else:
             aspect2d.hide()
             base.transitions.fadeScreen(alpha=0.01)
+            
+    def showNotification(self, message):
+        if hasattr(self, 'notificationPopup') and self.notificationPopup:
+            self.notificationPopup.destroy();
+            taskMgr.remove('clearNotification');
+        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0));
+        self.notificationPopup.reparentTo(base.a2dBottomCenter);
+        self.notificationPopup.setBin('gui-popup', 0);     
+        def clearNotificationPopup(task):
+            self.notificationPopup.destroy();
+            return task.done;
+
+        taskMgr.doMethodLater(5.0, clearNotificationPopup, 'clearNotification')
 
     def takeScreenShot(self):
-        if hasattr(self, 'screenShotNotice') and self.screenShotNotice:
-            self.screenShotNotice.destroy()
+        if hasattr(self, 'notificationPopup') and self.notificationPopup:
+            self.notificationPopup.destroy()
             taskMgr.remove('clearScreenshot')
         if not os.path.exists(TTLocalizer.ScreenshotPath):
             os.mkdir(TTLocalizer.ScreenshotPath)
@@ -422,19 +435,11 @@ class ToonBase(OTPBase.OTPBase):
         self.lastScreenShotTime = globalClock.getRealTime()
         pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
         winfile = pandafile.toOsSpecific()
-        self.screenShotNotice = DirectLabel(text = "Screenshot Saved" + ':\n' + winfile, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
-        self.screenShotNotice.reparentTo(base.a2dBottomCenter)
-        self.screenShotNotice.setBin('gui-popup', 0)
+        self.showNotification("Screenshot Saved" + ':\n' + winfile)
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
             coordTextLabel.destroy()
-            
-        def clearScreenshotMsg(task):
-            self.screenShotNotice.destroy()
-            return task.done
-
-        taskMgr.doMethodLater(5.0, clearScreenshotMsg, 'clearScreenshot')
 
     def addScreenshotString(self, str):
         if len(self.screenshotStr):

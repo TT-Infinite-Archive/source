@@ -14,12 +14,16 @@ class BookmarkManager:
         if ip not in self.bookmarks:
             self.bookmarks[ip] = name;
             return 1; # Success!
-        else:
+        elif ip in self.bookmarks:
             return 2; # Already Exists!
+        elif ip == '':
+            return 3 # No ip!
+        else:
+            return 4 # Unknown error (pretty much impossible)
         
     def removeBookmark(self, ip):
         if ip in self.bookmarks:
-            self.bookmarks.remove(ip);
+            del self.bookmarks[ip];
             return 1; # Success
         else:
             return 2; # Doesn't exist! (How did you manage my dood)
