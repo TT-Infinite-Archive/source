@@ -10,6 +10,7 @@ from pandac.PandaModules import *
 
 from otp.otpbase import OTPLocalizer
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from toontown.serverbrowser.BookmarkManager import BookmarkManager
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
@@ -566,33 +567,7 @@ class MainMenu(DirectFrame, FSM):
         self.bookmarkInfoDialog = None
         
         # Load Bookmarks file
-        self.bookmarkPath = os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat')
-        self.bookmarks = []
-        
-        if self.bookmarks == []:
-            if not os.path.exists(self.bookmarkPath):
-                with open(self.bookmarkPath, 'wb') as file:
-        
-                    data = PyDatagram()
-                    data.add_uint8(0)
-                    
-                    file.write(PyDatagramIterator(data).get_remaining_bytes())
-                    
-            file = open(self.bookmarkPath, 'rb')
-            data = file.read()
-            file.close()
-            
-            dg = PyDatagram(data)
-            data = PyDatagramIterator(dg)
-            
-            def getBookmark(index, dgi):
-                name = dgi.get_string()
-                address = dgi.get_string()
-                if address != '':
-                    self.bookmarks.append([name, address])
-            
-            for index in xrange(data.get_uint8()):
-                getBookmark(index, data)
+        self.bookmarkMgr = BookmarkManager()
                 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
@@ -1111,9 +1086,10 @@ class MainMenu(DirectFrame, FSM):
 
     def makeBookmarksButtons(self):
         self.bookmarksList.removeAllItems()
-        for bookmark in self.bookmarks:
-            name = bookmark[0]
-            address = bookmark[1]
+        bookmarks = self.bookmarkMgr.getBookmarks()
+        for bookmark in bookmarks:
+            address = bookmark
+            name = bookmarks.get(address)
             button = DirectButton(
                 relief = None,
                 text="%s" %(name),
@@ -1281,10 +1257,6 @@ class MainMenu(DirectFrame, FSM):
         self.serverNameInput.setTransparency(1)
         
     def addToBookmarks(self):
-        def makeBookmark(name, address, dg):
-            dg.add_string(name)
-            dg.add_string(address)
-            
         if hasattr(self, 'ipInput'):
             if self.ipInput.get() == '':
                 return
@@ -1296,34 +1268,14 @@ class MainMenu(DirectFrame, FSM):
                         return
             except:
                 return
-            name = self.serverNameInput.get() # TODO: Add custom naming of bookmarks
+            name = self.serverNameInput.get()
             address = self.ipInput.get()
-            bookmark = [name, address]
-            if not bookmark in self.bookmarks:
-                self.bookmarks.append(bookmark)
-            with open(self.bookmarkPath, 'wb') as file:
-                dg = PyDatagram()
-                dg.add_uint8(len(self.bookmarks))
-                for bookmark in self.bookmarks:
-                    makeBookmark(bookmark[0], bookmark[1], dg)
-                file.write(PyDatagramIterator(dg).getRemainingBytes())
+            self.bookmarkMgr.addBookmark(address, name)
                     
     def deleteFromBookmarks(self, name, address):
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
-        def makeBookmark(name, address, dg):
-            dg.add_string(name)
-            dg.add_string(address)
-        data = [name, address]
-        self.bookmarks.remove(data)
-        self.makeBookmarksButtons()
-        self.addToBookmarks()
-        with open(self.bookmarkPath, 'wb') as file:
-            dg = PyDatagram()
-            dg.add_uint8(len(self.bookmarks))
-            for bookmark in self.bookmarks:
-                makeBookmark(bookmark[0], bookmark[1], dg)
-            file.write(PyDatagramIterator(dg).getRemainingBytes())
+        self.bookmarkMgr.removeBookmark(address)
             
     def enterStartDirectConnect(self):
         base.isHosting = False
