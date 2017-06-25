@@ -15,8 +15,9 @@ class BackupManager:
 
     def load(self, category, info, default=None):
         filename = self.getFileName(category, info)
-        if not os.path.exists(filename):
+        if (not os.path.exists(filename)) or (not os.path.getsize(filename)):
             return default
+
         with open(filename, 'r') as f:
             return json.load(f)
 

@@ -21,6 +21,10 @@ vfs = VirtualFileSystem.getGlobalPtr()
 mounts = ConfigVariableList('vfs-mount')
 for mount in mounts:
     mountFile, mountPoint = (mount.split(' ', 2) + [None, None, None])[:2]
+    
+    if sys.platform == 'android':
+        mountFile = '/sdcard/TTI/' + mountFile
+
     mountFile = Filename(mountFile)
     mountFile.makeAbsolute()
     mountPoint = Filename(mountPoint)
@@ -36,3 +40,5 @@ elif process == 'ai':
     import toontown.ai.ServiceStart
 elif process == 'uberdog':
     import toontown.uberdog.ServiceStart
+elif process == 'dedicated':
+    import toontown.dedicated.DedicatedStart

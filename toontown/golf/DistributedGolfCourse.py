@@ -127,6 +127,7 @@ class DistributedGolfCourse(DistributedObject.DistributedObject, FSM, DelayDelet
                 av.show()
                 av.reparentTo(render)
                 av.setPos(0, 0, -100)
+                av.clearGoofyEffect()
             else:
                 self.notify.warning('avId =%d does not exist')
 
@@ -284,6 +285,8 @@ class DistributedGolfCourse(DistributedObject.DistributedObject, FSM, DelayDelet
         if self.hasLocalToon:
             messenger.send('leavingGolf')
             self._destroyDelayDelete()
+            base.localAvatar.restoreGoofyEffect()
+
         return
 
     def exitCleanup(self):

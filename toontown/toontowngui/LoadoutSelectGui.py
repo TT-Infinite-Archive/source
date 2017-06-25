@@ -45,7 +45,7 @@ class LoadoutSelectGui(DirectFrame):
         gui.removeNode()
         self.status = TTLabel(self.mainFrame, text_size=TTLabel.GiantSize, pos=(0.0, 0.0, -0.25))
         self.seperator = TTSeperator(self.mainFrame, pos=(0.0, 0.0, 0.5))
-        self.filters = ['All', 'ToonUp', 'Trap', 'Lure', 'Throw', 'Squirt', 'Sound', 'Drop']
+        self.filters = ['All', 'Toon-Up', 'Trap', 'Lure', 'Throw', 'Squirt', 'Sound', 'Drop']
         self.trackLabel = TTLabel(self.mainFrame, text_size=TTLabel.LargeSize, pos=(0.0, 0.0, 0.23))
         self.trackLArrow = TTArrow(self.mainFrame, orientation=TTArrow.OrientationLeft, pos=(-0.25, 0.0, 0.25))
         self.trackRArrow = TTArrow(self.mainFrame, orientation=TTArrow.OrientationRight, pos=(0.25, 0.0, 0.25))

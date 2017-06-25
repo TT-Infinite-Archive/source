@@ -7,6 +7,10 @@ from toontown.ai.ToonBarrier import *
 from toontown.golf import GolfGlobals
 import random
 import math
+import sys
+
+if sys.platform != 'android':
+    from panda3d.ode import OdeBody, OdeRayGeom, OdeTriMeshData, OdeTriMeshGeom
 
 class GolfHoleBase:
 

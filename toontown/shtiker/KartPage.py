@@ -515,7 +515,7 @@ class ItemSelector(DirectFrame):
             self.__updateViewerUI()
             self.notify.debug('__handleItemChange: currItem %s' % self.currItem)
             self.updatedDNA[self.currAccessoryType] = self.currItem
-            kart = self._parent.parent.getKartViewer().getKart()
+            kart = self._parent._parent.getKartViewer().getKart()
             kart.updateDNAField(self.currAccessoryType, self.currItem)
 
         def __handleShowItem(self):
@@ -539,7 +539,7 @@ class ItemSelector(DirectFrame):
                 else:
                     self.uiImagePlane.component('geom0').setColorScale(getAccessory(self.currItem))
             elif self.currAccessoryType == KartDNA.decalType:
-                kart = self._parent.parent.getKartViewer().getKart()
+                kart = self._parent._parent.getKartViewer().getKart()
                 kartDecal = getDecalId(kart.kartDNA[KartDNA.bodyType])
                 texNodePath = getTexCardNode(self.currItem)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
@@ -582,13 +582,13 @@ class ItemSelector(DirectFrame):
                     if self.updatedDNA[KartDNA.accColor] == deletedItem:
                         self.avatar.requestKartDNAFieldUpdate(KartDNA.accColor, self.currItem)
                         self.updatedDNA[KartDNA.accColor] = self.currItem
-                        kart = self._parent.parent.getKartViewer().getKart()
+                        kart = self._parent._parent.getKartViewer().getKart()
                         kart.updateDNAField(KartDNA.accColor, self.currItem)
                 elif self.currAccessoryType == KartDNA.accColor:
                     if self.updatedDNA[KartDNA.bodyColor] == deletedItem:
                         self.avatar.requestKartDNAFieldUpdate(KartDNA.bodyColor, self.currItem)
                         self.updatedDNA[KartDNA.bodyColor] = self.currItem
-                        kart = self._parent.parent.getKartViewer().getKart()
+                        kart = self._parent._parent.getKartViewer().getKart()
                         kart.updateDNAField(KartDNA.bodyColor, self.currItem)
 
             self.notify.debug('__handleItemDelete: Delete request on accessory %s' % self.currItem)
@@ -601,7 +601,7 @@ class ItemSelector(DirectFrame):
             self.currItem = InvalidEntry
             self.__updateViewerUI()
             self.updatedDNA[self.currAccessoryType] = self.currItem
-            kart = self._parent.parent.getKartViewer().getKart()
+            kart = self._parent._parent.getKartViewer().getKart()
             kart.updateDNAField(self.currAccessoryType, self.currItem)
             if self.avatar.getAccessoryByType(self.currAccessoryType) == deletedItem:
                 self.avatar.requestKartDNAFieldUpdate(self.currAccessoryType, self.currItem)

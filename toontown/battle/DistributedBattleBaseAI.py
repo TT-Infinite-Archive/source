@@ -5,7 +5,7 @@ from direct.fsm import ClassicFSM, State
 from direct.task import Task, Timer
 from panda3d.core import *
 
-from otp.ai.MagicWordGlobal import CATEGORY_PROGRAMMER, magicWord, spellbook
+from otp.ai.MagicWordGlobal import CATEGORY_ADMINISTRATOR, magicWord, spellbook
 from toontown.battle import BattleAttack
 from toontown.battle import BattleGlobals
 from toontown.battle import SuitBattleGlobals
@@ -1038,7 +1038,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         ]
 
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def skipMovie():
     invoker = spellbook.getInvoker()
     battleId = invoker.getBattleId()

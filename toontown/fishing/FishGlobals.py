@@ -701,7 +701,7 @@ def generateFishingReport(numCasts = 10000, hitRate = 0.8):
           (money - totalCastCost) / float(numCasts * numPonds)),)
 
 
-@magicWord(category=CATEGORY_PROGRAMMER, types=[int, int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int, int])
 def testFishing(rodId=0, iterations=1000):
     testRarity(rodId, iterations)
     return 'Check console for results!'

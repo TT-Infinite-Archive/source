@@ -41,7 +41,8 @@ class DistributedPet(DistributedSmoothNode.DistributedSmoothNode, Pet.Pet, PetBa
         self.__generateDistMoodFuncs()
         self.trickAptitudes = []
         self.avDelayDelete = None
-        return
+        self.mood = None
+        self.traits = None
 
     def generate(self):
         DistributedPet.notify.debug('generate(), fake=%s' % self.bFake)

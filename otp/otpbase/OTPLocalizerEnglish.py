@@ -4,7 +4,7 @@ lTheBrrrgh = 'The Brrrgh'
 lDaisyGardens = 'The Gardens'
 lDonaldsDock = "The Docks"
 lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Melodyland"
+lMinniesMelodyland = "Musical Melodyland"
 lToontownCentral = 'Toontown Central'
 lGoofySpeedway = 'Toontown Speedway'
 lOutdoorZone = "Acorn Acres"
@@ -208,7 +208,7 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  126: 'You are not authorized to use administrator privileges.',
  127: 'A problem has occurred with your Toon.  Please contact Member Services via phone or email and reference Error Code 127.  Thank you.',
  151: "Your account details have been modified.",
- 152: "There has been a reported violation of our Terms of Use connected to '%(name)s'. For more details, please review the message sent to the e-mail address associated with '%(name)s'.",
+ 152: "You have been banned from this server. For more details, please contact the host.\nYou may continue playing Toontown Infinite in Singleplayer or on another server. Try improving your behavior to avoid any other bans.",
  153: 'The district you were playing on has been reset.  Everyone who was playing on that district has been disconnected.  However, you should be able to connect again and go right back into the game.',
  154: 'Toontown Infinite has been temporarily closed for scheduled downtime. Everyone who was playing on the Kaldron Network has been disconnected from the game.\n\nIf you wish to continue playing, you may go into custom play until maintenance is complete.\n\nFor more information, please visit the Toontown Infinite website.',
  288: 'Sorry, you have used up all of your available minutes this month.',
@@ -258,7 +258,7 @@ SCMenuResistance = 'UNITE!'
 SCMenuPets = 'PETS'
 SCMenuPetTricks = 'TRICKS'
 SCMenuCog = 'COG SPEAK'
-SCMenuAlpha = 'ALPHA'
+SCMenuInfinite = 'INFINITE'
 SCMenuBugs = 'BUGS'
 SCMenuHello = 'HELLO'
 SCMenuBye = 'GOODBYE'
@@ -284,7 +284,7 @@ SCMenuBattleSound = 'SOUND'
 SCMenuBattleThrow = 'THROW'
 SCMenuBattleSquirt = 'SQUIRT'
 SCMenuBattleDrop = 'DROP'
-SCMenuGagShop = 'TOON PALOOZA'
+SCMenuGagShop = 'TROLLEY'
 SCMenuFactory = 'FACTORY'
 SCMenuCogGolf = 'COUNTRY CLUB'
 SCMenuKartRacing = 'RACING'
@@ -331,18 +331,18 @@ FriendSecretNeedsPasswordWarningOK = lOK
 FriendSecretNeedsPasswordWarningCancel = lCancel
 FriendSecretNeedsPasswordWarningWrongUsername = "That's not the correct username.  Please enter the username of the parental account.  This is not the same username used to play the game."
 FriendSecretNeedsPasswordWarningWrongPassword = "That's not the correct password.  Please enter the password of the parental account.  This is not the same password used to play the game."
-FriendSecretIntro = "If you are playing Toontown Infinite with someone you know in the real world, you can become True Friends.  You can chat using the keyboard with your True Friends.  Other Toons won't understand what you're saying.\n\nYou do this by getting a True Friend Code.  Tell the True Friend Code to your friend, but not to anyone else.  When your friend types in your True Friend Code on his or her screen, you'll be True Friends in Toontown!"
+FriendSecretIntro = "If you are playing Toontown Infinite and wish to use the Unrestricted Chat feature with close friends, you can become True Friends! Other Toons won't see the Unrestricted Chat unless they are also your True Friend.\n\nTo start, get a True Friend Code. Tell the True Friend Code to your friend, but not to anyone else. When your friend types in your True Friend Code on his or her screen, you'll be True Friends in Toontown!"
 FriendSecretGetSecret = 'Get a True Friend Code'
 FriendSecretEnterSecret = 'If you have a True Friend Code from someone you know, type it here.'
 FriendSecretOK = lOK
 FriendSecretEnter = 'Enter True Friend Code'
 FriendSecretCancel = lCancel
 FriendSecretGettingSecret = 'Getting True Friend Code. . .'
-FriendSecretGotSecret = "Here is your new True Friend Code.  Be sure to write it down!\n\nYou may give this True Friend Code to one person only.  Once someone types in your True Friend Code, it will not work for anyone else.  If you want to give a True Friend Code to more than one person, get another True Friend Code.\n\nThe True Friend Code will only work for the next two days.  Your friend will have to type it in before it goes away, or it won't work.\n\nYour True Friend Code is:"
+FriendSecretGotSecret = "Here is your new True Friend Code. Be sure to write it down!\n\nYou may give this True Friend Code to one person only. Once someone types in your True Friend Code, it will not work for anyone else.  If you want to give a True Friend Code to more than one person, get another True Friend Code.\n\nThe True Friend Code will only work for the next two days.  Your friend will have to type it in before it goes away, or it won't work.\n\nYour True Friend Code is:"
 FriendSecretTooMany = "Sorry, you can't have any more True Friend Codes today.  You've already had more than your fair share!\n\nTry again tomorrow."
 FriendSecretTryingSecret = 'Trying True Friend Code. . .'
 FriendSecretNotImplemented = 'True Friends has not been implemented yet!'
-FriendSecretEnteredSecretSuccess = 'You are now True Friends with %s!'
+FriendSecretEnteredSecretSuccess = 'You are now True Friends with %s!\nYou may now talk to this Toon using the Unrestricted Chat.'
 FriendSecretTimeOut = 'Sorry, secrets are not working right now.'
 FriendSecretEnteredSecretUnknown = "That's not anyone's True Friend Code.  Are you sure you spelled it correctly?\n\nIf you did type it correctly, it may have expired.  Ask your friend to get a new True Friend Code for you (or get a new one yourself and give it to your friend)."
 FriendSecretEnteredSecretFull = "You can't be friends with %s because one of you has too many friends on your friends list."
@@ -1969,18 +1969,18 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30450: "It's easy to be green!",
  30451: 'Collect four leaf clovers and you can be green too!',
  30452: "You can find four leaf clovers scattered all across Toontown.",
- 30500: "Welcome to [SERVER NAME]'s Toontown Infinite server!",
+ 30500: "Welcome to the server!",
  30501: "The Possibilities are Infinite.",
  30502: "Are you livestreaming?",
  30503: "I'm livestreaming right now!",
  30504: "I can't wait for the next Toontown Infinite update!",
  30505: "Whatcha' think of all the new changes so far?",
- 30506: "When do you think those tunnels will open?",
+ 30506: "Toontown Infinite is designed to preserve Toontown forever!",
  30507: "I can't stand that bug!",
  30508: "Have you found any bugs yet?",
  30509: "I hope that bug gets fixed soon.",
  30510: "Those bugs can be obnoxious at times.",
- 30511: "What types of bugs have you ran into so far?",
+ 30511: "What bugs have you ran into so far?",
  30512: "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."}
 SpeedChatStaticTextPirates = {50001: 'Aye',
  50002: 'Nay',
@@ -2844,9 +2844,9 @@ NameShopNameMaster = 'NameMasterEnglish.txt'
 NameShopPay = 'Subscribe'
 NameShopPlay = 'Free Trial'
 NameShopOnlyPaid = 'Only paid users\nmay name their Toons.\nUntil you subscribe\nyour name will be\n'
-NameShopContinueSubmission = 'Continue Submission'
+NameShopContinueSubmission = 'Enter Toontown'
 NameShopChooseAnother = 'Choose Another Name'
-NameShopToonCouncil = 'The Toon Council\nwill review your\nname.  ' + 'Review may\ntake a few days.\nWhile you wait\nyour name will be\n '
+NameShopToonCouncil = 'The Toon Council\nhas approved your\nname!'
 PleaseTypeName = 'Please type your name:'
 ToonAlreadyExists = '%s already exists'
 AllNewNames = 'All new names\nmust be approved\nby the Name Council.'

@@ -51,6 +51,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
             self.autoRun = 0
             self.whiteListEnabled = base.config.GetBool('want-whitelist', True)
             self.lastTeleportQuery = time.time()
+            self.platform = ''
 
     @staticmethod
     def GetPlayerGenerateEvent():
@@ -438,6 +439,12 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
 
     def getAdminAccess(self):
         return self.adminAccess
+
+    def setPlatform(self, platform):
+        self.platform = platform
+    
+    def getPlatform(self):
+        return self.platform
 
     def setAutoRun(self, value):
         self.autoRun = value
