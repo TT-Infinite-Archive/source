@@ -74,7 +74,7 @@ class TutorialFSM(FSM):
         self.gideon.d_setH(90)
         
         # This spawns a new tutorial cog for the second battle
-        self.suit = DistributedTutorialSuitAI(self.air, 'c');
+        self.suit = DistributedTutorialSuitAI(self.air, 'cc');
         self.suit.generateWithRequired(self.zones['street']);
 
     def exitHQ(self):
