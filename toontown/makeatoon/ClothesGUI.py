@@ -6,7 +6,7 @@ from pandac.PandaModules import *
 from MakeAToonGlobals import *
 from toontown.toonbase import TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
-from MakeAToonGUI import MATFrame
+from MakeAToonGUI import MATFrame, MATShuffleButton
 import ShuffleButton
 import random
 CLOTHES_MAKETOON = 0
@@ -24,6 +24,8 @@ class ClothesGUI(StateData.StateData):
         self.gender = '?'
         self.girlInShorts = 0
         self.swappedTorso = 0
+        self.shirtButtons = []
+        self.bottomButtons = []
         return
 
     def load(self):
@@ -46,20 +48,21 @@ class ClothesGUI(StateData.StateData):
             return
 
 
-        self.shirtStyleFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, 0.2), hpr=(0, 0, 3), scale=1.2,
-                                        text=TTLocalizer.ClothesShopShirtsStyle, text_scale=0.0545, text_pos=(-0.001, -0.015),
-                                        arrowcommand=self.swapTopStyle)
-
-        self.shirtFrame = MATFrame(parent=self.parentFrame,  pos=(0, 0, -0.1), hpr=(0, 0, 3), scale=1.2,
+        #self.shirtStyleFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, 0.2), hpr=(0, 0, 3), scale=1.2,
+        #                                text=TTLocalizer.ClothesShopShirtsStyle, text_scale=0.0545, text_pos=(-0.001, -0.015),
+        #                                arrowcommand=self.swapTopStyle)
+        self.shirtFrame = MATFrame(parent=base.a2dTopLeft,  pos=(.6, 0, -.4), hpr=(0, 0, 3), scale=1.2,
                                    text= TTLocalizer.ClothesShopShirtsColor, text_scale=0.0545, text_pos=(-0.001, -0.015),
                                    arrowcommand=self.swapTopColor)
 
-        self.bottomStyleFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.4), hpr=(0, 0, -2), scale=1.2,
-                                            text=TTLocalizer.ClothesShopShortsStyle, text_scale=0.0515, text_pos=(-0.001, -0.015),
-                                            arrowcommand=self.swapBottomStyle)
+        #self.bottomStyleFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.4), hpr=(0, 0, -2), scale=1.2,
+        #                                    text=TTLocalizer.ClothesShopShortsStyle, text_scale=0.0515, text_pos=(-0.001, -0.015),
+        #                                    arrowcommand=self.swapBottomStyle)
 
-        self.bottomFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.65), hpr=(0, 0, -2), scale=1.2, text=TTLocalizer.ClothesShopShortsColor,
+        self.bottomFrame = MATFrame(parent=base.a2dTopRight, pos=(-.6, 0, -.4), hpr=(0, 0, -2), scale=1.2, text=TTLocalizer.ClothesShopShortsColor,
                                        text_scale=0.0515, text_pos=(-0.001, -0.015), arrowcommand=self.swapBottomColor)
+        self.shirtFrame.hide()
+        self.bottomFrame.hide()
         self.parentFrame.hide()
         self.shuffleFetchMsg = 'ClothesShopShuffle'
         self.shuffleButton = ShuffleButton.ShuffleButton(self, self.shuffleFetchMsg)
@@ -71,11 +74,17 @@ class ClothesGUI(StateData.StateData):
         self.bottomFrame.destroy()
 
         if self.type == CLOTHES_MAKETOON:
-            self.shirtStyleFrame.destroy()
-            self.bottomStyleFrame.destroy()
-            del self.shirtStyleFrame
-            del self.bottomStyleFrame
-
+        #    self.shirtStyleFrame.destroy()
+        #    self.bottomStyleFrame.destroy()
+        #    del self.shirtStyleFrame
+        #    del self.bottomStyleFrame
+            for btn in self.shirtButtons:
+                btn.destroy()
+                del btn
+            for btn in self.bottomButtons:
+                btn.destroy()
+                del btn
+            
         del self.parentFrame
         del self.shirtFrame
         del self.bottomFrame
@@ -84,9 +93,21 @@ class ClothesGUI(StateData.StateData):
 
     def showButtons(self):
         self.parentFrame.show()
-
+        for button in self.shirtButtons:
+            button.show()
+        for button in self.bottomButtons:
+            button.show()
+        self.shirtFrame.show()
+        self.bottomFrame.show()
+            
     def hideButtons(self):
         self.parentFrame.hide()
+        for button in self.shirtButtons:
+            button.hide()
+        for button in self.bottomButtons:
+            button.hide()
+        self.shirtFrame.hide()
+        self.bottomFrame.hide()
 
     def enter(self, toon):
         self.notify.debug('enter')
@@ -109,6 +130,11 @@ class ClothesGUI(StateData.StateData):
         self.shuffleButton.setChoicePool(choicePool)
         self.accept(self.shuffleFetchMsg, self.changeClothes)
         self.acceptOnce('MAT-newToonCreated', self.shuffleButton.cleanHistory)
+        self.createShirtButtons()
+        self.createBottomButtons()
+        for button in self.shirtButtons:
+            button['image_color'] = (ToonDNA.ClothesColors[self.toon.style.topTexColor]);
+            button['image3_color'] = (ToonDNA.ClothesColors[self.toon.style.topTexColor] - Vec4(0, 0, 0, .4));
 
     def exit(self):
         try:
@@ -143,13 +169,11 @@ class ClothesGUI(StateData.StateData):
             if self.type != CLOTHES_MAKETOON:
                 self.bottomFrame['text'] = TTLocalizer.ClothesShopShorts
             else:
-                self.bottomStyleFrame['text'] = TTLocalizer.ClothesShopShortsStyle
                 self.bottomFrame['text'] = TTLocalizer.ClothesShopShortsColor
         else:
             if self.type != CLOTHES_MAKETOON:
                 self.bottomFrame['text'] = TTLocalizer.ClothesShopBottoms
             else:
-                self.bottomStyleFrame['text'] = TTLocalizer.ClothesShopBottomsStyle
                 self.bottomFrame['text'] = TTLocalizer.ClothesShopBottomsColor
         self.acceptOnce('last', self.__handleBackward)
         self.acceptOnce('next', self.__handleForward)
@@ -191,6 +215,52 @@ class ClothesGUI(StateData.StateData):
             messenger.send(self.swapEvent)
         messenger.send('wakeup')
 
+    def setTopStyle(self, id):
+        for btn in self.shirtButtons:
+            btn['state'] = DGG.NORMAL;
+            
+        self.shirtButtons[id]['state'] = DGG.DISABLED;
+    
+        self.topStyleChoice = id
+        self.toon.style.topTex = self.topStyles[self.topStyleChoice][0]
+        self.toon.style.sleeveTex = self.topStyles[self.topStyleChoice][1]
+        colors = self.getColors('top')
+        colorLength = len(colors)
+        if self.topColorChoice < 0 or self.topColorChoice >= colorLength:
+            self.topColorChoice = colorLength - 1
+        self.updateFrame(self.topColorChoice, colorLength, self.shirtFrame)
+        self.toon.style.topTexColor = colors[self.topColorChoice][0]
+        self.toon.style.sleeveTexColor = colors[self.topColorChoice][1]
+        self.toon.generateToonClothes()
+        if self.swapEvent != None:
+            messenger.send(self.swapEvent)
+        messenger.send('wakeup')      
+        
+    def setBottomStyle(self, id):
+        for btn in self.bottomButtons:
+            btn['state'] = DGG.NORMAL;
+            
+        self.bottomButtons[id]['state'] = DGG.DISABLED;
+    
+        self.bottomStyleChoice = id
+        length = len(self.bottomStyles)
+        if self.bottomStyleChoice < 0 or self.bottomStyleChoice >= length:
+            self.notify.warning('bottomChoice index is out of range!')
+            return None
+        self.toon.style.botTex = self.bottomStyles[self.bottomStyleChoice]
+        colors = self.getColors('bottom')
+        colorLength = len(colors)
+        if self.bottomColorChoice < 0 or self.bottomColorChoice >= colorLength:
+            self.bottomColorChoice = colorLength - 1
+        self.updateFrame(self.bottomColorChoice, colorLength, self.bottomFrame)
+        self.toon.style.botTexColor = colors[self.bottomColorChoice]
+        if self.toon.generateToonClothes() == 1:
+            self.toon.loop('neutral', 0)
+            self.swappedTorso = 1
+        if self.swapEvent != None:
+            messenger.send(self.swapEvent)
+        messenger.send('wakeup')
+        
     def swapTopStyle(self, offset):
         length = len(self.topStyles)
         self.topStyleChoice += offset
@@ -228,6 +298,9 @@ class ClothesGUI(StateData.StateData):
         self.toon.style.topTexColor = colors[self.topColorChoice][0]
         self.toon.style.sleeveTexColor = colors[self.topColorChoice][1]
         self.toon.generateToonClothes()
+        for btn in self.shirtButtons:
+            btn['image_color'] = (ToonDNA.ClothesColors[self.toon.style.topTexColor]);
+            btn['image3_color'] = (ToonDNA.ClothesColors[self.toon.style.topTexColor] - Vec4(0, 0, 0, .4));
         if self.swapEvent != None:
             messenger.send(self.swapEvent)
         messenger.send('wakeup')
@@ -325,3 +398,42 @@ class ClothesGUI(StateData.StateData):
 
     def getCurrToonSetting(self):
         return [self.tops[self.topChoice], self.bottoms[self.bottomChoice]]
+        
+    def createShirtButtons(self):
+        pos = ((.3, 0, .3),  (.5, 0, .3),  (.7, 0, .3),  (.9, 0, .3),
+               (.3, 0, .1),  (.5, 0, .1),  (.7, 0, .1),  (.9, 0, .1),
+               (.3, 0, -.1), (.5, 0, -.1), (.7, 0, -.1), (.9, 0, -.1),
+               (.3, 0, -.3), (.5, 0, -.3), (.7, 0, -.3), (.9, 0, -.3));
+        for x in range(len(self.topStyles)):
+            id = self.topStyles[x][0]
+            image = ToonDNA.Shirts[id]
+
+            btn = MATShuffleButton(wantArrows=False, image = image,
+                image_scale = .06 ,image1_scale = 0.07, image2_scale = 0.07,
+                image_color = (1, 1, 1, 1),
+                image3_color = (.5, .5, .5, 1), text = (''),
+                scale = 0.95, command = self.setTopStyle, extraArgs = [x]);
+            btn.reparentTo(base.a2dLeftCenter);
+            btn.setPos(pos[x]);
+            self.shirtButtons.append(btn);
+            
+    def createBottomButtons(self):
+        pos = ((-.3, 0, .3),  (-.5, 0, .3),  (-.7, 0, .3),  (-.9, 0, .3),
+               (-.3, 0, .1),  (-.5, 0, .1),  (-.7, 0, .1),  (-.9, 0, .1),
+               (-.3, 0, -.1), (-.5, 0, -.1), (-.7, 0, -.1), (-.9, 0, -.1),
+               (-.3, 0, -.3), (-.5, 0, -.3), (-.7, 0, -.3), (-.9, 0, -.3));
+        for x in range(len(self.bottomStyles)):
+            id = self.bottomStyles[x]
+            if self.gender == 'f':
+                image = ToonDNA.GirlBottoms[id][0]
+            else:
+                image = ToonDNA.BoyShorts[id]
+
+            btn = MATShuffleButton(wantArrows=False, image = image,
+                image_scale = .06 ,image1_scale = 0.07, image2_scale = 0.07,
+                image_color = (1, 1, 1, 1),
+                image3_color = (.5, .5, .5, 1), text = (''),
+                scale = 0.95, command = self.setBottomStyle, extraArgs = [x]);
+            btn.reparentTo(base.a2dRightCenter);
+            btn.setPos(pos[x]);
+            self.bottomButtons.append(btn);
