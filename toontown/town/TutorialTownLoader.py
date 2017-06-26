@@ -16,6 +16,9 @@ from panda3d.core import CollisionNode, CollisionSphere
 from toontown.toon import ToonDNA, ToonDNA
 from toontown.prologue.Island import Island
 from toontown.prologue.FloatingObject import FloatingObject
+from toontown.effects.RocketExplosion import RocketExplosion
+from direct.actor.Actor import Actor
+from direct.distributed import DistributedObject
 
 
 class TutorialTownLoader(TTTownLoader.TTTownLoader):
@@ -28,6 +31,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.islands = []
         self.currentIsland = None
         self.mmPianoLoop = None
+        self.rocketTrigger = None
+        self.rocketParticleSeq = None
         self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
         self.music = base.loadMusic(self.musicFile)
@@ -110,6 +115,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.prologueIntro = Sequence(
             Func(self.music.stop),
             Func(self.infiniteIntroBGM.play),
+            Func(base.transitions.fadeIn, 3),
             Func(base.localAvatar.disableAvatarControls),
             Func(base.localAvatar.detachCamera),
             Func(base.localAvatar.collisionsOff),
@@ -173,6 +179,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.space = render.attachNewNode('SpaceNode')
         self.enterIntroduction()
         self.startInfiniteLowGravity()
+
         render.setColorScale(0.4, 0.4, 0.45, 1)
         base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
 
@@ -228,17 +235,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         ddBoat.setup(20, 4)
         self.islands.append(ddBoat)
 
-        # House B
-        self.houseB = loader.loadModel('phase_5.5/models/estate/houseB.bam')
-        self.houseB.reparentTo(render)
-        self.houseB.setPosHpr(75, 0, 5, 140, 0, 0) # Interval to -80, -20, 110, 210, 0, 0
-
-        houseInterval = self.houseB.posInterval(120, Point3(-80, -20, 110),
-                                               startPos=Point3(75, 0, 5))
-        houseInterval.loop()
-
-        # Misc Objects
-
         # Key Blade
         self.keyblade = FloatingObject(self.space)
         loader.loadModel('phase_3.5/models/props/kh_key_blade.bam').reparentTo(self.keyblade)
@@ -246,15 +242,77 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.keyblade.setScale(0.2)
         self.keyblade.setup(1)
 
-        # PlacerTool3D(houseB, increment=5)
+        # Rocket
+        self.launchPadModel = loader.loadModel('phase_13/models/parties/launchPad.bam')
+        self.launchPadModel.setH(90.0)
+        self.launchPadModel.setPos(0.0, -18.0, 0.0)
+        self.launchPadModel.reparentTo(hidden)
+        railingsCollection = self.launchPadModel.findAllMatches('**/launchPad_mesh/*railing*')
+        for i in xrange(railingsCollection.getNumPaths()):
+            railingsCollection[i].setAttrib(AlphaTestAttrib.make(RenderAttrib.MGreater, 0.75))
+        self.rocketActor = Actor('phase_13/models/parties/rocket_model.bam',
+                                 {'launch': 'phase_13/models/parties/rocket_launch.bam'})
+        rocketLocator = self.launchPadModel.find('**/rocket_locator')
+        self.rocketActor.reparentTo(render)
+        self.rocketActor.setPosHpr(75, 0, -1, 140, 0, 0)
+        self.rocketActor.node().setBound(OmniBoundingVolume())
+        self.rocketActor.node().setFinal(True)
+        effectsLocator = self.rocketActor.find('**/joint1')
+        self.rocketExplosionEffect = RocketExplosion(effectsLocator, rocketLocator)
+        self.rocketParticleSeq = None
+        self.launchSound = loader.loadSfx('phase_13/audio/sfx/rocket_launch.ogg')
+
+        # Attempting to create this collision sphere a distributed object but having trouble ~ Markgasus
+        self.rocketTriggerEvent = self.uniqueName('rocketTriggerEvent')
+
+        # Collision Sphere around the area where the cutscene is
+        self.cutsceneSite = render.attachNewNode('cutsceneSite')
+        cn = CollisionNode(self.rocketTriggerEvent)
+        cn.setIntoCollideMask(ToontownGlobals.WallBitmask)
+        self.cutsceneSphere = self.cutsceneSite.attachNewNode(cn)
+        self.cutsceneSphere.setPos(75, 0, 1)
+        cs = CollisionSphere(0, 0, 0, 10)
+        cs.setTangible(0)
+        self.cutsceneSphere.node().addSolid(cs)
+        self.cutsceneSphere.show()
+
+        # Accept collisions with the rocket trigger
+        self.accept('enter%s' % self.rocketTriggerEvent, self.__enterRocket)
+        print 'Hey that tickles!'
+        # self.accept('exit%s' % self.__exitRocket)
+
+        # PlacerTool3D(model, increment=5)
+
+    def __enterRocket(self):
+        # Rocket cutscene starts here
+        print 'Hey that tickles'
+        self.launchRocket()
+
+    def launchRocket(self):
+        self.rocketParticleSeq = Sequence(Wait(2), Func(base.playSfx, self.launchSound),
+                                          Func(self.rocketExplosionEffect.start), Wait(2),
+                                          LerpHprInterval(self.rocketActor, 4.0, Vec3(0, 0, -60)),
+                                          Func(self.rocketExplosionEffect.end), Func(self.rocketActor.hide))
+        self.rocketParticleSeq.start()
+        self.rocketActor.play('launch')
 
     def unloadInfinite(self):
         self.infiniteSky.removeNode()
         self.space.removeNode()
+        self.rocketParticleSeq = None
 
         if self.mmPianoLoop:
             self.mmPianoLoop.finish()
             self.mmPianoLoop = None
+
+        if self.rocketParticleSeq:
+            self.rocketParticleSeq.pause()
+            self.rocketParticleSeq = None
+
+        self.launchPadModel.removeNode()
+        del self.launchPadModel
+        self.rocketActor.delete()
+        self.rocketExplosionEffect.destroy()
 
     def startInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.8)

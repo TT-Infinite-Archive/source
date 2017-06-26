@@ -417,6 +417,9 @@ class Movie(DirectObject.DirectObject):
                                         Func(base.transitions.fadeOut, 3),
                                         Wait(3),
                                         Func(music.stop),
+                                        Wait(3),
+                                        Func(base.transitions.fadeScreenColor, 255),
+                                        # Play flash SFX
                                         Func(self.gideon.reparentTo, hidden), Func(self.gideon.hide),
                                         Wait(2),
                                         # Continue
