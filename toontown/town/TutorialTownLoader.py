@@ -263,7 +263,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.launchSound = loader.loadSfx('phase_13/audio/sfx/rocket_launch.ogg')
 
         # Attempting to create this collision sphere a distributed object but having trouble ~ Markgasus
-        self.rocketTriggerEvent = self.uniqueName('rocketTriggerEvent')
+        # self.rocketTriggerEvent = self.uniqueName('rocketTriggerEvent')
 
         # Collision Sphere around the area where the cutscene is
         self.cutsceneSite = render.attachNewNode('cutsceneSite')
@@ -277,8 +277,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.cutsceneSphere.show()
 
         # Accept collisions with the rocket trigger
-        self.accept('enter%s' % self.rocketTriggerEvent, self.__enterRocket)
-        print 'Hey that tickles!'
+        # self.accept('enter%s' % self.rocketTriggerEvent, self.__enterRocket)
         # self.accept('exit%s' % self.__exitRocket)
 
         # PlacerTool3D(model, increment=5)
