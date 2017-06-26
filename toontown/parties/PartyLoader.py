@@ -80,6 +80,7 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
 
     def loadClouds(self):
         self.loadCloudPlatforms()
+        self.startCloudPlatforms()
         if base.cloudPlatformsEnabled and 0:
             self.setCloudSwitch(1)
         if self.cloudSwitch:
@@ -182,7 +183,6 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
         return
 
     def startCloudPlatforms(self):
-        return
         if len(self.clouds):
             self.cloudTrack = self.__cloudTrack()
             self.cloudTrack.loop()

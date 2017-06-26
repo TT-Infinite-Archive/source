@@ -198,21 +198,6 @@ def loadSuits(level):
 def unloadSuits(level):
     unloadDialog(level)
 
-def cogExists(filePrefix):
-    searchPath = DSearchPath()
-    if AppRunnerGlobal.appRunner:
-        searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5'))
-    else:
-        basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
-        searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/phase_3.5'))
-    filePrefix = filePrefix.strip('/')
-    pfile = Filename(filePrefix)
-    found = vfs.resolveFilename(pfile, searchPath)
-    if not found:
-        return False
-    return True
-
-
 def loadSuitAnims(suit, flag = 1):
     if suit in SuitDNA.suitHeadTypes:
         try:

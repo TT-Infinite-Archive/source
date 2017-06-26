@@ -16,4 +16,4 @@ class ChatAgent(DistributedObjectGlobal):
         messenger.send('adminChat', [aboutId, message])
 
     def sendChatMessage(self, message, channel):
-        self.sendUpdate('chatMessage', [message, channel])
+        self.sendUpdate('chatMessage', [message, base.localAvatar.getName(), channel])

@@ -91,22 +91,19 @@ spellbook = Spellbook()
 
 # CATEGORIES
 class MagicWordCategory:
-    def __init__(self, name, defaultAccess=600):
+    def __init__(self, name, defaultAccess=200):
         self.name = name
         self.defaultAccess = defaultAccess
 
 
 CATEGORY_UNKNOWN = MagicWordCategory('Unknown')
 CATEGORY_USER = MagicWordCategory('User', defaultAccess=100)
-CATEGORY_VIP = MagicWordCategory('VIP', defaultAccess=175)
-CATEGORY_COMMUNITY_MANAGER = MagicWordCategory('Community manager', defaultAccess=200)
+CATEGORY_USER2 = MagicWordCategory('User2', defaultAccess=200)
 CATEGORY_MODERATOR = MagicWordCategory('Moderator', defaultAccess=300)
-CATEGORY_CREATIVE = MagicWordCategory('Creative', defaultAccess=400)
-CATEGORY_PROGRAMMER = MagicWordCategory('Programmer', defaultAccess=500)
-CATEGORY_ADMINISTRATOR = MagicWordCategory('Administrator', defaultAccess=600)
-CATEGORY_SYSTEM_ADMINISTRATOR = MagicWordCategory('System administrator', defaultAccess=700)
+CATEGORY_ADMINISTRATOR = MagicWordCategory('Administrator', defaultAccess=400)
+CATEGORY_HOST = MagicWordCategory('Host', defaultAccess=500)
 
-MINIMUM_MAGICWORD_ACCESS = CATEGORY_COMMUNITY_MANAGER.defaultAccess
+MINIMUM_MAGICWORD_ACCESS = CATEGORY_USER2.defaultAccess
 
 
 class MagicWord:

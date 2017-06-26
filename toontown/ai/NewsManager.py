@@ -54,7 +54,6 @@ class NewsManager(DistributedObject.DistributedObject):
 
         self.holidayDecorator = None
         self.holidayIdList = []
-        self.stormEnabled = False
         base.cr.newsManager = self
         self.weeklyCalendarHolidays = []
         return
@@ -726,12 +725,6 @@ class NewsManager(DistributedObject.DistributedObject):
                 result.append(tuple(nItem))
 
         return result
-    
-    def setStormEnabled(self, stormEnabled):
-        self.stormEnabled = stormEnabled
-    
-    def isStormEnabled(self):
-        return self.stormEnabled
 
     def dayForWeekday(self, year, month, weekday, repNum):
         monthDays = calendar.monthcalendar(year, month)

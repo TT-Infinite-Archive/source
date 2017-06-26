@@ -18,6 +18,7 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         taskMgr.remove('playSong%d' % self.doId)
         DistributedPartyActivityAI.delete(self)
 
+
     def setNextSong(self, song):
         avId = self.air.getAvatarIdFromSender()
         phase = self.music.get(song[0])
@@ -34,7 +35,7 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         else:
             self.queue.append(song)
             self.owners.append(avId)
-        for toon in self.toonsPlaying:
+        for toon in self.toonsPlaying.keys():
             self.sendUpdateToAvatarId(toon, 'setSongInQueue', [song])
         if not self.playing:
             #stop default party music...
@@ -73,7 +74,16 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
             return
         self.currentToon = avId
         taskMgr.doMethodLater(PartyGlobals.JUKEBOX_TIMEOUT, self.__removeToon, 'removeToon%d', extraArgs=[])
-        self.toonsPlaying.append(avId)
+        self.toonsPlaying[avId] = True
+        self.updateToonsPlaying()
+        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.handleUnexpectedExit, extraArgs=[avId])
+
+    def handleUnexpectedExit(self, avId):
+        if avId != self.currentToon:
+            return
+        taskMgr.remove('removeToon%d' % self.doId)
+        self.currentToon = 0
+        del self.toonsPlaying[avId]
         self.updateToonsPlaying()
 
     def toonExitRequest(self):
@@ -85,13 +95,13 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
             return
         taskMgr.remove('removeToon%d' % self.doId)
         self.currentToon = 0
-        self.toonsPlaying.remove(avId)
+        del self.toonsPlaying[avId]
         self.updateToonsPlaying()
 
     def __removeToon(self):
         if not self.currentToon:
             return
-        self.toonsPlaying.remove(self.currentToon)
+        del self.toonsPlaying[self.currentToon]
         self.updateToonsPlaying()
         self.currentToon = 0
 
@@ -110,7 +120,7 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         avId = self.air.getAvatarIdFromSender()
         if avId != self.currentToon:
             self.air.writeServerEvent('suspicious',avId,'Toon tried to set song without using the jukebox!')
-        host = self.air.doId2do[self.parent].hostId
+        host = self.air.doId2do[self.party.doId].hostId
         if avId != host:
             self.air.writeServerEvent('suspicious',avId,'Toon tried to move the host\'s song to the top!')
             return
@@ -125,5 +135,5 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         self.owners.insert(0, host)
         self.queue.insert(0, song)
 
-        for toon in self.toonsPlaying:
+        for toon in self.toonsPlaying.keys():
             self.sendUpdateToAvatarId(toon, 'moveHostSongToTop', [])

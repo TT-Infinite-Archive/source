@@ -8,9 +8,9 @@ from toontown.safezone import JukeboxGlobals
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toontowngui.JukeboxGui import JukeboxGui
 from toontown.util.VolumeInterval import VolumeInterval
+from direct.filter.CommonFilters import CommonFilters
 
 # filters = CommonFilters(base.win, base.cam)
-
 
 class DistributedJukebox(DistributedObject):
     notify = directNotify.newCategory('DistributedJukebox')

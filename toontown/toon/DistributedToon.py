@@ -50,6 +50,7 @@ from toontown.shtiker.OptionsPageGlobals import speedChatStyles
 from toontown.speedchat import TTSCDecoders
 from toontown.suit import SuitDNA
 from toontown.toonbase import ToontownGlobals, EventGlobals, SettingsGlobals
+from toontown.chat.TTBlacklist import *
 
 if base.wantKarts:
     from toontown.racing.KartDNA import *
@@ -184,6 +185,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         self.uniteTrack = None
         self.inventory = None
         self.loadout = None
+        self.animState = ''
 
     def disable(self):
         for soundSequence in self.soundSequenceList:
@@ -515,7 +517,85 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         else:
             return Task.cont
 
+
+    def detectBadWords(self, message):
+        words = message.split()
+        for word in words:
+            if word.lower().strip(',.!?\'\"') in BLACKLIST or message.lower().strip(',.!?\'\"') in BLACKLIST:
+                return True
+
+            phrase = ''
+            for letter in word:
+                phrase += letter
+                if phrase.lower().strip(',.!?\'\"') in BLACKLIST:
+                    return True
+
+        return False
+
+    def lookForSequences(self, words):
+        flaggedIndexes = []
+        seqCheckList = [(i, SEQUENCES.get(word.lower().strip(',.!?\'\"'))) for i, word in enumerate(words)
+                        if word.lower().strip(',.!?\'\"') in SEQUENCES and base.whiteList.isWord(word)]
+        for candidate in seqCheckList:
+            currentIndex = candidate[0]
+            strings = candidate[1]
+            for string in strings:
+                subseqStrings = string.split()
+                rangeEnd = len(subseqStrings) + 1
+                cleanSlice = [word.lower().strip(',.!?\'\"') for word in
+                              words[currentIndex + 1:currentIndex + rangeEnd]]
+                if not cleanSlice:
+                    break
+                if cleanSlice != subseqStrings:
+                    continue
+                flaggedIndexes.extend(range(currentIndex, currentIndex + rangeEnd))
+                break
+
+        return [(i, config.GetBool('want-whitelist', 1)) for i in flaggedIndexes]
+
+    def messageCleaner(self, message):
+        modifications = []
+        words = message.split(' ')
+        offset = 0
+        for word in words:
+            if word and not base.whiteList.isWord(word):
+                modifications.append((offset, offset + len(word) - 1))
+            offset += len(word) + 1
+
+        seqMods = self.lookForSequences(words)
+        modifications.extend(seqMods)
+        cleanMessage = message
+
+        for modStart, modStop in modifications:
+            cleanMessage = cleanMessage[:modStart] + '' * (modStop - modStart + 1) + cleanMessage[modStop + 1:]
+
+        if self.detectBadWords(message):
+            if words > 2:
+                return '\x01WLDisplay\x01' + self.chatGarbler.garble(self, word) + '\x02'
+            return '\x01WLDisplay\x01' + self.chatGarbler.garbleSingle(self, word) + '\x02'
+
+        if not len(cleanMessage):
+            return '\x01WLDisplay\x01' + self.chatGarbler.garbleSingle(self, word) + '\x02'
+
+        return cleanMessage
+
     def setTalk(self, fromAV, fromAC, avatarName, chat, mods, flags, channel=0):
+        friendsList = base.localAvatar.getFriendsList()
+
+        originalMessage = chat
+        chat = self.messageCleaner(chat)
+
+        for friendEntry in friendsList:
+            if friendEntry[0] == fromAV:
+                if friendEntry[1]:
+                    chat = originalMessage
+
+        if fromAV == base.localAvatar.doId:
+            chat = originalMessage
+
+        if chat is None:
+            return
+
         if base.cr.ttiFriendsManager.checkIgnored(self.doId):
             return
         localTimestamp = time.strftime('%m-%d-%Y %H:%M:%S', time.localtime())
@@ -544,7 +624,23 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         return base.cr.isFriend(avId) or base.cr.playerFriendsManager.isAvatarOwnerPlayerFriend(avId)
 
     def setTalkWhisper(self, fromAV, fromAC, avatarName, chat, mods, flags):
-        if not localAvatar.acceptingNonFriendWhispers:
+        friendsList = base.localAvatar.getFriendsList()
+
+        originalMessage = chat
+        chat = self.messageCleaner(chat)
+
+        for friendEntry in friendsList:
+            if friendEntry[0] == fromAV:
+                if friendEntry[1]:
+                    chat = originalMessage
+
+        if fromAV == base.localAvatar.doId:
+            chat = originalMessage
+
+        if chat is None:
+            return
+
+        if not localAvatar.wantNonFriendWhispers:
             if not self.isAvFriend(fromAV):
                 return
         if base.cr.ttiFriendsManager.checkIgnored(fromAV):
@@ -574,7 +670,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if not self._isValidWhisperSource(handle):
             self.notify.warning('setWhisperSCEmoteFrom non-toon %s' % fromId)
             return
-        if not localAvatar.acceptingNonFriendWhispers:
+        if not localAvatar.wantNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
         if base.cr.ttiFriendsManager.checkIgnored(fromId):
@@ -596,7 +692,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if not self._isValidWhisperSource(handle):
             self.notify.warning('setWhisperSCFrom non-toon %s' % fromId)
             return
-        if not localAvatar.acceptingNonFriendWhispers:
+        if not localAvatar.wantNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
         if base.cr.ttiFriendsManager.checkIgnored(fromId):
@@ -615,7 +711,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         handle = base.cr.identifyFriend(fromId)
         if handle == None:
             return
-        if not localAvatar.acceptingNonFriendWhispers:
+        if not localAvatar.wantNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
         return DistributedPlayer.DistributedPlayer.setWhisperSCCustomFrom(self, fromId, msgIndex)
@@ -632,7 +728,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if sender is None:
             return
 
-        if not localAvatar.acceptingNonFriendWhispers:
+        if not localAvatar.wantNonFriendWhispers:
             if not self.isAvFriend(fromId):
                 return
 
@@ -882,6 +978,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
     def d_setAnimState(self, animName, animMultiplier = 1.0, timestamp = None, extraArgs = []):
         timestamp = globalClockDelta.getFrameNetworkTime()
+        self.animState = animName
         self.sendUpdate('setAnimState', [animName, animMultiplier, timestamp])
 
     def setAnimState(self, animName, animMultiplier = 1.0, timestamp = None, animType = None, callback = None, extraArgs = []):
@@ -896,8 +993,12 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 animMultiplier = 1.0
         if self.animFSM.getStateNamed(animName):
             self.animFSM.request(animName, [animMultiplier, ts, callback, extraArgs])
+        self.animState = animName
         self.cleanupPieInHand()
         return
+
+    def getAnimState(self):
+        return self.animState
 
     def b_setEmoteState(self, animIndex, animMultiplier):
         self.setEmoteState(animIndex, animMultiplier)
@@ -2580,7 +2681,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         text = copy.copy(message)
         flag = 0
         trueFriends = False
-        admin = False
 
         if self == base.localAvatar:
             for friendId, flags in self.friendsList:
@@ -2589,9 +2689,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
 
         if base.cr.getFriendFlags(self.doId) & OTPGlobals.FriendChat or flag:
             trueFriends = True
-
-        if base.localAvatar.adminAccess >= 200:
-            admin = True
 
         for mod in mods:
             index = mod[0]
@@ -2612,9 +2709,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             else:
                 if trueFriends:
                     newwords.append('\x01WLDisplay\x01' + word + '\x02')
-                    scrubbed = 1
-                elif admin:
-                    newwords.append('\x01WLEnter\x01' + word + '\x02')
                     scrubbed = 1
                 elif not base.localAvatar.canChat():
                     newwords.append('\x01WLDisplay\x01' + self.chatGarbler.garbleSingle(self, word) + '\x02')
@@ -2738,13 +2832,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if not gmType:
             gmType = self._gmType
         iconInfo = [
-            (None, None),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toonResistance_fist', '**/*fistIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'),
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*')
+            (None, None), # User
+            (None, None), # User 2
+            ('phase_3/models/props/gm_icons.bam', '**/access_level_300'), # Mod
+            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'), # Admin
+            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'), # Host
         ]
         index = (gmType / 100) - 1
         icon = loader.loadModel(iconInfo[index][0])
@@ -2859,8 +2951,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         reason = 'You have been warned by a moderator for: %s' % reason
         self.setSystemMessage(base.localAvatar.doId, reason)
 
-
-@magicWord(category=CATEGORY_COMMUNITY_MANAGER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def globalTeleport():
     """
     Activates the global teleport cheat.
@@ -2887,17 +2978,17 @@ def promote(deptIndex):
     invoker.sendUpdate('requestPromotion', [deptIndex])
     return 'Your promotion request has been sent.'
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def autodoor():
     base.cr.doFind('DistributedCogHQDoor').sendUpdate('requestEnter')
 
-@magicWord(category=CATEGORY_PROGRAMMER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def autoboard():
     invoker = spellbook.getInvoker()
     base.cr.doFind('Boarding').sendUpdate('requestLeave',[invoker.doId])
     base.cr.doFind('Boarding').sendUpdate('requestInvite',[invoker.doId])
     base.cr.doFind('Boarding').sendUpdate('requestGoToSecondTime',[base.cr.doFind('Elevator').doId])
 
-@magicWord(category=CATEGORY_PROGRAMMER, types=[])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[])
 def getLoadout():
     return 'Loadout: %s' % base.localAvatar.loadout.getLoadout()
