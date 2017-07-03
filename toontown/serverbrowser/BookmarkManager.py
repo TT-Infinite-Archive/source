@@ -35,6 +35,7 @@ class BookmarkManager:
         # Convert bookmark format 1.0 to 2.0 format
         oldbookmarks = []
         if os.path.exists(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat')):
+            base.showNotification("Out of date bookmark data detected! Automatically converting to the new format!");
             file = open(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat'), 'rb');
             data = file.read();
             file.close();
