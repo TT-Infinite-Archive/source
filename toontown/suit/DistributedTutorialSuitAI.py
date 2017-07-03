@@ -21,13 +21,13 @@ class FakeBattleManager:
 class DistributedTutorialSuitAI(DistributedSuitBaseAI):
     notify = directNotify.newCategory('DistributedTutorialSuitAI')
 
-    def __init__(self, air, type = 'f', battleNumber = 0):
+    def __init__(self, air, type = 'f', battleNumber = 0, level = 1):
         DistributedSuitBaseAI.__init__(self, air, None)
 
         suitDNA = SuitDNA.SuitDNA()
         suitDNA.newSuit(type)
         self.dna = suitDNA
-        self.setLevel(1)
+        self.setLevel(level)
         self.requestedBattle = battleNumber; # The battle we want
         
         # This is the list of all the cell positions

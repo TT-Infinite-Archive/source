@@ -45,7 +45,7 @@ class TutorialFSM(FSM):
         self.building.insideDoor.setDoorLock(FADoorCodes.UNLOCKED)
 
     def enterBattle(self):
-        self.suit = DistributedTutorialSuitAI(self.air, type = 'f', battleNumber = 0)
+        self.suit = DistributedTutorialSuitAI(self.air, type = 'f', battleNumber = 0, level = 1)
         self.suit.generateWithRequired(self.zones['street'])
 
         self.building.door.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_TOM)
@@ -74,7 +74,7 @@ class TutorialFSM(FSM):
         self.gideon.d_setH(90)
         
         # This spawns a new tutorial cog for the second battle
-        self.suit = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 1);
+        self.suit = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 1, level = 1);
         self.suit.generateWithRequired(self.zones['street']);
 
     # def enterExampleState(self):
@@ -85,13 +85,15 @@ class TutorialFSM(FSM):
         # DistributedTutorialSuitAI(self.air, type, battleNumber)
         # The 'type' is the cog type, for example: 'f' for flunky
         # The 'battleNumber' is the index from which Distributed Tutorial Suit AI grabs from its 'self.cellPositions'
+        # The 'level' is the cog level, self explanatory
         #------------------------------------------------------------------------------ 
         # So, the first battle would be (like shown on 48):
-        # self.suit = DistributedTutorialSuitAI(self.air, type = 'f' {To spawn a flunky}, battleNumber = 0 {to get position '0' / the first in the list});
+        # self.suit = DistributedTutorialSuitAI(self.air, type = 'f' {Flunky}, battleNumber = 0 {Position index 0}, level = 1 {Cog Level});
         # self.suit.generateWithRequired(self.zones['street']);
         #------------------------------------------------------------------------------ 
         # Make sure to properly requestDelete the suit once the state is done or i will whip you
         #=======================================================================
+        
     # def exitExampleState(self):
         # if self.suit:
         #   self.suit.requestDelete()
