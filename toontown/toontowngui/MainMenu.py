@@ -3,7 +3,7 @@ from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
-from direct.gui.DirectGui import *
+from direct.gui import DirectGuiGlobals
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.interval.IntervalGlobal import Sequence
 from pandac.PandaModules import *
@@ -15,7 +15,7 @@ from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ColorGlobals import CGray, CDefault
-from toontown.toontowngui import TTDialog
+from toontown.toontowngui import TTDialog, TTTooltip
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker
@@ -1099,7 +1099,9 @@ class MainMenu(DirectFrame, FSM):
                 text_fg = (0, 0, 0, 1),
                 command = self.showBookmarkInfo,
                 extraArgs = [name, address])
-                 
+            button.bind(DirectGuiGlobals.ENTER, self.showTooltip, extraArgs = ["Name: %s\nAddress: %s" %(name, address)])
+            button.bind(DirectGuiGlobals.EXIT, self.killTooltip)
+            
             self.bookmarksList.addItem(button)
         
     def showBookmarkInfo(self, name, address):
@@ -1143,7 +1145,10 @@ class MainMenu(DirectFrame, FSM):
                 command = self.deleteFromBookmarks,
                 extraArgs = [name, address],
                 pos = (.4, 0, -.3))
-    
+                
+            deleteButton.bind(DirectGuiGlobals.ENTER, self.showTooltip, extraArgs = ["This will PERMENANTLY delete this bookmark. This action is not reversable!"])
+            deleteButton.bind(DirectGuiGlobals.EXIT, self.killTooltip)
+            
     def enterDirectConnect(self):
         self.backButton3.show()
         self.label11.show()
@@ -1355,3 +1360,10 @@ class MainMenu(DirectFrame, FSM):
     def __handleQuit(self):
         cleanupDialog('globalDialog')
         base.cr.loginFSM.request('shutdown')
+
+    def showTooltip(self, text, event):
+        self.currentTooltip = TTTooltip.TTTooltip(description = text)
+        
+    def killTooltip(self, event):
+        if hasattr(self, 'currentTooltip'):
+            self.currentTooltip.destroy()
