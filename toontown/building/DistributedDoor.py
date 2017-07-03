@@ -13,6 +13,7 @@ from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.hood import ZoneUtil
 from toontown.suit import Suit
 from toontown.toonbase.ToonBaseGlobal import *
+from toontown.toonbase import ColorGlobals
 from toontown.toontowngui import TTDialog
 from toontown.toontowngui import TeaserPanel
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
@@ -407,7 +408,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                         if sys.platform == 'android':
                             self.enterText = MATShuffleButton(relief = None, parent = base.a2dBottomCenter, text = ("Tap to %s" % state), text_style = 3, text_scale = .07, text_pos = (0, -0.02), text_fg = (1, 0.9, 0.1, 1), scale = 1.5, pos = (0.0, 0.0, 0.5), command = self.enterDoor)
                         else:   
-                            self.enterText = OnscreenText(text, style = 3, scale = .09, parent = base.a2dBottomCenter, fg = (1, 0.9, 0.1, 1), pos = (0.0, 0.5))
+                            self.enterText = OnscreenText(text, style = 3, scale = .09, parent = base.a2dBottomCenter, fg = (ColorGlobals.CEmerald), pos = (0.0, 0.5))
 
                         self.colorSeq = Sequence(
                             LerpColorScaleInterval(self.enterText, .8, VBase4(.8, .8, .8, .8)),

@@ -56,3 +56,6 @@ def loadInitialSettings():
     for setting, default in InitialSettings.items():
         if setting not in settings:
             settings[setting] = default
+    # Force these to be false for now
+    settings[DoorInteract] = False
+    settings[NPCInteract] = False

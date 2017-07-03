@@ -466,10 +466,17 @@ class OptionsTabPage(DirectFrame):
         self.npcInteractKeyCheckbox = TTCheckBox.TTCheckBox(
             parent=self.rightFrame,
             pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.wantNpcInteract,
-            command=self.__doToggleNpcInteract
+            checked=False#base.wantNpcInteract,
+            #command=self.__doToggleNpcInteract
         )
-        
+        self.npcInteractKeyCheckbox.disable() # Mark as Coming Soon
+        self.npcInteractKeyComingSoonLabel = TTLabel.TTLabel(
+            parent=self.npcInteractKeyLabel,
+            pos=(0.4, 0.0, 0.0),
+            text_align=TextNode.ALeft,
+            text_fg=ColorGlobals.CRed,
+            text='(Coming Soon)'
+        )
         self.setOptionsState(self.VideoState)
 
     def enter(self):
