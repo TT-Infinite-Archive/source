@@ -20,6 +20,7 @@ from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker
 import sys
+from direct.interval.LerpInterval import LerpPosInterval
 
 class MainMenu(DirectFrame, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -159,30 +160,30 @@ class MainMenu(DirectFrame, FSM):
         )
         self.buttons.append(self.signUpButton)
 
-        self.singlePlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.2),
+        self.singlePlayerButton = DirectButton(
+            parent = base.a2dTopLeft,
+            relief = None,
+            pos=(.35, 0, -0.3),
             text="Singleplayer",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
+            image = None,
             text_scale=0.082,
             text2_scale=0.087,
             text1_scale=0.087,
+            text_style = 3,
             command=lambda: self.request('Singleplayer')
         )
         self.buttons2.append(self.singlePlayerButton)
 
-        self.multiPlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.5),
+        self.multiPlayerButton = DirectButton(
+            parent = base.a2dTopLeft,
+            relief = None,
+            pos=(.35, 0, -0.5),
             text="Multiplayer",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
+            image = None,
             text_scale=0.09,
             text2_scale=0.095,
             text1_scale=0.095,
+            text_style = 3,
             command=lambda: self.request('Multiplayer')
         )
         self.multiPlayerButton.hide()
@@ -597,6 +598,9 @@ class MainMenu(DirectFrame, FSM):
         self.logo.show()
         self.multiPlayerButton.show()
         self.quitButton.show()
+        LerpPosInterval(self.singlePlayerButton, 0.5, Point3(0.35, 0, -0.3), Point3(-0.35, 0, -0.3), blendType = 'easeOut').start()
+        LerpPosInterval(self.multiPlayerButton, 0.5, Point3(0.35, 0, -0.5), Point3(-0.35, 0, -0.5), blendType = 'easeOut').start()
+
 
         """
         self.background.show()
