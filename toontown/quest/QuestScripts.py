@@ -14,22 +14,6 @@ WAIT 1
 FINISH_QUEST_MOVIE
 
 ID tutorial_mickey
-LOCK_LOCALTOON
-REPARENTTO camera render
-POSHPRSCALE camera 11 7 3 52 0 0 1 1 1
-POS localToon 0 0 5
-HPR localToon 0 0 0
-WAIT 2
-LERP_POS localToon -1.8 14.4 0 2
-WAIT 1.1
-LOOP_ANIM localToon "slip-backward"
-WAIT 2.3
-#LERP_HPR localToon -110 0 0 0.5
-#LERP_HPR localToon -70 0 0 0.55
-WAIT 0.4
-LOOP_ANIM localToon "neutral"
-WAIT 1.0867
-# REPARENTTO camera localToon
 FREE_LOCALTOON
 
 ID quest_assign_101

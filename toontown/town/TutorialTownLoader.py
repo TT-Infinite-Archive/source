@@ -17,7 +17,9 @@ from toontown.toon import ToonDNA, ToonDNA
 from toontown.prologue.Island import Island
 from toontown.prologue.FloatingObject import FloatingObject
 from toontown.effects.RocketExplosion import RocketExplosion
+from toontown.prologue.PrologueAssets import PrologueAssets
 from direct.actor.Actor import Actor
+from toontown.prologue.Scene1 import Scene1
 from direct.distributed import DistributedObject
 
 
@@ -33,6 +35,9 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.mmPianoLoop = None
         self.rocketTrigger = None
         self.rocketParticleSeq = None
+        self.currentSequence = None
+        self.np = render.attachNewNode('prologue')
+        self.assets = PrologueAssets(self.np)
         self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
         self.music = base.loadMusic(self.musicFile)
@@ -66,10 +71,12 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         TTTownLoader.TTTownLoader.enterStreet(self, requestStatus)
         base.localAvatar.setCameraFov(52)
         self.music.stop()
-        self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/TC_SZ.ogg')
-        self.ttStreetMusic.play()
-        self.ttStreetMusic.setLoop(1)
+        self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/pl_sf_bgm.ogg')
+        self.ttStreetMusic.play(1)
+        self.loadScienceFair()
         messenger.send('islands-loaded')
+
+        # PlacerTool3D(self.cakeStage, increment=1)
 
     def exit(self):
         TTTownLoader.TTTownLoader.exit(self)
@@ -98,10 +105,10 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.label2.setPos(0, self.calcLabelY())
         self.label2.reparentTo(aspect2d)
 
-        self.infiniteIntroBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_intro.ogg')
-        self.infiniteDebutBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_debut.ogg')
+        self.infiniteIntroBGM = loader.loadMusic('phase_3.5/audio/bgm/pl_intro.ogg')
+        self.infiniteDebutBGM = loader.loadMusic('phase_3.5/audio/bgm/space_debut.ogg')
         self.infiniteDebutBGM.setLoop(1)
-        self.infiniteBGM = loader.loadMusic('phase_3.5/audio/bgm/infinite_bgm.ogg')
+        self.infiniteBGM = loader.loadMusic('phase_3.5/audio/bgm/space_bgm.ogg')
 
         # self.logo = OnscreenImage(
             # parent=base.a2dTopCenter, image='phase_3/maps/toontown-logo.png',
@@ -174,6 +181,82 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infiniteDebutBGM.stop()
         self.infiniteBGM.stop()
 
+    def transitionScene(self):
+        if self.currentSequence:
+            if self.currentSequence.sequence.isPlaying():
+                self.currentSequence.sequence.finish()
+            self.currentSequence.cleanup()
+            self.currentSequence = None
+
+        if not self.assets.loaded:
+            self.assets.load()
+
+    def enterScene1(self):
+        self.transitionScene()
+        self.currentSequence = Scene1(self.assets, self.np)
+        self.currentSequence.start()
+
+    def enterScene2(self):
+        pass
+        # To trigger scene 2, you must have waited at least 2 minutes and looked at all the science expierments
+
+    def loadScienceFair(self):
+        self.enterScene1()
+        # Rocket
+        self.launchPadModel = loader.loadModel('phase_13/models/parties/launchPad.bam')
+        self.launchPadModel.setH(90.0)
+        self.launchPadModel.setPos(0.0, -18.0, 0.0)
+        self.launchPadModel.reparentTo(hidden)
+        railingsCollection = self.launchPadModel.findAllMatches('**/launchPad_mesh/*railing*')
+        for i in xrange(railingsCollection.getNumPaths()):
+            railingsCollection[i].setAttrib(AlphaTestAttrib.make(RenderAttrib.MGreater, 0.75))
+        self.rocketActor = Actor('phase_13/models/parties/rocket_model.bam',
+                                 {'launch': 'phase_13/models/parties/rocket_launch.bam'})
+        rocketLocator = self.launchPadModel.find('**/rocket_locator')
+        self.rocketActor.reparentTo(render)
+        self.rocketActor.setPosHpr(69.089, -14.617, -0.475, 140, 0, 0)
+        self.rocketActor.node().setBound(OmniBoundingVolume())
+        self.rocketActor.node().setFinal(True)
+        effectsLocator = self.rocketActor.find('**/joint1')
+        self.rocketExplosionEffect = RocketExplosion(effectsLocator, rocketLocator)
+        self.rocketParticleSeq = None
+        self.launchSound = loader.loadSfx('phase_13/audio/sfx/rocket_launch.ogg')
+
+        # Rocket ropes
+        self.ropes = loader.loadModel('phase_4/models/modules/tt_m_ara_int_ropes.bam')
+        self.ropes.setPos(69.089, -14.617, -0.475)
+        self.ropes.reparentTo(render)
+        self.ropes.setScale(0.8)
+
+        # Stage
+        self.cakeStage = loader.loadModel('phase_4/models/prologue/cake_stage.bam')
+        self.cakeStage.setPos(76, 20, -0.475)
+        self.cakeStage.reparentTo(render)
+
+        # Balloons
+        self.cakeBalloon = loader.loadModel('phase_4/models/prologue/balloon_set_cake.bam')
+        self.cakeBalloon.setPos(67, 30, -0.475)
+        self.cakeBalloon.reparentTo(render)
+
+        self.starBalloon = loader.loadModel('phase_4/models/prologue/balloon_set_star.bam')
+        self.starBalloon.setPos(67, 10, -0.475)
+        self.starBalloon.reparentTo(render)
+
+        self.balloonArchway = loader.loadModel('phase_4/models/prologue/balloon_archway_spiraled.bam')
+        self.balloonArchway.setPos(47, 20, -0.475)
+        self.balloonArchway.setHpr(90, 0, 0)
+        self.balloonArchway.reparentTo(render)
+
+        self.balloonArchway2 = loader.loadModel('phase_4/models/prologue/balloon_archway_spiraled.bam')
+        self.balloonArchway2.setPos(35, 20, -0.475)
+        self.balloonArchway2.setHpr(90, 0, 0)
+        self.balloonArchway2.reparentTo(render)
+
+        self.balloonArchway3 = loader.loadModel('phase_4/models/prologue/balloon_archway_spiraled.bam')
+        self.balloonArchway3.setPos(23, 20, -0.475)
+        self.balloonArchway3.setHpr(90, 0, 0)
+        self.balloonArchway3.reparentTo(render)
+
     def loadInfinite(self):
         # We use this space node to put all space objects in it so that we can simulate gravity pulls
         self.space = render.attachNewNode('SpaceNode')
@@ -242,39 +325,19 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.keyblade.setScale(0.2)
         self.keyblade.setup(1)
 
-        # Rocket
-        self.launchPadModel = loader.loadModel('phase_13/models/parties/launchPad.bam')
-        self.launchPadModel.setH(90.0)
-        self.launchPadModel.setPos(0.0, -18.0, 0.0)
-        self.launchPadModel.reparentTo(hidden)
-        railingsCollection = self.launchPadModel.findAllMatches('**/launchPad_mesh/*railing*')
-        for i in xrange(railingsCollection.getNumPaths()):
-            railingsCollection[i].setAttrib(AlphaTestAttrib.make(RenderAttrib.MGreater, 0.75))
-        self.rocketActor = Actor('phase_13/models/parties/rocket_model.bam',
-                                 {'launch': 'phase_13/models/parties/rocket_launch.bam'})
-        rocketLocator = self.launchPadModel.find('**/rocket_locator')
-        self.rocketActor.reparentTo(render)
-        self.rocketActor.setPosHpr(75, 0, -1, 140, 0, 0)
-        self.rocketActor.node().setBound(OmniBoundingVolume())
-        self.rocketActor.node().setFinal(True)
-        effectsLocator = self.rocketActor.find('**/joint1')
-        self.rocketExplosionEffect = RocketExplosion(effectsLocator, rocketLocator)
-        self.rocketParticleSeq = None
-        self.launchSound = loader.loadSfx('phase_13/audio/sfx/rocket_launch.ogg')
-
         # Attempting to create this collision sphere a distributed object but having trouble ~ Markgasus
         # self.rocketTriggerEvent = self.uniqueName('rocketTriggerEvent')
 
         # Collision Sphere around the area where the cutscene is
-        self.cutsceneSite = render.attachNewNode('cutsceneSite')
-        cn = CollisionNode(self.rocketTriggerEvent)
-        cn.setIntoCollideMask(ToontownGlobals.WallBitmask)
-        self.cutsceneSphere = self.cutsceneSite.attachNewNode(cn)
-        self.cutsceneSphere.setPos(75, 0, 1)
-        cs = CollisionSphere(0, 0, 0, 10)
-        cs.setTangible(0)
-        self.cutsceneSphere.node().addSolid(cs)
-        self.cutsceneSphere.show()
+        # self.cutsceneSite = render.attachNewNode('cutsceneSite')
+        # cn = CollisionNode(self.rocketTriggerEvent)
+        # cn.setIntoCollideMask(ToontownGlobals.WallBitmask)
+        # self.cutsceneSphere = self.cutsceneSite.attachNewNode(cn)
+        # self.cutsceneSphere.setPos(75, 0, 1)
+        # cs = CollisionSphere(0, 0, 0, 10)
+        # cs.setTangible(0)
+        # self.cutsceneSphere.node().addSolid(cs)
+        # self.cutsceneSphere.show()
 
         # Accept collisions with the rocket trigger
         # self.accept('enter%s' % self.rocketTriggerEvent, self.__enterRocket)
@@ -295,14 +358,25 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.rocketParticleSeq.start()
         self.rocketActor.play('launch')
 
-    def unloadInfinite(self):
-        self.infiniteSky.removeNode()
-        self.space.removeNode()
-        self.rocketParticleSeq = None
+    def unloadScienceFair(self):
+        self.balloonArchway.removeNode()
+        del self.balloonArchway
 
-        if self.mmPianoLoop:
-            self.mmPianoLoop.finish()
-            self.mmPianoLoop = None
+        self.cakeBalloon.removeNode()
+        del self.cakeBalloon
+
+        self.starBalloon.removeNode()
+        del self.starBalloon
+
+        self.balloonArchway.removeNode()
+        del self.balloonArchway
+        self.balloonArchway2.removeNode()
+        del self.balloonArchway2
+        self.balloonArchway3.removeNode()
+        del self.balloonArchway3
+
+        self.cakeStage.removeNode()
+        del self.cakeStage
 
         if self.rocketParticleSeq:
             self.rocketParticleSeq.pause()
@@ -312,6 +386,16 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         del self.launchPadModel
         self.rocketActor.delete()
         self.rocketExplosionEffect.destroy()
+
+
+    def unloadInfinite(self):
+        self.infiniteSky.removeNode()
+        self.space.removeNode()
+        self.rocketParticleSeq = None
+
+        if self.mmPianoLoop:
+            self.mmPianoLoop.finish()
+            self.mmPianoLoop = None
 
     def startInfiniteLowGravity(self):
         base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.8)

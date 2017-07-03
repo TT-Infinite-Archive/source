@@ -33,7 +33,7 @@ class DistributedTutorialSuitAI(DistributedSuitBaseAI):
         # This is the list of all the cell positions
         self.cellPositions = [
                               Point3(35, 20, -0.5), # Battle 1 (battleNumber = 0)
-                              Point3(35, 20, -0.5), # Battle 2 (battleNumber = 1)
+                              Point3(155, 50, -0.5), # Battle 2 (battleNumber = 1)
                               Point3(35, 20, -0.5) # Battle 3 (battleNumber = 2)
                               # etc....
                               ];

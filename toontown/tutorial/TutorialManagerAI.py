@@ -45,16 +45,15 @@ class TutorialFSM(FSM):
         self.building.insideDoor.setDoorLock(FADoorCodes.UNLOCKED)
 
     def enterBattle(self):
-        self.suit = DistributedTutorialSuitAI(self.air, type = 'f', battleNumber = 0, level = 1)
-        self.suit.generateWithRequired(self.zones['street'])
+        # self.suit = DistributedTutorialSuitAI(self.air, type = 'f', battleNumber = 0, level = 1)
+        # self.suit.generateWithRequired(self.zones['street'])
 
         self.building.door.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_TOM)
         self.hq.door0.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_HQ)
         self.hq.door1.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_HQ)
 
     def exitBattle(self):
-        if self.suit:
-            self.suit.requestDelete()
+        pass
 
     def enterHQ(self):
         # Call these later on:
@@ -72,12 +71,8 @@ class TutorialFSM(FSM):
         self.gideon.setHq(1)
         self.gideon.d_setPos(48.700, 19.945, -0.475)
         self.gideon.d_setH(90)
-        
-        # This spawns a new tutorial cog for the second battle
-        self.suit = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 1, level = 1);
-        self.suit.generateWithRequired(self.zones['street']);
 
-    # def enterExampleState(self):
+    def enterExampleState(self):
         #=======================================================================
         # Drew's super ultra amazing guide to creating battles!
         #------------------------------------------------------------------------------
@@ -86,17 +81,20 @@ class TutorialFSM(FSM):
         # The 'type' is the cog type, for example: 'f' for flunky
         # The 'battleNumber' is the index from which Distributed Tutorial Suit AI grabs from its 'self.cellPositions'
         # The 'level' is the cog level, self explanatory
-        #------------------------------------------------------------------------------ 
+        #------------------------------------------------------------------------------
         # So, the first battle would be (like shown on 48):
         # self.suit = DistributedTutorialSuitAI(self.air, type = 'f' {Flunky}, battleNumber = 0 {Position index 0}, level = 1 {Cog Level});
         # self.suit.generateWithRequired(self.zones['street']);
-        #------------------------------------------------------------------------------ 
+        #------------------------------------------------------------------------------
         # Make sure to properly requestDelete the suit once the state is done or i will whip you
         #=======================================================================
+
+        self.suit2 = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 2, level = 2);
+        self.suit2.generateWithRequired(self.zones['street']);
         
-    # def exitExampleState(self):
-        # if self.suit:
-        #   self.suit.requestDelete()
+    def exitExampleState(self):
+        if self.suit2:
+            self.suit2.requestDelete()
 
     def exitHQ(self):
         if self.suit:
