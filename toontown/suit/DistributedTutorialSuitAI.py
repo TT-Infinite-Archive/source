@@ -21,13 +21,22 @@ class FakeBattleManager:
 class DistributedTutorialSuitAI(DistributedSuitBaseAI):
     notify = directNotify.newCategory('DistributedTutorialSuitAI')
 
-    def __init__(self, air, type = 'f'):
+    def __init__(self, air, type = 'f', battleNumber = 0):
         DistributedSuitBaseAI.__init__(self, air, None)
 
         suitDNA = SuitDNA.SuitDNA()
         suitDNA.newSuit(type)
         self.dna = suitDNA
         self.setLevel(1)
+        self.requestedBattle = battleNumber; # The battle we want
+        
+        # This is the list of all the cell positions
+        self.cellPositions = [
+                              Point3(35, 20, -0.5), # Battle 1 (battleNumber = 0)
+                              Point3(35, 20, -0.5), # Battle 2 (battleNumber = 1)
+                              Point3(35, 20, -0.5) # Battle 3 (battleNumber = 2)
+                              # etc....
+                              ];
 
     def destroy(self):
         del self.dna
@@ -48,7 +57,7 @@ class DistributedTutorialSuitAI(DistributedSuitBaseAI):
             return
 
         battle = DistributedBattleTutorialAI(
-            self.air, FakeBattleManager(avId), Point3(35, 20, -0.5), self,
+            self.air, FakeBattleManager(avId), self.cellPositions[self.requestedBattle], self,
             avId, 20001)
         battle.generateWithRequired(self.zoneId)
         battle.battleCellId = 0
