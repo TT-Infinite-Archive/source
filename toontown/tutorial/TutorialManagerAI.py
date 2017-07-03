@@ -77,6 +77,7 @@ class TutorialFSM(FSM):
         self.suit = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 1);
         self.suit.generateWithRequired(self.zones['street']);
 
+    # def enterExampleState(self):
         #=======================================================================
         # Drew's super ultra amazing guide to creating battles!
         #------------------------------------------------------------------------------
@@ -91,6 +92,9 @@ class TutorialFSM(FSM):
         #------------------------------------------------------------------------------ 
         # Make sure to properly requestDelete the suit once the state is done or i will whip you
         #=======================================================================
+    # def exitExampleState(self):
+        # if self.suit:
+        #   self.suit.requestDelete()
 
     def exitHQ(self):
         if self.suit:
