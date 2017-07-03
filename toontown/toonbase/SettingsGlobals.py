@@ -43,7 +43,8 @@ InitialSettings = {
         "MOVE_RIGHT": "d",
         "MOVE_UP": "w",
         "OPTIONS_PAGE_HOTKEY": "escape",
-        "SCREENSHOT_KEY": "f9"
+        "SCREENSHOT_KEY": "f9",
+        "INTERACT_KEY": "shift"
     },
     DoorInteract: False,
     NPCInteract: False

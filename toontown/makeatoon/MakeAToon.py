@@ -804,8 +804,6 @@ class MakeAToon(StateData.StateData):
     def rotateToonSlider(self, slider):
         value = slider['value'];
         self.lastRot = value + self.defaultH;
-        dec = (self.lastRot - self.defaultH*1.);
-        self.toonRotateSliderRotationText['text'] = str(round(dec, 1));
 
         self.rotateToon();
 
