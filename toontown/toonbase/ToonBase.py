@@ -377,7 +377,7 @@ class ToonBase(OTPBase.OTPBase):
             aspect2d.show()
         else:
             aspect2d.hide()
-            base.transitions.fadeScreen(alpha=0.01)
+            base.transitions.fadeScreen(alpha=0)
             
     def showNotification(self, message):
         if hasattr(self, 'notificationPopup') and self.notificationPopup:
