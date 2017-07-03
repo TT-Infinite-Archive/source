@@ -16,6 +16,8 @@ Fullscreen = 'fullscreen'
 AnimationSmoothing = 'animation-smoothing'
 ProcessFailback = 'process-failback'
 ClassicMusic = 'classic-music'
+DoorInteract = 'door-interaction-key'
+NPCInteract = 'npc-interaction-key'
 
 InitialSettings = {
     # Initial setting
@@ -42,7 +44,9 @@ InitialSettings = {
         "MOVE_UP": "w",
         "OPTIONS_PAGE_HOTKEY": "escape",
         "SCREENSHOT_KEY": "f9"
-    }
+    },
+    DoorInteract: False,
+    NPCInteract: False
 }
 
 
