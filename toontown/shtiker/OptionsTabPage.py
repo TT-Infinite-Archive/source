@@ -456,6 +456,7 @@ class OptionsTabPage(DirectFrame):
             checked=base.wantDoorInteract,
             command=self.__doToggleDoorInteract
         )
+        self.doorInteractKeyCheckbox.disable()
         row += 1.5
         self.npcInteractKeyLabel = TTLabel.TTLabel(
             parent=self.rightFrame,
@@ -470,13 +471,6 @@ class OptionsTabPage(DirectFrame):
             #command=self.__doToggleNpcInteract
         )
         self.npcInteractKeyCheckbox.disable() # Mark as Coming Soon
-        self.npcInteractKeyComingSoonLabel = TTLabel.TTLabel(
-            parent=self.npcInteractKeyLabel,
-            pos=(0.4, 0.0, 0.0),
-            text_align=TextNode.ALeft,
-            text_fg=ColorGlobals.CRed,
-            text='(Coming Soon)'
-        )
         self.setOptionsState(self.VideoState)
 
     def enter(self):
@@ -618,10 +612,10 @@ class OptionsTabPage(DirectFrame):
         self.wantCustomControlsLabel.show()
         self.wantCustomControls.show()
         self.configureControlsButton.show()
-        self.doorInteractKeyLabel.show()
-        self.doorInteractKeyCheckbox.show()
-        self.npcInteractKeyLabel.show()
-        self.npcInteractKeyCheckbox.show()
+        #self.doorInteractKeyLabel.show()
+        #self.doorInteractKeyCheckbox.show()
+        #self.npcInteractKeyLabel.show()
+        #self.npcInteractKeyCheckbox.show()
 
     def hideGameplayGui(self):
         self.controlsTitle.hide()
