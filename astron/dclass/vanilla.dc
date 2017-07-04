@@ -1126,6 +1126,7 @@ dclass DistributedToon : DistributedPlayer {
   setGuildName(string name = "") required broadcast ownrecv airecv db;
   setGuildIcon(uint16 iconId = 0) required broadcast ownrecv airecv db;
   warnToon(string) ownrecv;
+  setJeff() broadcast airecv ownrecv;
 };
 
 dclass DistributedCCharBase : DistributedObject {
