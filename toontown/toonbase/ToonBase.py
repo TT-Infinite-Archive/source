@@ -277,7 +277,7 @@ class ToonBase(OTPBase.OTPBase):
 
         self.wantClassicMusic = settings.get('classic-music', False)
         
-        self.wantDoorInteract = False #settings.get('door-interaction-key')
+        self.wantDoorInteract = settings.get('door-interaction-key')
         self.wantNpcInteract = False #settings.get('npc-interaction-key')
         
         self.leakGraph = None

@@ -456,7 +456,6 @@ class OptionsTabPage(DirectFrame):
             checked=base.wantDoorInteract,
             command=self.__doToggleDoorInteract
         )
-        self.doorInteractKeyCheckbox.disable()
         row += 1.5
         self.npcInteractKeyLabel = TTLabel.TTLabel(
             parent=self.rightFrame,
@@ -612,8 +611,8 @@ class OptionsTabPage(DirectFrame):
         self.wantCustomControlsLabel.show()
         self.wantCustomControls.show()
         self.configureControlsButton.show()
-        #self.doorInteractKeyLabel.show()
-        #self.doorInteractKeyCheckbox.show()
+        self.doorInteractKeyLabel.show()
+        self.doorInteractKeyCheckbox.show()
         #self.npcInteractKeyLabel.show()
         #self.npcInteractKeyCheckbox.show()
 

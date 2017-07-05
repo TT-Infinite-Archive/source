@@ -66,8 +66,9 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         }
         self.doorX = 1.5
 
-    def leaveDoor(self, collEntry):
+    def leaveDoor(self, collEntry = None):
         self.ignore(base.INTERACT_KEY)
+        self.ignore('stickerBookEntered')
         if hasattr(self, "colorSeq"):
             if self.colorSeq:
                 self.colorSeq.finish()
@@ -330,11 +331,11 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         vec = base.localAvatar.getRelativeVector(self.currentDoorNp, self.currentDoorVec)
         netScale = self.currentDoorNp.getNetTransform().getScale()
         yToTest = vec.getY() / netScale[1]
-        isFacingForward = -168.0 < base.localAvatar.getH(self.getDoorNodePath()) < 168.0
-        return yToTest and isFacingForward
+        return yToTest
 
     def enterDoor(self):
         self.ignore(base.INTERACT_KEY)
+        self.ignore('stickerBookEntered')
         if hasattr(self, "enterText"):
             self.enterText.removeNode()
             del self.enterText
@@ -396,6 +397,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                 if base.wantDoorInteract:
                     if not hasattr(self, "enterText"):
                         self.accept(base.INTERACT_KEY, self.enterDoor)
+                        self.accept('stickerBookEntered', self.leaveDoor)
                         name = self.cr.playGame.dnaStore.getTitleFromBlockNumber(self.block)
                         if ZoneUtil.isInterior(self.zoneId):
                             state = "exit"
@@ -408,17 +410,17 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                         if sys.platform == 'android':
                             self.enterText = MATShuffleButton(relief = None, parent = base.a2dBottomCenter, text = ("Tap to %s" % state), text_style = 3, text_scale = .07, text_pos = (0, -0.02), text_fg = (1, 0.9, 0.1, 1), scale = 1.5, pos = (0.0, 0.0, 0.5), command = self.enterDoor)
                         else:   
-                            self.enterText = OnscreenText(text, style = 3, scale = .09, parent = base.a2dBottomCenter, fg = (ColorGlobals.CEmerald), pos = (0.0, 0.5))
+                            self.enterText = OnscreenText(text, style = 3, scale = .07, parent = base.a2dBottomCenter, fg = (ColorGlobals.CDefault), pos = (0.0, 0.45))
 
                         self.colorSeq = Sequence(
-                            LerpColorScaleInterval(self.enterText, .8, VBase4(.8, .8, .8, .8)),
-                            LerpColorScaleInterval(self.enterText, .8, VBase4(1, 1, 1, 1))).loop()
+                            LerpColorScaleInterval(self.enterText, .8, VBase4(.8, .8, .8, .8), blendType = 'easeInOut'),
+                            LerpColorScaleInterval(self.enterText, .8, VBase4(1, 1, 1, 1), blendType = 'easeInOut')).loop()
                 else:
                     self.enterDoor()
             else:
                 self.accept(self.getExitTriggerEvent(), self.cancelCheckIsDoorHitTask)
                 taskMgr.add(self.checkIsDoorHitTask, self.checkIsDoorHitTaskName())
-
+                
     def avatarEnter(self, avatarID):
         avatar = self.cr.doId2do.get(avatarID, None)
         if avatar:
