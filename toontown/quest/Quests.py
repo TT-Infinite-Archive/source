@@ -2148,7 +2148,8 @@ PreClarabelleQuestIds = NoRewardTierZeroQuests + RewardTierZeroQuests
 DialogDict = TTLocalizer.QuestDialogDict
 # Tier, Start Flag, Quest Class, FromNPC, ToNPC, Reward, Next ID, Dialog
 QuestDict = {
-    101: (TT_TIER, Start, (CogQuest, Anywhere, 1, 'f'), Any, ToonHQ, NA, 102, DefaultDialog),
+    101: (TT_TIER, Start, (VisitQuest,), Any, ToonHQ, NA, 102, DefaultDialog),
+    102: (TT_TIER, Cont, (CogQuest, Anywhere, 1, 'f'), Any, ToonHQ, NA, 102, DefaultDialog),
     102: (TT_TIER, Cont, (CogQuest, Anywhere, 4, Any), Any, ToonHQ, NA, 110, DialogDict[100]),
     110: (TT_TIER, Cont, (TrolleyQuest,), ToonHQ, 2002, NA, (130, 140), DefaultDialog),
     120: (TT_TIER, OBSOLETE, (DeliverItemQuest, 5), ToonHQ, 2002, NA, 121, DefaultDialog),

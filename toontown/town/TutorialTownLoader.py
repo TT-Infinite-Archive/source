@@ -36,10 +36,11 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.rocketTrigger = None
         self.rocketParticleSeq = None
         self.currentSequence = None
+        self.loadInfinite = None
         self.np = render.attachNewNode('prologue')
         self.assets = PrologueAssets(self.np)
-        self.musicFile = 'phase_3.5/audio/bgm/infinite_bgm.ogg'
-        self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
+        self.musicFile = 'phase_3.5/audio/bgm/pl_sf_bgm.ogg'
+        self.activityMusicFile = 'phase_3.5/audio/bgm/pl_sf_muffled_bgm.ogg'
         self.music = base.loadMusic(self.musicFile)
 
         font = ToontownGlobals.getMinnieFont()
@@ -54,6 +55,16 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             align=TextNode.ACenter, wordwrap=35)
         self.label2.setColorScale(Vec4(0, 0, 0, 0))
 
+        self.label3 = OnscreenText(
+            '', parent=hidden, font=font, fg=Vec4(1, 1, 1, 1), scale=0.06,
+            align=TextNode.ACenter, wordwrap=35)
+        self.label3.setColorScale(Vec4(0, 0, 0, 0))
+
+        self.label4 = OnscreenText(
+            '', parent=hidden, font=font, fg=Vec4(1, 1, 1, 1), scale=0.06,
+            align=TextNode.ACenter, wordwrap=35)
+        self.label4.setColorScale(Vec4(0, 0, 0, 0))
+
     def load(self, zoneId):
         print 'Loaded TutorialTownLoader'
         TownLoader.TownLoader.load(self, zoneId)
@@ -66,21 +77,151 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
+        self.enterArrival()
+
+    def enterArrival(self):
+        self.label3.setText(TTLocalizer.Arrival)
+        self.label3.setPos(0, self.calcLabelY())
+        self.label3.reparentTo(aspect2d)
+
+        self.label4.setText(TTLocalizer.Arrival2)
+        self.label4.setPos(0, self.calcLabelY())
+        self.label4.reparentTo(aspect2d)
+
+        self.backgroundNodePath = render2d.attachNewNode('background', 0)
+        self.background = OnscreenImage(
+            parent=hidden,
+            image='phase_3/maps/makeatoon_palette_2tmla_1.jpg'
+        )
+        self.background.setTransparency(TransparencyAttrib.MAlpha)
+
+        base.localAvatar.setPosHpr(7.956,  9.688,  0.025, -268.860, 0, 0)
+
+        self.interiorIntro = Sequence(
+            # Func(base.transitions.fadeOut, 0),
+            Wait(4),
+            LerpColorScaleInterval(
+                self.label3, 2, Vec4(1, 1, 1, 1), Vec4(0, 0, 0, 0),
+                blendType='easeIn'),
+            Wait(3),
+            LerpColorScaleInterval(
+                self.label3, 2, Vec4(0, 0, 0, 0), Vec4(1, 1, 1, 1),
+                blendType='easeOut'),
+            Wait(2),
+            LerpColorScaleInterval(
+                self.label4, 2, Vec4(1, 1, 1, 1), Vec4(0, 0, 0, 0),
+                blendType='easeIn'),
+            Wait(3),
+            LerpColorScaleInterval(
+                self.label4, 2, Vec4(0, 0, 0, 0), Vec4(1, 1, 1, 1),
+                blendType='easeOut'),
+            Wait(3),
+            Func(self.background.reparentTo, hidden),
+            Func(base.transitions.fadeOut, 0),
+            Wait(1),
+            Func(base.transitions.fadeIn, 6),
+            Wait(6),
+            Func(base.localAvatar.setSystemMessage, 0, 'Welcome to Toontown!'),
+            Wait(8),
+            Func(base.camera.setPosHpr, -3, 10, 4, -105, 0, 0),
+            Wait(1),
+            Func(base.localAvatar.setSystemMessage, 0, 'It appears Tutorial Tom is not in his shop right now.'),
+            Wait(6),
+            Func(base.camera.setPosHpr, 5, 11, 4, 0, 0, 0),
+            Wait(1),
+            Func(base.localAvatar.setSystemMessage, 0, 'Instead, he is outside attending the annual Toontown Science Fair!'),
+            Wait(6),
+            Func(base.localAvatar.setSystemMessage, 0, "It seems like a good time."),
+            Wait(9),
+            Parallel(
+                Func(base.localAvatar.setSystemMessage, 0, 'Normally he is here to teach new Toons the ins and outs about life as a Toon.'),
+                Func(base.camera.setPosHpr, 2, 9.3, 3, 165, 0, 0)),
+            Wait(9),
+            Func(base.localAvatar.setSystemMessage, 0, "Head outside and let him know that you're here, and while you're at it, go and enjoy the Science Fair because it's only here on Tutorial Terrance for one more day!"),
+            Wait(13),
+            Func(base.localAvatar.setSystemMessage, 0, 'Have fun!'),
+            Wait(3),
+            Parallel(
+                Func(base.localAvatar.animFSM.request, 'neutral'),
+                Func(base.localAvatar.setPos, 7.332,  9.676,  0.025)),
+            Wait(3),
+            Parallel(
+                Func(base.localAvatar.attachCamera),
+                Func(base.localAvatar.startUpdateSmartCamera),
+                Func(base.localAvatar.startTrackAnimToSpeed),
+                Func(base.localAvatar.collisionsOn),
+                Func(base.localAvatar.enableAvatarControls)))
+
+        # self.interiorIntro.start()
+
+        # PlacerTool3D(base.camera, increment=1)
+
+    def exitArrival(self):
+        self.label3.reparentTo(hidden)
+        self.label3.setPos(0, 0)
+        self.label3.setText('')
+
+        self.label4.reparentTo(hidden)
+        self.label4.setPos(0, 0)
+        self.label4.setText('')
+
+        self.backgroundNodePath.removeNode()
+        self.background.removeNode()
+        del self.backgroundNodePath
+        del self.background
 
     def enterStreet(self, requestStatus):
         TTTownLoader.TTTownLoader.enterStreet(self, requestStatus)
-        base.localAvatar.setCameraFov(52)
-        self.music.stop()
-        self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/pl_sf_bgm.ogg')
-        self.ttStreetMusic.play(1)
+        self.exitArrival()
         self.loadScienceFair()
+
+        self.streetIntro = Sequence(
+            Func(base.localAvatar.detachCamera),
+            Func(base.localAvatar.disableAvatarControls),
+            Func(base.localAvatar.collisionsOff),
+            Func(base.localAvatar.stopTrackAnimToSpeed),
+            Func(base.localAvatar.stopUpdateSmartCamera),
+            Func(base.localAvatar.animFSM.request, 'walk'),
+            LerpPosInterval(base.localAvatar, 4, Point3(19.349,  15.819,  -0.475), Point3(9.000,  16.000,  0.025)),
+            Func(base.localAvatar.animFSM.request, 'neutral'),
+            Func(base.localAvatar.setPos, 19.349,  15.819,  -0.475),
+            Wait(3),
+            LerpPosInterval(base.camera, 6, Point3(-5,  51,  8.57), Point3(0,  -8,  4.57), blendType='easeInOut'), #-91
+            Wait(7),
+            Func(base.localAvatar.attachCamera),
+            Func(base.localAvatar.collisionsOn),
+            Func(base.localAvatar.startTrackAnimToSpeed),
+            Func(base.localAvatar.startUpdateSmartCamera),
+            Wait(4),
+            Func(base.localAvatar.enableAvatarControls),
+        )
+
+        self.finalSequence = Sequence(Wait(1.5),
+            Func(base.localAvatar.detachCamera),
+            Func(base.localAvatar.disableAvatarControls),
+            Func(base.localAvatar.collisionsOff),
+            Func(base.localAvatar.stopTrackAnimToSpeed),
+            Func(base.localAvatar.stopUpdateSmartCamera),
+            Func(base.localAvatar.animFSM.request, 'neutral'),
+            Wait(2),
+            self.streetIntro)
+        self.finalSequence.start()
+
+        # PlacerTool3D(base.camera, increment=1)
+
+        if self.streetIntro is not None:
+            self.streetIntro.finish()
+            self.streetIntro = None
+
+
         messenger.send('islands-loaded')
 
         # PlacerTool3D(self.cakeStage, increment=1)
 
     def exit(self):
         TTTownLoader.TTTownLoader.exit(self)
-        self.unloadInfinite()
+        if self.loadInfinite is not None:
+            self.unloadInfinite()
 
     def loadBattleAnims(self):
         Toon.loadTutorialBattleAnims()
@@ -260,7 +401,11 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def loadInfinite(self):
         # We use this space node to put all space objects in it so that we can simulate gravity pulls
         self.space = render.attachNewNode('SpaceNode')
-        self.enterIntroduction()
+        # self.enterIntroduction()
+
+        self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/space_bgm.ogg')
+        self.ttStreetMusic.play(1)
+
         self.startInfiniteLowGravity()
 
         render.setColorScale(0.4, 0.4, 0.45, 1)

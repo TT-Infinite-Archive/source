@@ -8,11 +8,19 @@ class DistributedBattleTutorial(DistributedBattle.DistributedBattle):
     def startTimer(self, ts = 0):
         self.townBattle.timer.hide()
 
+        # if self.battleNumber == 0:
+            # self.townBattle.timer.hide()
+        # else:
+            # self.townBattle.timer.show()
+
     def playReward(self, ts):
         self.movie.playTutorialReward(ts, self.uniqueName('reward'), self.handleRewardDone)
 
-    def exitReward(self):
-        base.cr.playGame.hood.loader.loadInfinite()
+        # if self.battleNumber > 0:
+            # self.movie.playReward()
+
+    # def exitReward(self):
+        # base.cr.playGame.hood.loader.loadInfinite()
 
     # def enterFaceOff(self, ts):
         # pass

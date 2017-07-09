@@ -52,3 +52,13 @@ class TutorialManager(DistributedObject.DistributedObject):
 
     def d_toonArrived(self):
         self.sendUpdate('toonArrived', [])
+
+    def setTutorialNpcId(self, npcId):
+        self.npcId = npcId
+
+    def getTutorialNpc(self):
+        return self.cr.doId2do[self.npcId]
+
+    def setTutorialNpcId(self, npcId):
+        self.npcId = npcId
+        self.npc = self.cr.doId2do[npcId]

@@ -3349,7 +3349,7 @@ FADoorCodes_DEFEAT_FLUNKY_HQ = "Toon Headquarters is closed today for the Scienc
 FADoorCodes_TALK_TO_HQ = 'Go get your reward from HQ Harry!'
 FADoorCodes_WRONG_DOOR_HQ = 'Wrong door! Take the other door to the neighborhood!'
 FADoorCodes_GO_TO_PLAYGROUND = 'Wrong way! You need to go to the neighborhood!'
-FADoorCodes_DEFEAT_FLUNKY_TOM = 'Walk up to the Flunky and fight it!'
+FADoorCodes_DEFEAT_FLUNKY_TOM = 'No one is inside. Stay outside and enjoy the Science Fair!'
 FADoorCodes_TALK_TO_HQ_TOM = 'Go get your reward from Toon Headquarters!'
 FADoorCodes_SUIT_APPROACHING = None
 FADoorCodes_BUILDING_TAKEOVER = "Watch out! There's a Cog in there!"
@@ -10737,6 +10737,8 @@ ClickToStartHalloweenLabel = '\x01shadow\x01Click anywhere to begin\n...if you d
 # Prologue
 PrologueKaldronPresents = 'Kaldron Interactive presents...'
 PrologueKaldronPresents2 = 'test test'
+Arrival = 'You just arrived to Toontown for your first time.'
+Arrival2 = 'You begin to wait for Tutorial Tom to give you your tutorial.'
 
 Jellybeans = 'Jellybeans'
 

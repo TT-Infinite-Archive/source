@@ -10,7 +10,10 @@ class DistributedBattleTutorialAI(DistributedBattleAI):
                  interactivePropTrackBonus=-1):
         DistributedBattleAI.__init__(self, air, battleMgr, pos, suit, toonId,
             zoneId, finishCallback=finishCallback, maxSuits=1,
-            tutorialFlag=1, levelFlag=0, interactivePropTrackBonus=-1)
+            tutorialFlag=tutorialFlag, levelFlag=0, interactivePropTrackBonus=-1)
 
     def startRewardTimer(self):
-        pass  # We don't want a reward timer in the tutorial.
+        pass
+        # We don't want a reward timer in the first battle.
+        # if self.battleNumber > 0:
+            # self.startRewardTimer()

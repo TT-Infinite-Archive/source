@@ -14,7 +14,6 @@ from toontown.char import Char
 from toontown.suit import SuitDNA
 from toontown.suit import Suit
 from toontown.quest import QuestParser
-from toontown.toon import DistributedNPCSpecialQuestGiver
 from toontown.toon import Toon
 from toontown.toonbase import TTLocalizer
 from toontown.chat.ChatGlobals import CFSpeech
@@ -24,10 +23,7 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
     def announceGenerate(self):
         DistributedObject.DistributedObject.announceGenerate(self)
 
-        if not base.cr.doFindAllInstances(DistributedNPCSpecialQuestGiver.DistributedNPCSpecialQuestGiver):
-            self.acceptOnce('doneTutorialSetup', self.setup)
-        else:
-            self.setup()
+        self.setup()
 
     def disable(self):
         self.interior.removeNode()
@@ -36,8 +32,6 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         del self.street
         self.sky.removeNode()
         del self.sky
-        self.mickeyMovie.cleanup()
-        del self.mickeyMovie
         self.suitWalkTrack.finish()
         del self.suitWalkTrack
         self.suit.delete()
@@ -127,13 +121,8 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
         del self.dnaStore
         del self.randomGenerator
         self.interior.flattenMedium()
-        npcOrigin = self.interior.find('**/npc_origin_' + `(self.npc.posIndex)`)
-        if not npcOrigin.isEmpty():
-            self.npc.reparentTo(npcOrigin)
-            self.npc.clearMat()
         self.createSuit()
         # self.cr.doId2do[self.npcId].setChatAbsolute(TTLocalizer.QuestScriptTutorialMickey_4, CFSpeech)
-        self.mickeyMovie = QuestParser.NPCMoviePlayer('tutorial_mickey', base.localAvatar, self.npc)
         place = base.cr.playGame.getPlace()
         if place and hasattr(place, 'fsm') and place.fsm.getCurrentState().getName():
             self.notify.info('Tutorial movie: Place ready.')
@@ -146,7 +135,6 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
 
     def playMovie(self):
         self.notify.info('Tutorial movie: Play.')
-        self.mickeyMovie.play()
 
         # fovZoom = LerpFunc(base.localAvatar.setCameraFov, 1, 52, 75, 'easeOut', [], "zoom")
         # self.toonEntering = Sequence(Wait(7), Func(fovZoom.start))
@@ -168,13 +156,3 @@ class DistributedTutorialInterior(DistributedObject.DistributedObject):
     def setZoneIdAndBlock(self, zoneId, block):
         self.zoneId = zoneId
         self.block = block
-
-    def setTutorialNpcId(self, npcId):
-        self.npcId = npcId
-
-    def getTutorialNpc(self):
-        return self.cr.doId2do[self.npcId]
-
-    def setTutorialNpcId(self, npcId):
-        self.npcId = npcId
-        self.npc = self.cr.doId2do[npcId]

@@ -23,14 +23,14 @@ class TutorialFSM(FSM):
         self.zones = zones
         self.avId = avId
 
-        npcDesc = NPCToons.NPCToonDict.get(20000)
-        self.tutorialTom = NPCToons.createNPC(self.air, 20000, npcDesc, self.zones['building'])
-        self.tutorialTom.setTutorial(1)
+        self.tutorialTom = NPCToons.createNPC(self.air, 20000, NPCToons.NPCToonDict[20000], self.zones['street'])
+        self.tutorialTom.d_setPos(34.579, 19.711, -0.475)
+        self.tutorialTom.d_setH(91.155)
+        # self.tutorialTom.setTutorial(1)
 
-        npcDesc = NPCToons.NPCToonDict.get(20002)
-        self.hqHarry = NPCToons.createNPC(self.air, 20002, npcDesc, self.zones['hq'])
-        self.hqHarry.setTutorial(1)
-        self.hqHarry.setHq(1)
+        self.hqHarry = NPCToons.createNPC(self.air, 20002, NPCToons.NPCToonDict[20002], self.zones['hq'])
+        # self.hqHarry.setTutorial(1)
+        # self.hqHarry.setHq(1)
 
         self.building = TutorialBuildingAI(
             self.air, self.zones['street'], self.zones['building'], 2, self.tutorialTom.getDoId())
@@ -39,21 +39,31 @@ class TutorialFSM(FSM):
         self.forceTransition('Introduction')
 
     def enterIntroduction(self):
-        self.building.insideDoor.setDoorLock(FADoorCodes.TALK_TO_TOM)
-
-    def exitIntroduction(self):
-        self.building.insideDoor.setDoorLock(FADoorCodes.UNLOCKED)
-
-    def enterBattle(self):
-        # self.suit = DistributedTutorialSuitAI(self.air, type = 'f', battleNumber = 0, level = 1)
-        # self.suit.generateWithRequired(self.zones['street'])
-
         self.building.door.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_TOM)
         self.hq.door0.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_HQ)
         self.hq.door1.setDoorLock(FADoorCodes.DEFEAT_FLUNKY_HQ)
+        #self.suit2 = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 2, level = 2)
+        #self.suit2.generateWithRequired(self.zones['street'])
+
+    def exitIntroduction(self):
+        pass
+    # self.building.insideDoor.setDoorLock(FADoorCodes.UNLOCKED)
+
+    def enterBattle(self):
+        self.suit = DistributedTutorialSuitAI(self.air, type = 'f', battleNumber = 0, level = 1)
+        self.suit.generateWithRequired(self.zones['street'])
 
     def exitBattle(self):
-        pass
+        if self.suit:
+            self.suit.requestDelete()
+
+    def enterBattle2(self):
+        self.suit = DistributedTutorialSuitAI(self.air, type = 'cc', battleNumber = 1, level = 3)
+        self.suit.generateWithRequired(self.zones['street'])
+
+    def exitBattle2(self):
+        if self.suit2:
+            self.suit2.requestDelete()
 
     def enterHQ(self):
         # Call these later on:
@@ -62,7 +72,6 @@ class TutorialFSM(FSM):
         # self.hq.door1.setDoorLock(FADoorCodes.UNLOCKED)
         # self.hq.insideDoor0.setDoorLock(FADoorCodes.TALK_TO_HQ)
         # self.hq.insideDoor1.setDoorLock(FADoorCodes.TALK_TO_HQ)
-
 
         # Spawn the real Gideon right after the Flunky battle.
         npcDesc = NPCToons.NPCToonDict.get(91922)

@@ -414,11 +414,11 @@ class Movie(DirectObject.DirectObject):
                                         Wait(4),
                                         Func(walkInterval.finish),
                                         Func(self.gideon.animFSM.request, 'neutral'),
-                                        Func(base.transitions.fadeOut, 3),
+                                        # Func(base.transitions.fadeOut, 3),
                                         Wait(3),
                                         Func(music.stop),
                                         Wait(3),
-                                        Func(base.transitions.fadeScreenColor, 255),
+                                        # Func(base.transitions.fadeScreenColor, 255),
                                         # Play flash SFX
                                         Func(self.gideon.reparentTo, hidden), Func(self.gideon.hide),
                                         Wait(2),

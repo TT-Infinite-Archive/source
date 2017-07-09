@@ -14,14 +14,14 @@ class FakeBattleManager:
     def destroy(self, battle):
         if battle.suitsKilledThisBattle:
             if self.avId in simbase.air.tutorialManager.avId2fsm:
-                simbase.air.tutorialManager.avId2fsm[self.avId].demand('HQ')
+                simbase.air.tutorialManager.avId2fsm[self.avId].demand('Battle2')
         battle.requestDelete()
 
 
 class DistributedTutorialSuitAI(DistributedSuitBaseAI):
     notify = directNotify.newCategory('DistributedTutorialSuitAI')
 
-    def __init__(self, air, type = 'f', battleNumber = 0, level = 1):
+    def __init__(self, air, type = 'f', battleNumber = 0, tutorialFlag = 0, level = 1):
         DistributedSuitBaseAI.__init__(self, air, None)
 
         suitDNA = SuitDNA.SuitDNA()
