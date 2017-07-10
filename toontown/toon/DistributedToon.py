@@ -61,7 +61,6 @@ from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, EventGlobals, SettingsGlobals
 from toontown.chat.TTBlacklist import *
-from toontown.toon import JeffGlobals
 
 
 if base.wantKarts:
@@ -2965,9 +2964,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
     def warnToon(self, reason):
         reason = 'You have been warned by a moderator for: %s' % reason
         self.setSystemMessage(base.localAvatar.doId, reason)
-        
-    def setJeff(self):
-        JeffGlobals.addToonEffect(self);            
 
 @magicWord(category=CATEGORY_ADMINISTRATOR)
 def globalTeleport():

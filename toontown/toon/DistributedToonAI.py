@@ -4538,15 +4538,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if av is not None:
             av.d_setSystemMessage(0, OTPLocalizer.WhisperIgnored % self.getName())
 
-    def setJeff(self):
-        self.isJeff = True
-    
-    def b_setJeff(self):
-        self.setJeff()
-        self.d_setJeff()
-        
-    def d_setJeff(self):
-        self.sendUpdate('setJeff')
 
 @magicWord(category=CATEGORY_USER2, types=[str, int, int])
 def cheesyEffect(value, hood=0, expire=0):
@@ -5517,11 +5508,3 @@ def warn(reason):
     target.sendUpdate('warnToon', [reason])
     return 'Warned %s for %s!' % (target.getName(), reason)
 
-
-@magicWord(category = CATEGORY_MODERATOR)
-def jeff():
-    """
-    TOGGLES JEFF xddddddddddddddddddddddddddddddddddddddd
-    """
-    invoker = spellbook.getInvoker();
-    invoker.b_setJeff()
