@@ -54,7 +54,8 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
 
     def enterWalk(self):
         self.enableBattleDetect('walk', self.__handleToonCollision)
-        self.loop('walk', 0)
+        self.loop('neutral', 0)
+        self.setPosHpr(60.079, 19.370, -0.475, 90, 0, 0)
         pathPoints = [
             Vec3(55, 25, -0.5),
             Vec3(25, 25, -0.5),
@@ -62,10 +63,10 @@ class DistributedTutorialSuit(DistributedSuitBase.DistributedSuitBase, DelayDele
             Vec3(55, 15, -0.5),
             Vec3(55, 25, -0.5)
         ]
-        self.tutWalkTrack = self.makePathTrack(self, pathPoints, 4.5, 'tutFlunkyWalk')
-        self.tutWalkTrack.loop()
+        # self.tutWalkTrack = self.makePathTrack(self, pathPoints, 4.5, 'tutFlunkyWalk')
+        # self.tutWalkTrack.loop()
 
     def exitWalk(self):
         self.disableBattleDetect()
-        self.tutWalkTrack.pause()
-        self.tutWalkTrack = None
+        # self.tutWalkTrack.pause()
+        # self.tutWalkTrack = None

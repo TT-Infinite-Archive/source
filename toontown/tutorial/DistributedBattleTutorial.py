@@ -19,8 +19,12 @@ class DistributedBattleTutorial(DistributedBattle.DistributedBattle):
         # if self.battleNumber > 0:
             # self.movie.playReward()
 
-    # def exitReward(self):
-        # base.cr.playGame.hood.loader.loadInfinite()
+    def exitReward(self):
+        return
+        # if self.battleNumber == 0:
+            # base.cr.playGame.hood.loader.loadInfinite()
+        # else:
+            # return
 
     # def enterFaceOff(self, ts):
         # pass

@@ -5,20 +5,20 @@ ACTORS = {
     'moochtopher': {
         'npcId': 91921,
         'initial': 'neutral',
-        'pos': Point3(85.114, -24.173, 19.785),
-        'rotation': Point3(50, 0, 0),
+        'pos': Point3(0, 0, 0),
+        'rotation': Point3(0, 0, 0),
     },
     'gideon': {
         'npcId': 91922,
         'initial': 'neutral',
-        'pos': Point3(83.539, -8.610, 4.025),
-        'rotation': Point3(199.797, 0, 0),
+        'pos': Point3(0, 0, 0),
+        'rotation': Point3(0, 0, 0),
     },
     'randomNpc1': {
         'npcId': 5124,
         'initial': 'neutral',
-        'pos': Point3(79.216, -10.626, 4.025),
-        'rotation': Point3(219.058, 0, 0),
+        'pos': Point3(0, 0, 0),
+        'rotation': Point3(0, 0, 0),
     },
     'randomNpc2': {
         'npcId': 2208,
@@ -30,13 +30,13 @@ ACTORS = {
         'npcId': 2001,
         'initial': 'neutral',
         'pos': Point3(74.905, 20.077, 5.820),
-        'rotation': Point3(91.155, 0, 0),
+        'rotation': Point3(90, 0, 0),
     },
     'surlee': {
         'npcId': 2019,
         'initial': 'neutral',
-        'pos': Point3(74.822, -22.105, 6.051),
-        'rotation': Point3(258.403, 0, 0),
+        'pos': Point3(0, 0, 0),
+        'rotation': Point3(0, 0, 0),
     },
     'philip': {
         'npcId': 91924,

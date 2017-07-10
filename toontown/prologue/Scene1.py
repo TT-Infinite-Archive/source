@@ -3,7 +3,7 @@ from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
 
 
 class Scene1(CutsceneHandler):
-    SHOW = ['flippy']
+    SHOW = ['flippy', 'surlee']
     # HIDE = ['philipCog', 'popcornCart', 'bossCrate']
 
     def getSequence(self):
@@ -26,10 +26,11 @@ class Scene1(CutsceneHandler):
 
         return Sequence(
             # self.playMusic('Ambience', looping=0, volume=0.8),
-            Parallel(
-                self.say(flippy, "Welcome to the annual Toontown Science Fair!", 6),
-                flippy.actorInterval('wave'),
-                Func(flippy.loop, 'neutral')),
+            Func(flippy.loop, 'neutral'),
+            self.say(flippy, "Welcome to the annual Toontown Science Fair!", 6),
+            Wait(1),
             self.say(flippy, "In a few minutes, watch Doctor Surlee launch the very first Toon Rocket into space!", 10),
+            Wait(1),
             self.say(flippy, "You won't want to miss it!", 6),
+            Wait(1)
         )

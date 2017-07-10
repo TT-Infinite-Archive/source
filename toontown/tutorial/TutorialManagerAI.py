@@ -46,7 +46,7 @@ class TutorialFSM(FSM):
         #self.suit2.generateWithRequired(self.zones['street'])
 
     def exitIntroduction(self):
-        pass
+        return
     # self.building.insideDoor.setDoorLock(FADoorCodes.UNLOCKED)
 
     def enterBattle(self):

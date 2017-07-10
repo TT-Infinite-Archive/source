@@ -36,7 +36,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.rocketTrigger = None
         self.rocketParticleSeq = None
         self.currentSequence = None
-        self.loadInfinite = None
         self.np = render.attachNewNode('prologue')
         self.assets = PrologueAssets(self.np)
         self.musicFile = 'phase_3.5/audio/bgm/pl_sf_bgm.ogg'
@@ -73,7 +72,11 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.createHood(dnaFile, loadStorage=0)
         self.alterDictionaries()
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
-        # self.loadInfinite()
+
+        # We use this space node to put all space objects in it so that we can simulate gravity pulls
+        self.space = render.attachNewNode('SpaceNode')
+        self.loadInfinite()
+        self.loadScienceFair()
 
     def enter(self, zoneId):
         TTTownLoader.TTTownLoader.enter(self, zoneId)
@@ -173,7 +176,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def enterStreet(self, requestStatus):
         TTTownLoader.TTTownLoader.enterStreet(self, requestStatus)
         self.exitArrival()
-        self.loadScienceFair()
+        self.enterScienceFair()
 
         self.streetIntro = Sequence(
             Func(base.localAvatar.detachCamera),
@@ -186,13 +189,12 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             Func(base.localAvatar.animFSM.request, 'neutral'),
             Func(base.localAvatar.setPos, 19.349,  15.819,  -0.475),
             Wait(3),
-            LerpPosInterval(base.camera, 6, Point3(-5,  51,  8.57), Point3(0,  -8,  4.57), blendType='easeInOut'), #-91
-            Wait(7),
+            # LerpPosInterval(base.camera, 6, Point3(-5,  51,  8.57), Point3(0,  -8,  4.57), blendType='easeInOut'), #-91
             Func(base.localAvatar.attachCamera),
             Func(base.localAvatar.collisionsOn),
             Func(base.localAvatar.startTrackAnimToSpeed),
             Func(base.localAvatar.startUpdateSmartCamera),
-            Wait(4),
+            Wait(1),
             Func(base.localAvatar.enableAvatarControls),
         )
 
@@ -213,15 +215,14 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
             self.streetIntro.finish()
             self.streetIntro = None
 
-
         messenger.send('islands-loaded')
 
         # PlacerTool3D(self.cakeStage, increment=1)
 
     def exit(self):
         TTTownLoader.TTTownLoader.exit(self)
-        if self.loadInfinite is not None:
-            self.unloadInfinite()
+        self.unloadScienceFair()
+        self.unloadInfinite()
 
     def loadBattleAnims(self):
         Toon.loadTutorialBattleAnims()
@@ -335,14 +336,17 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
     def enterScene1(self):
         self.transitionScene()
         self.currentSequence = Scene1(self.assets, self.np)
+        self.currentSequence.sequence.append(Func(self.exitScene1))
         self.currentSequence.start()
 
+    def exitScene1(self):
+        print "Exited Scene 1"
+
     def enterScene2(self):
-        pass
-        # To trigger scene 2, you must have waited at least 2 minutes and looked at all the science expierments
+        print "Scene Two entered!"
+        # To trigger scene 2, you must have waited at least 2 minutes and looked at all the science experiments
 
     def loadScienceFair(self):
-        self.enterScene1()
         # Rocket
         self.launchPadModel = loader.loadModel('phase_13/models/parties/launchPad.bam')
         self.launchPadModel.setH(90.0)
@@ -354,7 +358,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.rocketActor = Actor('phase_13/models/parties/rocket_model.bam',
                                  {'launch': 'phase_13/models/parties/rocket_launch.bam'})
         rocketLocator = self.launchPadModel.find('**/rocket_locator')
-        self.rocketActor.reparentTo(render)
+        self.rocketActor.reparentTo(hidden)
         self.rocketActor.setPosHpr(69.089, -14.617, -0.475, 140, 0, 0)
         self.rocketActor.node().setBound(OmniBoundingVolume())
         self.rocketActor.node().setFinal(True)
@@ -366,50 +370,43 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         # Rocket ropes
         self.ropes = loader.loadModel('phase_4/models/modules/tt_m_ara_int_ropes.bam')
         self.ropes.setPos(69.089, -14.617, -0.475)
-        self.ropes.reparentTo(render)
+        self.ropes.reparentTo(hidden)
         self.ropes.setScale(0.8)
 
         # Stage
         self.cakeStage = loader.loadModel('phase_4/models/prologue/cake_stage.bam')
         self.cakeStage.setPos(76, 20, -0.475)
-        self.cakeStage.reparentTo(render)
+        self.cakeStage.reparentTo(hidden)
 
         # Balloons
         self.cakeBalloon = loader.loadModel('phase_4/models/prologue/balloon_set_cake.bam')
         self.cakeBalloon.setPos(67, 30, -0.475)
-        self.cakeBalloon.reparentTo(render)
+        self.cakeBalloon.reparentTo(hidden)
 
         self.starBalloon = loader.loadModel('phase_4/models/prologue/balloon_set_star.bam')
         self.starBalloon.setPos(67, 10, -0.475)
-        self.starBalloon.reparentTo(render)
+        self.starBalloon.reparentTo(hidden)
 
         self.balloonArchway = loader.loadModel('phase_4/models/prologue/balloon_archway_spiraled.bam')
         self.balloonArchway.setPos(47, 20, -0.475)
         self.balloonArchway.setHpr(90, 0, 0)
-        self.balloonArchway.reparentTo(render)
+        self.balloonArchway.reparentTo(hidden)
 
         self.balloonArchway2 = loader.loadModel('phase_4/models/prologue/balloon_archway_spiraled.bam')
         self.balloonArchway2.setPos(35, 20, -0.475)
         self.balloonArchway2.setHpr(90, 0, 0)
-        self.balloonArchway2.reparentTo(render)
+        self.balloonArchway2.reparentTo(hidden)
 
         self.balloonArchway3 = loader.loadModel('phase_4/models/prologue/balloon_archway_spiraled.bam')
         self.balloonArchway3.setPos(23, 20, -0.475)
         self.balloonArchway3.setHpr(90, 0, 0)
-        self.balloonArchway3.reparentTo(render)
+        self.balloonArchway3.reparentTo(hidden)
 
     def loadInfinite(self):
-        # We use this space node to put all space objects in it so that we can simulate gravity pulls
-        self.space = render.attachNewNode('SpaceNode')
         # self.enterIntroduction()
 
-        self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/space_bgm.ogg')
-        self.ttStreetMusic.play(1)
-
-        self.startInfiniteLowGravity()
-
-        render.setColorScale(0.4, 0.4, 0.45, 1)
-        base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
+        # self.ttStreetMusic = loader.loadMusic('phase_3.5/audio/bgm/space_bgm.ogg')
+        # self.ttStreetMusic.play(1)
 
         # Skybox
         self.infiniteSky = loader.loadModel('phase_3.5/models/props/infinite_sky.bam')
@@ -420,7 +417,6 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.infinitePlane.reparentTo(self.space)
         self.infinitePlane.setPos(0, 0, -800)
         self.infinitePlane.setScale(5)
-        self.infinitePlane.hide()
 
         # Islands
 
@@ -470,6 +466,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.keyblade.setScale(0.2)
         self.keyblade.setup(1)
 
+        self.space.reparentTo(hidden)
+
         # Attempting to create this collision sphere a distributed object but having trouble ~ Markgasus
         # self.rocketTriggerEvent = self.uniqueName('rocketTriggerEvent')
 
@@ -490,6 +488,29 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
 
         # PlacerTool3D(model, increment=5)
 
+    def enterScienceFair(self):
+        self.enterScene1()
+        self.rocketActor.reparentTo(render)
+        self.ropes.reparentTo(render)
+        self.cakeStage.reparentTo(render)
+        self.cakeBalloon.reparentTo(render)
+        self.starBalloon.reparentTo(render)
+        self.balloonArchway.reparentTo(render)
+        self.balloonArchway2.reparentTo(render)
+        self.balloonArchway3.reparentTo(render)
+        print 'Entered Science Fair'
+
+    def enterInfinite(self):
+        self.startInfiniteLowGravity()
+        render.setColorScale(0.4, 0.4, 0.45, 1)
+        base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar)
+        self.space.reparentTo(render)
+
+    def exitInfinite(self):
+        self.stopInfiniteLowGravity()
+        render.setColorScale(1, 1, 1, 1)
+        # base.camLens.setNearFar(ToontownGlobals.InfiniteCameraNear, ToontownGlobals.InfiniteCameraFar) Not sure what the default nearFar is ~ Markgasus
+
     def __enterRocket(self):
         # Rocket cutscene starts here
         print 'Hey that tickles'
@@ -504,9 +525,7 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.rocketActor.play('launch')
 
     def unloadScienceFair(self):
-        self.balloonArchway.removeNode()
-        del self.balloonArchway
-
+        print "Unloaded Science Fair"
         self.cakeBalloon.removeNode()
         del self.cakeBalloon
 
@@ -532,8 +551,8 @@ class TutorialTownLoader(TTTownLoader.TTTownLoader):
         self.rocketActor.delete()
         self.rocketExplosionEffect.destroy()
 
-
     def unloadInfinite(self):
+        print "Unloaded Infinite"
         self.infiniteSky.removeNode()
         self.space.removeNode()
         self.rocketParticleSeq = None
