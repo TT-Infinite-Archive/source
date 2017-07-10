@@ -19,7 +19,6 @@ from toontown.toontowngui import TTDialog, TTTooltip, TTLabel, TTCheckBox
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker 
-from toontown.util import ThreadedCall
 import sys
 
 class MainMenu(DirectFrame, FSM):
@@ -1169,7 +1168,7 @@ class MainMenu(DirectFrame, FSM):
                 )
             self.bookmarksList.setPos(0.8, 0, 0)
         self.bookmarksList.show()
-        ThreadedCall.ThreadedCall(self.makeBookmarksButtons).start()
+        self.makeBookmarksButtons()
         self.logo.hide()
         self.background['image'] = 'phase_3.5/maps/big_book.jpg'
          
@@ -1392,7 +1391,7 @@ class MainMenu(DirectFrame, FSM):
             base.showNotification("Error: A bookmark for %s doesn't exist, so it can't be deleted!" %address);
         else:
             base.showNotification("Error: Unknown error removing bookmark! Please report this to the developers!");
-        ThreadedCall.ThreadedCall(self.makeBookmarksButtons).start()
+        self.makeBookmarksButtons()
             
     def enterStartDirectConnect(self):
         base.isHosting = False
