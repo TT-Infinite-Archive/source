@@ -126,7 +126,16 @@ class ShardPage(ShtikerPage.ShtikerPage):
             itemFrame_frameColor=(0.85, 0.95, 1, 1),
             itemFrame_borderWidth=(0.0025, 0.0025)
         )
-
+        self.unsupportedWarning = OnscreenText(
+            parent=self.mainFrame,
+            text=TTLocalizer.ShardPageUnsupported,
+            scale=0.06,
+            wordwrap=20,
+            align=TextNode.ACenter,
+            font=ToontownGlobals.getInterfaceFont(),
+            fg=(1, 0, 0, 1),
+            pos=(0, -0.4, 0.0)
+        )
         self.updateEntries()
 
         listGui.removeNode()
