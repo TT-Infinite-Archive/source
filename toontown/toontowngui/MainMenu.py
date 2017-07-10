@@ -160,36 +160,51 @@ class MainMenu(DirectFrame, FSM):
         )
         self.buttons.append(self.signUpButton)
 
-        self.singlePlayerButton = DirectButton(
-            parent = base.a2dTopLeft,
-            relief = None,
-            pos=(.35, 0, -0.3),
+        self.singlePlayerButton = MATShuffleButton(
+            pos=(0, 0, -0.2),
             text="Singleplayer",
-            image = None,
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.082,
             text2_scale=0.087,
             text1_scale=0.087,
-            text_style = 3,
             command=lambda: self.request('Singleplayer')
         )
         self.buttons2.append(self.singlePlayerButton)
 
-        self.multiPlayerButton = DirectButton(
-            parent = base.a2dTopLeft,
-            relief = None,
-            pos=(.35, 0, -0.5),
+        self.multiPlayerButton = MATShuffleButton(
+            pos=(0, 0, -0.5),
             text="Multiplayer",
-            image = None,
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
             text_scale=0.09,
             text2_scale=0.095,
             text1_scale=0.095,
-            text_style = 3,
             command=lambda: self.request('Multiplayer')
         )
         self.multiPlayerButton.hide()
 
-        self.optionsButton = MATShuffleButton(
+        self.modsButton = MATShuffleButton(
             pos=(0, 0, -0.8),
+            text="Mods",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            # command=lambda: self.request('Mods')
+        )
+        self.buttons2.append(self.modsButton)
+
+        self.optionsButton = MATShuffleButton(
+            parent=base.a2dBottomLeft,
+            pos=(.4, 0, .2),
             text="Options",
             wantArrows=False,
             image_scale=buttonScale,
@@ -201,21 +216,36 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('Options')
         )
         self.buttons2.append(self.optionsButton)
-        
-        self.backButton0 = MATShuffleButton(
-            parent = base.a2dBottomLeft,
-            pos=(.4, 0, .2),
-            text="Back",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: base.cr.loginFSM.request('clickToStart')
+
+
+        self.connectButton = DirectButton(
+            parent=base.a2dTopLeft,
+            relief=None,
+            pos=(.35, 0, -0.3),
+            text="Connect",
+            text_scale=0.082,
+            text2_scale=0.087,
+            text1_scale=0.087,
+            text_style = 3,
+            command=lambda: self.request('Singleplayer')
         )
-        self.buttons2.append(self.backButton0)
+        self.mpButtons.append(self.connectButton)
+
+        self.serverBrowserButton = DirectButton(
+            parent=base.a2dTopLeft,
+            relief=None,
+            pos=(.35, 0, -0.3),
+            text="Server Browser",
+            text_scale=0.082,
+            text2_scale=0.087,
+            text1_scale=0.087,
+            text_style = 3,
+            command=lambda: self.request('Singleplayer')
+        )
+        self.mpButtons.append(self.serverBrowserButton)
+
+        # sp button pos=(.35, 0, -0.3),
+        # mp button pos=(.35, 0, -0.5),
 
         """
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -311,7 +341,6 @@ class MainMenu(DirectFrame, FSM):
         )
         self.lockIconMP.hide()
 
-        '''
         # Lock icon for Mods
         self.lockIconMods = DirectButton(
             parent=aspect2d,
@@ -323,7 +352,6 @@ class MainMenu(DirectFrame, FSM):
             state=DGG.DISABLED
         )
         self.lockIconMods.hide()
-        '''
 
         # Functionality for enabling and disabling the Multiplayer button
         self.multiPlayerButton['state'] = DGG.DISABLED
@@ -334,7 +362,6 @@ class MainMenu(DirectFrame, FSM):
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
 
-        '''
         # Functionality for enabling and disabling the Mods button
         self.modsButton['state'] = DGG.DISABLED
         self.modsButton.setColorScale(CGray)
@@ -343,86 +370,10 @@ class MainMenu(DirectFrame, FSM):
             self.lockIconMods.destroy()
             self.modsButton['state'] = DGG.NORMAL
             self.modsButton.setColorScale(CDefault)
-        '''
-
-        # Multiplayer Menu Buttons
-        self.serverBrowserButton = MATShuffleButton(
-            pos=(-.35, 0, -0.5),
-            text="Server\nBrowser",
-            text_pos=(0, 0.02, 0),
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.08,
-            text2_scale=0.085,
-            text1_scale=0.085,
-            command=lambda: self.request('MultiplayerSB')
-        )
-        
-        self.bookmarksButton = MATShuffleButton(
-            pos=(.35, 0, -0.5),
-            text="Bookmarked\nServers",
-            text_pos=(0, 0.02, 0),
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.08,
-            text2_scale=0.085,
-            text1_scale=0.085,
-            command=lambda: self.request('Bookmarks')
-        )
-
-        self.directConnectButton = MATShuffleButton(
-            pos=(-0.35, 0, -0.2),
-            text="Direct\nConnect",
-            text_pos=(0, 0.02, 0),
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.08,
-            text2_scale=0.085,
-            text1_scale=0.085,
-            command=lambda: self.request('DirectConnect')
-        )
-
-        self.hostButton = MATShuffleButton(
-            pos=(0.35, 0, -0.2),
-            text="Host",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: self.request('HostMultiplayer')
-        )
-
-        self.helpButton = MATShuffleButton(
-            pos=(0, 0, -0.8),
-            text="Help",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: self.request('MultiplayerHelp')
-        )
 
         self.label11['text'] = TTLocalizer.EnterAddress
         self.label11.reparentTo(aspect2d)
         self.label11.hide()
-
-        self.mpButtons.append(self.hostButton)
-        self.mpButtons.append(self.serverBrowserButton)
-        self.mpButtons.append(self.directConnectButton)
-        self.mpButtons.append(self.helpButton)
-        self.mpButtons.append(self.bookmarksButton)
 
         # Functionality for enabling and disabling the Server Browser button
         # self.serverBrowserButton['state'] = DGG.DISABLED
@@ -432,40 +383,6 @@ class MainMenu(DirectFrame, FSM):
             # self.lockIconSB.destroy()
             # self.serverBrowserButton['state'] = DGG.NORMAL
             # self.serverBrowserButton.setColorScale(CDefault)
-
-        # Multiplayer Menu Buttons: Join Menu
-        self.connectButton = MATShuffleButton(
-            pos=(-0.35, 0, -0.75),
-            text="Connect",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.09,
-            text2_scale=0.095,
-            text1_scale=0.10,
-            command=self.__submitIP
-        )
-        self.connectButton.hide()
-        
-        # Multiplayer Menu Buttons: Add current ip to Bookmarks
-        self.addToBookmarksButton = MATShuffleButton(
-            pos=(0.35, 0, -0.75),
-            text="Bookmark",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.09,
-            text2_scale=0.095,
-            text1_scale=0.10,
-            command=self.createBookmark
-        )
-        self.addToBookmarksButton.hide()
-
-        self.label12['text'] = TTLocalizer.Help
-        self.label12.reparentTo(aspect2d)
-        self.label12.hide()
 
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -583,15 +500,13 @@ class MainMenu(DirectFrame, FSM):
                     button2.show()
         if not base.wantMultiplayer:
             self.lockIconMP.show()
-        # if not sys.platform == 'android':
-            # if not base.wantMods:
-                # self.lockIconMods.show()
+        if not sys.platform == 'android':
+            if not base.wantMods:
+                self.lockIconMods.show()
         self.background.show()
         self.logo.show()
         self.multiPlayerButton.show()
         self.quitButton.show()
-        LerpPosInterval(self.singlePlayerButton, 0.5, Point3(0.35, 0, -0.3), Point3(-0.35, 0, -0.3), blendType = 'easeOut').start()
-        LerpPosInterval(self.multiPlayerButton, 0.5, Point3(0.35, 0, -0.5), Point3(-0.35, 0, -0.5), blendType = 'easeOut').start()
 
 
         """
@@ -622,9 +537,9 @@ class MainMenu(DirectFrame, FSM):
         self.multiPlayerButton.hide()
         if not base.wantMultiplayer:
             self.lockIconMP.hide()
-        # if not sys.platform == 'android':
-            # if not base.wantMods:
-                # self.lockIconMods.hide()
+        if not sys.platform == 'android':
+            if not base.wantMods:
+                self.lockIconMods.hide()
         self.quitButton.hide()
 
         """
@@ -1018,8 +933,12 @@ class MainMenu(DirectFrame, FSM):
         base.isSinglePlayer = False
         self.background.reparentTo(hidden)
         self.logo.reparentTo(hidden)
-        # for mpButton in self.mpButtons:
-            # mpButton.show()
+        for mpButton in self.mpButtons:
+            mpButton.show()
+        LerpPosInterval(self.connectButton, 0.5, Point3(0.35, 0, -0.3), Point3(-0.35, 0, -0.3),
+                        blendType='easeOut').start()
+        LerpPosInterval(self.serverBrowserButton, 0.5, Point3(0.35, 0, -0.5), Point3(-0.35, 0, -0.5),
+                        blendType='easeOut').start()
         # if not base.wantServerBrowser:
             # self.lockIconSB.show()
 
@@ -1027,8 +946,8 @@ class MainMenu(DirectFrame, FSM):
         self.backButton2.hide()
         self.background.reparentTo(render2d)
         self.logo.reparentTo(aspect2d)
-        # for mpButton in self.mpButtons:
-            # mpButton.hide()
+        for mpButton in self.mpButtons:
+            mpButton.hide()
         # if not base.wantServerBrowser:
             # self.lockIconSB.hide()
 

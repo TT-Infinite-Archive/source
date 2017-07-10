@@ -61,9 +61,6 @@ class ClickToStart(DirectObject):
             self.music.setVolume(0.9)
             self.music.play()
 
-    def enterIdle(self):
-        return
-
     def delete(self):
         if self.labelColorScaleTrack is not None:
             self.labelColorScaleTrack.finish()
