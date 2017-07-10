@@ -98,6 +98,11 @@ from toontown.launcher.TTILauncher import TTILauncher
 
 __builtin__.launcher = TTILauncher()
 
+if not __debug__:
+    # Check if an username is set or not.
+    if launcher.getPlayToken() is None:
+        notify.error("Username isn't set, please start the game from the launcher.  Aborting.")
+
 notify.info('Starting the game...')
 
 from direct.gui import DirectGuiGlobals
@@ -242,18 +247,20 @@ if not launcher.isDummy():
 else:
     base.startShow()
 
-__builtin__.loader = base.loader
+if __debug__:
+    # Skip the introduction if we are in dev mode
+    clickToStart.stop()
+    clickToStart.begin()
+else:
+    disclaimerTrack.start()
 
+    def skip():
+        if disclaimerTrack.isPlaying():
+            disclaimerTrack.finish()
+        elif presentsTrack.isPlaying():
+            presentsTrack.finish()
 
-disclaimerTrack.start()
-
-def skip():
-    if disclaimerTrack.isPlaying():
-        disclaimerTrack.finish()
-    elif presentsTrack.isPlaying():
-        presentsTrack.finish()
-
-    base.accept('mouse1')
+    base.accept('mouse1', skip)
 
 
 
