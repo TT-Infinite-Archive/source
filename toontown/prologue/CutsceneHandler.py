@@ -21,7 +21,7 @@ class CutsceneHandler:
     def __init__(self, assets, parent):
         self.assets = assets
         self.parent = parent
-        self.sequence = self.getSequence()
+        self.sequence = Sequence()
         self.subtitle = DirectLabel(relief=None, text='', text_scale=0.1, text_wordwrap=20,
                                     text_font=ToontownGlobals.getSuitFont(), text_fg=(1, 1, 1, 1),
                                     text_shadow=(0, 0, 0, 1), pos=(0, 0, 0.75))
@@ -29,7 +29,7 @@ class CutsceneHandler:
         self.music = None
 
     def getSequence(self):
-        return Sequence()
+        return self.sequence
 
     def load(self):
         pass
