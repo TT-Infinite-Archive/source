@@ -15,10 +15,11 @@ from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ColorGlobals import CGray, CDefault
-from toontown.toontowngui import TTDialog, TTTooltip
+from toontown.toontowngui import TTDialog, TTTooltip, TTLabel, TTCheckBox
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
-from toontown.util import TTCardMaker
+from toontown.util import TTCardMaker 
+from toontown.util import ThreadedCall
 import sys
 
 class MainMenu(DirectFrame, FSM):
@@ -568,6 +569,52 @@ class MainMenu(DirectFrame, FSM):
         
         # Load Bookmarks file
         self.bookmarkMgr = BookmarkManager()
+        
+        # Host Screen
+        self.host_StartServer = MATShuffleButton(
+            pos=(0, 0, -0.8),
+            text="Host",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('StartHost')
+        )
+        self.host_ShowInBrowserLabel = TTLabel.TTLabel(
+            pos=(-.55, 0, -.11),
+            text="Show In Server Browser",
+            text_align=TextNode.ALeft,
+        )
+        self.host_ShowInBrowserBox = TTCheckBox.TTCheckBox(
+            pos=(-.6, 0, -.1),
+            checked=False
+        )
+
+        self.host_CheatsLabel = TTLabel.TTLabel(
+            pos=(-.55, 0, -.21),
+            text="Cheats",
+            text_align=TextNode.ALeft,
+        )
+        self.host_CheatsBox = TTCheckBox.TTCheckBox(
+            pos=(-.6, 0, -.2),
+            checked=True
+        )
+
+        self.host_ShowInBrowserBox.disable()
+        self.host_CheatsBox.disable()
+        
+        self.hostButtons = []
+        self.hostButtons.append(self.host_StartServer)
+        self.hostButtons.append(self.host_ShowInBrowserLabel)
+        self.hostButtons.append(self.host_ShowInBrowserBox)
+        self.hostButtons.append(self.host_CheatsBox)
+        self.hostButtons.append(self.host_CheatsLabel)
+        
+        for button in self.hostButtons:
+            button.hide()
                 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
@@ -1009,6 +1056,56 @@ class MainMenu(DirectFrame, FSM):
         base.isHosting = False
 
     def enterHostMultiplayer(self):
+        #for button in self.hostButtons:
+        #    button.show()
+        self.host_StartServer.show()
+        self.backButton3.show()
+                # Load the ip input bar
+        self.host_ServerNameInput = DirectEntry(
+            parent=aspect2d,
+            relief=DGG.GROOVE,
+            scale=0.1,
+            pos=(0, 0, -0.45),
+            borderWidth=(0.05, 0.05),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
+            state=DGG.DISABLED,
+            text_align=TextNode.ACenter,
+            text_scale=TTLocalizer.OPCodesInputTextScale,
+            width=15.5,
+            numLines=1,
+            focus=1,
+            backgroundFocus=0,
+            cursorKeys=1,
+            text_fg=(0,
+                     0,
+                     0,
+                     1),
+            suppressMouse=1,
+            autoCapitalize=0)
+        self.host_ServerNameInput.setTransparency(1)
+        self.host_ServerNameInput.hide()
+        self.host_ServerNameInputLabel = TTLabel.TTLabel(
+            pos=(0, 0, -.3),
+            text="Server Settings Coming Soon",#"Server Name in browser",
+            text_align=TextNode.ACenter,
+        )
+    
+    def exitHostMultiplayer(self):
+        for button in self.hostButtons:
+            button.hide()
+        self.backButton3.hide()
+        if hasattr(self, 'host_ServerNameInput'):
+            self.host_ServerNameInput.destroy()
+            del self.host_ServerNameInput
+            self.host_ServerNameInputLabel.destroy()
+            del self.host_ServerNameInputLabel
+    
+    def enterStartHost(self):
         base.isHosting = True
         self.__startGameSession(False)
 
@@ -1072,7 +1169,7 @@ class MainMenu(DirectFrame, FSM):
                 )
             self.bookmarksList.setPos(0.8, 0, 0)
         self.bookmarksList.show()
-        self.makeBookmarksButtons()
+        ThreadedCall.ThreadedCall(self.makeBookmarksButtons).start()
         self.logo.hide()
         self.background['image'] = 'phase_3.5/maps/big_book.jpg'
          
@@ -1295,7 +1392,7 @@ class MainMenu(DirectFrame, FSM):
             base.showNotification("Error: A bookmark for %s doesn't exist, so it can't be deleted!" %address);
         else:
             base.showNotification("Error: Unknown error removing bookmark! Please report this to the developers!");
-        self.makeBookmarksButtons()
+        ThreadedCall.ThreadedCall(self.makeBookmarksButtons).start()
             
     def enterStartDirectConnect(self):
         base.isHosting = False
