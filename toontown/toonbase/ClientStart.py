@@ -98,11 +98,6 @@ from toontown.launcher.TTILauncher import TTILauncher
 
 __builtin__.launcher = TTILauncher()
 
-if not __debug__:
-    # Check if an username is set or not.
-    if launcher.getPlayToken() is None:
-        notify.error("Username isn't set, please start the game from the launcher.  Aborting.")
-
 notify.info('Starting the game...')
 
 from direct.gui import DirectGuiGlobals
@@ -156,10 +151,6 @@ from toontown.toontowngui.ClickToStart import ClickToStart
 
 clickToStart = ClickToStart(version=version)
 clickToStart.setColorScale(0, 0, 0, 0)
-
-music = None
-if base.musicManagerIsValid:
-    music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
 
 from toontown.toonbase import TTLocalizer
 from otp.otpbase import OTPLocalizer
@@ -238,7 +229,6 @@ disclaimerTrack = Sequence(
 from toontown.distributed import ToontownClientRepository
 
 base.cr = ToontownClientRepository.ToontownClientRepository(version, launcher)
-base.cr.music = music
 base.cr.introduction = introduction
 base.cr.clickToStart = clickToStart
 base.initNametagGlobals()
@@ -253,23 +243,17 @@ else:
     base.startShow()
 
 __builtin__.loader = base.loader
-if music is not None:
-    base.playMusic(music, looping=1, volume=0.9)
 
-if __debug__:
-    # Skip the introduction if we are in dev mode
-    clickToStart.stop()
-    clickToStart.begin()
-else:
-    disclaimerTrack.start()
 
-    def skip():
-        if disclaimerTrack.isPlaying():
-            disclaimerTrack.finish()
-        elif presentsTrack.isPlaying():
-            presentsTrack.finish()
+disclaimerTrack.start()
 
-    base.accept('mouse1', skip)
+def skip():
+    if disclaimerTrack.isPlaying():
+        disclaimerTrack.finish()
+    elif presentsTrack.isPlaying():
+        presentsTrack.finish()
+
+    base.accept('mouse1')
 
 
 

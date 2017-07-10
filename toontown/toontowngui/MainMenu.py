@@ -104,7 +104,7 @@ class MainMenu(DirectFrame, FSM):
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
-            parent=render2d, image='phase_3/maps/loading_bg_clouds.jpg', pos=(0, 0, 0))
+            parent=render2d, image='phase_3/maps/menu_bg_clouds.jpg', pos=(0, 0, 0))
         self.background.setBin('background', 0)
         self.background.setScale(render2d, Vec3(1))
         
@@ -188,23 +188,8 @@ class MainMenu(DirectFrame, FSM):
         )
         self.multiPlayerButton.hide()
 
-        self.modsButton = MATShuffleButton(
-            pos=(0, 0, -0.8),
-            text="Mods",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            # command=lambda: self.request('Mods')
-        )
-        self.buttons2.append(self.modsButton)
-        
         self.optionsButton = MATShuffleButton(
-            parent = base.a2dBottomLeft,
-            pos=(.4, 0, .2),
+            pos=(0, 0, -0.8),
             text="Options",
             wantArrows=False,
             image_scale=buttonScale,
@@ -216,6 +201,21 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('Options')
         )
         self.buttons2.append(self.optionsButton)
+        
+        self.backButton0 = MATShuffleButton(
+            parent = base.a2dBottomLeft,
+            pos=(.4, 0, .2),
+            text="Back",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: base.cr.loginFSM.request('clickToStart')
+        )
+        self.buttons2.append(self.backButton0)
 
         """
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
@@ -311,6 +311,7 @@ class MainMenu(DirectFrame, FSM):
         )
         self.lockIconMP.hide()
 
+        '''
         # Lock icon for Mods
         self.lockIconMods = DirectButton(
             parent=aspect2d,
@@ -322,18 +323,7 @@ class MainMenu(DirectFrame, FSM):
             state=DGG.DISABLED
         )
         self.lockIconMods.hide()
-
-        # Lock icon for the Server Browser
-        self.lockIconSB = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.34, 0, -0.49),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-        self.lockIconSB.hide()
+        '''
 
         # Functionality for enabling and disabling the Multiplayer button
         self.multiPlayerButton['state'] = DGG.DISABLED
@@ -344,6 +334,7 @@ class MainMenu(DirectFrame, FSM):
             self.multiPlayerButton['state'] = DGG.NORMAL
             self.multiPlayerButton.setColorScale(CDefault)
 
+        '''
         # Functionality for enabling and disabling the Mods button
         self.modsButton['state'] = DGG.DISABLED
         self.modsButton.setColorScale(CGray)
@@ -352,6 +343,7 @@ class MainMenu(DirectFrame, FSM):
             self.lockIconMods.destroy()
             self.modsButton['state'] = DGG.NORMAL
             self.modsButton.setColorScale(CDefault)
+        '''
 
         # Multiplayer Menu Buttons
         self.serverBrowserButton = MATShuffleButton(
@@ -433,13 +425,13 @@ class MainMenu(DirectFrame, FSM):
         self.mpButtons.append(self.bookmarksButton)
 
         # Functionality for enabling and disabling the Server Browser button
-        self.serverBrowserButton['state'] = DGG.DISABLED
-        self.serverBrowserButton.setColorScale(CGray)
+        # self.serverBrowserButton['state'] = DGG.DISABLED
+        # self.serverBrowserButton.setColorScale(CGray)
 
-        if base.wantServerBrowser:
-            self.lockIconSB.destroy()
-            self.serverBrowserButton['state'] = DGG.NORMAL
-            self.serverBrowserButton.setColorScale(CDefault)
+        # if base.wantServerBrowser:
+            # self.lockIconSB.destroy()
+            # self.serverBrowserButton['state'] = DGG.NORMAL
+            # self.serverBrowserButton.setColorScale(CDefault)
 
         # Multiplayer Menu Buttons: Join Menu
         self.connectButton = MATShuffleButton(
@@ -572,7 +564,7 @@ class MainMenu(DirectFrame, FSM):
                 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
-            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
+            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
             if base.cr.music is not None:
                 base.cr.music.setLoop(1)
                 base.cr.music.setVolume(0.9)
@@ -591,9 +583,9 @@ class MainMenu(DirectFrame, FSM):
                     button2.show()
         if not base.wantMultiplayer:
             self.lockIconMP.show()
-        if not sys.platform == 'android':
-            if not base.wantMods:
-                self.lockIconMods.show()
+        # if not sys.platform == 'android':
+            # if not base.wantMods:
+                # self.lockIconMods.show()
         self.background.show()
         self.logo.show()
         self.multiPlayerButton.show()
@@ -630,9 +622,9 @@ class MainMenu(DirectFrame, FSM):
         self.multiPlayerButton.hide()
         if not base.wantMultiplayer:
             self.lockIconMP.hide()
-        if not sys.platform == 'android':
-            if not base.wantMods:
-                self.lockIconMods.hide()
+        # if not sys.platform == 'android':
+            # if not base.wantMods:
+                # self.lockIconMods.hide()
         self.quitButton.hide()
 
         """
@@ -1024,17 +1016,21 @@ class MainMenu(DirectFrame, FSM):
     def enterMultiplayer(self):
         self.backButton2.show()
         base.isSinglePlayer = False
-        for mpButton in self.mpButtons:
-            mpButton.show()
-        if not base.wantServerBrowser:
-            self.lockIconSB.show()
+        self.background.reparentTo(hidden)
+        self.logo.reparentTo(hidden)
+        # for mpButton in self.mpButtons:
+            # mpButton.show()
+        # if not base.wantServerBrowser:
+            # self.lockIconSB.show()
 
     def exitMultiplayer(self):
         self.backButton2.hide()
-        for mpButton in self.mpButtons:
-            mpButton.hide()
-        if not base.wantServerBrowser:
-            self.lockIconSB.hide()
+        self.background.reparentTo(render2d)
+        self.logo.reparentTo(aspect2d)
+        # for mpButton in self.mpButtons:
+            # mpButton.hide()
+        # if not base.wantServerBrowser:
+            # self.lockIconSB.hide()
 
     def enterMultiplayerHelp(self):
         self.label12.show()
