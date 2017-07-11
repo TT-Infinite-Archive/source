@@ -151,9 +151,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         else:
             return 'door_trigger_' + str(self.block)
 
-    def getTriggerName_wip(self):
-        return 'door_trigger_%d' % (self.doId,)
-
     def getEnterTriggerEvent(self):
         return 'enter' + self.getTriggerName()
 
@@ -178,17 +175,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                 doorTrigger.node().setName(self.getTriggerName())
             except:
                 pass
-
-    def setTriggerName_wip(self):
-        building = self.getBuilding()
-        doorTrigger = building.find('**/door_%d/**/door_trigger_%d' % (self.doorIndex, self.block))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find('**/door_trigger_%d' % (self.block,))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find('**/door_%d/**/door_trigger_*' % (self.doorIndex,))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find('**/door_trigger_*')
-        doorTrigger.node().setName(self.getTriggerName())
 
     def setZoneIdAndBlock(self, zoneId, block):
         self.zoneId = zoneId
@@ -269,14 +255,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                 self.building = self.cr.playGame.hood.loader.geom
             else:
                 self.notify.error('No such door type as ' + str(self.doorType))
-        return self.building
-
-    def getBuilding_wip(self):
-        if not hasattr(self, 'building'):
-            if hasattr(self, 'block'):
-                self.building = self.cr.playGame.hood.loader.geom.find('**/??' + str(self.block) + ':*_landmark_*_DNARoot;+s')
-            else:
-                self.building = self.cr.playGame.hood.loader.geom
         return self.building
 
     def readyToExit(self):

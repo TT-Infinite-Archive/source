@@ -75,14 +75,14 @@ class BodyShop(StateData.StateData):
     def showButtons(self):
         self.parentFrame.show()
         for btn in self.speciesButtons:
-            btn['image_color'] = (self.toon.style.getHeadColor());
-            btn['image3_color'] = (self.toon.style.getHeadColor() - Vec4(0, 0, 0, .4));
-            btn.show();
+            btn['image_color'] = (self.toon.style.getHeadColor())
+            btn['image3_color'] = (self.toon.style.getHeadColor() - Vec4(0, 0, 0, .4))
+            btn.show()
             
     def hideButtons(self):
         self.parentFrame.hide()
         for btn in self.speciesButtons:
-            btn.hide();
+            btn.hide()
 
     def exit(self):
         try:
@@ -216,55 +216,55 @@ class BodyShop(StateData.StateData):
     def createSpeciesButtons(self):
         pos = ((.3, 0, .3),  (.6, 0, .3),  (.9, 0, .3),
                (.3, 0, 0),  (.6, 0, 0),  (.9, 0, 0),
-               (.3, 0, -.3), (.6, 0, -.3), (.9, 0, -.3));
+               (.3, 0, -.3), (.6, 0, -.3), (.9, 0, -.3))
         gui = loader.loadModel('phase_3/models/gui/laff_o_meter')
         for x in range(len(ToonDNA.toonSpeciesTypes)):
-            name = SPECIES.get(ToonDNA.toonSpeciesTypes[x], '');
-            hType = ToonDNA.toonSpeciesTypes[x];
+            name = SPECIES.get(ToonDNA.toonSpeciesTypes[x], '')
+            hType = ToonDNA.toonSpeciesTypes[x]
             if hType == 'd':
-                headModel = gui.find('**/doghead');
+                headModel = gui.find('**/doghead')
             elif hType == 'c':
-                headModel = gui.find('**/cathead');
+                headModel = gui.find('**/cathead')
             elif hType == 'm':
-                headModel = gui.find('**/mousehead');
+                headModel = gui.find('**/mousehead')
             elif hType == 'h':
-                headModel = gui.find('**/horsehead');
+                headModel = gui.find('**/horsehead')
             elif hType == 'r':
-                headModel = gui.find('**/bunnyhead');
+                headModel = gui.find('**/bunnyhead')
             elif hType == 'f':
-                headModel = gui.find('**/duckhead');
+                headModel = gui.find('**/duckhead')
             elif hType == 'p':
-                headModel = gui.find('**/monkeyhead');
+                headModel = gui.find('**/monkeyhead')
             elif hType == 'b':
-                headModel = gui.find('**/bearhead');
+                headModel = gui.find('**/bearhead')
             elif hType == 's':
-                headModel = gui.find('**/pighead');
-            imagecolor = ((1, 1, 1, 1), (1, 1, 1, 1), (.8, .8, .8, 1), (.5, .5, .5, .5));
+                headModel = gui.find('**/pighead')
+            imagecolor = ((1, 1, 1, 1), (1, 1, 1, 1), (.8, .8, .8, 1), (.5, .5, .5, .5))
             btn = MATShuffleButton(wantArrows=False, image_scale = (0.06, 0.06, 0.06), image_color = (1, 1, 1, 1),
                 image3_color = (.5, .5, .5, 1),
                 image1_scale = (0.07, 0.07, 0.07), image2_scale = (0.07, 0.07, 0.07),
                 image = headModel,
                 text = ('', name, name, name), text_scale = .08,
-                scale = 0.95, command = self.__setSpecies, extraArgs = [x]);
-            btn.reparentTo(base.a2dLeftCenter);
-            btn.setPos(pos[x]);
-            btn.hide();
-            self.speciesButtons.append(btn);
+                scale = 0.95, command = self.__setSpecies, extraArgs = [x])
+            btn.reparentTo(base.a2dLeftCenter)
+            btn.setPos(pos[x])
+            btn.hide()
+            self.speciesButtons.append(btn)
         
     def __setSpecies(self, offset):
         for btn in self.speciesButtons:
-            btn['state'] = DGG.NORMAL;
+            btn['state'] = DGG.NORMAL
             
-        self.speciesButtons[offset]['state'] = DGG.DISABLED;
+        self.speciesButtons[offset]['state'] = DGG.DISABLED
         
-        length = len(ToonDNA.toonSpeciesTypes);
-        self.speciesChoice = (offset) % length;
-        self.species = ToonDNA.toonSpeciesTypes[self.speciesChoice];
-        self.headList = ToonDNA.getHeadList(self.species);
-        maxHeadChoice = len(self.headList) - 1;
+        length = len(ToonDNA.toonSpeciesTypes)
+        self.speciesChoice = (offset) % length
+        self.species = ToonDNA.toonSpeciesTypes[self.speciesChoice]
+        self.headList = ToonDNA.getHeadList(self.species)
+        maxHeadChoice = len(self.headList) - 1
         if self.headChoice > maxHeadChoice:
-            self.headChoice = maxHeadChoice;
-        self.__updateHead();
+            self.headChoice = maxHeadChoice
+        self.__updateHead()
         
     def __updateHead(self):
         self.__updateFrame(self.headChoice, len(self.headList), self.headFrame)

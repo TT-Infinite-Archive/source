@@ -295,7 +295,7 @@ class ToonBase(OTPBase.OTPBase):
             result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
         except StandardError as e:
             settings['fullscreen'] = False
-            raise StandardError, 'Could not open window, resetting display options; try to run the game again.'
+            raise StandardError, 'Could not open window, resetting display options try to run the game again.'
 
         self.setCursorAndIcon()
         return result
@@ -381,14 +381,14 @@ class ToonBase(OTPBase.OTPBase):
             
     def showNotification(self, message):
         if hasattr(self, 'notificationPopup') and self.notificationPopup:
-            self.notificationPopup.destroy();
-            taskMgr.remove('clearNotification');
-        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0));
-        self.notificationPopup.reparentTo(base.a2dBottomCenter);
-        self.notificationPopup.setBin('gui-popup', 0);     
+            self.notificationPopup.destroy()
+            taskMgr.remove('clearNotification')
+        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
+        self.notificationPopup.reparentTo(base.a2dBottomCenter)
+        self.notificationPopup.setBin('gui-popup', 0)     
         def clearNotificationPopup(task):
-            self.notificationPopup.destroy();
-            return task.done;
+            self.notificationPopup.destroy()
+            return task.done
 
         taskMgr.doMethodLater(5.0, clearNotificationPopup, 'clearNotification')
 
@@ -609,7 +609,7 @@ class ToonBase(OTPBase.OTPBase):
             self.cr.dumpAllSubShardObjects()
 
         self.cr.loginFSM.request('shutdown')
-        self.notify.warning('Could not request shutdown; exiting anyway.')
+        self.notify.warning('Could not request shutdown exiting anyway.')
         self.ignore(ToontownGlobals.QuitGameHotKeyOSX)
         self.ignore(ToontownGlobals.QuitGameHotKeyRepeatOSX)
         self.ignore(ToontownGlobals.HideGameHotKeyOSX)

@@ -1373,24 +1373,24 @@ class MainMenu(DirectFrame, FSM):
             address = self.ipInput.get()
             resp = self.bookmarkMgr.addBookmark(address, name)
             if resp == 1:
-                base.showNotification("Bookmark added! (IP: %s, Name: %s)" %(self.ipInput.get(), self.serverNameInput.get()));
+                base.showNotification("Bookmark added! (IP: %s, Name: %s)" %(self.ipInput.get(), self.serverNameInput.get()))
             elif resp == 2:
-                base.showNotification("Error: A bookmark for the IP %s already exists!" %self.ipInput.get());
+                base.showNotification("Error: A bookmark for the IP %s already exists!" %self.ipInput.get())
             elif resp == 3:
-                base.showNotification("Error: Please specify an IP!");
+                base.showNotification("Error: Please specify an IP!")
             else:
-                base.showNotification("Error: Unknown error adding bookmark! Please report this to the developers!");
+                base.showNotification("Error: Unknown error adding bookmark! Please report this to the developers!")
                 
     def deleteFromBookmarks(self, name, address):
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
         resp = self.bookmarkMgr.removeBookmark(address)
         if resp == 1:
-            base.showNotification("Bookmark removed! (IP: %s, Name: %s)" %(address, name));
+            base.showNotification("Bookmark removed! (IP: %s, Name: %s)" %(address, name))
         elif resp == 2:
-            base.showNotification("Error: A bookmark for %s doesn't exist, so it can't be deleted!" %address);
+            base.showNotification("Error: A bookmark for %s doesn't exist, so it can't be deleted!" %address)
         else:
-            base.showNotification("Error: Unknown error removing bookmark! Please report this to the developers!");
+            base.showNotification("Error: Unknown error removing bookmark! Please report this to the developers!")
         self.makeBookmarksButtons()
             
     def enterStartDirectConnect(self):
