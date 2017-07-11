@@ -19,6 +19,7 @@ from toontown.toontowngui import TTDialog
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker
+from panda3d.core import TransparencyAttrib, Vec4, TextNode
 import sys
 from direct.interval.LerpInterval import LerpPosInterval
 
@@ -31,6 +32,7 @@ class MainMenu(DirectFrame, FSM):
 
         self.logoScaleTrack = None
         self.localSinglePlayerStart = None
+        self.loadEnviroments()
 
         self.buttons = []
         self.buttons2 = []
@@ -107,6 +109,13 @@ class MainMenu(DirectFrame, FSM):
             parent=render2d, image='phase_3/maps/menu_bg_clouds.jpg', pos=(0, 0, 0))
         self.background.setBin('background', 0)
         self.background.setScale(render2d, Vec3(1))
+        if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
+            font = ToontownGlobals.getNametagFont(10)
+        else:
+            font = ToontownGlobals.getMinnieFont()
+        self.motdLabel = OnscreenText(
+            '', parent=hidden, font=font, fg=Vec4(1, 1, 1, 1), scale=0.05,
+            align=TextNode.ALeft, wordwrap=25)
         
         # Load the Toontown Infinite logo
         offset = -0.04
@@ -479,6 +488,14 @@ class MainMenu(DirectFrame, FSM):
         # Load Bookmarks file
         self.bookmarkMgr = BookmarkManager()
                 
+    def loadEnviroments(self):
+        self.toontownCentral = loader.loadModel('phase_4/models/neighborhoods/toontown_central_sz.bam')
+        self.toontownCentral.reparentTo(hidden)
+
+    def unloadEnviroments(self):
+        self.toontownCentral.removeNode()
+        del self.toontownCentral
+
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
             base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
@@ -929,12 +946,23 @@ class MainMenu(DirectFrame, FSM):
         self.quitButton.hide()
 
     def enterMultiplayer(self):
-        self.backButton2.show()
         base.isSinglePlayer = False
+        self.toontownCentral.reparentTo(render)
+        self.backButton2.show()
         self.background.reparentTo(hidden)
         self.logo.reparentTo(hidden)
+
         for mpButton in self.mpButtons:
             mpButton.show()
+
+        self.motdLabel.setText(TTLocalizer.MOTDTitle)
+        self.motdLabel.setPos(-1.7, -0.35)
+        self.motdLabel.reparentTo(aspect2d)
+
+        # self.motdLabel.setText(TTLocalizer.MOTD)
+        # self.motdLabel.setPos(0, self.calcLabelY())
+        # self.motdLabel.reparentTo(aspect2d)
+
         LerpPosInterval(self.connectButton, 0.5, Point3(0.35, 0, -0.3), Point3(-0.35, 0, -0.3),
                         blendType='easeOut').start()
         LerpPosInterval(self.serverBrowserButton, 0.5, Point3(0.35, 0, -0.5), Point3(-0.35, 0, -0.5),
@@ -943,6 +971,7 @@ class MainMenu(DirectFrame, FSM):
             # self.lockIconSB.show()
 
     def exitMultiplayer(self):
+        self.toontownCentral.reparentTo(hidden)
         self.backButton2.hide()
         self.background.reparentTo(render2d)
         self.logo.reparentTo(aspect2d)

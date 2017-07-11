@@ -10726,6 +10726,10 @@ IntroNoButton = 'No'
 ClickToStartLabel = '\x01shadow\x01Click anywhere to begin\x02'
 ClickToStartHalloweenLabel = '\x01shadow\x01Click anywhere to begin\n...if you dare...\x02'
 
+# Message of the Day
+MOTDTitle = 'Play Co-Op, Get Sillier, wilder and more!'
+MOTD = 'Play Toontown Infinite with your friends all summer long!'
+
 Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
