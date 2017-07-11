@@ -3,21 +3,22 @@ from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
-from direct.gui.DirectGui import *
+from direct.gui import DirectGuiGlobals
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.interval.IntervalGlobal import Sequence
 from pandac.PandaModules import *
 
 from otp.otpbase import OTPLocalizer
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from toontown.serverbrowser.BookmarkManager import BookmarkManager
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ColorGlobals import CGray, CDefault
-from toontown.toontowngui import TTDialog
+from toontown.toontowngui import TTDialog, TTTooltip, TTLabel, TTCheckBox
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
 from toontown.util import PlacerTool3D
-from toontown.util import TTCardMaker
+from toontown.util import TTCardMaker 
 import sys
 
 class MainMenu(DirectFrame, FSM):
@@ -566,33 +567,53 @@ class MainMenu(DirectFrame, FSM):
         self.bookmarkInfoDialog = None
         
         # Load Bookmarks file
-        self.bookmarkPath = os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat')
-        self.bookmarks = []
+        self.bookmarkMgr = BookmarkManager()
         
-        if self.bookmarks == []:
-            if not os.path.exists(self.bookmarkPath):
-                with open(self.bookmarkPath, 'wb') as file:
+        # Host Screen
+        self.host_StartServer = MATShuffleButton(
+            pos=(0, 0, -0.8),
+            text="Host",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('StartHost')
+        )
+        self.host_ShowInBrowserLabel = TTLabel.TTLabel(
+            pos=(-.55, 0, -.11),
+            text="Show In Server Browser",
+            text_align=TextNode.ALeft,
+        )
+        self.host_ShowInBrowserBox = TTCheckBox.TTCheckBox(
+            pos=(-.6, 0, -.1),
+            checked=False
+        )
+
+        self.host_CheatsLabel = TTLabel.TTLabel(
+            pos=(-.55, 0, -.21),
+            text="Cheats",
+            text_align=TextNode.ALeft,
+        )
+        self.host_CheatsBox = TTCheckBox.TTCheckBox(
+            pos=(-.6, 0, -.2),
+            checked=True
+        )
+
+        self.host_ShowInBrowserBox.disable()
+        self.host_CheatsBox.disable()
         
-                    data = PyDatagram()
-                    data.add_uint8(0)
-                    
-                    file.write(PyDatagramIterator(data).get_remaining_bytes())
-                    
-            file = open(self.bookmarkPath, 'rb')
-            data = file.read()
-            file.close()
-            
-            dg = PyDatagram(data)
-            data = PyDatagramIterator(dg)
-            
-            def getBookmark(index, dgi):
-                name = dgi.get_string()
-                address = dgi.get_string()
-                if address != '':
-                    self.bookmarks.append([name, address])
-            
-            for index in xrange(data.get_uint8()):
-                getBookmark(index, data)
+        self.hostButtons = []
+        self.hostButtons.append(self.host_StartServer)
+        self.hostButtons.append(self.host_ShowInBrowserLabel)
+        self.hostButtons.append(self.host_ShowInBrowserBox)
+        self.hostButtons.append(self.host_CheatsBox)
+        self.hostButtons.append(self.host_CheatsLabel)
+        
+        for button in self.hostButtons:
+            button.hide()
                 
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
@@ -677,9 +698,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, -0.60),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -708,9 +732,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, -0.30),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -760,9 +787,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(-0.31, 0, -0.10),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -788,9 +818,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, -0.10),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -816,9 +849,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0.31, 0, -0.10),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -847,9 +883,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, -0.40),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -878,9 +917,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, 0.20),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -909,9 +951,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, 0.50),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -1010,6 +1055,56 @@ class MainMenu(DirectFrame, FSM):
         base.isHosting = False
 
     def enterHostMultiplayer(self):
+        #for button in self.hostButtons:
+        #    button.show()
+        self.host_StartServer.show()
+        self.backButton3.show()
+                # Load the ip input bar
+        self.host_ServerNameInput = DirectEntry(
+            parent=aspect2d,
+            relief=DGG.GROOVE,
+            scale=0.1,
+            pos=(0, 0, -0.45),
+            borderWidth=(0.05, 0.05),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
+            state=DGG.DISABLED,
+            text_align=TextNode.ACenter,
+            text_scale=TTLocalizer.OPCodesInputTextScale,
+            width=15.5,
+            numLines=1,
+            focus=1,
+            backgroundFocus=0,
+            cursorKeys=1,
+            text_fg=(0,
+                     0,
+                     0,
+                     1),
+            suppressMouse=1,
+            autoCapitalize=0)
+        self.host_ServerNameInput.setTransparency(1)
+        self.host_ServerNameInput.hide()
+        self.host_ServerNameInputLabel = TTLabel.TTLabel(
+            pos=(0, 0, -.3),
+            text="Server Settings Coming Soon",#"Server Name in browser",
+            text_align=TextNode.ACenter,
+        )
+    
+    def exitHostMultiplayer(self):
+        for button in self.hostButtons:
+            button.hide()
+        self.backButton3.hide()
+        if hasattr(self, 'host_ServerNameInput'):
+            self.host_ServerNameInput.destroy()
+            del self.host_ServerNameInput
+            self.host_ServerNameInputLabel.destroy()
+            del self.host_ServerNameInputLabel
+    
+    def enterStartHost(self):
         base.isHosting = True
         self.__startGameSession(False)
 
@@ -1087,9 +1182,10 @@ class MainMenu(DirectFrame, FSM):
 
     def makeBookmarksButtons(self):
         self.bookmarksList.removeAllItems()
-        for bookmark in self.bookmarks:
-            name = bookmark[0]
-            address = bookmark[1]
+        bookmarks = self.bookmarkMgr.getBookmarks()
+        for bookmark in bookmarks:
+            address = bookmark
+            name = bookmarks.get(address)
             button = DirectButton(
                 relief = None,
                 text="%s" %(name),
@@ -1099,7 +1195,9 @@ class MainMenu(DirectFrame, FSM):
                 text_fg = (0, 0, 0, 1),
                 command = self.showBookmarkInfo,
                 extraArgs = [name, address])
-                 
+            button.bind(DirectGuiGlobals.ENTER, self.showTooltip, extraArgs = ["Name: %s\nAddress: %s" %(name, address)])
+            button.bind(DirectGuiGlobals.EXIT, self.killTooltip)
+            
             self.bookmarksList.addItem(button)
         
     def showBookmarkInfo(self, name, address):
@@ -1143,7 +1241,10 @@ class MainMenu(DirectFrame, FSM):
                 command = self.deleteFromBookmarks,
                 extraArgs = [name, address],
                 pos = (.4, 0, -.3))
-    
+                
+            deleteButton.bind(DirectGuiGlobals.ENTER, self.showTooltip, extraArgs = ["This will PERMENANTLY delete this bookmark. This action is not reversable!"])
+            deleteButton.bind(DirectGuiGlobals.EXIT, self.killTooltip)
+            
     def enterDirectConnect(self):
         self.backButton3.show()
         self.label11.show()
@@ -1158,9 +1259,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, -0.50),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -1180,6 +1284,7 @@ class MainMenu(DirectFrame, FSM):
         self.ipInput.show()
         self.__enableIPEntry()
         self.ipInput.enterText('')
+        self.ipInput.setTransparency(1)
         self.connectButton.show()
         self.addToBookmarksButton.show()
 
@@ -1230,9 +1335,12 @@ class MainMenu(DirectFrame, FSM):
             scale=0.1,
             pos=(0, 0, 0.2),
             borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 1),
-                        (1, 1, 1, 1),
-                        (0.5, 0.5, 0.5, 0.5)),
+            frameColor=((1, 1, 1, 0),
+                        (1, 1, 1, 0),
+                        (0.5, 0.5, 0.5, 0)),
+            image = "phase_3/maps/input_box.png",
+            image_scale = (4.6, 0, 1),
+            image_pos = (0, 0, .2),
             state=DGG.NORMAL,
             text_align=TextNode.ACenter,
             text_scale=TTLocalizer.OPCodesInputTextScale,
@@ -1247,12 +1355,9 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
+        self.serverNameInput.setTransparency(1)
         
     def addToBookmarks(self):
-        def makeBookmark(name, address, dg):
-            dg.add_string(name)
-            dg.add_string(address)
-            
         if hasattr(self, 'ipInput'):
             if self.ipInput.get() == '':
                 return
@@ -1264,34 +1369,29 @@ class MainMenu(DirectFrame, FSM):
                         return
             except:
                 return
-            name = self.serverNameInput.get() # TODO: Add custom naming of bookmarks
+            name = self.serverNameInput.get()
             address = self.ipInput.get()
-            bookmark = [name, address]
-            if not bookmark in self.bookmarks:
-                self.bookmarks.append(bookmark)
-            with open(self.bookmarkPath, 'wb') as file:
-                dg = PyDatagram()
-                dg.add_uint8(len(self.bookmarks))
-                for bookmark in self.bookmarks:
-                    makeBookmark(bookmark[0], bookmark[1], dg)
-                file.write(PyDatagramIterator(dg).getRemainingBytes())
-                    
+            resp = self.bookmarkMgr.addBookmark(address, name)
+            if resp == 1:
+                base.showNotification("Bookmark added! (IP: %s, Name: %s)" %(self.ipInput.get(), self.serverNameInput.get()))
+            elif resp == 2:
+                base.showNotification("Error: A bookmark for the IP %s already exists!" %self.ipInput.get())
+            elif resp == 3:
+                base.showNotification("Error: Please specify an IP!")
+            else:
+                base.showNotification("Error: Unknown error adding bookmark! Please report this to the developers!")
+                
     def deleteFromBookmarks(self, name, address):
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
-        def makeBookmark(name, address, dg):
-            dg.add_string(name)
-            dg.add_string(address)
-        data = [name, address]
-        self.bookmarks.remove(data)
+        resp = self.bookmarkMgr.removeBookmark(address)
+        if resp == 1:
+            base.showNotification("Bookmark removed! (IP: %s, Name: %s)" %(address, name))
+        elif resp == 2:
+            base.showNotification("Error: A bookmark for %s doesn't exist, so it can't be deleted!" %address)
+        else:
+            base.showNotification("Error: Unknown error removing bookmark! Please report this to the developers!")
         self.makeBookmarksButtons()
-        self.addToBookmarks()
-        with open(self.bookmarkPath, 'wb') as file:
-            dg = PyDatagram()
-            dg.add_uint8(len(self.bookmarks))
-            for bookmark in self.bookmarks:
-                makeBookmark(bookmark[0], bookmark[1], dg)
-            file.write(PyDatagramIterator(dg).getRemainingBytes())
             
     def enterStartDirectConnect(self):
         base.isHosting = False
@@ -1356,3 +1456,10 @@ class MainMenu(DirectFrame, FSM):
     def __handleQuit(self):
         cleanupDialog('globalDialog')
         base.cr.loginFSM.request('shutdown')
+
+    def showTooltip(self, text, event):
+        self.currentTooltip = TTTooltip.TTTooltip(description = text)
+        
+    def killTooltip(self, event):
+        if hasattr(self, 'currentTooltip'):
+            self.currentTooltip.destroy()

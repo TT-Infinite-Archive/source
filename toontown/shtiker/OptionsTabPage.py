@@ -443,6 +443,33 @@ class OptionsTabPage(DirectFrame):
             disable=not base.wantCustomControls,
             command=self.__openKeyRemapDialog
         )
+        row += 1.5
+        self.doorInteractKeyLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text=TTLocalizer.OptionsPageDoorInteract,
+            text_align=TextNode.ALeft,
+        )
+        self.doorInteractKeyCheckbox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=base.wantDoorInteract,
+            command=self.__doToggleDoorInteract
+        )
+        row += 1.5
+        self.npcInteractKeyLabel = TTLabel.TTLabel(
+            parent=self.rightFrame,
+            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text=TTLocalizer.OptionsPageNpcInteract,
+            text_align=TextNode.ALeft,
+        )
+        self.npcInteractKeyCheckbox = TTCheckBox.TTCheckBox(
+            parent=self.rightFrame,
+            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked=False#base.wantNpcInteract,
+            #command=self.__doToggleNpcInteract
+        )
+        self.npcInteractKeyCheckbox.disable() # Mark as Coming Soon
         self.setOptionsState(self.VideoState)
 
     def enter(self):
@@ -584,12 +611,20 @@ class OptionsTabPage(DirectFrame):
         self.wantCustomControlsLabel.show()
         self.wantCustomControls.show()
         self.configureControlsButton.show()
+        self.doorInteractKeyLabel.show()
+        self.doorInteractKeyCheckbox.show()
+        #self.npcInteractKeyLabel.show()
+        #self.npcInteractKeyCheckbox.show()
 
     def hideGameplayGui(self):
         self.controlsTitle.hide()
         self.wantCustomControlsLabel.hide()
         self.wantCustomControls.hide()
         self.configureControlsButton.hide()
+        self.doorInteractKeyLabel.hide()
+        self.doorInteractKeyCheckbox.hide()
+        self.npcInteractKeyLabel.hide()
+        self.npcInteractKeyCheckbox.hide()
 
     def showSocialGui(self):
         rightXBase = -0.4
@@ -778,6 +813,24 @@ class OptionsTabPage(DirectFrame):
             base.localAvatar.chatMgr.reloadWASD()
             base.localAvatar.controlManager.disable()
 
+    def __doToggleDoorInteract(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantDoorInteract:
+            settings[SettingsGlobals.DoorInteract] = False
+            base.wantDoorInteract = False
+        else:
+            settings[SettingsGlobals.DoorInteract] = True
+            base.wantDoorInteract = True
+            
+    def __doToggleNpcInteract(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantNpcInteract:
+            settings[SettingsGlobals.NPCInteract] = False
+            base.wantNpcInteract = False
+        else:
+            settings[SettingsGlobals.NPCInteract] = True
+            base.wantNpcInteract = True
+            
     def __doSpeedChatStyleLeft(self):
         if self.speedChatStyleIndex > 0:
             self.speedChatStyleIndex = self.speedChatStyleIndex - 1

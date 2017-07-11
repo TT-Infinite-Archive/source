@@ -1,5 +1,6 @@
 import DoorTypes
 import FADoorCodes
+import sys
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.distributed.ClockDelta import *
@@ -12,8 +13,10 @@ from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.hood import ZoneUtil
 from toontown.suit import Suit
 from toontown.toonbase.ToonBaseGlobal import *
+from toontown.toonbase import ColorGlobals
 from toontown.toontowngui import TTDialog
 from toontown.toontowngui import TeaserPanel
+from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.nametag.NametagGroup import NametagGroup
 from toontown.nametag.Nametag import Nametag
 
@@ -63,6 +66,17 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         }
         self.doorX = 1.5
 
+    def leaveDoor(self, collEntry = None):
+        self.ignore(base.INTERACT_KEY)
+        self.ignore('stickerBookEntered')
+        if hasattr(self, "colorSeq"):
+            if self.colorSeq:
+                self.colorSeq.finish()
+        if hasattr(self, "enterText"):
+            self.enterText.removeNode()
+            del self.enterText
+        self.accept(self.getEnterTriggerEvent(), self.doorTrigger)
+
     def generate(self):
         DistributedObject.DistributedObject.generate(self)
         self.avatarTracks = []
@@ -74,6 +88,9 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
 
     def disable(self):
         self.clearNametag()
+        if hasattr(self, "colorSeq"):
+            if self.colorSeq:
+                self.colorSeq.finish()
         taskMgr.remove(self.checkIsDoorHitTaskName())
         self.ignore(self.getEnterTriggerEvent())
         self.ignore(self.getExitTriggerEvent())
@@ -134,10 +151,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         else:
             return 'door_trigger_' + str(self.block)
 
-    def getTriggerName_wip(self):
-        name = 'door_trigger_%d' % (self.doId,)
-        return name
-
     def getEnterTriggerEvent(self):
         return 'enter' + self.getTriggerName()
 
@@ -154,7 +167,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             except:
                 pass
 
-
     def setTriggerName(self):
         if self.doorType in self.specialDoorTypes:
             building = self.getBuilding()
@@ -163,17 +175,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                 doorTrigger.node().setName(self.getTriggerName())
             except:
                 pass
-
-    def setTriggerName_wip(self):
-        building = self.getBuilding()
-        doorTrigger = building.find('**/door_%d/**/door_trigger_%d' % (self.doorIndex, self.block))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find('**/door_trigger_%d' % (self.block,))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find('**/door_%d/**/door_trigger_*' % (self.doorIndex,))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find('**/door_trigger_*')
-        doorTrigger.node().setName(self.getTriggerName())
 
     def setZoneIdAndBlock(self, zoneId, block):
         self.zoneId = zoneId
@@ -210,7 +211,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             self.bHasFlat = True
         else:
             self.bHasFlat = not self.findDoorNode('door*flat', True).isEmpty()
-
         self.hideDoorParts()
         self.setTriggerName()
 
@@ -233,7 +233,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
 
                 # We are done :) Tag the door as fixed.
                 doorTrigger.setTag('fixed', 'true')
-
         self.accept(self.getEnterTriggerEvent(), self.doorTrigger)
         self.acceptOnce('clearOutToonInterior', self.doorTrigger)
         self.setupNametag()
@@ -256,14 +255,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                 self.building = self.cr.playGame.hood.loader.geom
             else:
                 self.notify.error('No such door type as ' + str(self.doorType))
-        return self.building
-
-    def getBuilding_wip(self):
-        if not hasattr(self, 'building'):
-            if hasattr(self, 'block'):
-                self.building = self.cr.playGame.hood.loader.geom.find('**/??' + str(self.block) + ':*_landmark_*_DNARoot;+s')
-            else:
-                self.building = self.cr.playGame.hood.loader.geom
         return self.building
 
     def readyToExit(self):
@@ -318,10 +309,14 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         vec = base.localAvatar.getRelativeVector(self.currentDoorNp, self.currentDoorVec)
         netScale = self.currentDoorNp.getNetTransform().getScale()
         yToTest = vec.getY() / netScale[1]
-        isFacingForward = -168.0 < base.localAvatar.getH(self.getDoorNodePath()) < 168.0
-        return yToTest and isFacingForward
+        return yToTest
 
     def enterDoor(self):
+        self.ignore(base.INTERACT_KEY)
+        self.ignore('stickerBookEntered')
+        if hasattr(self, "enterText"):
+            self.enterText.removeNode()
+            del self.enterText
         if self.allowedToEnter():
             messenger.send('DistributedDoor_doorTrigger')
             self.sendUpdate('requestEnter')
@@ -357,7 +352,6 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         if self.isDoorHit():
             self.ignore(self.checkIsDoorHitTaskName())
             self.ignore(self.getExitTriggerEvent())
-            self.enterDoor()
             return Task.done
         return Task.cont
 
@@ -370,17 +364,41 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
 
     def doorTrigger(self, args=None):
         self.ignore(self.getEnterTriggerEvent())
+        self.accept(self.getExitTriggerEvent(), self.leaveDoor)
+        
         if args == None:
             self.enterDoor()
         else:
             self.currentDoorNp = NodePath(args.getIntoNodePath())
             self.currentDoorVec = Vec3(args.getSurfaceNormal(self.currentDoorNp))
             if self.isDoorHit():
-                self.enterDoor()
+                if base.wantDoorInteract:
+                    if not hasattr(self, "enterText"):
+                        self.accept(base.INTERACT_KEY, self.enterDoor)
+                        self.accept('stickerBookEntered', self.leaveDoor)
+                        name = self.cr.playGame.dnaStore.getTitleFromBlockNumber(self.block)
+                        if ZoneUtil.isInterior(self.zoneId):
+                            state = "exit"
+                        else:
+                            state = "enter"
+                        if name != '':
+                            text = ("Press " + str(base.INTERACT_KEY).upper() + " to %s %s" % (state, name))
+                        else:
+                            text = ("Press " + str(base.INTERACT_KEY).upper() + " to %s" % state)
+                        if sys.platform == 'android':
+                            self.enterText = MATShuffleButton(relief = None, parent = base.a2dBottomCenter, text = ("Tap to %s" % state), text_style = 3, text_scale = .07, text_pos = (0, -0.02), text_fg = (1, 0.9, 0.1, 1), scale = 1.5, pos = (0.0, 0.0, 0.5), command = self.enterDoor)
+                        else:   
+                            self.enterText = OnscreenText(text, style = 3, scale = .07, parent = base.a2dBottomCenter, fg = (ColorGlobals.CDefault), pos = (0.0, 0.45))
+
+                        self.colorSeq = Sequence(
+                            LerpColorScaleInterval(self.enterText, .8, VBase4(.8, .8, .8, .8), blendType = 'easeInOut'),
+                            LerpColorScaleInterval(self.enterText, .8, VBase4(1, 1, 1, 1), blendType = 'easeInOut')).loop()
+                else:
+                    self.enterDoor()
             else:
                 self.accept(self.getExitTriggerEvent(), self.cancelCheckIsDoorHitTask)
                 taskMgr.add(self.checkIsDoorHitTask, self.checkIsDoorHitTaskName())
-
+                
     def avatarEnter(self, avatarID):
         avatar = self.cr.doId2do.get(avatarID, None)
         if avatar:

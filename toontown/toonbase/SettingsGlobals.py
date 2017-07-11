@@ -16,6 +16,8 @@ Fullscreen = 'fullscreen'
 AnimationSmoothing = 'animation-smoothing'
 ProcessFailback = 'process-failback'
 ClassicMusic = 'classic-music'
+DoorInteract = 'door-interaction-key'
+NPCInteract = 'npc-interaction-key'
 
 InitialSettings = {
     # Initial setting
@@ -41,8 +43,11 @@ InitialSettings = {
         "MOVE_RIGHT": "d",
         "MOVE_UP": "w",
         "OPTIONS_PAGE_HOTKEY": "escape",
-        "SCREENSHOT_KEY": "f9"
-    }
+        "SCREENSHOT_KEY": "f9",
+        "INTERACT_KEY": "shift"
+    },
+    DoorInteract: False,
+    NPCInteract: False
 }
 
 
@@ -51,3 +56,6 @@ def loadInitialSettings():
     for setting, default in InitialSettings.items():
         if setting not in settings:
             settings[setting] = default
+            
+    # Force these to be false for now
+    settings[NPCInteract] = False

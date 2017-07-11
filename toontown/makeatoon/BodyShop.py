@@ -5,8 +5,10 @@ from toontown.toonbase import TTLocalizer
 from toontown.toon import ToonDNA
 
 from MakeAToonGlobals import *
-from MakeAToonGUI import MATFrame
+from MakeAToonGUI import MATFrame, MATShuffleButton
+from panda3d.core import Vec4
 import ShuffleButton
+import random
 
 
 SPECIES = {
@@ -32,7 +34,7 @@ class BodyShop(StateData.StateData):
         self.legChoice = 0
         self.headChoice = 0
         self.speciesChoice = 0
-        return
+        self.speciesButtons = []
 
     def enter(self, toon, shopsVisited = []):
         base.disableMouse()
@@ -53,7 +55,7 @@ class BodyShop(StateData.StateData):
             torsoPool = ToonDNA.toonTorsoTypes[:3]
         else:
             torsoPool = ToonDNA.toonTorsoTypes[3:6]
-        self.__swapSpecies(0)
+        self.__setSpecies(self.speciesStart)
         self.__swapHead(0)
         self.__swapTorso(0)
         self.__swapLegs(0)
@@ -72,9 +74,15 @@ class BodyShop(StateData.StateData):
 
     def showButtons(self):
         self.parentFrame.show()
-
+        for btn in self.speciesButtons:
+            btn['image_color'] = (self.toon.style.getHeadColor())
+            btn['image3_color'] = (self.toon.style.getHeadColor() - Vec4(0, 0, 0, .4))
+            btn.show()
+            
     def hideButtons(self):
         self.parentFrame.hide()
+        for btn in self.speciesButtons:
+            btn.hide()
 
     def exit(self):
         try:
@@ -93,10 +101,7 @@ class BodyShop(StateData.StateData):
         self.parentFrame.setPos(-0.36, 0, -0.5)
         self.parentFrame.reparentTo(base.a2dTopRight)
 
-        self.speciesFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.073), hpr=(0, 0, 0), scale=1.3,
-                                     text='Species', text_scale=0.0625, text_pos=(-0.001, -0.015),
-                                     arrowcommand=self.__swapSpecies)
-
+        self.createSpeciesButtons()
         self.headFrame = MATFrame(parent=self.parentFrame, pos=(0, 0, -0.3), hpr=(0, 0, 2), scale=0.9,
                                   text=TTLocalizer.BodyShopHead, text_scale=0.0625, text_pos=(-0.001, -0.015),
                                   arrowcommand=self.__swapHead)
@@ -116,15 +121,17 @@ class BodyShop(StateData.StateData):
 
     def unload(self):
         self.parentFrame.destroy()
-        self.speciesFrame.destroy()
         self.headFrame.destroy()
         self.bodyFrame.destroy()
         self.legsFrame.destroy()
         del self.parentFrame
-        del self.speciesFrame
         del self.headFrame
         del self.bodyFrame
         del self.legsFrame
+        for button in self.speciesButtons:
+            button.destroy()
+            del button
+        self.speciesButtons = []
         self.shuffleButton.unload()
         self.ignore('MAT-newToonCreated')
 
@@ -206,6 +213,59 @@ class BodyShop(StateData.StateData):
             self.headChoice = maxHeadChoice
         self.__updateHead()
 
+    def createSpeciesButtons(self):
+        pos = ((.3, 0, .3),  (.6, 0, .3),  (.9, 0, .3),
+               (.3, 0, 0),  (.6, 0, 0),  (.9, 0, 0),
+               (.3, 0, -.3), (.6, 0, -.3), (.9, 0, -.3))
+        gui = loader.loadModel('phase_3/models/gui/laff_o_meter')
+        for x in range(len(ToonDNA.toonSpeciesTypes)):
+            name = SPECIES.get(ToonDNA.toonSpeciesTypes[x], '')
+            hType = ToonDNA.toonSpeciesTypes[x]
+            if hType == 'd':
+                headModel = gui.find('**/doghead')
+            elif hType == 'c':
+                headModel = gui.find('**/cathead')
+            elif hType == 'm':
+                headModel = gui.find('**/mousehead')
+            elif hType == 'h':
+                headModel = gui.find('**/horsehead')
+            elif hType == 'r':
+                headModel = gui.find('**/bunnyhead')
+            elif hType == 'f':
+                headModel = gui.find('**/duckhead')
+            elif hType == 'p':
+                headModel = gui.find('**/monkeyhead')
+            elif hType == 'b':
+                headModel = gui.find('**/bearhead')
+            elif hType == 's':
+                headModel = gui.find('**/pighead')
+            imagecolor = ((1, 1, 1, 1), (1, 1, 1, 1), (.8, .8, .8, 1), (.5, .5, .5, .5))
+            btn = MATShuffleButton(wantArrows=False, image_scale = (0.06, 0.06, 0.06), image_color = (1, 1, 1, 1),
+                image3_color = (.5, .5, .5, 1),
+                image1_scale = (0.07, 0.07, 0.07), image2_scale = (0.07, 0.07, 0.07),
+                image = headModel,
+                text = ('', name, name, name), text_scale = .08,
+                scale = 0.95, command = self.__setSpecies, extraArgs = [x])
+            btn.reparentTo(base.a2dLeftCenter)
+            btn.setPos(pos[x])
+            btn.hide()
+            self.speciesButtons.append(btn)
+        
+    def __setSpecies(self, offset):
+        for btn in self.speciesButtons:
+            btn['state'] = DGG.NORMAL
+            
+        self.speciesButtons[offset]['state'] = DGG.DISABLED
+        
+        length = len(ToonDNA.toonSpeciesTypes)
+        self.speciesChoice = (offset) % length
+        self.species = ToonDNA.toonSpeciesTypes[self.speciesChoice]
+        self.headList = ToonDNA.getHeadList(self.species)
+        maxHeadChoice = len(self.headList) - 1
+        if self.headChoice > maxHeadChoice:
+            self.headChoice = maxHeadChoice
+        self.__updateHead()
+        
     def __updateHead(self):
         self.__updateFrame(self.headChoice, len(self.headList), self.headFrame)
         headIndex = ToonDNA.getHeadStartIndex(self.species) + self.headChoice
@@ -254,7 +314,7 @@ class BodyShop(StateData.StateData):
         oldHeadIndex = ToonDNA.toonHeadTypes.index(oldHead) - ToonDNA.getHeadStartIndex(ToonDNA.getSpecies(oldHead))
         oldTorsoIndex = ToonDNA.toonTorsoTypes.index(self.toon.style.torso)
         oldLegsIndex = ToonDNA.toonLegTypes.index(self.toon.style.legs)
-        self.__swapSpecies(newSpeciesIndex - oldSpeciesIndex)
+        self.__setSpecies(random.randrange(0, 9))
         self.__swapHead(newHeadIndex - oldHeadIndex)
         self.__swapTorso(newTorsoIndex - oldTorsoIndex)
         self.__swapLegs(newLegsIndex - oldLegsIndex)

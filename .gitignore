@@ -29,3 +29,4 @@ astron/sp-database/
 astron/mp-database/
 *.mdmp
 bookmarks.dat
+bookmarks.json

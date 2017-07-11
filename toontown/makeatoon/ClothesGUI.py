@@ -75,7 +75,7 @@ class ClothesGUI(StateData.StateData):
             self.bottomStyleFrame.destroy()
             del self.shirtStyleFrame
             del self.bottomStyleFrame
-
+            
         del self.parentFrame
         del self.shirtFrame
         del self.bottomFrame
@@ -84,7 +84,7 @@ class ClothesGUI(StateData.StateData):
 
     def showButtons(self):
         self.parentFrame.show()
-
+            
     def hideButtons(self):
         self.parentFrame.hide()
 

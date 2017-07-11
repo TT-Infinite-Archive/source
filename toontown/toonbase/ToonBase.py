@@ -257,6 +257,7 @@ class ToonBase(OTPBase.OTPBase):
         self.JUMP = 'control'
         self.ACTION_BUTTON = 'delete'
         self.SCREENSHOT_KEY = 'f9'
+        self.INTERACT_KEY = 'shift'
         
         keymap = settings.get('keymap', {})
         if self.wantCustomControls:
@@ -268,12 +269,16 @@ class ToonBase(OTPBase.OTPBase):
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
         
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
 
         self.wantClassicMusic = settings.get('classic-music', False)
+        
+        self.wantDoorInteract = settings.get('door-interaction-key')
+        self.wantNpcInteract = False #settings.get('npc-interaction-key')
         
         self.leakGraph = None
         if config.GetBool('want-leak-graph-client', False):
@@ -290,7 +295,7 @@ class ToonBase(OTPBase.OTPBase):
             result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
         except StandardError as e:
             settings['fullscreen'] = False
-            raise StandardError, 'Could not open window, resetting display options; try to run the game again.'
+            raise StandardError, 'Could not open window, resetting display options try to run the game again.'
 
         self.setCursorAndIcon()
         return result
@@ -372,11 +377,24 @@ class ToonBase(OTPBase.OTPBase):
             aspect2d.show()
         else:
             aspect2d.hide()
-            base.transitions.fadeScreen(alpha=0.01)
+            base.transitions.fadeScreen(alpha=0)
+            
+    def showNotification(self, message):
+        if hasattr(self, 'notificationPopup') and self.notificationPopup:
+            self.notificationPopup.destroy()
+            taskMgr.remove('clearNotification')
+        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
+        self.notificationPopup.reparentTo(base.a2dBottomCenter)
+        self.notificationPopup.setBin('gui-popup', 0)     
+        def clearNotificationPopup(task):
+            self.notificationPopup.destroy()
+            return task.done
+
+        taskMgr.doMethodLater(5.0, clearNotificationPopup, 'clearNotification')
 
     def takeScreenShot(self):
-        if hasattr(self, 'screenShotNotice') and self.screenShotNotice:
-            self.screenShotNotice.destroy()
+        if hasattr(self, 'notificationPopup') and self.notificationPopup:
+            self.notificationPopup.destroy()
             taskMgr.remove('clearScreenshot')
         if not os.path.exists(TTLocalizer.ScreenshotPath):
             os.mkdir(TTLocalizer.ScreenshotPath)
@@ -422,19 +440,11 @@ class ToonBase(OTPBase.OTPBase):
         self.lastScreenShotTime = globalClock.getRealTime()
         pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
         winfile = pandafile.toOsSpecific()
-        self.screenShotNotice = DirectLabel(text = "Screenshot Saved" + ':\n' + winfile, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
-        self.screenShotNotice.reparentTo(base.a2dBottomCenter)
-        self.screenShotNotice.setBin('gui-popup', 0)
+        self.showNotification("Screenshot Saved" + ':\n' + winfile)
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
             coordTextLabel.destroy()
-            
-        def clearScreenshotMsg(task):
-            self.screenShotNotice.destroy()
-            return task.done
-
-        taskMgr.doMethodLater(5.0, clearScreenshotMsg, 'clearScreenshot')
 
     def addScreenshotString(self, str):
         if len(self.screenshotStr):
@@ -599,7 +609,7 @@ class ToonBase(OTPBase.OTPBase):
             self.cr.dumpAllSubShardObjects()
 
         self.cr.loginFSM.request('shutdown')
-        self.notify.warning('Could not request shutdown; exiting anyway.')
+        self.notify.warning('Could not request shutdown exiting anyway.')
         self.ignore(ToontownGlobals.QuitGameHotKeyOSX)
         self.ignore(ToontownGlobals.QuitGameHotKeyRepeatOSX)
         self.ignore(ToontownGlobals.HideGameHotKeyOSX)
@@ -668,6 +678,7 @@ class ToonBase(OTPBase.OTPBase):
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         else:
             self.MOVE_UP = 'arrow_up'
             self.MOVE_DOWN = 'arrow_down'
@@ -676,6 +687,7 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = 'control'
             self.ACTION_BUTTON = 'delete'
             self.SCREENSHOT_KEY = 'f9'
+            self.INTERACT_KEY = 'shift'
             
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
