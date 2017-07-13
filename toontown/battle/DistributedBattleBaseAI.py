@@ -21,7 +21,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def __init__(self, air, zoneId, finishCallback=None, maxSuits=4, bossBattle=0, tutorialFlag=0, interactivePropTrackBonus=-1):
         DistributedObjectAI.__init__(self, air)
         BattleBase.__init__(self)
-        self.serialNum = 0
         self.zoneId = zoneId
         self.maxSuits = maxSuits
         self.setBossBattle(bossBattle)
@@ -35,7 +34,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.adjustingSuits = []
         self.adjustingToons = []
         self.numSuitsEver = 0
-        self.streetBattle = 1
         self.pos = Point3(0, 0, 0)
         self.initialSuitPos = Point3(0, 0, 0)
         self.toonExp = {}
