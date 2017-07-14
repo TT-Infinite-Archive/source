@@ -362,10 +362,10 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         self.ignore(self.getExitTriggerEvent())
         self.accept(self.getEnterTriggerEvent(), self.doorTrigger)
 
-    def doorTrigger(self, args=None):
+    def doorTrigger(self, args = None):
         self.ignore(self.getEnterTriggerEvent())
         self.accept(self.getExitTriggerEvent(), self.leaveDoor)
-        
+
         if args == None:
             self.enterDoor()
         else:
@@ -387,18 +387,18 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                             text = ("Press " + str(base.INTERACT_KEY).upper() + " to %s" % state)
                         if sys.platform == 'android':
                             self.enterText = MATShuffleButton(relief = None, parent = base.a2dBottomCenter, text = ("Tap to %s" % state), text_style = 3, text_scale = .07, text_pos = (0, -0.02), text_fg = (1, 0.9, 0.1, 1), scale = 1.5, pos = (0.0, 0.0, 0.5), command = self.enterDoor)
-                        else:   
+                        else:
                             self.enterText = OnscreenText(text, style = 3, scale = .07, parent = base.a2dBottomCenter, fg = (ColorGlobals.CDefault), pos = (0.0, 0.45))
-
+                        self.enterText.setColorScale(VBase4(1, 1, 1, 0))
                         self.colorSeq = Sequence(
-                            LerpColorScaleInterval(self.enterText, .8, VBase4(.8, .8, .8, .8), blendType = 'easeInOut'),
-                            LerpColorScaleInterval(self.enterText, .8, VBase4(1, 1, 1, 1), blendType = 'easeInOut')).loop()
+                            LerpColorScaleInterval(self.enterText, .4, VBase4(1, 1, 1, 1), blendType = 'easeInOut'),
+                            LerpColorScaleInterval(self.enterText, .4, VBase4(.8, .8, .8, .8), blendType = 'easeInOut')).loop()
                 else:
                     self.enterDoor()
             else:
                 self.accept(self.getExitTriggerEvent(), self.cancelCheckIsDoorHitTask)
                 taskMgr.add(self.checkIsDoorHitTask, self.checkIsDoorHitTaskName())
-                
+
     def avatarEnter(self, avatarID):
         avatar = self.cr.doId2do.get(avatarID, None)
         if avatar:
@@ -470,12 +470,12 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             avatar.stopSmooth()
         otherNP = self.getDoorNodePath()
         trackName = 'avatarExitDoor-%d-%d' % (self.doId, avatar.doId)
-        track = Sequence(name=trackName)
+        track = Sequence(name = trackName)
         track.append(self.getAnimStateInterval(avatar, 'walk'))
         track.append(
             PosHprInterval(
                 avatar, Point3(-self.doorX, 0, ToontownGlobals.FloorOffset),
-                VBase3(179, 0, 0), other=otherNP
+                VBase3(179, 0, 0), other = otherNP
             )
         )
         track.append(Func(avatar.setParent, ToontownGlobals.SPRender))
@@ -483,7 +483,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             track.append(
                 PosHprInterval(
                     base.camera, VBase3(-self.doorX, 5, avatar.getHeight()),
-                    VBase3(180, 0, 0), other=otherNP
+                    VBase3(180, 0, 0), other = otherNP
                 )
             )
         if avatar.doId == base.localAvatar.doId:
@@ -496,8 +496,8 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             )
         track.append(
             LerpPosInterval(
-                nodePath=avatar, duration=duration, pos=finalPos,
-                blendType='easeInOut'
+                nodePath = avatar, duration = duration, pos = finalPos,
+                blendType = 'easeInOut'
             )
         )
         if avatar.doId == base.localAvatar.doId:
@@ -560,7 +560,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             'hoodId': ZoneUtil.getHoodId(zoneId),
             'zoneId': zoneId,
             'shardId': None,
-            'avId': -1,
+            'avId':-1,
             'allowRedirect': 0,
             'doorDoId': self.otherDoId
         }
@@ -613,7 +613,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         else:
             h = -100
         self.finishDoorTrack()
-        self.doorTrack = Parallel(SoundInterval(self.openSfx, node=rightDoor), Sequence(HprInterval(rightDoor, VBase3(0, 0, 0), other=otherNP), Wait(0.4), Func(rightDoor.show), Func(doorFrameHoleRight.show), LerpHprInterval(nodePath=rightDoor, duration=0.6, hpr=VBase3(h, 0, 0), startHpr=VBase3(0, 0, 0), other=otherNP, blendType='easeInOut')), name=trackName)
+        self.doorTrack = Parallel(SoundInterval(self.openSfx, node = rightDoor), Sequence(HprInterval(rightDoor, VBase3(0, 0, 0), other = otherNP), Wait(0.4), Func(rightDoor.show), Func(doorFrameHoleRight.show), LerpHprInterval(nodePath = rightDoor, duration = 0.6, hpr = VBase3(h, 0, 0), startHpr = VBase3(0, 0, 0), other = otherNP, blendType = 'easeInOut')), name = trackName)
         self.doorTrack.start(ts)
 
     def exitOpening(self):
