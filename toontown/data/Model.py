@@ -63,7 +63,9 @@ class TTActor(Actor.Actor):
         Actor.Actor.delete(self)
 
 adl = ModelDataLoader('resources/data/actors.xml')
+print('Loading Models...')
 data = adl.loadData()
+
 
 ModelDict = {}
 

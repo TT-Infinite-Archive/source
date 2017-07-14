@@ -6,6 +6,7 @@ from toontown.data.DataLoader import DataLoader
 DefaultGag = Gag(0, 'Nothing but a chuckle', None, 0, Track.TrackNone, Gag.RarityCommon, 0)
 
 gdl = DataLoader('resources/data/gags.xml')
+print('Loading Gags...')
 data = gdl.loadData()
 
 Gags = {

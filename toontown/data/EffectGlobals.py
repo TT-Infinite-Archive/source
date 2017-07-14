@@ -17,14 +17,13 @@ typeToClass = {
 EffectDict = {}
 
 # Insert data into game dict
+print('Loading Effects...')
 for item in data:
     eClass = typeToClass.get(item['type'], Effect)
     eId = int(item['id'])
     eName = item['name']
     eAmount = int(item['amount'])
     EffectDict[eId] = eClass(eId, eAmount)
-
-print(EffectDict)
 
 
 # Function for game to fetch effects

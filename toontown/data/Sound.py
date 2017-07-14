@@ -20,6 +20,7 @@ class Sound:
             sound.play()
 
 sdl = DataLoader('resources/data/sounds.xml')
+print('Loading Sounds...')
 data = sdl.loadData()
 
 SoundDict = {}
