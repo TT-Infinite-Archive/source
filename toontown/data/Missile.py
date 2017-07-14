@@ -28,6 +28,7 @@ class Missile:
         ).start()
 
 mdl = DataLoader('resources/data/missiles.xml')
+print('Loading Missiles...')
 data = mdl.loadData()
 
 MissileDict = {}
