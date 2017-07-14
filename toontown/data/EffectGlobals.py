@@ -4,6 +4,7 @@ from toontown.data.DataLoader import DataLoader
 DefaultEffect = Effect(0)
 
 edl = DataLoader('resources/data/effects.xml')
+print('Loading Effects...')
 data = edl.loadData()
 
 # Dict to convert string class to actual class
@@ -17,13 +18,17 @@ typeToClass = {
 EffectDict = {}
 
 # Insert data into game dict
-print('Loading Effects...')
 for item in data:
-    eClass = typeToClass.get(item['type'], Effect)
-    eId = int(item['id'])
-    eName = item['name']
-    eAmount = int(item['amount'])
-    EffectDict[eId] = eClass(eId, eAmount)
+    if item['type'] == 'Effect':
+        effect = Effect(int(item['id']))
+    elif item['type'] == 'DamageEffect':
+        effect = DamageEffect(int(item['id']), int(item['amount']))
+    elif item['type'] == 'HealEffect':
+        effect = HealEffect(int(item['id']), int(item['amount']))
+    else:
+        continue
+
+    EffectDict[int(item['id'])] = effect
 
 
 # Function for game to fetch effects
