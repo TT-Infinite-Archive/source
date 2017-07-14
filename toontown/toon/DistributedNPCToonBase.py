@@ -29,7 +29,7 @@ class DistributedNPCToonBase(DistributedToon.DistributedToon):
             self.__initCollisions()
             self.setPickable(0)
             self.setPlayerType(NametagGlobals.CCNonPlayer)
-            self.interactable = True # Some NPC's shouldn't be interactable, like the scientists in toon hall, so we disable it for those
+        self.interactable = True # Some NPC's shouldn't be interactable, like the scientists in toon hall, so we disable it for those
 
     def disable(self):
         self.ignore('enter' + self.cSphereNode.getName())
@@ -86,7 +86,8 @@ class DistributedNPCToonBase(DistributedToon.DistributedToon):
         return 0
 
     def detectAvatars(self):
-        self.accept('enter' + self.cSphereNode.getName(), self.promptInteraction)
+        if self.interactable:
+            self.accept('enter' + self.cSphereNode.getName(), self.promptInteraction)
 
     def ignoreAvatars(self):
         self.ignore('enter' + self.cSphereNode.getName())
@@ -146,7 +147,7 @@ class DistributedNPCToonBase(DistributedToon.DistributedToon):
         pass
 
     def promptInteraction(self, collEntry):
-        if base.wantNpcInteract and self.interactable:
+        if base.wantNpcInteract:
             self.accept('exit' + self.cSphereNode.getName(), self.handleCollisionSphereExit)
             self.accept('stickerBookEntered', self.handleCollisionSphereExit, [collEntry])
             self.accept(base.INTERACT_KEY, self.interact, [collEntry])
