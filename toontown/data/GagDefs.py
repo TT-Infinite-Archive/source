@@ -23,7 +23,7 @@ for item in data:
         gag = ThrowGag(
             int(item['id']),
             item['name'],
-            EffectGlobals.getEffect(int(item['effect'])),
+            int(item['effect']),
             int(item['targettype']),
             int(item['rarity']),
             int(item['level']),
@@ -35,7 +35,7 @@ for item in data:
         gag = Gag(
             int(item['id']),
             item['name'],
-            EffectGlobals.getEffect(int(item['effect'])),
+            int(item['effect']),
             int(item['targettype']),
             int(item['track']),
             int(item['rarity']),
