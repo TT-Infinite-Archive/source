@@ -1,4 +1,5 @@
 from toontown.data import Model, Sound
+from toontown.data.DataLoader import DataLoader
 from direct.interval.IntervalGlobal import Sequence, ActorInterval, Func, Parallel
 
 
@@ -26,12 +27,18 @@ class Missile:
             Func(splat.delete)
         ).start()
 
-CupcakeMissile = Missile(Model.CupcakeModel, Model.TartSplatModel, Sound.SplatSound)
-PieSliceMissile = Missile(Model.PieSliceModel, Model.FruitPieSliceSplatModel, Sound.SplatSound02)
-GoldenCupcakeMissile = Missile(Model.GoldenCupcakeModel, Model.TartSplatModel, Sound.SplatSound)
-RedCupcakeMissile = Missile(Model.RedCupcakeModel, Model.TartSplatModel, Sound.SplatSound)
-FruitPieMissile = Missile(Model.FruitPieModel, Model.FruitPieSplatModel, Sound.SplatSound02)
-CreamPieSliceMissile = Missile(Model.CreamPieSliceModel, Model.CreamPieSliceSplatModel, Sound.SplatSound02)
-CreamPieMissile = Missile(Model.CreamPieModel, Model.CreamPieSplatModel, Sound.SplatSound02)
-BirthdayCakeMissile = Missile(Model.BirthdayCakeModel, Model.BirthdayCakeSplatModel, Sound.SplatSound03)
+mdl = DataLoader('resources/data/missiles.xml')
+data = mdl.loadData()
 
+MissileDict = {}
+for item in data:
+    missile = Missile(
+        Model.getModel(int(item['actor'])),
+        Model.getModel(int(item['deathactor'])),
+        Model.getModel(int(item['deathsound']))
+    )
+    MissileDict[int(item['id'])] = missile
+
+
+def getMissile(uid):
+    MissileDict.get(uid)

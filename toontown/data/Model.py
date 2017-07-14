@@ -1,9 +1,13 @@
 from direct.actor import Actor
 from direct.interval.IntervalGlobal import Sequence, ActorInterval, Func
 from panda3d.core import VBase4, VBase3
+from toontown.data.DataLoader import ModelDataLoader
+from direct.directnotify import DirectNotifyGlobal
 
 
 class ActorFactory:
+    notify = DirectNotifyGlobal.directNotify.newCategory('ActorFactory')
+
     def __init__(self, model=None, anims=None, scale=VBase3(1, 1, 1), color=VBase4(1, 1, 1, 1)):
         self.model = model
         self.scale = scale
@@ -19,6 +23,14 @@ class ActorFactory:
         actor.setScale(self.scale)
         actor.setColorScale(self.color)
         return actor
+
+    def importEvent(self, event, action, arg):
+        if action == 'ActorLoop':
+            func = lambda actor: actor.loop(arg)
+        else:
+            self.notify.warning('Unknown action %s' % action)
+            return
+        self.addEvent(event, func)
         
     def addEvent(self, eventName, func):
         self.events[eventName] = func
@@ -49,48 +61,24 @@ class TTActor(Actor.Actor):
         if self.events.get('destroy'):
             self.events['destroy'](self)
         Actor.Actor.delete(self)
-            
 
-CupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6)
-GoldenCupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.84, 0.0, 1.0))
-RedCupcakeModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.6, color=(1, 0.2, 0.2, 1.0))
-PieSliceModel = ActorFactory('phase_5/models/props/fruit-pie-slice', {})
-CreamPieSliceModel = ActorFactory('phase_5/models/props/cream-pie-slice', {})
-FruitPieModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.75)
-CreamPieModel = ActorFactory('phase_3.5/models/props/tart', {}, 0.85)
-BirthdayCakeModel = ActorFactory('phase_5/models/props/birthday-cake-mod', {'stand': 'phase_5/models/props/birthday-cake-chan'})
-BirthdayCakeModel.addEvent('create', lambda actor: actor.loop('stand'))
-ButtonModel = ActorFactory('phase_3.5/models/props/button')
-CannonModel = ActorFactory('phase_4/models/minigames/toon_cannon')
-KapowModel = ActorFactory(
-    'phase_5/models/props/kapow-mod',
-    {'kapow': 'phase_5/models/props/kapow-chan'},
-    scale=0.25
-)
-BikeHornModel = ActorFactory('phase_5/models/props/bikehorn', scale=0.4)
-MegaphoneModel = ActorFactory('phase_5/models/props/megaphone')
+adl = ModelDataLoader('resources/data/actors.xml')
+data = adl.loadData()
 
-TartSplatModel = ActorFactory(
-    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
-    scale=0.3, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
-)
-FruitPieSliceSplatModel = ActorFactory(
-    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
-    scale=0.5, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
-)
-CreamPieSliceSplatModel = ActorFactory(
-    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
-    scale=0.5, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
-)
-FruitPieSplatModel = ActorFactory(
-    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
-    scale=0.7, color=VBase4(55.0 / 255.0, 40.0 / 255.0, 148.0 / 255.0, 1.0)
-)
-CreamPieSplatModel = ActorFactory(
-    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
-    scale=0.7, color=VBase4(250.0 / 255.0, 241.0 / 255.0, 24.0 / 255.0, 1.0)
-)
-BirthdayCakeSplatModel = ActorFactory(
-    'phase_3.5/models/props/splat-mod', {'death': 'phase_3.5/models/props/splat-chan'},
-    scale=0.9, color=VBase4(253.0 / 255.0, 119.0 / 255.0, 220.0 / 255.0, 1.0)
-)
+ModelDict = {}
+
+for item in data:
+    actor = ActorFactory(
+        item['filepath'],
+        item.get('anims', {}),
+        float(item.get('scale', 1.0)),
+        item.get('color', VBase4(1, 1, 1, 1))
+    )
+    if item.get('events'):
+        for event in item['events']:
+            actor.importEvent(event[0], event[1], event[2])
+    ModelDict[int(item['id'])] = actor
+
+
+def getModel(uid):
+    return ModelDict.get(uid)

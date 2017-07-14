@@ -1,0 +1,80 @@
+<Catalog>
+    <Item type="Sound">
+        <id value="1"/>
+        <name value="pie-throw"/>
+        <filepath value="phase_3.5/audio/sfx/AA_pie_throw_only.ogg"/>
+		<duration value="0.412"/>
+    </Item>
+    <Item type="Sound">
+        <id value="2"/>
+        <name value="cog-death"/>
+        <filepath value="phase_3.5/audio/sfx/Cog_Death.ogg"/>
+        <duration value="3.183"/>
+    </Item>
+    <Item type="Sound">
+        <id value="3"/>
+        <name value="cog-explosion"/>
+        <filepath value="phase_3.5/audio/sfx/ENC_cogfall_apart.ogg"/>
+        <duration value="1.65"/>
+    </Item>
+    <Item type="Sound">
+        <id value="4"/>
+        <name value="splat"/>
+        <filepath value="phase_3.5/audio/sfx/AA_tart_only.ogg"/>
+        <duration value="1.12"/>
+    </Item>
+    <Item type="Sound">
+        <id value="5"/>
+        <name value="splat-2"/>
+        <filepath value="phase_5/audio/sfx/AA_slice_only.ogg"/>
+        <duration value="0.4"/>
+    </Item>
+    <Item type="Sound">
+        <id value="6"/>
+        <name value="splat-3"/>
+        <filepath value="phase_4/audio/sfx/AA_wholepie_only.ogg"/>
+        <duration value="0.4"/>
+    </Item>
+    <Item type="Sound">
+        <id value="7"/>
+        <name value="kapow"/>
+        <filepath value="phase_4/audio/sfx/MG_cannon_fire_alt.ogg"/>
+        <duration value="1.58"/>
+    </Item>
+    <Item type="Sound">
+        <id value="8"/>
+        <name value="cannon-adjust"/>
+        <filepath value="phase_4/audio/sfx/MG_cannon_adjust.ogg"/>
+        <duration value="1.22"/>
+    </Item>
+    <Item type="Sound">
+        <id value="9"/>
+        <name value="button-press"/>
+        <filepath value="phase_5/audio/sfx/AA_drop_trigger_box.ogg"/>
+        <duration value="0.366"/>
+    </Item>
+    <Item type="Sound">
+        <id value="10"/>
+        <name value="receive-evidence"/>
+        <filepath value="phase_5/audio/sfx/LB_receive_evidence.ogg"/>
+        <duration value="0.94"/>
+    </Item>
+    <Item type="Sound">
+        <id value="11"/>
+        <name value="mailbox-wobble"/>
+        <filepath value="phase_5/audio/sfx/mailbox_full_wobble.ogg"/>
+        <duration value="2.328"/>
+    </Item>
+    <Item type="Sound">
+        <id value="12"/>
+        <name value="tag"/>
+        <filepath value="phase_5/audio/sfx/MG_tag_1.ogg"/>
+        <duration value="0.549"/>
+    </Item>
+    <Item type="Sound">
+        <id value="13"/>
+        <name value="bike-horn-sound"/>
+        <filepath value="phase_5/audio/sfx/AA_sound_bikehorn.ogg"/>
+        <duration value="0.679"/>
+    </Item>
+</Catalog>

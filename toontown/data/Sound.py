@@ -1,3 +1,6 @@
+from toontown.data.DataLoader import DataLoader
+
+
 class Sound:
     def __init__(self, uid, name, filepath, duration):
         self.uid = uid
@@ -16,21 +19,15 @@ class Sound:
         if sound:
             sound.play()
 
+sdl = DataLoader('resources/data/sounds.xml')
+data = sdl.loadData()
 
+SoundDict = {}
 NothingSound = Sound(0, 'nothing', None, 0.0)
-ThrowSound = Sound(1, 'pie-throw', 'phase_3.5/audio/sfx/AA_pie_throw_only.ogg', 0.412)
-CogDeathSound = Sound(2, 'cog-death', 'phase_3.5/audio/sfx/Cog_Death.ogg', 3.183)
-CogExplosionSound = Sound(3, 'cog-explosion', 'phase_3.5/audio/sfx/ENC_cogfall_apart.ogg', 1.65)
-SplatSound = Sound(4, 'splat', 'phase_3.5/audio/sfx/AA_tart_only.ogg', 1.12)
-SplatSound02 = Sound(5, 'splat-2', 'phase_5/audio/sfx/AA_slice_only.ogg', 0.4)
-SplatSound03 = Sound(6, 'splat-3', 'phase_4/audio/sfx/AA_wholepie_only.ogg', 0.4)
-CannonFireSound = Sound(7, 'kapow', 'phase_4/audio/sfx/MG_cannon_fire_alt.ogg', 1.58)
-CannonAdjustSound = Sound(8, 'cannon-adjust', 'phase_4/audio/sfx/MG_cannon_adjust.ogg', 1.22)
-ButtonPressSound = Sound(9, 'button-press', 'phase_5/audio/sfx/AA_drop_trigger_box.ogg', 0.366)
-ReceiveEvidenceSound = Sound(10, 'receive-evidence', 'phase_5/audio/sfx/LB_receive_evidence.ogg', 0.94)
-MailboxWobbleSound = Sound(11, 'mailbox-wobble', 'phase_5/audio/sfx/mailbox_full_wobble.ogg', 2.328)
-TagSound = Sound(12, 'tag-sound', 'phase_5/audio/sfx/MG_tag_1.ogg', 0.549)
-BikeHornSound = Sound(13, 'bike-horn-sound', 'phase_5/audio/sfx/AA_sound_bikehorn.ogg', 0.679)
+SoundDict[0] = NothingSound
+for item in data:
+    SoundDict[int(item['id'])] = Sound(int(item['id']), item['name'], item['filepath'], float(item['duration']))
 
 
-
+def getSound(uid):
+    return SoundDict.get(uid, NothingSound)

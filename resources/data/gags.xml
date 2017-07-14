@@ -1,0 +1,52 @@
+<!--
+Rarities:
+Common - 0
+Rare - 1
+Epic - 2
+Legendary - 3
+
+Target Types:
+None = 0
+SingleEnemy = 1
+SingleAlly = 2
+Enemies = 3
+Allies = 4
+Self = 5
+SelfAndAllies = 6
+
+Tracks:
+TrackNone = 0
+TrackToonUp = 1
+TrackLure = 2
+TrackTrap = 3
+TrackSound = 4
+TrackSquirt = 5
+TrackThrow = 6
+TrackDrop = 7
+-->
+<Catalog>
+    <Item>
+        <type value="ThrowGag"/>
+        <id value="1"/>
+        <name value="Cupcake"/>
+        <effect value="1"/>
+		<targettype value="1"/>
+        <rarity value="0"/>
+        <level value="1"/>
+        <missile value="1"/>
+        <chance value="1"/>
+        <track value="6"/>
+    </Item>
+    <Item>
+        <type value="ThrowGag"/>
+        <id value="2"/>
+        <name value="Sliced Fruit Pie"/>
+        <effect value="3"/>
+        <targettype value="1"/>
+        <rarity value="0"/>
+        <level value="2"/>
+        <missile value="2"/>
+        <chance value="1"/>
+        <track value="6"/>
+    </Item>
+</Catalog>

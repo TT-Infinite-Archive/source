@@ -11,7 +11,7 @@ def singleTargetThrowMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suit = battle.findSuit(tma.targetId)
     attack = GagDefs.Gags[tma.attackId]
-    missile = Gag.GagToMissile.get(tma.attackId)
+    missile = attack.missile
     prop = missile.model.getActor()
     hand = toon.getRightHand()
     suitPos = suit.getPos(battle)
@@ -41,7 +41,7 @@ def singleTargetThrowMovie(battle, tma):
         # Make missile move to point
         Parallel(
             LerpPosInterval(prop, 0.5, suitHeadPos),
-            Func(Sound.ThrowSound.playSound)
+            Func(Sound.getSound(1).playSound)
         ),
         # Unload missile
         Func(MovieUtil.unloadProp, prop)
@@ -82,7 +82,7 @@ def multiTargetThrowMovie(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suits = battle.activeSuits
     attack = GagDefs.Gags[tma.attackId]
-    missile = Gag.GagToMissile.get(tma.attackId)
+    missile = attack.missile
     prop = missile.model.getActor()
     hand = toon.getRightHand()
     toonTrack = Sequence(
@@ -105,7 +105,7 @@ def multiTargetThrowMovie(battle, tma):
                 # Make missile move to point
                 Parallel(
                     LerpPosInterval(p, 0.5, suitHeadPos),
-                    Func(Sound.ThrowSound.playSound)
+                    Func(Sound.getSound(1).playSound)
                 ),
                 # Unload missile
                 Func(MovieUtil.unloadProp, p)
@@ -134,7 +134,7 @@ def multiTargetThrowMovie(battle, tma):
                 # Make missile move to point but fall
                 Parallel(
                     LerpPosInterval(p, 0.3, midPoint, None, None, 'easeOut'),
-                    Func(Sound.ThrowSound.playSound)
+                    Func(Sound.getSound(1).playSound)
                 ),
                 Func(missile.die, battle, midPoint),
                 # Unload missile
@@ -205,7 +205,7 @@ def cannonAttack(battle, tma):
         Func(toon.setHpr, battle, origHpr)
     )
 
-    cannon = Model.CannonModel.getActor()
+    cannon = Model.getModel(10).getActor()
     cannon.reparentTo(battle)
     cannonPos = cannon.getPos()
     cannonPos = (cannonPos[0], cannonPos[1] - 2, cannonPos[2] - 8)
@@ -213,7 +213,7 @@ def cannonAttack(battle, tma):
 
     cannon.setScale(0.55)
     cannon.hide()
-    kapow = Model.KapowModel.getActor()
+    kapow = Model.getModel(11).getActor()
     kapow.setBillboardPointEye()
     barrel = cannon.find('**/cannon')
     kapowPoint = barrel.attachNewNode('kapowPoint')
@@ -232,7 +232,7 @@ def cannonAttack(battle, tma):
         # Make cannon raise from floor
         Parallel(
             LerpPosInterval(cannon, 0.4, cannonToPos, blendType='easeOut'),
-            SoundInterval(Sound.CannonAdjustSound.getSound(), duration=1, node=cannon),
+            SoundInterval(Sound.getSound(8).getSound(), duration=1, node=cannon),
             Sequence(
                 Wait(0.2),
                 LerpHprInterval(barrel, 0.6, (0, 25, 0), blendType='easeInOut')
@@ -244,7 +244,7 @@ def cannonAttack(battle, tma):
         Parallel(
             # Kapow!
             ActorInterval(kapow, 'kapow', playRate=1.5),
-            SoundInterval(Sound.CannonFireSound.getSound(), node=cannon),
+            SoundInterval(Sound.getSound(7).getSound(), node=cannon),
             # Barrel movement
             Sequence(
                 Parallel(
@@ -301,13 +301,13 @@ def cannonAttack(battle, tma):
         )
     )
 
-
+'''
 def soundAttack(battle, tma):
     toon = battle.findToon(tma.attackerId)
     suits = battle.activeSuits
     origHpr = toon.getHpr(battle)
     attack = GagDefs.Gags[tma.attackId]
-    megaphone = Model.MegaphoneModel.getActor()
+    megaphone = Model.getModel(13).getActor()
     megaphoneScale = megaphone.getScale()
     instrument = Gag.GagToProp[tma.attackId].getActor()
     instrument.reparentTo(megaphone)
@@ -364,6 +364,7 @@ def soundAttack(battle, tma):
         # TODO: Implement miss
         suitTrack = Sequence()
     return Parallel(toonTrack, propTrack, suitTrack)
+'''
 
 
 GagToMovieFunc = {
@@ -376,7 +377,10 @@ GagToMovieFunc = {
     6: singleTargetThrowMovie,
     7: singleTargetThrowMovie,
     8: singleTargetThrowMovie,
-    9: cannonAttack,
-    10: soundAttack,
-    Gag.PASS: None
+    9: cannonAttack
 }
+'''
+10: soundAttack,
+Gag.PASS: None
+'''
+

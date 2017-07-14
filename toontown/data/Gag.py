@@ -134,9 +134,10 @@ GagToIcon = {
     PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)
 }
 
+'''
 GagToMissile = {
     0: None,
-    1: Missile.CupcakeMissile,
+    1: Missile.MissileDict,
     2: Missile.PieSliceMissile,
     3: Missile.GoldenCupcakeMissile,
     4: Missile.RedCupcakeMissile,
@@ -149,3 +150,4 @@ GagToMissile = {
 GagToProp = {
     10: Model.BikeHornModel
 }
+'''

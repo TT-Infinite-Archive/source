@@ -1,0 +1,58 @@
+<Catalog>
+    <Item type="Missile">
+        <id value="1"/>
+        <editorname value="Cupcake"/>
+        <actor value="1"/>
+        <deathactor value="14"/>
+		<deathsound value="4"/>
+    </Item>
+    <Item type="Missile">
+        <id value="2"/>
+        <editorname value="Pie Slice"/>
+        <actor value="4"/>
+        <deathactor value="15"/>
+        <deathsound value="5"/>
+    </Item>
+    <Item type="Missile">
+        <id value="3"/>
+        <editorname value="Golden Cupcake"/>
+        <actor value="2"/>
+        <deathactor value="14"/>
+        <deathsound value="4"/>
+    </Item>
+    <Item type="Missile">
+        <id value="4"/>
+        <editorname value="Red Cupcake"/>
+        <actor value="3"/>
+        <deathactor value="14"/>
+        <deathsound value="4"/>
+    </Item>
+    <Item type="Missile">
+        <id value="5"/>
+        <editorname value="Fruit Pie"/>
+        <actor value="6"/>
+        <deathactor value="17"/>
+        <deathsound value="5"/>
+    </Item>
+    <Item type="Missile">
+        <id value="6"/>
+        <editorname value="Cream Pie Slice"/>
+        <actor value="5"/>
+        <deathactor value="16"/>
+        <deathsound value="5"/>
+    </Item>
+    <Item type="Missile">
+        <id value="7"/>
+        <editorname value="Cream Pie"/>
+        <actor value="7"/>
+        <deathactor value="18"/>
+        <deathsound value="5"/>
+    </Item>
+    <Item type="Missile">
+        <id value="8"/>
+        <editorname value="Birthday Cake"/>
+        <actor value="7"/>
+        <deathactor value="18"/>
+        <deathsound value="5"/>
+    </Item>
+</Catalog>
