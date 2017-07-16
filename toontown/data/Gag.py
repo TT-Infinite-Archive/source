@@ -75,7 +75,7 @@ class Gag(DirectObject):
 
     @property
     def glow(self):
-        glow = IconGlobals.getIcon(IconGlobals.ICON_GLOW).icon
+        glow = IconGlobals.getIcon(6).icon
         color = self.rarityColor
         color[3] = 0.75
         glow.setColorScale(color)

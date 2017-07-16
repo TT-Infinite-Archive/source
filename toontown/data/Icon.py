@@ -53,6 +53,9 @@ class ImageIcon(Icon):
         Icon.__init__(self, filepath, scale, pos, color)
 
     def loadFile(self):
+        if self.filepath is None:
+            return None
+
         model = NodePath('%s-node' % self.filepath)
         card = TTCardMaker.makeCard(self.filepath)
         card.reparentTo(model)

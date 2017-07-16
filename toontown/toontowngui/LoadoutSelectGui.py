@@ -214,8 +214,8 @@ class GagSelectGagButton(DirectButton):
         self.gbi = DirectButton(
             parent=self,
             relief=None,
-            image=None if gag is None else gag.icon,
-            image_scale=1.0 if gag is None else gag.displayObject.scale,
+            image=None if gag is None else gag.icon.icon,
+            image_scale=1.0 if gag is None else gag.icon.scale,
             state=(DGG.NORMAL if gag is not None else DGG.DISABLED),
             command=self.__handleGagSelected
         )

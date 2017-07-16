@@ -23,7 +23,7 @@ data = idl.loadData()
 for item in data:
     if item['type'] == 'Icon':
         icon = Icon(
-            int(item['id']),
+            item['filepath'],
             float(item.get('scale', 1)),
             item.get('pos', VBase3(0, 0, 0)),
             item.get('color', VBase4(1, 1, 1, 1)),
@@ -31,12 +31,15 @@ for item in data:
         )
     elif item['type'] == 'ImageIcon':
         icon = ImageIcon(
-            int(item['id']),
+            item['filepath'],
             float(item.get('scale', 1)),
             item.get('pos', VBase3(0, 0, 0)),
             item.get('color', VBase4(1, 1, 1, 1))
         )
+    else:
+        continue
+    ICON_REPOSITORY[int(item['id'])] = icon
 
 
-def getIcon(id):
-    return ICON_REPOSITORY.get(id, ICON_REPOSITORY[0])
+def getIcon(uid):
+    return ICON_REPOSITORY.get(uid, ICON_REPOSITORY[0])

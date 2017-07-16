@@ -265,7 +265,7 @@ class GagInfoFrame(DirectFrame):
         self.setSubtitle('Level %d %s Gag' % (gag.level, Track.Tracks[gag.track].name))
         self.setTitleColor(gag.rarityColor)
         self.setDescription(gag.description)
-        self.setIcon(gag.icon)
+        self.setIcon(gag.icon.icon)
         self.icon['image_scale'] = gag.icon.scale
 
     def unsetGag(self):
