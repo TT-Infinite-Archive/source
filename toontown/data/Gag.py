@@ -112,11 +112,9 @@ class ThrowGag(Gag):
 
 
 NO_ATTACK = 0
-PASS = 99
 
 AlwaysEquipped = [
-    NO_ATTACK,
-    PASS
+    NO_ATTACK
 ]
 
 GagToIcon = {
@@ -131,7 +129,6 @@ GagToIcon = {
     8: IconGlobals.getIcon(IconGlobals.ICON_BIRTHDAY_CAKE),
     9: IconGlobals.getIcon(IconGlobals.ICON_CANNON),
     10: IconGlobals.getIcon(IconGlobals.ICON_BIKE_HORN),
-    PASS: IconGlobals.getIcon(IconGlobals.ICON_PASS)
 }
 
 '''
