@@ -1,5 +1,5 @@
 from toontown.data.Icon import Icon, ImageIcon
-from toontown.data.DataLoader import DataLoader
+from toontown.data.DataLoader import IconDataLoader
 from panda3d.core import VBase3, VBase4
 
 ICON_CUPCAKE_NEW = 1
@@ -17,7 +17,8 @@ ICON_BIKE_HORN = 12
 
 ICON_REPOSITORY = {0: None}
 
-idl = DataLoader('resources/data/icons.xml')
+idl = IconDataLoader('resources/data/icons.xml')
+print('Loading Icons...')
 data = idl.loadData()
 for item in data:
     if item['type'] == 'Icon':

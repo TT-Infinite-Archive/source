@@ -1,20 +1,17 @@
 <Catalog>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="1"/>
         <editorname value="Cupcake"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
 		<nodepathname value="inventory_tart"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="2"/>
         <editorname value="Pie Slice"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
         <nodepathname value="inventory_fruit_pie_slice"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="3"/>
         <editorname value="Gold Cupcake"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
@@ -26,16 +23,14 @@
             <a value="1.0"/>
         </color>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="4"/>
         <editorname value="Pass"/>
         <filepath value="phase_3.5/models/gui/battle_gui"/>
         <nodepathname value="tt_t_gui_bat_pass"/>
         <scale value="0.2"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="5"/>
         <editorname value="Red Cupcake"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
@@ -47,50 +42,43 @@
             <a value="1.0"/>
         </color>
     </Item>
-    <Item>
-        <type value="ImageIcon"/>
+    <Item type="ImageIcon">
         <id value="6"/>
         <editorname value="Glow"/>
         <filepath value="phase_3.5/maps/glow.png"/>
         <scale value="0.003"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="7"/>
         <editorname value="Cream Pie Slice"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
         <nodepathname value="inventory_cream_pie_slice"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="8"/>
         <editorname value="Cream Pie"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
         <nodepathname value="inventory_creampie"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="9"/>
         <editorname value="Fruit Pie"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
         <nodepathname value="inventory_fruitpie"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="10"/>
         <editorname value="Birthday Cake"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>
         <nodepathname value="inventory_cake"/>
     </Item>
-    <Item>
-        <type value="ImageIcon"/>
+    <Item type="ImageIcon">
         <id value="11"/>
         <editorname value="Cannon"/>
         <filepath value="phase_3.5/maps/toon_cannon.png"/>
         <scale value="0.00025"/>
     </Item>
-    <Item>
-        <type value="Icon"/>
+    <Item type="Icon">
         <id value="12"/>
         <editorname value="Bike Horn"/>
         <filepath value="phase_3.5/models/gui/inventory_icons"/>

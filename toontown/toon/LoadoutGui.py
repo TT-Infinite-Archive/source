@@ -122,7 +122,7 @@ class LoadoutSlotGui(DirectButton):
     def __init__(self, parent, gagItem, index, pos=(0, 0, 0), color=(1, 1, 1, 1), clickCommand=None, enterCommand=None, exitCommand=None):
         self.gagItem = gagItem
         if self.gagItem is not None:
-            self.gdObj = gagItem.displayObject
+            self.gdObj = gagItem.icon
         else:
             self.gdObj = None
         self.index = index
@@ -266,7 +266,7 @@ class GagInfoFrame(DirectFrame):
         self.setTitleColor(gag.rarityColor)
         self.setDescription(gag.description)
         self.setIcon(gag.icon)
-        self.icon['image_scale'] = gag.displayObject.scale
+        self.icon['image_scale'] = gag.icon.scale
 
     def unsetGag(self):
         self.hide()

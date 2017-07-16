@@ -1,7 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
 
-from toontown.data import Missile, IconGlobals, Model, Track, EffectGlobals
+from toontown.data import IconGlobals, Track, EffectGlobals
 from toontown.data.Effect import DamageEffect
 from toontown.toonbase import ColorGlobals, TTLocalizer
 
@@ -21,7 +21,7 @@ class Gag(DirectObject):
     RarityEpic = 2
     RarityLegendary = 3
 
-    def __init__(self, uid, name, effectId, targetType, track, rarity, level, chance=1.0):
+    def __init__(self, uid, name, effectId, targetType, track, rarity, level, iconId, chance=1.0):
         DirectObject.__init__(self)
         self.uid = uid
         self.name = name
@@ -32,6 +32,7 @@ class Gag(DirectObject):
         self.chance = chance
         self.rarity = rarity
         self.level = level
+        self.iconId = iconId
 
     def __str__(self):
         return 'Gag-%s' % self.name
@@ -69,12 +70,8 @@ class Gag(DirectObject):
         return rarityToColor[self.rarity]
 
     @property
-    def displayObject(self):
-        return GagToIcon.get(self.uid, None)
-
-    @property
     def icon(self):
-        return self.displayObject.icon
+        return IconGlobals.getIcon(self.iconId)
 
     @property
     def glow(self):
@@ -117,34 +114,3 @@ AlwaysEquipped = [
     NO_ATTACK
 ]
 
-GagToIcon = {
-    0: None,
-    1: IconGlobals.getIcon(IconGlobals.ICON_CUPCAKE_NEW),
-    2: IconGlobals.getIcon(IconGlobals.ICON_PIESLICE),
-    3: IconGlobals.getIcon(IconGlobals.ICON_GOLD_TART),
-    4: IconGlobals.getIcon(IconGlobals.ICON_RED_TART),
-    5: IconGlobals.getIcon(IconGlobals.ICON_CREAM_PIE_SLICE),
-    6: IconGlobals.getIcon(IconGlobals.ICON_FRUIT_PIE),
-    7: IconGlobals.getIcon(IconGlobals.ICON_CREAM_PIE),
-    8: IconGlobals.getIcon(IconGlobals.ICON_BIRTHDAY_CAKE),
-    9: IconGlobals.getIcon(IconGlobals.ICON_CANNON),
-    10: IconGlobals.getIcon(IconGlobals.ICON_BIKE_HORN),
-}
-
-'''
-GagToMissile = {
-    0: None,
-    1: Missile.MissileDict,
-    2: Missile.PieSliceMissile,
-    3: Missile.GoldenCupcakeMissile,
-    4: Missile.RedCupcakeMissile,
-    5: Missile.CreamPieSliceMissile,
-    6: Missile.FruitPieMissile,
-    7: Missile.CreamPieMissile,
-    8: Missile.BirthdayCakeMissile,
-}
-
-GagToProp = {
-    10: Model.BikeHornModel
-}
-'''

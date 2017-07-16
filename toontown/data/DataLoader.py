@@ -15,7 +15,10 @@ class DataLoader:
             e = {}
             e.update(dict(item.attrib))
             for attr in item:
-                e.update({attr.tag: attr.attrib['value']})
+                try:
+                    e.update({attr.tag: attr.attrib['value']})
+                except KeyError:
+                    raise KeyError('Attribute %s has no value' % attr.tag)
             data.append(e)
         return data
 
@@ -53,7 +56,10 @@ class ModelDataLoader(DataLoader):
                         events.append([event.attrib['event'], event.attrib['action'], event.attrib['arg']])
                     e.update({attr.tag: events})
                 else:
-                    e.update({attr.tag: attr.attrib['value']})
+                    try:
+                        e.update({attr.tag: attr.attrib['value']})
+                    except KeyError:
+                        raise KeyError('Attribute %s has no value' % attr.tag)
 
             data.append(e)
         return data
@@ -92,7 +98,10 @@ class IconDataLoader(DataLoader):
                             pos[2] = float(c.attrib['value'])
                     e.update({attr.tag: pos})
                 else:
-                    e.update({attr.tag: attr.attrib['value']})
+                    try:
+                        e.update({attr.tag: attr.attrib['value']})
+                    except KeyError:
+                        raise KeyError('Attribute %s has no value' % attr.tag)
 
             data.append(e)
         return data
