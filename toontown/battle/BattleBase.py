@@ -6,8 +6,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.battle import BattleGlobals, BattleAttack
 
 NO_ATTACK = 0
-LURE_SUCCEEDED = -1
-PASS = 98
 SOS = 99
 NPCSOS = 97
 PETSOS = 96
@@ -19,6 +17,7 @@ SOUND = SOUND_TRACK
 THROW = THROW_TRACK
 SQUIRT = SQUIRT_TRACK
 DROP = DROP_TRACK
+TOON_ATTACK_TIMEOUT = 20.0
 TOON_ATTACK_TIME = 12.0
 SUIT_ATTACK_TIME = 12.0
 TOON_TRAP_DELAY = 0.8

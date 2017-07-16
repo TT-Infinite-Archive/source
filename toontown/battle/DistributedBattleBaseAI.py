@@ -486,7 +486,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             return False
         for toonId, ta in self.toonAttacks.items():
             if ta.attackId == SuitBattleGlobals.NO_ATTACK:
-                # This attack isn't a valid response
+                # This person hasn't made an attack yet so attacks aren't set
                 return False
         return True
 
@@ -571,20 +571,11 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.__adjustDone()
 
     def timeout(self):
-        toonId = self.air.getAvatarIdFromSender()
         if self.fsm.getCurrentState().getName() != 'WaitForInput':
             self.notify.warning('timeout() - in state: %s' % self.fsm.getCurrentState().getName())
             return
-        elif self.toons.count(toonId) == 0:
-            self.notify.warning('timeout() - toon: %d not in toon list' % toonId)
-            return
-        self.notify.debug('Toon %d timed out' % toonId)
-        # Lets make the toon pass since it timed out
-        self.toonAttacks[toonId] = BattleAttack.ToonBattleAttack(toonId, Gag.PASS)
-        self.d_setChosenToonAttacks()
-        if self.attacksSet():
-            self.notify.debug('All toons attacked, playing movie now...')
-            self.fsm.request('MakeMovie')
+        self.notify.debug('Toon attack phase timed out, attacking now')
+        self.fsm.request('MakeMovie')
 
     def requestMovieDone(self):
         toonId = self.air.getAvatarIdFromSender()
@@ -707,6 +698,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.runnableFsm.request('Runnable')
         # Adjust cogs and toons
         self.__requestAdjust()
+        # Start timeout timer
+        taskMgr.doMethodLater(SuitBattleGlobals.TOON_ATTACK_TIMEOUT, self.timeout, self.uniqueName('toon-timeout'), extraArgs=[])
 
     def exitWaitForInput(self):
         self.timer.stop()
@@ -717,6 +710,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def enterMakeMovie(self):
         self.notify.debug('Making movie...')
+        # End timeout timer if it exists, we don't want to timeout again
+        taskMgr.remove(self.uniqueName('toon-timeout'))
         self.runnableFsm.request('Unrunnable')
         # Generate our new movie attacks
         tmas, smas = self.battleCalc.generateMovieAttacks()

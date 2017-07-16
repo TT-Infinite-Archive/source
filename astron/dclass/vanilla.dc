@@ -1435,7 +1435,6 @@ dclass DistributedBattleBase : DistributedObject {
   faceOffDone() airecv clsend;
   toonRequestJoin(int16/10, int16/10, int16/10) airecv clsend;
   adjustDone() airecv clsend;
-  timeout() airecv clsend;
   joinDone(uint32) airecv clsend;
   requestMovieDone() airecv clsend;
   requestAttack(uint32 attackId, uint32 targetId) airecv clsend;

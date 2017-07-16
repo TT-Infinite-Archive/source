@@ -720,10 +720,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.notify.debug('Telling server that toon %d done adjusting' % toonId)
         self.sendUpdate('adjustDone', [])
 
-    def d_timeout(self, toonId):
-        self.notify.debug('Timed out...')
-        self.sendUpdate('timeout', [])
-
     def d_requestMovieDone(self):
         self.notify.debug('Telling server my movie is done')
         self.sendUpdate('requestMovieDone', [])
@@ -833,9 +829,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         if self.choseAttackAlready == 1:
             return
         self.notify.debug('WaitForInput timed out')
-        if self.localToonActive():
-            self.notify.debug('battle timed out')
-            self.d_timeout(base.localAvatar.doId)
 
     def enterPlayMovie(self, ts):
         self.notify.debug('Playing movie...')
