@@ -1,6 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.showbase.DirectObject import DirectObject
 
+from toontown.data.GagDefs import Gags
 from toontown.inventory import GagLoadoutGlobals
 
 
@@ -13,7 +14,8 @@ class GagLoadoutAI(DirectObject):
         self._loadout = []
 
     def setLoadout(self, loadout):
-        self._loadout = loadout
+        # Store only gags our server knows about
+        self._loadout = [i for i in loadout if i in Gags]
         self.notify.debug('Setting loadout %s' % self._loadout)
 
     def equipGag(self, gagId):

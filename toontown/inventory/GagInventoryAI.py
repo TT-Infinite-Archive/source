@@ -1,4 +1,5 @@
 from direct.showbase.DirectObject import DirectObject
+from toontown.data.GagDefs import Gags
 
 
 class GagInventoryAI(DirectObject):
@@ -12,7 +13,8 @@ class GagInventoryAI(DirectObject):
         del self.inventory[:]
 
     def setInventory(self, inventory):
-        self.inventory = sorted(inventory)
+        # Store only gags that our server knows about
+        self.inventory = sorted([item for item in inventory if item in Gags])
 
     def addGag(self, gagId):
         if gagId in self.inventory:

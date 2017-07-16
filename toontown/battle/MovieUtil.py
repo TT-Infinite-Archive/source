@@ -659,9 +659,9 @@ def suitDeath(suit, battle):
     smallGearExplosion.setDepthWrite(False)
     bigGearExplosion.setDepthWrite(False)
     soundTrack = Sequence(
-        Func(Sound.CogDeathSound.playSound),
+        Func(Sound.getSound(2).playSound),
         Wait(3.1),
-        Func(Sound.CogExplosionSound.playSound)
+        Func(Sound.getSound(3).playSound)
     )
     explosionTrack = Sequence(
         Wait(3.1),
@@ -730,7 +730,7 @@ def toonButtonTrack(toon):
     toonTrack = Sequence(
         animateAv(toon, 'pushbutton')
     )
-    button = Model.ButtonModel.getActor()
+    button = Model.getModel(9).getActor()
     hand = toon.getLeftHand()
     buttonTrack = Sequence(
         # Show and grow
@@ -741,7 +741,7 @@ def toonButtonTrack(toon):
         Wait(1.25),
         # Play sound
         Parallel(
-            SoundInterval(Sound.ButtonPressSound.getSound(), node=button),
+            SoundInterval(Sound.getSound(9).getSound(), node=button),
             Sequence(
                 Wait(1.25),
                 # Shrink and hide

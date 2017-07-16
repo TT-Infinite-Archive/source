@@ -36,10 +36,10 @@ for item in data:
     missile = Missile(
         Model.getModel(int(item['actor'])),
         Model.getModel(int(item['deathactor'])),
-        Model.getModel(int(item['deathsound']))
+        Sound.getSound(int(item['deathsound']))
     )
     MissileDict[int(item['id'])] = missile
 
 
 def getMissile(uid):
-    MissileDict.get(uid)
+    return MissileDict.get(uid, None)

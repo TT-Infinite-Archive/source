@@ -18,6 +18,13 @@ class GagInventory(DirectObject):
 
     def setInventory(self, inventory):
         self.notify.debug('Setting new inventory: %s' % inventory)
+        badInventory = []
+        for item in inventory:
+            # Loop because error messages
+            if item not in Gags:
+                self.notify.warning('Bad gag in client inventory %s' % item)
+                badInventory.append(item)
+        inventory = [item for item in inventory if item not in badInventory]
         # Convert the inventory of gag ids to gag objects
         self._inventory = [Gags[gagId] for gagId in sorted(inventory)]
         messenger.send(EventGlobals.InventoryChanged)
