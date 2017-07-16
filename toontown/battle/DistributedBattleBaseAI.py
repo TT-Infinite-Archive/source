@@ -630,7 +630,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             return
         elif toonId not in self.activeToons:
             # Can't attack unless you're an active toon
-            self.notify.warning('Toon %d tried to attack without being active' % toonId)
+            self.notify.warning('Toon %s tried to attack without being active' % toonId)
             return
         toon = self.air.doId2do.get(toonId)
         if toon is None:

@@ -6,8 +6,7 @@ from toontown.util import TTCardMaker
 
 
 class Icon:
-    def __init__(self, name, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0), nodePathName=None):
-        self.name = name
+    def __init__(self, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0), nodePathName=None):
         self.filepath = filepath
         self.scale = scale
         self.pos = pos
@@ -50,8 +49,8 @@ class Icon:
 
 
 class ImageIcon(Icon):
-    def __init__(self, name, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0)):
-        Icon.__init__(self, name, filepath, scale, pos, color)
+    def __init__(self, filepath=None, scale=1.0, pos=(0.0, 0.0, 0.0), color=(1.0, 1.0, 1.0, 1.0)):
+        Icon.__init__(self, filepath, scale, pos, color)
 
     def loadFile(self):
         model = NodePath('%s-node' % self.filepath)
