@@ -27,6 +27,7 @@ for item in data:
             int(item['rarity']),
             int(item['level']),
             Missile.getMissile(int(item['missile'])),
+            int(item['icon']),
             float(item['chance']),
             int(item['track'])
         )
@@ -39,6 +40,7 @@ for item in data:
             int(item['track']),
             int(item['rarity']),
             int(item['level']),
+            int(item['icon']),
             float(item['chance'])
         )
     else:

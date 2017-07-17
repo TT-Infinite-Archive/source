@@ -103,8 +103,8 @@ class Gag(DirectObject):
 
 
 class ThrowGag(Gag):
-    def __init__(self, uid, name, effectId, targetType, rarity, level, missile, chance=1.0, track=Track.TrackThrow):
-        Gag.__init__(self, uid, name, effectId, targetType, track, rarity, level, chance)
+    def __init__(self, uid, name, effectId, targetType, rarity, level, missile, iconId, chance=1.0, track=Track.TrackThrow):
+        Gag.__init__(self, uid, name, effectId, targetType, track, rarity, level, iconId, chance)
         self.missile = missile
 
 

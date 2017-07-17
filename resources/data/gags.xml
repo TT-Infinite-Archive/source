@@ -35,6 +35,7 @@ TrackDrop = 7
         <level value="1"/>
         <missile value="1"/>
         <chance value="1"/>
+        <icon value="1"/>
         <track value="6"/>
     </Item>
     <Item>
@@ -47,6 +48,20 @@ TrackDrop = 7
         <level value="2"/>
         <missile value="2"/>
         <chance value="1"/>
+        <icon value="2"/>
+        <track value="6"/>
+    </Item>
+    <Item>
+        <type value="ThrowGag"/>
+        <id value="3"/>
+        <name value="God Cupcake"/>
+        <effect value="4"/>
+        <targettype value="3"/>
+        <rarity value="3"/>
+        <level value="2"/>
+        <missile value="1"/>
+        <chance value="1"/>
+        <icon value="1"/>
         <track value="6"/>
     </Item>
 </Catalog>

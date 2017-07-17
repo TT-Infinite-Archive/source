@@ -17,4 +17,10 @@
         <name value="FruitPieDamage"/>
         <amount value="12"/>
     </Item>
+    <Item>
+        <type value="DamageEffect"/>
+        <id value="4"/>
+        <name value="GodCupcakeDamage"/>
+        <amount value="1234"/>
+    </Item>
 </Catalog>
