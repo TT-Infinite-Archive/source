@@ -182,4 +182,9 @@
             <a value="1.0"/>
         </color>
     </Item>
+    <Item>
+        <id value="20"/>
+        <editorname value="Merry Go Round"/>
+        <filepath value="phase_13/models/parties/partyMerryGoRound"/>
+    </Item>
 </Catalog>
