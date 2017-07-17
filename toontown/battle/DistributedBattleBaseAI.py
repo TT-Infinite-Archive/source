@@ -699,7 +699,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         # Adjust cogs and toons
         self.__requestAdjust()
         # Start timeout timer
-        taskMgr.doMethodLater(SuitBattleGlobals.TOON_ATTACK_TIMEOUT, self.timeout, self.uniqueName('toon-timeout'), extraArgs=[])
+        self.resetTimeout()
 
     def exitWaitForInput(self):
         self.timer.stop()
@@ -711,7 +711,8 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def enterMakeMovie(self):
         self.notify.debug('Making movie...')
         # End timeout timer if it exists, we don't want to timeout again
-        taskMgr.remove(self.uniqueName('toon-timeout'))
+        self.stopTimeout()
+        # Can't run now
         self.runnableFsm.request('Unrunnable')
         # Generate our new movie attacks
         tmas, smas = self.battleCalc.generateMovieAttacks()
@@ -950,6 +951,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         elif currStateName == 'WaitForJoin':
             self.b_setState('WaitForInput')
         self.adjustingTimer.stop()
+        self.resetTimeout()
 
     def __serverAdjustingDone(self):
         if self.needAdjust == 1:
@@ -1029,6 +1031,16 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.initialSuitPos[1],
             self.initialSuitPos[2]
         ]
+
+    def resetTimeout(self):
+        self.stopTimeout()
+        self.startTimeout()
+
+    def stopTimeout(self):
+        taskMgr.remove(self.uniqueName('toon-timeout'))
+
+    def startTimeout(self):
+        taskMgr.doMethodLater(SuitBattleGlobals.TOON_ATTACK_TIMEOUT, self.timeout, self.uniqueName('toon-timeout'), extraArgs=[])
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR)
