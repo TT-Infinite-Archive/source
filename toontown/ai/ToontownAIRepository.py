@@ -52,7 +52,7 @@ from toontown.pets.PetManagerAI import PetManagerAI
 from toontown.safezone.SafeZoneManagerAI import SafeZoneManagerAI
 from toontown.suit.SuitInvasionManagerAI import SuitInvasionManagerAI
 from toontown.toon import NPCToons
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.tutorial.TutorialManagerAI import TutorialManagerAI
 from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
@@ -189,11 +189,11 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def createSafeZones(self):
         NPCToons.generateZone2NpcDict()
-        if self.config.GetBool('want-toontown-central', True):
+        if serverSettings[ServerSettingsGlobals.EnabledZones]["ToontownCentral"]:
             self.hoods.append(TTHoodAI.TTHoodAI(self))
-        if self.config.GetBool('want-donalds-dock', True):
+        if serverSettings[ServerSettingsGlobals.EnabledZones]["TheHarbor"]:
             self.hoods.append(DDHoodAI.DDHoodAI(self))
-        if self.config.GetBool('want-daisys-garden', True):
+        if serverSettings[ServerSettingsGlobals.EnabledZones]["DaisyGardens"]:
             self.hoods.append(DGHoodAI.DGHoodAI(self))
 
         while self.readerPollOnce():
