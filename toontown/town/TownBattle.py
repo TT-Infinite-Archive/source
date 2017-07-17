@@ -105,6 +105,7 @@ class TownBattle(StateData.StateData):
             toonPanel.setBattle(battle)
 
     def update(self):
+        self.notify.debug('Updating')
         self.updatePanels()
         if self.choosePanel:
             self.choosePanel.updateButtons()

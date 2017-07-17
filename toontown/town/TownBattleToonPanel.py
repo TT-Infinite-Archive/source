@@ -165,10 +165,12 @@ class TownBattleToonPanel(DirectFrame):
         text = ['']
         if gag.targetType == Gag.TargetSingleAlly:
             text = ['-'] * len(self.battle.activeToons)
-            text[self.battle.getToonIndex(toonAttack.targetId)] = 'X'
+            targetIdx = self.battle.getToonIndex(toonAttack.targetId)
+            text[len(text) - (1 + targetIdx)] = 'X'
         elif gag.targetType == Gag.TargetSingleEnemy:
             text = ['-'] * len(self.battle.activeSuits)
-            text[self.battle.getSuitIndex(toonAttack.targetId)] = 'X'
+            targetIdx = self.battle.getSuitIndex(toonAttack.targetId)
+            text[len(text) - (1 + targetIdx)] = 'X'
         elif gag.targetType == Gag.TargetSelf:
             text = 'SELF'
         elif gag.targetType == Gag.TargetEnemies:

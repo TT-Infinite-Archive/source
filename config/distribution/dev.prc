@@ -95,20 +95,20 @@ want-quest-verification #t
 want-heartbeat #f
 want-yin-yang #t
 
-#notify-level-TownBattle debug
+notify-level-TownBattle debug
 #notify-level-TownBattleToonPanel debug
 #notify-level-GagInventoryGui debug
-#notify-level-DistributedBattleAI debug
+notify-level-DistributedBattleAI debug
 #notify-level-BattleCalculatorAI debug
-#notify-level-DistributedBattle debug
+notify-level-DistributedBattle debug
 #notify-level-ChooseAvatarPanel debug
-notify-level-GagInventoryAI debug
-notify-level-GagInventory debug
-notify-level-GagLoadoutAI debug
-notify-level-GagLoadout debug
-notify-level-LoadoutSelectGui debug
-notify-level-DistributedNPCClerk debug
-notify-level-DistributedNPCClerkAI debug
+#notify-level-GagInventoryAI debug
+#notify-level-GagInventory debug
+#notify-level-GagLoadoutAI debug
+#notify-level-GagLoadout debug
+#notify-level-LoadoutSelectGui debug
+#notify-level-DistributedNPCClerk debug
+#notify-level-DistributedNPCClerkAI debug
 
 # Debug tools:
 want-leak-graph-ai #f
