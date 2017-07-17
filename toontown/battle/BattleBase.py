@@ -6,20 +6,13 @@ from toontown.toonbase import TTLocalizer
 from toontown.battle import BattleGlobals, BattleAttack
 
 NO_ATTACK = 0
-SOS = 99
 NPCSOS = 97
 PETSOS = 96
-FIRE = 100
 HEAL = HEAL_TRACK
 TRAP = TRAP_TRACK
 LURE = LURE_TRACK
-SOUND = SOUND_TRACK
-THROW = THROW_TRACK
-SQUIRT = SQUIRT_TRACK
-DROP = DROP_TRACK
 TOON_ATTACK_TIMEOUT = 20.0
-TOON_ATTACK_TIME = 12.0
-SUIT_ATTACK_TIME = 12.0
+MOVIE_ATTACK_TIME = 12.0
 TOON_TRAP_DELAY = 0.8
 TOON_SOUND_DELAY = 1.0
 TOON_THROW_DELAY = 0.5
@@ -32,7 +25,6 @@ TOON_RUN_T = 3.3
 TIMEOUT_PER_USER = 5
 TOON_FIRE_DELAY = 0.5
 TOON_FIRE_SUIT_DELAY = 1.0
-REWARD_TIMEOUT = 120
 FLOOR_REWARD_TIMEOUT = 4
 BUILDING_REWARD_TIMEOUT = 300
 
@@ -53,52 +45,6 @@ def attackAffectsGroup(track, level, type = None):
         return AvPropTargetCat[AvPropTarget[track]][level]
     else:
         return 0
-
-
-def getToonAttack(toonId, attackId=0, targetId=0):
-    return BattleAttack.ToonBattleAttack(toonId, attackId, targetId)
-
-
-def getDefaultSuitAttacks():
-    suitAttacks = []
-    for i in xrange(0, 4):
-        suitAttacks.append(BattleAttack.SuitBattleAttack())
-    return suitAttacks
-
-
-def getDefaultSuitAttack():
-    return BattleAttack.SuitBattleAttack()
-
-
-def findToonAttack(toons, attacks, track):
-    foundAttacks = []
-    for t in toons:
-        if t in attacks:
-            attack = attacks[t]
-            local_track = attack[TOON_TRACK_COL]
-            if track != NPCSOS and attack[TOON_TRACK_COL] == NPCSOS:
-                local_track = NPCToons.getNPCTrack(attack[TOON_TGT_COL])
-            if local_track == track:
-                if local_track == FIRE:
-                    canFire = 1
-                    for attackCheck in foundAttacks:
-                        if attackCheck[TOON_TGT_COL] == attack[TOON_TGT_COL]:
-                            canFire = 0
-
-                    if canFire:
-                        foundAttacks.append(attack)
-                else:
-                    foundAttacks.append(attack)
-
-    def compFunc(a, b):
-        if a[TOON_LVL_COL] > b[TOON_LVL_COL]:
-            return 1
-        elif a[TOON_LVL_COL] < b[TOON_LVL_COL]:
-            return -1
-        return 0
-
-    foundAttacks.sort(compFunc)
-    return foundAttacks
 
 
 SERVER_BUFFER_TIME = 2.0
