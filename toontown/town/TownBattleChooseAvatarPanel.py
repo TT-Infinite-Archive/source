@@ -25,7 +25,6 @@ class TownBattleChooseAvatarPanel(DirectObject):
         self.attack = None
         self.battle = None
         self.frame = None
-        self.statusFrame = None
         self.textFrame = None
         self.backButton = None
         self.buttons = []
@@ -39,13 +38,6 @@ class TownBattleChooseAvatarPanel(DirectObject):
             relief=None,
             image=gui.find('**/BtlPick_TAB'),
             image_color=Vec4(1, 0.2, 0.2, 1)
-        )
-        self.statusFrame = DirectFrame(
-            parent=self.frame,
-            relief=None,
-            image=gui.find('**/ToonBtl_Status_BG'),
-            image_color=Vec4(0.5, 0.9, 0.5, 1),
-            pos=(0.611, 0, 0)
         )
         self.textFrame = DirectFrame(
             parent=self.frame,

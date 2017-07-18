@@ -99,6 +99,7 @@ notify-level-TownBattle debug
 #notify-level-TownBattleToonPanel debug
 #notify-level-GagInventoryGui debug
 notify-level-DistributedBattleAI debug
+notify-level-DistributedBattle debug
 #notify-level-BattleCalculatorAI debug
 notify-level-DistributedBattle debug
 #notify-level-ChooseAvatarPanel debug
@@ -109,6 +110,7 @@ notify-level-DistributedBattle debug
 #notify-level-LoadoutSelectGui debug
 #notify-level-DistributedNPCClerk debug
 #notify-level-DistributedNPCClerkAI debug
+notify-level-Movie debug
 
 # Debug tools:
 want-leak-graph-ai #f

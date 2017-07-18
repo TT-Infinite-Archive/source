@@ -39,15 +39,12 @@ class DistributedBattleAI(DistributedBattleBaseAI):
         self.handleFaceOffDone()
 
     def enterFaceOff(self):
-        self.notify.debug('enterFaceOff()')
+        self.notify.debug('Facing off..')
         self.joinableFsm.request('Joinable')
         self.runnableFsm.request('Unrunnable')
         self.suits[0].releaseControl()
         timeForFaceoff = self.calcFaceoffTime(self.pos, self.initialSuitPos) + FACEOFF_TAUNT_T + SERVER_BUFFER_TIME
-        if self.interactivePropTrackBonus >= 0:
-            timeForFaceoff += FACEOFF_LOOK_AT_PROP_T
         self.timer.startCallback(timeForFaceoff, self.__serverFaceOffDone)
-        return None
 
     def __serverFaceOffDone(self):
         self.notify.debug('faceoff timed out on server')
@@ -55,8 +52,7 @@ class DistributedBattleAI(DistributedBattleBaseAI):
         self.handleFaceOffDone()
 
     def exitFaceOff(self):
-        self.timer.stop()
-        return None
+        pass
 
     def handleFaceOffDone(self):
         self.timer.stop()

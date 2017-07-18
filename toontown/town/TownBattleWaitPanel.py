@@ -8,9 +8,10 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 class TownBattleWaitPanel(DirectObject):
     notify = directNotify.newCategory('TownBattleWaitPanel')
 
-    def __init__(self):
+    def __init__(self, wantBack=True):
         self.notify.debug('Initializing...')
         DirectObject.__init__(self)
+        self.wantBack = wantBack
         self.frame = None
         self.battle = None
         self.backButton = None
@@ -23,12 +24,13 @@ class TownBattleWaitPanel(DirectObject):
         self.frame = DirectFrame(
             relief=None, image=gui.find('**/Waiting4Others'), text_align=TextNode.ALeft, pos=(0, 0, 0), scale=0.65
         )
-        backImage = (gui.find('**/PckMn_BackBtn'), gui.find('**/PckMn_BackBtn_Dn'), gui.find('**/PckMn_BackBtn_Rlvr'))
-        self.backButton = DirectButton(
-            parent=self.frame, relief=None, image=backImage, pos=(-0.647, 0, -0.011), scale=1.05,
-            text=TTLocalizer.TownBattleWaitBack, text_scale=0.05, text_pos=(0.01, -0.012), text_fg=Vec4(0, 0, 0.8, 1),
-            command=self.__handleBack
-        )
+        if self.wantBack:
+            backImage = (gui.find('**/PckMn_BackBtn'), gui.find('**/PckMn_BackBtn_Dn'), gui.find('**/PckMn_BackBtn_Rlvr'))
+            self.backButton = DirectButton(
+                parent=self.frame, relief=None, image=backImage, pos=(-0.647, 0, -0.011), scale=1.05,
+                text=TTLocalizer.TownBattleWaitBack, text_scale=0.05, text_pos=(0.01, -0.012), text_fg=Vec4(0, 0, 0.8, 1),
+                command=self.__handleBack
+            )
         gui.removeNode()
 
     def hide(self):
@@ -69,3 +71,4 @@ class TownBattleWaitPanel(DirectObject):
     def __handleBack(self):
         self.notify.debug('Clicked back!')
         messenger.send(EventGlobals.WaitPanelBack)
+

@@ -31,8 +31,6 @@ class Movie(DirectObject.DirectObject):
         DirectObject.DirectObject.__init__(self)
         self.battle = battle
         self.track = None
-        self.tmaQueue = Queue()
-        self.smaQueue = Queue()
         self.rewardPanel = None
         self.rewardCallback = None
         self.playByPlayText = PlayByPlayText.PlayByPlayText()
@@ -197,36 +195,30 @@ class Movie(DirectObject.DirectObject):
 
     def play(self, ts, callback):
         self.hasBeenReset = 0
-        self.tmaQueue.reset()
-        self.smaQueue.reset()
-        for tma in self.battle.toonMovieAttacks:
-            # Queue up attacks
-            self.tmaQueue.enqueue(tma)
-        for sma in self.battle.suitMovieAttacks:
-            # Queue up attacks
-            self.smaQueue.enqueue(sma)
-
-        self.playNextAttack(callback)
-
-    def playNextAttack(self, callback):
-        # Get the next attack and play the movie for it
-        # If there are no attacks just end the movie
-        if self.tmaQueue.empty() and self.smaQueue.empty():
+        ma = self.battle.currentMovieAttack
+        self.notify.debug('Checking if %s is in %s' % (ma.attackerId, str(self.battle.activeToons)))
+        attacker = base.cr.doId2do.get(ma.attackerId)
+        if attacker is None:
+            self.notify.warning('Invalid attack')
             callback()
-        elif not self.tmaQueue.empty():
-            tma = self.tmaQueue.dequeue()
+            return
+        if attacker in self.battle.activeToons:
+            self.notify.debug('Playing a toon attack')
             self.track = Sequence()
-            movieFunc = GagMovies.GagToMovieFunc.get(tma.attackId)
+            # Play gag movie
+            movieFunc = GagMovies.GagToMovieFunc.get(ma.attackId)
             if movieFunc:
-                self.track.append(movieFunc(self.battle, tma))
+                self.track.append(movieFunc(self.battle, ma))
             else:
-                self.notify.warning('Gag %s has no movie defined!' % tma.attackId)
+                self.notify.warning('Gag %s has no movie defined!' % ma.attackId)
+            # Kill suits if any
             self.track.append(Func(self.playDeadSuits, callback))
             self.track.start()
         else:
-            sma = self.smaQueue.dequeue()
+            self.notify.debug('Playing a cog attack')
+            # Play cog attack
             self.track = Sequence()
-            self.track.append(Func(self.playNextAttack, callback))
+            self.track.append(Func(callback))
             self.track.start()
 
     def playDeadSuits(self, callback):
@@ -237,7 +229,7 @@ class Movie(DirectObject.DirectObject):
             if suit.getHp() <= 0:
                 deathTrack.append(MovieUtil.suitDeath(suit, self.battle))
         self.track.append(deathTrack)
-        self.track.append(Func(self.playNextAttack, callback))
+        self.track.append(Func(callback))
         self.track.start()
 
     def reset(self):

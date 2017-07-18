@@ -71,8 +71,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.adjustFsm.enterInitialState()
         self.interactiveProp = None
         self.toonAttacks = {}
-        self.toonMovieAttacks = []
-        self.suitMovieAttacks = []
+
+        self.toonsThatAttacked = []
+        self.currentMovieAttack = None
 
     def uniqueBattleName(self, name):
         DistributedBattleBase.id += 1
@@ -133,6 +134,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.__cleanupIntervals()
         self.fsm.requestFinalState()
         if self.hasLocalToon():
+            self.townBattle.setState('Off')
             self.removeLocalToon()
             base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov/(4./3.))
         self.localToonFsm.request('WaitForServer')
@@ -167,14 +169,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         DistributedNode.DistributedNode.delete(self)
         return
 
-    def pause(self):
-        self.notify.debug('Pausing...')
-        self.timer.stop()
-
-    def unpause(self):
-        self.notify.debug('Unpausing...')
-        self.timer.resume()
-
     def findSuit(self, suitId):
         for s in self.suits:
             if s.doId == suitId:
@@ -198,9 +192,11 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         suit = self.findSuit(suitId)
         return self.activeSuits.index(suit)
 
-    def getActorPosHpr(self, actor, actorList = []):
+    def getActorPosHpr(self, actor, actorList = None):
+        if actorList is None:
+            actorList = []
         if isinstance(actor, Suit.Suit):
-            if actorList == []:
+            if len(actorList) == 0:
                 actorList = self.activeSuits
             if actorList.count(actor) != 0:
                 numSuits = len(actorList) - 1
@@ -210,7 +206,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             else:
                 self.notify.warning('getActorPosHpr() - suit not active')
         else:
-            if actorList == []:
+            if len(actorList) == 0:
                 actorList = self.activeToons
             if actorList.count(actor) != 0:
                 numToons = len(actorList) - 1
@@ -377,6 +373,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                     self.unlockLevelViz()
             if currStateName != 'NoLocalToon':
                 self.localToonFsm.request('NoLocalToon')
+
+        self.townBattle.update()
         return oldtoons
 
     def adjust(self, timestamp):
@@ -389,41 +387,19 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def clearToonAttacks(self):
         self.toonAttacks.clear()
 
-    def clearMovieAttacks(self):
-        del self.toonMovieAttacks[:]
-        del self.suitMovieAttacks[:]
-        self.toonMovieAttacks = []
-        self.suitMovieAttacks = []
+    def setMovieAttack(self, movieAttack):
+        self.notify.debug('Setting movie attack: %s' % str(movieAttack))
+        self.currentMovieAttack = BattleAttack.MovieAttack()
+        self.currentMovieAttack.fromList(movieAttack)
 
-    def makeMovieAttackFromList(self, list):
-        ma = BattleAttack.MovieAttack()
-        ma.fromList(list)
-        return ma
+    def getMovieAttack(self):
+        return self.currentMovieAttack
 
-    def setMovieAttacks(self, toonMovieAttacks, suitMovieAttacks):
-        self.notify.debug('Setting movie attacks: %s %s' % (toonMovieAttacks, suitMovieAttacks))
-        self.clearMovieAttacks()
-        for toonMovieAttack in toonMovieAttacks:
-            tma = self.makeMovieAttackFromList(toonMovieAttack)
-            self.toonMovieAttacks.append(tma)
-        for suitMovieAttack in suitMovieAttacks:
-            sma = self.makeMovieAttackFromList(suitMovieAttack)
-            self.suitMovieAttacks.append(sma)
+    def setToonsThatAttacked(self, toonsThatAttacked):
+        self.toonsThatAttacked = toonsThatAttacked
 
-    def getMovieAttacks(self):
-        toonMovieAttacks = [tma.toList() for tma in self.toonMovieAttacks]
-        suitMovieAttacks = [sma.toList() for sma in self.suitMovieAttacks]
-        return [toonMovieAttacks, suitMovieAttacks]
-
-    def setChosenToonAttacks(self, toonAttacks):
-        self.notify.debug('Setting chosen toon attacks: %s' % toonAttacks)
-        self.clearToonAttacks()
-        for ta in toonAttacks:
-            toonAttack = BattleAttack.ToonBattleAttack()
-            toonAttack.fromList(ta)
-            self.toonAttacks[toonAttack.attackerId] = toonAttack
-        if self.hasLocalToon():
-            self.townBattle.updateChosenAttacks()
+    def getToonsThatAttacked(self):
+        return self.toonsThatAttacked
 
     def __listenForUnexpectedExit(self, toon):
         self.accept(toon.uniqueName('disable'), self.__handleUnexpectedExit, extraArgs=[toon])
@@ -747,7 +723,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def exitFaceOff(self):
         return None
 
-    def enterWaitForJoin(self, ts = 0):
+    def enterWaitForJoin(self, ts=0):
         self.notify.debug('Waiting for join...')
         return None
 
@@ -832,7 +808,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
 
     def enterPlayMovie(self, ts):
         self.notify.debug('Playing movie...')
-        # self.delayDeleteMembers()
         if self.hasLocalToon():
             NametagGlobals.setWant2dNametags(False)
 
@@ -847,7 +822,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def exitPlayMovie(self):
         self.notify.debug('Movie done.')
         self.movie.reset()
-        #self._removeMembersKeep()
 
     def hasLocalToon(self):
         return self.toons.count(base.localAvatar) > 0
@@ -866,7 +840,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
 
     def enterHasLocalToon(self):
         self.notify.debug('enterHasLocalToon()')
-        if base.cr.playGame.getPlace() != None:
+        if base.cr.playGame.getPlace() is not None:
             base.cr.playGame.getPlace().setState('battle', self.localToonBattleEvent)
         base.camera.wrtReparentTo(self)
         base.camLens.setMinFov(self.camFov/(4./3.))
@@ -890,18 +864,15 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         return
 
     def enterNoLocalToon(self):
-        self.notify.debug('enterNoLocalToon()')
         return None
 
     def exitNoLocalToon(self):
         return None
 
     def enterWaitForServer(self):
-        self.notify.debug('Waiting for server...')
         return None
 
     def exitWaitForServer(self):
-        self.notify.debug('Done waiting for server.')
         return None
 
     def createAdjustInterval(self, av, destPos, destHpr, toon = 0, run = 0):
@@ -1016,30 +987,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
 
     def exitNotAdjusting(self):
         return None
-
-    def visualize(self):
-        try:
-            self.isVisualized
-        except:
-            self.isVisualized = 0
-
-        if self.isVisualized:
-            self.vis.removeNode()
-            del self.vis
-            self.detachNode()
-            self.isVisualized = 0
-        else:
-            lsegs = LineSegs()
-            lsegs.setColor(0.5, 0.5, 1, 1)
-            lsegs.moveTo(0, 0, 0)
-            for p in BattleBase.allPoints:
-                lsegs.drawTo(p[0], p[1], p[2])
-
-            p = BattleBase.allPoints[0]
-            lsegs.drawTo(p[0], p[1], p[2])
-            self.vis = self.attachNewNode(lsegs.create())
-            self.reparentTo(render)
-            self.isVisualized = 1
 
     def setupCollisions(self, name):
         self.lockout = CollisionTube(0, 0, 0, 0, 0, 9, 9)

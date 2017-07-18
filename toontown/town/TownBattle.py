@@ -34,9 +34,10 @@ class TownBattle(StateData.StateData):
         self.battle = None
         self.fsm = ClassicFSM.ClassicFSM('TownBattle', [
             State.State('Off', self.enterOff, self.exitOff, ['Attack']),
-            State.State('Attack', self.enterAttack, self.exitAttack, ['ChooseTarget', 'AttackWait']),
+            State.State('Attack', self.enterAttack, self.exitAttack, ['ChooseTarget', 'AttackWait', 'Waiting']),
             State.State('ChooseTarget', self.enterChooseTarget, self.exitChooseTarget, ['AttackWait', 'Attack']),
             State.State('AttackWait', self.enterAttackWait, self.exitAttackWait, ['ChooseTarget', 'Attack']),
+            State.State('Waiting', self.enterWaiting, self.exitWaiting, ['Attack', 'Off']),
         ], 'Off', 'Off')
         self.waitPanel = TownBattleWaitPanel.TownBattleWaitPanel()
         self.choosePanel = TownBattleChooseAvatarPanel.TownBattleChooseAvatarPanel()
@@ -142,20 +143,22 @@ class TownBattle(StateData.StateData):
         self.toonPanels[index].updateLaffMeter()
 
     def enterOff(self):
-        if self.isLoaded:
-            for toonPanel in self.toonPanels:
-                toonPanel.hide()
+        self.notify.debug('Entering off')
+        for toonPanel in self.toonPanels:
+            toonPanel.hide()
         self.target = 0
         if self.timer:
             self.timer.hide()
 
     def exitOff(self):
-        if self.isLoaded:
-            self.updatePanels()
+        self.updatePanels()
         self.timer.show()
 
     def enterAttack(self):
         self.notify.debug('Enter Attack')
+        if base.localAvatar.doId in self.battle.toonsThatAttacked:
+            self.fsm.request('Waiting')
+            return
         base.localAvatar.gagPanel.showOnscreen()
         self.accept(EventGlobals.GagSlotClick, self.__handleGagSelected)
 
@@ -163,26 +166,6 @@ class TownBattle(StateData.StateData):
         self.notify.debug('Exit Attack')
         base.localAvatar.gagPanel.hideOnscreen()
         self.ignore(EventGlobals.GagSlotClick)
-
-    def __handleGagSelected(self, slotIndex):
-        gag = base.localAvatar.loadout.getGagAtSlot(slotIndex)
-        self.__handleAttackSelected(gag.uid)
-
-    def __handleAttackSelected(self, attackId):
-        self.notify.debug('attackSelected: %s' % attackId)
-        self.attackId = attackId
-        self.updateChosenAttacks()
-        gag = GagDefs.Gags[attackId]
-        if gag.requiresTarget():
-            self.fsm.request('ChooseTarget')
-        else:
-            self.fsm.request('AttackWait')
-            response = {
-                'mode': 'Attack',
-                'attackId': self.attackId,
-                'target': 0
-            }
-            messenger.send(self.battleEvent, [response])
 
     def enterChooseTarget(self):
         if self.choosePanel is None:
@@ -197,6 +180,18 @@ class TownBattle(StateData.StateData):
         self.ignore(EventGlobals.ChooserPick)
         self.choosePanel.hide()
 
+    def __handleGagSelected(self, slotIndex):
+        gag = base.localAvatar.loadout.getGagAtSlot(slotIndex)
+        self.__handleAttackSelected(gag.uid)
+
+    def __handleAttackSelected(self, attackId):
+        self.notify.debug('attackSelected: %s' % attackId)
+        self.attackId = attackId
+        self.updateChosenAttacks()
+        gag = GagDefs.Gags[attackId]
+        if gag.requiresTarget():
+            self.fsm.request('ChooseTarget')
+
     def __handleChoosePanelPick(self, targetId):
         self.target = targetId
         self.fsm.request('AttackWait')
@@ -209,27 +204,15 @@ class TownBattle(StateData.StateData):
 
     def __handleChoosePanelBack(self):
         self.fsm.request('Attack')
-        response = {
-            'mode': 'UnAttack'
-        }
-        messenger.send(self.battleEvent, [response])
 
     def enterAttackWait(self):
         self.waitPanel.show()
-        self.accept(EventGlobals.WaitPanelBack, self.__handleAttackWaitBack)
 
     def exitAttackWait(self):
-        self.ignore(EventGlobals.WaitPanelBack)
         self.waitPanel.hide()
 
-    def __handleAttackWaitBack(self):
-        gag = GagDefs.Gags[self.attackId]
-        if gag.requiresTarget():
-            self.fsm.request('ChooseTarget')
-        else:
-            self.fsm.request('Attack')
+    def enterWaiting(self):
+        pass
 
-        response = {
-            'mode': 'UnAttack'
-        }
-        messenger.send(self.battleEvent, [response])
+    def exitWaiting(self):
+        pass

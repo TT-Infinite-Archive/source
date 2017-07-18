@@ -1427,8 +1427,8 @@ dclass DistributedBattleBase : DistributedObject {
   setMembers(uint32[], string, string, string, uint32[], string, string, string, string, int16) required broadcast ram;
   adjust(int16) broadcast;
   setInitialSuitPos(int16/10, int16/10, int16/10) broadcast ram;
-  setMovieAttacks(MovieAttack[], MovieAttack[]) required broadcast ram;
-  setChosenToonAttacks(BattleAttack[]) broadcast ram;
+  setMovieAttack(MovieAttack) required broadcast ram;
+  setToonsThatAttacked(uint32[]) required broadcast ram;
   denyLocalToonJoin();
   setBossBattle(uint8) required broadcast ram;
   setState(string, int16) required broadcast ram;

@@ -173,7 +173,7 @@ class DistributedBattle(DistributedBattleBase.DistributedBattleBase):
         self._removeMembersKeep()
 
     def enterResume(self, ts = 0):
-        self.notify.debug('enterResume()')
+        self.notify.debug('Resuming...')
         if self.hasLocalToon():
             self.removeLocalToon()
         if self.interactiveProp:
