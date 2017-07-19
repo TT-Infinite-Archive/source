@@ -68,8 +68,7 @@ class TownBattle(StateData.StateData):
     def enter(self, event, parentFSMState, bldg=0, creditMultiplier=1, tutorialFlag=0):
         self.parentFSMState = parentFSMState
         self.parentFSMState.addChild(self.fsm)
-        if not self.isLoaded:
-            self.load()
+        self.load()
         self.battleEvent = event
         self.fsm.enterInitialState()
         base.localAvatar.laffMeter.start()
@@ -89,6 +88,8 @@ class TownBattle(StateData.StateData):
         StateData.StateData.unload(self)
         self.waitPanel.unload()
         self.choosePanel.unload()
+        for toonPanel in self.toonPanels:
+            toonPanel.hide()
 
     def setState(self, state):
         if hasattr(self, 'fsm'):

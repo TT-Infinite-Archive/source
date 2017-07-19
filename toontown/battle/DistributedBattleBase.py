@@ -155,7 +155,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         return
 
     def delete(self):
-        self.notify.debug('Deleting %s...' % self.doId)
         self.__cleanupIntervals()
         self._removeMembersKeep()
         self.movie.cleanup()
@@ -268,18 +267,13 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def setMembers(self, suits, suitsJoining, suitsPending, suitsActive, toons, toonsJoining, toonsPending, toonsActive, toonsRunning, timestamp):
         if self.__battleCleanedUp:
             return
-        self.notify.debug('Setting Members: \nSuits: %s Joining: %s Pending: %s Active: %s '
-            '\nToons: %s Joining: %s Pending: %s Active: %s Running: %s' % (
-            suits,
-            suitsJoining,
-            suitsPending,
-            suitsActive,
-            toons,
-            toonsJoining,
-            toonsPending,
-            toonsActive,
-            toonsRunning
-        ))
+        if self.notify.getDebug():
+            args = (suits, suitsJoining, suitsPending, suitsActive,
+                    toons, toonsJoining, toonsPending, toonsActive, toonsRunning)
+            msg = 'Setting Members' \
+                  '\nSuits: %s Joining: %s Pending: %s Active: %s' \
+                  '\nToons: %s Joining %s Pending %s Active: %s Running: %s'
+            self.notify.debug(msg % args)
         ts = globalClockDelta.localElapsedTime(timestamp)
         self.setSuits(suits)
         for s in suitsJoining:
@@ -345,7 +339,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         activeToons = []
         for t in toonsActive:
             toon = self.toons[int(t)]
-            if toon != None and self.activeToons.count(toon) == 0:
+            if toon is not None and self.activeToons.count(toon) == 0:
                 activeToons.append(toon)
 
         if len(activeSuits) > 0 or len(activeToons) > 0:
@@ -353,7 +347,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         if toonGone == 1:
             validToons = []
             for toon in self.toons:
-                if toon != None:
+                if toon is not None:
                     validToons.append(toon)
 
             self.toons = validToons
@@ -373,8 +367,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                     self.unlockLevelViz()
             if currStateName != 'NoLocalToon':
                 self.localToonFsm.request('NoLocalToon')
-
-        self.townBattle.update()
         return oldtoons
 
     def adjust(self, timestamp):
@@ -456,7 +448,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         if self.pendingToons.count(toon) != 0:
             self.pendingToons.remove(toon)
         if self.activeToons.count(toon) != 0:
-            self.activeToons.remove(toon)
+            self.__makeToonInactive(toon)
         if self.runningToons.count(toon) != 0:
             self.clearInterval(self.taskName('running-%d' % toon.doId), finish=1)
             if toon in self.runningToons:
@@ -586,6 +578,11 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
           'battle': 1}])
         return
 
+    def __handleToonJoinDone(self, toon, ts):
+        self.notify.debug('Toon %d done joining.' % toon.doId)
+        if self.hasLocalToon():
+            self.d_joinDone(base.localAvatar.doId, toon.doId)
+
     def __makeToonJoin(self, toon, pendingToons, ts):
         self.notify.debug('Toon %d joining...' % toon.doId)
         spotIndex = len(pendingToons) + len(self.joiningToons)
@@ -601,10 +598,27 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         track.delayDelete = DelayDelete.DelayDelete(toon, '__makeToonJoin')
         self.storeInterval(track, trackName)
 
-    def __handleToonJoinDone(self, toon, ts):
-        self.notify.debug('Toon %d done joining.' % toon.doId)
-        if self.hasLocalToon():
-            self.d_joinDone(base.localAvatar.doId, toon.doId)
+    def __makeToonRun(self, toon, ts):
+        self.notify.debug('Making toon %d run' % toon.doId)
+        if self.activeToons.count(toon):
+            self.__makeToonInactive(toon)
+        self.runningToons.append(toon)
+        self.toonGone = 1
+        self.__stopTimer()
+        if self.localToonRunning():
+            self.townBattle.setState('Off')
+        runMTrack = MovieUtil.getToonTeleportOutInterval(toon)
+        runName = self.taskName('running-%d' % toon.doId)
+        self.notify.debug('duration: %f' % runMTrack.getDuration())
+        runMTrack.start(ts)
+        runMTrack.delayDelete = DelayDelete.DelayDelete(toon, '__makeToonRun')
+        self.storeInterval(runMTrack, runName)
+
+    def __makeToonActive(self, toon):
+        self.activeToons.append(toon)
+
+    def __makeToonInactive(self, toon):
+        self.activeToons.remove(toon)
 
     def __makeToonPending(self, toon, ts):
         self.notify.debug('Toon %d pending...' % toon.doId)
@@ -648,7 +662,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
                 self.pendingToons.remove(toon)
             self.notify.debug('__makeAvsActive() - toon: %d' % toon.doId)
             if self.activeToons.count(toon) == 0:
-                self.activeToons.append(toon)
+                self.__makeToonActive(toon)
             else:
                 self.notify.warning('makeAvsActive() - toon: %d is active!' % toon.doId)
 
@@ -663,22 +677,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             self.__enterLocalToonWaitForInput()
             self.localToonJustJoined = 0
             self.startTimer()
-
-    def __makeToonRun(self, toon, ts):
-        self.notify.debug('Making toon %d run' % toon.doId)
-        if self.activeToons.count(toon):
-            self.activeToons.remove(toon)
-        self.runningToons.append(toon)
-        self.toonGone = 1
-        self.__stopTimer()
-        if self.localToonRunning():
-            self.townBattle.setState('Off')
-        runMTrack = MovieUtil.getToonTeleportOutInterval(toon)
-        runName = self.taskName('running-%d' % toon.doId)
-        self.notify.debug('duration: %f' % runMTrack.getDuration())
-        runMTrack.start(ts)
-        runMTrack.delayDelete = DelayDelete.DelayDelete(toon, '__makeToonRun')
-        self.storeInterval(runMTrack, runName)
 
     def d_toonRequestJoin(self, toonId, pos):
         self.notify.debug('Toon %d requested to join' % toonId)
@@ -757,7 +755,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         taskMgr.add(timeTask, self.timerCountdownTaskName)
 
     def __stopTimer(self):
-        self.notify.debug('Stopping timer...')
         self.timer.stop()
         taskMgr.remove(self.timerCountdownTaskName)
 
@@ -777,8 +774,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         if self.localToonActive():
             self.__enterLocalToonWaitForInput()
             self.startTimer(ts)
-        if self.hasLocalToon():
-            self.townBattle.update()
         return None
 
     def exitWaitForInput(self):
@@ -940,6 +935,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             e = Func(self.__handleAdjustDone)
             track = Sequence(adjustTrack, e, name=self.adjustName)
             self.storeInterval(track, self.adjustName)
+            if self.hasLocalToon():
+                track.append(Func(self.townBattle.update))
             track.start(ts)
             if ToontownBattleGlobals.SkipMovie:
                 track.finish()
@@ -979,7 +976,6 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         currStateName = self.fsm.getCurrentState().getName()
         if currStateName == 'WaitForInput' and self.localToonActive():
             self.startTimer()
-            self.townBattle.update()
         return None
 
     def enterNotAdjusting(self):

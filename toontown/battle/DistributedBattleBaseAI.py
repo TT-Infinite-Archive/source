@@ -52,7 +52,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.suitsKilledThisBattle = []
         self.suitsKilledPerFloor = []
         self.newToons = []
-        self.newSuits = []
         self.fsm = ClassicFSM.ClassicFSM('DistributedBattleAI', [
             State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput', 'Resume']),
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
@@ -122,7 +121,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.currentMovieAttack = BattleAttack.MovieAttack()
 
     def __removeSuit(self, suit):
-        self.notify.debug('Removing suit: %s from %s and %s' % (suit, str(self.suits), self.activeSuits))
+        self.notify.debug('Removing suit: %s from all suits %s and active suits %s' % (suit.doId, str([suit.doId for suit in self.suits]), str([suit.doId for suit in self.activeSuits])))
         self.suits.remove(suit)
         self.activeSuits.remove(suit)
         self.suitGone = 1
@@ -255,13 +254,12 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return p
 
     def addSuit(self, suit):
-        self.notify.debug('Adding suit: %d' % suit.doId)
-        self.newSuits.append(suit)
+        self.notify.debug('A new suit is being added: %d' % suit.doId)
         self.suits.append(suit)
         self.numSuitsEver += 1
 
     def __joinSuit(self, suit):
-        self.notify.debug('Joining suit: %d' % suit.doId)
+        self.notify.debug('Suit is joining the battle: %d' % suit.doId)
         self.joiningSuits.append(suit)
         timeout = SuitBattleGlobals.MAX_JOIN_T + SuitBattleGlobals.SERVER_BUFFER_TIME
         taskName = self.uniqueName('joining-timeout-%d' % suit.doId)
@@ -270,7 +268,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         taskMgr.doMethodLater(timeout, self.__serverJoinDone, taskName, extraArgs=(suit.doId, taskName))
 
     def __serverJoinDone(self, avId, taskName):
-        self.notify.debug('Joining for av: %d timed out' % avId)
+        self.notify.debug('Joining the av %d due to timeout' % avId)
         self.__removeTaskName(taskName)
         self.__makeAvPending(avId)
         return Task.done
@@ -280,29 +278,22 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.__removeJoinResponse(avId)
         self.__removeTaskName(self.uniqueName('joining-timeout-%d' % avId))
         if self.toons.count(avId) > 0:
+            self.notify.debug('Making toon %s pending: Moving from %s to %s' % (avId, self.joiningToons, self.pendingToons))
             self.joiningToons.remove(avId)
             self.pendingToons.append(avId)
-        else:
+            self.needAdjust = 1
+            self.d_setMembers()
+            self.__requestAdjust()
+        elif self.findSuit(avId):
             suit = self.findSuit(avId)
-            if suit is not None:
-                if not suit.isEmpty():
-                    if not self.joiningSuits.count(suit) == 1:
-                        self.notify.warning('__makeAvPending(%d) in zone: %d' % (avId, self.zoneId))
-                        self.notify.warning('toons: %s' % self.toons)
-                        self.notify.warning('joining toons: %s' % self.joiningToons)
-                        self.notify.warning('pending toons: %s' % self.pendingToons)
-                        self.notify.warning('suits: %s' % self.suits)
-                        self.notify.warning('joining suits: %s' % self.joiningSuits)
-                        self.notify.warning('pending suits: %s' % self.pendingSuits)
-                    self.joiningSuits.remove(suit)
-                    self.pendingSuits.append(suit)
-            else:
-                self.notify.warning('makeAvPending() %d not in toons or suits' % avId)
-                return
-        self.d_setMembers()
-        self.needAdjust = 1
-        self.__requestAdjust()
-        return
+            self.notify.debug('Making suit %s pending: Moving from %s to %s' % (avId, str([s.doId for s in self.joiningSuits]), str([s.doId for s in self.pendingSuits])))
+            self.joiningSuits.remove(suit)
+            self.pendingSuits.append(suit)
+            self.needAdjust = 1
+            self.d_setMembers()
+            self.__requestAdjust()
+        else:
+            self.notify.warning('makeAvPending() %s not in toons or suits' % avId)
 
     def suitRequestJoin(self, suit):
         self.notify.debug('Suit %d requesting to join' % suit.getDoId())
@@ -741,21 +732,20 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
     def enterApplyAttack(self):
         self.notify.debug('Applying attack %s...' % str(self.currentMovieAttack.toList()))
 
-        if not self.currentMovieAttack.hit:
-            self.notify.debug('Movie attack missed')
-            # Attack missed, do nothing
-            return
-        if self.currentMovieAttack.attackerId in self.suits:
-            self.notify.debug('Applying suit attack...')
+        if self.currentMovieAttack.attackId == SuitBattleGlobals.NO_ATTACK:
+            self.notify.debug('The attack is not a valid attack; skipping')
+        elif not self.currentMovieAttack.hit:
+            self.notify.debug('The attack missed; not applying effects')
+        elif self.findSuit(self.currentMovieAttack.attackerId):
+            self.notify.debug('Handling attack as a suit attack...')
             # Cog Attack
             # TODO: Apply suit movie attacks here
-            return
         else:
-            self.notify.debug('Applying toon attack...')
+            self.notify.debug('Handling attack as a toon attack...')
             # Toon Attack
             gag = GagDefs.Gags.get(self.currentMovieAttack.attackId, None)
             if gag is None:
-                self.notify.warning('Attempted to apply invalid gag with id %s' % self.currentMovieAttack.attackId)
+                self.notify.warning('Gag has invalid id %s; skipping' % self.currentMovieAttack.attackId)
                 return
 
             targets = []
@@ -783,15 +773,19 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
                 gag.effect.b_applyTo(target)
 
         # Check if anyone died
+        self.notify.debug(str([s.doId for s in self.activeSuits]))
         for suit in self.activeSuits:
-            self.notify.debug('Suit %s with %s hp' % (suit.doId, suit.getHp()))
+            self.notify.debug('Checking if Suit %s with %s hp is dead.' % (suit.doId, suit.getHp()))
             if suit.getHp() <= 0:
+                self.notify.debug('Handling dead suit %s with %s hp.' % (suit.doId, suit.getHp()))
                 # Suit died
                 self.__removeSuit(suit)
                 self.needAdjust = 1
         for toonId in self.activeToons:
             toon = self.air.doId2do.get(toonId)
+            self.notify.debug('Checking if Toon %s with %s hp is dead.' % (toonId, toon.getHp()))
             if toon and toon.getHp() <= 0:
+                self.notify.debug('Handling dead toon %s with %s hp.' % (toonId, toon.getHp()))
                 # Toon died
                 self.__removeToon(toon)
                 self.needAdjust = 1
@@ -966,8 +960,9 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def __adjustDone(self):
         for s in self.adjustingSuits:
+            self.notify.debug('AdjustDone: Making suit %s active from pending %s to %s' % (s.doId, str([suit.doId for suit in self.pendingSuits]), str([suit.doId for suit in self.activeSuits])))
             self.pendingSuits.remove(s)
-            self.activeSuits.append(s)
+            self.makeSuitActive(s)
 
         self.adjustingSuits = []
         for toon in self.adjustingToons:
@@ -982,7 +977,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             self.__requestAdjust()
 
     def enterNotAdjusting(self):
-        self.notify.debug('Not Adjusting...')
+        self.notify.debug('No longer adjusting...')
         return None
 
     def exitNotAdjusting(self):
@@ -1021,6 +1016,12 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         if toon in self.adjustingToons:
             self.adjustingToons.remove(toon)
 
+    def makeSuitActive(self, suit):
+        if suit not in self.activeSuits:
+            self.activeSuits.append(suit)
+        else:
+            self.notify.warning('Attempted to re-add suit %s to active suits' % suit.doId)
+
     def getPosition(self):
         return [self.pos[0], self.pos[1], self.pos[2]]
 
@@ -1043,6 +1044,10 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def startTimeout(self):
         taskMgr.doMethodLater(SuitBattleGlobals.TOON_ATTACK_TIMEOUT, self.timeout, self.uniqueName('toon-timeout'), extraArgs=[])
+
+    def sendUpdate(self, fieldName, args=[]):
+        if self.air:
+            self.air.sendUpdate(self, fieldName, args)
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR)
