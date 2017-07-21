@@ -203,7 +203,7 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  100: 'You have been disconnected because someone else just logged in using your account on another computer.',
  120: 'You have been disconnected because of a problem with your authorization to use keyboard chat.',
  122: 'Authentication failed.',
- 124: 'Your installed files are out of date.  Please launch the game from the official launcher so that it can install updates.  If you continue to get this error, contact support.',
+ 124: 'The install files on your computer and/or the server you are trying to connect to are out of date.  To download the latest Toontown Infinite version, be sure to start the game with the official launcher.  If you continue to get this error, contact support.',
  125: 'Your installed files appear to be invalid.  Please use the Play button on the official website to run.',
  126: 'You are not authorized to use administrator privileges.',
  127: 'A problem has occurred with your Toon.  Please contact Member Services via phone or email and reference Error Code 127.  Thank you.',
