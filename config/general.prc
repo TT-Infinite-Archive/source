@@ -83,7 +83,7 @@ want-golf-zone #t
 want-resistance-grounds #f
 
 # Safe zone settings:
-want-treasure-planners #f
+want-treasure-planners #t
 want-suit-planners #t
 
 # Classic characters:
@@ -128,7 +128,7 @@ want-long-pattern-game #f
 want-talkative-tyler #f
 want-yin-yang #f
 want-butterflies #f
-want-estate-fisherman #f
+want-estate-fisherman #t
 want-fireworks #t
 want-code-redemption #f
 
