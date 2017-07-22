@@ -172,7 +172,6 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.sendUpdate('setState', [state, globalClockDelta.localToNetworkTime(stime)])
 
     def setState(self, state):
-        self.notify.debug('Setting state: %s' % state)
         self.fsm.request(state)
 
     def getState(self):
@@ -274,7 +273,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return Task.done
 
     def __makeAvPending(self, avId):
-        self.notify.debug('Making av %d pending' % avId)
+        self.notify.debug('Avatar %d pending to join the battle.' % avId)
         self.__removeJoinResponse(avId)
         self.__removeTaskName(self.uniqueName('joining-timeout-%d' % avId))
         if self.toons.count(avId) > 0:
@@ -733,7 +732,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.notify.debug('Applying attack %s...' % str(self.currentMovieAttack.toList()))
 
         if self.currentMovieAttack.attackId == SuitBattleGlobals.NO_ATTACK:
-            self.notify.debug('The attack is not a valid attack; skipping')
+            self.notify.debug('The attack is not a real attack; skipping')
         elif not self.currentMovieAttack.hit:
             self.notify.debug('The attack missed; not applying effects')
         elif self.findSuit(self.currentMovieAttack.attackerId):
@@ -774,12 +773,14 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
         # Check if anyone died
         self.notify.debug(str([s.doId for s in self.activeSuits]))
+        deadSuits = []
+        deadToons = []
         for suit in self.activeSuits:
             self.notify.debug('Checking if Suit %s with %s hp is dead.' % (suit.doId, suit.getHp()))
             if suit.getHp() <= 0:
                 self.notify.debug('Handling dead suit %s with %s hp.' % (suit.doId, suit.getHp()))
                 # Suit died
-                self.__removeSuit(suit)
+                deadSuits.append(suit)
                 self.needAdjust = 1
         for toonId in self.activeToons:
             toon = self.air.doId2do.get(toonId)
@@ -787,21 +788,27 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
             if toon and toon.getHp() <= 0:
                 self.notify.debug('Handling dead toon %s with %s hp.' % (toonId, toon.getHp()))
                 # Toon died
-                self.__removeToon(toon)
+                deadToons.append(toon.doId)
                 self.needAdjust = 1
+        for suit in deadSuits:
+            self.__removeSuit(suit)
+        for toonId in deadToons:
+            self.__removeToon(toonId)
 
         # Set members in the event some died just now
         self.d_setMembers()
-        self.__requestAdjust()
         # Clear old movie attack
         self.clearCurrentMovieAttack()
 
         # Check which state to go into next
         if len(self.activeToons) and len(self.activeSuits):
+            self.notify.debug('We have active toons and suits')
             # We have active toons and active suits
             if len(self.toonsThatAttacked) == len(self.activeToons):
+                self.notify.debug('All our toons have finished attacked.')
                 # All our toons have attacked
                 if len(self.suitsThatAttacked) == len(self.activeSuits):
+                    self.notify.debug('All our toons and suits have finished attacking. Resetting attacks.')
                     # Suits and toons all attacked
                     self.b_setToonsThatAttacked([])
                     self.suitsThatAttacked = []
@@ -820,16 +827,19 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
                 # All toons haven't attacked, wait for others
                 self.b_setState('WaitForInput')
         elif len(self.activeToons) and (len(self.joiningSuits) or len(self.pendingSuits)):
+            self.notify.debug('We have no active suits, but one is coming.')
             # We have no suits but a suit is joining, wait for them to join
             self.b_setToonsThatAttacked([])
             self.suitsThatAttacked = []
             self.b_setState('WaitForJoin')
         elif len(self.activeSuits) and (len(self.joiningToons) or len(self.pendingToons)):
+            self.notify.debug('We have no active toons, but one is coming.')
             # We have no toons but a toon is joining, wait for them to join
             self.b_setToonsThatAttacked([])
             self.suitsThatAttacked = []
             self.b_setState('WaitForJoin')
         else:
+            self.notify.debug('There are no active suits or no active toons %s %s' % (self.activeSuits, self.activeToons))
             # We either don't have any suits or toons, this battle is over...
             self.b_setState('Resume')
 
@@ -887,14 +897,14 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return self.joinableFsm.getCurrentState().getName() == 'Joinable'
 
     def enterJoinable(self):
-        self.notify.debug('STATE: Joinable')
+        self.notify.debug('Battle now joinable.')
         return None
 
     def exitJoinable(self):
         return None
 
     def enterUnjoinable(self):
-        self.notify.debug('STATE: Unjoinable')
+        self.notify.debug('Battle cannot be joined.')
         return None
 
     def exitUnjoinable(self):
@@ -904,14 +914,14 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         return self.runnableFsm.getCurrentState().getName() == 'Runnable'
 
     def enterRunnable(self):
-        self.notify.debug('STATE: Runnable')
+        self.notify.debug('Can now run from battle.')
         return None
 
     def exitRunnable(self):
         return None
 
     def enterUnrunnable(self):
-        self.notify.debug('STATE: Unrunnable')
+        self.notify.debug('Cannot run from battle.')
         return None
 
     def exitUnrunnable(self):
@@ -960,12 +970,13 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
     def __adjustDone(self):
         for s in self.adjustingSuits:
-            self.notify.debug('AdjustDone: Making suit %s active from pending %s to %s' % (s.doId, str([suit.doId for suit in self.pendingSuits]), str([suit.doId for suit in self.activeSuits])))
+            self.notify.debug('Adjusting is over: Pending Suit %s Now Active. %s to %s' % (s.doId, str([suit.doId for suit in self.pendingSuits]), str([suit.doId for suit in self.activeSuits])))
             self.pendingSuits.remove(s)
             self.makeSuitActive(s)
 
         self.adjustingSuits = []
         for toon in self.adjustingToons:
+            self.notify.debug('Adjusting is over: Pending Toon %s Now Active. %s to %s' % (toon.doId, str(self.pendingSuits), str(self.activeSuits)))
             self.removePendingToon(toon)
             self.addActiveToon(toon)
 
