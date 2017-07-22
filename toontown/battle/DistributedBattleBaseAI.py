@@ -943,7 +943,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.notify.debug('Exiting Adjusting...')
         currStateName = self.fsm.getCurrentState().getName()
         if currStateName == 'WaitForInput':
-            self.timer.restart()
+            self.resetTimeout()
         elif currStateName == 'WaitForJoin':
             self.b_setState('WaitForInput')
         self.adjustingTimer.stop()
