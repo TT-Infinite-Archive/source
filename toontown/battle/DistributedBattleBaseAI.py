@@ -121,7 +121,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
         self.currentMovieAttack = BattleAttack.MovieAttack()
 
     def __removeSuit(self, suit):
-        self.notify.debug('Removing suit: %s from all suits %s and active suits %s' % (suit.doId, str([suit.doId for suit in self.suits]), str([suit.doId for suit in self.activeSuits])))
+        self.notify.debug('Removing suit: %s from all suits %s and active suits %s' % (suit.doId, str([s.doId for s in self.suits]), str([s.doId for s in self.activeSuits])))
         self.suits.remove(suit)
         self.activeSuits.remove(suit)
         self.suitGone = 1
