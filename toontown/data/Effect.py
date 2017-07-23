@@ -1,3 +1,5 @@
+from toontown.data import BehaviorGlobals
+
 class Effect:
     def __init__(self, uid):
         self.uid = uid
@@ -52,3 +54,19 @@ class DamageEffect(Effect):
     @property
     def description(self):
         return 'Damage: %d' % self.amount
+
+
+class ApplyBehaviorEffect(Effect):
+    def __init__(self, uid, behaviorId):
+        Effect.__init__(self, uid)
+        self.behaviorId = behaviorId
+
+    def applyTo(self, av):
+        av.addBehavior(self.behaviorId)
+
+    def b_applyTo(self, av):
+        av.b_addBehavior(self.behaviorId)
+
+    @property
+    def description(self):
+        return 'Applies %s' % BehaviorGlobals.getBehavior(self.behaviorId).name

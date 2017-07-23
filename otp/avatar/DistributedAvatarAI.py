@@ -11,6 +11,7 @@ class DistributedAvatarAI(DistributedNodeAI.DistributedNodeAI):
         DistributedNodeAI.DistributedNodeAI.__init__(self, air)
         self.hp = 0
         self.maxHp = 0
+        self.behaviors = []
 
     def b_setName(self, name):
         self.setName(name)
@@ -99,3 +100,13 @@ class DistributedAvatarAI(DistributedNodeAI.DistributedNodeAI):
             self.air.writeServerEvent('Admin chat warning', senderId, 'using setParentStr to send "%s"' % parentToken)
             self.notify.warning('Admin chat warning: %s using setParentStr to send "%s"' % (senderId, parentToken))
         DistributedNodeAI.DistributedNodeAI.setParentStr(self, parentToken)
+
+    def addBehavior(self, behaviorId):
+        self.behaviors.append(behaviorId)
+
+    def b_addBehavior(self, behaviorId):
+        self.addBehavior(behaviorId)
+        self.d_addBehavior(behaviorId)
+
+    def d_addBehavior(self, behaviorId):
+        self.sendUpdate('addBehavior', [behaviorId])

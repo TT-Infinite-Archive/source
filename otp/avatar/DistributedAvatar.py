@@ -28,7 +28,7 @@ class DistributedAvatar(DistributedActor, Avatar):
         self.hpText = None
         self.hp = None
         self.maxHp = None
-        return
+        self.behaviors = []
 
     def disable(self):
         try:
@@ -249,6 +249,9 @@ class DistributedAvatar(DistributedActor, Avatar):
 
     def getDialogueArray(self):
         return None
+
+    def addBehavior(self, behaviorId):
+        self.behaviors.append(behaviorId)
 
 @magicWord(category=CATEGORY_MODERATOR)
 def warp():
