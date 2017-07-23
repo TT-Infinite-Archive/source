@@ -1,0 +1,8 @@
+<Catalog>
+    <Item type="PeriodicBehavior">
+        <id value="1"/>
+        <name value="Picnic Heal"/>
+        <interval value="5"/> <!-- Interval in Seconds -->
+        <intervaleffectid value="2"/>
+    </Item>
+</Catalog>

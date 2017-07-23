@@ -1,6 +1,7 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedNodeAI import DistributedNodeAI
 
+
 class DistributedPicnicTableAI(DistributedNodeAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedPicnicTableAI")
 

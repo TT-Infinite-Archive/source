@@ -5,7 +5,6 @@ from direct.showbase import RandomNumGen
 
 from TrolleyConstants import *
 from otp.ai.AIBase import *
-from toontown.data.BehaviorGlobals import BehaviorPicnicHeal
 from toontown.toonbase import ToontownGlobals
 
 
@@ -73,7 +72,7 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
             return None
 
         # Apply the heal buff to this toon
-        self.air.behaviorManager.applyBehavior(BehaviorPicnicHeal, avId)
+        self.air.behaviorManager.applyBehavior(1, avId)
         self.seats[seatIndex] = avId
         self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
         self.timeOfBoarding = globalClock.getRealTime()
@@ -87,7 +86,7 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
             return
 
         # Remove the healing buff from this toon
-        self.air.behaviorManager.removeBehavior(BehaviorPicnicHeal, avId)
+        self.air.behaviorManager.removeBehavior(1, avId)
         self.clearFullNow(seatIndex)
         self.clearEmptyNowUnexpected(seatIndex)
         if self.countFullSeats() == 0:
@@ -111,7 +110,7 @@ class DistributedPicnicBasketAI(DistributedObjectAI.DistributedObjectAI):
             return
 
         # Remove the healing buff from this toon
-        self.air.behaviorManager.removeBehavior(BehaviorPicnicHeal, avId)
+        self.air.behaviorManager.removeBehavior(1, avId)
         self.clearFullNow(seatIndex)
         self.sendUpdate('emptySlot' + str(seatIndex), [avId, globalClockDelta.getRealNetworkTime()])
         taskMgr.doMethodLater(
