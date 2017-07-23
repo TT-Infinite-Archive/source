@@ -976,7 +976,7 @@ class DistributedBattleBaseAI(DistributedObjectAI, BattleBase):
 
         self.adjustingSuits = []
         for toon in self.adjustingToons:
-            self.notify.debug('Adjusting is over: Pending Toon %s Now Active. %s to %s' % (toon.doId, str(self.pendingSuits), str(self.activeSuits)))
+            self.notify.debug('Adjusting is over: Pending Toon %s Now Active. %s to %s' % (toon, str(self.pendingToons), str(self.activeToons)))
             self.removePendingToon(toon)
             self.addActiveToon(toon)
 
