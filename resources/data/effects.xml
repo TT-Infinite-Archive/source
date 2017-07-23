@@ -23,4 +23,10 @@
         <name value="GodCupcakeDamage"/>
         <amount value="1234"/>
     </Item>
+    <Item>
+        <type value="DamageEffect"/>
+        <id value="5"/>
+        <name value="PoundKeyDamage"/>
+        <amount value="3"/>
+    </Item>
 </Catalog>

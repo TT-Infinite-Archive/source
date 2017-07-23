@@ -1,0 +1,9 @@
+<Catalog>
+    <Item type="SuitAttack">
+        <id value="1"/>
+        <name value="Pound Key"/>
+        <effect value="5"/>
+		<accuracy value="0.9"/>
+        <targettype value="3"/>
+    </Item>
+</Catalog>

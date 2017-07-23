@@ -41,31 +41,3 @@ class MovieAttack(BattleAttack):
     def fromList(self, ls):
         BattleAttack.fromList(self, ls)
         self.hit = ls[3]
-
-
-class SuitAttack:
-    TargetNone = 0
-    TargetAlly = 1
-    TargetEnemy = 2
-
-    def __init__(self, attackId, name, effect, accuracy, targetType, targetCount=1):
-        self.attackId = attackId
-        self.name = name
-        self.effect = effect
-        self.accuracy = accuracy
-        self.targetType = targetType
-        self.targetCount = targetCount
-
-    def targetsAlly(self):
-        return self.targetType == self.TargetAlly
-
-    def targetsEnemy(self):
-        return self.targetType == self.TargetEnemy
-
-SAPound = 1
-SAShred = 2
-SuitAttacks = {
-    0: SuitAttack(0, 'Nothing', None, 0, 0),
-    1: SuitAttack(1, 'Pound Key', DamageEffect(0, 3), 0.9, SuitAttack.TargetEnemy),
-    2: SuitAttack(2, 'Shred', DamageEffect(0, 5), 0.5, SuitAttack.TargetEnemy)
-}
