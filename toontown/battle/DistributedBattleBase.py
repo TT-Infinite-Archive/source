@@ -616,6 +616,8 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
 
     def __makeToonActive(self, toon):
         self.activeToons.append(toon)
+        if self.localToonActive():
+            self.townBattle.update()
 
     def __makeToonInactive(self, toon):
         self.activeToons.remove(toon)
