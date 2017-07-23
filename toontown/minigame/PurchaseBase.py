@@ -50,10 +50,6 @@ class PurchaseBase(StateData.StateData):
         return
 
     def __handleSelection(self, track, level):
-        if gagIsPaidOnly(track, level):
-            if not base.cr.isPaid():
-                self._teaserPanel = TeaserPanel('restockGags', self._teaserDone)
-                return
         self.handlePurchase(track, level)
 
     def _teaserDone(self):

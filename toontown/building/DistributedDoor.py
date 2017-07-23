@@ -15,7 +15,6 @@ from toontown.suit import Suit
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import ColorGlobals
 from toontown.toontowngui import TTDialog
-from toontown.toontowngui import TeaserPanel
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.nametag.NametagGroup import NametagGroup
 from toontown.nametag.Nametag import Nametag
@@ -317,33 +316,8 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         if hasattr(self, "enterText"):
             self.enterText.removeNode()
             del self.enterText
-        if self.allowedToEnter():
-            messenger.send('DistributedDoor_doorTrigger')
-            self.sendUpdate('requestEnter')
-        else:
-            place = base.cr.playGame.getPlace()
-            if place:
-                place.fsm.request('stopped')
-            self.dialog = TeaserPanel.TeaserPanel(pageName = 'otherHoods', doneFunc = self.handleOkTeaser)
-
-    def handleOkTeaser(self):
-        self.accept(self.getEnterTriggerEvent(), self.doorTrigger)
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request('walk')
-
-    def allowedToEnter(self):
-        if base.cr.isPaid():
-            return True
-        place = base.cr.playGame.getPlace()
-        myHoodId = ZoneUtil.getCanonicalHoodId(place.zoneId)
-        if hasattr(place, 'id'):
-            myHoodId = place.id
-        if myHoodId in (ToontownGlobals.ToontownCentral, ToontownGlobals.MyEstate, ToontownGlobals.GoofySpeedway, ToontownGlobals.Tutorial):
-            return True
-        return False
+        messenger.send('DistributedDoor_doorTrigger')
+        self.sendUpdate('requestEnter')
 
     def checkIsDoorHitTaskName(self):
         return 'checkIsDoorHit' + self.getTriggerName()

@@ -126,9 +126,6 @@ class PartyEditorListElement(DirectButton):
             infoDict = PartyGlobals.DecorationInformationDict
         else:
             infoDict = PartyGlobals.ActivityInformationDict
-        if not base.cr.isPaid() and infoDict[self.id]['paidOnly']:
-            self.setOffLimits()
-            return
         if infoDict[self.id]['cost'] > self.partyEditor.partyPlanner.totalMoney - self.partyEditor.partyPlanner.totalCost:
             self.setTooExpensive(True)
             tooExpensive = True

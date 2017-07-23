@@ -515,12 +515,6 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 text_scale=KS_TEXT_SIZE_SMALL,
                 pressEffect=False,
                 command=self.__handleBuyAccessory)
-            if not base.cr.isPaid():
-
-                def showTeaserPanel():
-                    TeaserPanel(pageName='kartingAccessories')
-
-                self.buyAccessoryButton['command'] = showTeaserPanel
             self.ownedAccList = base.localAvatar.getKartAccessoriesOwned()
             while -1 in self.ownedAccList:
                 self.ownedAccList.remove(-1)

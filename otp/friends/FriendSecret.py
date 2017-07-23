@@ -12,12 +12,10 @@ AccountSecret = 0
 AvatarSecret = 1
 BothSecrets = 2
 
+
 def showFriendSecret(secretType = AvatarSecret):
     global globalFriendSecret
-    if not base.cr.isPaid():
-        chatMgr = base.localAvatar.chatMgr
-        chatMgr.fsm.request('trueFriendTeaserPanel')
-    elif not base.cr.isParentPasswordSet():
+    if not base.cr.isParentPasswordSet():
         chatMgr = base.localAvatar.chatMgr
         if base.cr.productName in ['DisneyOnline-AP',
          'DisneyOnline-UK',
@@ -26,11 +24,8 @@ def showFriendSecret(secretType = AvatarSecret):
          'BR',
          'FR']:
             chatMgr = base.localAvatar.chatMgr
-            if not base.cr.isPaid():
-                chatMgr.fsm.request('unpaidChatWarning')
-            else:
-                chatMgr.paidNoParentPassword = 1
-                chatMgr.fsm.request('unpaidChatWarning')
+            chatMgr.paidNoParentPassword = 1
+            chatMgr.fsm.request('unpaidChatWarning')
         else:
             chatMgr.paidNoParentPassword = 1
             chatMgr.fsm.request('noSecretChatAtAll')
@@ -43,11 +38,8 @@ def showFriendSecret(secretType = AvatarSecret):
          'BR',
          'FR']:
             chatMgr = base.localAvatar.chatMgr
-            if not base.cr.isPaid():
-                chatMgr.fsm.request('unpaidChatWarning')
-            else:
-                chatMgr.paidNoParentPassword = 1
-                chatMgr.fsm.request('unpaidChatWarning')
+            chatMgr.paidNoParentPassword = 1
+            chatMgr.fsm.request('unpaidChatWarning')
         else:
             chatMgr.fsm.request('noSecretChatAtAll')
     elif base.cr.needParentPasswordForSecretChat():

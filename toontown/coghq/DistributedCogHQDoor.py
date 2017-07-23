@@ -82,14 +82,8 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
             self.doorX = 1.0
 
     def enterDoor(self):
-        if self.allowedToEnter():
-            messenger.send('DistributedDoor_doorTrigger')
-            self.sendUpdate('requestEnter')
-        else:
-            place = base.cr.playGame.getPlace()
-            if place:
-                place.fsm.request('stopped')
-            self.dialog = TeaserPanel.TeaserPanel(pageName='cogHQ', doneFunc=self.handleOkTeaser)
+        messenger.send('DistributedDoor_doorTrigger')
+        self.sendUpdate('requestEnter')
 
     def doorTrigger(self, args = None):
         if localAvatar.hasActiveBoardingGroup():
