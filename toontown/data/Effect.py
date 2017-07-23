@@ -8,7 +8,7 @@ class Effect:
         pass
 
     def applyToQuietly(self, av):
-        pass
+        self.applyTo(av)
 
     def b_applyTo(self, av):
         pass
