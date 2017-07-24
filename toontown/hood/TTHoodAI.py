@@ -24,7 +24,7 @@ class TTHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if serverSettings[ServerSettingsGlobals.TTCJukebox]:
+        if simbase.air.wantTTCJukebox:
             self.createJukeBox()
         if simbase.config.GetBool('want-minigames', True):
             self.createTrolley()
@@ -32,13 +32,13 @@ class TTHoodAI(HoodAI.HoodAI):
             if simbase.config.GetBool('want-mickey', True):
                 self.createClassicChar()
 
-        if serverSettings[ServerSettingsGlobals.YinYang] or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
+        if simbase.air.wantYinYang or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
             NPCToons.createNPC(
                 simbase.air, 2021,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2021], ('css', 'ms', 'm', 'm', 26, 0, 26, 26, 0, 27, 0, 27, 0, 27), 'm', 1, NPCToons.NPC_YIN),
                 ToontownGlobals.ToontownCentral, posIndex=0)
 
-        if serverSettings[ServerSettingsGlobals.YinYang]:
+        if simbase.air.wantYinYang:
             NPCToons.createNPC(
                 simbase.air, 2022,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2022], ('bss', 'ms', 'm', 'm', 0, 0, 0, 0, 0, 31, 0, 31, 0, 31), 'm', 1, NPCToons.NPC_YANG),

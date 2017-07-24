@@ -9,11 +9,11 @@ from direct.interval.IntervalGlobal import Sequence
 from pandac.PandaModules import *
 
 from otp.otpbase import OTPLocalizer
-from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from toontown.makeatoon.MakeAToonGUI import MATShuffleButton, MATArrow
 from toontown.serverbrowser.BookmarkManager import BookmarkManager
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.toonbase.ColorGlobals import CGray, CDefault
 from toontown.toontowngui import TTDialog, TTTooltip, TTLabel, TTCheckBox
 from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
@@ -568,7 +568,7 @@ class MainMenu(DirectFrame, FSM):
         
         # Load Bookmarks file
         self.bookmarkMgr = BookmarkManager()
-        
+               
         # Host Screen
         self.host_StartServer = MATShuffleButton(
             pos=(0, 0, -0.8),
@@ -582,35 +582,76 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.105,
             command=lambda: self.request('StartHost')
         )
-        self.host_ShowInBrowserLabel = TTLabel.TTLabel(
+        self.host_WantRacingLabel = TTLabel.TTLabel(
             pos=(-.55, 0, -.11),
-            text="Show In Server Browser",
+            text="Racing",
             text_align=TextNode.ALeft,
         )
-        self.host_ShowInBrowserBox = TTCheckBox.TTCheckBox(
+        self.host_WantRacingBox = TTCheckBox.TTCheckBox(
             pos=(-.6, 0, -.1),
-            checked=False
+            checked=serverSettings[ServerSettingsGlobals.WantRacing],
+            command=self.toggleServerSetting, extraArgs = [ServerSettingsGlobals.WantRacing]
         )
 
-        self.host_CheatsLabel = TTLabel.TTLabel(
+        self.host_WantGolfLabel = TTLabel.TTLabel(
             pos=(-.55, 0, -.21),
-            text="Cheats",
+            text="Golf",
             text_align=TextNode.ALeft,
         )
-        self.host_CheatsBox = TTCheckBox.TTCheckBox(
+        self.host_WantGolfBox = TTCheckBox.TTCheckBox(
             pos=(-.6, 0, -.2),
-            checked=True
+            checked=serverSettings[ServerSettingsGlobals.WantGolf],
+            command = self.toggleServerSetting, extraArgs = [ServerSettingsGlobals.WantGolf]
+        )
+        
+        self.host_ExpMultDec = MATArrow(
+            pos = (-.25, 0, -.3), command = self.setServerExpMult)
+            
+        self.host_ExpMultInc = MATArrow(
+            pos = (.25, 0, -.3), inverted = True, command = self.setServerExpMult)
+            
+        self.host_ExpMultLabel = TTLabel.TTLabel(
+            pos=(0, 0, -.3),
+            text="EXP Multiplier: %sx" % str(serverSettings[ServerSettingsGlobals.ExpMultiplier]),
+            text_align=TextNode.ACenter,
         )
 
-        self.host_ShowInBrowserBox.disable()
-        self.host_CheatsBox.disable()
+        #self.host_ShowInBrowserLabel = TTLabel.TTLabel(
+        #    pos=(-.55, 0, -.31),
+        #    text="Show In Server Browser",
+        #    text_align=TextNode.ALeft,
+        #)
+        #self.host_ShowInBrowserBox = TTCheckBox.TTCheckBox(
+        #    pos=(-.6, 0, -.3),
+        #    checked=False
+        #)
+        #
+        #self.host_CheatsLabel = TTLabel.TTLabel(
+        #    pos=(-.55, 0, -.41),
+        #    text="Cheats",
+        #    text_align=TextNode.ALeft,
+        #)
+        #self.host_CheatsBox = TTCheckBox.TTCheckBox(
+        #    pos=(-.6, 0, -.4),
+        #    checked=True
+        #)
+        #
+        #self.host_ShowInBrowserBox.disable()
+        #self.host_CheatsBox.disable()
         
         self.hostButtons = []
         self.hostButtons.append(self.host_StartServer)
-        self.hostButtons.append(self.host_ShowInBrowserLabel)
-        self.hostButtons.append(self.host_ShowInBrowserBox)
-        self.hostButtons.append(self.host_CheatsBox)
-        self.hostButtons.append(self.host_CheatsLabel)
+        #self.hostButtons.append(self.host_ShowInBrowserLabel)
+        #self.hostButtons.append(self.host_ShowInBrowserBox)
+        #self.hostButtons.append(self.host_CheatsBox)
+        #self.hostButtons.append(self.host_CheatsLabel)
+        self.hostButtons.append(self.host_WantRacingLabel)
+        self.hostButtons.append(self.host_WantRacingBox)
+        self.hostButtons.append(self.host_WantGolfLabel)
+        self.hostButtons.append(self.host_WantGolfBox)
+        self.hostButtons.append(self.host_ExpMultDec)
+        self.hostButtons.append(self.host_ExpMultInc)
+        self.hostButtons.append(self.host_ExpMultLabel)
         
         for button in self.hostButtons:
             button.hide()
@@ -1055,11 +1096,11 @@ class MainMenu(DirectFrame, FSM):
         base.isHosting = False
 
     def enterHostMultiplayer(self):
-        #for button in self.hostButtons:
-        #    button.show()
+        for button in self.hostButtons:
+            button.show()
         self.host_StartServer.show()
         self.backButton3.show()
-                # Load the ip input bar
+        # Server name input
         self.host_ServerNameInput = DirectEntry(
             parent=aspect2d,
             relief=DGG.GROOVE,
@@ -1090,9 +1131,10 @@ class MainMenu(DirectFrame, FSM):
         self.host_ServerNameInput.hide()
         self.host_ServerNameInputLabel = TTLabel.TTLabel(
             pos=(0, 0, -.3),
-            text="Server Settings Coming Soon",#"Server Name in browser",
+            text="Server Name in browser",
             text_align=TextNode.ACenter,
         )
+        self.host_ServerNameInputLabel.hide()
     
     def exitHostMultiplayer(self):
         for button in self.hostButtons:
@@ -1463,3 +1505,14 @@ class MainMenu(DirectFrame, FSM):
     def killTooltip(self, event):
         if hasattr(self, 'currentTooltip'):
             self.currentTooltip.destroy()
+            
+    def toggleServerSetting(self, setting):
+        if serverSettings.get(setting) == True:
+            serverSettings[setting] = False
+        else:
+            serverSettings[setting] = True
+            
+    def setServerExpMult(self, offset):
+        value = max(min((serverSettings[ServerSettingsGlobals.ExpMultiplier] + offset), 20), 1)
+        serverSettings[ServerSettingsGlobals.ExpMultiplier] = value
+        self.host_ExpMultLabel['text'] = "EXP Multiplier: %sx" % str(value)

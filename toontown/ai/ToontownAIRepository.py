@@ -106,13 +106,18 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantFreeGuilds = self.config.GetBool('want-free-guilds', False)
         self.doLiveUpdates = self.config.GetBool('want-live-updates', False)
         self.wantTrackClsends = self.config.GetBool('want-track-clsends', False)
-        self.wantYinYang = self.config.GetBool('want-yin-yang', False)
-        self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
         self.wantHalloween = self.config.GetBool('want-halloween', False)
         self.wantChristmas = self.config.GetBool('want-christmas', False)
         self.wantFireworks = self.config.GetBool('want-fireworks', False)
         self.leakGraph = None
         self.cogSuitMessageSent = False
+        
+        # Server Settings options
+        self.wantYinYang = serverSettings[ServerSettingsGlobals.YinYang]
+        self.baseXpMultiplier = serverSettings[ServerSettingsGlobals.ExpMultiplier]
+        self.wantRacing = serverSettings[ServerSettingsGlobals.WantRacing]
+        self.wantGolf = serverSettings[ServerSettingsGlobals.WantGolf]
+        self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
 
         # Logging
         from panda3d.core import MultiplexStream, Notify, StreamWriter

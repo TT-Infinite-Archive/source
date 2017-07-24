@@ -54,6 +54,12 @@ __builtin__.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
+# Load server settings (used for the hosting screen)
+from otp.settings.Settings import Settings
+__builtin__.serverSettings = Settings("serversettings.json")
+from toontown.toonbase import ServerSettingsGlobals
+ServerSettingsGlobals.loadInitialSettings()
+
 loadPrcFileData('Settings: res',
                 'win-size %d %d' % tuple(settings.get(SettingsGlobals.Resolution, (800, 600))))
 loadPrcFileData('Settings: fullscreen',
