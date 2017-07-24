@@ -552,7 +552,6 @@ dclass DistributedAvatar : DistributedSmoothNode, TalkPath_whisper {
   friendsNotify(DoId avId, int8 status) ownrecv airecv;
   checkAvOnShard(DoId) clsend airecv;
   confirmAvOnShard(DoId avId, int8 isOnShard);
-  addBehavior(uint32 behaviorId) broadcast ram;
   setTalk(DoId fromAv, DoId fromAcc, string(0-256) avName,
           string(0-400) chat, TalkModification [], uint8 flags, uint16 channel) broadcast;
 };
@@ -944,6 +943,7 @@ dclass DistributedToon : DistributedPlayer {
   setBankMoney(int32 = 0) required ownrecv;
   setMaxHp(int16 = 15) required broadcast ownrecv db;
   setHp(int16 = 15) required broadcast ownrecv db;
+  addBehavior(uint32) broadcast ram;
   toonUp(uint16) broadcast ownrecv;
   takeDamage(uint16) broadcast ownrecv;
   setBattleId(uint32 = 0) required broadcast ram;
@@ -1254,6 +1254,7 @@ dclass DistributedSuitBase : DistributedObject {
   setHp(int16) required broadcast ram;
   setMaxHp(int16) broadcast ram;
   setBuff(uint32) broadcast ram;
+  addBehavior(uint32) broadcast ram;
 };
 
 dclass DistributedSuit : DistributedSuitBase {
