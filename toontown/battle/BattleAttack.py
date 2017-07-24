@@ -31,8 +31,8 @@ class SuitBattleAttack(BattleAttack):
 
 
 class MovieAttack(BattleAttack):
-    def __init__(self, suitId=0, attackId=0, targetId=0, hit=False):
-        BattleAttack.__init__(self, suitId, attackId, targetId)
+    def __init__(self, attackerId=0, attackId=0, targetId=0, hit=False):
+        BattleAttack.__init__(self, attackerId, attackId, targetId)
         self.hit = hit
 
     def toList(self):

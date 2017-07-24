@@ -1,4 +1,4 @@
-from toontown.data.EffectGlobals import EffectDict
+from toontown.data.EffectGlobals import getEffect
 
 
 # Behaviors are persistent objects we place on avatars
@@ -19,7 +19,7 @@ class PeriodicBehavior(Behavior):
     def __init__(self, uid, name, interval, intEffectId):
         Behavior.__init__(self, uid, name)
         self.interval = interval
-        self.intervalEffect = EffectDict[intEffectId]
+        self.intervalEffect = getEffect(intEffectId)
 
     def applyTo(self, av):
         self.doTask(av)

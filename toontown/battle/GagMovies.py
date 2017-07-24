@@ -379,8 +379,5 @@ GagToMovieFunc = {
     8: singleTargetThrowMovie,
     9: cannonAttack
 }
-'''
-10: soundAttack,
-Gag.PASS: None
-'''
+
 

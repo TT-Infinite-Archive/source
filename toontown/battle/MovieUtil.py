@@ -1,13 +1,12 @@
-import random
-
-from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
-
-import BattleParticles
-from BattleProps import *
+from direct.particles.ParticleEffect import ParticleEffect
+from toontown.battle import BattleParticles
+from toontown.battle import ParticleDefs
+from toontown.battle.BattleProps import *
 from toontown.data import Sound, Model
 from toontown.suit.SuitBuffGlobals import SuitBuffAvenger
 from toontown.toonbase import TTLocalizer
+
 
 notify = DirectNotifyGlobal.directNotify.newCategory('MovieUtil')
 SUIT_LOSE_DURATION = 6.0
@@ -690,6 +689,12 @@ def suitDeath(suit, battle):
     return Parallel(suitTrack, soundTrack, gears1Track, gears2MTrack, toonMTrack)
 
 
+def toonDeath(toon, battle):
+    return Sequence(
+        Wait(5)
+    )
+
+
 def unloadProp(prop):
     prop.cleanup()
     prop.delete()
@@ -707,6 +712,12 @@ def getRightSuits(suit, battle):
     return suits
 
 
+def getLeftToons(toon, battle):
+    toonIndex = battle.activeToons.index(toon)
+    toons = battle.activeToons[0:toonIndex + 1]
+    return toons
+
+
 def doSuitDodge(suit, battle):
     dodgeTrack = Parallel()
     if random.choice([0, 1]):
@@ -715,6 +726,16 @@ def doSuitDodge(suit, battle):
     else:
         for s in getRightSuits(suit, battle):
             dodgeTrack.append(animateAv(s, 'sidestep-right'))
+    return dodgeTrack
+
+
+def doToonDodge(toon, battle, type):
+    dodgeTrack = Parallel()
+    if type == 'sidestep':
+        for t in getLeftToons(toon, battle):
+            dodgeTrack.append(animateAv(t, type))
+    else:
+        dodgeTrack.append(animateAv(toon, type))
     return dodgeTrack
 
 
@@ -757,3 +778,19 @@ def toonButtonTrack(toon):
 def getSuitHeadPos(suit, battle):
     suitPos = suit.getPos(battle)
     return Point3(suitPos[0], suitPos[1], suitPos[2] + suit.getHeight())
+
+
+def loadParticle(particleName):
+    particleFunc = ParticleDefs.ParticleTable[particleName]
+    effect = ParticleEffect()
+    particleFunc(effect)
+    return effect
+
+def getPartTrack(particleEffect, startDelay, durationDelay, partExtraArgs):
+    particleEffect = partExtraArgs[0]
+    parent = partExtraArgs[1]
+    if len(partExtraArgs) > 2:
+        worldRelative = partExtraArgs[2]
+    else:
+        worldRelative = 1
+    return Sequence(Wait(startDelay), ParticleInterval(particleEffect, parent, worldRelative, duration=durationDelay, cleanup=True))

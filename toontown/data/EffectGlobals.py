@@ -7,13 +7,6 @@ edl = DataLoader('resources/data/effects.xml')
 print('Loading Effects...')
 data = edl.loadData()
 
-# Dict to convert string class to actual class
-typeToClass = {
-    'Effect': Effect,
-    'DamageEffect': DamageEffect,
-    'HealEffect': HealEffect
-}
-
 # Dict to hold effect data for game
 EffectDict = {}
 

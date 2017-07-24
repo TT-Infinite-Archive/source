@@ -455,9 +455,6 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
     def setLocalScale(self, scale):
         self.setScale(scale)
 
-    def displayText(self, text, duration=1.1, scale=0.7, r=1.0, g=0.0, b=0.0):
-        self.showHpString(text, duration, scale, r, g, b)
-
     def isForeman(self):
         return False
 

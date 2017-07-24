@@ -49,40 +49,63 @@ SuitsCEOBattle = (('sit', 'sit'),
  ('tray-walk', 'tray-walk'),
  ('tray-neutral', 'tray-neutral'),
  ('sit-lose', 'sit-lose'))
-f = (('throw-paper', 'throw-paper', 3.5), ('phone', 'phone', 3.5), ('shredder', 'shredder', 3.5))
-p = (('pencil-sharpener', 'pencil-sharpener', 5),
+f = (
+ ('throw-paper', 'throw-paper', 3.5),
+ ('phone', 'phone', 3.5),
+ ('shredder', 'shredder', 3.5)
+)
+p = (
+ ('pencil-sharpener', 'pencil-sharpener', 5),
  ('pen-squirt', 'pen-squirt', 5),
  ('hold-eraser', 'hold-eraser', 5),
  ('finger-wag', 'finger-wag', 5),
- ('hold-pencil', 'hold-pencil', 5))
-ym = (('throw-paper', 'throw-paper', 5),
+ ('hold-pencil', 'hold-pencil', 5)
+)
+ym = (
+ ('throw-paper', 'throw-paper', 5),
  ('golf-club-swing', 'golf-club-swing', 5),
  ('magic3', 'magic3', 5),
  ('rubber-stamp', 'rubber-stamp', 5),
- ('smile', 'smile', 5))
-mm = (('speak', 'speak', 5),
+ ('smile', 'smile', 5)
+)
+mm = (
+ ('speak', 'speak', 5),
  ('effort', 'effort', 5),
  ('magic1', 'magic1', 5),
  ('pen-squirt', 'fountain-pen', 5),
- ('finger-wag', 'finger-wag', 5))
-ds = (('magic1', 'magic1', 5),
+ ('finger-wag', 'finger-wag', 5)
+)
+ds = (
+ ('magic1', 'magic1', 5),
  ('magic2', 'magic2', 5),
  ('throw-paper', 'throw-paper', 5),
- ('magic3', 'magic3', 5))
-hh = (('pen-squirt', 'fountain-pen', 7),
+ ('magic3', 'magic3', 5)
+)
+hh = (
+ ('pen-squirt', 'fountain-pen', 7),
  ('glower', 'glower', 5),
  ('throw-paper', 'throw-paper', 5),
  ('magic1', 'magic1', 5),
- ('roll-o-dex', 'roll-o-dex', 5))
-cr = (('pickpocket', 'pickpocket', 5), ('throw-paper', 'throw-paper', 3.5), ('glower', 'glower', 5))
-tbc = (('cigar-smoke', 'cigar-smoke', 8),
+ ('roll-o-dex', 'roll-o-dex', 5)
+)
+cr = (
+ ('pickpocket', 'pickpocket', 5),
+ ('throw-paper', 'throw-paper', 3.5),
+ ('glower', 'glower', 5)
+)
+tbc = (
+ ('cigar-smoke', 'cigar-smoke', 8),
  ('glower', 'glower', 5),
  ('song-and-dance', 'song-and-dance', 8),
- ('golf-club-swing', 'golf-club-swing', 5))
-cc = (('speak', 'speak', 5),
+ ('golf-club-swing', 'golf-club-swing', 5),
+ ('phone', 'phone', 5)
+)
+cc = (
+ ('speak', 'speak', 5),
  ('glower', 'glower', 5),
  ('phone', 'phone', 3.5),
- ('finger-wag', 'finger-wag', 5))
+ ('finger-wag', 'finger-wag', 5)
+)
 tm = (('speak', 'speak', 5),
  ('throw-paper', 'throw-paper', 5),
  ('pickpocket', 'pickpocket', 5),

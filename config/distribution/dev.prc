@@ -100,7 +100,7 @@ notify-level-TownBattle debug
 #notify-level-GagInventoryGui debug
 notify-level-DistributedBattleAI debug
 notify-level-DistributedBattle debug
-#notify-level-BattleCalculatorAI debug
+notify-level-BattleCalculatorAI debug
 notify-level-DistributedBattle debug
 #notify-level-ChooseAvatarPanel debug
 #notify-level-GagInventoryAI debug

@@ -5,5 +5,17 @@
         <effect value="5"/>
 		<accuracy value="0.9"/>
         <targettype value="3"/>
+        <taunts>
+            <taunt value="Time to return some calls."/>
+            <taunt value="I'd like to make a collect call."/>
+            <taunt value="Ring-a-ling - it's for you!"/>
+            <taunt value="I've been waiting to drop a pound or two."/>
+            <taunt value="I have a lot of clout."/>
+            <taunt value="This may cause a slight pounding sensation."/>
+            <taunt value="I'll just punch in this number."/>
+            <taunt value="Let me call up a little surprise."/>
+            <taunt value="I'll ring you up."/>
+            <taunt value="O.K. Toon, it's the pound for you."/>
+        </taunts>
     </Item>
 </Catalog>

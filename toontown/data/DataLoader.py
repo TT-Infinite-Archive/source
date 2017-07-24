@@ -105,3 +105,27 @@ class IconDataLoader(DataLoader):
 
             data.append(e)
         return data
+
+
+class SuitAttackDataLoader(DataLoader):
+    def loadData(self):
+        # Read data from file
+        data = []
+        root = ET.parse(self.path).getroot()
+        items = root.findall('Item')
+        for item in items:
+            e = {}
+            e.update(dict(item.attrib))
+            for attr in item:
+                if attr.tag == 'taunts':
+                    taunts = []
+                    for taunt in attr:
+                        taunts.append(taunt.attrib['value'])
+                    e.update({attr.tag: taunts})
+                else:
+                    try:
+                        e.update({attr.tag: attr.attrib['value']})
+                    except KeyError:
+                        raise KeyError('Attribute %s has no value' % attr.tag)
+            data.append(e)
+        return data

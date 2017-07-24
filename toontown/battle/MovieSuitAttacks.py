@@ -828,11 +828,10 @@ def doPoundKey(attack):
     BattleParticles.loadParticles()
     particleEffect = BattleParticles.createParticleEffect('PoundKey')
     BattleParticles.setEffectTexture(particleEffect, 'poundsign', color=Vec4(0, 0, 0, 1))
-    #suitTrack = getSuitTrack(attack)
+    suitTrack = getSuitTrack(attack)
     partTrack = getPartTrack(particleEffect, 2.1, 1.55, [particleEffect, suit, 0])
     phonePosPoints = [Point3(0.23, 0.17, -0.11), VBase3(5.939, 2.763, -177.591)]
     receiverPosPoints = [Point3(0.23, 0.17, -0.11), VBase3(5.939, 2.763, -177.591)]
-    '''
     propTrack = Sequence(
         Wait(0.3),
         Func(__showProp, phone, suit.getLeftHand(), phonePosPoints[0], phonePosPoints[1]),
@@ -847,11 +846,9 @@ def doPoundKey(attack):
         LerpScaleInterval(phone, 0.5, MovieUtil.PNT3_NEARZERO),
         Func(MovieUtil.removeProps, [receiver, phone])
     )
-    '''
-    #toonTrack = getToonTrack(attack, 2.7, ['cringe'], 1.9, ['sidestep'])
+    toonTrack = getToonTrack(attack, 2.7, ['cringe'], 1.9, ['sidestep'])
     soundTrack = getSoundTrack('SA_hangup.ogg', delay=1.3, node=suit)
-    #return Parallel(suitTrack, toonTrack, propTrack, partTrack, soundTrack)
-    return Parallel(soundTrack)
+    return Parallel(suitTrack, toonTrack, propTrack, partTrack, soundTrack)
 
 
 def doShred(attack):

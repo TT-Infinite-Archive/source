@@ -61,7 +61,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
             State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput']),
             State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
             State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['PlayMovie', 'WaitForJoin', 'Resume']),
-            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForInput', 'WaitForJoin', 'Resume']),
+            State.State('PlayMovie', self.enterPlayMovie, self.exitPlayMovie, ['WaitForInput', 'WaitForJoin', 'Resume', 'PlayMovie']),
             State.State('Resume', self.enterResume, self.exitResume, [])
         ], 'Off', 'Off')
         self.fsm.enterInitialState()
@@ -245,6 +245,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def setState(self, state, timestamp):
         self.notify.debug('Setting state: %s' % state)
         if self.__battleCleanedUp:
+            self.notify.debug('Battle cleaned up so didn\'t set state')
             return
         self.fsm.request(state, [globalClockDelta.localElapsedTime(timestamp)])
 
@@ -817,7 +818,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         self.movie.reset()
 
     def exitPlayMovie(self):
-        self.notify.debug('Movie done.')
+        self.notify.debug('Exiting play movie.')
         self.movie.reset()
 
     def hasLocalToon(self):

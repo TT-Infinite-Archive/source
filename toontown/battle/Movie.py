@@ -10,15 +10,15 @@ import MovieToonVictory
 import MovieUtil
 import PlayByPlayText
 import RewardPanel
+
 from SuitBattleGlobals import *
+from toontown.battle import SuitMovies
 from toontown.chat.ChatGlobals import *
-from toontown.data import Gag
 from toontown.distributed import DelayDelete
 from toontown.nametag import NametagGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 from toontown.toontowngui import TTDialog
-from toontown.util.Queue import Queue
 
 camPos = Point3(14, 0, 10)
 camHpr = Vec3(89, -30, 0)
@@ -196,7 +196,6 @@ class Movie(DirectObject.DirectObject):
     def play(self, ts, callback):
         self.hasBeenReset = 0
         ma = self.battle.currentMovieAttack
-        self.notify.debug('Checking if %s is in %s' % (ma.attackerId, str(self.battle.activeToons)))
         attacker = base.cr.doId2do.get(ma.attackerId)
         if attacker is None:
             self.notify.warning('Invalid attack')
@@ -218,7 +217,13 @@ class Movie(DirectObject.DirectObject):
             self.notify.debug('Playing a cog attack')
             # Play cog attack
             self.track = Sequence()
-            self.track.append(Func(callback))
+            movieFunc = SuitMovies.SuitAttackToMovieFunc.get(ma.attackId)
+            if movieFunc:
+                self.track.append(movieFunc(self.battle, ma))
+            else:
+                self.notify.warning('Suit attack %s has no movie defined!' % ma.attackId)
+            # Kill toons if any
+            self.track.append(Func(self.playDeadToons, callback))
             self.track.start()
 
     def playDeadSuits(self, callback):
@@ -228,6 +233,17 @@ class Movie(DirectObject.DirectObject):
         for suit in self.battle.activeSuits:
             if suit.getHp() <= 0:
                 deathTrack.append(MovieUtil.suitDeath(suit, self.battle))
+        self.track.append(deathTrack)
+        self.track.append(Func(callback))
+        self.track.start()
+
+    def playDeadToons(self, callback):
+        # Play toons dying in the event any of them died
+        self.track = Sequence()
+        deathTrack = Parallel()
+        for toon in self.battle.activeToons:
+            if toon.getHp() <= 0:
+                deathTrack.append(MovieUtil.toonDeath(toon, self.battle))
         self.track.append(deathTrack)
         self.track.append(Func(callback))
         self.track.start()

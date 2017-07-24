@@ -184,7 +184,12 @@
     </Item>
     <Item>
         <id value="20"/>
-        <editorname value="Merry Go Round"/>
-        <filepath value="phase_13/models/parties/partyMerryGoRound"/>
+        <editorname value="Phone"/>
+        <filepath value="phase_3.5/models/props/phone"/>
+    </Item>
+    <Item>
+        <id value="21"/>
+        <editorname value="Receiver"/>
+        <filepath value="phase_3.5/models/props/receiver"/>
     </Item>
 </Catalog>

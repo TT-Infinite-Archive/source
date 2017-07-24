@@ -159,6 +159,9 @@ class DistributedAvatar(DistributedActor, Avatar):
 
         return Avatar.setName(self, name)
 
+    def displayText(self, text, duration=1.1, scale=0.7, r=1.0, g=0.0, b=0.0):
+        self.showHpString(text, duration, scale, r, g, b)
+
     def showHpText(self, number, bonus = 0, scale = 1):
         if self.HpTextEnabled and not self.ghostMode:
             if number != 0:

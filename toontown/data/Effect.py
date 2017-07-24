@@ -1,5 +1,3 @@
-from toontown.data import BehaviorGlobals
-
 class Effect:
     def __init__(self, uid):
         self.uid = uid
@@ -69,4 +67,4 @@ class ApplyBehaviorEffect(Effect):
 
     @property
     def description(self):
-        return 'Applies %s' % BehaviorGlobals.getBehavior(self.behaviorId).name
+        return 'Applies a behavior.'

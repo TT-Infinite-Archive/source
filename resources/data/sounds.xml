@@ -77,4 +77,10 @@
         <filepath value="phase_5/audio/sfx/AA_sound_bikehorn.ogg"/>
         <duration value="0.679"/>
     </Item>
+    <Item type="Sound">
+        <id value="14"/>
+        <name value="hangup"/>
+        <filepath value="phase_3.5/audio/sfx/SA_hangup.ogg"/>
+        <duration value="3.631"/>
+    </Item>
 </Catalog>
