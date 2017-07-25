@@ -82,6 +82,10 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
             self.doorX = 1.0
 
     def enterDoor(self):
+        self.ignore(base.INTERACT_KEY)
+        if hasattr(self, "enterText"):
+            self.enterText.removeNode()
+            del self.enterText
         if self.allowedToEnter():
             messenger.send('DistributedDoor_doorTrigger')
             self.sendUpdate('requestEnter')
