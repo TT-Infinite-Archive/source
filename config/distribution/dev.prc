@@ -32,6 +32,7 @@ generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 generate-global-object 4901 MegaInvasionManager
+generate-global-object 4950 ZoneManager
 
 # Web API:
 want-web-api #f

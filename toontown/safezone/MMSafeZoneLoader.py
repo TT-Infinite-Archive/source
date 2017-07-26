@@ -1,5 +1,6 @@
 from toontown.safezone import MMPlayground
 from toontown.safezone import SafeZoneLoader
+from toontown.toonbase import ToontownGlobals
 
 
 class MMSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
@@ -10,3 +11,8 @@ class MMSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.activityMusicFile = 'phase_6/audio/bgm/MM_SZ_activity.ogg'
         self.dnaFile = 'phase_6/dna/minnies_melody_land_sz.pdna'
         self.safeZoneStorageDNAFile = 'phase_6/dna/storage_MM_sz.pdna'
+
+    def load(self):
+        if ToontownGlobals.MinniesMelodyland in base.cr.zoneManager.modifiedZones:
+            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.MinniesMelodyland)
+        SafeZoneLoader.SafeZoneLoader.load(self)

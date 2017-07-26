@@ -33,16 +33,16 @@ class TTHoodAI(HoodAI.HoodAI):
                 self.createClassicChar()
 
         if simbase.air.wantYinYang or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
-            NPCToons.createNPC(
+            self.npcs.append(NPCToons.createNPC(
                 simbase.air, 2021,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2021], ('css', 'ms', 'm', 'm', 26, 0, 26, 26, 0, 27, 0, 27, 0, 27), 'm', 1, NPCToons.NPC_YIN),
-                ToontownGlobals.ToontownCentral, posIndex=0)
+                ToontownGlobals.ToontownCentral, posIndex=0))
 
         if simbase.air.wantYinYang:
-            NPCToons.createNPC(
+            self.npcs.append(NPCToons.createNPC(
                 simbase.air, 2022,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2022], ('bss', 'ms', 'm', 'm', 0, 0, 0, 0, 0, 31, 0, 31, 0, 31), 'm', 1, NPCToons.NPC_YANG),
-                ToontownGlobals.ToontownCentral, posIndex=0)
+                ToontownGlobals.ToontownCentral, posIndex=0))
 
     def createTrolley(self):
         self.trolley = DistributedTrolleyAI.DistributedTrolleyAI(self.air)
@@ -58,4 +58,3 @@ class TTHoodAI(HoodAI.HoodAI):
         self.jukebox = DistributedJukeboxAI(self.air, 5)
         self.jukebox.setPosHpr(-105.604, 88.585, 0.525, 34, 0, 0)
         self.jukebox.generateWithRequired(self.zoneId)
-

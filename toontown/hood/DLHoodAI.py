@@ -37,3 +37,10 @@ class DLHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedDonaldAI.DistributedDonaldAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
+
+    def shutdown(self):
+        if self.resistanceEmoteManager:
+            self.resistanceEmoteManager.requestDelete()
+            self.resistanceEmoteManager = None
+
+        HoodAI.HoodAI.shutdown(self)

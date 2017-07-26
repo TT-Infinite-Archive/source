@@ -37,6 +37,33 @@ class OZHoodAI(HoodAI.HoodAI):
         if self.air.wantGuilds:
             self.createLowdenClear()
 
+    def shutdown(self):
+        if self.timer:
+            self.timer.requestDelete()
+            self.timer = None
+
+        for table in self.picnicTables:
+            table.requestDelete()
+        del self.picnicTables[:]
+
+        for table in self.gameTables:
+            table.requestDelete()
+        del self.gameTables[:]
+
+        if hasattr(self, 'npc') and self.npc:
+            self.npc.requestDelete()
+            self.npc = None
+
+        if hasattr(self, 'classicCharChip') and self.classicCharChip:
+            self.classicCharChip.requestDelete()
+            self.classicCharChip = None
+
+        if hasattr(self, 'classicCharDale') and self.classicCharDale:
+            self.classicCharDale.requestDelete()
+            self.classicCharDale = None
+
+        HoodAI.HoodAI.shutdown(self)
+
     def createLowdenClear(self):
         self.npc = NPCToons.createNPC(self.air, 91920, NPCToons.NPCToonDict[91920], self.zoneId)
         self.npc.d_setPos(-47.965,  -130.910,  0.025)

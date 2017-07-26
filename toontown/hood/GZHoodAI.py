@@ -20,6 +20,13 @@ class GZHoodAI(HoodAI.HoodAI):
 
         self.createGolfKarts()
 
+    def shutdown(self):
+        for golfKart in self.golfKarts:
+            golfKart.requestDelete()
+        del self.golfKarts[:]
+
+        HoodAI.HoodAI.shutdown(self)
+
     def findGolfKarts(self, dnaGroup, zoneId, area, overrideDNAZone=False):
         golfKarts = []
         if isinstance(dnaGroup, DNAGroup) and ('golf_kart' in dnaGroup.getName()):

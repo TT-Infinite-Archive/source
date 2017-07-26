@@ -1,5 +1,6 @@
 from toontown.safezone import DGPlayground
 from toontown.safezone import SafeZoneLoader
+from toontown.toonbase import ToontownGlobals
 
 
 class DGSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
@@ -12,6 +13,8 @@ class DGSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_8/dna/storage_DG_sz.pdna'
 
     def load(self):
+        if ToontownGlobals.DaisyGardens in base.cr.zoneManager.modifiedZones:
+            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DaisyGardens)
         SafeZoneLoader.SafeZoneLoader.load(self)
         self.birdSound = map(loader.loadSfx, ['phase_8/audio/sfx/SZ_DG_bird_01.ogg',
                                             'phase_8/audio/sfx/SZ_DG_bird_02.ogg',

@@ -1409,6 +1409,8 @@ class OTPClientRepository(ClientRepositoryBase):
     def uberZoneInterestComplete(self):
         self.__gotTimeSync = 0
         self.cleanupWaitingForDatabase()
+        self.zoneManager.requestModifiedZones()
+
         if self.timeManager == None:
             self.notify.info('TimeManager is not present.')
             DistributedSmoothNode.globalActivateSmoothing(0, 0)

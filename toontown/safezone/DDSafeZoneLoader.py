@@ -1,5 +1,7 @@
 from toontown.safezone import SafeZoneLoader
 from toontown.safezone import DDPlayground
+from toontown.toonbase import ToontownGlobals
+
 
 class DDSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
 
@@ -12,6 +14,9 @@ class DDSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_6/dna/storage_DD_sz.pdna'
 
     def load(self):
+        if ToontownGlobals.DonaldsDock in base.cr.zoneManager.modifiedZones:
+            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DonaldsDock)
+
         SafeZoneLoader.SafeZoneLoader.load(self)
         self.seagullSound = loader.loadSfx('phase_6/audio/sfx/SZ_DD_Seagull.ogg')
         self.underwaterSound = loader.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')

@@ -17,6 +17,7 @@ from toontown.suit import DistributedSuitPlannerAI
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from otp.ai.MagicWordGlobal import *
 
 
 class HoodAI:
@@ -29,15 +30,21 @@ class HoodAI:
         self.canonicalHoodId = canonicalHoodId
 
         self.avIds = []
+        self.npcs = []
         self.fishingPonds = []
         self.partyGates = []
         self.treasurePlanner = None
         self.buildingManagers = []
         self.suitPlanners = []
 
+        self.loadDNA()
+
+    def loadDNA(self):
         for zoneId in self.getZoneTable():
             self.notify.info('Creating objects... ' + self.getLocationName(zoneId))
             dnaFileName = self.air.lookupDNAFileName(zoneId)
+            if zoneId in self.air.zoneManager.zoneData:
+                dnaFileName = self.air.zoneManager.zoneData[zoneId]
             dnaStore = DNAStorage()
             dnaData = simbase.air.loadDNAFileAI(dnaStore, dnaFileName)
             self.air.dnaStoreMap[zoneId] = dnaStore
@@ -76,21 +83,49 @@ class HoodAI:
             self.generateFireworkShow()
 
     def shutdown(self):
+        self.endTrickOrTreat()
+        self.endWinterCaroling()
+
+        if hasattr(self, 'fireworkShow') and self.fireworkShow:
+            self.fireworkShow.requestDelete()
+            del self.fireworkShow
+
+        if hasattr(self, 'classicChar') and self.classicChar:
+            self.classicChar.requestDelete()
+            del self.classicChar
+
+        if hasattr(self, 'trolley') and self.trolley:
+            self.trolley.requestDelete()
+            del self.trolley
+
+        if hasattr(self, 'jukebox') and self.jukebox:
+            self.jukebox.requestDelete()
+            del self.jukebox
+
+        for npc in self.npcs:
+            npc.requestDelete()
+
         if self.treasurePlanner:
             self.treasurePlanner.stop()
             self.treasurePlanner.deleteAllTreasuresNow()
             self.treasurePlanner = None
+
         for suitPlanner in self.suitPlanners:
             suitPlanner.requestDelete()
             del self.air.suitPlanners[suitPlanner.zoneId]
         self.suitPlanners = []
+
         for buildingManager in self.buildingManagers:
             buildingManager.cleanup()
             del self.air.buildingManagers[buildingManager.branchId]
         self.buildingManagers = []
-        del self.fishingPonds
-        for distObj in self.doId2do.values():
-            distObj.requestDelete()
+
+        for pond in self.fishingPonds:
+            pond.requestDelete()
+        self.fishingPonds = []
+
+        del self.air.dnaStoreMap[self.zoneId]
+        del self.air.dnaDataMap[self.zoneId]
 
     def findFishingPonds(self, dnaGroup, zoneId, area):
         fishingPonds = []
@@ -140,7 +175,7 @@ class HoodAI:
                 self.fishingPonds.extend(foundFishingPonds)
                 fishingPondGroups.extend(foundFishingPondGroups)
         for fishingPond in self.fishingPonds:
-            NPCToons.createNpcsInZone(self.air, fishingPond.zoneId)
+            self.npcs.extend(NPCToons.createNpcsInZone(self.air, fishingPond.zoneId))
         fishingSpots = []
         for (dnaGroup, fishingPond) in zip(fishingPondGroups, self.fishingPonds):
             fishingSpots.extend(self.findFishingSpots(dnaGroup, fishingPond))
@@ -238,3 +273,17 @@ class HoodAI:
 
     def startFireworks(self, showType, showIndex):
         self.fireworkShow.b_startShow(showType, showIndex, globalClockDelta.getRealNetworkTime())
+
+
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
+def restartHood(zoneId):
+    for hood in simbase.air.hoods:
+        if hood.zoneId == zoneId:
+            hood.shutdown()
+            simbase.air.zoneManager.loadZoneData()
+            simbase.air.zoneManager.sendRequestReload()
+            hood.loadDNA()
+            hood.startup()
+            return 'Restarted hood %d successfully!' % zoneId
+
+    return 'Could not find hood %d.' % zoneId

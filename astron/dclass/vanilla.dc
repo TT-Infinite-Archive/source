@@ -3,6 +3,7 @@ from direct.distributed import DistributedNode/AI/UD
 from direct.distributed import DistributedSmoothNode/AI
 from direct.distributed import DistributedCartesianGrid/AI
 from direct.distributed import DistributedCamera/AI/OV
+from direct.directutil import DistributedLargeBlobSender/AI
 from otp.distributed import Account/AI/UD
 from otp.ai import BanManager/AI
 from otp.ai import TimeManager/AI
@@ -348,6 +349,8 @@ from toontown.parties.GlobalPartyManager/AI/UD import GlobalPartyManager/AI/UD
 from toontown.uberdog import MegaInvasionManager/AI/UD
 from toontown.guilds import GuildManager/AI/UD
 from toontown.battle import DistributedBattleVault/AI
+from toontown.zone import ZoneManager/AI/UD
+from toontown.zone import ZoneBlobSender/UD
 
 typedef uint8 bool;
 
@@ -4202,4 +4205,24 @@ dclass DistributedJukebox : DistributedObject {
 
   // Client Request
   requestPlaySong(uint32 songId) clsend airecv;
+};
+
+
+dclass ZoneManager : DistributedObject {
+  requestModifiedZones() clsend airecv;
+  setModifiedZones(uint16 zones[]) broadcast ram;
+
+  requestReload() airecv;
+
+  requestZoneData(uint16 zoneId, string hash) clsend airecv;
+  setBlobId(uint32 doId, int8 mode, uint32 filesize);
+
+};
+
+dclass ZoneBlobSender : DistributedObject {
+  setMode(uint8) required broadcast ram;
+  setTargetAvId(uint32) required broadcast ram;
+  setChunk(blob);
+  setFilename(string);
+  setAck() airecv clsend;
 };

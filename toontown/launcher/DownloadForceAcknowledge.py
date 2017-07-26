@@ -10,9 +10,9 @@ class DownloadForceAcknowledge:
         self.dialog = None
         return
 
-    def enter(self, phase):
+    def enter(self, zone):
         doneStatus = {}
-        if launcher.getPhaseComplete(phase):
+        if base.cr.zoneManager.getZoneComplete(zone):
             doneStatus['mode'] = 'complete'
             messenger.send(self.doneEvent, [doneStatus])
         else:
@@ -21,13 +21,15 @@ class DownloadForceAcknowledge:
             except:
                 pass
 
+            if base.cr.zoneManager.currentRequestedZone != zone:
+                base.cr.zoneManager.requestZoneData(zone)
+
             doneStatus['mode'] = 'incomplete'
             self.doneStatus = doneStatus
-            percentComplete = base.launcher.getPercentPhaseComplete(phase)
-            phaseName = TTLocalizer.LauncherPhaseNames[phase]
+            # percentComplete = base.zoneManager.getPercentZoneComplete(zone)
+            phaseName = ''  # TTLocalizer.LauncherPhaseNames[phase]
             verb = random.choice(TTLocalizer.DownloadForceAcknowledgeVerbList)
-            msg = TTLocalizer.DownloadForceAcknowledgeMsg % {'phase': phaseName,
-             'verb': verb}
+            msg = TTLocalizer.DownloadForceAcknowledgeMsg % {'verb': verb}
             self.dialog = TTDialog.TTDialog(text=msg, command=self.handleOk, style=TTDialog.Acknowledge)
             self.dialog.show()
 
