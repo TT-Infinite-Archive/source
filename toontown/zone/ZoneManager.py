@@ -70,13 +70,15 @@ class ZoneManager(DistributedObjectGlobal):
             return
         elif mode == ZoneManager.OUTDATED:
             self.setZoneOutdated(self.currentRequestedZone)
-        blob = base.cr.doId2do.get(blobId)
-        if not blob:
-            self.notify.warning("Zone blob not found!")
-            return
 
         self.currentFileSize = filesize
+        blob = base.cr.doId2do.get(blobId)
+        if not blob:
+            self.acceptOnce('blob-generated-%d' % blobId, self.__handleBlobGenerated)
+        else:
+            self.__handleBlobGenerated(blob)
 
+    def __handleBlobGenerated(self, blob):
         if blob.isComplete():
             filename = os.path.join('..', 'resources', 'zone_%d.mf' % self.currentRequestedZone)
             self.mountFile(filename)
@@ -93,7 +95,7 @@ class ZoneManager(DistributedObjectGlobal):
 
     def __handleBlobDone(self, zone, blob):
         self.notify.debug("Zone blob done.")
-        filename = 'zone_%d.mf' % zone
+        filename = os.path.join('..', 'resources', 'zone_%d.mf' % zone)
         if not blob or not zone:
             return
 
@@ -102,6 +104,7 @@ class ZoneManager(DistributedObjectGlobal):
 
         with open(filename, 'wb+') as f:
             f.write(blob)
+            self.notify.info('Wrote file of size: %s' % len(blob))
 
         self.mountFile(filename)
         self.setZoneComplete(zone)
@@ -109,14 +112,11 @@ class ZoneManager(DistributedObjectGlobal):
 
     def mountFile(self, filename):
         mf = Multifile()
-        mf.openReadWrite(Filename(filename))
-
+        f = Filename(filename)
+        mf.openRead(f)
         vfs = VirtualFileSystem.getGlobalPtr()
 
-        if __debug__:
-            mountPoint = '../resources'
-        else:
-            mountPoint = '/'
+        mountPoint = '/'
 
         vfs.mount(mf, mountPoint, 0)
 

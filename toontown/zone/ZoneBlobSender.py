@@ -10,6 +10,8 @@ class ZoneBlobSender(DistributedLargeBlobSender):
         if not self.useDisk:
             self.blob = ''
 
+        messenger.send('blob-generated-%d' % self.doId, [self])
+
     def setChunk(self, chunk):
         DistributedLargeBlobSender.setChunk(self, chunk)
         if base.cr.zoneManager and base.cr.zoneManager.currentRequestedZone:
