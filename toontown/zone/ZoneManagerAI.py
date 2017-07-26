@@ -36,22 +36,25 @@ class ZoneManagerAI(DistributedObjectGlobalAI):
         filename = self.getZoneFilename(zoneId)
         location = self.mountPoint + '/' + filename
         if not os.path.exists(location):
-            self.notify.debug('%s does not exist!' % location)
+            self.notify.debug('%s does not exist! Skipping...' % location)
             return
         self.extract(location)
         self.zoneData[zoneId] = 'tmp/' + 'zone_%d/' % zoneId + 'zone_%d.pdna' % zoneId
 
     def extract(self, filename):
         from panda3d.core import Multifile, Filename
+        self.notify.debug('Extracting %s...' % filename)
         mf = Multifile()
         fn = Filename(filename)
         fn.makeAbsolute()
-        mf.openReadWrite(fn)
+        mf.openRead(fn)
         for i, f in enumerate(mf.getSubfileNames()):
+            self.notify.debug('%s: %s %s' % (filename, i, f))
             if f.split('.')[-1] in ('dna', 'pdna'):
                 self.notify.debug('Extracting %s...' % f)
                 s = Filename(self.mountPoint + '/tmp/' + f)
                 mf.extractSubfile(i, s)
+        mf.close()
 
     def sendRequestReload(self):
         self.sendUpdate('requestReload', [])
