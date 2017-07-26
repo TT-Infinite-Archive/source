@@ -21,22 +21,28 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
         self.mountPoint = os.path.join('..', 'resources')
 
     def loadZones(self):
-        for zoneId in HoodHierarchy.keys():
-            filename = self.getZoneFilename(zoneId)
-            location = os.path.join(self.mountPoint, filename)
-            if not os.path.exists(location) or not os.path.isfile(location):
-                self.notify.debug('%s does not exist!' % location)
-                continue
-            f = open(location, 'rb')
-            size = os.stat(location).st_size
-            data = f.read()
-            actual_size = len(data)
-            f.close()
-            hash = hashlib.md5(data).hexdigest()
-            self.notify.info('Loaded modification: %s, hash=%s, %s bytes, %s actual size' % (location, hash, size, actual_size))
-            self.zoneData[zoneId] = (data, hash, size)
+        for hoodId in HoodHierarchy.keys():
+            self.loadZone(hoodId)
+            for branchId in HoodHierarchy[hoodId]:
+                self.loadZone(branchId)
         self.sendUpdate('setModifiedZones', [self.zoneData.keys()])
         self.notify.debug("Modified zones loaded: %s" % self.zoneData.keys())
+
+    def loadZone(self, zoneId):
+        filename = self.getZoneFilename(zoneId)
+        location = os.path.join(self.mountPoint, filename)
+        if not os.path.exists(location) or not os.path.isfile(location):
+            self.notify.debug('%s does not exist!' % location)
+            return
+        f = open(location, 'rb')
+        size = os.stat(location).st_size
+        data = f.read()
+        actual_size = len(data)
+        f.close()
+        hash = hashlib.md5(data).hexdigest()
+        self.notify.info(
+            'Loaded modification: %s, hash=%s, %s bytes, %s actual size' % (location, hash, size, actual_size))
+        self.zoneData[zoneId] = (data, hash, size)
 
     def generate(self):
         DistributedObjectGlobalUD.generate(self)

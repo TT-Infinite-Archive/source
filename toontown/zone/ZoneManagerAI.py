@@ -27,14 +27,19 @@ class ZoneManagerAI(DistributedObjectGlobalAI):
         if os.path.exists(tmpFolder):
             shutil.rmtree(tmpFolder)
 
-        for zoneId in HoodHierarchy.keys():
-            filename = self.getZoneFilename(zoneId)
-            location = self.mountPoint + '/' + filename
-            if not os.path.exists(location):
-                self.notify.debug('%s does not exist!' % location)
-                continue
-            self.extract(location)
-            self.zoneData[zoneId] = 'tmp/' + 'zone_%d/' % zoneId + 'zone_%d.pdna' % zoneId
+        for hoodId in HoodHierarchy.keys():
+            self.loadZone(hoodId)
+            for branchId in HoodHierarchy[hoodId]:
+                self.loadZone(branchId)
+
+    def loadZone(self, zoneId):
+        filename = self.getZoneFilename(zoneId)
+        location = self.mountPoint + '/' + filename
+        if not os.path.exists(location):
+            self.notify.debug('%s does not exist!' % location)
+            return
+        self.extract(location)
+        self.zoneData[zoneId] = 'tmp/' + 'zone_%d/' % zoneId + 'zone_%d.pdna' % zoneId
 
     def extract(self, filename):
         from panda3d.core import Multifile, Filename
