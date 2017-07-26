@@ -13,7 +13,7 @@ class ZoneBlobSenderUD(DistributedObjectUD):
 
     def start(self, data):
         # send the data
-        self.data = str(data)
+        self.data = bytes(data)
         self.chunkSize = LargeBlobSenderConsts.ChunkSize
         self.delay = 0.0005
         self.sendChunk()

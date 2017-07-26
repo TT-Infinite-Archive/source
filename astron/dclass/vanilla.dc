@@ -4222,7 +4222,7 @@ dclass ZoneManager : DistributedObject {
 dclass ZoneBlobSender : DistributedObject {
   setMode(uint8) required broadcast ram;
   setTargetAvId(uint32) required broadcast ram;
-  setChunk(blob);
+  setChunk(string);
   setFilename(string);
   setAck() airecv clsend;
 };
