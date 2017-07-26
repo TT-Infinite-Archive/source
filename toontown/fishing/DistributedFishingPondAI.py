@@ -55,11 +55,15 @@ class DistributedFishingPondAI(DistributedObjectAI):
             self.bingoMgr = None
 
         for target in self.targets:
-            target.requestDelete()
+            target = self.air.doId2do.get(target)
+            if target:
+                target.requestDelete()
         self.targets.clear()
 
         for spot in self.spots:
-            spot.requestDelete()
+            spot = self.air.doId2do.get(spot)
+            if spot:
+                spot.requestDelete()
         self.spots.clear()
 
         DistributedObjectAI.delete(self)
