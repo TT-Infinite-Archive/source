@@ -137,4 +137,4 @@ class ZoneManager(DistributedObjectGlobal):
             return len(blob.blob) / float(self.currentFileSize)
 
     def getDNAFiles(self, zone):
-        return 'zone_%d/zone_%d.pdna' % (zone, zone), 'zone_%d/storage_zone_%d.pdna' % (zone, zone)
+        return '/zone_%d/zone_%d.pdna' % (zone, zone), '/zone_%d/storage_zone_%d.pdna' % (zone, zone)
