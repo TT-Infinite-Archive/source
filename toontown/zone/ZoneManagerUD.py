@@ -52,10 +52,10 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
         senderId = self.air.getAccountIdFromSender()
         self.notify.debug('requestZoneData: %s %s' % (zone, hash))
         if zone not in self.zoneData.keys():
-            self.sendUpdateToAvatarId(senderId, 'setBlobId', [0, self.COMPLETED, 0])
+            self.sendUpdateToAccountId(senderId, 'setBlobId', [0, self.COMPLETED, 0])
             return
         if hash == self.zoneData[zone][1]:
-            self.sendUpdateToAvatarId(senderId, 'setBlobId', [0, self.COMPLETED, 0])
+            self.sendUpdateToAccountId(senderId, 'setBlobId', [0, self.COMPLETED, 0])
             return
         elif hash != self.zoneData[zone][1] and hash != '':
             mode = self.OUTDATED
