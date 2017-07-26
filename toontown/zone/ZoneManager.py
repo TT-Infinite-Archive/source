@@ -15,6 +15,7 @@ class ZoneManager(DistributedObjectGlobal):
 
         self.completedZones = []
         self.modifiedZones = []
+        self.modifiedZonesSet = False
         self.zone2blob = {}
         self.currentRequestedZone = 0
         self.currentFileSize = 0
@@ -64,11 +65,14 @@ class ZoneManager(DistributedObjectGlobal):
 
     def setBlobId(self, blobId, mode, filesize):
         if mode == ZoneManager.COMPLETED:
+            self.notify.debug('Zone %s is completed. Mounting...' % self.currentRequestedZone)
             filename = os.path.join('..', 'resources', 'zone_%d.mf' % self.currentRequestedZone)
             self.mountFile(filename)
             self.setZoneComplete(self.currentRequestedZone)
+            self.notify.debug('Completed zones: %s' % self.completedZones)
             return
         elif mode == ZoneManager.OUTDATED:
+            self.notify.debug('Zone %s is outdated! Removing...' % self.currentRequestedZone)
             self.setZoneOutdated(self.currentRequestedZone)
 
         self.currentFileSize = filesize
@@ -121,9 +125,9 @@ class ZoneManager(DistributedObjectGlobal):
         vfs.mount(mf, mountPoint, 0)
 
     def getZoneComplete(self, zone):
-        r = (zone in self.completedZones)
-        self.notify.debug('getZoneComplete %s %s' % (zone, r))
-        return (zone in self.completedZones)
+        r = (zone in self.completedZones or (zone not in self.modifiedZones and self.modifiedZonesSet))
+        self.notify.debug('getZoneComplete %s %s %s %s' % (zone, r, self.completedZones, self.currentRequestedZone))
+        return r
 
     def getPercentZoneComplete(self, zone):
         if zone in self.completedZones:

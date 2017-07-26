@@ -27,15 +27,13 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
             if not os.path.exists(location) or not os.path.isfile(location):
                 self.notify.debug('%s does not exist!' % location)
                 continue
-            from panda3d.core import Filename, StreamReader
-            # I have to use Panda3D aids to open the file apparently.
-            f2 = Filename(location)
-            f2.setBinary()
-            input = StreamReader(vfs.openReadFile(f2, 1), 1)
+            f = open(location, 'rb')
             size = os.stat(location).st_size
-            data = input.extractBytes(size)
+            data = f.read()
+            actual_size = len(data)
+            f.close()
             hash = hashlib.md5(data).hexdigest()
-            self.notify.info('Loaded modification: %s, hash=%s, %s bytes' % (location, hash, size))
+            self.notify.info('Loaded modification: %s, hash=%s, %s bytes, %s actual size' % (location, hash, size, actual_size))
             self.zoneData[zoneId] = (data, hash, size)
         self.sendUpdate('setModifiedZones', [self.zoneData.keys()])
         self.notify.debug("Modified zones loaded: %s" % self.zoneData.keys())
@@ -51,6 +49,7 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
     def requestZoneData(self, zone, hash):
         senderId = self.air.getAccountIdFromSender()
         self.notify.debug('requestZoneData: %s %s' % (zone, hash))
+
         if zone not in self.zoneData.keys():
             self.sendUpdateToAccountId(senderId, 'setBlobId', [0, self.COMPLETED, 0])
             return
