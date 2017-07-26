@@ -131,7 +131,7 @@ class Hood(StateData.StateData):
                     files.append(storageFile)
             if ToontownGlobals.HALLOWEEN_COSTUMES not in holidayIds and ToontownGlobals.SPOOKY_COSTUMES not in holidayIds or not self.spookySkyFile:
                 self.sky = loader.loadModel(self.skyFile)
-                self.sky.setTransparency(TransparencyAttrib.MAlpha)
+                # self.sky.setTransparency(TransparencyAttrib.MAlpha) Fixes Sellbot HQ skybox issue, but may mess up midday to sunset transition
                 self.sky.setTag('sky', 'Regular')
                 self.sky.setScale(1.0)
                 self.sky.setFogOff()

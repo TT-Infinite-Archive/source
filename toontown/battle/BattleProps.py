@@ -2,6 +2,7 @@ from pandac.PandaModules import *
 from direct.actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from otp.otpbase import OTPGlobals
+from toontown.toonbase import SettingsGlobals
 import random
 Props = ((5, 'partyBall', 'partyBall'),
  (5,
@@ -396,6 +397,7 @@ class PropPool:
                 animDict[name] = self.propStrings[name][1]
                 prop.loadAnims(animDict)
                 prop.setName(name)
+                prop.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
                 self.storeProp(name, prop)
                 if name in Variants:
                     self.makeVariant(name)

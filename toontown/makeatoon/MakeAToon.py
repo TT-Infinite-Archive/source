@@ -83,9 +83,9 @@ class MakeAToon(StateData.StateData):
         self.focusOutIval = None
         self.focusInIval = None
         self.toon = None
-        self.defaultH = 180;
-        self.lastRot = self.defaultH;
-        self.toonRotateSlider = None;
+        self.defaultH = 180
+        self.lastRot = self.defaultH
+        self.toonRotateSlider = None
 
     def getToon(self):
         return self.toon
@@ -210,26 +210,26 @@ class MakeAToon(StateData.StateData):
         self.roomDropActor.loadModel('phase_3/models/makeatoon/roomAnim_model')
         self.roomDropActor.loadAnims({'drop': 'phase_3/models/makeatoon/roomAnim_roomDrop'})
         self.roomDropActor.reparentTo(render)
-        self.roomDropActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing));
+        self.roomDropActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.dropJoint = self.roomDropActor.find('**/droppingJoint')
         self.roomSquishActor = Actor()
         self.roomSquishActor.loadModel('phase_3/models/makeatoon/roomAnim_model')
         self.roomSquishActor.loadAnims({'squish': 'phase_3/models/makeatoon/roomAnim_roomSquish'})
         self.roomSquishActor.reparentTo(render)
-        self.roomSquishActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing));
+        self.roomSquishActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.squishJoint = self.roomSquishActor.find('**/scalingJoint')
         self.propSquishActor = Actor()
         self.propSquishActor.loadModel('phase_3/models/makeatoon/roomAnim_model')
         self.propSquishActor.loadAnims({'propSquish': 'phase_3/models/makeatoon/roomAnim_propSquish'})
         self.propSquishActor.reparentTo(render)
         self.propSquishActor.pose('propSquish', 0)
-        self.propSquishActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing));
+        self.propSquishActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.propJoint = self.propSquishActor.find('**/propJoint')
         self.spotlightActor = Actor()
         self.spotlightActor.loadModel('phase_3/models/makeatoon/roomAnim_model')
         self.spotlightActor.loadAnims({'spotlightShake': 'phase_3/models/makeatoon/roomAnim_spotlightShake'})
         self.spotlightActor.reparentTo(render)
-        self.spotlightActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing));
+        self.spotlightActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.spotlightJoint = self.spotlightActor.find('**/spotlightJoint')
         ee = DirectFrame(pos=(-1, 1, 1), frameSize=(-.01, 0.01, -.01, 0.01), frameColor=(0, 0, 0, 0.05), state='normal')
         ee.bind(DGG.B1PRESS, lambda x, ee = ee: self.toggleSlide())
@@ -326,7 +326,7 @@ class MakeAToon(StateData.StateData):
         self.guiNextButton.destroy()
         self.guiLastButton.destroy()
         if self.toonRotateSlider is not None:
-            self.toonRotateSlider.destroy();
+            self.toonRotateSlider.destroy()
         del self.guiTopBar
         del self.guiBottomBar
         del self.guiCancelButton
@@ -334,7 +334,7 @@ class MakeAToon(StateData.StateData):
         del self.eee
         del self.guiNextButton
         del self.guiLastButton
-        del self.toonRotateSlider;
+        del self.toonRotateSlider
         del self.rotateLeftButton
         del self.rotateRightButton
         del self.names
@@ -468,7 +468,7 @@ class MakeAToon(StateData.StateData):
         self.guiNextButton.show()
         self.gs.showButtons()
         if self.toonRotateSlider:
-            self.toonRotateSlider.hide();
+            self.toonRotateSlider.hide()
 
     def exitGenderShop(self):
         self.squishRoom(self.genderWalls)
@@ -485,7 +485,7 @@ class MakeAToon(StateData.StateData):
         self.bs.showButtons()
         self.guiNextButton.show()
         self.guiLastButton.show()
-        self.toonRotateSlider.show();
+        self.toonRotateSlider.show()
 
     def enterBodyShop(self):
         self.toon.show()
@@ -500,10 +500,10 @@ class MakeAToon(StateData.StateData):
             self.shopsVisited.append(BODYSHOP)
             if not self.toonRotateSlider:
                 gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_nameShop')
-                self.toonRotateSlider = DirectSlider(parent = self.guiBottomBar, thumb_geom=(gui.find('**/tt_t_gui_mat_namePanelCircle')), frameColor=CToontownBlue, frameSize = (-0.8, 0.8, 0.1, -0.1), thumb_relief=None, thumb_geom_scale=1, text = 'Rotate', text_fg = (1, 1, 1, 1), text_style = 3, text_scale = 0.18, text_pos = (0.8, -0.04), text_align = TextNode.ALeft, scale = 1, value = 0, range = (-180, 180), command = self.rotateToonSlider);
-                self.toonRotateSlider.setPos(-0.1, 0, -0.07);
-                self.toonRotateSlider.setScale(0.5);
-                self.toonRotateSlider['extraArgs'] = [self.toonRotateSlider];
+                self.toonRotateSlider = DirectSlider(parent = self.guiBottomBar, thumb_geom=(gui.find('**/tt_t_gui_mat_namePanelCircle')), frameColor=CToontownBlue, frameSize = (-0.8, 0.8, 0.1, -0.1), thumb_relief=None, thumb_geom_scale=1, text = 'Rotate', text_fg = (1, 1, 1, 1), text_style = 3, text_scale = 0.18, text_pos = (0.8, -0.04), text_align = TextNode.ALeft, scale = 1, value = 0, range = (-180, 180), command = self.rotateToonSlider)
+                self.toonRotateSlider.setPos(-0.1, 0, -0.07)
+                self.toonRotateSlider.setScale(0.5)
+                self.toonRotateSlider['extraArgs'] = [self.toonRotateSlider]
         self.bodyShopOpening()
 
     def exitBodyShop(self):
@@ -526,7 +526,7 @@ class MakeAToon(StateData.StateData):
         self.cos.showButtons()
         self.guiNextButton.show()
         self.guiLastButton.show()
-        self.toonRotateSlider.show();
+        self.toonRotateSlider.show()
 
     def enterColorShop(self):
         self.shop = COLORSHOP
@@ -566,7 +566,7 @@ class MakeAToon(StateData.StateData):
         self.guiNextButton.show()
         self.guiLastButton.show()
         self.cls.showButtons()
-        self.toonRotateSlider.show();
+        self.toonRotateSlider.show()
 
     def enterClothesShop(self):
         self.shop = CLOTHESSHOP
@@ -620,7 +620,7 @@ class MakeAToon(StateData.StateData):
         self.toon.setPos(Point3(1.5, -4, 0))
         self.toon.setH(120)
         if self.toonRotateSlider:
-            self.toonRotateSlider.hide();
+            self.toonRotateSlider.hide()
         base.transitions.fadeIn()
         if self.progressing:
             waittime = self.leftTime
@@ -802,13 +802,11 @@ class MakeAToon(StateData.StateData):
         taskMgr.remove('rotateToonRightTask')
         
     def rotateToonSlider(self, slider):
-        value = slider['value'];
-        self.lastRot = value + self.defaultH;
-        dec = (self.lastRot - self.defaultH*1.);
-        self.toonRotateSliderRotationText['text'] = str(round(dec, 1));
+        value = slider['value']
+        self.lastRot = value + self.defaultH
 
-        self.rotateToon();
+        self.rotateToon()
 
     def rotateToon(self):
-        hpr = self.toon.getHpr();
-        self.toon.setHpr(self.lastRot, hpr[1], hpr[2]);
+        hpr = self.toon.getHpr()
+        self.toon.setHpr(self.lastRot, hpr[1], hpr[2])

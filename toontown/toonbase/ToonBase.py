@@ -160,7 +160,6 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
-        self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
         self.wantMods = self.config.GetBool('want-mods', False)
         self.wantServerBrowser = self.config.GetBool('want-server-browser', False)
         self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
@@ -257,6 +256,7 @@ class ToonBase(OTPBase.OTPBase):
         self.JUMP = 'control'
         self.ACTION_BUTTON = 'delete'
         self.SCREENSHOT_KEY = 'f9'
+        self.INTERACT_KEY = 'shift'
         
         keymap = settings.get('keymap', {})
         if self.wantCustomControls:
@@ -268,12 +268,16 @@ class ToonBase(OTPBase.OTPBase):
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
         
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
 
         self.wantClassicMusic = settings.get('classic-music', False)
+        
+        self.wantDoorInteract = settings.get('door-interaction-key')
+        self.wantNpcInteract = settings.get('npc-interaction-key')
         
         self.leakGraph = None
         if config.GetBool('want-leak-graph-client', False):
@@ -290,7 +294,7 @@ class ToonBase(OTPBase.OTPBase):
             result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
         except StandardError as e:
             settings['fullscreen'] = False
-            raise StandardError, 'Could not open window, resetting display options; try to run the game again.'
+            raise StandardError, 'Could not open window, resetting display options try to run the game again.'
 
         self.setCursorAndIcon()
         return result
@@ -372,18 +376,18 @@ class ToonBase(OTPBase.OTPBase):
             aspect2d.show()
         else:
             aspect2d.hide()
-            base.transitions.fadeScreen(alpha=0.01)
+            base.transitions.fadeScreen(alpha=0)
             
     def showNotification(self, message):
         if hasattr(self, 'notificationPopup') and self.notificationPopup:
-            self.notificationPopup.destroy();
-            taskMgr.remove('clearNotification');
-        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0));
-        self.notificationPopup.reparentTo(base.a2dBottomCenter);
-        self.notificationPopup.setBin('gui-popup', 0);     
+            self.notificationPopup.destroy()
+            taskMgr.remove('clearNotification')
+        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
+        self.notificationPopup.reparentTo(base.a2dBottomCenter)
+        self.notificationPopup.setBin('gui-popup', 0)     
         def clearNotificationPopup(task):
-            self.notificationPopup.destroy();
-            return task.done;
+            self.notificationPopup.destroy()
+            return task.done
 
         taskMgr.doMethodLater(5.0, clearNotificationPopup, 'clearNotification')
 
@@ -535,7 +539,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='127.0.0.1', port=7000, isMultiplayer = True):
+    def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
@@ -548,7 +552,7 @@ class ToonBase(OTPBase.OTPBase):
         if not gameserver.hasPort():
             gameserver.setPort(port)
 
-        base.cr.loginFSM.request('connect', [[gameserver], isMultiplayer])
+        base.cr.loginFSM.request('connect', [[gameserver]])
 
     def __speedHackCheckTick(self, task):
         elapsed = time.time() - self.lastSpeedHackCheck
@@ -604,7 +608,7 @@ class ToonBase(OTPBase.OTPBase):
             self.cr.dumpAllSubShardObjects()
 
         self.cr.loginFSM.request('shutdown')
-        self.notify.warning('Could not request shutdown; exiting anyway.')
+        self.notify.warning('Could not request shutdown exiting anyway.')
         self.ignore(ToontownGlobals.QuitGameHotKeyOSX)
         self.ignore(ToontownGlobals.QuitGameHotKeyRepeatOSX)
         self.ignore(ToontownGlobals.HideGameHotKeyOSX)
@@ -673,6 +677,7 @@ class ToonBase(OTPBase.OTPBase):
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         else:
             self.MOVE_UP = 'arrow_up'
             self.MOVE_DOWN = 'arrow_down'
@@ -681,6 +686,7 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = 'control'
             self.ACTION_BUTTON = 'delete'
             self.SCREENSHOT_KEY = 'f9'
+            self.INTERACT_KEY = 'shift'
             
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 

@@ -12,8 +12,8 @@ from direct.directnotify.DirectNotifyGlobal import *
 from panda3d.direct import DCFile
 from panda3d.core import StringStream
 from direct.fsm.FSM import FSM
-from toontown.singleplayer.ProcessThread import ProcessThread
-from toontown.singleplayer.SinglePlayerGlobals import *
+from toontown.server.ProcessThread import ProcessThread
+from toontown.server.ServerGlobals import *
 from toontown.toonbase import TTLocalizer, ToontownGlobals, SettingsGlobals
 
 class DedicatedServer(FSM):
@@ -36,8 +36,8 @@ class DedicatedServer(FSM):
         self.mdPort = 7010
         self.logPort = 7020
         self.mongoPort = 7030
-        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
-        self.astronConfig = os.path.join(self.tempDir, 'multiplayer.yml')
+        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data')
+        self.astronConfig = os.path.join(self.tempDir, 'server.yml')
 
     def isServerAlive(self):
         import socket
@@ -55,7 +55,7 @@ class DedicatedServer(FSM):
 
     def enterStart(self):
         if self.isServerAlive():
-            self.notify.error(TTLocalizer.MultiServerRunningAlready)
+            self.notify.error(TTLocalizer.ServerRunningAlready)
             return
 
         self.accept('processStarted', self.__processStarted)
@@ -147,11 +147,8 @@ class DedicatedServer(FSM):
         dcFilePath = os.path.join(self.tempDir, 'vanilla.dc')
         dcFile.write(dcFilePath, False)
 
-        # First, get the main config file...
-        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version)
-
-        # And now, get the modified config for Astron.
-        path = os.path.join(self.tempDir, 'multiplayer.yml')
-        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+        # Get the modified config for Astron.
+        path = os.path.join(self.tempDir, 'server.yml')
+        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version, server=1)
         with open(path, 'w') as f:
             yaml.dump(data, f)

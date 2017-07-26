@@ -7,38 +7,31 @@ from direct.gui.DirectGui import *
 from toontown.chat import ChatGlobals
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-from toontown.singleplayer.ProcessThread import ProcessThread
-from toontown.singleplayer.SinglePlayerGlobals import *
+from toontown.server.ProcessThread import ProcessThread
+from toontown.server.ServerGlobals import *
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
 
 
-class LocalSinglePlayerStart(DirectFrame, FSM):
+class LocalServerStart(DirectFrame, FSM):
 
-    def __init__(self, mainMenu, singlePlayer, **kwargs):
+    def __init__(self, mainMenu, server, **kwargs):
         DirectFrame.__init__(self, aspect2d, **kwargs)
-        FSM.__init__(self, 'LocalSinglePlayerStart')
-        self.initialiseoptions(LocalSinglePlayerStart)
+        FSM.__init__(self, 'LocalServerStart')
+        self.initialiseoptions(LocalServerStart)
         
         self.path = os.path.abspath('.')
         self.threads = []
         self.currentProcess = 0
         self.lastProcess = len(Processes)
-        
+
         self.mainMenu = mainMenu
-        self.singlePlayer = singlePlayer
-        
-        if self.singlePlayer:
-            self.mdPort = 7011
-            self.logPort = 7021
-            self.mongoPort = 7031
-            self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'singleplayer')
-            self.astronConfig = os.path.join(base.tempDir, 'singleplayer.yml')
-        else:
-            self.mdPort = 7010
-            self.logPort = 7020
-            self.mongoPort = 7030
-            self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
-            self.astronConfig = os.path.join(base.tempDir, 'multiplayer.yml')
+        self.server = server
+
+        self.mdPort = 7010
+        self.logPort = 7020
+        self.mongoPort = 7030
+        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data')
+        self.astronConfig = os.path.join(base.tempDir, 'server.yml')
         
         buttonScale = (-1, 1, 1)
 
@@ -60,7 +53,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             self.backButton = None
     
     def getPort(self):
-        return 7001 if self.singlePlayer else 7000
+        return 7000
+        # if self.singlePlayer else 7000
     
     def getPids(self):
         return [thread.getPid() for thread in self.threads if thread.hasPid()]
@@ -82,7 +76,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterOff(self):
         self.destroy()
         base.cr.sendDisconnect()
-        base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+        base.cr.mainMenu.LocalServerStart.killThreads()
     
     def enterBack(self):
         self.demand('Off')
@@ -108,7 +102,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
     def enterBegun(self):
         self.destroy()
         self.accept('processFailed', self.__processFailed)
-        base.connectToServer('127.0.0.1', self.getPort(), isMultiplayer = False)
+        base.connectToServer('127.0.0.1', self.getPort())
     
     def enterFailed(self):
         self.label['text'] = TTLocalizer.StartingFailed % self.process[2]
@@ -116,10 +110,7 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.killThreads()
     
     def enterServerRunning(self):
-        if self.singlePlayer:
-            self.label['text'] = TTLocalizer.ServerRunningAlready
-        else:
-            self.label['text'] = TTLocalizer.MultiServerRunningAlready
+        self.label['text'] = TTLocalizer.ServerRunningAlready
         self.backButton.show()
     
     def __nextProcess(self):
@@ -139,8 +130,8 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
             thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
         elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
-            if self.singlePlayer:
-                thread.processInfo += ['--singleplayer']
+            # if self.singlePlayer:
+                # thread.processInfo += ['--singleplayer']
 
         thread.start()
         self.threads.append(thread)

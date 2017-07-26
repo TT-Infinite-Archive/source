@@ -12,6 +12,10 @@ from toontown.nametag.NametagFloat2d import *
 from toontown.toon import ToonHead
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
+from direct.interval.IntervalGlobal import Sequence
+from direct.interval.IntervalGlobal import LerpScaleInterval
+from pandac.PandaModules import *
+from direct.interval.IntervalGlobal import *
 
 
 COUNT_UP_RATE = 0.15
@@ -155,7 +159,15 @@ class Purchase(PurchaseBase):
         self.rewardDoubledJellybeanLabel.hide()
         self.countSound = loader.loadSfx('phase_3.5/audio/sfx/tick_counter.ogg')
         self.overMaxSound = loader.loadSfx('phase_3.5/audio/sfx/AV_collision.ogg')
-        self.celebrateSound = loader.loadSfx('phase_4/audio/sfx/MG_win.ogg')
+        if random.randint(0, 100) < 5:
+            self.music = base.loader.loadMusic('phase_4/audio/bgm/trolley_purchase_dk_bgm.ogg')
+            self.celebrateSound = base.loader.loadSfx('phase_4/audio/sfx/MG_dk_win.ogg')
+            self.musicSequence = Sequence(Wait(9), Func(base.playMusic, self.music, looping=1, volume=0.8))
+            self.musicSequence.start()
+        else:
+            self.music = base.loader.loadMusic('phase_4/audio/bgm/trolley_purchase_bgm.ogg')
+            base.playMusic(self.music, looping = 1, volume = 0.8)
+            self.celebrateSound = base.loader.loadSfx('phase_4/audio/sfx/MG_win.ogg')
         return
 
     def unload(self):
@@ -216,6 +228,7 @@ class Purchase(PurchaseBase):
         del self.collisionFloor
         del self.countSound
         del self.celebrateSound
+        del self.music
         self.convertingVotesToBeansLabel.removeNode()
         self.rewardDoubledJellybeanLabel.removeNode()
         del self.convertingVotesToBeansLabel
@@ -265,7 +278,6 @@ class Purchase(PurchaseBase):
             headFrame.setAvatarState(state)
 
     def enter(self):
-        base.playMusic(self.music, looping=1, volume=0.8)
         self.fsm.request('reward')
 
     def enterReward(self):
@@ -660,6 +672,7 @@ class Purchase(PurchaseBase):
         self.ignore('enableGagPanel')
         self.ignore('enableBackToPlayground')
         self.bg.reparentTo(hidden)
+        self.music.stop()
         self.playAgain.reparentTo(self.frame)
         self.backToPlayground.reparentTo(self.frame)
         self.pointDisplay.reparentTo(self.frame)

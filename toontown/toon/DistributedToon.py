@@ -472,10 +472,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if ZoneUtil.getCanonicalHoodId(zoneId) == ToontownGlobals.FunnyFarm:
             self.defaultZone = ToontownGlobals.ToontownCentral
             return
-        if not base.cr.isPaid() or launcher and not launcher.getPhaseComplete(hoodPhase):
-            self.defaultZone = ToontownGlobals.ToontownCentral
-        else:
-            self.defaultZone = zoneId
+        self.defaultZone = zoneId
 
     def setShtickerBook(self, string):
         pass

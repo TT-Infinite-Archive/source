@@ -4,9 +4,8 @@ from pandac.PandaModules import *
 from DistributedNPCToonBaseAI import *
 from toontown.quest import Quests
 
-class DistributedNPCToonAI(DistributedNPCToonBaseAI):
-    FourthGagVelvetRopeBan = config.GetBool('want-ban-fourth-gag-velvet-rope', 0)
 
+class DistributedNPCToonAI(DistributedNPCToonBaseAI):
     def __init__(self, air, npcId, questCallback = None, hq = 0):
         DistributedNPCToonBaseAI.__init__(self, air, npcId, questCallback)
         self.hq = hq

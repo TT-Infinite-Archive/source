@@ -2853,11 +2853,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
 
         if not npc:
             if stage == MAKE_A_TOON:
-                if not base.cr.isPaid():
-                    animalIndicesToUse = allToonHeadAnimalIndicesTrial
-                else:
-                    animalIndicesToUse = allToonHeadAnimalIndices
-
+                animalIndicesToUse = allToonHeadAnimalIndices
                 animal = generator.choice(animalIndicesToUse)
                 self.head = toonHeadTypes[animal]
             else:

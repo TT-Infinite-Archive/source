@@ -42,7 +42,7 @@ from otp.otpgui import OTPDialog
 from otp.uberdog import OtpAvatarManager
 from toontown.chat.ChatGlobals import *
 from toontown.toontowngui.MainMenu import MainMenu
-from toontown.singleplayer import SinglePlayerGlobals
+from toontown.server import ServerGlobals
 
 
 class OTPClientRepository(ClientRepositoryBase):
@@ -393,15 +393,9 @@ class OTPClientRepository(ClientRepositoryBase):
             dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
             dcFile.write(dcFilePath, False)
 
-            # Generate a single player Astron config file.
-            path = os.path.join(base.tempDir, 'singleplayer.yml')
-            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
-            with open(path, 'w') as f:
-                yaml.dump(data, f)
-
-            # Generate a multi player Astron config file.
-            path = os.path.join(base.tempDir, 'multiplayer.yml')
-            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+            # Generate a Astron config file.
+            path = os.path.join(base.tempDir, 'server.yml')
+            data = ServerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
             with open(path, 'w') as f:
                 yaml.dump(data, f)
 
@@ -555,7 +549,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def getServerVersion(self):
         return self.serverVersion
 
-    def enterConnect(self, serverList, isMultiplayer = True):
+    def enterConnect(self, serverList):
         self.serverList = serverList
         if not self.introDone:
             if self.introduction.getCurrentOrNextState() not in (
@@ -564,8 +558,8 @@ class OTPClientRepository(ClientRepositoryBase):
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-            # Show the connecting box only if you are connecting to an MP server
-            if not isMultiplayer:
+            # Show the connecting box only if you are connecting to an MP server. If you are hosting, don't show it.
+            if base.isHosting:
                 self.connectingBox.hide()
             self.renderFrame()
         self.handler = self.handleConnecting
@@ -2190,8 +2184,8 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def enterMainMenu(self):
         self.mainMenu.request('Idle')
-        if self.isConnected() and (base.isSinglePlayer or base.isHosting):
-          self.mainMenu.LocalSinglePlayerStart.demand('Off')
+        if self.isConnected() and (base.isHosting):
+          self.mainMenu.LocalServerStart.demand('Off')
 
     def exitMainMenu(self):
         self.mainMenu.hide()

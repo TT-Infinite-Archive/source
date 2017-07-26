@@ -7,15 +7,15 @@ from toontown.toonbase import ToontownGlobals
 
 class BookmarkManager:
     def __init__(self):
-        self.bookmarks = Settings("bookmarks.json");
-        self.convertData();
+        self.bookmarks = Settings("bookmarks.json")
+        self.convertData()
         
     def addBookmark(self, ip, name):
         if ip not in self.bookmarks:
-            self.bookmarks[ip] = name;
-            return 1; # Success!
+            self.bookmarks[ip] = name
+            return 1 # Success!
         elif ip in self.bookmarks:
-            return 2; # Already Exists!
+            return 2 # Already Exists!
         elif ip == '':
             return 3 # No ip!
         else:
@@ -23,36 +23,37 @@ class BookmarkManager:
         
     def removeBookmark(self, ip):
         if ip in self.bookmarks:
-            del self.bookmarks[ip];
-            return 1; # Success
+            del self.bookmarks[ip]
+            return 1 # Success
         else:
-            return 2; # Doesn't exist! (How did you manage my dood)
+            return 2 # Doesn't exist! (How did you manage my dood)
             
     def getBookmarks(self):
-        return self.bookmarks;
+        return self.bookmarks
         
     def convertData(self):
         # Convert bookmark format 1.0 to 2.0 format
         oldbookmarks = []
         if os.path.exists(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat')):
-            file = open(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat'), 'rb');
-            data = file.read();
-            file.close();
+            base.showNotification("Out of date bookmark data detected! Automatically converting to the new format!")
+            file = open(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat'), 'rb')
+            data = file.read()
+            file.close()
             
-            dg = PyDatagram(data);
-            data = PyDatagramIterator(dg);
+            dg = PyDatagram(data)
+            data = PyDatagramIterator(dg)
             
             def getBookmark(index, dgi):
-                name = dgi.get_string();
-                address = dgi.get_string();
+                name = dgi.get_string()
+                address = dgi.get_string()
                 if address != '':
-                    oldbookmarks.append([name, address]);
+                    oldbookmarks.append([name, address])
             
             for index in xrange(data.get_uint8()):
-                getBookmark(index, data);
+                getBookmark(index, data)
         
             for bookmark in oldbookmarks:
-                name = bookmark[0];
-                address = bookmark[1];
-                self.bookmarks[address] = name;
-            os.unlink(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat'));
+                name = bookmark[0]
+                address = bookmark[1]
+                self.bookmarks[address] = name
+            os.unlink(os.path.join(ToontownGlobals.CurrentDirectory, 'bookmarks.dat'))

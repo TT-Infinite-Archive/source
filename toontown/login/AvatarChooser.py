@@ -340,7 +340,7 @@ class AvatarChooser(StateData.StateData):
             return
 
         elif base.isSinglePlayer:
-            base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+            base.cr.mainMenu.LocalServerStart.killThreads()
 
         base.cr.loginFSM.request('mainMenu')
 
@@ -351,5 +351,5 @@ class AvatarChooser(StateData.StateData):
         del self.confirm
         if status == 'ok':
             if base.isSinglePlayer or base.isHosting:
-                base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
+                base.cr.mainMenu.LocalServerStart.killThreads()
             base.cr.loginFSM.request('mainMenu')

@@ -142,22 +142,7 @@ class ToontownLoadingBlocker(TTDialog.TTDialog):
         return task.again
 
     def __shouldShowBlocker(self, avList):
-
-        def hasPlayableToon(avList):
-            if len(avList) > 0:
-                if base.cr.isPaid():
-                    return True
-                else:
-                    for av in avList:
-                        if av.position == 1:
-                            return True
-
-            return False
-
-        if hasPlayableToon(avList):
-            if not (base.launcher.getPhaseComplete(3.5) and base.launcher.getPhaseComplete(4)):
-                return True
-        return False
+        return len(avList) > 0 and not (base.launcher.getPhaseComplete(3.5) and base.launcher.getPhaseComplete(4))
 
     def __shrinkLoadingBar(self):
         if self.__isValidDownloadBar():

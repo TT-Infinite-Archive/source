@@ -88,11 +88,8 @@ __builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath)
 contentPacksMgr.applyAll()
 
 if sys.platform != 'android':
-    if not os.path.isdir('astron/data/singleplayer'):
-        os.makedirs('astron/data/singleplayer')
-
-    if not os.path.isdir('astron/data/multiplayer'):
-        os.makedirs('astron/data/multiplayer')
+    if not os.path.isdir('astron/data'):
+        os.makedirs('astron/data')
 
 from toontown.launcher.TTILauncher import TTILauncher
 

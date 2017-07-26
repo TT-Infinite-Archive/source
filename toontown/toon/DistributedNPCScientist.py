@@ -11,6 +11,7 @@ class DistributedNPCScientist(DistributedNPCToonBase.DistributedNPCToonBase):
         else:
             self.hideNametag2d()
             self.hide()
+        self.interactable = False
         self.accept('SillyMeterIsRunning', self.sillyMeterIsRunning)
 
     def disable(self):

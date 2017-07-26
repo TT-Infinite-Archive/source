@@ -39,6 +39,7 @@ class CogHood(Hood):
         skyOuter = self.sky.find('**/OutterSky')
 
         if not skyOuter.isEmpty():
+            skyOuter.setDepthWrite(0)
             skyOuter.setBin('background', 0)
         if not skyMiddle.isEmpty():
             skyMiddle.setDepthWrite(0)

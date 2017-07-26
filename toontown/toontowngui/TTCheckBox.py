@@ -6,6 +6,8 @@ class TTCheckBox(DirectButton):
     def __init__(self, parent=aspect2d, pos=(0, 0, 0), checked=False, disable=False, command=None):
         DirectButton.__init__(self, parent, relief=None)
         hostingGui = preloader.getModel('phase_4/models/parties/schtickerbookHostingGUI')
+        if not hostingGui:
+            hostingGui = loader.loadModel('phase_4/models/parties/schtickerbookHostingGUI')
         self._parent = parent
         self.checkedImage = hostingGui.find('**/checked_button')
         self.uncheckedImage = hostingGui.find('**/unchecked_button')
