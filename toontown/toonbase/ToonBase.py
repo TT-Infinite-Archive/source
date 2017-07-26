@@ -160,7 +160,6 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
-        self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
         self.wantMods = self.config.GetBool('want-mods', False)
         self.wantServerBrowser = self.config.GetBool('want-server-browser', False)
         self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
@@ -540,7 +539,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='127.0.0.1', port=7000, isMultiplayer = True):
+    def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
@@ -553,7 +552,7 @@ class ToonBase(OTPBase.OTPBase):
         if not gameserver.hasPort():
             gameserver.setPort(port)
 
-        base.cr.loginFSM.request('connect', [[gameserver], isMultiplayer])
+        base.cr.loginFSM.request('connect', [[gameserver]])
 
     def __speedHackCheckTick(self, task):
         elapsed = time.time() - self.lastSpeedHackCheck

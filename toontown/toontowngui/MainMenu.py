@@ -16,7 +16,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ColorGlobals import CGray, CDefault
 from toontown.toontowngui import TTDialog, TTTooltip, TTLabel, TTCheckBox
-from toontown.toontowngui.LocalSinglePlayerStart import LocalSinglePlayerStart
+from toontown.toontowngui.LocalServerStart import LocalServerStart
 from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker 
 import sys
@@ -29,7 +29,7 @@ class MainMenu(DirectFrame, FSM):
         FSM.__init__(self, 'MainMenu')
 
         self.logoScaleTrack = None
-        self.localSinglePlayerStart = None
+        self.localServerStart = None
 
         self.buttons = []
         self.buttons2 = []
@@ -161,15 +161,15 @@ class MainMenu(DirectFrame, FSM):
 
         self.singlePlayerButton = MATShuffleButton(
             pos=(0, 0, -0.2),
-            text="Singleplayer",
+            text="Play",
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
             image1_scale=buttonScale_clickhover,
-            text_scale=0.082,
-            text2_scale=0.087,
-            text1_scale=0.087,
-            command=lambda: self.request('Singleplayer')
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Multiplayer')
         )
         self.buttons2.append(self.singlePlayerButton)
 
@@ -1108,9 +1108,9 @@ class MainMenu(DirectFrame, FSM):
         base.isHosting = True
         self.__startGameSession(False)
 
-    def __startGameSession(self, singlePlayer):
-        self.LocalSinglePlayerStart = LocalSinglePlayerStart(self, singlePlayer)
-        self.LocalSinglePlayerStart.request('Start')
+    def __startGameSession(self, server):
+        self.LocalServerStart = LocalServerStart(self, server)
+        self.LocalServerStart.request('Start')
         self.quitButton.hide()
 
     def enterMultiplayer(self):
@@ -1425,8 +1425,8 @@ class MainMenu(DirectFrame, FSM):
             self.logoScaleTrack = None
 
     def destroySPLocalStart(self):
-        if self.localSinglePlayerStart:
-            self.localSinglePlayerStart.removeNode()
+        if self.localServerStart:
+            self.localServerStart.removeNode()
 
     def hide(self):
         self.destroySPLocalStart()

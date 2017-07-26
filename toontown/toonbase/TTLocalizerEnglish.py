@@ -10747,8 +10747,7 @@ Help = "The help page is coming soon.\n\nCheck back later!"
 ServerRunningAlready = 'A Singleplayer session is already in progress.'
 MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
 
-ServerRunningAlready = 'A single player session is already in progress.'
-MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
+ServerRunningAlready = 'You are already hosting a server.'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 DedicatedServerDone = 'Done. This server is now live.'

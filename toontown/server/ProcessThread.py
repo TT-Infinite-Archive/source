@@ -5,7 +5,7 @@ import sys
 
 from direct.directnotify import DirectNotifyGlobal
 
-from toontown.singleplayer.SinglePlayerGlobals import LogsPath
+from toontown.server.ServerGlobals import LogsPath
 
 if sys.platform != 'android':
     import subprocess
