@@ -36,7 +36,7 @@ class DownloadForceAcknowledge(DirectObject):
             self.acceptOnce('zoneResponse', self.zoneResponse)
 
             if base.cr.zoneManager.currentRequestedZone != zone:
-                base.cr.zoneManager.requestZoneData(zone)
+                taskMgr.doMethodLater(1.25, self.sendRequest, 'sendZoneRequest', extraArgs=[zone])
 
     def zoneResponse(self, response):
         base.transitions.noFade()
@@ -58,6 +58,9 @@ class DownloadForceAcknowledge(DirectObject):
         self.doneStatus['mode'] = 'complete'
         messenger.send(self.doneEvent, [self.doneStatus])
 
+    def sendRequest(self, zone):
+        base.cr.zoneManager.requestZoneData(zone)
+
     def cleanupDialog(self):
         if self.dialog:
             self.dialog.hide()
@@ -66,6 +69,7 @@ class DownloadForceAcknowledge(DirectObject):
         return
 
     def exit(self):
+        taskMgr.remove('sendZoneRequest')
         self.ignoreAll()
         self.cleanupDialog()
 
