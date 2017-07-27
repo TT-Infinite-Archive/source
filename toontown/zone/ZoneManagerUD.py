@@ -21,7 +21,7 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
         if __debug__:
             self.mountPoint = os.path.join('..', 'resources')
         else:
-            self.mountPoint = '.'
+            self.mountPoint = 'resources'
 
     def loadZones(self):
         for hoodId in HoodHierarchy.keys():
