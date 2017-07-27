@@ -4,9 +4,10 @@ from toontown.toonbase import TTLocalizer
 import random
 from toontown.hood import ZoneUtil
 from toontown.toonbase import ToontownGlobals
+from direct.showbase.DirectObject import DirectObject
 
 
-class DownloadForceAcknowledge:
+class DownloadForceAcknowledge(DirectObject):
 
     def __init__(self, doneEvent):
         self.doneEvent = doneEvent
@@ -27,24 +28,46 @@ class DownloadForceAcknowledge:
             except:
                 pass
 
+            doneStatus['mode'] = 'incomplete'
+            self.doneStatus = doneStatus
+
+            base.transitions.fadeScreen(0.5)
+            self.dialog = TTDialog.TTDialog(text='Communicating with zone server...', style=TTDialog.NoButtons)
+            self.acceptOnce('zoneResponse', self.zoneResponse)
+
             if base.cr.zoneManager.currentRequestedZone != zone:
                 base.cr.zoneManager.requestZoneData(zone)
 
-            doneStatus['mode'] = 'incomplete'
-            self.doneStatus = doneStatus
-            # percentComplete = base.zoneManager.getPercentZoneComplete(zone)
-            phaseName = ''  # TTLocalizer.LauncherPhaseNames[phase]
-            verb = random.choice(TTLocalizer.DownloadForceAcknowledgeVerbList)
-            msg = TTLocalizer.DownloadForceAcknowledgeMsg % {'verb': verb}
-            self.dialog = TTDialog.TTDialog(text=msg, command=self.handleOk, style=TTDialog.Acknowledge)
-            self.dialog.show()
+    def zoneResponse(self, response):
+        base.transitions.noFade()
+        self.cleanupDialog()
+        if response:
+            self.__areaReady()
+        else:
+            self.__areaNotReady()
 
-    def exit(self):
+    def __areaNotReady(self):
+        verb = random.choice(TTLocalizer.DownloadForceAcknowledgeVerbList)
+        msg = TTLocalizer.DownloadForceAcknowledgeMsg % {
+            'verb': verb
+        }
+        self.dialog = TTDialog.TTDialog(text=msg, command=self.handleOk, style=TTDialog.Acknowledge)
+        self.dialog.show()
+
+    def __areaReady(self):
+        self.doneStatus['mode'] = 'complete'
+        messenger.send(self.doneEvent, [self.doneStatus])
+
+    def cleanupDialog(self):
         if self.dialog:
             self.dialog.hide()
             self.dialog.cleanup()
             self.dialog = None
         return
+
+    def exit(self):
+        self.ignoreAll()
+        self.cleanupDialog()
 
     def handleOk(self, value):
         messenger.send(self.doneEvent, [self.doneStatus])

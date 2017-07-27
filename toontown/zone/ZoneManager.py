@@ -70,10 +70,13 @@ class ZoneManager(DistributedObjectGlobal):
             self.mountFile(filename)
             self.setZoneComplete(self.currentRequestedZone)
             self.notify.debug('Completed zones: %s' % self.completedZones)
+            messenger.send('zoneResponse', [True])
             return
         elif mode == ZoneManager.OUTDATED:
             self.notify.debug('Zone %s is outdated! Removing...' % self.currentRequestedZone)
             self.setZoneOutdated(self.currentRequestedZone)
+
+        messenger.send('zoneResponse', [False])
 
         self.currentFileSize = filesize
         blob = base.cr.doId2do.get(blobId)
