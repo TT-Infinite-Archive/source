@@ -15,7 +15,7 @@ class ZoneBlobSenderUD(DistributedObjectUD):
         # send the data
         self.data = bytes(data)
         self.chunkSize = LargeBlobSenderConsts.ChunkSize
-        self.delay = 0.0004
+        self.delay = 0.0001
         taskMgr.doMethodLater(2, self.sendChunk, self.uniqueName('chunk-task'))
 
     def sendChunk(self, task=None):
