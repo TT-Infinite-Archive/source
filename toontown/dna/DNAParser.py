@@ -50,10 +50,11 @@ def loadDNAFile(dnaStorage, file):
 
 def loadDNAFileAI(dnaStorage, file):
     dnaLoader = DNALoader.DNALoader()
-    if __debug__:
-        file = '../resources/' + file
-    else:
-        file = '/' + file
+    if not file.startswith('tmp/'):
+        if __debug__:
+            file = '../resources/' + file
+        else:
+            file = '/' + file
     data = dnaLoader.loadDNAFileAI(dnaStorage, file)
     dnaLoader.destroy()
     return data
