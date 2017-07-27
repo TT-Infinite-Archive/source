@@ -24,7 +24,7 @@ class DistributedBankInteriorAI(DistributedObjectAI):
         self.sendUpdate('setState', ['vaultClosed', 0])
 
         delay = self.doorInterval - (int(time.time()) % self.doorInterval)  # Time until the next vault event.
-        taskMgr.doMethodLater(delay, self.createBankCollectable, 'createBankCollectable')
+        taskMgr.doMethodLater(delay, self.createBankCollectable, self.uniqueName('createBankCollectable'))
 
     def getZoneIdAndBlock(self):
         return [self.zoneId, self.block]
@@ -46,8 +46,8 @@ class DistributedBankInteriorAI(DistributedObjectAI):
         self.sendUpdate('setState', ['vaultOpening', globalClockDelta.getRealNetworkTime()])
         taskMgr.doMethodLater(5, self.openedTask, self.uniqueName('openedTask'))
 
-        taskMgr.doMethodLater(self.doorInterval, self.createBankCollectable, 'createBankCollectable')
-        taskMgr.doMethodLater(60, self.__handleDeleteBankCollectable, 'deleteBankCollectable')
+        taskMgr.doMethodLater(self.doorInterval, self.createBankCollectable, self.uniqueName('createBankCollectable'))
+        taskMgr.doMethodLater(60, self.__handleDeleteBankCollectable, self.uniqueName('deleteBankCollectable'))
 
         if task is not None:
             return Task.done
@@ -59,3 +59,15 @@ class DistributedBankInteriorAI(DistributedObjectAI):
     def openedTask(self, task):
         self.sendUpdate('setState', ['vaultOpen', 0])
         return Task.done
+
+    def delete(self):
+        taskMgr.remove(self.uniqueName('createBankCollectable'))
+        taskMgr.remove(self.uniqueName('closedTask'))
+        taskMgr.remove(self.uniqueName('openedTask'))
+        taskMgr.remove(self.uniqueName('deleteBankCollectable'))
+
+        if self.bankCollectable is not None:
+            self.bankCollectable.requestDelete()
+            self.bankCollectable = None
+
+        DistributedObjectAI.delete(self)
