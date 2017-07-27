@@ -2,6 +2,9 @@ from pandac.PandaModules import *
 from toontown.toontowngui import TTDialog
 from toontown.toonbase import TTLocalizer
 import random
+from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownGlobals
+
 
 class DownloadForceAcknowledge:
 
@@ -12,6 +15,9 @@ class DownloadForceAcknowledge:
 
     def enter(self, zone):
         doneStatus = {}
+        if zone not in ToontownGlobals.HoodHierarchy.keys():
+            zone = ZoneUtil.getBranchZone(zone)
+
         if base.cr.zoneManager.getZoneComplete(zone):
             doneStatus['mode'] = 'complete'
             messenger.send(self.doneEvent, [doneStatus])

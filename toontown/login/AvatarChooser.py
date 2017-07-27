@@ -293,7 +293,7 @@ class AvatarChooser(StateData.StateData):
         self.fsm.request('CheckDownload')
 
     def __handleCreate(self):
-        base.transitions.fadeOut(finishIval=EventInterval(self.doneEvent, [self.doneStatus]))
+        self.fsm.request('CheckDownload')
 
     def __handleDelete(self):
         messenger.send(self.doneEvent, [self.doneStatus])
