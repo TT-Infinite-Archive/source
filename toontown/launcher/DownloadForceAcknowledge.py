@@ -31,12 +31,13 @@ class DownloadForceAcknowledge(DirectObject):
             doneStatus['mode'] = 'incomplete'
             self.doneStatus = doneStatus
 
-            base.transitions.fadeScreen(0.5)
-            self.dialog = TTDialog.TTDialog(text='Communicating with zone server...', style=TTDialog.NoButtons)
-            self.acceptOnce('zoneResponse', self.zoneResponse)
-
             if base.cr.zoneManager.currentRequestedZone != zone:
+                base.transitions.fadeScreen(0.5)
+                self.dialog = TTDialog.TTDialog(text='Communicating with zone server...', style=TTDialog.NoButtons)
+                self.acceptOnce('zoneResponse', self.zoneResponse)
                 taskMgr.doMethodLater(1.25, self.sendRequest, 'sendZoneRequest', extraArgs=[zone])
+            else:
+                self.zoneResponse(False)
 
     def zoneResponse(self, response):
         base.transitions.noFade()
