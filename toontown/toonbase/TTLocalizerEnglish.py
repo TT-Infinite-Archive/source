@@ -1809,7 +1809,7 @@ QuestDialogDict = {160: {GREETING: '',
         COMPLETE: ''},
  7228: {GREETING: '',
         LEAVING: '',
-        QUEST: "Hey there, little toon! Big Mama's got the best pajamas from the Bahamas.\x07Oh, something for Sandy Sandman, huh? Well, let me see what I've got.\x07Here's a little something. Now she can sleep in style!\x07Would you run these back over to her for me? I can't leave the shop just now.\x07Thanks, _avName_. See you around!",
+        QUEST: "Hey there, little Toon! Big Mama's got the best pajamas from the Bahamas.\x07Oh, something for Sandy Sandman, huh? Well, let me see what I've got.\x07Here's a little something. Now she can sleep in style!\x07Would you run these back over to her for me? I can't leave the shop just now.\x07Thanks, _avName_. See you around!",
         INCOMPLETE_PROGRESS: 'You need to take those pajamas to Sandy._where_',
         COMPLETE: ''},
  7229: {GREETING: '',
@@ -2191,7 +2191,7 @@ AvatarPanelGroupRetract = 'Retract Invitation'
 AvatarPanelGroupMember = 'Already In Group'
 AvatarPanelGroupMemberKick = 'Remove'
 ReportPanelTitle = 'Report A Player'
-ReportPanelBody = 'This feature will send a complete report to a Moderator. Instead of sending a report, you might choose to do one of the following:\n\n  - Teleport to another district\n  - Use "Ignore" on the toon\'s panel\n\nDo you really want to report %s to a Moderator?'
+ReportPanelBody = 'This feature will send a complete report to a Moderator. Instead of sending a report, you might choose to do one of the following:\n\n  - Teleport to another district\n  - Use "Ignore" on the Toon\'s panel\n\nDo you really want to report %s to a Moderator?'
 ReportPanelBodyFriends = 'This feature will send a complete report to a Moderator. Instead of sending a report, you might choose to do one of the following:\n\n  - Teleport to another district\n  - Break your friendship\n\nDo you really want to report %s to a Moderator?\n\n(This will also break your friendship)'
 ReportPanelCategoryBody = 'You are about to report %s. A Moderator will be alerted to your complaint and will take appropriate action for anyone breaking our rules. Please choose the reason you are reporting %s:'
 ReportPanelBodyPlayer = 'This feature is stilling being worked on and will be coming soon. In the meantime you can do the following:\n\n  - Go to DXD and break the friendship there.\n - Tell a parent about what happened.'
@@ -2521,13 +2521,13 @@ CheesyEffectDescriptions = [('Normal Toon', 'you will be normal'),
  ('Small head', 'you will have a small head'),
  ('Big legs', 'you will have big legs'),
  ('Small legs', 'you will have small legs'),
- ('Big toon', 'you will be a little bigger'),
- ('Small toon', 'you will be a little smaller'),
+ ('Big Toon', 'you will be a little bigger'),
+ ('Small Toon', 'you will be a little smaller'),
  ('Flat portrait', 'you will be two-dimensional'),
  ('Flat profile', 'you will be two-dimensional'),
  ('Transparent', 'you will be transparent'),
  ('No color', 'you will be colorless'),
- ('Invisible toon', 'you will be invisible')]
+ ('Invisible Toon', 'you will be invisible')]
 CheesyEffectIndefinite = 'Until you choose another effect, %(effectName)s%(whileIn)s.'
 CheesyEffectMinutes = 'For the next %(time)s minutes, %(effectName)s%(whileIn)s.'
 CheesyEffectHours = 'For the next %(time)s hours, %(effectName)s%(whileIn)s.'
@@ -2769,7 +2769,7 @@ SuitAttackTaunts = {'Audit': ["I believe your books don't balance.",
             'Get ready to "Kick the can"!',
             'You think you "can", you think you "can".',
             "I'll throw you in the can!",
-            "I'm making me a can o' toon-a!",
+            "I'm making me a can o' Toon-a!",
             "You don't taste so good out of the can."],
  'Chomp': ['Take a look at these chompers!',
            'Chomp, chomp, chomp!',
@@ -2949,7 +2949,7 @@ SuitAttackTaunts = {'Audit': ["I believe your books don't balance.",
             'I hope you receive this loud and clear.',
             'You got the wrong number.'],
  'HeadShrink': ["Looks like you're seeing a shrink.",
-                'Honey, I shrunk the toon.',
+                'Honey, I shrunk the Toon.',
                 "Hope this doesn't shrink your pride.",
                 'Do you shrink in the wash?',
                 'I shrink therefore I am.',
@@ -4265,10 +4265,10 @@ FriendsListPanelGuildAll = 'ALL GUILD\nMEMBERS'
 FriendsListPanelGuildOnline = 'ONLINE GUILD\nMEMBERS'
 FriendsListPanelPlayers = 'ALL PLAYER\nFRIENDS'
 FriendsListPanelOnlinePlayers = 'ONLINE PLAYER\nFRIENDS'
-GuildInviterClickToon = 'Click on the toon you would like to invite to your Guild.\n\n(Your guild has %s members)'
+GuildInviterClickToon = 'Click on the Toon you would like to invite to your Guild.\n\n(Your guild has %s members)'
 GuildInviterInviting = 'Inviting...'
-GuildInviterAlreadyInGuild = 'This toon already belongs to a Guild!'
-GuildInviterAlreadyInMyGuild = 'This toon is already in your Guild!'
+GuildInviterAlreadyInGuild = 'This Toon already belongs to a Guild!'
+GuildInviterAlreadyInMyGuild = 'This Toon is already in your Guild!'
 GuildInviterCheckAvailability = 'Asking %s to join your Guild...'
 GuildInviterSaidYes = '%s is now a part of your Guild!'
 GuildInviterSaidNo = '%s has declined your Guild invitation.'
@@ -4325,23 +4325,23 @@ GuildTargetInGuildError = 'That player is currently in a Guild.'
 GuildTargetBusyError = 'That player is too busy.'
 GuildCantProcessError = 'There was an error processing your request.'
 GuildInviteRejected = 'Your invite was rejected.'
-FriendInviterClickToon = 'Click on the toon you would like to make friends with.\n\n(You have %s friends)'
+FriendInviterClickToon = 'Click on the Toon you would like to make friends with.\n\n(You have %s friends)'
 FriendInviterToon = 'Toon'
-FriendInviterThatToon = 'That toon'
+FriendInviterThatToon = 'That Toon'
 FriendInviterPlayer = 'Player'
 FriendInviterThatPlayer = 'That player'
 FriendInviterBegin = 'What type of friend would you like to make?'
 FriendInviterToonFriendInfo = 'A friend only in Toontown'
 FriendInviterPlayerFriendInfo = 'A friend across the Toontown Infinite network'
-FriendInviterToonTooMany = 'You have too many toon friends to add another one now. You will have to remove some toon friends if you want to make friends with %s. You could also try making player friends them.'
-FriendInviterPlayerTooMany = 'You have too many player friends to add another one now. You will have to remove some player friends if you want to make friends with %s. You could also try making toon friends with them.'
-FriendInviterToonAlready = '%s is already your toon friend.'
+FriendInviterToonTooMany = 'You have too many Toon friends to add another one now. You will have to remove some Toon friends if you want to make friends with %s. You could also try making player friends them.'
+FriendInviterPlayerTooMany = 'You have too many player friends to add another one now. You will have to remove some player friends if you want to make friends with %s. You could also try making Toon friends with them.'
+FriendInviterToonAlready = '%s is already your Toon friend.'
 FriendInviterPlayerAlready = '%s is already your player friend.'
-FriendInviterStopBeingToonFriends = 'Stop being toon friends'
+FriendInviterStopBeingToonFriends = 'Stop being Toon friends'
 FriendInviterStopBeingPlayerFriends = 'Stop being player friends'
-FriendInviterEndFriendshipToon = 'Are you sure you want to stop being toon friends with %s?'
+FriendInviterEndFriendshipToon = 'Are you sure you want to stop being Toon friends with %s?'
 FriendInviterEndFriendshipPlayer = 'Are you sure you want to stop being player friends with %s?'
-FriendInviterRemainToon = '\n(You will still be toon friends with %s)'
+FriendInviterRemainToon = '\n(You will still be Toon friends with %s)'
 FriendInviterRemainPlayer = '\n(You will still be player friends with %s)'
 DownloadForceAcknowledgeVerbList = ['painted',
  'unpacked',
@@ -4356,7 +4356,7 @@ TeaserDefault = ',\nyou need to become a Member.\n\nJoin us!'
 TeaserOtherHoods = 'For unlimited adventures in all 6 playgrounds'
 TeaserTypeAName = 'Type in your favorite name for your Toon!'
 TeaserSixToons = 'To play more than one Toon'
-TeaserClothing = 'To buy items from the Cattlelog \nto customize your toon'
+TeaserClothing = 'To buy items from the Cattlelog \nto customize your Toon'
 TeaserCogHQ = 'To access awesome Cog HQs'
 TeaserSecretChat = 'To use the True Friends Chat feature'
 TeaserSpecies = 'To pick this type of Toon'
@@ -4527,7 +4527,7 @@ EventsPageNewsDownloading = 'Retrieving News...'
 EventsPageNewsUnavailable = 'Chip and Dale played with the printing press. News not available.'
 EventsPageNewsPaperTitle = 'TOONTOWN TIMES'
 EventsPageNewsLeftSubtitle = 'Still only 1 Jellybean'
-EventsPageNewsRightSubtitle = 'Established toon-thousand nine'
+EventsPageNewsRightSubtitle = 'Established Toon-thousand nine'
 NewsPageName = 'News'
 NewsPageImportError = 'Whoops! There is an issue loading the "Toon News ... for the Amused!" Please check back later.'
 NewsPageDownloadingNewsSubstr = 'Stay Tooned, while we bring you the latest issue of the \n"Toon News ... for the Amused!"'
@@ -4743,11 +4743,11 @@ PartyActivityNameDict = {0: {'generic': 'Jukebox',
  4: {'generic': 'Dance Floor\n10 moves',
      'invite': 'a 10 move Dance Floor',
      'editor': 'Dance Floor - 10',
-     'description': 'Show off all 10 of your moves, toon style!'},
+     'description': 'Show off all 10 of your moves, Toon style!'},
  5: {'generic': 'Party Tug-of-War',
      'invite': 'Party Tug-of-War',
      'editor': 'Tug-of-War',
-     'description': 'Up to 4 on 4 toon tugging craziness!'},
+     'description': 'Up to 4 on 4 Toon tugging craziness!'},
  6: {'generic': 'Party Fireworks',
      'invite': 'Party Fireworks',
      'editor': 'Fireworks',
@@ -4763,7 +4763,7 @@ PartyActivityNameDict = {0: {'generic': 'Jukebox',
  9: {'generic': 'Dance Floor\n20 moves',
      'invite': 'a 20 move Dance Floor',
      'editor': 'Dance Floor - 20',
-     'description': 'Show off all 20 of your moves, toon style!'},
+     'description': 'Show off all 20 of your moves, Toon style!'},
  10: {'generic': 'Cog-O-War',
       'invite': 'Cog-O-War',
       'editor': 'Cog-O-War',
@@ -5342,7 +5342,7 @@ MovieTutorialReward2 = 'You received 1 Squirt point! When you get 10, you will g
 MovieTutorialReward3 = 'Good job! You completed your first ToonTask!'
 MovieTutorialReward4 = 'Go to Toon Headquarters for your reward!'
 MovieTutorialReward5 = 'Have fun!'
-BattleGlobalTracks = ['toon-up',
+BattleGlobalTracks = ['Toon-up',
  'trap',
  'lure',
  'sound',
@@ -5669,7 +5669,7 @@ MinigamePowerMeterTooFast = 'Too\nfast'
 MinigameTemplateTitle = 'Minigame Template'
 MinigameTemplateInstructions = 'This is a template minigame. Use it to create new minigames.'
 CannonGameTitle = 'Cannon Game'
-CannonGameInstructions = 'Shoot your toon into the water tower as quickly as you can. Use the mouse or the arrow keys to aim the cannon. Be quick and win a big reward for everyone!'
+CannonGameInstructions = 'Shoot your Toon into the water tower as quickly as you can. Use the mouse or the arrow keys to aim the cannon. Be quick and win a big reward for everyone!'
 CannonGameReward = 'REWARD'
 TwoDGameTitle = 'Toon Escape'
 TwoDGameInstructions = 'Escape from the ' + Cog + ' den as soon as you can. Use arrow keys to run/jump and Ctrl to squirt a ' + Cog + '. Collect ' + Cog + ' treasures to gain even more points.'
@@ -5794,8 +5794,8 @@ GagShopPlayerDisconnected = '%s has disconnected'
 GagShopPlayerExited = '%s has exited'
 GagShopPlayerPlayAgain = 'Play Again'
 GagShopPlayerBuying = 'Buying'
-GenderShopQuestionMickey = 'To make a boy toon, click on me!'
-GenderShopQuestionMinnie = 'To make a girl toon, click on me!'
+GenderShopQuestionMickey = 'To make a boy Toon, click on me!'
+GenderShopQuestionMinnie = 'To make a girl Toon, click on me!'
 GenderShopFollow = 'Follow me!'
 GenderShopSeeYou = 'See you later!'
 GenderShopBoyButtonText = 'Boy'
@@ -5830,7 +5830,7 @@ MakeAToonDone = 'Done'
 MakeAToonCancel = lCancel
 MakeAToonNext = lNext
 MakeAToonLast = 'Back'
-CreateYourToon = 'Click the arrows to create your toon.'
+CreateYourToon = 'Click the arrows to create your Toon.'
 CreateYourToonTitle = 'Choose  Boy  or  Girl'
 ShapeYourToonTitle = 'Choose  Your  Type'
 PaintYourToonTitle = 'Choose  Your  Color'
@@ -5839,12 +5839,12 @@ NameToonTitle = 'Choose  Your  Name'
 CreateYourToonHead = "Click the 'head' arrows to pick different animals."
 MakeAToonClickForNextScreen = 'Click the arrow below to go to the next screen.'
 PickClothes = 'Click the arrows to pick clothes!'
-PaintYourToon = 'Click the arrows to paint your toon!'
+PaintYourToon = 'Click the arrows to paint your Toon!'
 MakeAToonYouCanGoBack = 'You can go back to change your body too!'
-MakeAFunnyName = 'Choose a funny name for your toon with my Pick-A-Name game!'
-MustHaveAFirstOrLast1 = "Your toon should have a first or last name, don't you think?"
-MustHaveAFirstOrLast2 = "Don't you want your toon to have a first or last name?"
-ApprovalForName1 = "That's it, your toon deserves a great name!"
+MakeAFunnyName = 'Choose a funny name for your Toon with my Pick-A-Name game!'
+MustHaveAFirstOrLast1 = "Your Toon should have a first or last name, don't you think?"
+MustHaveAFirstOrLast2 = "Don't you want your Toon to have a first or last name?"
+ApprovalForName1 = "That's it, your Toon deserves a great name!"
 ApprovalForName2 = 'Toon names are the best kind of names!'
 MakeAToonLastStep = 'Last step before going to Toontown!'
 PickANameYouLike = 'Pick a name you like!'
@@ -5953,7 +5953,7 @@ AnimalToSpecies = {'dog': 'Dog',
  'bear': 'Bear',
  'pig': 'Pig'}
 NameTooLong = 'That name is too long. Please try again.'
-ToonAlreadyExists = 'You already have a toon named %s!'
+ToonAlreadyExists = 'You already have a Toon named %s!'
 NameAlreadyInUse = 'That name is already used!'
 EmptyNameError = 'You must enter a name first.'
 NameError = 'Sorry. That name will not work.'
@@ -6126,11 +6126,11 @@ CagedToonLastPromotion = "\x07Wow, you've reached level %s on your Cog suit!\x07
 CagedToonHPBoost = "\x07You've rescued a lot of Toons from this HQ.\x07The Toon Council has decided to give you another Laff point. Congratulations!"
 CagedToonMaxed = '\x07I see that you have a level %s Cog suit. Very impressive!\x07On behalf of the Toon Council, thank you for coming back to rescue more Toons!'
 CagedToonGoodbye = 'See ya!'
-CagedToonBattleThree = {10: 'Nice jump, %(toon)s.  Here are some pies!',
- 11: 'Hi, %(toon)s!  Have some pies!',
- 12: "Hey there, %(toon)s!  You've got some pies now!",
- 20: 'Hey, %(toon)s!  Jump up to my cage and get some pies to throw!',
- 21: 'Hi, %(toon)s!  Use the Ctrl key to jump up and touch my cage!',
+CagedToonBattleThree = {10: 'Nice jump, %(Toon)s.  Here are some pies!',
+ 11: 'Hi, %(Toon)s!  Have some pies!',
+ 12: "Hey there, %(Toon)s!  You've got some pies now!",
+ 20: 'Hey, %(Toon)s!  Jump up to my cage and get some pies to throw!',
+ 21: 'Hi, %(Toon)s!  Use the Ctrl key to jump up and touch my cage!',
  100: 'Press the Delete key to throw a pie.',
  101: 'The blue power meter shows how high your pie will go.',
  102: 'First try to lob a pie inside his undercarriage to gum up his works.',
@@ -8669,7 +8669,7 @@ TrunkDeleteShoes = 'Delete\nshoes'
 EstateOwnerLeftMessage = "Sorry, the owner of this estate left.  You'll be sent back to the playground in %s seconds"
 EstatePopupOK = lOK
 EstateTeleportFailed = "Couldn't go home. Try again!"
-EstateTeleportFailedNotFriends = "Sorry, %s is in a toon's estate that you are not friends with."
+EstateTeleportFailedNotFriends = "Sorry, %s is in a Toon's estate that you are not friends with."
 EstateTargetGameStart = 'The Toon-up Target game has started!'
 EstateTargetGameInst = "The more you hit the red target, the more you'll get Tooned up."
 EstateTargetGameEnd = 'The Toon-up Target game is now over...'
@@ -9588,7 +9588,7 @@ PlantingGuiCancel = 'Cancel'
 PlantingGuiReset = 'Reset'
 GardeningChooseBeans = 'Choose the Jellybeans you want to plant.'
 GardeningChooseBeansItem = 'Choose the Jellybeans / item you want to plant.'
-GardeningChooseToonStatue = 'Choose the toon you want to create a statue of.'
+GardeningChooseToonStatue = 'Choose the Toon you want to create a statue of.'
 GardenShovelLevelUp = "Congratulations you've earned a %(shovel)s! You've mastered the %(oldbeans)d bean flower! To progress you should pick %(newbeans)d bean flowers."
 GardenShovelSkillLevelUp = "Congratulations! You've mastered the %(oldbeans)d bean flower! To progress you should pick %(newbeans)d bean flowers."
 GardenShovelSkillMaxed = "Amazing! You've maxed out your shovel skill!"
@@ -10068,8 +10068,8 @@ ElevatorLawBotCourse2 = 'Office C'
 ElevatorLawBotCourse3 = 'Office D'
 DaysToGo = 'Wait\n%s Days'
 IceGameTitle = 'Ice Slide'
-IceGameInstructions = 'Get as close to the center by the end of the second round. Use arrow keys to change direction and force. Press Ctrl to launch your toon.  Hit barrels for extra points and avoid the TNT!'
-IceGameInstructionsNoTnt = 'Get as close to the center by the end of the second round. Use arrow keys to change direction and force. Press Ctrl to launch your toon.  Hit barrels for extra points.'
+IceGameInstructions = 'Get as close to the center by the end of the second round. Use arrow keys to change direction and force. Press Ctrl to launch your Toon.  Hit barrels for extra points and avoid the TNT!'
+IceGameInstructionsNoTnt = 'Get as close to the center by the end of the second round. Use arrow keys to change direction and force. Press Ctrl to launch your Toon.  Hit barrels for extra points.'
 IceGameWaitingForPlayersToFinishMove = 'Waiting for other players...'
 IceGameWaitingForAISync = 'Waiting for other players...'
 IceGameInfo = 'Match %(curMatch)d/%(numMatch)d, Round %(curRound)d/%(numRound)d'
@@ -10490,9 +10490,9 @@ achievementInfo = {
          'Make 10 friends'),
     50: ('50 and counting',
          'Make 50 friends'),
-    51: ('Popular toon - I',
+    51: ('Popular Toon - I',
          'Make 100 friends'),
-    52: ('Popular toon - II',
+    52: ('Popular Toon - II',
          'Make 200 friends'),
     53: ('Micromanaged',
          'Defeat 200 Micromanagers'),
