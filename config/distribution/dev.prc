@@ -8,7 +8,7 @@ audio-library-name p3openal_audio
 model-path ../resources
 
 # Server:
-server-version n/a
+server-version dev
 accountdb-type developer
 access-level-clamp 400 400
 
