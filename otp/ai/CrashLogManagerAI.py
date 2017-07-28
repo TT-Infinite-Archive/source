@@ -14,8 +14,9 @@ class RemoteCrashLogManager(CrashLogManager):
     def log(self, avId, exception):
         CrashLogManager.log(self, avId, exception)
 
-        self.air.mongodb.crashes.insert_one(
-            {'timestamp': int(time.time()), 'avId': avId, 'exception': exception})
+        if self.air.mongodb:
+            self.air.mongodb.crashes.insert_one(
+                {'timestamp': int(time.time()), 'avId': avId, 'exception': exception})
 
 
 class CrashLogManagerAI:

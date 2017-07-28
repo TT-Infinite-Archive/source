@@ -21,6 +21,8 @@ class DedicatedServer(FSM):
 
     def __init__(self):
         FSM.__init__(self, 'DedicatedServer')
+        self.mongoEnabled = config.GetBool('want-mongo', False)
+        self.dataFolder = 'data' if self.mongoEnabled else 'databases'
 
         # Create a temporary directory:
         self.tempDir = tempfile.mkdtemp()
@@ -36,8 +38,11 @@ class DedicatedServer(FSM):
         self.mdPort = 7010
         self.logPort = 7020
         self.mongoPort = 7030
-        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data', 'multiplayer')
+        self.dbPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', self.dataFolder, 'multiplayer')
         self.astronConfig = os.path.join(self.tempDir, 'multiplayer.yml')
+        
+        if not os.path.exists(self.dbPath):
+            os.makedirs(self.dbPath)
 
     def isServerAlive(self):
         import socket
@@ -82,6 +87,11 @@ class DedicatedServer(FSM):
         self.process = copy.deepcopy(Processes[self.currentProcess])
         self.currentProcess += 1
 
+        if 'mongod' in self.process[0][0] and not base.mongoEnabled:
+            # If MongoDB is disabled, we shouldn't start it.
+            self.__processStarted('mongod')
+            return
+
         self.notify.info(TTLocalizer.StartingServerDev % self.process[2])
 
         thread = ProcessThread(self.path, self.process)
@@ -89,7 +99,7 @@ class DedicatedServer(FSM):
         if thread.processInfo[0].startswith('astrond'):
             thread.processInfo.append(self.astronConfig)
         elif thread.processInfo[0].startswith('mongod'):
-            thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
+            thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.dbPath]
         elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
 
@@ -148,10 +158,10 @@ class DedicatedServer(FSM):
         dcFile.write(dcFilePath, False)
 
         # First, get the main config file...
-        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version, mongoEnabled=self.mongoEnabled)
 
         # And now, get the modified config for Astron.
         path = os.path.join(self.tempDir, 'multiplayer.yml')
-        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+        data = getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1, mongoEnabled=self.mongoEnabled)
         with open(path, 'w') as f:
             yaml.dump(data, f)

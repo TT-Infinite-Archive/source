@@ -8,7 +8,7 @@ audio-library-name p3openal_audio
 model-path ../resources
 
 # Server:
-server-version dev
+server-version n/a
 accountdb-type developer
 access-level-clamp 400 400
 
@@ -28,7 +28,6 @@ generate-global-object 4712 TTSpeedchatRelay
 generate-global-object 4683 DistributedDeliveryManager
 generate-global-object 4695 TTCodeRedemptionMgr
 generate-global-object 4477 GlobalPartyManager
-generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 generate-global-object 4901 MegaInvasionManager

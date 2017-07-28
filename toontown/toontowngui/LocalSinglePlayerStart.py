@@ -126,6 +126,11 @@ class LocalSinglePlayerStart(DirectFrame, FSM):
         self.process = copy.deepcopy(Processes[self.currentProcess])
         self.currentProcess += 1
 
+        if 'mongod' in self.process[0][0] and not base.mongoEnabled:
+            # If MongoDB is disabled, we shouldn't start it.
+            self.__processStarted('mongod')
+            return
+
         if __debug__:
             self.label['text'] = TTLocalizer.StartingServerDev % self.process[2]
         else:

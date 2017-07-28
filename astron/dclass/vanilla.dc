@@ -3180,37 +3180,12 @@ dclass DistributedLeaderBoard : DistributedObject {
 };
 
 dclass DistributedDeliveryManager : DistributedObject {
-  hello(string) clsend;
-  rejectHello(string);
-  helloResponse(string);
-
-  getName(uint32);
-  receiveRejectGetName(string);
-  receiveAcceptGetName(string);
-
-  addName(uint32, string);
-  receiveRejectAddName(uint32);
-  receiveAcceptAddName(uint32);
-
-  addGift(uint32, blob, uint32, uint32, uint32);
-  receiveRejectAddGift(uint32);
-  receiveAcceptAddGift(uint32, uint32, uint32, uint32);
-
-  deliverGifts(uint32, uint32);
-  receiveAcceptDeliverGifts(uint32, string);
-  receiveRejectDeliverGifts(uint32, string);
-
-  receiveRequestPayForGift(blob, uint32, uint32) airecv clsend;
-
   receiveRequestPurchaseGift(blob, uint32, uint32, uint32, uint16 context) airecv;
   receiveAcceptPurchaseGift(uint32, uint32, int16);
   receiveRejectPurchaseGift(uint32, uint32, int16, uint16);
 
-  heartbeat() airecv;
-  giveBeanBonus(uint32, uint16);
   requestAck() clsend;
   returnAck();
-  givePartyRefund(uint32, uint32, uint64, int8, uint16);
 };
 
 dclass DistributedLawbotBoss : DistributedBossCog {

@@ -92,10 +92,6 @@ AstronConfig = {
             'generate': {
                 'min': 100000000,
                 'max': 399999999
-            },
-            'backend': {
-                'type': 'mongodb',
-                'server': 'mongodb://127.0.0.1:7031/game'
             }
         },
         {
@@ -117,8 +113,9 @@ AstronConfig = {
 }
 
 
-def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', multiplayer=0):
+def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', multiplayer=0, mongoEnabled=False):
     config = AstronConfig.copy()
+
     if multiplayer:
         # The changes we've made for singleplayer
         # seems to have carried over, so let's
@@ -127,22 +124,39 @@ def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', multiplay
         config['general']['eventlogger'] = '127.0.0.1:7020'
         config['messagedirector']['bind'] = '127.0.0.1:7010'
         config['roles'][0]['bind'] = '0.0.0.0:7000'
-        config['roles'][2]['backend']['server'] = 'mongodb://127.0.0.1:7030/game'
         config['roles'][4]['bind'] = '127.0.0.1:7020'
+        
+        if mongoEnabled:
+            config['roles'][2]['backend'] = {'type': 'mongodb', 'server': 'mongodb://127.0.0.1:7030/game'}
+        else:
+            config['roles'][2]['backend'] = {'type': 'yaml', 'directory': 'databases/multiplayer'}
+
         return config
+
     for dcFileName in dcFileNames:
         config['general']['dc_files'].append(dcFileName)
+
     config['roles'][0]['version'] = version
+
+    if mongoEnabled:
+        config['roles'][2]['backend'] = {'type': 'mongodb', 'server': 'mongodb://127.0.0.1:7031/game'}
+    else:
+        config['roles'][2]['backend'] = {'type': 'yaml', 'directory': 'databases/singleplayer'}
+
     globalObjectDefs = ConfigVariableList('generate-global-object')
+
     for globalObjectDef in globalObjectDefs:
         doId, dcname = globalObjectDef.split(' ', 1)
         doId = int(doId)
         anonymous = False
+
         if dcname == 'ClientServicesManager':
             anonymous = True
+
         config['uberdogs'].append({
             'class': dcname,
             'id': doId,
             'anonymous': anonymous
         })
+
     return config

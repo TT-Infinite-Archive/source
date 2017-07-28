@@ -1,6 +1,7 @@
 from panda3d.core import ConfigVariableList
 
 from otp.distributed.DistributedDirectoryAI import DistributedDirectoryAI
+from otp.otpbase import BackupManager
 from toontown.distributed.ToontownInternalRepository import \
     ToontownInternalRepository
 from otp.distributed import OtpDoGlobals
@@ -20,6 +21,10 @@ class ToontownUberRepository(ToontownInternalRepository):
         self.remoteGlobalObjects = {}
 
         self.notify.setInfo(True)
+
+        self.backups = BackupManager.BackupManager(
+            filepath=config.GetString('backups-filepath', 'backups/'),
+            extension=config.GetString('backups-extension', '.json'))
 
         # Logging
         from panda3d.core import MultiplexStream, Notify, StreamWriter

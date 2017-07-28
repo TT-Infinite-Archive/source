@@ -27,16 +27,23 @@ class ToontownInternalRepository(AstronInternalRepository):
             threadedNet=threadedNet)
 
         self.__callbacks = {}
+        self.mongoEnabled = config.GetBool('want-mongo', False)
 
-        url = config.GetString('mongodb-url', 'mongodb://localhost')
-        replicaset = config.GetString('mongodb-replicaset', '')
-        if replicaset:
-            self.mongo = pymongo.MongoClient(url, replicaset=replicaset)
+        if self.mongoEnabled:
+            import pymongo
+
+            url = config.GetString('mongodb-url', 'mongodb://localhost')
+            replicaset = config.GetString('mongodb-replicaset', '')
+            if replicaset:
+                self.mongo = pymongo.MongoClient(url, replicaset=replicaset)
+            else:
+                self.mongo = pymongo.MongoClient(url)
+            db = (urlparse.urlparse(url).path or '/game')[1:]
+            self.mongodb = self.mongo[db]
+            self.dbAstronCursor = self.mongodb.astron
         else:
-            self.mongo = pymongo.MongoClient(url)
-        db = (urlparse.urlparse(url).path or '/game')[1:]
-        self.mongodb = self.mongo[db]
-        self.dbAstronCursor = self.mongodb.astron
+            self.mongodb = None
+            self.dbAstronCursor = None
 
         if config.GetBool('want-web-api', False):
             endpoint = config.GetString(

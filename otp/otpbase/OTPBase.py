@@ -5,6 +5,7 @@ import tempfile
 import atexit
 import shutil
 import sys
+import os
 import OTPGlobals
 import OTPRender
 import __builtin__
@@ -23,6 +24,15 @@ class OTPBase(ShowBase):
             atexit.register(shutil.rmtree, self.tempDir)
 
         self.wantEnviroDR = False
+        self.mongoEnabled = self.config.GetBool('want-mongo', False)
+
+        if sys.platform != 'android':
+            dataFolder = 'data' if self.mongoEnabled else 'databases'
+            
+            for folder in [os.path.join('astron', dataFolder, 'singleplayer'), os.path.join('astron', dataFolder, 'multiplayer')]:
+                if not os.path.isdir(folder):
+                    os.makedirs(folder)
+
         ShowBase.__init__(self, windowType=windowType)
         if config.GetBool('want-phase-checker', 0):
             from direct.showbase import Loader

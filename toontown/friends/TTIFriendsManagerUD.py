@@ -544,7 +544,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
                 return
         self.whisperRequests[fromId] = currStamp
         self.sendUpdateToAvatarId(toId, 'receiveTalkWhisper', [fromId, message])
-        if config.GetBool('want-chat-logging', False):
+        if config.GetBool('want-chat-logging', False) and self.air.mongodb:
             self.air.mongodb.chat.messages.insert_one(
                 {'type': 1, 'timestamp': int(time.time()),
                  'sender': fromId, 'recipient': toId, 'location': [-1, -1],

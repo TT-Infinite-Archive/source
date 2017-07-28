@@ -395,13 +395,13 @@ class OTPClientRepository(ClientRepositoryBase):
 
             # Generate a single player Astron config file.
             path = os.path.join(base.tempDir, 'singleplayer.yml')
-            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, mongoEnabled=base.mongoEnabled)
             with open(path, 'w') as f:
                 yaml.dump(data, f)
 
             # Generate a multi player Astron config file.
             path = os.path.join(base.tempDir, 'multiplayer.yml')
-            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1, mongoEnabled=base.mongoEnabled)
             with open(path, 'w') as f:
                 yaml.dump(data, f)
 

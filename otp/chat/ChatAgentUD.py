@@ -60,7 +60,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
 
         self.air.writeServerEvent('chat-said', senderId, message, message)
 
-        if config.GetBool('want-chat-logging', False):
+        if config.GetBool('want-chat-logging', False) and self.air.mongodb:
             def handleQueryObjectLocationResp(parentId, zoneId):
                 self.air.mongodb.chat.messages.insert_one(
                     {'type': ChannelToType[channel],

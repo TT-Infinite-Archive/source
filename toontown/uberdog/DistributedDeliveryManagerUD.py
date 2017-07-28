@@ -16,70 +16,12 @@ FIELD_MAILBOX_CONTENTS = 4
 FIELD_CATALOG = 5
 FIELD_DNA = 6
 
-
-class GiftUD:
-    def __init__(self):
-        self.gifterId = 0
-        self.gifterName = ''
-        self.gifteeId = 0
-        self.blob = ''
-        self.deliveryTime = 0
-
-    def getMongoDocument(self):
-        return {
-            "gifterId": self.gifterId,
-            "gifterName": self.gifterName,
-            "gifteeId": self.gifteeId,
-            "blob": binary.Binary(self.blob),
-            "deliveryTime": self.deliveryTime,
-        }
-
-    def makeFromMongoDocument(self, doc):
-        self.gifterId = doc['gifterId']
-        self.gifterName = doc['gifterName']
-        self.gifteeId = doc['gifteeId']
-        self.blob = doc['blob']
-        self.deliveryTime = doc['deliveryTime']
-        self.fromMongo = True
-
-
 class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedDeliveryManagerUD")
 
     def announceGenerate(self):
         DistributedObjectGlobalUD.announceGenerate(self)
         self.fsms = []
-        self.gifts = []
-        self.deliverydb = self.air.mongodb.gamedata.gifting
-
-    def hello(self, todo0):
-        pass
-
-    def rejectHello(self, todo0):
-        pass
-
-    def helloResponse(self, todo0):
-        pass
-
-    def getName(self, todo0):
-        pass
-
-    def addName(self, todo0, todo1):
-        pass
-
-    def addGift(self, fromId, item, optional, toId, timeOrdered):
-        pass
-
-    def deliverGifts(self, doId, timestamp):
-        if time.time() >= timestamp:
-            gifts = [gift for gift in self.gifts if gift.toId == doId]
-            if not gifts:
-                return
-            gifts.sort(key=lambda g: g.deliveryTime)
-            DeliverGiftFSM(self, gifts[0]).start()
-
-    def receiveRequestPayForGift(self, todo0, todo1, todo2):
-        pass
 
     def receiveRequestPurchaseGift(self, blob, toId, fromId, phoneId, context):
         sender = simbase.air.getAvatarIdFromSender()
@@ -115,9 +57,12 @@ class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
             self.sendToAvatar('setGiftSchedule', [gifteeSchedule.getBlob()], toId)
 
     def updateDeliverySchedule(self, gifteeId, giftSchedule):
-        data = binary.Binary(giftSchedule.getBlob())
-        self.air.mongodb.astron.objects.find_one_and_update(
-            {'_id': gifteeId}, {'$set': {'fields.setGiftSchedule': {'_0': data}}})
+        self.air.dbInterface.updateObject(
+            self.air.dbId,
+            gifteeId,
+            self.air.dclassesByName['DistributedToonUD'],
+            {'setGiftSchedule': (giftSchedule.getBlob(),)}
+        )
 
     def sendToAvatar(self, field, values, recipient):
         dg = self.air.dclassesByName['DistributedToonUD'].getFieldByName(field).aiFormatUpdate(
@@ -169,96 +114,8 @@ class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
         dg = field.aiFormatUpdate(phoneId, recipient, shardId, [context, retcode])
         simbase.air.send(dg)
 
-    def makeGift(self, fromId, toId, blob, deliveryTime):
-        gift = GiftUD()
-        gift.gifterId = fromId
-        gift.blob = blob
-        gift.deliveryTime = deliveryTime
-        gift.gifteeId = toId
-        return gift
-
-    def storeGift(self, gift):
-        document = gift.getMongoDocument()
-        return self.deliverydb.insert_one(document).inserted_id
-
-    def heartbeat(self):
-        pass
-
-    def giveBeanBonus(self, todo0, todo1):
-        pass
-
     def requestAck(self):
         self.sendUpdateToAvatarId(self.air.getAvatarIdFromSender(), 'returnAck', [])
-
-    def givePartyRefund(self, todo0, todo1, todo2, todo3, todo4):
-        pass
-
-
-class DeliverGiftFSM(FSM):
-    TaskTime = 5
-
-    def __init__(self, mgr, gift):
-        FSM.__init__(self, 'DeliverGiftFSM')
-        self.mgr = mgr
-        self.gift = gift
-        self.retrieveFSM = None
-        self.sent = False
-        self.avInfo = None
-
-    def start(self):
-        self.mgr.fsms.append(self)
-        taskMgr.add(self.__checkTask, 'DeliverGift-%s' % id(self))
-
-    def restart(self):
-        taskMgr.doMethodLater(self.TaskTime, self.__checkTask, 'DeliverGift-%s' % id(self))
-
-    def enterGetAvatarInfo(self):
-        self.retrieveFSM = RetrieveAvatarInfoFSM(self.mgr, self.gift.gifteeId, self.gift.gifterId,
-                                                 [None], self.handleAvatarInfo)
-        self.retrieveFSM.start()
-
-    def handleAvatarInfo(self, success, avInfo, fromId, toId, data):
-        if not success:
-            self.demand('Cleanup')
-            return
-
-        self.avInfo = avInfo
-        self.demand('CheckMailbox')
-
-    def enterCheckMailbox(self):
-        gifteeInfo = self.avInfo[self.gift.gifteeId]
-        mailboxContents = CatalogItemList(gifteeInfo[FIELD_MAILBOX_CONTENTS],
-                                          store=CatalogItem.Customization | CatalogItem.DeliveryDate)
-        if len(mailboxContents) >= ToontownGlobals.MaxMailboxContents:
-            self.restart()
-            return
-        self.demand('Deliver', mailboxContents)
-
-    def __checkTask(self, task=None):
-        self.demand('GetAvatarInfo')
-        if task:
-            return task.done
-
-    def enterDeliver(self, mailboxContents):
-        item = CatalogItem.getItem(self.gift.blob)
-        if not item.deliveryDate:
-            item.deliveryDate = int(time.time() / 60)
-        mailboxContents.append(item)
-        self.mgr.sendToAvatar('setMailboxContents',
-                              [mailboxContents.getBlob(store=CatalogItem.Customization | CatalogItem.DeliveryDate)],
-                              self.gift.gifteeId)
-        self.demand('Cleanup')
-
-    def enterCleanup(self):
-        if hasattr(self.gift, 'id'):
-            self.mgr.deliverydb.delete_one({'_id': self.gift.id})
-        if self.gift in self.mgr.gifts:
-            self.mgr.remove(self.gift)
-        self.demand('Off')
-
-    def enterOff(self):
-        self.mgr.fsms.remove(self)
-
 
 class RetrieveAvatarInfoFSM(FSM):
     def __init__(self, mgr, toId, fromId, data, callback):
@@ -276,21 +133,21 @@ class RetrieveAvatarInfoFSM(FSM):
         self.demand('QueryAvatar', self.toId)
 
     def enterQueryAvatar(self, avId):
-        document = self.mgr.air.mongodb.astron.objects.find_one({'_id': avId})
-        if not document:
+        self.mgr.air.dbInterface.queryObject(self.mgr.air.dbId, avId, self.handleRetrieveAvatar)
+
+    def handleRetrieveAvatar(self, dclass, fields):
+        if 'setCatalog' not in fields:
             self.demand('Error')
             return
-        self.handleRetrieveAvatar(avId, document['fields'])
 
-    def handleRetrieveAvatar(self, avId, fields):
         self.avInfo[avId] = (
-            fields['setName'],
-            fields['setMoney'],
-            fields['setGiftSchedule'],
-            fields['setDeliverySchedule'],
-            fields['setMailboxContents'],
-            fields['setCatalog'],
-            fields['setDNAString']
+            fields['setName'][0],
+            fields['setMoney'][0],
+            fields['setGiftSchedule'][0],
+            fields['setDeliverySchedule'][0],
+            fields['setMailboxContents'][0],
+            fields['setCatalog'][0],
+            fields['setDNAString'][0]
         )
 
         if self.fromId is not None and self.fromId not in self.avInfo.keys():

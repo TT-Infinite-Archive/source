@@ -1,6 +1,7 @@
 import semidbm
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
+from direct.stdpy import threading2
 from direct.fsm.FSM import FSM
 from pandac.PandaModules import *
 from datetime import datetime
@@ -54,6 +55,9 @@ class AccountDB:
 
     def lookup(self, username, callback):
         pass  # Inheritors should override this.
+    
+    def storeAccountId(self, username, accountId):
+        pass  # Inheritors should override this.
 
 
 class DeveloperAccountDB(AccountDB):
@@ -62,55 +66,63 @@ class DeveloperAccountDB(AccountDB):
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
         self.accessLevel = 500
-        self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
-    
-    def lookupUserId(self, userId):
-        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
-        dict = {'userId': userId, 'success': True}
         
-        if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['accessLevel'] = self.accessLevel
-            dict['accountId'] = 0
+        if self.csm.air.dbAstronCursor:
+            self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
+            self.userDict = None
         else:
-            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
-            dict['accountId'] = document['_id']
+            self.userDict = simbase.backups.load('csm', ('users',), default={})
+            
+    def lookupUserId(self, userId):
+        # Default access level has to be set by CSMUD.
+        accessLevel = self.accessLevel
 
-        return dict
+        if self.userDict is not None:
+            # We're using YAML, and a JSON username->accountId bridge.
+            accountId = self.userDict.get(userId, 0)
+        else:
+            # We're using MongoDB to get account IDs and access levels from usernames.
+            document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
+            
+            if not document or 'dclass' not in document or document['dclass'] != 'Account':
+                accountId = 0
+            else:
+                accountId = document['_id']
+                accessLevel = document['fields']['ACCESS_LEVEL']
+        
+        if self.userDict is not None and accountId:
+            # Our JSON bridge does not store access levels. Let's query the database for that.
+            unblocked = threading2.Event()
+
+            def retrievedAccount(dclass, fields):
+                accessLevel = fields.get('ACCESS_LEVEL', self.accessLevel)
+                unblocked.set()
+
+            self.csm.air.dbInterface.queryObject(self.csm.air.dbId, accountId, self.retrievedAccount)
+            unblocked.wait()
+
+        print  {'userId': userId, 'success': True, 'accessLevel': accessLevel, 'accountId': accountId}
+        return {'userId': userId, 'success': True, 'accessLevel': accessLevel, 'accountId': accountId}
     
     def lookup(self, userId, callback):
         dict = self.lookupUserId(userId)
         callback(dict)
         return dict
 
+    def storeAccountId(self, username, accountId):
+        self.userDict[username] = accountId
+        simbase.backups.save('csm', ('users',), self.userDict)
 
-class ProductionDB(AccountDB):
+
+class ProductionDB(DeveloperAccountDB):
     notify = directNotify.newCategory('ProductionDB')
 
     def __init__(self, csm):
-        AccountDB.__init__(self, csm)
+        DeveloperAccountDB.__init__(self, csm)
         if simbase.isSinglePlayer:
             self.accessLevel = 500
         else:
             self.accessLevel = 200 # We set everyone in MP to 200 access by default so people can use commands, however we need an option in the future that allows the host to decide if they want their server to have cheaters or not. If they don't, they select that option then everyone is set to 100 access by default instead for that server. The host will need to set their access to 500 via mongo compass or rpc.
-        self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
-
-    def lookupUserId(self, userId):
-        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
-        dict = {'userId': userId, 'success': True}
-
-        if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['accessLevel'] = self.accessLevel
-            dict['accountId'] = 0
-        else:
-            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
-            dict['accountId'] = document['_id']
-
-        return dict
-
-    def lookup(self, userId, callback):
-        dict = self.lookupUserId(userId)
-        callback(dict)
-        return dict
 
 # --- FSMs ---
 class OperationFSM(FSM):
@@ -200,7 +212,8 @@ class LoginAccountFSM(OperationFSM):
             self.notify.warning('Database failed to construct an account object!')
             self.demand('Kill', 'Your account object could not be created in the game database.')
             return
-
+        
+        self.csm.accountDB.storeAccountId(self.userId, accountId)
         self.accountId = accountId
         self.csm.air.writeServerEvent('accountCreated', accountId)
         self.demand('SetAccount')
