@@ -101,7 +101,6 @@ class DeveloperAccountDB(AccountDB):
             self.csm.air.dbInterface.queryObject(self.csm.air.dbId, accountId, self.retrievedAccount)
             unblocked.wait()
 
-        print  {'userId': userId, 'success': True, 'accessLevel': accessLevel, 'accountId': accountId}
         return {'userId': userId, 'success': True, 'accessLevel': accessLevel, 'accountId': accountId}
     
     def lookup(self, userId, callback):
@@ -110,8 +109,9 @@ class DeveloperAccountDB(AccountDB):
         return dict
 
     def storeAccountId(self, username, accountId):
-        self.userDict[username] = accountId
-        simbase.backups.save('csm', ('users',), self.userDict)
+        if self.userDict is not None:
+            self.userDict[username] = accountId
+            simbase.backups.save('csm', ('users',), self.userDict)
 
 
 class ProductionDB(DeveloperAccountDB):
@@ -195,7 +195,8 @@ class LoginAccountFSM(OperationFSM):
             'ACCOUNT_ID': str(self.userId),
             'ACCESS_LEVEL': self.accessLevel,
             'MONEY': 0,
-            'CHAT_MODE': 1
+            'CHAT_MODE': 1,
+            'MUTE_TIMESTAMP': 0
         }
         self.csm.air.dbInterface.createObject(
             self.csm.air.dbId,
@@ -207,7 +208,6 @@ class LoginAccountFSM(OperationFSM):
         if self.state != 'CreateAccount':
             self.notify.warning('Received a create account response outside of the CreateAccount state.')
             return
-
         if not accountId:
             self.notify.warning('Database failed to construct an account object!')
             self.demand('Kill', 'Your account object could not be created in the game database.')

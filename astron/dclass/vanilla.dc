@@ -361,7 +361,6 @@ struct AvatarPendingDel {
 };
 
 dclass Account {
-  string DcObjectType db;
   uint32 ACCOUNT_AV_SET[] required db;
   uint32 ESTATE_ID db;
   AvatarPendingDel ACCOUNT_AV_SET_DEL[] db;
@@ -547,7 +546,6 @@ dclass AvatarHandle : TalkPath_whisper {
 };
 
 dclass DistributedAvatar : DistributedSmoothNode, TalkPath_whisper {
-  string DcObjectType db;
   setName(string = "[Name not set]") required broadcast db airecv ownrecv;
   friendsNotify(DoId avId, int8 status) ownrecv airecv;
   checkAvOnShard(DoId) clsend airecv;
@@ -1690,8 +1688,6 @@ struct lawnItem {
 };
 
 dclass DistributedEstate : DistributedObject {
-  string DcObjectType db;
-
   setEstateReady() broadcast;
   setClientReady() airecv clsend;
 
@@ -1729,7 +1725,6 @@ dclass DistributedEstate : DistributedObject {
 };
 
 dclass DistributedHouse : DistributedObject {
-  string DcObjectType db;
   setHousePos(uint8) required broadcast;
   setLastEpochTimeStamp(uint32) required;
   setHouseType(uint8 type = 0) required broadcast db;
@@ -2971,7 +2966,6 @@ dclass DistributedMover : DistributedEntity {
 typedef uint16/10000 PetTrait;
 
 dclass DistributedPet : DistributedSmoothNode {
-  string DcObjectType db;
   setOwnerId(uint32) required broadcast db;
   setPetName(string) required broadcast db;
   setTraitSeed(uint32) required broadcast db;
