@@ -87,7 +87,7 @@ class DedicatedServer(FSM):
         self.process = copy.deepcopy(Processes[self.currentProcess])
         self.currentProcess += 1
 
-        if 'mongod' in self.process[0][0] and not base.mongoEnabled:
+        if 'mongod' in self.process[0][0] and not self.mongoEnabled:
             # If MongoDB is disabled, we shouldn't start it.
             self.__processStarted('mongod')
             return
