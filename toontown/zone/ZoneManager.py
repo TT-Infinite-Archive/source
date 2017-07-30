@@ -23,6 +23,14 @@ class ZoneManager(DistributedObjectGlobal):
     def announceGenerate(self):
         DistributedObjectGlobal.announceGenerate(self)
 
+    def reset(self):
+        del self.completedZones[:]
+        del self.modifiedZones[:]
+        self.modifiedZonesSet = False
+        self.zone2blob.clear()
+        self.currentRequestedZone = 0
+        self.currentFileSize = 0
+
     def requestModifiedZones(self):
         self.sendUpdate('requestModifiedZones', [])
 

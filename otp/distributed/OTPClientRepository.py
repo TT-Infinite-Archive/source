@@ -1532,6 +1532,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def exitPlayGame(self):
         taskMgr.remove('globalScaleCheck')
+        base.cr.zoneManager.reset()
         self.handler = None
         self.playGame.exit()
         self.playGame.unload()
