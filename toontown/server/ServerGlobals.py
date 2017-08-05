@@ -121,10 +121,6 @@ AstronConfig = {
 
 def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', server=0):
     config = AstronConfig.copy()
-    # The changes we've made for singleplayer
-    # seems to have carried over, so let's
-    # just change the required options
-    # for multiplayer and return from there.
     config['general']['eventlogger'] = '127.0.0.1:7020'
     config['messagedirector']['bind'] = '127.0.0.1:7010'
     config['roles'][0]['bind'] = '0.0.0.0:7000'

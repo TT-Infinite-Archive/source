@@ -1071,4 +1071,4 @@ class OptionsTabPage(DirectFrame):
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
             base.cr.loginFSM.request('homeScreen')
-            base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')
+            base.cr.mainMenu.LocalServerStart.demand('Off')

@@ -32,77 +32,107 @@ class MainMenu(DirectFrame, FSM):
 
         self.logoScaleTrack = None
         self.localServerStart = None
+
+        self.idleLabels = []
+        self.signInLabels = []
+        self.signUpLabels = []
+
+        self.buttonsIdle = []
+        self.buttonsHomeScreen = [] 
+        self.buttonsSignIn = []
+        self.buttonsSignUp = []
+        self.buttonsLogIn = []
+
+        self.loadElements()
         self.loadEnviroments()
 
-        self.buttons = []
-        self.buttons2 = []
-        self.mpButtons = []
-        self.labels = []
+        self.optionsScreen = OptionsTabPage()
+        self.optionsScreen.hide()
 
+    def loadElements(self):
         buttonScale = (-1.1, 1.1, 1.1)
         buttonScale_clickhover = (-1.2, 1.2, 1.2)
-
 
         self.label = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
                                  pos=(0, 0, -0.13))
 
         self.label2 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_wordwrap=25,
-                                 pos=(0, 0, -0.23))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_wordwrap=25,
+                                  pos=(0, 0, -0.23))
 
         self.label3 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_wordwrap=25,
-                                 pos=(0, 0, -0.31))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_wordwrap=25,
+                                  pos=(0, 0, -0.31))
 
         self.label4 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, -0.18))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                  pos=(0, 0, -0.18))
 
         self.label5 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, -0.48))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                  pos=(0, 0, -0.48))
 
         self.label6 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, 0.62))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                  pos=(0, 0, 0.62))
 
         self.label7 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, 0.32))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                  pos=(0, 0, 0.32))
 
         self.label8 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, 0.03))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                  pos=(0, 0, 0.03))
 
         self.label9 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, -0.28))
+                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                  pos=(0, 0, -0.28))
 
         self.label10 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
-                                 pos=(0, 0, -0.54))
+                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
+                                   pos=(0, 0, -0.54))
 
-        self.label11 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
-                                 pos=(0, 0, -0.36))
+        self.idleLabels.append(self.label)
+        self.idleLabels.append(self.label2)
+        self.idleLabels.append(self.label3)
+        self.signInLabels.append(self.label4)
+        self.signInLabels.append(self.label5)
+        self.signUpLabels.append(self.label6)
+        self.signUpLabels.append(self.label7)
+        self.signUpLabels.append(self.label8)
+        self.signUpLabels.append(self.label9)
+        self.signUpLabels.append(self.label10)
 
-        self.label12 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
-                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25,
-                                 pos=(0, 0, -0.36))
+        self.label['text'] = TTLocalizer.WelcomeMessage
+        self.label.reparentTo(aspect2d)
+        self.label2['text'] = TTLocalizer.LogIn
+        self.label2.reparentTo(aspect2d)
+        self.label3['text'] = TTLocalizer.SignUp
+        self.label3.reparentTo(aspect2d)
+        self.label4['text'] = TTLocalizer.Username
+        self.label4.reparentTo(aspect2d)
+        self.label5['text'] = TTLocalizer.Password
+        self.label5.reparentTo(aspect2d)
+        self.label6['text'] = TTLocalizer.Username
+        self.label6.reparentTo(aspect2d)
+        self.label7['text'] = TTLocalizer.Password
+        self.label7.reparentTo(aspect2d)
+        self.label8['text'] = TTLocalizer.Birthday
+        self.label8.reparentTo(aspect2d)
+        self.label9['text'] = TTLocalizer.Email
+        self.label9.reparentTo(aspect2d)
+        self.label10['text'] = TTLocalizer.Warning
+        self.label10.reparentTo(aspect2d)
 
-        self.labels.append(self.label)
-        self.labels.append(self.label2)
-        self.labels.append(self.label3)
-        self.labels.append(self.label4)
-        self.labels.append(self.label5)
-        self.labels.append(self.label6)
-        self.labels.append(self.label7)
-        self.labels.append(self.label8)
-        self.labels.append(self.label9)
-        self.labels.append(self.label10)
-        self.labels.append(self.label11)
-        self.labels.append(self.label12)
+        for label in self.idleLabels:
+            label.hide()
+
+        for label in self.signInLabels:
+            label.hide()
+
+        for label in self.signUpLabels:
+            label.hide()
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -116,7 +146,7 @@ class MainMenu(DirectFrame, FSM):
         self.motdLabel = OnscreenText(
             '', parent=hidden, font=font, fg=Vec4(1, 1, 1, 1), scale=0.05,
             align=TextNode.ALeft, wordwrap=25)
-        
+
         # Load the Toontown Infinite logo
         offset = -0.04
 
@@ -140,7 +170,7 @@ class MainMenu(DirectFrame, FSM):
         )
         self.logoScaleTrack.loop()
 
-        # Main Menu Buttons
+        # Idle
         self.logInButton = MATShuffleButton(
             pos=(0, 0, -0.5),
             text="Log In",
@@ -153,7 +183,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.087,
             command=lambda: self.request('SignInScreen')
         )
-        self.buttons.append(self.logInButton)
+        self.buttonsIdle.append(self.logInButton)
 
         self.signUpButton = MATShuffleButton(
             pos=(0, 0, -0.8),
@@ -167,53 +197,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.095,
             command=lambda: self.request('SignUpScreen')
         )
-        self.buttons.append(self.signUpButton)
-
-
-        '''
-        self.singlePlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.2),
-            text="Play",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: self.request('Multiplayer')
-        )
-        self.buttons2.append(self.singlePlayerButton)
-
-        self.multiPlayerButton = MATShuffleButton(
-            pos=(0, 0, -0.5),
-            text="Multiplayer",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.09,
-            text2_scale=0.095,
-            text1_scale=0.095,
-            command=lambda: self.request('Multiplayer')
-        )
-        self.multiPlayerButton.hide()
-
-        self.modsButton = MATShuffleButton(
-            pos=(0, 0, -0.8),
-            text="Mods",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            # command=lambda: self.request('Mods')
-        )
-        self.buttons2.append(self.modsButton)
-        
-        '''
+        self.buttonsIdle.append(self.signUpButton)
 
         self.optionsButton = MATShuffleButton(
             parent=base.a2dBottomLeft,
@@ -228,8 +212,65 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.105,
             command=lambda: self.request('Options')
         )
-        self.buttons2.append(self.optionsButton)
+        self.buttonsIdle.append(self.optionsButton)
 
+        # Homescreen
+        self.singlePlayerButton = MATShuffleButton(
+            pos=(0, 0, -0.2),
+            text="Play",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('StartHost')
+        )
+        self.buttonsHomeScreen.append(self.singlePlayerButton)
+
+        self.modsButton = MATShuffleButton(
+            pos=(0, 0, -0.5),
+            text="Mods",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
+            command=lambda: self.request('Mods')
+        )
+        self.buttonsHomeScreen.append(self.modsButton)
+
+        self.sighOutButton = MATShuffleButton(
+            pos=(0, 0, -0.8),
+            text="Sign Out",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Idle')
+        )
+        self.buttonsHomeScreen.append(self.sighOutButton)
+
+        self.optionsButton2 = MATShuffleButton(
+            parent=base.a2dBottomLeft,
+            pos=(.4, 0, .2),
+            text="Options",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('Options2')
+        )
+        self.buttonsHomeScreen.append(self.optionsButton2)
 
         self.connectButton = DirectButton(
             parent=base.a2dTopLeft,
@@ -239,10 +280,10 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.082,
             text2_scale=0.087,
             text1_scale=0.087,
-            text_style = 3,
+            text_style=3,
             command=lambda: self.request('Singleplayer')
         )
-        self.mpButtons.append(self.connectButton)
+        self.connectButton.hide()
 
         self.serverBrowserButton = DirectButton(
             parent=base.a2dTopLeft,
@@ -252,29 +293,10 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.082,
             text2_scale=0.087,
             text1_scale=0.087,
-            text_style = 3,
+            text_style=3,
             command=lambda: self.request('Singleplayer')
         )
-        self.mpButtons.append(self.serverBrowserButton)
-
-        # sp button pos=(.35, 0, -0.3),
-        # mp button pos=(.35, 0, -0.5),
-
-        """
-        gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
-        quitHover = gui.find('**/QuitBtn_RLVR')
-        self.logOutButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.OptionsPageLogout,
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.AClogOutButtonPos,
-            text_scale=TTLocalizer.AClogOutButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-1.65, 0, -0.935), command=lambda: self.request('Idle'))
-        self.logOutButton.reparentTo(base.aspect2d)
-        self.buttons2.append(self.logOutButton)
-        """
+        self.serverBrowserButton.hide()
 
         # Log In button for the login screen
         self.logInButton2 = MATShuffleButton(
@@ -289,7 +311,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.087,
             command=lambda: self.request('HomeScreen')
         )
-        self.logInButton2.hide()
+        self.buttonsLogIn.append(self.logInButton2)
 
         # Sign Up button for the login screen
         self.signUpButton2 = MATShuffleButton(
@@ -304,7 +326,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.095,
             command=lambda: self.request('HomeScreen')
         )
-        self.signUpButton2.hide()
+        self.buttonsLogIn.append(self.signUpButton2)
 
         # Sign Up button for the signup screen
         self.signUpButton3 = MATShuffleButton(
@@ -319,7 +341,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.095,
             command=lambda: self.request('')
         )
-        self.signUpButton3.hide()
+        self.buttonsSignUp.append(self.signUpButton3)
 
         self.termsButton = MATShuffleButton(
             pos=(0.5, 0, -0.8),
@@ -334,77 +356,13 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.095,
             command=lambda: self.request('')
         )
-        self.termsButton.hide()
-
-        for button2 in self.buttons2:
-            button2.hide()
-
-        '''
-        # Load the lock icon image for disabled buttons
-        lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
-
-        # Lock icon for Multiplayer
-        self.lockIconMP = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.34, 0, -0.48),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-        self.lockIconMP.hide()
-
-        # Lock icon for Mods
-        self.lockIconMods = DirectButton(
-            parent=aspect2d,
-            relief=None,
-            image=lockImage,
-            image_scale=(0.0007, 0.0007, 0.0007),
-            pos=(0.34, 0, -0.78),
-            suppressMouse=True,
-            state=DGG.DISABLED
-        )
-        self.lockIconMods.hide()
-
-        # Functionality for enabling and disabling the Multiplayer button
-        self.multiPlayerButton['state'] = DGG.DISABLED
-        self.multiPlayerButton.setColorScale(CGray)
-
-        if base.wantMultiplayer:
-            self.lockIconMP.destroy()
-            self.multiPlayerButton['state'] = DGG.NORMAL
-            self.multiPlayerButton.setColorScale(CDefault)
-
-        # Functionality for enabling and disabling the Mods button
-        self.modsButton['state'] = DGG.DISABLED
-        self.modsButton.setColorScale(CGray)
-
-        if base.wantMods:
-            self.lockIconMods.destroy()
-            self.modsButton['state'] = DGG.NORMAL
-            self.modsButton.setColorScale(CDefault)
-
-        '''
-
-        self.label11['text'] = TTLocalizer.EnterAddress
-        self.label11.reparentTo(aspect2d)
-        self.label11.hide()
-
-        # Functionality for enabling and disabling the Server Browser button
-        # self.serverBrowserButton['state'] = DGG.DISABLED
-        # self.serverBrowserButton.setColorScale(CGray)
-
-        # if base.wantServerBrowser:
-            # self.lockIconSB.destroy()
-            # self.serverBrowserButton['state'] = DGG.NORMAL
-            # self.serverBrowserButton.setColorScale(CDefault)
+        self.buttonsSignUp.append(self.termsButton)
 
         # Quit Button for all the menus
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.quitButton = MATShuffleButton(
-            parent = base.a2dBottomRight,
+            parent=base.a2dBottomRight,
             pos=(-0.4, 0, .2),
             text="Quit",
             wantArrows=False,
@@ -416,14 +374,13 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.105,
             command=self.__handleQuit
         )
-        self.buttons2.append(self.quitButton)
+        self.quitButton.hide()
 
         gui = loader.loadModel('phase_3/models/gui/pick_a_toon_gui.bam')
         quitHover = gui.find('**/QuitBtn_RLVR')
-
         # Back Button
         self.backButton = MATShuffleButton(
-            parent = base.a2dBottomLeft,
+            parent=base.a2dBottomLeft,
             pos=(0.4, 0, 0.2),
             text=TTLocalizer.OptionsGoBack,
             wantArrows=False,
@@ -436,10 +393,10 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('Idle')
         )
         self.backButton.hide()
-        
+
         # Back Button 2
         self.backButton2 = MATShuffleButton(
-            parent = base.a2dBottomLeft,
+            parent=base.a2dBottomLeft,
             pos=(0.4, 0, 0.2),
             text=TTLocalizer.OptionsGoBack,
             wantArrows=False,
@@ -449,52 +406,17 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.10,
             text2_scale=0.105,
             text1_scale=0.105,
-            command=lambda: self.request('Idle')
+            command=lambda: self.request('HomeScreen')
         )
-
         self.backButton2.hide()
 
-        # Back Button 3
-        self.backButton3 = MATShuffleButton(
-            parent = base.a2dBottomLeft,
-            pos=(0.4, 0, 0.2),
-            text=TTLocalizer.OptionsGoBack,
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: self.request('Multiplayer')
-        )
-
-        self.backButton3.hide()
-
-        # Back Button 3
-        self.backButton4 = MATShuffleButton(
-            parent = base.a2dBottomLeft,
-            pos=(0.5, 0, 0.2),
-            text=TTLocalizer.OptionsGoBack,
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: self.request('Multiplayer')
-        )
-
-        self.backButton4.hide()
-
         self.hide()
-        
+
         self.bookmarkInfoDialog = None
-        
+
         # Load Bookmarks file
         self.bookmarkMgr = BookmarkManager()
-        
+
         # Host Screen
         self.host_StartServer = MATShuffleButton(
             pos=(0, 0, -0.8),
@@ -530,17 +452,17 @@ class MainMenu(DirectFrame, FSM):
 
         self.host_ShowInBrowserBox.disable()
         self.host_CheatsBox.disable()
-        
+
         self.hostButtons = []
         self.hostButtons.append(self.host_StartServer)
         self.hostButtons.append(self.host_ShowInBrowserLabel)
         self.hostButtons.append(self.host_ShowInBrowserBox)
         self.hostButtons.append(self.host_CheatsBox)
         self.hostButtons.append(self.host_CheatsLabel)
-        
+
         for button in self.hostButtons:
             button.hide()
-                
+
     def loadEnviroments(self):
         self.toontownCentral = loader.loadModel('phase_4/models/neighborhoods/toontown_central_sz.bam')
         self.toontownCentral.reparentTo(hidden)
@@ -556,52 +478,32 @@ class MainMenu(DirectFrame, FSM):
                 base.cr.music.setLoop(1)
                 base.cr.music.setVolume(0.9)
                 base.cr.music.play()
-        
-        OTPLocalizer.SpeedChatStaticText[30500] = "Welcome to the server!"
-        OTPLocalizer.SpeedChatStaticText[30502] = "Are you livestreaming?"
-        OTPLocalizer.SpeedChatStaticText[30503] = "I'm livestreaming right now!"
-        OTPLocalizer.SpeedChatStaticText[30512] = "You can report bugs on the Toontown Infinite Discord server in the #bug-report text channel."
 
-        if sys.platform == 'android':
-            for button2 in self.buttons2:
-                    button2.hide()
-        else:
-            for button2 in self.buttons2:
-                    button2.show()
+        # if sys.platform == 'android':
+            # for button2 in self.buttonsIdle2:
+                    # button2.hide()
+        # else:
+            # for button2 in self.buttonsIdle2:
+                    # button2.show()
         # if not base.wantMultiplayer:
             # self.lockIconMP.show()
         # if not sys.platform == 'android':
             # if not base.wantMods:
                 # self.lockIconMods.show()
-        self.background.show()
-        self.logo.show()
-        # self.multiPlayerButton.show()
-        self.quitButton.show()
-
-        self.background.show()
-        self.logo.show()
-        self.quitButton.show()
-        for button in self.buttons:
+        for button in self.buttonsIdle:
             button.show()
 
-        self.label['text'] = TTLocalizer.WelcomeMessage
-        self.label.reparentTo(aspect2d)
+        self.background.show()
+        self.logo.show()
+        self.quitButton.show()
 
-        self.label2['text'] = TTLocalizer.LogIn
-        self.label2.reparentTo(aspect2d)
-
-        self.label3['text'] = TTLocalizer.SignUp
-        self.label3.reparentTo(aspect2d)
-
-        self.label.show()
-        self.label2.show()
-        self.label3.show()
+        for label in self.idleLabels:
+            label.show()
 
     def exitIdle(self):
-        if not sys.platform == 'android':
-            for button2 in self.buttons2:
-                    button2.hide()
-        # self.multiPlayerButton.hide()
+        # if not sys.platform == 'android':
+            # for button2 in self.buttonsIdle2:
+                    # button2.hide()
         # if not base.wantMultiplayer:
             # self.lockIconMP.hide()
         # if not sys.platform == 'android':
@@ -609,19 +511,14 @@ class MainMenu(DirectFrame, FSM):
                 # self.lockIconMods.hide()
         self.quitButton.hide()
 
-        for button in self.buttons:
+        for button in self.buttonsIdle:
             button.hide()
-        self.label.hide()
-        self.label2.hide()
-        self.label3.hide()
-
+        for label in self.idleLabels:
+            label.hide()
 
     def enterSignInScreen(self):
         self.backButton.show()
         self.logInButton2.show()
-
-        self.label4['text'] = TTLocalizer.Username
-        self.label4.reparentTo(aspect2d)
 
         self.usernameInput = DirectEntry(
             parent=aspect2d,
@@ -651,9 +548,6 @@ class MainMenu(DirectFrame, FSM):
         self.usernameInput.show()
         self.usernameInput.enterText('')
 
-        self.label5['text'] = TTLocalizer.Password
-        self.label5.reparentTo(aspect2d)
-
         self.passwordInput = DirectEntry(
             parent=aspect2d,
             relief=DGG.GROOVE,
@@ -681,30 +575,27 @@ class MainMenu(DirectFrame, FSM):
 
         self.passwordInput.show()
         self.passwordInput.enterText('')
-        self.label4.show()
-        self.label5.show()
+
+        for label in self.signInLabels:
+            label.show()
 
     def exitSignInScreen(self):
         self.backButton.hide()
         self.logInButton2.hide()
         self.usernameInput.hide()
         self.passwordInput.hide()
-        self.label4.hide()
-        self.label5.hide()
+
+        for label in self.signInLabels:
+            label.hide()
 
     def enterSignUpScreen(self):
         self.backButton.show()
         self.signUpButton3.show()
-        self.label6.show()
-        self.label7.show()
-        self.label8.show()
-        self.label9.show()
-        self.label10.show()
         self.termsButton.show()
         self.logo.hide()
 
-        self.label8['text'] = TTLocalizer.Birthday
-        self.label8.reparentTo(aspect2d)
+        for label in self.signUpLabels:
+            label.show()
 
         self.monthInput = DirectEntry(
             parent=aspect2d,
@@ -790,9 +681,6 @@ class MainMenu(DirectFrame, FSM):
         self.yearInput.show()
         self.yearInput.enterText('Year')
 
-        self.label9['text'] = TTLocalizer.Email
-        self.label9.reparentTo(aspect2d)
-
         self.emailInput = DirectEntry(
             parent=aspect2d,
             relief=DGG.GROOVE,
@@ -820,9 +708,6 @@ class MainMenu(DirectFrame, FSM):
 
         self.emailInput.show()
         self.emailInput.enterText('')
-
-        self.label7['text'] = TTLocalizer.Password
-        self.label7.reparentTo(aspect2d)
 
         self.passwordInput = DirectEntry(
             parent=aspect2d,
@@ -852,9 +737,6 @@ class MainMenu(DirectFrame, FSM):
         self.passwordInput.show()
         self.passwordInput.enterText('')
 
-        self.label6['text'] = TTLocalizer.Username
-        self.label6.reparentTo(aspect2d)
-
         self.usernameInput = DirectEntry(
             parent=aspect2d,
             relief=DGG.GROOVE,
@@ -882,9 +764,6 @@ class MainMenu(DirectFrame, FSM):
 
         self.usernameInput.show()
         self.usernameInput.enterText('')
-        # PlacerTool3D.PlacerTool3D(self.usernameInput, increment=0.01)
-        self.label10['text'] = TTLocalizer.Warning
-        self.label10.reparentTo(aspect2d)
 
     def exitSignUpScreen(self):
         self.backButton.hide()
@@ -898,7 +777,7 @@ class MainMenu(DirectFrame, FSM):
         self.emailInput.hide()
         self.termsButton.hide()
         self.logo.show()
-        for label in self.labels:
+        for label in self.signUpLabels:
             label.hide()
 
     def enterLoggingIn(self):
@@ -915,9 +794,8 @@ class MainMenu(DirectFrame, FSM):
 
         # If user is logging out request Idle
 
-
     def enterHomeScreen(self):
-        for button2 in self.buttons2:
+        for button2 in self.buttonsHomeScreen:
             button2.show()
         # if not base.wantMultiplayer:
             # self.lockIconMP.show()
@@ -926,17 +804,20 @@ class MainMenu(DirectFrame, FSM):
         self.background.show()
         self.logo.show()
         self.quitButton.show()
+        self.optionsButton2.show()
+        self.modsButton.show()
 
     def exitHomeScreen(self):
-        for button2 in self.buttons2:
+        for button2 in self.buttonsHomeScreen:
             button2.hide()
+        self.optionsButton2.hide()
+        self.modsButton.hide()
         # if not base.wantMultiplayer:
             # self.lockIconMP.hide()
         # if not base.wantMods:
             # self.lockIconMods.hide()
     
     def enterOptions(self):
-        self.optionsScreen = OptionsTabPage()
         self.optionsScreen.show()
         self.optionsButton.show()
         self.optionsButton['command'] = lambda: self.request('Idle')
@@ -944,28 +825,33 @@ class MainMenu(DirectFrame, FSM):
         self.logo.hide()
         
     def exitOptions(self):
-        if self.optionsScreen is not None:
-            self.optionsScreen.unload()
-            self.optionsScreen = None
+        self.optionsScreen.hide()
+        self.optionsButton['command'] = lambda: self.request('Options')
+        self.optionsButton['text'] = "Options"
+        self.logo.show()
+
+    def enterOptions2(self):
+        self.optionsScreen.show()
+        self.optionsButton.show()
+        self.optionsButton['command'] = lambda: self.request('HomeScreen')
+        self.optionsButton['text'] = "Back"
+        self.logo.hide()
+
+    def exitOptions2(self):
+        self.optionsScreen.hide()
         self.optionsButton['command'] = lambda: self.request('Options')
         self.optionsButton['text'] = "Options"
         self.logo.show()
 
     def enterSingleplayer(self):
-        OTPLocalizer.SpeedChatStaticText[30500] = "I'm playing singleplayer on Toontown Infinite!"
-        OTPLocalizer.SpeedChatStaticText[30502] = "Are you enjoying my livestream?"
-        OTPLocalizer.SpeedChatStaticText[30503] = 'Hello, viewers! Thanks for watching my livestream!'
-        OTPLocalizer.SpeedChatStaticText[30512] = 'I can report bugs on the Toontown Infinite Discord server in the #bug-report text channel.'
         self.__startGameSession(True)
         base.isSinglePlayer = True
         base.isHosting = False
 
-    def enterHostMultiplayer(self):
-        #for button in self.hostButtons:
-        #    button.show()
+    def enterHost(self):
         self.host_StartServer.show()
-        self.backButton3.show()
-                # Load the ip input bar
+
+        # Load the ip input bar
         self.host_ServerNameInput = DirectEntry(
             parent=aspect2d,
             relief=DGG.GROOVE,
@@ -1000,10 +886,9 @@ class MainMenu(DirectFrame, FSM):
             text_align=TextNode.ACenter,
         )
     
-    def exitHostMultiplayer(self):
+    def exitHost(self):
         for button in self.hostButtons:
             button.hide()
-        self.backButton3.hide()
         if hasattr(self, 'host_ServerNameInput'):
             self.host_ServerNameInput.destroy()
             del self.host_ServerNameInput
@@ -1012,58 +897,15 @@ class MainMenu(DirectFrame, FSM):
     
     def enterStartHost(self):
         base.isHosting = True
+        base.isSinglePlayer = None
         self.__startGameSession(False)
 
     def __startGameSession(self, server):
         self.LocalServerStart = LocalServerStart(self, server)
         self.LocalServerStart.request('Start')
         self.quitButton.hide()
-
-    def enterMultiplayer(self):
-        base.isSinglePlayer = False
-        self.toontownCentral.reparentTo(render)
-        self.backButton2.show()
-        self.background.reparentTo(hidden)
-        self.logo.reparentTo(hidden)
-
-        for mpButton in self.mpButtons:
-            mpButton.show()
-
-        self.motdLabel.setText(TTLocalizer.MOTDTitle)
-        self.motdLabel.setPos(-1.7, -0.35)
-        self.motdLabel.reparentTo(aspect2d)
-
-        # self.motdLabel.setText(TTLocalizer.MOTD)
-        # self.motdLabel.setPos(0, self.calcLabelY())
-        # self.motdLabel.reparentTo(aspect2d)
-
-        LerpPosInterval(self.connectButton, 0.5, Point3(0.35, 0, -0.3), Point3(-0.35, 0, -0.3),
-                        blendType='easeOut').start()
-        LerpPosInterval(self.serverBrowserButton, 0.5, Point3(0.35, 0, -0.5), Point3(-0.35, 0, -0.5),
-                        blendType='easeOut').start()
-        # if not base.wantServerBrowser:
-            # self.lockIconSB.show()
-
-    def exitMultiplayer(self):
-        self.toontownCentral.reparentTo(hidden)
-        self.backButton2.hide()
-        self.background.reparentTo(render2d)
-        self.logo.reparentTo(aspect2d)
-        for mpButton in self.mpButtons:
-            mpButton.hide()
-        # if not base.wantServerBrowser:
-            # self.lockIconSB.hide()
-
-    def enterMultiplayerHelp(self):
-        self.label12.show()
-        self.backButton3.show()
-
-    def exitMultiplayerHelp(self):
-        self.label12.hide()
-        self.backButton3.hide()
         
     def enterBookmarks(self):
-        self.backButton4.show()
         gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
         
         if not hasattr(self, 'bookmarksList'):
@@ -1099,7 +941,6 @@ class MainMenu(DirectFrame, FSM):
         self.background['image'] = 'phase_3.5/maps/big_book.jpg'
          
     def exitBookmarks(self):
-        self.backButton4.hide()
         self.bookmarksList.hide()
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
@@ -1172,8 +1013,6 @@ class MainMenu(DirectFrame, FSM):
             deleteButton.bind(DirectGuiGlobals.EXIT, self.killTooltip)
             
     def enterDirectConnect(self):
-        self.backButton3.show()
-        self.label11.show()
 
         # Load the image for the ip input bar for Multiplayer
         cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
@@ -1213,9 +1052,7 @@ class MainMenu(DirectFrame, FSM):
         self.addToBookmarksButton.show()
 
     def exitDirectConnect(self):
-        self.backButton3.hide()
         self.ipInput.hide()
-        self.label11.hide()
         self.__disableIPEntry()
         self.connectButton.hide()
         self.addToBookmarksButton.hide()
@@ -1354,28 +1191,43 @@ class MainMenu(DirectFrame, FSM):
 
     def hide(self):
         self.destroySPLocalStart()
+
         self.background.hide()
         self.logo.hide()
-        self.connectButton.hide()
-        self.logInButton.hide()
-        self.logInButton2.hide()
-        self.signUpButton.hide()
-        self.signUpButton2.hide()
-        self.signUpButton3.hide()
 
-        for button in self.buttons:
+        for button in self.buttonsIdle:
             button.hide()
 
-        for button2 in self.buttons2:
-            button2.hide()
+        for button in self.buttonsHomeScreen:
+            button.hide()
 
-        for mpButton in self.mpButtons:
-            mpButton.hide()
+        for button in self.buttonsLogIn:
+            button.hide()
 
-        for label in self.labels:
+        for button in self.buttonsSignIn:
+            button.hide()
+
+        for button in self.buttonsSignUp:
+            button.hide()
+
+        for label in self.idleLabels:
             label.hide()
 
-        # self.multiPlayerButton.hide()
+        for label in self.signInLabels:
+            label.hide()
+
+        for label in self.signUpLabels:
+            label.hide()
+
+    def unload(self):
+        print 'unload'
+        if self.optionsScreen is not None:
+            self.optionsScreen.unload()
+            self.optionsScreen = None
+
+        if self.optionsScreen2 is not None:
+            self.optionsScreen2.unload()
+            self.optionsScreen2 = None
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
