@@ -178,9 +178,9 @@ class MainMenu(DirectFrame, FSM):
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
             image1_scale=buttonScale_clickhover,
-            text_scale=0.082,
-            text2_scale=0.087,
-            text1_scale=0.087,
+            text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('SignInScreen')
         )
         self.buttonsIdle.append(self.logInButton)
@@ -306,9 +306,9 @@ class MainMenu(DirectFrame, FSM):
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
             image1_scale=buttonScale_clickhover,
-            text_scale=0.082,
-            text2_scale=0.087,
-            text1_scale=0.087,
+            text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.095,
             command=lambda: self.request('HomeScreen')
         )
         self.buttonsLogIn.append(self.logInButton2)
@@ -1185,6 +1185,14 @@ class MainMenu(DirectFrame, FSM):
             self.logoScaleTrack.finish()
             self.logoScaleTrack = None
 
+        if self.optionsScreen is not None:
+            self.optionsScreen.unload()
+            self.optionsScreen = None
+
+        if self.optionsScreen2 is not None:
+            self.optionsScreen2.unload()
+            self.optionsScreen2 = None
+
     def destroySPLocalStart(self):
         if self.localServerStart:
             self.localServerStart.removeNode()
@@ -1218,16 +1226,6 @@ class MainMenu(DirectFrame, FSM):
 
         for label in self.signUpLabels:
             label.hide()
-
-    def unload(self):
-        print 'unload'
-        if self.optionsScreen is not None:
-            self.optionsScreen.unload()
-            self.optionsScreen = None
-
-        if self.optionsScreen2 is not None:
-            self.optionsScreen2.unload()
-            self.optionsScreen2 = None
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
