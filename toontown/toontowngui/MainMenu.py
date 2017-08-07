@@ -782,22 +782,18 @@ class MainMenu(DirectFrame, FSM):
 
         # Do login magic here:
 
-        # If login is accepted then request the Home Screen
+        # If login is accepted,  request the Home Screen
 
     def enterLoggingOut(self):
         pass
 
         # Do logout magic here:
 
-        # If user is logging out request Idle
+        # If user logs out, request Idle
 
     def enterHomeScreen(self):
         for button2 in self.buttonsHomeScreen:
             button2.show()
-        # if not base.wantMultiplayer:
-            # self.lockIconMP.show()
-        # if not base.wantMods:
-            # self.lockIconMods.show()
         self.background.show()
         self.logo.show()
         self.quitButton.show()
@@ -809,10 +805,6 @@ class MainMenu(DirectFrame, FSM):
             button2.hide()
         self.optionsButton2.hide()
         self.modsButton.hide()
-        # if not base.wantMultiplayer:
-            # self.lockIconMP.hide()
-        # if not base.wantMods:
-            # self.lockIconMods.hide()
     
     def enterOptions(self):
         self.optionsScreen.show()
