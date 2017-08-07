@@ -3,7 +3,7 @@ from toontown.hood import HoodAI
 from toontown.safezone import DistributedTrolleyAI
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.safezone.DistributedJukeboxAI import DistributedJukeboxAI
 from toontown.safezone import JukeboxGlobals
 
@@ -24,7 +24,7 @@ class TTHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if simbase.config.GetBool('want-ttc-jukebox', True):
+        if simbase.air.wantTTCJukebox:
             self.createJukeBox()
         if simbase.config.GetBool('want-minigames', True):
             self.createTrolley()

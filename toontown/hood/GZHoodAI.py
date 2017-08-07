@@ -17,8 +17,8 @@ class GZHoodAI(HoodAI.HoodAI):
 
     def startup(self):
         HoodAI.HoodAI.startup(self)
-
-        self.createGolfKarts()
+        if simbase.air.wantGolf:    
+            self.createGolfKarts()
 
     def findGolfKarts(self, dnaGroup, zoneId, area, overrideDNAZone=False):
         golfKarts = []

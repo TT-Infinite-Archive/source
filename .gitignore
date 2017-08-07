@@ -30,3 +30,4 @@ astron/mp-database/
 *.mdmp
 bookmarks.dat
 bookmarks.json
+serversettings.json
