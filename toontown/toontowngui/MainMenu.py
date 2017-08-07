@@ -55,15 +55,15 @@ class MainMenu(DirectFrame, FSM):
 
         self.label = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                  text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                 pos=(0, 0, -0.13))
+                                 pos=(0, 0, -1.13))
 
         self.label2 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_wordwrap=25,
-                                  pos=(0, 0, -0.23))
+                                  pos=(0, 0, -1.23))
 
         self.label3 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.05, text_wordwrap=25,
-                                  pos=(0, 0, -0.31))
+                                  pos=(0, 0, -1.31))
 
         self.label4 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
@@ -75,23 +75,23 @@ class MainMenu(DirectFrame, FSM):
 
         self.label6 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                  pos=(0, 0, 0.62))
+                                  pos=(0, 0, -0.38))
 
         self.label7 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                  pos=(0, 0, 0.32))
+                                  pos=(0, 0, -0.68))
 
         self.label8 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                  pos=(0, 0, 0.03))
+                                  pos=(0, 0, -0.97))
 
         self.label9 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                  pos=(0, 0, -0.28))
+                                  pos=(0, 0, -1.28))
 
         self.label10 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
-                                   pos=(0, 0, -0.54))
+                                   pos=(0, 0, -1.54))
 
         self.idleLabels.append(self.label)
         self.idleLabels.append(self.label2)
@@ -105,25 +105,25 @@ class MainMenu(DirectFrame, FSM):
         self.signUpLabels.append(self.label10)
 
         self.label['text'] = TTLocalizer.WelcomeMessage
-        self.label.reparentTo(aspect2d)
+        self.label.reparentTo(base.a2dTopCenter)
         self.label2['text'] = TTLocalizer.LogIn
-        self.label2.reparentTo(aspect2d)
+        self.label2.reparentTo(base.a2dTopCenter)
         self.label3['text'] = TTLocalizer.SignUp
-        self.label3.reparentTo(aspect2d)
+        self.label3.reparentTo(base.a2dTopCenter)
         self.label4['text'] = TTLocalizer.Username
-        self.label4.reparentTo(aspect2d)
+        self.label4.reparentTo(base.a2dTopCenter)
         self.label5['text'] = TTLocalizer.Password
-        self.label5.reparentTo(aspect2d)
+        self.label5.reparentTo(base.a2dTopCenter)
         self.label6['text'] = TTLocalizer.Username
-        self.label6.reparentTo(aspect2d)
+        self.label6.reparentTo(base.a2dTopCenter)
         self.label7['text'] = TTLocalizer.Password
-        self.label7.reparentTo(aspect2d)
+        self.label7.reparentTo(base.a2dTopCenter)
         self.label8['text'] = TTLocalizer.Birthday
-        self.label8.reparentTo(aspect2d)
+        self.label8.reparentTo(base.a2dTopCenter)
         self.label9['text'] = TTLocalizer.Email
-        self.label9.reparentTo(aspect2d)
+        self.label9.reparentTo(base.a2dTopCenter)
         self.label10['text'] = TTLocalizer.Warning
-        self.label10.reparentTo(aspect2d)
+        self.label10.reparentTo(base.a2dTopCenter)
 
         for label in self.idleLabels:
             label.hide()
@@ -147,13 +147,10 @@ class MainMenu(DirectFrame, FSM):
             '', parent=hidden, font=font, fg=Vec4(1, 1, 1, 1), scale=0.05,
             align=TextNode.ALeft, wordwrap=25)
 
-        # Load the Toontown Infinite logo
-        offset = -0.04
-
         self.logo = OnscreenImage(
-            parent=base.aspect2d,
+            parent=base.a2dTopCenter,
             image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.8, 0.35, 0.45), pos=(offset, 0, 0.40)
+            scale=(0.8, 0.35, 0.45), pos=(0, 0, -0.6)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
