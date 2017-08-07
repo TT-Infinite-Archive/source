@@ -67,11 +67,11 @@ class MainMenu(DirectFrame, FSM):
 
         self.label4 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                  pos=(0, 0, -0.18))
+                                  pos=(0, 0, -1.18))
 
         self.label5 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
-                                  pos=(0, 0, -0.48))
+                                  pos=(0, 0, -1.48))
 
         self.label6 = DirectLabel(relief=None, text='', text_fg=(1, 1, 1, 1),
                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
