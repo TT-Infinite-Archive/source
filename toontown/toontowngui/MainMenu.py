@@ -21,7 +21,15 @@ from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker
 from panda3d.core import TransparencyAttrib, Vec4, TextNode
 import sys
+from direct.interval.IntervalGlobal import Func, Sequence, Wait
 from direct.interval.LerpInterval import LerpPosInterval
+from toontown.toon import NPCToons
+from toontown.toon import Toon
+from toontown.toon import ToonDNA
+from toontown.suit import Suit
+from toontown.suit import SuitDNA
+from toontown.ai.NewsManager import NewsManager
+import random
 
 class MainMenu(DirectFrame, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -32,22 +40,23 @@ class MainMenu(DirectFrame, FSM):
 
         self.logoScaleTrack = None
         self.localServerStart = None
+        self.playFadeSequence = None
 
         self.idleLabels = []
         self.signInLabels = []
         self.signUpLabels = []
 
         self.buttonsIdle = []
-        self.buttonsHomeScreen = [] 
+        self.buttonsHomeScreen = []
+        self.buttonsPlayScreen = []
         self.buttonsSignIn = []
         self.buttonsSignUp = []
         self.buttonsLogIn = []
 
         self.loadElements()
-        self.loadEnviroments()
 
-        self.optionsScreen = OptionsTabPage()
-        self.optionsScreen.hide()
+        # self.optionsScreen = OptionsTabPage()
+        # self.optionsScreen.hide()
 
     def loadElements(self):
         buttonScale = (-1.1, 1.1, 1.1)
@@ -154,10 +163,6 @@ class MainMenu(DirectFrame, FSM):
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
-        if self.logoScaleTrack is not None:
-            self.logoScaleTrack.finish()
-            self.logoScaleTrack = None
-
         # Pulsating animation for the logo
         self.logoScaleTrack = Sequence(
             LerpScaleInterval(self.logo, 4, Vec3(0.725, 0.35, 0.40), Vec3(0.70, 0.35, 0.385),
@@ -222,7 +227,7 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.10,
             text2_scale=0.105,
             text1_scale=0.105,
-            command=lambda: self.request('StartHost')
+            command=lambda: self.request('PlayWait')
         )
         self.buttonsHomeScreen.append(self.singlePlayerButton)
 
@@ -268,32 +273,6 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('Options2')
         )
         self.buttonsHomeScreen.append(self.optionsButton2)
-
-        self.connectButton = DirectButton(
-            parent=base.a2dTopLeft,
-            relief=None,
-            pos=(.35, 0, -0.3),
-            text="Connect",
-            text_scale=0.082,
-            text2_scale=0.087,
-            text1_scale=0.087,
-            text_style=3,
-            command=lambda: self.request('Singleplayer')
-        )
-        self.connectButton.hide()
-
-        self.serverBrowserButton = DirectButton(
-            parent=base.a2dTopLeft,
-            relief=None,
-            pos=(.35, 0, -0.3),
-            text="Server Browser",
-            text_scale=0.082,
-            text2_scale=0.087,
-            text1_scale=0.087,
-            text_style=3,
-            command=lambda: self.request('Singleplayer')
-        )
-        self.serverBrowserButton.hide()
 
         # Log In button for the login screen
         self.logInButton2 = MATShuffleButton(
@@ -407,17 +386,25 @@ class MainMenu(DirectFrame, FSM):
         )
         self.backButton2.hide()
 
-        self.hide()
+        # Back Button 2
+        self.backButton3 = MATShuffleButton(
+            text=TTLocalizer.OptionsGoBack,
+            wantArrows=False,
+            pos=(4, 0, -0.6),
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('HomeScreen')
+        )
+        self.backButton3.hide()
 
-        self.bookmarkInfoDialog = None
-
-        # Load Bookmarks file
-        self.bookmarkMgr = BookmarkManager()
-               
         # Host Screen
-        self.host_StartServer = MATShuffleButton(
-            pos=(0, 0, -0.8),
+        self.hostButton = MATShuffleButton(
             text="Host",
+            pos=(4, 0, 0.3),
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
@@ -425,8 +412,40 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.10,
             text2_scale=0.105,
             text1_scale=0.105,
-            command=lambda: self.request('StartHost')
+            command=lambda: self.request('Host')
         )
+        self.buttonsPlayScreen.append(self.hostButton)
+
+        self.directConnectButton = MATShuffleButton(
+            text="Direct\nConnect",
+            pos=(4, 0, 0),
+            text_pos=(0, 0.02, 0),
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.08,
+            text2_scale=0.085,
+            text1_scale=0.085,
+            command=lambda: self.request('DirectConnect')
+        )
+        self.buttonsPlayScreen.append(self.directConnectButton)
+
+        self.serverBrowserButton = MATShuffleButton(
+            text="Server\nBrowser",
+            pos=(4, 0, -0.3),
+            text_pos=(0, 0.02, 0),
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.08,
+            text2_scale=0.085,
+            text1_scale=0.085,
+            command=lambda: self.request('MultiplayerSB')
+        )
+        self.buttonsPlayScreen.append(self.serverBrowserButton)
+
         self.host_WantRacingLabel = TTLabel.TTLabel(
             pos=(-.55, 0, -.11),
             text="Racing",
@@ -435,7 +454,7 @@ class MainMenu(DirectFrame, FSM):
         self.host_WantRacingBox = TTCheckBox.TTCheckBox(
             pos=(-.6, 0, -.1),
             checked=serverSettings[ServerSettingsGlobals.WantRacing],
-            command=self.toggleServerSetting, extraArgs = [ServerSettingsGlobals.WantRacing]
+            command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantRacing]
         )
 
         self.host_WantGolfLabel = TTLabel.TTLabel(
@@ -446,20 +465,27 @@ class MainMenu(DirectFrame, FSM):
         self.host_WantGolfBox = TTCheckBox.TTCheckBox(
             pos=(-.6, 0, -.2),
             checked=serverSettings[ServerSettingsGlobals.WantGolf],
-            command = self.toggleServerSetting, extraArgs = [ServerSettingsGlobals.WantGolf]
+            command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantGolf]
         )
-        
+
         self.host_ExpMultDec = MATArrow(
-            pos = (-.25, 0, -.3), command = self.setServerExpMult)
-            
+            pos=(-.25, 0, -.3), command=self.setServerExpMult)
+
         self.host_ExpMultInc = MATArrow(
-            pos = (.25, 0, -.3), inverted = True, command = self.setServerExpMult)
-            
+            pos=(.25, 0, -.3), inverted=True, command=self.setServerExpMult)
+
         self.host_ExpMultLabel = TTLabel.TTLabel(
             pos=(0, 0, -.3),
             text="EXP Multiplier: %sx" % str(serverSettings[ServerSettingsGlobals.ExpMultiplier]),
             text_align=TextNode.ACenter,
         )
+
+        self.hide()
+
+        self.bookmarkInfoDialog = None
+
+        # Load Bookmarks file
+        self.bookmarkMgr = BookmarkManager()
 
         #self.host_CheatsBox.disable()
         #self.host_ShowInBrowserBox.disable()
@@ -484,7 +510,7 @@ class MainMenu(DirectFrame, FSM):
         #self.host_CheatsLabel = TTLabel.TTLabel(
         #    pos=(-.55, 0, -.41),
         self.hostButtons = []
-        self.hostButtons.append(self.host_StartServer)
+        # self.hostButtons.append(self.host_StartServer)
         #self.hostButtons.append(self.host_ShowInBrowserLabel)
         #self.hostButtons.append(self.host_ShowInBrowserBox)
         #self.hostButtons.append(self.host_CheatsBox)
@@ -496,15 +522,11 @@ class MainMenu(DirectFrame, FSM):
         self.hostButtons.append(self.host_ExpMultDec)
         self.hostButtons.append(self.host_ExpMultInc)
         self.hostButtons.append(self.host_ExpMultLabel)
-        
+
         for button in self.hostButtons:
             button.hide()
 
-    def loadEnviroments(self):
-        self.toontownCentral = loader.loadModel('phase_4/models/neighborhoods/toontown_central_sz.bam')
-        self.toontownCentral.reparentTo(hidden)
-
-    def unloadEnviroments(self):
+    def unloadSceneElements(self):
         self.toontownCentral.removeNode()
         del self.toontownCentral
 
@@ -516,38 +538,16 @@ class MainMenu(DirectFrame, FSM):
                 base.cr.music.setVolume(0.9)
                 base.cr.music.play()
 
-        # if sys.platform == 'android':
-            # for button2 in self.buttonsIdle2:
-                    # button2.hide()
-        # else:
-            # for button2 in self.buttonsIdle2:
-                    # button2.show()
-        # if not base.wantMultiplayer:
-            # self.lockIconMP.show()
-        # if not sys.platform == 'android':
-            # if not base.wantMods:
-                # self.lockIconMods.show()
         for button in self.buttonsIdle:
             button.show()
+        for label in self.idleLabels:
+            label.show()
 
         self.background.show()
         self.logo.show()
         self.quitButton.show()
 
-        for label in self.idleLabels:
-            label.show()
-
     def exitIdle(self):
-        # if not sys.platform == 'android':
-            # for button2 in self.buttonsIdle2:
-                    # button2.hide()
-        # if not base.wantMultiplayer:
-            # self.lockIconMP.hide()
-        # if not sys.platform == 'android':
-            # if not base.wantMods:
-                # self.lockIconMods.hide()
-        self.quitButton.hide()
-
         for button in self.buttonsIdle:
             button.hide()
         for label in self.idleLabels:
@@ -845,14 +845,14 @@ class MainMenu(DirectFrame, FSM):
             button2.hide()
         self.optionsButton2.hide()
         self.modsButton.hide()
-    
+
     def enterOptions(self):
         self.optionsScreen.show()
         self.optionsButton.show()
         self.optionsButton['command'] = lambda: self.request('Idle')
         self.optionsButton['text'] = "Back"
         self.logo.hide()
-        
+
     def exitOptions(self):
         self.optionsScreen.hide()
         self.optionsButton['command'] = lambda: self.request('Options')
@@ -877,8 +877,98 @@ class MainMenu(DirectFrame, FSM):
         base.isSinglePlayer = True
         base.isHosting = False
 
+    def enterPlayWait(self):
+        base.transitions.fadeOut(0)
+        self.background.reparentTo(hidden)
+        self.logo.reparentTo(hidden)
+        self.quitButton.hide()
+        Sequence(Wait(1), Func(lambda: self.request('Play'))).start()
+
+    def enterPlay(self):
+        base.camLens.setFov(30)
+
+
+        self.toontownCentral = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200.bam')
+        self.toontownCentral.setPosHpr(34, -12, 0, 5, 0, 0)
+        self.toontownCentral.reparentTo(render)
+
+        for button in self.buttonsPlayScreen:
+            button.show()
+
+        self.backButton3.show()
+
+        buttonPosInterval = LerpPosInterval(self.hostButton, 0.5, Point3(0.35, 0, 0.3), Point3(4, 0, 0.3),
+                                            blendType='easeOut')
+        buttonPosInterval2 = LerpPosInterval(self.directConnectButton, 0.5, Point3(0.35, 0, 0), Point3(4, 0, 0),
+                                             blendType='easeOut')
+        buttonPosInterval3 = LerpPosInterval(self.serverBrowserButton, 0.5, Point3(0.35, 0, -0.3), Point3(4, 0, -0.3),
+                                             blendType='easeOut')
+        buttonPosInterval4 = LerpPosInterval(self.backButton3, 0.5, Point3(0.35, 0, -0.6), Point3(4, 0, -0.6),
+                                             blendType='easeOut')
+
+        self.buttonSequence = Sequence(Wait(2), Func(buttonPosInterval.start), Func(buttonPosInterval2.start), Func(buttonPosInterval3.start), Func(buttonPosInterval4.start))
+        self.buttonSequence.start()
+
+        self.suit = Suit.Suit()
+        dna = SuitDNA.SuitDNA()
+        dna.newSuitRandom()
+        self.suit.setDNA(dna)
+        self.suit.reparentTo(render)
+        self.suit.setDisplayName('')
+        self.suit.setPickable(0)
+        self.suit.loop('walk')
+        # self.suit.pose('landing', 20)
+        self.suit.setH(90)
+
+        self.suitPosInterval = self.suit.posInterval(8, (-447.5, -129, -0.47), startPos=(-417.5, -129, -0.475))
+        self.suitPosInterval.loop()
+
+        self.playFadeSequence = Sequence(Wait(2), Func(base.transitions.fadeIn, 1))
+        self.playFadeSequence.start()
+
+        self.randomNPC = Toon.Toon()
+        dna = ToonDNA.ToonDNA()
+        dna.newToonRandom(gender=random.choice(('m', 'f')))
+        self.randomNPC.setDNA(dna)
+        if dna.legs == 's':
+            base.camera.setPosHpr(-454.5, -96, 2.6, 215, 0, 0)
+            print 'chose 1'
+        elif dna.legs == 'l':
+            base.camera.setPosHpr(-454.5, -96, 3, 215, 0, 0)
+            print 'chose 2'
+        else:
+            base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
+            print 'chose else'
+        self.randomNPC.reparentTo(render)
+        self.randomNPC.pingpong('bored', fromFrame=70, toFrame=130)
+        self.randomNPC.setPosHpr(-444, -107, 0.025, 52, 0, 0)
+
+        # PlacerTool3D.PlacerTool3D(self.randomNPC, increment=1)
+        PlacerTool3D.PlacerTool3D(camera, increment=0.1)
+        # base.oobe()
+        # PlacerTool3D.PlacerTool3D(self.suit, increment=1)
+
+    def exitPlay(self):
+        self.background.reparentTo(render2d)
+        self.logo.reparentTo(base.a2dTopCenter)
+        self.toontownCentral.reparentTo(hidden)
+
+        for button in self.buttonsPlayScreen:
+            button.hide()
+
+        self.hostButton.setPos(4, 0, 0.3)
+        self.directConnectButton.setPos(4, 0, 0)
+        self.serverBrowserButton.setPos(4, 0, -0.3)
+        self.backButton3.setPos(4, 0, -0.6)
+        self.backButton3.hide()
+
+        self.randomNPC.removeNode()
+        self.suit.removeNode()
+
+        base.camera.setPosHpr(0, 0, 0, 0, 0, 0)
+
     def enterHost(self):
-        self.host_StartServer.show()
+        # self.host_StartServer.show()
 
         # Load the ip input bar
         self.host_ServerNameInput = DirectEntry(
@@ -915,7 +1005,7 @@ class MainMenu(DirectFrame, FSM):
             text_align=TextNode.ACenter,
         )
         self.host_ServerNameInputLabel.hide()
-    
+
     def exitHost(self):
         for button in self.hostButtons:
             button.hide()
@@ -924,7 +1014,7 @@ class MainMenu(DirectFrame, FSM):
             del self.host_ServerNameInput
             self.host_ServerNameInputLabel.destroy()
             del self.host_ServerNameInputLabel
-    
+
     def enterStartHost(self):
         base.isHosting = True
         base.isSinglePlayer = None
@@ -934,10 +1024,10 @@ class MainMenu(DirectFrame, FSM):
         self.LocalServerStart = LocalServerStart(self, server)
         self.LocalServerStart.request('Start')
         self.quitButton.hide()
-        
+
     def enterBookmarks(self):
         gui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
-        
+
         if not hasattr(self, 'bookmarksList'):
             self.bookmarksList = DirectScrolledList(parent = self,
                 decButton_pos= (0, 0, 0.9),
@@ -947,7 +1037,7 @@ class MainMenu(DirectFrame, FSM):
                     gui.find('**/FndsLst_ScrollUp')),
                 decButton_relief = None,
                 decButton_scale = (1.5, 1.5, 1.5),
-                
+
                 incButton_pos= (0, 0, -0.9),
                 incButton_image = (gui.find('**/FndsLst_ScrollUp'),
                     gui.find('**/FndsLst_ScrollDN'),
@@ -956,7 +1046,7 @@ class MainMenu(DirectFrame, FSM):
                 incButton_relief = None,
                 incButton_scale = (1.5, 1.5, -1.5),
 
-                
+
                 items = [],
                 numItemsVisible = 16,
                 forceHeight = .096,
@@ -969,7 +1059,7 @@ class MainMenu(DirectFrame, FSM):
         self.makeBookmarksButtons()
         self.logo.hide()
         self.background['image'] = 'phase_3.5/maps/big_book.jpg'
-         
+
     def exitBookmarks(self):
         self.bookmarksList.hide()
         if self.bookmarkInfoDialog:
@@ -994,9 +1084,9 @@ class MainMenu(DirectFrame, FSM):
                 extraArgs = [name, address])
             button.bind(DirectGuiGlobals.ENTER, self.showTooltip, extraArgs = ["Name: %s\nAddress: %s" %(name, address)])
             button.bind(DirectGuiGlobals.EXIT, self.killTooltip)
-            
+
             self.bookmarksList.addItem(button)
-        
+
     def showBookmarkInfo(self, name, address):
         buttonScale = (-1.1, 1.1, 1.1)
         buttonScale_clickhover = (-1.2, 1.2, 1.2)
@@ -1006,12 +1096,12 @@ class MainMenu(DirectFrame, FSM):
         def done():
             self.bookmarkInfoDialog.hide()
             self.__submitIP(address)
-                
+
         if not self.bookmarkInfoDialog:
 
             self.bookmarkInfoDialog = self.attachNewNode('bookmarkInfoDialog')
             self.bookmarkInfoDialog.setPos(-0.8, 0, 0)
-            
+
             infoTitle = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (0, 0, 0.5), text_align = TextNode.ACenter, text_font = ToontownGlobals.getToonFont(), text_scale = 0.1, text_wordwrap = 25, text = "Bookmark Information")
             nameLabel = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (-.5, 0, 0.2), text_fg = (0, 0, 0, 1), text_align = TextNode.ALeft, text_font = ToontownGlobals.getToonFont(), text_scale = 0.06, text_wordwrap = 25, text = "\1candidate_inactive\1Name:\2 %s" %name)
             addressLabel = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (-.5, 0, 0.1), text_fg = (0, 0, 0, 1), text_align = TextNode.ALeft, text_font = ToontownGlobals.getToonFont(), text_scale = 0.06, text_wordwrap = 25, text = "\1candidate_inactive\1Address:\2 %s" %address)
@@ -1019,7 +1109,7 @@ class MainMenu(DirectFrame, FSM):
             image_scale=buttonScale, image2_scale=buttonScale_clickhover,
             image1_scale=buttonScale_clickhover, text_scale=0.082, text2_scale=0.087,
             text1_scale=0.087, command=done)
-            
+
             trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui.bam')
             deleteButton = DirectButton(parent = self.bookmarkInfoDialog,
                 geom = (trashcanGui.find('**/TrashCan_CLSD'),
@@ -1038,10 +1128,10 @@ class MainMenu(DirectFrame, FSM):
                 command = self.deleteFromBookmarks,
                 extraArgs = [name, address],
                 pos = (.4, 0, -.3))
-                
+
             deleteButton.bind(DirectGuiGlobals.ENTER, self.showTooltip, extraArgs = ["This will PERMENANTLY delete this bookmark. This action is not reversable!"])
             deleteButton.bind(DirectGuiGlobals.EXIT, self.killTooltip)
-            
+
     def enterDirectConnect(self):
 
         # Load the image for the ip input bar for Multiplayer
@@ -1100,7 +1190,7 @@ class MainMenu(DirectFrame, FSM):
         self.targetIp = input
         messenger.send('wakeup')
         self.request('StartDirectConnect')
-        
+
     def createBookmark(self):
         if self.ipInput.get() == '':
             return
@@ -1147,7 +1237,7 @@ class MainMenu(DirectFrame, FSM):
             suppressMouse=1,
             autoCapitalize=0)
         self.serverNameInput.setTransparency(1)
-        
+
     def addToBookmarks(self):
         if hasattr(self, 'ipInput'):
             if self.ipInput.get() == '':
@@ -1171,7 +1261,7 @@ class MainMenu(DirectFrame, FSM):
                 base.showNotification("Error: Please specify an IP!")
             else:
                 base.showNotification("Error: Unknown error adding bookmark! Please report this to the developers!")
-                
+
     def deleteFromBookmarks(self, name, address):
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
@@ -1183,7 +1273,7 @@ class MainMenu(DirectFrame, FSM):
         else:
             base.showNotification("Error: Unknown error removing bookmark! Please report this to the developers!")
         self.makeBookmarksButtons()
-            
+
     def enterStartDirectConnect(self):
         base.isHosting = False
         if not hasattr(self, 'targetIp'):
@@ -1223,6 +1313,24 @@ class MainMenu(DirectFrame, FSM):
             self.optionsScreen2.unload()
             self.optionsScreen2 = None
 
+        if self.playFadeSequence is not None:
+            self.playFadeSequence.finish()
+            self.playFadeSequence = None
+
+        if self.playFadeSequence is not None:
+            self.playFadeSequence.finish()
+            self.playFadeSequence = None
+
+        if self.buttonSequence is not None:
+            self.buttonSequence.finish()
+            self.buttonSequence = None
+
+        if self.suitPosInterval is not None:
+            self.suitPosInterval.finish()
+            self.suitPosInterval = None
+
+        print 'entered off'
+
     def destroySPLocalStart(self):
         if self.localServerStart:
             self.localServerStart.removeNode()
@@ -1237,6 +1345,9 @@ class MainMenu(DirectFrame, FSM):
             button.hide()
 
         for button in self.buttonsHomeScreen:
+            button.hide()
+
+        for button in self.buttonsPlayScreen:
             button.hide()
 
         for button in self.buttonsLogIn:
@@ -1263,17 +1374,17 @@ class MainMenu(DirectFrame, FSM):
 
     def showTooltip(self, text, event):
         self.currentTooltip = TTTooltip.TTTooltip(description = text)
-        
+
     def killTooltip(self, event):
         if hasattr(self, 'currentTooltip'):
             self.currentTooltip.destroy()
-            
+
     def toggleServerSetting(self, setting):
         if serverSettings.get(setting) == True:
             serverSettings[setting] = False
         else:
             serverSettings[setting] = True
-            
+
     def setServerExpMult(self, offset):
         value = max(min((serverSettings[ServerSettingsGlobals.ExpMultiplier] + offset), 20), 1)
         serverSettings[ServerSettingsGlobals.ExpMultiplier] = value
