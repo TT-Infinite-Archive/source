@@ -41,6 +41,12 @@ class MainMenu(DirectFrame, FSM):
         self.logoScaleTrack = None
         self.localServerStart = None
         self.playFadeSequence = None
+        self.suitPosInterval = None
+        self.loopyLane = None
+        self.buttonSequence = None
+
+        self.randomNPC = None
+        self.suit = None
 
         self.idleLabels = []
         self.signInLabels = []
@@ -52,11 +58,12 @@ class MainMenu(DirectFrame, FSM):
         self.buttonsSignIn = []
         self.buttonsSignUp = []
         self.buttonsLogIn = []
+        self.hostButtons = []
+
+        self.optionsScreen = OptionsTabPage()
+        self.optionsScreen.hide()
 
         self.loadElements()
-
-        # self.optionsScreen = OptionsTabPage()
-        # self.optionsScreen.hide()
 
     def loadElements(self):
         buttonScale = (-1.1, 1.1, 1.1)
@@ -214,8 +221,7 @@ class MainMenu(DirectFrame, FSM):
             text1_scale=0.105,
             command=lambda: self.request('Options')
         )
-        self.buttonsIdle.append(self.optionsButton)
-
+        self.optionsButton.hide()
         # Homescreen
         self.singlePlayerButton = MATShuffleButton(
             pos=(0, 0, -0.2),
@@ -258,21 +264,6 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('Idle')
         )
         self.buttonsHomeScreen.append(self.sighOutButton)
-
-        self.optionsButton2 = MATShuffleButton(
-            parent=base.a2dBottomLeft,
-            pos=(.4, 0, .2),
-            text="Options",
-            wantArrows=False,
-            image_scale=buttonScale,
-            image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover,
-            text_scale=0.10,
-            text2_scale=0.105,
-            text1_scale=0.105,
-            command=lambda: self.request('Options2')
-        )
-        self.buttonsHomeScreen.append(self.optionsButton2)
 
         # Log In button for the login screen
         self.logInButton2 = MATShuffleButton(
@@ -412,7 +403,7 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.10,
             text2_scale=0.105,
             text1_scale=0.105,
-            command=lambda: self.request('Host')
+            command=lambda: self.request('HostScreen')
         )
         self.buttonsPlayScreen.append(self.hostButton)
 
@@ -445,6 +436,19 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('MultiplayerSB')
         )
         self.buttonsPlayScreen.append(self.serverBrowserButton)
+
+        self.startServerButton = MATShuffleButton(
+            text="Host",
+            pos=(-.55, 0, -.11),
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.10,
+            text2_scale=0.105,
+            text1_scale=0.105,
+            command=lambda: self.request('StartHost')
+        )
 
         self.host_WantRacingLabel = TTLabel.TTLabel(
             pos=(-.55, 0, -.11),
@@ -509,8 +513,7 @@ class MainMenu(DirectFrame, FSM):
         #)
         #self.host_CheatsLabel = TTLabel.TTLabel(
         #    pos=(-.55, 0, -.41),
-        self.hostButtons = []
-        # self.hostButtons.append(self.host_StartServer)
+        self.hostButtons.append(self.startServerButton)
         #self.hostButtons.append(self.host_ShowInBrowserLabel)
         #self.hostButtons.append(self.host_ShowInBrowserBox)
         #self.hostButtons.append(self.host_CheatsBox)
@@ -526,10 +529,6 @@ class MainMenu(DirectFrame, FSM):
         for button in self.hostButtons:
             button.hide()
 
-    def unloadSceneElements(self):
-        self.toontownCentral.removeNode()
-        del self.toontownCentral
-
     def enterIdle(self):
         if (base.cr.music is None) and base.musicManagerIsValid:
             base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
@@ -543,6 +542,7 @@ class MainMenu(DirectFrame, FSM):
         for label in self.idleLabels:
             label.show()
 
+        self.optionsButton.show()
         self.background.show()
         self.logo.show()
         self.quitButton.show()
@@ -552,6 +552,7 @@ class MainMenu(DirectFrame, FSM):
             button.hide()
         for label in self.idleLabels:
             label.hide()
+        self.optionsButton.hide()
 
     def enterSignInScreen(self):
         self.backButton.show()
@@ -832,19 +833,20 @@ class MainMenu(DirectFrame, FSM):
         # If user logs out, request Idle
 
     def enterHomeScreen(self):
-        for button2 in self.buttonsHomeScreen:
-            button2.show()
+        for button in self.buttonsHomeScreen:
+            button.show()
         self.background.show()
         self.logo.show()
         self.quitButton.show()
-        self.optionsButton2.show()
-        self.modsButton.show()
+        self.optionsButton.show()
+        self.optionsButton['command'] = lambda: self.request('Options2')
 
     def exitHomeScreen(self):
-        for button2 in self.buttonsHomeScreen:
-            button2.hide()
-        self.optionsButton2.hide()
-        self.modsButton.hide()
+        for button in self.buttonsHomeScreen:
+            button.hide()
+
+        self.optionsButton.hide()
+        self.optionsButton['command'] = lambda: self.request('Options')
 
     def enterOptions(self):
         self.optionsScreen.show()
@@ -879,52 +881,17 @@ class MainMenu(DirectFrame, FSM):
 
     def enterPlayWait(self):
         base.transitions.fadeOut(0)
-        self.background.reparentTo(hidden)
-        self.logo.reparentTo(hidden)
+        self.background.hide()
+        self.logo.hide()
         self.quitButton.hide()
-        Sequence(Wait(1), Func(lambda: self.request('Play'))).start()
+        Sequence(Wait(0.1), Func(lambda: self.request('PlayScreen'))).start()
 
-    def enterPlay(self):
+    def enterPlayScreen(self):
         base.camLens.setFov(30)
 
-
-        self.toontownCentral = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200.bam')
-        self.toontownCentral.setPosHpr(34, -12, 0, 5, 0, 0)
-        self.toontownCentral.reparentTo(render)
-
-        for button in self.buttonsPlayScreen:
-            button.show()
-
-        self.backButton3.show()
-
-        buttonPosInterval = LerpPosInterval(self.hostButton, 0.5, Point3(0.35, 0, 0.3), Point3(4, 0, 0.3),
-                                            blendType='easeOut')
-        buttonPosInterval2 = LerpPosInterval(self.directConnectButton, 0.5, Point3(0.35, 0, 0), Point3(4, 0, 0),
-                                             blendType='easeOut')
-        buttonPosInterval3 = LerpPosInterval(self.serverBrowserButton, 0.5, Point3(0.35, 0, -0.3), Point3(4, 0, -0.3),
-                                             blendType='easeOut')
-        buttonPosInterval4 = LerpPosInterval(self.backButton3, 0.5, Point3(0.35, 0, -0.6), Point3(4, 0, -0.6),
-                                             blendType='easeOut')
-
-        self.buttonSequence = Sequence(Wait(2), Func(buttonPosInterval.start), Func(buttonPosInterval2.start), Func(buttonPosInterval3.start), Func(buttonPosInterval4.start))
-        self.buttonSequence.start()
-
-        self.suit = Suit.Suit()
-        dna = SuitDNA.SuitDNA()
-        dna.newSuitRandom()
-        self.suit.setDNA(dna)
-        self.suit.reparentTo(render)
-        self.suit.setDisplayName('')
-        self.suit.setPickable(0)
-        self.suit.loop('walk')
-        # self.suit.pose('landing', 20)
-        self.suit.setH(90)
-
-        self.suitPosInterval = self.suit.posInterval(8, (-447.5, -129, -0.47), startPos=(-417.5, -129, -0.475))
-        self.suitPosInterval.loop()
-
-        self.playFadeSequence = Sequence(Wait(2), Func(base.transitions.fadeIn, 1))
-        self.playFadeSequence.start()
+        self.loopyLane = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200.bam')
+        self.loopyLane.setPosHpr(34, -12, 0, 5, 0, 0)
+        self.loopyLane.reparentTo(render)
 
         self.randomNPC = Toon.Toon()
         dna = ToonDNA.ToonDNA()
@@ -943,15 +910,49 @@ class MainMenu(DirectFrame, FSM):
         self.randomNPC.pingpong('bored', fromFrame=70, toFrame=130)
         self.randomNPC.setPosHpr(-444, -107, 0.025, 52, 0, 0)
 
+        self.suit = Suit.Suit()
+        dna = SuitDNA.SuitDNA()
+        dna.newSuitRandom()
+        self.suit.setDNA(dna)
+        self.suit.reparentTo(render)
+        self.suit.setDisplayName('')
+        self.suit.setPickable(0)
+        self.suit.loop('walk')
+        # self.suit.pose('landing', 20)
+        self.suit.setH(90)
+
+        for button in self.buttonsPlayScreen:
+            button.show()
+
+        self.backButton3.show()
+
+        buttonPosInterval = LerpPosInterval(self.hostButton, 0.5, Point3(0.35, 0, 0.3), Point3(4, 0, 0.3),
+                                            blendType='easeOut')
+        buttonPosInterval2 = LerpPosInterval(self.directConnectButton, 0.5, Point3(0.35, 0, 0), Point3(4, 0, 0),
+                                             blendType='easeOut')
+        buttonPosInterval3 = LerpPosInterval(self.serverBrowserButton, 0.5, Point3(0.35, 0, -0.3), Point3(4, 0, -0.3),
+                                             blendType='easeOut')
+        buttonPosInterval4 = LerpPosInterval(self.backButton3, 0.5, Point3(0.35, 0, -0.6), Point3(4, 0, -0.6),
+                                             blendType='easeOut')
+
+        self.buttonSequence = Sequence(Wait(2), Func(buttonPosInterval.start), Func(buttonPosInterval2.start), Func(buttonPosInterval3.start), Func(buttonPosInterval4.start))
+        self.buttonSequence.start()
+
+        self.suitPosInterval = self.suit.posInterval(8, (-447.5, -129, -0.47), startPos=(-417.5, -129, -0.475))
+        self.suitPosInterval.loop()
+
+        self.playFadeSequence = Sequence(Wait(2), Func(base.transitions.fadeIn, 1))
+        self.playFadeSequence.start()
+
         # PlacerTool3D.PlacerTool3D(self.randomNPC, increment=1)
-        PlacerTool3D.PlacerTool3D(camera, increment=0.1)
+        # PlacerTool3D.PlacerTool3D(camera, increment=0.1)
         # base.oobe()
         # PlacerTool3D.PlacerTool3D(self.suit, increment=1)
 
-    def exitPlay(self):
-        self.background.reparentTo(render2d)
-        self.logo.reparentTo(base.a2dTopCenter)
-        self.toontownCentral.reparentTo(hidden)
+    def exitPlayScreen(self):
+        self.background.show()
+        self.logo.show()
+        self.loopyLane.reparentTo(hidden)
 
         for button in self.buttonsPlayScreen:
             button.hide()
@@ -964,11 +965,15 @@ class MainMenu(DirectFrame, FSM):
 
         self.randomNPC.removeNode()
         self.suit.removeNode()
+        # base.camera.setPosHpr(0, 0, 0, 0, 0, 0)
 
-        base.camera.setPosHpr(0, 0, 0, 0, 0, 0)
+    def enterHostScreen(self):
+        for button in self.hostButtons:
+            button.show()
 
-    def enterHost(self):
-        # self.host_StartServer.show()
+        self.background.hide()
+        self.logo.hide()
+        self.loopyLane.reparentTo(render)
 
         # Load the ip input bar
         self.host_ServerNameInput = DirectEntry(
@@ -1006,7 +1011,7 @@ class MainMenu(DirectFrame, FSM):
         )
         self.host_ServerNameInputLabel.hide()
 
-    def exitHost(self):
+    def exitHostScreen(self):
         for button in self.hostButtons:
             button.hide()
         if hasattr(self, 'host_ServerNameInput'):
@@ -1018,7 +1023,7 @@ class MainMenu(DirectFrame, FSM):
     def enterStartHost(self):
         base.isHosting = True
         base.isSinglePlayer = None
-        self.__startGameSession(False)
+        self.__startGameSession(True)
 
     def __startGameSession(self, server):
         self.LocalServerStart = LocalServerStart(self, server)
@@ -1309,10 +1314,6 @@ class MainMenu(DirectFrame, FSM):
             self.optionsScreen.unload()
             self.optionsScreen = None
 
-        if self.optionsScreen2 is not None:
-            self.optionsScreen2.unload()
-            self.optionsScreen2 = None
-
         if self.playFadeSequence is not None:
             self.playFadeSequence.finish()
             self.playFadeSequence = None
@@ -1329,14 +1330,13 @@ class MainMenu(DirectFrame, FSM):
             self.suitPosInterval.finish()
             self.suitPosInterval = None
 
-        print 'entered off'
-
-    def destroySPLocalStart(self):
+    def destroyLocalStart(self):
         if self.localServerStart:
             self.localServerStart.removeNode()
 
     def hide(self):
-        self.destroySPLocalStart()
+        self.destroyLocalStart()
+        self.unload()
 
         self.background.hide()
         self.logo.hide()
@@ -1367,6 +1367,43 @@ class MainMenu(DirectFrame, FSM):
 
         for label in self.signUpLabels:
             label.hide()
+
+        if self.logoScaleTrack is not None:
+            self.logoScaleTrack.finish()
+            self.logoScaleTrack = None
+
+        if self.playFadeSequence is not None:
+            self.playFadeSequence.finish()
+            self.playFadeSequence = None
+
+        if self.playFadeSequence is not None:
+            self.playFadeSequence.finish()
+            self.playFadeSequence = None
+
+        if self.buttonSequence is not None:
+            self.buttonSequence.finish()
+            self.buttonSequence = None
+
+        if self.suitPosInterval is not None:
+            self.suitPosInterval.finish()
+            self.suitPosInterval = None
+
+    def unload(self):
+        base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov/(4./3.))
+        if self.loopyLane is not None:
+            self.loopyLane.removeNode()
+            del self.loopyLane
+            self.loopyLane = None
+
+        if self.randomNPC is not None:
+            self.randomNPC.removeNode()
+            del self.randomNPC
+            self.randomNPC = None
+
+        if self.suit is not None:
+            self.suit.removeNode()
+            del self.suit
+            self.suit = None
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
