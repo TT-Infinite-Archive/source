@@ -21,15 +21,28 @@ from toontown.util import PlacerTool3D
 from toontown.util import TTCardMaker
 from panda3d.core import TransparencyAttrib, Vec4, TextNode
 import sys
-from direct.interval.IntervalGlobal import Func, Sequence, Wait
+from direct.interval.IntervalGlobal import Func, Sequence, Wait, Parallel
 from direct.interval.LerpInterval import LerpPosInterval
 from toontown.toon import NPCToons
 from toontown.toon import Toon
 from toontown.toon import ToonDNA
 from toontown.suit import Suit
 from toontown.suit import SuitDNA
+from direct.task.Task import Task
 from toontown.ai.NewsManager import NewsManager
 import random
+
+
+# Start Sky
+def cloudSkyTrack(task):
+    task.h += globalClock.getDt() * 0.25
+    if task.cloud1.isEmpty() or task.cloud2.isEmpty():
+        notify.warning("Couldn't find clouds!")
+        return Task.done
+
+    task.cloud1.setH(task.h)
+    task.cloud2.setH(-task.h * 0.8)
+    return Task.cont
 
 class MainMenu(DirectFrame, FSM):
     notify = directNotify.newCategory('MainMenu')
@@ -37,6 +50,9 @@ class MainMenu(DirectFrame, FSM):
     def __init__(self):
         DirectFrame.__init__(self)
         FSM.__init__(self, 'MainMenu')
+
+        base.isSinglePlayer = None
+        base.isHosting = None
 
         self.logoScaleTrack = None
         self.localServerStart = None
@@ -47,6 +63,7 @@ class MainMenu(DirectFrame, FSM):
 
         self.randomNPC = None
         self.suit = None
+        self.avScreen = None
 
         self.idleLabels = []
         self.signInLabels = []
@@ -109,6 +126,10 @@ class MainMenu(DirectFrame, FSM):
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
                                    pos=(0, 0, -1.54))
 
+        self.label11 = DirectLabel(relief=None, text='', text_fg=(0, 0, 0, 1),
+                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
+                                   pos=(-0.55, 0, 0.5))
+
         self.idleLabels.append(self.label)
         self.idleLabels.append(self.label2)
         self.idleLabels.append(self.label3)
@@ -140,6 +161,8 @@ class MainMenu(DirectFrame, FSM):
         self.label9.reparentTo(base.a2dTopCenter)
         self.label10['text'] = TTLocalizer.Warning
         self.label10.reparentTo(base.a2dTopCenter)
+        self.label11['text'] = TTLocalizer.ServerSettings
+        self.label11.reparentTo(base.aspect2d)
 
         for label in self.idleLabels:
             label.hide()
@@ -149,6 +172,8 @@ class MainMenu(DirectFrame, FSM):
 
         for label in self.signUpLabels:
             label.hide()
+
+        self.label11.hide()
 
         # Load the background image for the Main Menu
         self.background = OnscreenImage(
@@ -222,6 +247,7 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('Options')
         )
         self.optionsButton.hide()
+
         # Homescreen
         self.singlePlayerButton = MATShuffleButton(
             pos=(0, 0, -0.2),
@@ -433,13 +459,13 @@ class MainMenu(DirectFrame, FSM):
             text_scale=0.08,
             text2_scale=0.085,
             text1_scale=0.085,
-            command=lambda: self.request('MultiplayerSB')
+            command=lambda: self.request('DirectConnect')
         )
         self.buttonsPlayScreen.append(self.serverBrowserButton)
 
         self.startServerButton = MATShuffleButton(
-            text="Host",
-            pos=(-.55, 0, -.11),
+            text="Start",
+            pos=(0.84, 0, 0.79),
             wantArrows=False,
             image_scale=buttonScale,
             image2_scale=buttonScale_clickhover,
@@ -450,39 +476,67 @@ class MainMenu(DirectFrame, FSM):
             command=lambda: self.request('StartHost')
         )
 
-        self.host_WantRacingLabel = TTLabel.TTLabel(
-            pos=(-.55, 0, -.11),
+        self.hostWantRacingLabel = TTLabel.TTLabel(
+            pos=(-0.9, 0, 0.36),
             text="Racing",
             text_align=TextNode.ALeft,
         )
-        self.host_WantRacingBox = TTCheckBox.TTCheckBox(
-            pos=(-.6, 0, -.1),
+        self.hostWantRacingBox = TTCheckBox.TTCheckBox(
+            pos=(-0.95, 0, 0.37),
             checked=serverSettings[ServerSettingsGlobals.WantRacing],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantRacing]
         )
 
-        self.host_WantGolfLabel = TTLabel.TTLabel(
-            pos=(-.55, 0, -.21),
+        self.hostWantGolfLabel = TTLabel.TTLabel(
+            pos=(-0.9, 0, 0.26),
             text="Golf",
             text_align=TextNode.ALeft,
         )
-        self.host_WantGolfBox = TTCheckBox.TTCheckBox(
-            pos=(-.6, 0, -.2),
+        self.hostWantGolfBox = TTCheckBox.TTCheckBox(
+            pos=(-0.95, 0, 0.27),
             checked=serverSettings[ServerSettingsGlobals.WantGolf],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantGolf]
         )
 
-        self.host_ExpMultDec = MATArrow(
-            pos=(-.25, 0, -.3), command=self.setServerExpMult)
+        self.hostExpMultDec = MATArrow(
+            pos=(-0.8, 0, -0.02), command=self.setServerExpMult)
 
-        self.host_ExpMultInc = MATArrow(
-            pos=(.25, 0, -.3), inverted=True, command=self.setServerExpMult)
+        self.hostExpMultInc = MATArrow(
+            pos=(-0.29, 0, -0.02), inverted=True, command=self.setServerExpMult)
 
-        self.host_ExpMultLabel = TTLabel.TTLabel(
-            pos=(0, 0, -.3),
+        self.hostExpMultLabel = TTLabel.TTLabel(
+            pos=(-0.55, 0, -0.04),
             text="EXP Multiplier: %sx" % str(serverSettings[ServerSettingsGlobals.ExpMultiplier]),
             text_align=TextNode.ACenter,
         )
+
+        self.connectButton = MATShuffleButton(
+            pos=(-0.35, 0, -0.75),
+            text="Connect",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.10,
+            command=self.__submitIP
+        )
+        self.connectButton.hide()
+
+        self.addToBookmarksButton = MATShuffleButton(
+            pos=(0.35, 0, -0.75),
+            text="Bookmark",
+            wantArrows=False,
+            image_scale=buttonScale,
+            image2_scale=buttonScale_clickhover,
+            image1_scale=buttonScale_clickhover,
+            text_scale=0.09,
+            text2_scale=0.095,
+            text1_scale=0.10,
+            command=self.createBookmark
+        )
+        self.addToBookmarksButton.hide()
 
         self.hide()
 
@@ -497,34 +551,34 @@ class MainMenu(DirectFrame, FSM):
         #)
         #    checked=True
         #    pos=(-.6, 0, -.4),
-        #self.host_CheatsBox = TTCheckBox.TTCheckBox(
+        #self.hostCheatsBox = TTCheckBox.TTCheckBox(
         #)
         #    text_align=TextNode.ALeft,
         #    text="Cheats",
-        #self.host_ShowInBrowserLabel = TTLabel.TTLabel(
+        #self.hostShowInBrowserLabel = TTLabel.TTLabel(
         #    pos=(-.55, 0, -.31),
         #    text="Show In Server Browser",
         #    text_align=TextNode.ALeft,
-        #self.host_ShowInBrowserBox = TTCheckBox.TTCheckBox(
+        #self.hostShowInBrowserBox = TTCheckBox.TTCheckBox(
         #)
         #    pos=(-.6, 0, -.3),
         #    checked=False
         #
         #)
-        #self.host_CheatsLabel = TTLabel.TTLabel(
+        #self.hostCheatsLabel = TTLabel.TTLabel(
         #    pos=(-.55, 0, -.41),
         self.hostButtons.append(self.startServerButton)
         #self.hostButtons.append(self.host_ShowInBrowserLabel)
         #self.hostButtons.append(self.host_ShowInBrowserBox)
         #self.hostButtons.append(self.host_CheatsBox)
         #self.hostButtons.append(self.host_CheatsLabel)
-        self.hostButtons.append(self.host_WantRacingLabel)
-        self.hostButtons.append(self.host_WantRacingBox)
-        self.hostButtons.append(self.host_WantGolfLabel)
-        self.hostButtons.append(self.host_WantGolfBox)
-        self.hostButtons.append(self.host_ExpMultDec)
-        self.hostButtons.append(self.host_ExpMultInc)
-        self.hostButtons.append(self.host_ExpMultLabel)
+        self.hostButtons.append(self.hostWantRacingLabel)
+        self.hostButtons.append(self.hostWantRacingBox)
+        self.hostButtons.append(self.hostWantGolfLabel)
+        self.hostButtons.append(self.hostWantGolfBox)
+        self.hostButtons.append(self.hostExpMultDec)
+        self.hostButtons.append(self.hostExpMultInc)
+        self.hostButtons.append(self.hostExpMultLabel)
 
         for button in self.hostButtons:
             button.hide()
@@ -889,7 +943,7 @@ class MainMenu(DirectFrame, FSM):
     def enterPlayScreen(self):
         base.camLens.setFov(30)
 
-        self.loopyLane = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200.bam')
+        self.loopyLane = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200')
         self.loopyLane.setPosHpr(34, -12, 0, 5, 0, 0)
         self.loopyLane.reparentTo(render)
 
@@ -899,16 +953,20 @@ class MainMenu(DirectFrame, FSM):
         self.randomNPC.setDNA(dna)
         if dna.legs == 's':
             base.camera.setPosHpr(-454.5, -96, 2.6, 215, 0, 0)
-            print 'chose 1'
         elif dna.legs == 'l':
             base.camera.setPosHpr(-454.5, -96, 3, 215, 0, 0)
-            print 'chose 2'
         else:
             base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
-            print 'chose else'
         self.randomNPC.reparentTo(render)
         self.randomNPC.pingpong('bored', fromFrame=70, toFrame=130)
         self.randomNPC.setPosHpr(-444, -107, 0.025, 52, 0, 0)
+
+        self.avScreen = loader.loadModel('phase_5/models/props/av_screen_server_settings.bam')
+        self.avScreen.setPosHpr(-329, -196, 0.025, 95, 0, 0)
+        self.avScreen.reparentTo(render)
+        self.avScreen.setScale(1.3)
+
+        # base.oobe()
 
         self.suit = Suit.Suit()
         dna = SuitDNA.SuitDNA()
@@ -920,6 +978,31 @@ class MainMenu(DirectFrame, FSM):
         self.suit.loop('walk')
         # self.suit.pose('landing', 20)
         self.suit.setH(90)
+
+        effects = CompassEffect.PRot | CompassEffect.PZ
+
+        self.sky = loader.loadModel('phase_3.5/models/props/TT_sky')
+        self.sky.setTransparency(TransparencyAttrib.MAlpha)
+        self.sky.setTag('sky', 'Regular')
+        self.sky.setScale(1.0)
+        self.sky.setFogOff()
+        self.sky.setDepthTest(0)
+        self.sky.setDepthWrite(0)
+        self.sky.setBin('background', 100)
+        self.sky.find('**/Sky').reparentTo(self.sky, -1)
+        self.sky.reparentTo(render)
+        self.sky.setPos(-444, -107, 0)
+
+        ce = CompassEffect.make(NodePath(), effects)
+        self.sky.node().setEffect(ce)
+
+        skyTrackTask = Task(cloudSkyTrack)
+        skyTrackTask.h = 0
+        skyTrackTask.cloud1 = self.sky.find('**/cloud1')
+        skyTrackTask.cloud2 = self.sky.find('**/cloud2')
+
+        if not skyTrackTask.cloud1.isEmpty() and not skyTrackTask.cloud2.isEmpty():
+            taskMgr.add(skyTrackTask, 'skyTrack')
 
         for button in self.buttonsPlayScreen:
             button.show()
@@ -944,10 +1027,9 @@ class MainMenu(DirectFrame, FSM):
         self.playFadeSequence = Sequence(Wait(2), Func(base.transitions.fadeIn, 1))
         self.playFadeSequence.start()
 
-        # PlacerTool3D.PlacerTool3D(self.randomNPC, increment=1)
-        # PlacerTool3D.PlacerTool3D(camera, increment=0.1)
-        # base.oobe()
-        # PlacerTool3D.PlacerTool3D(self.suit, increment=1)
+        base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
+
+        PlacerTool3D.PlacerTool3D(camera, increment=5)
 
     def exitPlayScreen(self):
         self.background.show()
@@ -971,45 +1053,17 @@ class MainMenu(DirectFrame, FSM):
         for button in self.hostButtons:
             button.show()
 
+        self.label11.show()
+
         self.background.hide()
         self.logo.hide()
         self.loopyLane.reparentTo(render)
 
-        # Load the ip input bar
-        self.host_ServerNameInput = DirectEntry(
-            parent=aspect2d,
-            relief=DGG.GROOVE,
-            scale=0.1,
-            pos=(0, 0, -0.45),
-            borderWidth=(0.05, 0.05),
-            frameColor=((1, 1, 1, 0),
-                        (1, 1, 1, 0),
-                        (0.5, 0.5, 0.5, 0)),
-            image = "phase_3/maps/input_box.png",
-            image_scale = (4.6, 0, 1),
-            image_pos = (0, 0, .2),
-            state=DGG.DISABLED,
-            text_align=TextNode.ACenter,
-            text_scale=TTLocalizer.OPCodesInputTextScale,
-            width=15.5,
-            numLines=1,
-            focus=1,
-            backgroundFocus=0,
-            cursorKeys=1,
-            text_fg=(0,
-                     0,
-                     0,
-                     1),
-            suppressMouse=1,
-            autoCapitalize=0)
-        self.host_ServerNameInput.setTransparency(1)
-        self.host_ServerNameInput.hide()
-        self.host_ServerNameInputLabel = TTLabel.TTLabel(
-            pos=(0, 0, -.3),
-            text="Server Name in browser",
-            text_align=TextNode.ACenter,
-        )
-        self.host_ServerNameInputLabel.hide()
+        self.cameraPosInterval = camera.posInterval(3, Point3(-449.5, -156, 27), startPos=Point3(-454.5, -96, 2.7))
+        self.cameraHprInterval = camera.hprInterval(3, (225, 0, 0), startHpr=(215, 0, 0))
+        self.cameraPosInterval2 = camera.posInterval(4, Point3(-359.5, -204, 3.7), startPos=Point3(-449.5, -156, 27))
+        self.cameraHprInterval2 = camera.hprInterval(4, (280, 0, 0), startHpr=(225, 0, 0))
+        Sequence(Parallel(self.cameraPosInterval, self.cameraHprInterval), Parallel(self.cameraPosInterval2, self.cameraHprInterval2))
 
     def exitHostScreen(self):
         for button in self.hostButtons:
@@ -1022,7 +1076,6 @@ class MainMenu(DirectFrame, FSM):
 
     def enterStartHost(self):
         base.isHosting = True
-        base.isSinglePlayer = None
         self.__startGameSession(True)
 
     def __startGameSession(self, server):
@@ -1138,7 +1191,6 @@ class MainMenu(DirectFrame, FSM):
             deleteButton.bind(DirectGuiGlobals.EXIT, self.killTooltip)
 
     def enterDirectConnect(self):
-
         # Load the image for the ip input bar for Multiplayer
         cdrGui = loader.loadModel('phase_3.5/models/gui/tt_m_gui_sbk_codeRedemptionGui')
 
@@ -1168,7 +1220,6 @@ class MainMenu(DirectFrame, FSM):
             autoCapitalize=0,
             command=self.__submitIP)
 
-
         self.ipInput.show()
         self.__enableIPEntry()
         self.ipInput.enterText('')
@@ -1181,9 +1232,6 @@ class MainMenu(DirectFrame, FSM):
         self.__disableIPEntry()
         self.connectButton.hide()
         self.addToBookmarksButton.hide()
-
-        for label in self.labels:
-            label.hide()
 
     def __submitIP(self, input=None):
         if input is None:
@@ -1368,10 +1416,6 @@ class MainMenu(DirectFrame, FSM):
         for label in self.signUpLabels:
             label.hide()
 
-        if self.logoScaleTrack is not None:
-            self.logoScaleTrack.finish()
-            self.logoScaleTrack = None
-
         if self.playFadeSequence is not None:
             self.playFadeSequence.finish()
             self.playFadeSequence = None
@@ -1425,4 +1469,4 @@ class MainMenu(DirectFrame, FSM):
     def setServerExpMult(self, offset):
         value = max(min((serverSettings[ServerSettingsGlobals.ExpMultiplier] + offset), 20), 1)
         serverSettings[ServerSettingsGlobals.ExpMultiplier] = value
-        self.host_ExpMultLabel['text'] = "EXP Multiplier: %sx" % str(value)
+        self.hostExpMultLabel['text'] = "EXP Multiplier: %sx" % str(value)

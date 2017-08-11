@@ -134,7 +134,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverVersion = serverVersion
         self.waitingForDatabase = None
         self.mainMenu = MainMenu()
-        self.homeScreen = MainMenu()
 
         self.loginFSM = ClassicFSM('loginFSM', [
             State('loginOff',

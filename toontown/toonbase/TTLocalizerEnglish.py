@@ -10746,6 +10746,7 @@ Password = "Password"
 Birthday = "Birthday"
 Email = "Email"
 Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
+ServerSettings = "Server Settings"
 EnterAddress = "Enter a Server Address"
 Help = "The help page is coming soon.\n\nCheck back later!"
 ServerRunningAlready = 'A Singleplayer session is already in progress.'
