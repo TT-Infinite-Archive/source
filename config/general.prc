@@ -45,6 +45,7 @@ sync-video #f
 texture-power-2 none
 gl-check-errors #f
 garbage-collect-states #t
+support-threads #f
 
 # Egg object types:
 egg-object-type-barrier <Scalar> collide-mask { 0x01 } <Collide> { Polyset descend }
