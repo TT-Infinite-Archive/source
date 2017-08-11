@@ -226,7 +226,7 @@ CRServerDateTryAgain = 'Could not get server date from %s. Try again?'
 CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
 CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
 CRUpdateAvailableMessage = 'A new update is available. Please restart your game to receive it.'
-AfkForceAcknowledgeMessage = 'Your toon got sleepy and went to bed.'
+AfkForceAcknowledgeMessage = 'Your Toon got sleepy and went to bed.'
 PeriodTimerWarning = 'Your available time is almost over!'
 PeriodForceAcknowledgeMessage = 'Sorry, you have used up all of your available time. Please exit to purchase more.'
 CREnteringToontown = 'Entering...'
@@ -423,9 +423,9 @@ FriendInviterStopBeingFriends = 'Stop being friends'
 FriendInviterConfirmRemove = 'Remove'
 FriendInviterYes = lYes
 FriendInviterNo = lNo
-FriendInviterClickToon = 'Click on the toon you would like to make friends with.'
+FriendInviterClickToon = 'Click on the Toon you would like to make friends with.'
 FriendInviterTooMany = 'You have too many friends on your list to add another one now. You will have to remove some friends if you want to make friends with %s.'
-FriendInviterToonTooMany = 'You have too many toon friends on your list to add another one now. You will have to remove some toon friends if you want to make friends with %s.'
+FriendInviterToonTooMany = 'You have too many Toon friends on your list to add another one now. You will have to remove some Toon friends if you want to make friends with %s.'
 FriendInviterPlayerTooMany = 'You have too many player friends on your list to add another one now. You will have to remove some player friends if you want to make friends with %s.'
 FriendInviterNotYet = 'Would you like to make friends with %s?'
 FriendInviterCheckAvailability = 'Seeing if %s is available.'
@@ -566,7 +566,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
        'This will only hurt for a second.',
        "I'm going to make you dizzy.",
        "Good timing, I'm a pint low.",
-       "You'll B the opposite of A happy toon when I'm finished with you."],
+       "You'll B the opposite of A happy Toon when I'm finished with you."],
  'm': ["You don't know who you're mingling with.",
        'Ever mingle with the likes of me?',
        'Good, it takes two to mingle.',
@@ -583,7 +583,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         'This should shake you up.',
         'Prepare to be moved.',
         "I'm ready to make my move.",
-        "Watch out toon, you're on shaky ground.",
+        "Watch out Toon, you're on shaky ground.",
         'This should be a moving moment.',
         'I feel moved to defeat you.',
         'Are you shaking yet?'],
@@ -616,13 +616,13 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         'That is not proper corporate attire.',
         "You're looking rather vulnerable.",
         'Time to sign over your assets.',
-        "I'm on a toon removal crusade.",
+        "I'm on a Toon removal crusade.",
         'You are defenseless against my ideas.',
         "Relax, you'll find this is for the best."],
  'mh': ['Are you ready for my take?',
         'Lights, camera, action!',
         "Let's start rolling.",
-        'Today the role of defeated toon, will be played by - YOU!',
+        'Today the role of defeated Toon, will be played by - YOU!',
         'This scene will go on the cutting room floor.',
         'I already know my motivation for this scene.',
         'Are you ready for your final scene?',
@@ -679,11 +679,11 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         'I have lots of back up.',
         "There's no backing down now.",
         "I'm the best and I can back that up.",
-        'Whoa, back up there toon.',
+        'Whoa, back up there Toon.',
         'Let me get your back.',
         "You're going to have a stabbing headache soon.",
         'I have perfect puncture.',
-        "Don't worry toon, you can always trust me."],
+        "Don't worry Toon, you can always trust me."],
  'bw': ["Don't brush me aside.",
         'You make my hair curl.',
         'I can make this permanent if you want.',
@@ -693,7 +693,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         "I'm so glad you're on time for your cut.",
         "You're in big trouble.",
         "I'm going to wig out on you.",
-        "I'm a big deal little toon."],
+        "I'm a big deal little Toon."],
  'le': ["Careful, my legal isn't very tender.",
         'I soar, then I score.',
         "I'm bringing down the law on you.",
@@ -1099,7 +1099,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  1414: 'I need a Toon-Up.',
  1415: 'You should pass.',
  1416: 'We can do this!',
- 1500: "Let's use toon-up!",
+ 1500: "Let's use Toon-up!",
  1501: "Let's use trap!",
  1502: "Let's use lure!",
  1503: "Let's use sound!",
