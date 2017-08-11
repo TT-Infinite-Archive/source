@@ -11,7 +11,7 @@ from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
 from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon import ToonDNA
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.uberdog.ClientServicesManager import generateLookupTable, encodeHexString
 
 
@@ -998,6 +998,19 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
+        server_ip = ToontownGlobals.getIp()
+        if server_ip != ip_addr and simbase.isSinglePlayer:
+            datagram = PyDatagram()
+            datagram.addServerHeader(
+                sender,
+                self.air.ourChannel,
+                CLIENTAGENT_EJECT
+            )
+            datagram.addUint16(420)
+            datagram.addString('Attempted to connect to a server that has cooperative play disabled.')
+            self.air.send(datagram)
+            return
+
         self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
         self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
 
