@@ -3,8 +3,8 @@ from toontown.toonbase.ColorGlobals import CDefault, CGray
 
 
 class TTCheckBox(DirectButton):
-    def __init__(self, parent=aspect2d, pos=(0, 0, 0), checked=False, disable=False, command=None, extraArgs = None):
-        DirectButton.__init__(self, parent, relief=None)
+    def __init__(self, parent=aspect2d, pos=(0, 0, 0), hpr=(0, 0, 0), checked=False, disable=False, command=None, extraArgs = None):
+        DirectButton.__init__(self, parent, relief=None, pos=pos, hpr=hpr)
         hostingGui = preloader.getModel('phase_4/models/parties/schtickerbookHostingGUI')
         if not hostingGui:
             hostingGui = loader.loadModel('phase_4/models/parties/schtickerbookHostingGUI')
@@ -25,8 +25,7 @@ class TTCheckBox(DirectButton):
         self.checkButton = DirectButton(
             self,
             relief=None,
-            pos=pos,
-            image=image,
+            image=image
         )
 
         self.checkButton.bind(DGG.B1CLICK, self.__handleClick, extraArgs=[self.checkButton])
