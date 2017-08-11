@@ -635,7 +635,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-        # command=self.__submitUserName)
 
         self.usernameInput.show()
         self.usernameInput.enterText('')
@@ -663,7 +662,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-            # command=self.__submitPassWord)
 
         self.passwordInput.show()
         self.passwordInput.enterText('')
@@ -712,7 +710,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-            # command=self.__submitPassword)
 
         self.monthInput.show()
         self.monthInput.enterText('Month')
@@ -740,7 +737,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-            # command=self.__submitPassword)
 
         self.dayInput.show()
         self.dayInput.enterText('Day')
@@ -768,7 +764,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-            # command=self.__submitPassword)
 
         self.yearInput.show()
         self.yearInput.enterText('Year')
@@ -796,7 +791,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-        # command=self.__submitPassword)
 
         self.emailInput.show()
         self.emailInput.enterText('')
@@ -824,7 +818,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-        # command=self.__submitPassword)
 
         self.passwordInput.show()
         self.passwordInput.enterText('')
@@ -852,7 +845,6 @@ class MainMenu(DirectFrame, FSM):
                      1),
             suppressMouse=1,
             autoCapitalize=0)
-        # command=self.__submitUsername)
 
         self.usernameInput.show()
         self.usernameInput.enterText('')
@@ -931,7 +923,7 @@ class MainMenu(DirectFrame, FSM):
     def enterSingleplayer(self):
         self.__startGameSession(True)
         base.isSinglePlayer = True
-        base.isHosting = False
+        base.isHosting = True
 
     def enterPlayWait(self):
         base.transitions.fadeOut(0)
@@ -960,6 +952,16 @@ class MainMenu(DirectFrame, FSM):
         self.randomNPC.reparentTo(render)
         self.randomNPC.pingpong('bored', fromFrame=70, toFrame=130)
         self.randomNPC.setPosHpr(-444, -107, 0.025, 52, 0, 0)
+        self.randomNPC.useLOD(1000)
+
+        self.randomNPC2 = Toon.Toon()
+        dna2 = ToonDNA.ToonDNA()
+        dna2.newToonRandom(gender=random.choice(('m', 'f')))
+        self.randomNPC2.setDNA(dna2)
+        self.randomNPC2.reparentTo(render)
+        self.randomNPC2.pingpong('bored', fromFrame=70, toFrame=130)
+        self.randomNPC2.setPosHpr(-329, -196, 0.025, 95, 0, 0)
+        self.randomNPC2.useLOD(1000)
 
         self.avScreen = loader.loadModel('phase_5/models/props/av_screen_server_settings.bam')
         self.avScreen.setPosHpr(-329, -196, 0.025, 95, 0, 0)
@@ -1027,10 +1029,6 @@ class MainMenu(DirectFrame, FSM):
         self.playFadeSequence = Sequence(Wait(2), Func(base.transitions.fadeIn, 1))
         self.playFadeSequence.start()
 
-        base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
-
-        PlacerTool3D.PlacerTool3D(camera, increment=5)
-
     def exitPlayScreen(self):
         self.background.show()
         self.logo.show()
@@ -1050,24 +1048,33 @@ class MainMenu(DirectFrame, FSM):
         # base.camera.setPosHpr(0, 0, 0, 0, 0, 0)
 
     def enterHostScreen(self):
-        for button in self.hostButtons:
-            button.show()
+        def showHostButtons():
+            for button in self.hostButtons:
+                button.show()
 
-        self.label11.show()
+        projectorSFX = loader.loadSfx('phase_5/audio/sfx/TL_presentation.ogg')
+
+        PlacerTool3D.PlacerTool3D(camera, increment=5)
+        base.camera.setPosHpr(-424.5, -166, 12.6, 250, -5, 0)
 
         self.background.hide()
         self.logo.hide()
         self.loopyLane.reparentTo(render)
 
-        self.cameraPosInterval = camera.posInterval(3, Point3(-449.5, -156, 27), startPos=Point3(-454.5, -96, 2.7))
-        self.cameraHprInterval = camera.hprInterval(3, (225, 0, 0), startHpr=(215, 0, 0))
-        self.cameraPosInterval2 = camera.posInterval(4, Point3(-359.5, -204, 3.7), startPos=Point3(-449.5, -156, 27))
-        self.cameraHprInterval2 = camera.hprInterval(4, (280, 0, 0), startHpr=(225, 0, 0))
-        Sequence(Parallel(self.cameraPosInterval, self.cameraHprInterval), Parallel(self.cameraPosInterval2, self.cameraHprInterval2))
+        self.cameraPosInterval = camera.posInterval(2, Point3(-419.5, -166, 14), startPos=Point3(-454.5, -96, 2.7))
+        self.cameraPosInterval2 = camera.posInterval(2, Point3(-359.5, -204, 3.7), startPos=Point3(-419.5, -166, 14))
+        self.cameraHprInterval = camera.hprInterval(2, (250, -5, 0), startHpr=(215, 0, 0))
+        self.cameraHprInterval2 = camera.hprInterval(2, (280, 0, 0), startHpr=(250, -5, 0))
+
+        Sequence(
+            Parallel(self.cameraPosInterval, self.cameraHprInterval),
+            Parallel(self.cameraPosInterval2, self.cameraHprInterval2),
+            Parallel(Func(projectorSFX.play), Func(self.label11.show), Func(showHostButtons))).start()
 
     def exitHostScreen(self):
         for button in self.hostButtons:
             button.hide()
+        self.label11.hide()
         if hasattr(self, 'host_ServerNameInput'):
             self.host_ServerNameInput.destroy()
             del self.host_ServerNameInput
@@ -1077,6 +1084,7 @@ class MainMenu(DirectFrame, FSM):
     def enterStartHost(self):
         base.isHosting = True
         self.__startGameSession(True)
+        base.isSinglePlayer = True
 
     def __startGameSession(self, server):
         self.LocalServerStart = LocalServerStart(self, server)
