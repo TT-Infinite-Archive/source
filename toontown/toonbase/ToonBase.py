@@ -37,6 +37,8 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         self.cr = None
+        self.isSinglePlayer = False
+        self.isHosting = False
 
         # Get the native display info:
         if sys.platform != 'android':
