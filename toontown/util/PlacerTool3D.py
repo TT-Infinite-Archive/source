@@ -195,7 +195,7 @@ class PlacerToolSpinner(DirectFrame):
     def __init__(self, parent=render2d, pos=(0.0, 0.0, 0.0), scale=1.0, value=0, callback=None, increment=0.01):
         DirectFrame.__init__(self, parent, pos=pos, scale=1.0)
         self.increment = increment
-        self.value = float(value)
+        self.value = Decimal(value)
         self.callback = callback
 
         self.display = DirectEntry(
@@ -259,22 +259,20 @@ class PlacerToolSpinner(DirectFrame):
         if '.' not in value:
             value = int(value)
         else:
-            value = "%.2f" % float(value)
+            value = '%.2f' % float(value)
         self.setValue(value)
 
     def setValue(self, value):
         getcontext().prec = 2
         self.value = Decimal(value)
-        self.display.enterText(str(self.value))
+        self.display.enterText('%.2f' % float(value))
         if self.callback:
             self.callback(self.value)
 
     def __handleUpClicked(self):
         getcontext().prec = 2
-        self.value += Decimal(self.increment)
-        self.setValue(self.value)
+        self.setValue(float(self.value) + float(self.increment))
 
     def __handleDownClicked(self):
         getcontext().prec = 2
-        self.value -= Decimal(self.increment)
-        self.setValue(self.value)
+        self.setValue(float(self.value) - float(self.increment))
