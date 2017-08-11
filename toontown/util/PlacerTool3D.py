@@ -3,7 +3,7 @@ from direct.gui.DirectGui import DirectFrame, DGG, DirectButton, DirectEntry
 
 from toontown.toonbase import ToontownGlobals, EventGlobals
 from toontown.toontowngui import TTLabel
-from toontown.util import PlacerTool
+from decimal import *
 import re
 
 
@@ -84,6 +84,8 @@ class PlacerTool3D(DirectFrame):
             extraArgs=[]
         )
         self.dragButton.bind(DGG.B1PRESS, self.onPress)
+        if target is not None:
+            self.setTarget(target)
 
     def destroy(self):
         self.target = None
@@ -249,9 +251,11 @@ class PlacerToolSpinner(DirectFrame):
         if self.display is None:
             return
         value = self.display.get()
-        value = re.sub("[^0-9\.]", "", value)
+        value = re.sub("[^0-9\.-]", "", value)
         if value == '':
             value = '000.00'
+        elif value == '-':
+            return
         if '.' not in value:
             value = int(value)
         else:
@@ -259,15 +263,18 @@ class PlacerToolSpinner(DirectFrame):
         self.setValue(value)
 
     def setValue(self, value):
-        self.value = float(value)
-        self.display.enterText(str(value))
+        getcontext().prec = 2
+        self.value = Decimal(value)
+        self.display.enterText(str(self.value))
         if self.callback:
             self.callback(self.value)
 
     def __handleUpClicked(self):
-        self.value += self.increment
+        getcontext().prec = 2
+        self.value += Decimal(self.increment)
         self.setValue(self.value)
 
     def __handleDownClicked(self):
-        self.value -= self.increment
+        getcontext().prec = 2
+        self.value -= Decimal(self.increment)
         self.setValue(self.value)
