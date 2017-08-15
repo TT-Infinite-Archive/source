@@ -586,7 +586,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             if oldTracks == 0 and oldLevels == 0:
                 self.notify.warning('reseting invalid inventory to MAX on toon: %s' % self.doId)
                 self.inventory.zeroInv()
-                self.inventory.maxOutInv(1, 1)
+                self.inventory.maxOutInv(1)
             else:
                 newInventory = InventoryBase.InventoryBase(self)
                 oldList = emptyInv.makeFromNetStringForceSize(inventoryNetString, oldTracks, oldLevels)

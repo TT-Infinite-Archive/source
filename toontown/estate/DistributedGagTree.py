@@ -398,9 +398,6 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         self.finishInteraction()
         return
 
-    def velvetRoped(self):
-        return False
-
     def allowedToPick(self):
         return True
 

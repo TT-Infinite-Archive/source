@@ -724,16 +724,8 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                     button = self.buttons[track][level]
                     if self.itemIsUsable(track, level):
                         button.show()
-                        unpaid = not base.cr.isPaid()
-                        if self.numItem(track, level) >= self.getMax(track, level) or totalProps == maxProps or unpaid and gagIsPaidOnly(track, level) or level > LAST_REGULAR_GAG_LEVEL:
-                            if gagIsPaidOnly(track, level):
-                                self.makeDisabledPressable(button, track, level)
-                            elif unpaid and gagIsVelvetRoped(track, level):
-                                self.makeDisabledPressable(button, track, level)
-                            else:
-                                self.makeUnpressable(button, track, level)
-                        elif unpaid and gagIsVelvetRoped(track, level):
-                            self.makeDisabledPressable(button, track, level)
+                        if self.numItem(track, level) >= self.getMax(track, level) or totalProps == maxProps or level > LAST_REGULAR_GAG_LEVEL:
+                            self.makeUnpressable(button, track, level)
                         else:
                             self.makePressable(button, track, level)
                     else:
@@ -777,16 +769,8 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                     button = self.buttons[track][level]
                     if self.itemIsUsable(track, level):
                         button.show()
-                        unpaid = not base.cr.isPaid()
-                        if self.numItem(track, level) >= self.getMax(track, level) or totalProps == maxProps or unpaid and gagIsPaidOnly(track, level) or level > LAST_REGULAR_GAG_LEVEL:
-                            if gagIsPaidOnly(track, level):
-                                self.makeDisabledPressable(button, track, level)
-                            elif unpaid and gagIsVelvetRoped(track, level):
-                                self.makeDisabledPressable(button, track, level)
-                            else:
-                                self.makeUnpressable(button, track, level)
-                        elif unpaid and gagIsVelvetRoped(track, level):
-                            self.makeDisabledPressable(button, track, level)
+                        if self.numItem(track, level) >= self.getMax(track, level) or totalProps == maxProps or level > LAST_REGULAR_GAG_LEVEL:
+                            self.makeUnpressable(button, track, level)
                         else:
                             self.makePressable(button, track, level)
                     else:
@@ -923,12 +907,9 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 for level in xrange(len(Levels[track])):
                     button = self.buttons[track][level]
                     if self.itemIsUsable(track, level):
-                        unpaid = not base.cr.isPaid()
                         button.show()
                         if self.numItem(track, level) <= 0 or track == HEAL_TRACK and not self.heal or track == TRAP_TRACK and not self.trap or track == LURE_TRACK and not self.lure:
                             self.makeUnpressable(button, track, level)
-                        elif unpaid and gagIsVelvetRoped(track, level):
-                            self.makeDisabledPressable(button, track, level)
                         elif self.itemIsCredit(track, level):
                             self.makePressable(button, track, level)
                         else:
