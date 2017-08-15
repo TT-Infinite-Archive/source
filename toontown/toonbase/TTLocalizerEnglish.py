@@ -57,7 +57,10 @@ NametagFontNames = (
 )
 NametagLabel = ' Nametag'
 UnpaidNameTag = 'Basic'
-ScreenshotPath = os.path.join(CurrentDirectory, 'screenshots')
+if sys.platform.startswith('win'):
+    ScreenshotPath = os.path.join(os.path.expanduser("~\\Pictures"), 'ToontownInfinite')
+else:
+    ScreenshotPath = os.path.join(CurrentDirectory, 'screenshots') 
 GM_NAMES = (
  'TOON COUNCIL',
  'TOON TROOPER',

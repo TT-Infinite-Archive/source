@@ -61,7 +61,7 @@ class ToonBase(OTPBase.OTPBase):
 
             # Store our result
             settings['res'] = res
-            
+
             # Reload the graphics pipe:
             properties = WindowProperties()
 
@@ -83,7 +83,7 @@ class ToonBase(OTPBase.OTPBase):
             if (gsg is None) or (
                 currentProperties.getFullscreen() != newProperties.getFullscreen()) or (
                 currentProperties.getParentWindow() != newProperties.getParentWindow()):
-                self.openMainWindow(props=properties, gsg=gsg, keepCamera=True)
+                self.openMainWindow(props = properties, gsg = gsg, keepCamera = True)
                 self.graphicsEngine.openWindows()
                 self.disableShowbaseMouse()
             else:
@@ -212,7 +212,7 @@ class ToonBase(OTPBase.OTPBase):
 
         self.showGroupTracker = settings.get('grouptracker', True)
         settings['grouptracker'] = self.showGroupTracker
-        
+
         tpMgr = TextPropertiesManager.getGlobalPtr()
         WLDisplay = TextProperties()
         WLDisplay.setSlant(0.3)
@@ -247,18 +247,18 @@ class ToonBase(OTPBase.OTPBase):
         for holidayId in activeHolidays.split(','):
             if holidayId:
                 self.clientHolidayIdList.append(int(holidayId.strip()))
-        
+
         self.wantCustomControls = settings.get('want-custom-controls', False)
 
-        self.MOVE_UP = 'arrow_up'   
+        self.MOVE_UP = 'arrow_up'
         self.MOVE_DOWN = 'arrow_down'
-        self.MOVE_LEFT = 'arrow_left'      
+        self.MOVE_LEFT = 'arrow_left'
         self.MOVE_RIGHT = 'arrow_right'
         self.JUMP = 'control'
         self.ACTION_BUTTON = 'delete'
         self.SCREENSHOT_KEY = 'f9'
         self.INTERACT_KEY = 'shift'
-        
+
         keymap = settings.get('keymap', {})
         if self.wantCustomControls:
             self.MOVE_UP = keymap.get('MOVE_UP', self.MOVE_UP)
@@ -270,16 +270,16 @@ class ToonBase(OTPBase.OTPBase):
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
             self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
             self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
-        
+
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
-        
+
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
 
         self.wantClassicMusic = settings.get('classic-music', False)
-        
+
         self.wantDoorInteract = settings.get('door-interaction-key')
         self.wantNpcInteract = settings.get('npc-interaction-key')
-        
+
         self.leakGraph = None
         if config.GetBool('want-leak-graph-client', False):
             self.leakGraph = LeakGraph('tti-client-process')
@@ -320,7 +320,7 @@ class ToonBase(OTPBase.OTPBase):
             p3filename = Filename(filename)
             found = vfs.resolveFilename(p3filename, searchPath)
             if not found:
-                return  # Can't do anything past this point.
+                return # Can't do anything past this point.
 
             with open(os.path.join(self.tempDir, filename), 'wb') as f:
                 f.write(vfs.readFile(p3filename, False))
@@ -358,7 +358,7 @@ class ToonBase(OTPBase.OTPBase):
         for nametag in nametags3d:
             if not nametag.isHidden():
                 hide = True
-                
+
         # If anything is visible, hide, else we will show everything
         for nametag in nametags3d:
             if hide:
@@ -370,22 +370,22 @@ class ToonBase(OTPBase.OTPBase):
                 nametag.hide()
             else:
                 nametag.show()
-        
+
     def toggleGui(self):
         if aspect2d.isHidden():
             base.transitions.noFade()
             aspect2d.show()
         else:
             aspect2d.hide()
-            base.transitions.fadeScreen(alpha=0)
-            
+            base.transitions.fadeScreen(alpha = 0)
+
     def showNotification(self, message):
         if hasattr(self, 'notificationPopup') and self.notificationPopup:
             self.notificationPopup.destroy()
             taskMgr.remove('clearNotification')
         self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
         self.notificationPopup.reparentTo(base.a2dBottomCenter)
-        self.notificationPopup.setBin('gui-popup', 0)     
+        self.notificationPopup.setBin('gui-popup', 0)
         def clearNotificationPopup(task):
             self.notificationPopup.destroy()
             return task.done
@@ -399,7 +399,6 @@ class ToonBase(OTPBase.OTPBase):
         if not os.path.exists(TTLocalizer.ScreenshotPath):
             os.mkdir(TTLocalizer.ScreenshotPath)
             self.notify.info('Made new directory to save screenshots.')
-        self.screenshotSfx.play()
         namePrefix = TTLocalizer.ScreenshotPath + launcher.logPrefix + 'screenshot'
         timedif = globalClock.getRealTime() - self.lastScreenShotTime
         if self.glitchCount > 10 and self.walking:
@@ -408,8 +407,12 @@ class ToonBase(OTPBase.OTPBase):
             self.glitchCount += 1
             return
         if not hasattr(self, 'localAvatar'):
-            self.screenshot(namePrefix=namePrefix)
+            screenshot = self.screenshot(namePrefix = namePrefix)
             self.lastScreenShotTime = globalClock.getRealTime()
+            pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
+            winfile = pandafile.toOsSpecific()
+            self.showNotification("Screenshot Saved" + ':\n' + winfile)
+            self.screenshotSfx.play()
             return
         coordOnScreen = self.config.GetBool('screenshot-coords', 0)
         self.localAvatar.stopThisFrame = 1
@@ -417,26 +420,14 @@ class ToonBase(OTPBase.OTPBase):
         self.screenshotStr = ''
         messenger.send('takingScreenshot')
         if coordOnScreen:
-            coordTextLabel = DirectLabel(pos=(-0.81, 0.001, -0.87), text=ctext,
-                                         text_scale=0.05,
-                                         text_fg=VBase4(1.0, 1.0, 1.0, 1.0),
-                                         text_bg=(0, 0, 0, 0),
-                                         text_shadow=(0, 0, 0, 1), relief=None)
+            coordTextLabel = DirectLabel(pos = (-0.81, 0.001, -0.87), text = ctext, text_scale = 0.05, text_fg = VBase4(1.0, 1.0, 1.0, 1.0), text_bg = (0, 0, 0, 0), text_shadow = (0, 0, 0, 1), relief = None)
             coordTextLabel.setBin('gui-popup', 0)
             strTextLabel = None
             if len(self.screenshotStr):
-                strTextLabel = DirectLabel(pos=(0.0, 0.001, 0.9),
-                                           text=self.screenshotStr,
-                                           text_scale=0.05,
-                                           text_fg=VBase4(1.0, 1.0, 1.0, 1.0),
-                                           text_bg=(0, 0, 0, 0),
-                                           text_shadow=(0, 0, 0, 1),
-                                           relief=None)
+                strTextLabel = DirectLabel(pos = (0.0, 0.001, 0.9), text = self.screenshotStr, text_scale = 0.05, text_fg = VBase4(1.0, 1.0, 1.0, 1.0), text_bg = (0, 0, 0, 0), text_shadow = (0, 0, 0, 1), relief = None)
                 strTextLabel.setBin('gui-popup', 0)
         self.graphicsEngine.renderFrame()
-        self.screenshot(namePrefix=namePrefix,
-                        imageComment=ctext + ' ' + self.screenshotStr)
-        screenshot = self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
+        screenshot = self.screenshot(namePrefix = namePrefix, imageComment = ctext + ' ' + self.screenshotStr)
         self.lastScreenShotTime = globalClock.getRealTime()
         pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
         winfile = pandafile.toOsSpecific()
@@ -502,7 +493,7 @@ class ToonBase(OTPBase.OTPBase):
             self.marginManager.addCell(-0.1, -1.0, self.a2dTopRight),
             self.marginManager.addCell(-0.1, -1.4, self.a2dTopRight)
         ]
-    
+
     def getAspect2dMargins(self):
         return [
             self.a2dTopCenter, self.a2dTopCenterNs, self.a2dBottomCenter, self.a2dBottomCenterNs, self.a2dLeftCenter,
@@ -510,11 +501,11 @@ class ToonBase(OTPBase.OTPBase):
             self.a2dTopRight, self.a2dTopRightNs, self.a2dBottomLeft, self.a2dBottomLeftNs, self.a2dBottomRight,
             self.a2dBottomRightNs
         ]
-    
+
     def hideAspect2dMargins(self):
         for margin in self.getAspect2dMargins():
             margin.hide()
-    
+
     def showAspect2dMargins(self):
         for margin in self.getAspect2dMargins():
             margin.show()
@@ -528,7 +519,7 @@ class ToonBase(OTPBase.OTPBase):
         self.downloadWatcher.cleanup()
         self.downloadWatcher = None
 
-    def startShow(self, gameserver=None):
+    def startShow(self, gameserver = None):
         if self.cr is None:
             return
 
@@ -540,7 +531,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='127.0.0.1', port=7000, isMultiplayer = True):
+    def connectToServer(self, gameserver = '127.0.0.1', port = 7000, isMultiplayer = True):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
@@ -574,7 +565,7 @@ class ToonBase(OTPBase.OTPBase):
     def removeGlitchMessage(self):
         self.ignore('InputState-forward')
 
-    def exitShow(self, errorCode=None):
+    def exitShow(self, errorCode = None):
         self.notify.info('Exiting Toontown: errorCode = %s' % errorCode)
         if errorCode:
             launcher.setPandaErrorCode(errorCode)
@@ -633,14 +624,14 @@ class ToonBase(OTPBase.OTPBase):
             config.GetInt('shard-high-pop', ToontownGlobals.HIGH_POP)
         )
 
-    def playMusic(self, music, looping=0, interrupt=1, volume=None, time=0.0):
+    def playMusic(self, music, looping = 0, interrupt = 1, volume = None, time = 0.0):
         OTPBase.OTPBase.playMusic(self, music, looping, interrupt, volume, time)
 
     # OS X Specific Actions
     def exitOSX(self):
-        self.confirm = TTDialog.TTGlobalDialog(doneEvent='confirmDone',
-                                               message=TTLocalizer.OptionsPageExitConfirm,
-                                               style=TTDialog.TwoChoice)
+        self.confirm = TTDialog.TTGlobalDialog(doneEvent = 'confirmDone',
+                                               message = TTLocalizer.OptionsPageExitConfirm,
+                                               style = TTDialog.TwoChoice)
         self.confirm.show()
         self.accept('confirmDone', self.handleConfirm)
 
@@ -682,16 +673,16 @@ class ToonBase(OTPBase.OTPBase):
         else:
             self.MOVE_UP = 'arrow_up'
             self.MOVE_DOWN = 'arrow_down'
-            self.MOVE_LEFT = 'arrow_left'      
+            self.MOVE_LEFT = 'arrow_left'
             self.MOVE_RIGHT = 'arrow_right'
             self.JUMP = 'control'
             self.ACTION_BUTTON = 'delete'
             self.SCREENSHOT_KEY = 'f9'
             self.INTERACT_KEY = 'shift'
-            
+
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
-    def __tick(self, t=None):
+    def __tick(self, t = None):
         if platform != 'win32':
             return
 
@@ -729,11 +720,11 @@ class ToonBase(OTPBase.OTPBase):
         resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
         if len(resolutions) < 2:
             ratios = ToontownGlobals.CommonDisplayResolutions.keys()
-            ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
+            ratios.sort(key = lambda value: float(value[0]) / float(value[1]))
 
             while ratios:
                 ratio = ratios.pop()
-                if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
+                if (float(ratio[0]) / float(ratio[1])) < (float(self.nativeRatio[0]) / float(self.nativeRatio[1])):
                     self.calcRatio = ratio
                     resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
                     if resolutions[0][0] >= (self.nativeWidth - 125):
@@ -749,8 +740,8 @@ class ToonBase(OTPBase.OTPBase):
         return res
 
 
-@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
-def picker(mode=0):
+@magicWord(category = CATEGORY_ADMINISTRATOR, types = [int])
+def picker(mode = 0):
     from toontown.util.TTPicker import TTPicker
     from toontown.util.PlacerTool3D import PlacerTool3D
     """
