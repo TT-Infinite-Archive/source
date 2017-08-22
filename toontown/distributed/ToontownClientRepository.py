@@ -130,6 +130,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
 
         self.progressMultiplier = 1
         self.wantDoubleProgression = base.config.GetBool('want-double-progression', False)
+        self.isSinglePlayer = base.config.GetBool('want-singleplayer', False)
 
         if self.wantDoubleProgression:
             self.progressMultiplier = 2

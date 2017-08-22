@@ -118,6 +118,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantRacing = serverSettings[ServerSettingsGlobals.WantRacing]
         self.wantGolf = serverSettings[ServerSettingsGlobals.WantGolf]
         self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
+        self.isSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
 
         # Logging
         from panda3d.core import MultiplexStream, Notify, StreamWriter

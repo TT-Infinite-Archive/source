@@ -1,10 +1,10 @@
-WhitelistedChat = 'want-chat-whitelist'
 EnabledZones = 'wanted-zones'
 ExpMultiplier = 'exp-multiplier'
 YinYang = 'want-yin-yang'
 WantRacing = 'want-racing'
 WantGolf = 'want-golf'
 TTCJukebox = 'want-ttc-jukebox'
+WantSinglePlayer = 'want-singleplayer'
 
 InitialSettings = {
     EnabledZones: {
@@ -27,6 +27,7 @@ InitialSettings = {
     WantRacing: True,
     WantGolf: True,
     TTCJukebox: True,
+    WantSinglePlayer: False,
 }
     
 def loadInitialSettings():

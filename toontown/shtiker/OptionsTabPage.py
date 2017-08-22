@@ -1070,5 +1070,4 @@ class OptionsTabPage(DirectFrame):
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
-            base.cr.loginFSM.request('homeScreen')
-            base.cr.mainMenu.LocalServerStart.demand('Off')
+            base.cr.loginFSM.request('mainMenu')

@@ -10739,24 +10739,36 @@ BossLeaderboardLabel = 'Current Damage'
 
 # Main Menu
 WelcomeMessage = 'Welcome to Toontown Infinite!'
-LogIn = "Already have an account? Log in!"
-SignUp = "New to Toontown Infinite? Sign Up!"
-Username = "Username"
-Password = "Password"
-Birthday = "Birthday"
-Email = "Email"
-Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
-ServerSettings = "Server Settings"
-EnterAddress = "Enter a Server Address"
-Help = "The help page is coming soon.\n\nCheck back later!"
+LoginScreenGreeting = "Already have an account? Log in!"
+LoginScreenGreeting2 = "New to Toontown Infinite? Sign Up!"
+LoginScreenLogin = 'Login'
+LoginScreenSignUp = 'Sign Up'
+SignUpTermsOfService = 'Terms of\n Service'
+HomeScreenLoggedIn = 'Logged in as %s'
+HomeScreenPlay = 'Play'
+HomeScreenMods = 'Mods'
+HomeScreenSignOut = 'Sign Out'
+Username = 'Username'
+Password = 'Password'
+Birthday = 'Birthday'
+Email = 'Email'
+SignUpWarning = 'By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service.'
+SignUpDay = 'Day'
+SignUpMonth = 'Month'
+SignUpYear = 'Year'
+ServerSettings = 'Server Settings'
+EnterAddress = 'Enter a Server Address'
+Help = 'The help page is coming soon.\n\nCheck back later!'
 ServerRunningAlready = 'A Singleplayer session is already in progress.'
 MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
+HostDone = 'Start'
 
-ServerRunningAlready = 'You are already hosting a server.'
+LocalServerRunningAlready = 'You are already hosting a server.'
+LocalServerStarting = 'Starting...'
+LocalServerDone = 'Entering...'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 DedicatedServerDone = 'Done. This server is now live.'
-StartingGame = 'Starting the game momentarily...'
 StartingFailed = 'The %s has failed to start.\n\nSee logs for more information.'
 
 # Debug for Dev Distribution
