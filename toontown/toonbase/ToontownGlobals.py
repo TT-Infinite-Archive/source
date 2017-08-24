@@ -481,6 +481,7 @@ IceGameId = 13
 CogThiefGameId = 14
 TwoDGameId = 15
 PhotoGameId = 16
+CogThiefRewrittenGameId = 17
 TravelGameId = 100
 MinigameNames = {
     'race': RaceGameId,
@@ -502,6 +503,7 @@ MinigameNames = {
     'thief': CogThiefGameId,
     '2d': TwoDGameId,
     'photo': PhotoGameId,
+    'thief rewritten': CogThiefRewrittenGameId,
     'travel': TravelGameId
 }
 MinigameTemplateId = -1
@@ -522,13 +524,14 @@ MinigameIDs = (
     CogThiefGameId,
     TwoDGameId,
     PhotoGameId,
+    CogThiefRewrittenGameId,
     TravelGameId
 )
 MinigamePlayerMatrix = {
-    1: (CannonGameId, MazeGameId, TugOfWarGameId, RingGameId, VineGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
+    1: (CannonGameId, MazeGameId, TugOfWarGameId, RingGameId, VineGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
 }
 MinigameReleaseDates = {
     IceGameId: (2008, 8, 5),
