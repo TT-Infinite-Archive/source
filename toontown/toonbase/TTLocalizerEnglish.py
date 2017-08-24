@@ -10780,3 +10780,4 @@ BehaviorName = {
 }
 
 AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
+ToontownRewrittenCredits = 'Created and developed\nby Toontown Rewritten.'

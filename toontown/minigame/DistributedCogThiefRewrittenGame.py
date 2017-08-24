@@ -1,24 +1,32 @@
-from pandac.PandaModules import Point3, CollisionSphere, CollisionNode, CollisionHandlerEvent, NodePath, TextNode
 from direct.distributed.ClockDelta import globalClockDelta
-from direct.interval.IntervalGlobal import Wait, LerpFunctionInterval, LerpHprInterval, Sequence, Parallel, Func, SoundInterval, ActorInterval, ProjectileInterval, Track, LerpScaleInterval, WaitInterval, LerpPosHprInterval
-from direct.gui.DirectGui import DirectLabel
 from direct.fsm import ClassicFSM
 from direct.fsm import State
+from direct.gui.DirectGui import DirectLabel
+from direct.interval.IntervalGlobal import Wait, LerpFunctionInterval, LerpHprInterval, Sequence, Parallel, Func, \
+    SoundInterval, ActorInterval, ProjectileInterval, Track, LerpScaleInterval, WaitInterval, LerpPosHprInterval
 from direct.showbase import RandomNumGen
 from direct.task import Task
+from pandac.PandaModules import Point3, CollisionSphere, CollisionNode, CollisionHandlerEvent, NodePath, TextNode
+
+from toontown.minigame import CogThiefGameToonSD
+from toontown.minigame import CogThiefRewritten
+from toontown.minigame import CogThiefRewrittenGameGlobals
+from toontown.minigame import CogThiefWalk
+from toontown.minigame import MinigameGlobals
+from toontown.minigame import Trajectory
+from toontown.minigame.DistributedMinigame import DistributedMinigame
+from toontown.minigame.OrthoDrive import OrthoDrive
+from toontown.minigame.OrthoWalk import OrthoWalk
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
-from toontown.minigame import CogThiefGameToonSD
-from toontown.minigame.OrthoDrive import OrthoDrive
-from toontown.minigame.OrthoWalk import OrthoWalk
-from toontown.minigame import CogThiefRewrittenGameGlobals
-from toontown.minigame import CogThiefRewritten
-from toontown.minigame.DistributedMinigame import DistributedMinigame
-from toontown.minigame import Trajectory
-from toontown.minigame import MinigameGlobals
-from toontown.minigame import CogThiefWalk
+
 CTGG = CogThiefRewrittenGameGlobals
+from direct.gui.DirectGui import OnscreenImage
+from panda3d.core import TransparencyAttrib
+from direct.interval.IntervalGlobal import LerpColorScaleInterval
+from panda3d.core import Vec4
+from toontown.minigame import MinigameRulesPanel
 
 class DistributedCogThiefRewrittenGame(DistributedMinigame):
     notify = directNotify.newCategory('DistributedCogThiefRewrittenGame')
@@ -63,6 +71,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         self.notify.debug('load')
         DistributedMinigame.load(self)
         self.music = base.loadMusic('phase_4/audio/bgm/MG_CogThief.ogg')
+        self.creditsMusic = base.loadMusic('phase_3/audio/bgm/ttr_credits_theme.ogg')
         self.initCogInfo()
         for barrelIndex in range(CTGG.NumBarrels):
             barrel = loader.loadModel('phase_4/models/minigames/cogthief_game_gagTank')
@@ -116,17 +125,34 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         self.rewardPanel = DirectLabel(parent=hidden, relief=None, pos=(-0.173, -1.2, -0.55), scale=0.65, text='', text_scale=0.2, text_fg=(0.95, 0.95, 0, 1), text_pos=(0, -0.13), text_font=ToontownGlobals.getSignFont(), image=self.jarImage)
         self.rewardPanelTitle = DirectLabel(parent=self.rewardPanel, relief=None, pos=(0, 0, 0.06), scale=0.08, text=TTLocalizer.CannonGameReward, text_fg=(0.95, 0.95, 0, 1), text_shadow=(0, 0, 0, 1))
 
+        self.toontownRewrittenEyes = OnscreenImage(
+            parent=hidden, pos=(0, 0, 0.3), scale=0.5, image='phase_3.5/maps/toontown_rewritten_eyes.png')
+        self.toontownRewrittenEyes.setTransparency(TransparencyAttrib.MAlpha)
+
+        self.creditsLabel = DirectLabel(parent=hidden, relief=None, text='', text_fg=(1, 1, 1, 1),
+                                 text_font=ToontownGlobals.getToonFont(), text_scale=0.1, text_wordwrap=25,
+                                 pos=(0, 0, -0.23))
+        self.creditsLabel['text'] = TTLocalizer.ToontownRewrittenCredits
+
     def unload(self):
         self.notify.debug('unload')
         DistributedMinigame.unload(self)
         del self.music
+        del self.creditsMusic
         self.removeChildGameFSM(self.gameFSM)
         del self.gameFSM
         self.gameBoard.removeNode()
         self.sky.removeNode()
         del self.gameBoard
+        self.toontownRewrittenEyes.removeNode()
+        del self.toontownRewrittenEyes
+        self.creditsLabel.removeNode()
+        del self.creditsLabel
         for barrel in self.barrels:
             barrel.removeNode()
+        if self.creditSequence is not None:
+            self.creditSequence.finish()
+            self.creditSequence = None
 
         del self.barrels
         for avId in self.toonSDs.keys():
@@ -155,6 +181,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         toonSD.enter()
         toonSD.fsm.request('normal')
         self.stopGameWalk()
+        base.localAvatar.setAnimState('neutral')
         for cogIndex in xrange(self.getNumCogs()):
             suit = self.cogInfo[cogIndex]['suit'].suit
             pos = self.cogInfo[cogIndex]['pos']
@@ -174,12 +201,11 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             self.sndTable['hitBySuit'][i] = base.loadSfx('phase_4/audio/sfx/MG_Tag_C.ogg')
             self.sndTable['falling'][i] = base.loadSfx('phase_4/audio/sfx/MG_cannon_whizz.ogg')
 
-        base.playMusic(self.music, looping=1, volume=0.8)
-
     def offstage(self):
         self.notify.debug('offstage')
         self.gameBoard.hide()
         self.music.stop()
+        self.creditsMusic.stop()
         for barrel in self.barrels:
             barrel.hide()
 
@@ -193,6 +219,13 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
 
         self.timer.reparentTo(hidden)
         self.rewardPanel.reparentTo(hidden)
+        self.toontownRewrittenEyes.reparentTo(hidden)
+        self.creditsLabel.reparentTo(hidden)
+
+        if self.creditSequence is not None:
+            self.creditSequence.finish()
+            self.creditSequence = None
+
         DistributedMinigame.offstage(self)
 
     def handleDisabledAvatar(self, avId):
@@ -220,6 +253,40 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
                 toonSD.enter()
                 toonSD.fsm.request('normal')
                 toon.startSmooth()
+
+    def enterFrameworkRules(self):
+        self.notify.debug('BASE: enterFrameworkRules')
+        self.accept(self.rulesDoneEvent, self.handleRulesDone)
+        self.rulesPanel = MinigameRulesPanel.MinigameRulesPanel('MinigameRulesPanel', self.getTitle(), self.getInstructions(), self.rulesDoneEvent)
+        self.rulesPanel.load()
+        self.rulesPanel.enterRewrittenMiniGame()
+
+        self.creditSequence = Sequence(
+            Parallel(
+                Func(self.toontownRewrittenEyes.reparentTo, base.aspect2d),
+                Func(self.creditsLabel.reparentTo, base.aspect2d),
+                Func(base.playMusic, self.creditsMusic, looping=0, volume=1),
+                LerpColorScaleInterval(
+                    self.toontownRewrittenEyes, 2, Vec4(1, 1, 1, 1), Vec4(0, 0, 0, 0),
+                    blendType='easeIn'),
+                LerpColorScaleInterval(
+                    self.creditsLabel, 2, Vec4(1, 1, 1, 1), Vec4(0, 0, 0, 0),
+                    blendType='easeIn')),
+            Wait(6),
+            Parallel(
+                LerpColorScaleInterval(
+                    self.toontownRewrittenEyes, 2, Vec4(0, 0, 0, 0), Vec4(1, 1, 1, 1),
+                    blendType='easeOut'),
+                LerpColorScaleInterval(
+                    self.creditsLabel, 2, Vec4(0, 0, 0, 0), Vec4(1, 1, 1, 1),
+                    blendType='easeOut')),
+            Parallel(
+                Func(self.toontownRewrittenEyes.reparentTo, hidden),
+                Func(self.creditsLabel.reparentTo, hidden),
+                Func(self.creditsMusic.stop),
+                Func(base.playMusic, self.music, looping=1, volume=0.8))
+        )
+        self.creditSequence.start()
 
     def setGameStart(self, timestamp):
         if not self.hasLocalToon:
