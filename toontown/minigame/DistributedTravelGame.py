@@ -29,7 +29,7 @@ IconDict = {ToontownGlobals.RaceGameId: 'mg_trolley_sign_race',
  ToontownGlobals.PhotoGameId: 'mg_trolley_sign_photo',
  ToontownGlobals.TwoDGameId: 'mg_trolley_sign_2d',
  ToontownGlobals.CogThiefGameId: 'mg_trolley_sign_theif',
- ToontownGlobals.CogThiefRewrittenGameId: 'mg_trolley_sign_theif_rewritten'}
+ ToontownGlobals.CogThiefRewrittenGameId: 'mg_trolley_sign_theif'}
 MinigameNameDict = {ToontownGlobals.RaceGameId: TTLocalizer.RaceGameTitle,
  ToontownGlobals.CannonGameId: TTLocalizer.CannonGameTitle,
  ToontownGlobals.TagGameId: TTLocalizer.TagGameTitle,
