@@ -339,9 +339,6 @@ class AvatarChooser(StateData.StateData):
             base.accept('confirmBack', self.__backConfirm)
             return
 
-        elif base.isSinglePlayer:
-            base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
-
         base.cr.loginFSM.request('mainMenu')
 
     def __backConfirm(self):
@@ -350,6 +347,4 @@ class AvatarChooser(StateData.StateData):
         self.confirm.cleanup()
         del self.confirm
         if status == 'ok':
-            if base.isSinglePlayer or base.isHosting:
-                base.cr.mainMenu.LocalSinglePlayerStart.killThreads()
             base.cr.loginFSM.request('mainMenu')

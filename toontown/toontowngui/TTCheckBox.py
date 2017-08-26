@@ -13,7 +13,10 @@ class TTCheckBox(DirectButton):
         self.uncheckedImage = hostingGui.find('**/unchecked_button')
         self.checked = checked
         self.command = command
-
+        if extraArgs is None:
+            extraArgs = []
+        self.extraArgs = extraArgs
+        
         if checked:
             image = (self.checkedImage, self.checkedImage, self.checkedImage)
         else:
@@ -53,7 +56,7 @@ class TTCheckBox(DirectButton):
         self.setChecked(not self.checked)
 
         if self.command:
-            self.command()
+            self.command(*self.extraArgs)
 
     def __handleEnter(self, button, e):
         button['image_scale'] = 1.1

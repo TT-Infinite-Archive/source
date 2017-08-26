@@ -13,16 +13,15 @@ class ClickToStart(DirectObject):
 
     def __init__(self, version='n/a'):
         DirectObject.__init__(self)
-
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.background = OnscreenImage(
             parent=self.backgroundNodePath,
-            image='phase_3/maps/loading_bg_clouds.jpg'
+            image='phase_3/maps/tti_click_to_start_bg.jpg'
         )
         self.background.setTransparency(TransparencyAttrib.MAlpha)
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             bgTex = loader.loadTexture(
-                'phase_3/maps/loading_bg_clouds_halloween.jpg')
+                'phase_3/maps/tti_click_to_start_bg_halloween.jpg')
             self.backgroundNodePath.find('**/bg').setTexture(bgTex, 1)
             self.backgroundNodePath.setScale(1, 1, 1)
 
@@ -55,6 +54,12 @@ class ClickToStart(DirectObject):
         self.logoScaleTrack = None
         self.labelPosTrack = None
         self.labelColorScaleTrack = None
+
+        self.music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
+        if base.musicManagerIsValid and self.music is not None:
+            self.music.setLoop(1)
+            self.music.setVolume(0.9)
+            self.music.play()
 
     def delete(self):
         if self.labelColorScaleTrack is not None:
@@ -179,6 +184,8 @@ class ClickToStart(DirectObject):
             self.fadeTrack = None
 
         self.setColorScale(Vec4(0, 0, 0, 0))
+
+        self.music = None
 
     def begin(self):
         base.cr.introDone = True

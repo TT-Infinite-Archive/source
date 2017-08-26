@@ -27,10 +27,11 @@ class GSHoodAI(HoodAI.HoodAI):
 
     def startup(self):
         HoodAI.HoodAI.startup(self)
-
-        self.createStartingBlocks()
-        self.createLeaderBoards()
-        self.cycleLeaderBoards()
+        
+        if simbase.air.wantRacing:
+            self.createStartingBlocks()
+            self.createLeaderBoards()
+            self.cycleLeaderBoards()
         if simbase.config.GetBool('want-goofy', True):
             self.createClassicChar()
 

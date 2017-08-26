@@ -130,6 +130,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
 
         self.progressMultiplier = 1
         self.wantDoubleProgression = base.config.GetBool('want-double-progression', False)
+        self.isSinglePlayer = base.config.GetBool('want-singleplayer', False)
 
         if self.wantDoubleProgression:
             self.progressMultiplier = 2
@@ -212,7 +213,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.sendSetAvatarIdMsg(0)
         self.clearFriendState()
         if (self.music is None) and base.musicManagerIsValid:
-            self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
+            self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
         base.playMusic(self.music, looping=1, volume=0.9, interrupt=None)
         self.handler = self.handleMessageType
         self.avChoiceDoneEvent = 'avatarChooserDone'

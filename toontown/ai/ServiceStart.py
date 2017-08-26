@@ -41,6 +41,10 @@ if args.singleplayer: localconfig += 'want-singleplayer #t\n'
 
 loadPrcFileData('Command-line', localconfig)
 
+from otp.settings.Settings import Settings
+__builtin__.serverSettings = Settings("serversettings.json")
+from toontown.toonbase import ServerSettingsGlobals
+ServerSettingsGlobals.loadInitialSettings()
 
 from otp.ai.AIBaseGlobal import *
 

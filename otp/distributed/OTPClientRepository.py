@@ -1,33 +1,28 @@
-from direct.directnotify.DirectNotifyGlobal import directNotify
-from direct.distributed import DistributedSmoothNode
-from direct.distributed.ClientRepositoryBase import ClientRepositoryBase
-from direct.distributed.MsgTypes import *
-from direct.distributed.PyDatagram import PyDatagram
-from direct.distributed.PyDatagramIterator import PyDatagramIterator
-from direct.fsm.ClassicFSM import ClassicFSM
-from direct.fsm.State import State
-from direct.gui.DirectGui import *
-from direct.interval.IntervalGlobal import ivalMgr
-from direct.showbase import LeakDetectors
-from direct.showbase import MessengerLeakDetector
-from direct.showbase import PythonUtil, GarbageReport, BulletinBoardWatcher
-from direct.showbase.ContainerLeakDetector import ContainerLeakDetector
-from direct.showbase.GarbageReportScheduler import GarbageReportScheduler
-from direct.task import Task
+import __builtin__
 import gc
 import os
-from pandac.PandaModules import *
-import random
-import string
 import sys
 import time
 import types
-import __builtin__
-import yaml
 
+import yaml
+from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.distributed import DistributedSmoothNode
+from direct.distributed.ClientRepositoryBase import ClientRepositoryBase
+from direct.distributed.PyDatagram import PyDatagram
+from direct.fsm.ClassicFSM import ClassicFSM
+from direct.fsm.State import State
+from direct.interval.IntervalGlobal import ivalMgr
+from direct.showbase import LeakDetectors
+from direct.showbase import MessengerLeakDetector
+from direct.showbase import PythonUtil, GarbageReport
+from direct.showbase.ContainerLeakDetector import ContainerLeakDetector
+from direct.showbase.GarbageReportScheduler import GarbageReportScheduler
+from direct.task import Task
+from pandac.PandaModules import *
+
+from toontown.mainmenu.MainMenu import MainMenu
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
-from otp.avatar import Avatar
-from otp.avatar import DistributedAvatar
 from otp.avatar.DistributedPlayer import DistributedPlayer
 from otp.distributed import OtpDoGlobals
 from otp.distributed.OtpDoGlobals import *
@@ -41,8 +36,8 @@ from otp.otpbase import OTPLocalizer
 from otp.otpgui import OTPDialog
 from otp.uberdog import OtpAvatarManager
 from toontown.chat.ChatGlobals import *
-from toontown.toontowngui.MainMenu import MainMenu
-from toontown.singleplayer import SinglePlayerGlobals
+from toontown.server import ServerGlobals
+from toontown.toontowngui.LocalServerStarter import LocalServerStarter
 
 
 class OTPClientRepository(ClientRepositoryBase):
@@ -134,7 +129,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverVersion = serverVersion
         self.waitingForDatabase = None
         self.mainMenu = MainMenu()
-        self.homeScreen = MainMenu()
+        self.localServerStarter = LocalServerStarter()
 
         self.loginFSM = ClassicFSM('loginFSM', [
             State('loginOff',
@@ -172,7 +167,6 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitFailedToConnect, [
                       'connect',
                       'mainMenu',
-                      'homeScreen',
                       'shutdown']),
             State('failedToGetServerConstants',
                   self.enterFailedToGetServerConstants,
@@ -207,7 +201,6 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'noShardsWait',
                       'mainMenu',
-                      'homeScreen',
                       'shutdown']),
             State('noShardsWait',
                   self.enterNoShardsWait,
@@ -224,7 +217,6 @@ class OTPClientRepository(ClientRepositoryBase):
                       'login',
                       'connect',
                       'mainMenu',
-                      'homescreen',
                       'shutdown']),
             State('afkTimeout',
                   self.enterAfkTimeout,
@@ -241,8 +233,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'chooseAvatar',
                       'shutdown',
-                      'mainMenu',
-                      'homeScreen']),
+                      'mainMenu']),
             State('chooseAvatar',
                   self.enterChooseAvatar,
                   self.exitChooseAvatar, [
@@ -253,8 +244,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'waitForDeleteAvatarResponse',
                       'shutdown',
                       'login',
-                      'mainMenu',
-                      'homeScreen']),
+                      'mainMenu']),
             State('createAvatar',
                   self.enterCreateAvatar,
                   self.exitCreateAvatar, [
@@ -290,19 +280,10 @@ class OTPClientRepository(ClientRepositoryBase):
                       'afkTimeout',
                       'periodTimeout',
                       'noShards',
-                      'mainMenu',
-                      'homeScreen']),
+                      'mainMenu']),
             State('mainMenu',
                   self.enterMainMenu,
                   self.exitMainMenu, [
-                      'gameOff',
-                      'waitForGameList',
-                      'chooseAvatar',
-                      'connect',
-                      'shutdown']),
-            State('homeScreen',
-                  self.enterHomeScreen,
-                  self.exitHomeScreen, [
                       'gameOff',
                       'waitForGameList',
                       'chooseAvatar',
@@ -393,15 +374,9 @@ class OTPClientRepository(ClientRepositoryBase):
             dcFilePath = os.path.join(base.tempDir, 'vanilla.dc')
             dcFile.write(dcFilePath, False)
 
-            # Generate a single player Astron config file.
-            path = os.path.join(base.tempDir, 'singleplayer.yml')
-            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
-            with open(path, 'w') as f:
-                yaml.dump(data, f)
-
-            # Generate a multi player Astron config file.
-            path = os.path.join(base.tempDir, 'multiplayer.yml')
-            data = SinglePlayerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version, multiplayer=1)
+            # Generate a Astron config file.
+            path = os.path.join(base.tempDir, 'server.yml')
+            data = ServerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
             with open(path, 'w') as f:
                 yaml.dump(data, f)
 
@@ -555,7 +530,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def getServerVersion(self):
         return self.serverVersion
 
-    def enterConnect(self, serverList, isMultiplayer = True):
+    def enterConnect(self, serverList):
         self.serverList = serverList
         if not self.introDone:
             if self.introduction.getCurrentOrNextState() not in (
@@ -564,8 +539,8 @@ class OTPClientRepository(ClientRepositoryBase):
         else:
             dialogClass = OTPGlobals.getGlobalDialogClass()
             self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-            # Show the connecting box only if you are connecting to an MP server
-            if not isMultiplayer:
+            # Show the connecting box only if you are connecting to an MP server. If you are hosting, don't show it.
+            if base.isHosting:
                 self.connectingBox.hide()
             self.renderFrame()
         self.handler = self.handleConnecting
@@ -2189,15 +2164,13 @@ class OTPClientRepository(ClientRepositoryBase):
         return self.addInterest(parentId, zoneId, desc, event)
 
     def enterMainMenu(self):
-        self.mainMenu.request('Idle')
-        if self.isConnected() and (base.isSinglePlayer or base.isHosting):
-          self.mainMenu.LocalSinglePlayerStart.demand('Off')
+        if self.mainMenu is None:
+            self.mainMenu = MainMenu()
+        self.mainMenu.load()
+        self.mainMenu.request('LoginOrSignUpScreen')
+        if self.isConnected() and base.isHosting:
+            self.localServerStarter.demand('Off')
 
     def exitMainMenu(self):
-        self.mainMenu.hide()
-
-    def enterHomeScreen(self):
-        self.homeScreen.request('HomeScreen')
-
-    def exitHomeScreen(self):
-        self.homeScreen.hide()
+        self.mainMenu.destroy()
+        self.mainMenu = None
