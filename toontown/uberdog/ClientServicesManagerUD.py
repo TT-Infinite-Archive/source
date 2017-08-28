@@ -216,7 +216,8 @@ class LoginAccountFSM(OperationFSM):
 
         # If this is a single player server, Don't allow
         # any more connections.
-        if simbase.isSinglePlayer: self.csm.playerLoggedIn = True
+        if simbase.isSinglePlayer:
+            self.csm.playerLoggedIn = True
 
         # If there's anybody on the account, kill them for redundant login:
         datagram = PyDatagram()
@@ -998,8 +999,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
-        server_ip = ToontownGlobals.getIp()
-        if server_ip != ip_addr and simbase.isSinglePlayer:
+        if simbase.isSinglePlayer and self.playerLoggedIn:
             datagram = PyDatagram()
             datagram.addServerHeader(
                 sender,
@@ -1038,10 +1038,6 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.notify.debug('Received login cookie %r from %d' % (cookie, self.air.getMsgSender()))
 
         sender = self.air.getMsgSender()
-
-        if simbase.isSinglePlayer and self.playerLoggedIn:
-            # Only one connection is allowed in singleplayer mode.
-            self.killConnection(sender, 'Singleplayer servers only allows one connection.')
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):
