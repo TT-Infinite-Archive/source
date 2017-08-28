@@ -10739,9 +10739,9 @@ Jellybeans = 'Jellybeans'
 BossLeaderboardLabel = 'Current Damage'
 
 # Main Menu
-WelcomeMessage = 'Welcome to Toontown Infinite!'
+WelcomeMessage = 'You are connected to %s'
 LoginScreenGreeting = "Already have an account? Log in!"
-LoginScreenGreeting2 = "New to Toontown Infinite? Sign Up!"
+LoginScreenGreeting2 = "New to to this server? Sign Up!"
 LoginScreenLogin = 'Login'
 LoginScreenSignUp = 'Sign Up'
 SignUpTermsOfService = 'Terms of\n Service'

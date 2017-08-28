@@ -3,17 +3,17 @@ from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.mainmenu import MainMenuGlobals
+from panda3d.core import URLSpec
 
 
 class LoginOrSignUpScreen(DirectFrame):
-    def __init__(self, mainMenu):
-        DirectFrame.__init__(self, mainMenu)
+    def __init__(self, serverMenu):
+        DirectFrame.__init__(self, serverMenu)
 
-        self.mainMenu = mainMenu
-
+        self.serverMenu = serverMenu
         self.welcomeLabel = TTLabel(
             parent=self,
-            text=TTLocalizer.WelcomeMessage,
+            text=TTLocalizer.WelcomeMessage % 'GAMESERVER',
             pos=(0, 0, -0.13),
             **MainMenuGlobals.LABEL_PROPERTIES
         )
@@ -38,7 +38,7 @@ class LoginOrSignUpScreen(DirectFrame):
             parent=self,
             text=TTLocalizer.LoginScreenLogin,
             pos=(0, 0, -0.5),
-            command=lambda: self.mainMenu.request('LoginScreen'),
+            command=lambda: self.serverMenu.request('LoginScreen'),
             **MainMenuGlobals.BUTTON_PROPERTIES
         )
 
@@ -46,6 +46,6 @@ class LoginOrSignUpScreen(DirectFrame):
             parent=self,
             text=TTLocalizer.LoginScreenSignUp,
             pos=(0, 0, -0.8),
-            command=lambda: self.mainMenu.request('SignUpScreen'),
+            command=lambda: self.serverMenu.request('SignUpScreen'),
             **MainMenuGlobals.BUTTON_PROPERTIES
         )

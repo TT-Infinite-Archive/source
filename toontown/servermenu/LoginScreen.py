@@ -6,10 +6,10 @@ from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 
 
 class LoginScreen(DirectFrame):
-    def __init__(self, mainMenu):
-        DirectFrame.__init__(self, mainMenu)
+    def __init__(self, serverMenu):
+        DirectFrame.__init__(self, serverMenu)
 
-        self.mainMenu = mainMenu
+        self.serverMenu = serverMenu
 
         self.usernameLabel = TTLabel(
             parent=self,
@@ -43,6 +43,6 @@ class LoginScreen(DirectFrame):
             parent=self,
             pos=(0, 0, -0.8),
             text=TTLocalizer.LoginScreenLogin,
-            command=lambda: self.mainMenu.request('HomeScreen'),
+            command=lambda: base.cr.loginFSM.request('login'),
             **MainMenuGlobals.BUTTON_PROPERTIES
         )

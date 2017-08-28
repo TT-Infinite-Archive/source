@@ -14,17 +14,12 @@ from toontown.mainmenu.HomeScreen import HomeScreen
 from toontown.mainmenu.HostScreen import HostScreen
 from toontown.mainmenu.HostStartScreen import HostStartScreen
 from toontown.mainmenu.JoinScreen import JoinScreen
-from toontown.mainmenu.LoginOrSignUpScreen import LoginOrSignUpScreen
-from toontown.mainmenu.LoginScreen import LoginScreen
 from toontown.mainmenu.PlayScreen import PlayScreen
-from toontown.mainmenu.SignUpScreen import SignUpScreen
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.suit.Suit import Suit
 from toontown.suit.SuitDNA import SuitDNA
 from toontown.toon.Toon import Toon
 from toontown.toon.ToonDNA import ToonDNA
-from toontown.toonbase import ServerSettingsGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toontowngui import TTTooltip
 
@@ -36,12 +31,6 @@ class MainMenu(DirectFrame, FSM):
         DirectFrame.__init__(self, parent=base.aspect2d)
         FSM.__init__(self, 'MainMenu')
 
-        self.loginOrSignUpScreen = LoginOrSignUpScreen(self)
-        self.loginOrSignUpScreen.hide()
-        self.loginScreen = LoginScreen(self)
-        self.loginScreen.hide()
-        self.signUpScreen = SignUpScreen(self)
-        self.signUpScreen.hide()
         self.homeScreen = HomeScreen(self)
         self.homeScreen.hide()
         self.playScreen = PlayScreen(self)
@@ -50,12 +39,9 @@ class MainMenu(DirectFrame, FSM):
         self.hostScreen.hide()
         self.joinScreen = JoinScreen(self)
         self.joinScreen.hide()
-        self.optionsScreen = OptionsTabPage()
-        self.optionsScreen.hide()
         self.hostStartScreen = HostStartScreen(self)
         self.hostStartScreen.hide()
 
-        self.mainMenuElements = []
         self.createRandomSuitSequence = None
         self.createRandomSuitSequence2 = None
         self.createRandomSuitSequence3 = None
@@ -64,47 +50,6 @@ class MainMenu(DirectFrame, FSM):
             ToontownGlobals.getNametagFont(10)
         else:
             ToontownGlobals.getMinnieFont()
-
-        self.background = OnscreenImage(
-            parent=render2d, image='phase_3/maps/menu_bg_clouds.jpg', pos=(0, 0, 0))
-        self.background.setBin('background', 0)
-        self.background.setScale(render2d, Vec3(1))
-        self.mainMenuElements.append(self.background)
-
-        self.logo = OnscreenImage(
-            parent=base.a2dTopCenter,
-            image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.8, 0.35, 0.45), pos=(0, 0, -0.6)
-        )
-        self.logo.setTransparency(TransparencyAttrib.MAlpha)
-        self.mainMenuElements.append(self.logo)
-
-        self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.725, 0.35, 0.40), Vec3(0.70, 0.35, 0.385),
-                              blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.385), Vec3(0.725, 0.35, 0.40),
-                              blendType='easeInOut')
-        )
-        self.logoScaleTrack.loop()
-        self.bottomLeftButton = MATShuffleButton(
-            parent=base.a2dBottomLeft,
-            pos=(0.4, 0, 0.2),
-            text="Options",
-            **MainMenuGlobals.BUTTON_PROPERTIES_2
-        )
-        self.mainMenuElements.append(self.bottomLeftButton)
-
-        self.quitButton = MATShuffleButton(
-            parent=base.a2dBottomRight,
-            pos=(-0.4, 0, .2),
-            text="Quit",
-            command=self.__handleQuit,
-            **MainMenuGlobals.BUTTON_PROPERTIES_2
-        )
-        self.mainMenuElements.append(self.quitButton)
-
-        for elements in self.mainMenuElements:
-            elements.hide()
 
         self.environment = NodePath('mainMenu-environment')
         self.environment.reparentTo(hidden)
@@ -122,14 +67,9 @@ class MainMenu(DirectFrame, FSM):
         if self.createRandomSuitSequence3 is not None:
             self.createRandomSuitSequence3.finish()
             self.createRandomSuitSequence3 = None
-        if self.logoScaleTrack is not None:
-            self.logoScaleTrack.finish()
-            self.logoScaleTrack = None
         self.environment.removeNode()
         self.hostScreen.destroyAvScreen()
         base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov/(4./3.))
-        for element in self.mainMenuElements:
-            element.destroy()
         DirectFrame.destroy(self)
 
     def load(self):
@@ -382,78 +322,16 @@ class MainMenu(DirectFrame, FSM):
             taskMgr.add(self.skyTrackTask, 'skyTrack')
 
     def enterOff(self):
-        if self.optionsScreen is not None:
-            self.optionsScreen.unload()
-            self.optionsScreen = None
+        pass
 
     def exitOff(self):
         base.camera.setPosHpr(-454.5, -96, 2.6, 215, 0, 0)
         base.camLens.setFov(30)
 
-    def enterLoginOrSignUpScreen(self):
-        self.show()
-        self.loginOrSignUpScreen.show()
-
-        for element in self.mainMenuElements:
-            element.show()
-
-        self.bottomLeftButton['command'] = lambda: self.request('Options')
-        self.bottomLeftButton['text'] = "Options"
-
-        if (base.cr.music is None) and base.musicManagerIsValid:
-            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
-            if base.cr.music is not None:
-                base.cr.music.setLoop(1)
-                base.cr.music.setVolume(0.9)
-                base.cr.music.play()
-
-    def exitLoginOrSignUpScreen(self):
-        self.loginOrSignUpScreen.hide()
-
-    def enterLoginScreen(self):
-        self.loginScreen.show()
-        self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
-        self.bottomLeftButton['text'] = "Back"
-
-    def exitLoginScreen(self):
-        self.loginScreen.hide()
-
-    def enterSignUpScreen(self):
-        self.signUpScreen.show()
-        self.logo.hide()
-        self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
-        self.bottomLeftButton['text'] = "Back"
-
-    def exitSignUpScreen(self):
-        self.signUpScreen.hide()
-        self.logo.show()
-
-    def enterHomeScreen(self):
-        self.homeScreen.show()
-        self.playScreen.hide()
-        self.flyDownSfx.setVolume(0)
-        self.environment.reparentTo(hidden)
-
-        for elements in self.mainMenuElements:
-            elements.show()
-
-        self.bottomLeftButton['command'] = lambda: self.request('Options2')
-        self.bottomLeftButton['text'] = "Options"
-
-    def exitHomeScreen(self):
-        self.homeScreen.hide()
-
-        for elements in self.mainMenuElements:
-            elements.hide()
-
     def enterPlayScreen(self):
         self.playScreen.enter()
         self.playScreen.show()
         self.flyDownSfx.setVolume(1)
-
-        for element in self.mainMenuElements:
-            element.hide()
-
         self.environment.reparentTo(render)
 
         self.randomToon.pingpong('bored', fromFrame=70, toFrame=130)
@@ -461,9 +339,6 @@ class MainMenu(DirectFrame, FSM):
 
     def exitPlayScreen(self):
         self.playScreen.exit()
-
-        for element in self.mainMenuElements:
-            element.show()
 
     def enterHostScreen(self):
         self.playScreen.exit()
@@ -476,61 +351,17 @@ class MainMenu(DirectFrame, FSM):
 
         taskMgr.doMethodLater(4, hideRandomSuitsTask, 'hideRandomSuit2')
 
-        for elements in self.mainMenuElements:
-            elements.hide()
-
     def exitHostScreen(self):
         self.hostScreen.hide()
         self.hostScreen.exit()
-
-        for elements in self.mainMenuElements:
-            elements.show()
 
     def enterJoinScreen(self):
         self.joinScreen.enter()
         self.joinScreen.show()
 
-        for elements in self.mainMenuElements:
-            elements.hide()
-
     def exitJoinScreen(self):
         self.joinScreen.exit()
         self.joinScreen.hide()
-
-        for elements in self.mainMenuElements:
-            elements.show()
-
-    def enterOptions(self):
-        self.optionsScreen.show()
-        self.background.show()
-        self.bottomLeftButton.show()
-        self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
-        self.bottomLeftButton['text'] = "Back"
-        self.logo.hide()
-
-    def exitOptions(self):
-        self.optionsScreen.hide()
-        self.background.hide()
-        self.bottomLeftButton.hide()
-        self.bottomLeftButton['command'] = lambda: self.request('Options')
-        self.bottomLeftButton['text'] = "Options"
-        self.logo.show()
-
-    def enterOptions2(self):
-        self.optionsScreen.show()
-        self.background.show()
-        self.bottomLeftButton.show()
-        self.bottomLeftButton['command'] = lambda: self.request('HomeScreen')
-        self.bottomLeftButton['text'] = "Back"
-        self.logo.hide()
-
-    def exitOptions2(self):
-        self.optionsScreen.hide()
-        self.background.hide()
-        self.bottomLeftButton.hide()
-        self.bottomLeftButton['command'] = lambda: self.request('Options')
-        self.bottomLeftButton['text'] = "Options"
-        self.logo.show()
 
     def enterStartDirectConnect(self):
         base.isHosting = False
@@ -549,35 +380,17 @@ class MainMenu(DirectFrame, FSM):
         else:
             base.connectToServer(ip)
 
-    def enterLoggingIn(self):
-        pass
-
-        # Do login magic here:
-
-        # If login is accepted,  request the Home Screen
-
-    def enterLoggingOut(self):
-        pass
-
-        # Do logout magic here:
-
-        # If user logs out, request Idle
-
     def enterStartHost(self):
         self.hostScreen.exit()
         self.hostStartScreen.enter()
         self.hostStartScreen.show()
         self.randomSuit2.hide()
         self.randomSuit3.hide()
-        for elements in self.mainMenuElements:
-            elements.hide()
 
     def exitStartHost(self):
         self.hostStartScreen.hide()
         self.randomSuit2.show()
         self.randomSuit3.show()
-        for elements in self.mainMenuElements:
-            elements.show()
 
     def enterHostScreenAfterFail(self):
         self.hostStartScreen.hide()
@@ -586,15 +399,10 @@ class MainMenu(DirectFrame, FSM):
         self.hostStartScreen.exitBackToHostScreen()
         self.hostScreen.enterAfterFail()
         self.hostScreen.show()
-        for elements in self.mainMenuElements:
-            elements.hide()
 
     def exitHostScreenAfterFail(self):
         self.randomSuit2.show()
         self.randomSuit3.show()
-
-    def enterEnterServer(self):
-        pass
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')
