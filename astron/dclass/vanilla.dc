@@ -314,6 +314,7 @@ from toontown.battle import DistributedBattleDiners/AI
 from toontown.coghq import DistributedGolfSpot/AI
 from toontown.minigame import DistributedIceGame/AI
 from toontown.minigame import DistributedCogThiefGame/AI
+from toontown.minigame import DistributedCogThiefRewrittenGame/AI
 from toontown.minigame import DistributedTwoDGame/AI
 from toontown.uberdog.DistributedMailManager/AI/UD import DistributedMailManager/AI/UD
 from toontown.uberdog.DistributedPartyManager/AI/UD import DistributedPartyManager/AI/UD
@@ -3705,6 +3706,18 @@ dclass DistributedIceGame : DistributedMinigame {
 };
 
 dclass DistributedCogThiefGame : DistributedMinigame {
+  throwingPie(uint32, int32, int32/100, int32/100, int32/100, int32/100) clsend broadcast;
+  hitBySuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
+  pieHitSuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
+  cogHitBarrel(int32, int8, int8, int32/100, int32/100, int32/100) clsend airecv;
+  cogAtReturnPos(int32, int8, int8) clsend airecv;
+  updateSuitGoal(int32, int32, int8, int8, int64, int32/100, int32/100, int32/100) broadcast;
+  makeCogCarryBarrel(int32, int32, int8, int8, int32/100, int32/100, int32/100) broadcast;
+  makeCogDropBarrel(int32, int32, int8, int8, int32/100, int32/100, int32/100) broadcast;
+  markBarrelStolen(int32, int32, int8) broadcast;
+};
+
+dclass DistributedCogThiefRewrittenGame : DistributedMinigame {
   throwingPie(uint32, int32, int32/100, int32/100, int32/100, int32/100) clsend broadcast;
   hitBySuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
   pieHitSuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
