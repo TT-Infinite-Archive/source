@@ -150,6 +150,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'waitForGameList',
                       'createAccount',
+                      'mainMenu'
                       'reject',
                       'failedToConnect',
                       'shutdown']),
