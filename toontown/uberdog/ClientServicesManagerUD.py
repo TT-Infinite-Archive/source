@@ -1040,8 +1040,16 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         sender = self.air.getMsgSender()
 
         if simbase.isSinglePlayer and self.playerLoggedIn:
-            # Only one connection is allowed in singleplayer mode.
-            self.killConnection(sender, 'Singleplayer servers only allows one connection.')
+                datagram = PyDatagram()
+                datagram.addServerHeader(
+                    sender,
+                    self.air.ourChannel,
+                    CLIENTAGENT_EJECT
+                )
+                datagram.addUint16(420)
+                datagram.addString('Attempted to connect to a server that has cooperative play disabled.')
+                self.air.send(datagram)
+                return
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):

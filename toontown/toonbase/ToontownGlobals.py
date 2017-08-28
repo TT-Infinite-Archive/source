@@ -146,12 +146,8 @@ def getMac():
     return ':'.join(('%012X' % uid)[i:i+2] for i in range(0, 12, 2))
 
 def getIp():
-    # Temporarily: please move to Astron's IP system
-    try:
-        import urllib2
-        return urllib2.urlopen('http://ip.42.pl/raw').read()
-    except:
-        return '127.0.0.1'
+    import urllib2
+    return urllib2.urlopen('http://ip.42.pl/raw').read()
 
 def getToonFont():
     global ToonFont

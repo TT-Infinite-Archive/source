@@ -150,6 +150,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'waitForGameList',
                       'createAccount',
+                      'mainMenu'
                       'reject',
                       'failedToConnect',
                       'shutdown']),
@@ -964,7 +965,7 @@ class OTPClientRepository(ClientRepositoryBase):
                                       self.loginFSM.request, ['shutdown'])
         else:
             reconnect = 1
-            if self.bootedIndex in (152, 127, 156, 420):
+            if self.bootedIndex in (152, 127, 156):
                 reconnect = 0
             style = OTPDialog.Acknowledge
             if reconnect and self.loginInterface.supportsRelogin():
