@@ -81,8 +81,6 @@ def showFriendsListTutorial():
     if not globalFriendsList:
         globalFriendsList = FriendsListPanel()
     globalFriendsList.enter()
-    if not base.cr.isPaid():
-        globalFriendsList.secrets['state'] = DGG.DISABLED
     globalFriendsList.closeCommand = globalFriendsList.close['command']
     globalFriendsList.close['command'] = None
 
@@ -91,8 +89,6 @@ def hideFriendsListTutorial():
     if globalFriendsList:
         if hasattr(globalFriendsList, 'closeCommand'):
             globalFriendsList.close['command'] = globalFriendsList.closeCommand
-        if not base.cr.isPaid():
-            globalFriendsList.secrets['state'] = DGG.NORMAL
         globalFriendsList.exit()
 
 

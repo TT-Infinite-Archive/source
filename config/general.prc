@@ -45,6 +45,7 @@ sync-video #f
 texture-power-2 none
 gl-check-errors #f
 garbage-collect-states #t
+support-threads #f
 
 # Egg object types:
 egg-object-type-barrier <Scalar> collide-mask { 0x01 } <Collide> { Polyset descend }
@@ -83,7 +84,7 @@ want-golf-zone #t
 want-resistance-grounds #f
 
 # Safe zone settings:
-want-treasure-planners #f
+want-treasure-planners #t
 want-suit-planners #t
 
 # Classic characters:
@@ -128,7 +129,7 @@ want-long-pattern-game #f
 want-talkative-tyler #f
 want-yin-yang #f
 want-butterflies #f
-want-estate-fisherman #f
+want-estate-fisherman #t
 want-fireworks #t
 want-code-redemption #f
 
