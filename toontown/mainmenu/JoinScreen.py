@@ -49,13 +49,13 @@ class JoinScreen(DirectFrame, FSM):
         )
         self.serverBrowserButton.hide()
 
-        self.enterPosInterval = camera.posInterval(2, Point3(CAMENDPOS), startPos=Point3(CAMSTARTPOS))
-        self.enterHprInterval = camera.hprInterval(2, Point3(CAMENDHPR), startHpr=Point3(CAMSTARTHPR))
+        self.enterPosInterval = camera.posInterval(2, Point3(CAMENDPOS), startPos=Point3(CAMSTARTPOS), blendType = 'easeIn') 
+        self.enterHprInterval = camera.hprInterval(2, Point3(CAMENDHPR), startHpr=Point3(CAMSTARTHPR), blendType = 'easeIn')
 
-        self.enterPosInterval2 = camera.posInterval(2, Point3(CAMPOS2), startPos=Point3(CAMENDPOS))
+        self.enterPosInterval2 = camera.posInterval(2, Point3(CAMPOS2), startPos=Point3(CAMENDPOS), blendType = 'easeOut')
 
-        self.exitPosInterval = camera.posInterval(2, Point3(CAMSTARTPOS), startPos=Point3(CAMENDPOS))
-        self.exitHprInterval = camera.hprInterval(2, Point3(CAMSTARTHPR), startHpr=Point3(CAMENDHPR))
+        self.exitPosInterval = camera.posInterval(2, Point3(CAMSTARTPOS), startPos=Point3(CAMENDPOS), blendType = 'easeInOut') 
+        self.exitHprInterval = camera.hprInterval(2, Point3(CAMSTARTHPR), startHpr=Point3(CAMENDHPR), blendType = 'easeInOut')
 
         self.door = loader.loadModel('phase_3.5/models/modules/doors_practical')
         self.door.reparentTo(render)

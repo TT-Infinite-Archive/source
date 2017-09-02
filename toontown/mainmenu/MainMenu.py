@@ -458,7 +458,14 @@ class MainMenu(DirectFrame, FSM):
 
         self.environment.reparentTo(render)
 
-        self.randomToon.pingpong('bored', fromFrame=70, toFrame=130)
+        Sequence(
+                 Func(self.randomToon.play, 'wave'),
+                 Wait(self.randomToon.getDuration('wave')),
+                 Func(self.randomToon.play, 'bored'),
+                 Wait(2.9),
+                 Func(self.randomToon.pingpong, 'bored', fromFrame = 70, toFrame = 130)
+                 ).start()
+        
         self.randomToon2.pingpong('bored', fromFrame=70, toFrame=130)
 
     def exitPlayScreen(self):
