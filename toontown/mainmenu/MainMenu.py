@@ -162,6 +162,8 @@ class MainMenu(DirectFrame, FSM):
 
         self.randomToon.play('bored')
         self.randomToon2.play('bored')
+        self.randomToon.setBlend(frameBlend = settings['animation-smoothing'])
+        self.randomToon2.setBlend(frameBlend = settings['animation-smoothing'])
 
         self.createRandomSuitSequence = Sequence(
             Func(self.createRandomSuit),

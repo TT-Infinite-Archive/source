@@ -211,7 +211,7 @@ class HostScreen(DirectFrame, FSM):
             Parallel(self.cameraPosInterval, self.cameraHprInterval),
             Parallel(self.cameraPosInterval2, self.cameraHprInterval2),
             Parallel(Func(self.avScreen.reparentTo, render), Func(self.propTrackGrow.start),
-            Func(self.projectorSfx.play)), Wait(self.propTrackGrowDuration),
+            Func(self.projectorSfx.play)), Wait(self.propTrackGrowDuration), Func(self.projectorSfx.stop),
             Parallel(Func(self.label.show), Func(self.showHostScreenElements))).start()
 
     def enterAfterFail(self):
