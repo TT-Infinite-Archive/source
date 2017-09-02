@@ -4,7 +4,7 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
@@ -48,6 +48,10 @@ class ClientServicesManager(DistributedObjectGlobal):
     def acceptLogin(self, timestamp):
         messenger.send(self.loginDoneEvent, [{'mode': 'success', 'timestamp': timestamp}])
         self.loginDoneEvent = None
+
+    def loginError(self, errorCode):
+        self.notify.debug('Login Error %s' % errorCode)
+        messenger.send(EventGlobals.LoginError, [errorCode])
 
     # --- AVATARS LIST ---
     def requestAvatars(self):

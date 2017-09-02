@@ -148,22 +148,12 @@ class OTPClientRepository(ClientRepositoryBase):
                       'serverMenu',
                       'failedToConnect',
                       'failedToGetServerConstants']),
-            State('login',
-                  self.enterLogin,
-                  self.exitLogin, [
-                      'noConnection',
-                      'waitForGameList',
-                      'createAccount',
-                      'reject',
-                      'failedToConnect',
-                      'serverMenu',
-                      'shutdown']),
             State('createAccount',
                   self.enterCreateAccount,
                   self.exitCreateAccount, [
                       'noConnection',
                       'waitForGameList',
-                      'login',
+                      'serverMenu',
                       'reject',
                       'failedToConnect',
                       'shutdown']),
@@ -219,7 +209,6 @@ class OTPClientRepository(ClientRepositoryBase):
             State('noConnection',
                   self.enterNoConnection,
                   self.exitNoConnection, [
-                      'login',
                       'connect',
                       'mainMenu',
                       'serverMenu'
@@ -280,7 +269,6 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitPlayingGame, [
                       'noConnection',
                       'waitForAvatarList',
-                      'login',
                       'shutdown',
                       'afkTimeout',
                       'periodTimeout',
@@ -297,9 +285,11 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.enterServerMenu,
                   self.exitServerMenu, [
                       'gameOff',
-                      'login',
-                      'waitForGameList',
                       'noConnection',
+                      'waitForGameList',
+                      'createAccount',
+                      'reject',
+                      'failedToConnect',
                       'shutdown'])],
             'loginOff', 'loginOff')
         self.gameFSM = ClassicFSM('gameFSM', [
@@ -551,8 +541,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.connectingBox.hide()
         self.renderFrame()
         self.handler = self.handleConnecting
-        self.connect(self.serverList, successCallback=self._sendHello,
-                     failureCallback=self.failedToConnect)
+        self.connect(self.serverList, successCallback=self._sendHello, failureCallback=self.failedToConnect)
 
     def _sendHello(self):
         datagram = PyDatagram()
@@ -604,15 +593,9 @@ class OTPClientRepository(ClientRepositoryBase):
             # self.loginFSM.request('login')
         self.loginFSM.request('serverMenu')
 
-    def enterLogin(self, username, password):
-        # Do login magic here
-        self.sendSetAvatarIdMsg(0)
-        self.accept(EventGlobals.LoginDone, self.__handleLoginDone)
-        password = hashlib.sha512(password).hexdigest()
-        self.csm.performLogin(EventGlobals.LoginDone, username, password)
-        self.waitForDatabaseTimeout(requestName='WaitOnCSMLoginResponse')
-
-    def __handleLoginDone(self, doneStatus):
+    def handleLoginDone(self, doneStatus):
+        self.cleanupWaitingForDatabase()
+        self.handler = None
         mode = doneStatus['mode']
         if mode == 'success':
             if hasattr(self, 'toontownTimeManager'):
@@ -625,7 +608,7 @@ class OTPClientRepository(ClientRepositoryBase):
         elif mode == 'freeTimeExpired':
             self.loginFSM.request('freeTimeInform')
         elif mode == 'createAccount':
-            self.loginFSM.request('createAccount', [{'back': 'login', 'backArgs': []}])
+            self.loginFSM.request('createAccount', [{'back': 'serverMenu', 'backArgs': []}])
         elif mode == 'reject':
             self.loginFSM.request('reject')
         elif mode == 'quit':
@@ -635,12 +618,7 @@ class OTPClientRepository(ClientRepositoryBase):
         else:
             self.notify.error('Invalid doneStatus mode from ClientServicesManager: ' + str(mode))
 
-    def exitLogin(self):
-        self.cleanupWaitingForDatabase()
-        self.ignore(EventGlobals.LoginDone)
-        self.handler = None
-
-    def enterCreateAccount(self, createAccountDoneData={'back': 'login', 'backArgs': []}):
+    def enterCreateAccount(self, createAccountDoneData={'back': 'serverMenu', 'backArgs': []}):
         self.createAccountDoneData = createAccountDoneData
         self.createAccountDoneEvent = 'createAccountDone'
         self.createAccountScreen = None
@@ -1655,7 +1633,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
         self.loginFSM.request('noConnection')
 
-    def waitForDatabaseTimeout(self, extraTimeout = 0, requestName = 'unknown'):
+    def waitForDatabaseTimeout(self, extraTimeout=0, requestName='unknown'):
         OTPClientRepository.notify.debug('waiting for database timeout %s at %s' % (requestName, globalClock.getFrameTime()))
         self.cleanupWaitingForDatabase()
         globalClock.tick()

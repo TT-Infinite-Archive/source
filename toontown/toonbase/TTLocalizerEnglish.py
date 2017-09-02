@@ -10797,3 +10797,8 @@ BehaviorName = {
 
 AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
 ToontownRewrittenCredits = 'Created and developed\nby Toontown Rewritten.'
+LoginError = {
+ 0: 'Invalid password or username taken.',
+ 1: 'You are trying to do that too fast!'
+}
+LoggingIn = 'Logging In...'

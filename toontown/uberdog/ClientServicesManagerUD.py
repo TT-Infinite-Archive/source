@@ -100,11 +100,11 @@ class DeveloperAccountDB(AccountDB):
         document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
         dict = {}
         if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['reason'] = 'Invalid Account'
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
         elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
             dict['success'] = True
         else:
-            dict['reason'] = 'Invalid password for existing user'
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
         callback(dict)
         return dict
     
@@ -226,6 +226,7 @@ class LoginAccountFSM(OperationFSM):
         self.csm.accountDB.lookup(self.username, self.__handleLookup)
 
     def __handleLookup(self, result):
+        self.notify.debug('Handling Lookup %s' % result)
         if not result.get('success'):
             self.csm.air.writeServerEvent('usernameRejected', self.target, self.username)
             self.demand('Kill', result.get('reason', 'The account server rejected your username.'))
@@ -245,11 +246,10 @@ class LoginAccountFSM(OperationFSM):
 
     def __handleLogin(self, result):
         if not result.get('success'):
-            self.csm.air.writeServerEvent('failedLogin', self.target, self.username)
-            self.demand('Kill', result.get('reason', 'Failed to login to Account.'))
-            return
-
-        self.demand('RetrieveAccount')
+            self.csm.sendUpdateToChannel(self.target, 'loginError', [result['error']])
+            self.demand('Off')
+        else:
+            self.demand('RetrieveAccount')
 
     def enterRetrieveAccount(self):
         self.csm.air.dbInterface.queryObject(
@@ -655,6 +655,7 @@ class DeleteAvatarFSM(GetAvatarsFSM):
         self.csm.air.writeServerEvent('avatarDeleted', self.avId, self.target)
         self.demand('QueryAvatars')
 
+
 class SetNameTypedFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('SetNameTypedFSM')
     POST_ACCOUNT_STATE = 'RetrieveAvatar'
@@ -955,6 +956,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
                               'avatarTask-%s' % self.avId, extraArgs=[channel],
                               appendTask=True)
 
+
 class UnloadAvatarFSM(OperationFSM):
     notify = directNotify.newCategory('UnloadAvatarFSM')
 
@@ -1016,6 +1018,7 @@ class UnloadAvatarFSM(OperationFSM):
 # --- CLIENT SERVICES MANAGER UBERDOG ---
 class ClientServicesManagerUD(DistributedObjectGlobalUD):
     notify = directNotify.newCategory('ClientServicesManagerUD')
+    REQUEST_DELAY = 5 # Time in seconds before another request can be made for limited requests
 
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
@@ -1032,6 +1035,10 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # of race conditions.
         self.connection2fsm = {}
         self.account2fsm = {}
+
+        # Keep track of timestamp of last request made by connection; this is to prevent
+        # clients from doing certain requests too many times
+        self.connection2Timestamp = {}
 
         # For processing name patterns.
         self.nameGenerator = NameGenerator()
@@ -1159,6 +1166,12 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             self.killConnectionFSM(sender)
             return
 
+        if sender in self.connection2Timestamp:
+            if time.time() - self.connection2Timestamp[sender] <= self.REQUEST_DELAY:
+                self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_TOO_FAST])
+                return
+
+        self.connection2Timestamp[sender] = time.time()
         self.connection2fsm[sender] = LoginAccountFSM(self, sender)
         self.connection2fsm[sender].request('Start', username, password)
 

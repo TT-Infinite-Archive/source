@@ -21,7 +21,7 @@ class ServerMenu(DirectFrame, FSM):
 
         self.loginOrSignUpScreen = LoginOrSignUpScreen(self)
         self.loginOrSignUpScreen.hide()
-        self.loginScreen = LoginScreen()
+        self.loginScreen = LoginScreen(parent=self)
         self.loginScreen.hide()
         self.signUpScreen = SignUpScreen(self)
         self.signUpScreen.hide()
