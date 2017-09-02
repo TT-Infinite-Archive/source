@@ -77,6 +77,10 @@ loadPrcFileData('Settings: vsync',
                 'sync-video %s' % (1 if settings[SettingsGlobals.VSync] else 0))
 loadPrcFileData('Settings: animationSmoothing',
                 'interpolate-frames %s' % (1 if settings[SettingsGlobals.AnimationSmoothing] else 0))
+loadPrcFileData('Settings: Texture Quality',
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+loadPrcFileData('Settings: Texture Compression',
+                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
 
 if sys.platform != 'android':
     loadPrcFileData('Settings: loadDisplay',

@@ -748,6 +748,15 @@ class ToonBase(OTPBase.OTPBase):
 
         res = resolutions[0]
         return res
+    
+    def updateGraphicsSettings(self):
+        '''
+        Reloads graphics settings
+        '''
+        loadPrcFileData('Settings: Texture Quality',
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+        loadPrcFileData('Settings: Texture Compression',
+                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])

@@ -18,6 +18,8 @@ ProcessFailback = 'process-failback'
 ClassicMusic = 'classic-music'
 DoorInteract = 'door-interaction-key'
 NPCInteract = 'npc-interaction-key'
+TextureQuality = 'textures-quality'
+CompressTextures = 'compress-textures'
 
 InitialSettings = {
     # Initial setting
@@ -47,9 +49,12 @@ InitialSettings = {
         "INTERACT_KEY": "shift"
     },
     DoorInteract: False,
-    NPCInteract: False
+    NPCInteract: False,
+    TextureQuality: 3,
+    CompressTextures: False,
 }
 
+TextureOptionToDimension = [128, 256, 1024, 4096]
 
 def loadInitialSettings():
     # Initializes settings if some initial options aren't in there
