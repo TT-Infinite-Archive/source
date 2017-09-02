@@ -17,7 +17,7 @@ class LoginScreen(DirectFrame):
         DirectFrame.__init__(self, parent)
         self.errorLabel = TTLabel(
             parent=self,
-            text='This is a sample error message.',
+            text='',
             pos=(0, 0, -0.05),
             text_fg=ColorGlobals.CRed,
             text_size=TTLabel.GiantSize,
