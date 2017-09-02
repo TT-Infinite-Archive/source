@@ -10,6 +10,7 @@ from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
 import sys
 
+
 def generateLookupTable(key):
     return [hex(ord(str(key)[i % len(str(key))]) & ord(key[4]) & i) for i in xrange(255)]
 
@@ -28,18 +29,20 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.systemMessageSfx = None
 
     # --- LOGIN LOGIC ---
-    def performLogin(self, doneEvent):
+    def performLogin(self, doneEvent, username, password):
+        self.username = username
+        self.password = password
         self.loginDoneEvent = doneEvent
-        
+        getIp = ToontownGlobals.getIp()
         mac = ToontownGlobals.getMac()
-        getIP = ToontownGlobals.getIp()
-        print 'requestAuthToken sending %s and %s' % (mac, getIP)
-
-        self.sendUpdate('requestAuthToken', [mac, getIP])
+        self.notify.debug('Performing login: %s.' % [mac, getIp])
+        self.sendUpdate('requestAuthToken', [mac, getIp])
 
     def receiveAuthToken(self, authToken):
+        self.notify.debug('Received auth token %s.' % authToken)
+        self.notify.debug('Requesting login...')
         lookupTable = generateLookupTable(authToken[::2])
-        self.sendUpdate('login', [self.cr.playToken or 'dev', encodeHexString(lookupTable, authToken)])
+        self.sendUpdate('login', [self.username, self.password, encodeHexString(lookupTable, authToken)])
         del lookupTable
 
     def acceptLogin(self, timestamp):

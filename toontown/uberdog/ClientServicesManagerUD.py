@@ -6,6 +6,8 @@ from pandac.PandaModules import *
 from datetime import datetime
 import time
 import random
+import uuid
+import hashlib
 
 from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
@@ -52,6 +54,9 @@ class AccountDB:
     def isNameAcceptable(self, name, callback, errback):
         callback(True)
 
+    def login(self, username, password, pepper, callback):
+        pass
+
     def lookup(self, username, callback):
         pass  # Inheritors should override this.
 
@@ -76,11 +81,40 @@ class DeveloperAccountDB(AccountDB):
             dict['accountId'] = document['_id']
 
         return dict
-    
-    def lookup(self, userId, callback):
-        dict = self.lookupUserId(userId)
+
+    def lookupUsername(self, username):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {'username': username, 'success': True}
+
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
+            dict['userId'] = document['fields']['ACCOUNT_ID']
+
+        return dict
+
+    def login(self, username, password, pepper, callback):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {}
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['reason'] = 'Invalid Account'
+        elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
+            dict['success'] = True
+        else:
+            dict['reason'] = 'Invalid password for existing user'
         callback(dict)
         return dict
+    
+    def lookup(self, username, callback):
+        dict = self.lookupUsername(username)
+        callback(dict)
+        return dict
+
+    def __hashedPassword(self, password, salt, pepper):
+        return hashlib.sha512(password + salt + pepper).hexdigest()
 
 
 class ProductionDB(AccountDB):
@@ -91,7 +125,14 @@ class ProductionDB(AccountDB):
         if simbase.isSinglePlayer:
             self.accessLevel = 500
         else:
-            self.accessLevel = 200 # We set everyone in MP to 200 access by default so people can use commands, however we need an option in the future that allows the host to decide if they want their server to have cheaters or not. If they don't, they select that option then everyone is set to 100 access by default instead for that server. The host will need to set their access to 500 via mongo compass or rpc.
+            '''
+            We set everyone in MP to 200 access  by default so people can use commands,
+            however we need an option in the future that allows the host to decide if they
+            want their server to have cheaters or not. If they don't, they select that option
+            then everyone is set to 100 access by default instead for that server. The host will
+            need to set their access to 500 via mongo compass or rpc.
+            '''
+            self.accessLevel = 200
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
@@ -107,10 +148,40 @@ class ProductionDB(AccountDB):
 
         return dict
 
-    def lookup(self, userId, callback):
-        dict = self.lookupUserId(userId)
+    def login(self, username, password, pepper, callback):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {}
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['reason'] = 'Invalid Account'
+        elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
+            dict['success'] = True
+        else:
+            dict['reason'] = 'Invalid password for existing user'
         callback(dict)
         return dict
+
+    def lookupUsername(self, username):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {'username': username, 'success': True}
+
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
+            dict['userId'] = document['fields']['ACCOUNT_ID']
+
+        return dict
+
+    def lookup(self, username, callback):
+        dict = self.lookupUsername(username)
+        callback(dict)
+        return dict
+
+    def __hashedPassword(self, password, salt, pepper):
+        return hashlib.sha512(password + salt + pepper).hexdigest()
+
 
 # --- FSMs ---
 class OperationFSM(FSM):
@@ -140,26 +211,45 @@ class LoginAccountFSM(OperationFSM):
     notify = directNotify.newCategory('LoginAccountFSM')
     TARGET_CONNECTION = True
 
-    def enterStart(self, token):
-        self.token = token
+    def __init__(self, csm, target):
+        OperationFSM.__init__(self, csm, target)
+        self.pepper = 'a5141419459a4b7d9b1f6035d3f9e238'
+        self.username = ''
+        self.password = ''
+
+    def enterStart(self, username, password):
+        self.username = username
+        self.password = password
         self.demand('QueryAccountDB')
 
     def enterQueryAccountDB(self):
-        self.csm.accountDB.lookup(self.token, self.__handleLookup)
+        self.csm.accountDB.lookup(self.username, self.__handleLookup)
 
     def __handleLookup(self, result):
         if not result.get('success'):
-            self.csm.air.writeServerEvent('tokenRejected', self.target, self.token)
-            self.demand('Kill', result.get('reason', 'The account server rejected your token.'))
+            self.csm.air.writeServerEvent('usernameRejected', self.target, self.username)
+            self.demand('Kill', result.get('reason', 'The account server rejected your username.'))
             return
 
+        self.username = result.get('username', '')
         self.userId = result.get('userId', 0)
         self.accountId = result.get('accountId', 0)
         self.accessLevel = forceAccessLevel if forceAccessLevel else result.get('accessLevel', 0)
         if self.accountId:
-            self.demand('RetrieveAccount')
+            self.demand('LoginAccount')
         else:
             self.demand('CreateAccount')
+
+    def enterLoginAccount(self):
+        self.csm.accountDB.login(self.username, self.password, self.pepper, self.__handleLogin)
+
+    def __handleLogin(self, result):
+        if not result.get('success'):
+            self.csm.air.writeServerEvent('failedLogin', self.target, self.username)
+            self.demand('Kill', result.get('reason', 'Failed to login to Account.'))
+            return
+
+        self.demand('RetrieveAccount')
 
     def enterRetrieveAccount(self):
         self.csm.air.dbInterface.queryObject(
@@ -174,6 +264,8 @@ class LoginAccountFSM(OperationFSM):
         self.demand('SetAccount')
 
     def enterCreateAccount(self):
+        self.notify.debug('Creating Account %s.' % self.username)
+        salt = uuid.uuid4().hex
         self.account = {
             'ACCOUNT_AV_SET': [0] * 6,
             'ESTATE_ID': 0,
@@ -181,6 +273,9 @@ class LoginAccountFSM(OperationFSM):
             'CREATED': time.ctime(),
             'LAST_LOGIN': time.ctime(),
             'ACCOUNT_ID': str(self.userId),
+            'USERNAME': str(self.username),
+            'PASSWORD': self.__hashedPassword(salt),
+            'SALT': salt,
             'ACCESS_LEVEL': self.accessLevel,
             'MONEY': 0,
             'CHAT_MODE': 1
@@ -270,12 +365,15 @@ class LoginAccountFSM(OperationFSM):
             self.accountId,
             self.csm.air.dclassesByName['AccountUD'],
             {'LAST_LOGIN': time.ctime(),
-             'ACCOUNT_ID': str(self.userId)})
+             'USERNAME': str(self.username)})
 
         # We're done.
-        self.csm.air.writeServerEvent('accountLogin', self.target, self.accountId, self.userId)
+        self.csm.air.writeServerEvent('accountLogin', self.target, self.accountId, self.username)
         self.csm.sendUpdateToChannel(self.target, 'acceptLogin', [int(time.time())])
         self.demand('Off')
+
+    def __hashedPassword(self, salt):
+        return hashlib.sha512(self.password + salt + self.pepper).hexdigest()
 
 
 class CreateAvatarFSM(OperationFSM):
@@ -1000,6 +1098,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         sender = self.air.getMsgSender()
         server_ip = ToontownGlobals.getIp()
         if server_ip != ip_addr and simbase.isSinglePlayer:
+            # Single player server; do not allow external ips to connect
             datagram = PyDatagram()
             datagram.addServerHeader(
                 sender,
@@ -1034,8 +1133,8 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         self.sendUpdateToChannel(sender, 'receiveAuthToken', [authToken])
 
-    def login(self, cookie, authToken):
-        self.notify.debug('Received login cookie %r from %d' % (cookie, self.air.getMsgSender()))
+    def login(self, username, password, authToken):
+        self.notify.debug('Received login request to %s from %d' % (username, self.air.getMsgSender()))
 
         sender = self.air.getMsgSender()
 
@@ -1061,7 +1160,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             return
 
         self.connection2fsm[sender] = LoginAccountFSM(self, sender)
-        self.connection2fsm[sender].request('Start', cookie)
+        self.connection2fsm[sender].request('Start', username, password)
 
     def requestAvatars(self):
         self.notify.debug('Received avatar list request from %d' % (self.air.getMsgSender()))

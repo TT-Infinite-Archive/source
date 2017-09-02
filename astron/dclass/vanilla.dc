@@ -369,6 +369,9 @@ dclass Account {
   string CREATED db;
   string LAST_LOGIN db;
   string ACCOUNT_ID db;
+  string USERNAME db;
+  string PASSWORD db;
+  string SALT db;
   uint16 ACCESS_LEVEL db;
   uint32 MONEY db;
   uint8 CHAT_MODE db;
@@ -3846,10 +3849,10 @@ struct PotentialToon {
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
-  requestAuthToken(string, string) clsend;
+  requestAuthToken(string mac, string ip) clsend;
   receiveAuthToken(string authToken);
 
-  login(string cookie, string authToken) clsend;
+  login(string username, string password, string authToken) clsend;
   lockClient(uint32 unlockTime, string message);
   acceptLogin(uint32 timestamp);
 

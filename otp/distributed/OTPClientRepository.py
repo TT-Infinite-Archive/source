@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import types
+import hashlib
 
 import yaml
 from direct.directnotify.DirectNotifyGlobal import directNotify
@@ -39,6 +40,7 @@ from toontown.mainmenu.MainMenu import MainMenu
 from toontown.server import ServerGlobals
 from toontown.servermenu.ServerMenu import ServerMenu
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
+from toontown.toonbase import EventGlobals
 
 
 class OTPClientRepository(ClientRepositoryBase):
@@ -602,14 +604,12 @@ class OTPClientRepository(ClientRepositoryBase):
             # self.loginFSM.request('login')
         self.loginFSM.request('serverMenu')
 
-    def enterLogin(self):
-
+    def enterLogin(self, username, password):
         # Do login magic here
-
         self.sendSetAvatarIdMsg(0)
-        self.loginDoneEvent = 'loginDone'
-        self.accept(self.loginDoneEvent, self.__handleLoginDone)
-        self.csm.performLogin(self.loginDoneEvent)
+        self.accept(EventGlobals.LoginDone, self.__handleLoginDone)
+        password = hashlib.sha512(password).hexdigest()
+        self.csm.performLogin(EventGlobals.LoginDone, username, password)
         self.waitForDatabaseTimeout(requestName='WaitOnCSMLoginResponse')
 
     def __handleLoginDone(self, doneStatus):
@@ -625,8 +625,7 @@ class OTPClientRepository(ClientRepositoryBase):
         elif mode == 'freeTimeExpired':
             self.loginFSM.request('freeTimeInform')
         elif mode == 'createAccount':
-            self.loginFSM.request('createAccount', [{'back': 'login',
-              'backArgs': []}])
+            self.loginFSM.request('createAccount', [{'back': 'login', 'backArgs': []}])
         elif mode == 'reject':
             self.loginFSM.request('reject')
         elif mode == 'quit':
@@ -638,8 +637,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def exitLogin(self):
         self.cleanupWaitingForDatabase()
-        self.ignore(self.loginDoneEvent)
-        del self.loginDoneEvent
+        self.ignore(EventGlobals.LoginDone)
         self.handler = None
 
     def enterCreateAccount(self, createAccountDoneData={'back': 'login', 'backArgs': []}):
