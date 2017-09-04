@@ -1028,11 +1028,11 @@ class OptionsTabPage(DirectFrame):
 
     def __handleExitServerShowWithConfirm(self):
         if base.isHosting:
-            message = TTLocalizer.OptionsPageExitConfirmMultiplayerHost
+            message = TTLocalizer.LeaveServerHost
         else:
-            message = TTLocalizer.OptionsPageExitConfirmMultiplayer
+            message = TTLocalizer.LeaveServer
         if base.isSinglePlayer:
-            message = TTLocalizer.OptionsPageExitConfirmSingleplayer
+            message = TTLocalizer.LeaveServerHostSP
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',
             message = message,
@@ -1046,7 +1046,7 @@ class OptionsTabPage(DirectFrame):
     def __handleExitToToonSelectShowWithConfirm(self):
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',
-            message = TTLocalizer.OptionsPagePickAToonConfirm,
+            message = TTLocalizer.PickAToonConfirm,
             style = TTDialog.TwoChoice)
         self.confirm.show()
         self._parent.doneStatus = {'mode': 'exit',

@@ -25,8 +25,6 @@ class HostScreen(DirectFrame, FSM):
 
         self.mainMenu = mainMenu
         base.isSinglePlayer = None
-        halfButtonScale = (0.6, 0.6, 0.6)
-        halfButtonHoverScale = (0.7, 0.7, 0.7)
 
         self.playScreen = PlayScreen(self)
         self.playScreen.hide()
@@ -118,38 +116,19 @@ class HostScreen(DirectFrame, FSM):
 
         self.startServerButton = DirectButton(
             parent=self,
-            relief=None,
-            image=(guiAcceptUp, guiAcceptDown, guiAcceptUp, guiAcceptDown),
-            image_scale=halfButtonScale,
-            image1_scale=halfButtonHoverScale,
-            image2_scale=halfButtonHoverScale,
             pos=(1.75, 0, -0.90),
             command=lambda: self.mainMenu.request('StartHost'),
             text=('', TTLocalizer.HostDone, TTLocalizer.HostDone, ''),
-            text_font=ToontownGlobals.getInterfaceFont(),
-            text_scale=0.08,
-            text_align=TextNode.ARight,
-            text_pos=(0.075, 0.13),
-            text_fg=(1, 1, 1, 1),
-            text_shadow=(0, 0, 0, 1))
+            text_align = TextNode.ARight,
+            **MainMenuGlobals.START_BUTTON
+        )
         self.hostScreenElements.append(self.startServerButton)
 
         self.backButton = DirectButton(
             parent=self,
-            relief=None,
-            image=(guiNextUp, guiNextDown, guiNextUp, guiNextDown),
-            image3_color=Vec4(0.5, 0.5, 0.5, 0.75),
-            image_scale=(-0.3, 0.3, 0.3),
-            image1_scale=(-0.35, 0.35, 0.35),
-            image2_scale=(-0.35, 0.35, 0.35),
-            pos=(-1.75, 0, -0.90),
             command=lambda: self.request('Back'),
-            text=('', TTLocalizer.MakeAToonLast, TTLocalizer.MakeAToonLast, ''),
-            text_font=ToontownGlobals.getInterfaceFont(),
-            text_scale=0.08,
-            text_pos=(0, 0.115),
-            text_fg=(1, 1, 1, 1),
-            text_shadow=(0, 0, 0, 1))
+            **MainMenuGlobals.MINIATURE_BACK_BUTTON
+        )
         self.hostScreenElements.append(self.backButton)
 
         self.avScreen = loader.loadModel('phase_5/models/props/av_screen_server_settings.bam')

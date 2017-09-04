@@ -26,7 +26,7 @@ class HomeScreen(DirectFrame):
             **MainMenuGlobals.BUTTON_PROPERTIES
         )
 
-        self.sighOutButton = MATShuffleButton(
+        self.signOutButton = MATShuffleButton(
             parent=self,
             pos=(0, 0, -0.8),
             text=TTLocalizer.HomeScreenSignOut,

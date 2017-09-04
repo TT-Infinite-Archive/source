@@ -330,10 +330,26 @@ class AvatarChooser(StateData.StateData):
         base.cr.loginFSM.request('login')
 
     def __back(self):
-        if base.isHosting:
+        if base.isSinglePlayer:
             self.confirm = TTDialog.TTGlobalDialog(
                 doneEvent='confirmBack',
-                message=TTLocalizer.OptionsPageExitConfirmMultiplayerHost,
+                message=TTLocalizer.LeaveServerHostSP,
+                style=TTDialog.TwoChoice)
+            self.confirm.show()
+            base.accept('confirmBack', self.__backConfirm)
+            return
+        elif base.isHosting and not base.isSinglePlayer:
+            self.confirm = TTDialog.TTGlobalDialog(
+                doneEvent='confirmBack',
+                message=TTLocalizer.LeaveServerHost,
+                style=TTDialog.TwoChoice)
+            self.confirm.show()
+            base.accept('confirmBack', self.__backConfirm)
+            return
+        elif not base.isHosting or base.isSinglePlayer:
+            self.confirm = TTDialog.TTGlobalDialog(
+                doneEvent='confirmBack',
+                message=TTLocalizer.LeaveServer,
                 style=TTDialog.TwoChoice)
             self.confirm.show()
             base.accept('confirmBack', self.__backConfirm)

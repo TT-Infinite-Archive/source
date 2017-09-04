@@ -1306,7 +1306,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.hideClarabelleGui()
         clarabelleHidden = 1
         self.ignore(ToontownGlobals.FriendsListHotkey)
-        if self.friendsListButtonActive and self.friendsListButtonObscured <= 0 and base.isSinglePlayer == False:
+        if self.friendsListButtonActive and self.friendsListButtonObscured <= 0 and not base.isSinglePlayer:
             self.bFriendsList.show()
             self.accept(ToontownGlobals.FriendsListHotkey, self.sendFriendsListEvent)
             if self.clarabelleButtonObscured <= 0 and self.isTeleportAllowed():

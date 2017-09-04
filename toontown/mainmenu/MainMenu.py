@@ -25,8 +25,8 @@ from toontown.suit.SuitDNA import SuitDNA
 from toontown.toon.Toon import Toon
 from toontown.toon.ToonDNA import ToonDNA
 from toontown.toonbase import ServerSettingsGlobals
+from toontown.util.PlacerTool3D import PlacerTool3D
 from toontown.toonbase import ToontownGlobals
-from toontown.toontowngui import TTTooltip
 
 
 class MainMenu(DirectFrame, FSM):
@@ -127,6 +127,7 @@ class MainMenu(DirectFrame, FSM):
             self.logoScaleTrack = None
         self.environment.removeNode()
         self.hostScreen.destroyAvScreen()
+        self.joinScreen.destroy()
         base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov/(4./3.))
         for element in self.mainMenuElements:
             element.destroy()
@@ -389,7 +390,7 @@ class MainMenu(DirectFrame, FSM):
             self.optionsScreen = None
 
     def exitOff(self):
-        base.camera.setPosHpr(-454.5, -96, 2.6, 215, 0, 0)
+        base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
         base.camLens.setFov(30)
 
     def enterLoginOrSignUpScreen(self):
@@ -498,6 +499,7 @@ class MainMenu(DirectFrame, FSM):
     def enterJoinScreen(self):
         self.joinScreen.enter()
         self.joinScreen.show()
+        self.flyDownSfx.setVolume(0)
 
         for elements in self.mainMenuElements:
             elements.hide()
@@ -505,6 +507,7 @@ class MainMenu(DirectFrame, FSM):
     def exitJoinScreen(self):
         self.joinScreen.exit()
         self.joinScreen.hide()
+        self.flyDownSfx.setVolume(1)
 
         for elements in self.mainMenuElements:
             elements.show()
@@ -540,23 +543,6 @@ class MainMenu(DirectFrame, FSM):
         self.bottomLeftButton['command'] = lambda: self.request('Options')
         self.bottomLeftButton['text'] = "Options"
         self.logo.show()
-
-    def enterStartDirectConnect(self):
-        base.isHosting = False
-        if not hasattr(self, 'targetIp'):
-            ip = self.joinScreen.ipInput.get()
-        else:
-            ip = self.targetIp
-        if ':' in ip:
-            ip, port = ip.split(':')
-            try:
-                port = int(port)
-            except:
-                # TODO: Better handle invalid addresses
-                port = 7000
-            base.connectToServer(ip, port)
-        else:
-            base.connectToServer(ip)
 
     def enterLoggingIn(self):
         pass
@@ -608,10 +594,3 @@ class MainMenu(DirectFrame, FSM):
     def __handleQuit(self):
         cleanupDialog('globalDialog')
         base.cr.loginFSM.request('shutdown')
-
-    def showTooltip(self, text, event):
-        self.currentTooltip = TTTooltip.TTTooltip(description = text)
-
-    def killTooltip(self, event):
-        if hasattr(self, 'currentTooltip'):
-            self.currentTooltip.destroy()
