@@ -36,7 +36,7 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarkMgr = BookmarkManager()
 
         self.backButton = DirectButton(
-            parent=self,
+            parent=base.a2dBottomLeft,
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
@@ -254,14 +254,14 @@ class JoinScreen(DirectFrame, FSM):
                 self.enterPosInterval,
                 self.enterHprInterval),
             Parallel(
-                Func(base.transitions.fadeOut, 2),
+                Func(base.transitions.irisOut, 1),
                 self.enterPosInterval2,
                 self.leftDoorOpenInterval,
                 self.rightDoorOpenInterval),
             Wait(1),
             Parallel(
                 Func(base.camera.setH, 186),
-                Func(base.transitions.fadeIn, 1),
+                Func(base.transitions.irisIn, 1),
                 Func(base.camera.setPosHpr, -380, -263, -17, 90, 0, 0),
                 self.interiorFovZoomIn),
             Parallel(
@@ -275,16 +275,16 @@ class JoinScreen(DirectFrame, FSM):
         Sequence(
             Parallel(
                 self.interiorFovZoomOut,
-                Func(base.transitions.fadeOut, 1),
+                Func(base.transitions.irisOut, 1),
                 Func(self.backButton.hide),
                 Func(self.ipConnectButton.hide),
                 Func(self.bookmarksButton.hide),
                 Func(self.finishFetchingServers)),
             Wait(0.5),
-            Func(base.transitions.fadeOut, 0),
+            Func(base.transitions.irisOut, 0),
             Func(base.camLens.setFov, 30),
             Parallel(
-                Func(base.transitions.fadeIn, 1),
+                Func(base.transitions.irisIn, 1),
                 self.exitPosInterval,
                 self.exitHprInterval,
                 self.leftDoorCloseInterval,
@@ -306,7 +306,6 @@ class JoinScreen(DirectFrame, FSM):
         self.hideBookmarks()
         self.hideIPConnect()
         self.backButton['command'] = lambda: self.request('Back')
-        self.backButton.setPos(-1.75, 0, -0.90)
 
         # Fetch Servers here:
 
@@ -376,7 +375,6 @@ class JoinScreen(DirectFrame, FSM):
         self.bookCloseSfx.setVolume(1)
 
         self.backButton['command'] = lambda: self.fetchServers()
-        self.backButton.setPos(-1.56, 0, -0.86)
 
     def hideBookmarks(self):
         self.bookmarksList.hide()

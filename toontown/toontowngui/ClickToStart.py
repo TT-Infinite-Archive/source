@@ -1,7 +1,7 @@
 from direct.gui.DirectGui import OnscreenImage, OnscreenText
 from panda3d.core import TransparencyAttrib, Point3, Vec4, Vec3, TextNode
 from direct.interval.IntervalGlobal import LerpPosInterval, Wait, Func
-from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval
+from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, LerpFunctionInterval
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.showbase.DirectObject import DirectObject
 
@@ -198,11 +198,12 @@ class ClickToStart(DirectObject):
 
         Sequence(
             Func(self.fadeTrack.start),
-            Wait(2),
+            LerpFunctionInterval(self.music.setVolume, fromData = self.music.getVolume(), toData = 0, duration = 2),
             Func(self.delete),
             Func(base.cr.introduction.delete),
             Func(self.startMainMenu),
-            Func(base.transitions.fadeIn, 2)
+            Func(base.transitions.fadeIn, 2),
+            Func(self.music.stop)
         ).start()
 
     def setColorScale(self, *args, **kwargs):

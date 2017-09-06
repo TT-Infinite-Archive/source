@@ -125,7 +125,7 @@ class HostScreen(DirectFrame, FSM):
         self.hostScreenElements.append(self.startServerButton)
 
         self.backButton = DirectButton(
-            parent=self,
+            parent=base.a2dBottomLeft,
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
