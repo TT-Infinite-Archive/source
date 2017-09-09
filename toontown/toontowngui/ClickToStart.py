@@ -196,23 +196,20 @@ class ClickToStart(DirectObject):
 
         self.fadeTrack = base.transitions.getFadeOutIval(t=2)
 
-        if not __debug__:
+        Sequence(
+            Func(self.fadeTrack.start),
+            Wait(2),
+            Func(self.delete),
+            Func(base.cr.introduction.delete),
+            Func(self.startMainMenu),
+            Func(base.transitions.fadeIn, 2)
+        ).start()
+        
+        if self.music:
             Sequence(
-                Func(self.fadeTrack.start),
                 LerpFunctionInterval(self.music.setVolume, fromData = self.music.getVolume(), toData = 0, duration = 2),
-                Func(self.delete),
-                Func(base.cr.introduction.delete),
-                Func(self.startMainMenu),
-                Func(base.transitions.fadeIn, 2),
-                Func(self.music.stop)).start()
-        else:
-            Sequence(
-                Func(self.fadeTrack.start),
-                Wait(2),
-                Func(self.delete),
-                Func(base.cr.introduction.delete),
-                Func(self.startMainMenu),
-                Func(base.transitions.fadeIn, 2)).start()
+                Func(self.music.stop)
+            ).start()
 
     def setColorScale(self, *args, **kwargs):
         self.backgroundNodePath.setColorScale(*args, **kwargs)
