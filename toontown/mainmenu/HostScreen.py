@@ -115,8 +115,8 @@ class HostScreen(DirectFrame, FSM):
         guiNextDown.flattenStrong()
 
         self.startServerButton = DirectButton(
-            parent=self,
-            pos=(1.75, 0, -0.90),
+            parent=base.a2dBottomRight,
+            pos=(-0.12, 0, 0.10),
             command=lambda: self.mainMenu.request('StartHost'),
             text=('', TTLocalizer.HostDone, TTLocalizer.HostDone, ''),
             text_align = TextNode.ARight,
@@ -126,6 +126,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
+            pos=(0.12, 0, 0.10),
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )

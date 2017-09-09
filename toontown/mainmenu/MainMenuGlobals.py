@@ -96,7 +96,6 @@ MINIATURE_BACK_BUTTON = {
     'image_scale': (-0.3, 0.3, 0.3),
     'image1_scale': (-0.35, 0.35, 0.35),
     'image2_scale': (-0.35, 0.35, 0.35),
-    'pos': (.15, 0, .15),
     'text': ('', TTLocalizer.MakeAToonLast, TTLocalizer.MakeAToonLast, ''),
     'text_font': ToontownGlobals.getInterfaceFont(),
     'text_scale': 0.08,

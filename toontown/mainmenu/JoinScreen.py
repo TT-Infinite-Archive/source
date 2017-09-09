@@ -37,6 +37,7 @@ class JoinScreen(DirectFrame, FSM):
 
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
+            pos=(0.12, 0, 0.10),
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
@@ -265,7 +266,6 @@ class JoinScreen(DirectFrame, FSM):
                 Func(base.camera.setPosHpr, -380, -263, -17, 90, 0, 0),
                 self.interiorFovZoomIn),
             Parallel(
-                Func(self.backButton.show),
                 Func(self.ipConnectButton.show),
                 Func(self.bookmarksButton.show),
                 Func(self.fetchServers))).start()
@@ -305,6 +305,8 @@ class JoinScreen(DirectFrame, FSM):
 
         self.hideBookmarks()
         self.hideIPConnect()
+        self.backButton.setPos(0.12, 0, 0.10)
+        self.backButton.show()
         self.backButton['command'] = lambda: self.request('Back')
 
         # Fetch Servers here:
@@ -362,6 +364,7 @@ class JoinScreen(DirectFrame, FSM):
         self.connectButton.hide()
         self.addToBookmarksButton.hide()
         self.ipConnectLabel.hide()
+        self.backButton.hide()
 
     def showBookmarks(self):
         self.finishFetchingServers()
@@ -371,10 +374,10 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksBackground.show()
         self.ipConnectButton.hide()
         self.bookmarksButton.hide()
-
         self.bookCloseSfx.setVolume(1)
-
         self.backButton['command'] = lambda: self.fetchServers()
+        self.backButton.setPos(0.32, 0, 0.14)
+        self.backButton.show()
 
     def hideBookmarks(self):
         self.bookmarksList.hide()
@@ -383,6 +386,7 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksBackground.hide()
         self.ipConnectButton.show()
         self.bookmarksButton.show()
+        self.backButton.hide()
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
 
