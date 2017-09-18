@@ -62,9 +62,6 @@ class MainMenu(DirectFrame, FSM):
         self.environment = NodePath('mainMenu-environment')
         self.environment.reparentTo(hidden)
 
-        # self.suits = NodePath('mainMenu-suits')
-        # self.suits.reparentTo(hidden)
-
         self.flyDownSfx = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_in.ogg')
         self.flyDownSfx.setVolume(0)
 
@@ -185,7 +182,6 @@ class MainMenu(DirectFrame, FSM):
         self.suitDNA2.newSuitRandom()
         self.randomSuit2.setDNA(self.suitDNA2)
         self.randomSuit2.reparentTo(self.environment)
-        self.randomSuit2.setPos(-344, -159, -0.475)
         self.randomSuit2.setDisplayName('')
         self.randomSuit2.setPickable(0)
         self.randomSuit2.setH(190)
@@ -239,7 +235,6 @@ class MainMenu(DirectFrame, FSM):
         self.suitDNA3.newSuitRandom()
         self.randomSuit3.setDNA(self.suitDNA3)
         self.randomSuit3.reparentTo(self.environment)
-        self.randomSuit3.setPos(-344, -159, -0.475)
         self.randomSuit3.setDisplayName('')
         self.randomSuit3.setPickable(0)
         self.randomSuit3.setH(190)
