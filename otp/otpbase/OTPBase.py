@@ -39,6 +39,8 @@ class OTPBase(ShowBase):
         self.logPrivateInfo = self.config.GetBool('log-private-info', __dev__)
         self.wantDynamicShadows = 1
         self.stereoEnabled = False
+        self.minAspectRatio = None
+        self.forcedAspectRatio = None
         self.enviroDR = None
         self.enviroCam = None
         self.pixelZoomSetup = False
@@ -51,7 +53,11 @@ class OTPBase(ShowBase):
             else:
                 base.cam.node().setCameraMask(OTPRender.MainCameraBitmask | OTPRender.EnviroCameraBitmask)
         taskMgr.setupTaskChain('net')
-        return
+        self.accept('aspectRatioChanged', self.enforceMinAspectRatio)
+
+    def setBackgroundColor(self, r=None, g=None, b=None, a=0.0, win=None):
+        ShowBase.setBackgroundColor(self, r, g, b, a, win)
+        messenger.send('aspectRatioChanged')
 
     def setTaskChainNetThreaded(self):
         if base.config.GetBool('want-threaded-network', 0):
@@ -59,6 +65,34 @@ class OTPBase(ShowBase):
 
     def setTaskChainNetNonthreaded(self):
         taskMgr.setupTaskChain('net', numThreads=0, frameBudget=-1)
+
+    def applyMinAspectRatio(self, minAspectRatio):
+        self.minAspectRatio = minAspectRatio
+        self.enforceMinAspectRatio()
+    
+    def unapplyMinAspectRatio(self):
+        self.minAspectRatio = None
+        self.enforceMinAspectRatio()
+    
+    def applyForcedAspectRatio(self, aspectRatio):
+        self.forcedAspectRatio = aspectRatio
+        self.adjustWindowAspectRatio(aspectRatio)
+    
+    def unapplyForcedAspectRatio(self):
+        self.forcedAspectRatio = None
+        self.enforceMinAspectRatio()
+    
+    def enforceMinAspectRatio(self):
+        ratio = self.getAspectRatio()
+        newRatio = ratio
+
+        if self.minAspectRatio:
+            if ratio < self.minAspectRatio:
+                newRatio = self.minAspectRatio
+        elif self.forcedAspectRatio:
+            newRatio = self.forcedAspectRatio
+
+        self.adjustWindowAspectRatio(newRatio)
 
     def toggleStereo(self):
         self.stereoEnabled = not self.stereoEnabled

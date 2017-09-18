@@ -186,13 +186,19 @@ class HostScreen(DirectFrame, FSM):
         for elements in self.hostScreenElements:
             elements.show()
 
+        base.applyForcedAspectRatio(16.0/9)
+
     def enter(self):
         Sequence(
             Parallel(self.cameraPosInterval, self.cameraHprInterval),
             Parallel(self.cameraPosInterval2, self.cameraHprInterval2),
-            Parallel(Func(self.avScreen.reparentTo, render), Func(self.propTrackGrow.start),
-            Func(self.projectorSfx.play)), Wait(self.propTrackGrowDuration), Func(self.projectorSfx.stop),
-            Parallel(Func(self.label.show), Func(self.showHostScreenElements))).start()
+            Func(self.avScreen.reparentTo, render),
+            Func(self.propTrackGrow.start),
+            Func(self.projectorSfx.play),
+            Wait(self.propTrackGrowDuration),
+            Func(self.projectorSfx.stop),
+            Func(self.label.show),
+            Func(self.showHostScreenElements)).start()
 
     def enterAfterFail(self):
         Sequence(Wait(1), Func(self.showHostScreenElements)).start()
@@ -204,6 +210,8 @@ class HostScreen(DirectFrame, FSM):
     def enterBack(self):
         for elements in self.hostScreenElements:
             elements.hide()
+            
+        base.unapplyForcedAspectRatio()
 
         self.buttonSequence = Sequence(
             Func(self.mainMenu.randomSuit2.show),
