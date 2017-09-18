@@ -1712,6 +1712,8 @@ BMovementSpeed = 0
 BMovementSpeedMultiplier = 1.3
 BGagAccuracy = 1
 BGagAccuracyMultiplier = 1.3
+CSM_LOGIN_ERROR_CREDENTIALS_INVALID = 0
+CSM_LOGIN_ERROR_TOO_FAST = 1
 CommonDisplayResolutions = {
     (25, 16): ((1600, 1024),),
     (931, 524): ((1862, 1048),),

@@ -88,7 +88,7 @@ class JoinScreen(DirectFrame, FSM):
             text='IP Connect',
             text_font=ToontownGlobals.getSignFont(),
             text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACdisconnectButtonPos,
+            text_pos=(0, -0.015),
             text_scale=TTLocalizer.ACleaveButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
             pos=(-0.55, 0, -0.935),
@@ -100,7 +100,7 @@ class JoinScreen(DirectFrame, FSM):
             text='Bookmarks',
             text_font=ToontownGlobals.getSignFont(),
             text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=TTLocalizer.ACdisconnectButtonPos,
+            text_pos=(0, -0.015),
             text_scale=TTLocalizer.ACleaveButton, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
             pos=(0.55, 0, -0.935),
@@ -356,6 +356,7 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksButton.hide()
         self.ipConnectLabel.show()
         self.bookCloseSfx.setVolume(0)
+        self.mainMenu.background.show()
         self.backButton['command'] = lambda: self.fetchServers()
 
     def hideIPConnect(self):
@@ -364,6 +365,7 @@ class JoinScreen(DirectFrame, FSM):
         self.connectButton.hide()
         self.addToBookmarksButton.hide()
         self.ipConnectLabel.hide()
+        self.mainMenu.background.hide()
         self.backButton.hide()
 
     def showBookmarks(self):
@@ -376,7 +378,7 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksButton.hide()
         self.bookCloseSfx.setVolume(1)
         self.backButton['command'] = lambda: self.fetchServers()
-        self.backButton.setPos(0.32, 0, 0.14)
+        # self.backButton.setPos(0.32, 0, 0.14)
         self.backButton.show()
 
     def hideBookmarks(self):
@@ -410,6 +412,7 @@ class JoinScreen(DirectFrame, FSM):
 
     def enterStartIPConnect(self):
         base.isHosting = False
+        self.backButton.hide()
         if not hasattr(self, 'targetIp'):
             ip = self.joinScreen.ipInput.get()
         else:
@@ -589,7 +592,7 @@ class JoinScreen(DirectFrame, FSM):
         if hasattr(self, 'currentTooltip'):
             self.currentTooltip.destroy()
 
-    def destroy(self):
+    def destroyModels(self):
         self.door.removeNode()
         self.buildingInterior.removeNode()
         self.bookmarksBackground.removeNode()

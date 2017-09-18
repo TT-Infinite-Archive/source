@@ -86,4 +86,4 @@ class HostStartScreen(DirectFrame):
 
     def __handleServerStarterDone(self):
         self.label['text'] = TTLocalizer.LocalServerDone
-        base.cr.mainMenu.request('EnterServer')
+        base.cr.loginFSM.request('serverMenu')

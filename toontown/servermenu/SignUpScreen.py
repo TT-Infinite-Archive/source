@@ -6,10 +6,10 @@ from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 
 
 class SignUpScreen(DirectFrame):
-    def __init__(self, mainMenu):
-        DirectFrame.__init__(self, mainMenu)
+    def __init__(self, serverMenu):
+        DirectFrame.__init__(self, serverMenu)
 
-        self.mainMenu = mainMenu
+        self.serverMenu = serverMenu
 
         self.usernameLabel = TTLabel(
             parent=self,
@@ -95,7 +95,7 @@ class SignUpScreen(DirectFrame):
             parent=self,
             pos=(-0.5, 0, -0.8),
             text=TTLocalizer.LoginScreenSignUp,
-            command=lambda: self.mainMenu.request(''),
+            command=lambda: self.serverMenu.request(''),
             **MainMenuGlobals.BUTTON_PROPERTIES
         )
 
@@ -111,5 +111,5 @@ class SignUpScreen(DirectFrame):
             text_scale=0.08,
             text2_scale=0.095,
             text1_scale=0.095,
-            command=lambda: self.mainMenu.request('')
+            command=lambda: self.serverMenu.request('')
         )

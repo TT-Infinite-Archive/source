@@ -9,6 +9,8 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 import random
 from toontown.toontowngui import TTDialog
+from toontown.toontowngui.TTLabel import TTLabel
+from toontown.toonbase import ColorGlobals
 
 MAX_AVATARS = 6
 POSITIONS = (Vec3(-0.860167, 0, 0.359333),
@@ -62,6 +64,7 @@ class AvatarChooser(StateData.StateData):
             self.load()
         base.disableMouse()
         self.title.reparentTo(aspect2d)
+        self.userNameLabel.reparentTo(aspect2d)
         # if base.cr.loginInterface.supportsRelogin():
         # self.logoutButton.show()
         self.pickAToonBG.setBin('background', 1)
@@ -82,8 +85,7 @@ class AvatarChooser(StateData.StateData):
 
         self.ignoreAll()
         self.title.reparentTo(hidden)
-        # self.logoutButton.hide()
-        self.disconnectButton.hide()
+        self.logoutButton.hide()
         self.pickAToonBG.reparentTo(hidden)
         base.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
         base.ignore('confirmBack')
@@ -112,28 +114,27 @@ class AvatarChooser(StateData.StateData):
             parent=hidden, font=ToontownGlobals.getSignFont(),
             fg=(1, 0.9, 0.1, 1), pos=(0.0, 0.82))
 
+        self.userNameLabel = TTLabel(
+            parent=hidden,
+            pos=(1.45, 0, 0.9),
+            text=TTLocalizer.HomeScreenLoggedIn,
+            text_fg=ColorGlobals.CYellow,
+            text_font=ToontownGlobals.getToonFont(),
+            text_size=TTLabel.MediumSize,
+            text_wordwrap=25
+        )
+
         quitHover = gui.find('**/QuitBtn_RLVR')
-        if (base.isSinglePlayer or base.isHosting):
-            self.disconnectButton = DirectButton(
-                image=(quitHover, quitHover, quitHover), relief=None,
-                text=TTLocalizer.OptionsDisconnect,
-                text_font=ToontownGlobals.getSignFont(),
-                text_fg=(0.977, 0.816, 0.133, 1),
-                text_pos=TTLocalizer.ACdisconnectButtonPos,
-                text_scale=TTLocalizer.ACdisconnectButton, image_scale=1,
-                image1_scale=1.05, image2_scale=1.05, scale=1.05,
-                pos=(0.25, 0, 0.075), command=self.__back)
-        else:
-            self.disconnectButton = DirectButton(
-                image=(quitHover, quitHover, quitHover), relief=None,
-                text=TTLocalizer.OptionsLeaveServer,
-                text_font=ToontownGlobals.getSignFont(),
-                text_fg=(0.977, 0.816, 0.133, 1),
-                text_pos=TTLocalizer.ACdisconnectButtonPos,
-                text_scale=TTLocalizer.ACleaveButton, image_scale=1,
-                image1_scale=1.05, image2_scale=1.05, scale=1.05,
-                pos=(0.25, 0, 0.075), command=self.__back)
-        self.disconnectButton.reparentTo(base.a2dBottomLeft)
+        self.logoutButton = DirectButton(
+            image=(quitHover, quitHover, quitHover), relief=None,
+            text='Log Out',
+            text_font=ToontownGlobals.getSignFont(),
+            text_fg=(0.977, 0.816, 0.133, 1),
+            text_pos=TTLocalizer.AClogOutTextPos,
+            text_scale=TTLocalizer.AClogOutButtonScale, image_scale=1,
+            image1_scale=1.05, image2_scale=1.05, scale=1.05,
+            pos=(0.25, 0, 0.075), command=self.__back)
+        self.logoutButton.reparentTo(base.a2dBottomLeft)
 
         """
         self.logoutButton = DirectButton(
@@ -256,8 +257,10 @@ class AvatarChooser(StateData.StateData):
         del self.panelList
         self.title.removeNode()
         del self.title
-        self.disconnectButton.destroy()
-        del self.disconnectButton
+        self.logoutButton.destroy()
+        del self.logoutButton
+        self.userNameLabel.destroy()
+        del self.userNameLabel
         # self.logoutButton.destroy()
         # del self.logoutButton
         self.pickAToonBG.removeNode()
@@ -330,6 +333,33 @@ class AvatarChooser(StateData.StateData):
         base.cr.loginFSM.request('login')
 
     def __back(self):
+        if base.isHosting:
+            self.confirm = TTDialog.TTGlobalDialog(
+                doneEvent='confirmBack',
+                message=TTLocalizer.LogOutHost,
+                style=TTDialog.TwoChoice)
+            self.confirm.show()
+            base.accept('confirmBack', self.__backConfirm)
+            return
+        elif not base.isHosting:
+            self.confirm = TTDialog.TTGlobalDialog(
+                doneEvent='confirmBack',
+                message=TTLocalizer.LogOut,
+                style=TTDialog.TwoChoice)
+            self.confirm.show()
+            base.accept('confirmBack', self.__backConfirm)
+            return
+
+    def __backConfirm(self):
+        status = self.confirm.doneStatus
+        self.ignore('confirmDone')
+        self.confirm.cleanup()
+        del self.confirm
+        if status == 'ok':
+            base.cr.loginFSM.request('serverMenu')
+
+    '''
+    def __back(self):
         if base.isSinglePlayer:
             self.confirm = TTDialog.TTGlobalDialog(
                 doneEvent='confirmBack',
@@ -354,13 +384,4 @@ class AvatarChooser(StateData.StateData):
             self.confirm.show()
             base.accept('confirmBack', self.__backConfirm)
             return
-
-        base.cr.loginFSM.request('mainMenu')
-
-    def __backConfirm(self):
-        status = self.confirm.doneStatus
-        self.ignore('confirmDone')
-        self.confirm.cleanup()
-        del self.confirm
-        if status == 'ok':
-            base.cr.loginFSM.request('mainMenu')
+        '''

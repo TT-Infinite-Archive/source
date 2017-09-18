@@ -5036,6 +5036,8 @@ OptionsPageDisplaySettingsNoApi = 'Display: %(screensize)s'
 LeaveServerHostSP = 'Are you sure you want to disconnect?'
 LeaveServer = 'Are you sure you want to leave this server?'
 LeaveServerHost = 'Are you sure you want to disconnect the server? All Toons currently playing will also be disconnected.'
+LogOut = 'Are you sure you want to log out? You will not be disconnected from the server.'
+LogOutHost = 'Are you sure you want to log out? The server will not be disconnected.'
 PickAToonConfirm = 'Are you sure you want to return to the Pick-A-Toon screen?'
 OptionsPageResolution = 'Resolution:'
 OptionsPageVideo = 'Video'
@@ -10739,9 +10741,9 @@ Jellybeans = 'Jellybeans'
 BossLeaderboardLabel = 'Current Damage'
 
 # Main Menu
-WelcomeMessage = 'Welcome to Toontown Infinite!'
+WelcomeMessage = 'You are connected to %s'
 LoginScreenGreeting = "Already have an account? Log in!"
-LoginScreenGreeting2 = "New to Toontown Infinite? Sign Up!"
+LoginScreenGreeting2 = "New to to this server? Sign Up!"
 LoginScreenLogin = 'Login'
 LoginScreenSignUp = 'Sign Up'
 SignUpTermsOfService = 'Terms of\n Service'
@@ -10797,3 +10799,8 @@ BehaviorName = {
 
 AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
 ToontownRewrittenCredits = 'Created and developed\nby Toontown Rewritten.'
+LoginError = {
+ 0: 'Invalid password or username taken.',
+ 1: 'You are trying to do that too fast!'
+}
+LoggingIn = 'Logging In...'
