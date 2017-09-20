@@ -186,7 +186,7 @@ class HostScreen(DirectFrame, FSM):
         for elements in self.hostScreenElements:
             elements.show()
 
-        base.applyForcedAspectRatio(16.0/9)
+        base.setAspectRatio(16./9.)
 
     def enter(self):
         Sequence(
@@ -206,12 +206,13 @@ class HostScreen(DirectFrame, FSM):
     def exit(self):
         for elements in self.hostScreenElements:
             elements.hide()
+        base.setAspectRatio(0)
 
     def enterBack(self):
         for elements in self.hostScreenElements:
             elements.hide()
             
-        base.unapplyForcedAspectRatio()
+        base.setAspectRatio(0)
 
         self.buttonSequence = Sequence(
             Func(self.mainMenu.randomSuit2.show),
