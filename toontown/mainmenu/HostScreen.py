@@ -16,6 +16,7 @@ from direct.gui.DirectGui import DirectButton
 from pandac.PandaModules import Vec4
 from direct.fsm.FSM import FSM
 from toontown.mainmenu.PlayScreen import PlayScreen
+from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class HostScreen(DirectFrame, FSM):
@@ -34,7 +35,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantRacingLabel = TTLabel(
             parent=self,
-            pos=(-0.9, 0, 0.36),
+            pos=(-0.87, 0, 0.33),
             text="Racing",
             text_align=TextNode.ALeft,
         )
@@ -42,7 +43,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantGolfLabel = TTLabel(
             parent=self,
-            pos=(-0.9, 0, 0.26),
+            pos=(-0.87, 0, 0.23),
             text="Golf",
             text_align=TextNode.ALeft,
         )
@@ -50,7 +51,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantSinglePlayer = TTLabel(
             parent=self,
-            pos=(-0.9, 0, 0.16),
+            pos=(-0.87, 0, 0.13),
             text="Single Player",
             text_align=TextNode.ALeft,
         )
@@ -58,7 +59,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantRacingBox = TTCheckBox(
             parent=self,
-            pos=(-0.95, 0, 0.37),
+            pos=(-0.92, 0, 0.34),
             checked=serverSettings[ServerSettingsGlobals.WantRacing],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantRacing]
         )
@@ -66,7 +67,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantGolfBox = TTCheckBox(
             parent=self,
-            pos=(-0.95, 0, 0.27),
+            pos=(-0.92, 0, 0.24),
             checked=serverSettings[ServerSettingsGlobals.WantGolf],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantGolf]
         )
@@ -74,7 +75,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostSinglePlayerBox = TTCheckBox(
             parent=self,
-            pos=(-0.95, 0, 0.17),
+            pos=(-0.92, 0, 0.14),
             checked=serverSettings[ServerSettingsGlobals.WantSinglePlayer],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantSinglePlayer]
         )
@@ -82,17 +83,17 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostExpMultDec = MATArrow(
             parent=self,
-            pos=(-0.8, 0, -0.02), command=self.setServerExpMult)
+            pos=(-0.77, 0, -0.04), command=self.setServerExpMult)
         self.hostScreenElements.append(self.hostExpMultDec)
 
         self.hostExpMultInc = MATArrow(
             parent=self,
-            pos=(-0.29, 0, -0.02), inverted=True, command=self.setServerExpMult)
+            pos=(-0.27, 0, -0.04), inverted=True, command=self.setServerExpMult)
         self.hostScreenElements.append(self.hostExpMultInc)
 
         self.hostExpMultLabel = TTLabel(
             parent=self,
-            pos=(-0.55, 0, -0.04),
+            pos=(-0.52, 0, -0.06),
             text="EXP Multiplier: %sx" % str(serverSettings[ServerSettingsGlobals.ExpMultiplier]),
             text_align=TextNode.ACenter,
         )
@@ -100,7 +101,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.label = DirectLabel(parent=self, relief=None, text=TTLocalizer.ServerSettings, text_fg=(0, 0, 0, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
-                                   pos=(-0.55, 0, 0.5))
+                                   pos=(-0.52, 0, 0.47))
         self.hostScreenElements.append(self.label)
 
         gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_mainGui')
@@ -186,8 +187,6 @@ class HostScreen(DirectFrame, FSM):
         for elements in self.hostScreenElements:
             elements.show()
 
-        base.setAspectRatio(16./9.)
-
     def enter(self):
         Sequence(
             Parallel(self.cameraPosInterval, self.cameraHprInterval),
@@ -206,13 +205,10 @@ class HostScreen(DirectFrame, FSM):
     def exit(self):
         for elements in self.hostScreenElements:
             elements.hide()
-        base.setAspectRatio(0)
 
     def enterBack(self):
         for elements in self.hostScreenElements:
             elements.hide()
-            
-        base.setAspectRatio(0)
 
         self.buttonSequence = Sequence(
             Func(self.mainMenu.randomSuit2.show),

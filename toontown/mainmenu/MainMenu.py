@@ -79,6 +79,7 @@ class MainMenu(DirectFrame, FSM):
         self.hostScreen.destroyAvScreen()
         self.joinScreen.destroyModels()
         base.camLens.setMinFov(ToontownGlobals.DefaultCameraFov/(4./3.))
+        base.setAspectRatio(0)
         DirectFrame.destroy(self)
 
     def load(self):
@@ -86,6 +87,7 @@ class MainMenu(DirectFrame, FSM):
         self.loadRandomToons()
         self.generateRandomSuits()
         self.initializeSky()
+        base.setAspectRatio(16./9.)
 
     def loadStreet(self):
         self.loopyLane = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200')

@@ -37,7 +37,6 @@ class JoinScreen(DirectFrame, FSM):
 
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
-            pos=(0.12, 0, 0.10),
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
@@ -45,7 +44,7 @@ class JoinScreen(DirectFrame, FSM):
 
         self.connectButton = MATShuffleButton(
             parent=self,
-            pos=(-0.35, 0, -0.30),
+            pos=(-0.35, 0, -0.29),
             text="Connect",
             command=self.__submitIP,
             **MainMenuGlobals.BUTTON_PROPERTIES
@@ -63,7 +62,7 @@ class JoinScreen(DirectFrame, FSM):
 
         self.joinButton = DirectButton(
             parent=self,
-            pos=(0.91, 0, 0.57),
+            pos=(0.91, 0, 0.47),
             command=lambda: self.mainMenu.request(''),
             text_align = TextNode.ARight,
             **MainMenuGlobals.START_BUTTON
@@ -107,19 +106,19 @@ class JoinScreen(DirectFrame, FSM):
             command=self.showBookmarks)
         self.bookmarksButton.hide()
 
-        self.serverNameLabel = DirectLabel(parent=self, relief=None, text='Server Name', pos=(-0.9, 0, 0.7), text_fg=(1, 1, 1, 1),
+        self.serverNameLabel = DirectLabel(parent=self, relief=None, text='Server Name', pos=(-0.9, 0, 0.6), text_fg=(1, 1, 1, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
         self.serverBrowserElements.append(self.serverNameLabel)
 
-        self.gameModeLabel = DirectLabel(parent=self, relief=None, text='Game Mode', pos=(-0.2, 0, 0.7), text_fg=(1, 1, 1, 1),
+        self.gameModeLabel = DirectLabel(parent=self, relief=None, text='Game Mode', pos=(-0.2, 0, 0.6), text_fg=(1, 1, 1, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
         self.serverBrowserElements.append(self.gameModeLabel)
 
-        self.playersLabel = DirectLabel(parent=self, relief=None, text='Players', pos=(0.4, 0, 0.7), text_fg=(1, 1, 1, 1),
+        self.playersLabel = DirectLabel(parent=self, relief=None, text='Players', pos=(0.4, 0, 0.6), text_fg=(1, 1, 1, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
         self.serverBrowserElements.append(self.playersLabel)
 
-        self.connectLabel = DirectLabel(parent=self, relief=None, text='Connect', pos=(0.9, 0, 0.7), text_fg=(1, 1, 1, 1),
+        self.connectLabel = DirectLabel(parent=self, relief=None, text='Connect', pos=(0.9, 0, 0.6), text_fg=(1, 1, 1, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
         self.serverBrowserElements.append(self.connectLabel)
         
@@ -263,7 +262,7 @@ class JoinScreen(DirectFrame, FSM):
             Parallel(
                 Func(base.camera.setH, 186),
                 Func(base.transitions.fadeIn, 1),
-                Func(base.camera.setPosHpr, -380, -263, -17, 90, 0, 0),
+                Func(base.camera.setPosHpr, -380, -263, -16.6, 90, 0, 0),
                 self.interiorFovZoomIn),
             Parallel(
                 Func(self.ipConnectButton.show),

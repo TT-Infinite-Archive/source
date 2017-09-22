@@ -95,6 +95,7 @@ class PlayScreen(DirectFrame, FSM):
         self.backButton.hide()
 
     def enter(self):
+        base.setAspectRatio(16./9.)
         for button in self.buttons:
             button.show()
 
@@ -127,6 +128,7 @@ class PlayScreen(DirectFrame, FSM):
             self.optionsScreen = None
 
     def enterOptions(self):
+        base.setAspectRatio(0)
         for button in self.buttons:
             button.hide()
         self.optionsScreen.show()
