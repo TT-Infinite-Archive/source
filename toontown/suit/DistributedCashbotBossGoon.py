@@ -8,7 +8,6 @@ from toontown.toonbase import ToontownGlobals
 from toontown.coghq import DistributedCashbotBossObject
 from direct.showbase import PythonUtil
 import DistributedGoon
-from toontown.util.ThreadedCall import ThreadedCall
 from panda3d.core import CollisionSphere
 from pandac.PandaModules import Point3
 from pandac.PandaModules import Vec3
@@ -56,8 +55,7 @@ class DistributedCashbotBossGoon(DistributedGoon.DistributedGoon, DistributedCas
         self.wiggleTaskName = self.uniqueName('wiggleTask')
         self.wiggleFreeName = self.uniqueName('wiggleFree')
         self.boss.goons.append(self)
-        self.reparentTo(self.boss.rbcnp)
-        ThreadedCall(self.boss.rbc.collect).start()
+        self.reparentTo(render)
 
     def disable(self):
         i = self.boss.goons.index(self)

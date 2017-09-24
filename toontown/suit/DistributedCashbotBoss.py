@@ -1,53 +1,38 @@
-from direct.showbase import PythonUtil
-from direct.task.Task import Task
-from toontown.building import ElevatorConstants, ElevatorUtils
-from toontown.chat import ResistanceChat
-from toontown.nametag import NametagGlobals
-from toontown.toonbase import BulkLoader
+import math
+import random
 
-from BossBattleLeaderboard import BossBattleLeaderboard
-from BossBattleTimer import BossBattleTimer
-# from BossBattleHealthBar import BossBattleHealthBar
-import DistributedCashbotBossGoon
-
+from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import FSM
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
+from direct.showbase import PythonUtil
 from direct.task import Task
-import math
+from direct.task.Task import Task
+from direct.task.TaskManagerGlobal import *
+from pandac.PandaModules import *
 
 import DistributedBossCog
+import DistributedCashbotBossGoon
 import SuitDNA
+from BossBattleLeaderboard import BossBattleLeaderboard
+from BossBattleTimer import BossBattleTimer
+from otp.otpbase import OTPGlobals
 from toontown.battle import MovieToonVictory
 from toontown.battle import RewardPanel
 from toontown.battle import SuitBattleGlobals
-from toontown.battle.BattleProps import *
+from toontown.building import ElevatorConstants
+from toontown.building import ElevatorUtils
+from toontown.chat import ResistanceChat
 from toontown.chat.ChatGlobals import *
 from toontown.coghq import CogDisguiseGlobals
+from toontown.debug.DebugTools import timeFunc
 from toontown.distributed import DelayDelete
-from toontown.nametag.NametagGlobals import *
+from toontown.nametag import NametagGlobals
 from toontown.toon import NPCToons
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import TTLocalizerEnglish
-from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownGlobals
 
-from toontown.debug.DebugTools import timeFunc
 OneBossCog = None
-
-ModelAssets = [
-    'phase_10/models/cogHQ/MidVault.bam',
-    'phase_10/models/cogHQ/EndVault.bam',
-    'phase_10/models/cogHQ/CBLightning.bam',
-    'phase_10/models/cogHQ/CBMagnet.bam',
-    'phase_10/models/cogHQ/CBMagnetB.bam',
-    'phase_10/models/cogHQ/CBCraneArm.bam',
-    'phase_10/models/cogHQ/CBCraneControls.bam',
-    'phase_10/models/cogHQ/CBCraneStick.bam',
-    'phase_10/models/cogHQ/CBSafe.bam',
-    'phase_10/models/cogHQ/CashBotBossEyes.bam',
-    'phase_10/models/cogHQ/CFOElevator'
-]
-
 
 class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedCashbotBoss')
@@ -71,26 +56,13 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.battleTwoBattles = []
         self.bossBattleTimer = None
         self.bossBattleLeaderboard = None
-        # self.bossBattleHealthBar = None
         base.boss = self
         self.titleText = None
-        self.bulkLoader = BulkLoader.BulkLoader(ModelAssets)
         return
 
     @timeFunc
     def announceGenerate(self):
         DistributedBossCog.DistributedBossCog.announceGenerate(self)
-        self.bulkLoader.load()
-        self.midVault = self.bulkLoader.getModel('phase_10/models/cogHQ/MidVault.bam')
-        self.endVault = self.bulkLoader.getModel('phase_10/models/cogHQ/EndVault.bam')
-        self.lightning = self.bulkLoader.getModel('phase_10/models/cogHQ/CBLightning.bam')
-        self.magnet = self.bulkLoader.getModel('phase_10/models/cogHQ/CBMagnet.bam')
-        self.magnetB = self.bulkLoader.getModel('phase_10/models/cogHQ/CBMagnetB.bam')
-        self.craneArm = self.bulkLoader.getModel('phase_10/models/cogHQ/CBCraneArm.bam')
-        self.controls = self.bulkLoader.getModel('phase_10/models/cogHQ/CBCraneControls.bam')
-        self.stick = self.bulkLoader.getModel('phase_10/models/cogHQ/CBCraneStick.bam')
-        self.safe = self.bulkLoader.getModel('phase_10/models/cogHQ/CBSafe.bam')
-        self.eyes = self.bulkLoader.getModel('phase_10/models/cogHQ/CashBotBossEyes.bam')
         self.setName(TTLocalizer.CashbotBossName)
         self.titleText = OnscreenText(TTLocalizer.CashbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
         self.titleText.hide()
@@ -148,9 +120,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         base.localAvatar.chatMgr.chatInputSpeedChat.removeCFOMenu()
         if OneBossCog == self:
             OneBossCog = None
-
-        if hasattr(self, 'bulkLoader'):
-            self.bulkLoader.unload()
 
         return
 
@@ -247,6 +216,16 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
 
     def loadEnvironment(self):
         DistributedBossCog.DistributedBossCog.loadEnvironment(self)
+        self.midVault = loader.loadModel('phase_10/models/cogHQ/MidVault')
+        self.endVault = loader.loadModel('phase_10/models/cogHQ/EndVault')
+        self.lightning = loader.loadModel('phase_10/models/cogHQ/CBLightning')
+        self.magnet = loader.loadModel('phase_10/models/cogHQ/CBMagnet')
+        self.magnetB = loader.loadModel('phase_10/models/cogHQ/CBMagnetB.bam')
+        self.craneArm = loader.loadModel('phase_10/models/cogHQ/CBCraneArm')
+        self.controls = loader.loadModel('phase_10/models/cogHQ/CBCraneControls')
+        self.stick = loader.loadModel('phase_10/models/cogHQ/CBCraneStick')
+        self.safe = loader.loadModel('phase_10/models/cogHQ/CBSafe')
+        self.eyes = loader.loadModel('phase_10/models/cogHQ/CashBotBossEyes')
         self.cableTex = self.craneArm.findTexture('MagnetControl')
         self.eyes.setPosHprScale(4.5, 0, -2.5, 90, 90, 0, 0.4, 0.4, 0.4)
         self.eyes.reparentTo(self.neck)
@@ -264,7 +243,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.door1 = self.midVault.find('**/SlidingDoor1/')
         self.door2 = self.midVault.find('**/SlidingDoor/')
         self.door3 = self.endVault.find('**/SlidingDoor/')
-        elevatorModel = self.bulkLoader.getModel('phase_10/models/cogHQ/CFOElevator')
+        elevatorModel = loader.loadModel('phase_10/models/cogHQ/CFOElevator')
         elevatorOrigin = self.midVault.find('**/elevator_origin')
         elevatorOrigin.setScale(1)
         elevatorModel.reparentTo(elevatorOrigin)
@@ -301,7 +280,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.battleTwoMusic = base.loadMusic('phase_9/audio/bgm/CFO_round_2.ogg')
         self.battleThreeMusic = base.loadMusic('phase_9/audio/bgm/encntr_cfo_boss.ogg')
 
-        self.battleTwoCutsceneMusic = base.loadMusic('phase_9/audio/bgm/CBHQ_Mint_bg.ogg') #Place Holder Track
+        self.battleTwoCutsceneMusic = base.loadMusic('phase_9/audio/bgm/CBHQ_Mint_bg.ogg')
 
         self.rbc = RigidBodyCombiner("goon-rbc")
         self.rbcnp = NodePath(self.rbc)
