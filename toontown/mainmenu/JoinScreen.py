@@ -37,6 +37,7 @@ class JoinScreen(DirectFrame, FSM):
 
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
+            pos=(0.13, 0, 0.13),
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
