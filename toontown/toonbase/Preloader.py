@@ -38,20 +38,8 @@ class Preloader(DirectObject):
 
     def loadModel(self, modelPath, priority=None):
         self.notify.debug('Loading model... ' + modelPath)
-
-        request = self.loader.makeAsyncRequest(
-            Filename(modelPath),
-            LoaderOptions(LoaderOptions.LFSearch |
-                          LoaderOptions.LFReportErrors |
-                          LoaderOptions.LFNoCache))
-        if priority is not None:
-            request.setPriority(priority)
-        request.setDoneEvent(self.asyncRequestDoneEvent)
-        self.requests[modelPath] = (
-            request, self.loadModelCallback, [modelPath])
-
-        self.loader.loadAsync(request)
-
+        self.modelPool[modelPath] = loader.loadModel(modelPath)
+        
     def loadModelCallback(self, nodePath, modelPath):
         if nodePath is None:
             return
