@@ -45,8 +45,7 @@ sync-video #f
 texture-power-2 none
 gl-check-errors #f
 garbage-collect-states #t
-loader-num-threads 35
-preload-avatars #f
+support-threads #f
 
 # Egg object types:
 egg-object-type-barrier <Scalar> collide-mask { 0x01 } <Collide> { Polyset descend }
@@ -63,6 +62,8 @@ egg-object-type-model <Model> { 1 }
 egg-object-type-dcs <DCS> { 1 }
 
 # Core features:
+want-kaldron-network #f
+want-multiplayer #f
 want-guilds #f
 want-guild-quests #f
 want-emblems #f
@@ -80,6 +81,7 @@ want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
+want-resistance-grounds #f
 
 # Safe zone settings:
 want-treasure-planners #t

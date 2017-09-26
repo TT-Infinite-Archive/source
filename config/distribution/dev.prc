@@ -98,9 +98,6 @@ want-yin-yang #t
 want-leak-graph-ai #f
 want-leak-graph-client #f
 
-# Performance:
-support-threads #t
-
 # Safezone interactables:
 want-ttc-jukebox #t
 
