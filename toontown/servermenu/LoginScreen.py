@@ -49,6 +49,7 @@ class LoginScreen(DirectFrame):
             parent=self,
             pos=(0, 0, -0.60),
             width=10.5,
+            obscured=True,
             **MainMenuGlobals.ENTRY_PROPERTIES
         )
 

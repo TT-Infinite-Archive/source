@@ -11,6 +11,7 @@ from toontown.servermenu.LoginOrSignUpScreen import LoginOrSignUpScreen
 from toontown.servermenu.LoginScreen import LoginScreen
 from toontown.toonbase import ToontownGlobals
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
+from toontown.toontowngui.LocalServerStarter import LocalServerStarter
 
 
 class ServerMenu(DirectFrame, FSM):
@@ -36,6 +37,7 @@ class ServerMenu(DirectFrame, FSM):
         self.signUpScreen.hide()
         self.optionsScreen = OptionsTabPage()
         self.optionsScreen.hide()
+        self.localServerStarter = LocalServerStarter()
 
         self.serverMenuElements = []
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
@@ -104,8 +106,13 @@ class ServerMenu(DirectFrame, FSM):
         for element in self.serverMenuElements:
             element.show()
 
-        self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
-        self.bottomLeftButton['text'] = "Leave Server"
+        if (base.isHosting or base.isSinglePlayer):
+            self.bottomLeftButton['text'] = "Disconnect"
+            self.localServerStarter.killThreads()
+            self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
+        else:
+            self.bottomLeftButton['text'] = "Leave Server"
+            self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
         self.bottomLeftButton['text_scale']= 0.085
         self.bottomLeftButton['text1_scale'] = 0.09
         self.bottomLeftButton['text2_scale'] = 0.09
