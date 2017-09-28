@@ -50,6 +50,7 @@ class AvatarChooser(StateData.StateData):
     def __init__(self, avatarList, parentFSM, doneEvent):
         StateData.StateData.__init__(self, doneEvent)
         self.choice = None
+        base.isLoggingOut = None
         self.avatarList = avatarList
         self.fsm = ClassicFSM.ClassicFSM('AvatarChooser',
                                          [State.State('Choose', self.enterChoose, self.exitChoose, ['CheckDownload']),
@@ -356,6 +357,7 @@ class AvatarChooser(StateData.StateData):
         self.confirm.cleanup()
         del self.confirm
         if status == 'ok':
+            base.isLoggingOut = True
             base.cr.loginFSM.request('serverMenu')
 
     '''

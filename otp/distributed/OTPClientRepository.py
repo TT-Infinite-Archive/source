@@ -62,6 +62,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.createAvatarClass = None
         self.systemMessageSfx = None
         self.blue = None
+        base.isLoggingOut = None
 
         self.playToken = None
         if self.launcher:
@@ -2075,6 +2076,9 @@ class OTPClientRepository(ClientRepositoryBase):
         self.mainMenu.request('PlayScreen')
         if self.isConnected() and base.isHosting:
             self.localServerStarter.demand('Off')
+        if self.isConnected():
+            self.sendDisconnect()
+        base.isLoggingOut = False
 
     def enterMainMenu(self):
         taskMgr.doMethodLater(0.1, self.mainMenuTask, 'mainMenuTask')
@@ -2088,6 +2092,9 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.serverMenu is None:
             self.serverMenu = ServerMenu()
         self.serverMenu.request('LoginOrSignUpScreen')
+        if base.isLoggingOut == True:
+            self.sendDisconnect()
+            self.connect(self.serverList, successCallback=self._sendHello, failureCallback=self.failedToConnect)
 
     def exitServerMenu(self):
         self.serverMenu.destroy()
