@@ -198,7 +198,7 @@ CRNoConnectProxyNoPort = 'Could not connect to %s:%s.\n\nYou are communicating t
 CRMissingGameRootObject = 'Missing some root game objects.  (May be a failed network connection).\n\nTry again?'
 CRNoDistrictsTryAgain = 'No Districts are available. Try again?'
 CRRejectRemoveAvatar = 'The avatar was not able to be deleted, try again another time.'
-CRLostConnection = 'Your internet connection to the servers has been unexpectedly broken.'
+CRLostConnection = 'The connection to the server has been closed.'
 CRBootedReasons = {
  1: 'An unexpected problem has occurred.  Your connection has been lost, but you should be able to connect again and go right back into the game.',
  100: 'You have been disconnected because someone else just logged in using your account on another computer.',

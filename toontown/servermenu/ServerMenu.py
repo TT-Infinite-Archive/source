@@ -87,6 +87,7 @@ class ServerMenu(DirectFrame, FSM):
             self.logoScaleTrack = None
         for element in self.serverMenuElements:
             element.destroy()
+        self.backgroundNodePath.removeNode()
         self.background.removeNode()
         DirectFrame.destroy(self)
 

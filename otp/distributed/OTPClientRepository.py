@@ -537,7 +537,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverList = serverList
         dialogClass = OTPGlobals.getGlobalDialogClass()
         self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-        # Show the connecting box only if you are connecting to an MP server. If you are hosting, don't show it.
         if base.isHosting:
             self.connectingBox.hide()
         self.renderFrame()
@@ -2092,9 +2091,10 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.serverMenu is None:
             self.serverMenu = ServerMenu()
         self.serverMenu.request('LoginOrSignUpScreen')
-        if base.isLoggingOut == True:
+        if base.isLoggingOut == True and self.isConnected():
             self.sendDisconnect()
             self.connect(self.serverList, successCallback=self._sendHello, failureCallback=self.failedToConnect)
+            base.isLoggingOut = False
 
     def exitServerMenu(self):
         self.serverMenu.destroy()
