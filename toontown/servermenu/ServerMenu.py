@@ -118,6 +118,7 @@ class ServerMenu(DirectFrame, FSM):
 
     def exitLoginOrSignUpScreen(self):
         self.loginOrSignUpScreen.hide()
+        self.background.hide()
 
     def enterLoginScreen(self):
         self.loginScreen.show()
@@ -126,9 +127,11 @@ class ServerMenu(DirectFrame, FSM):
         self.bottomLeftButton['text_scale']= 0.10
         self.bottomLeftButton['text1_scale'] = 0.105
         self.bottomLeftButton['text2_scale'] = 0.105
+        self.background.show()
 
     def exitLoginScreen(self):
         self.loginScreen.hide()
+        self.background.hide()
 
     def enterSignUpScreen(self):
         self.signUpScreen.show()
@@ -138,14 +141,17 @@ class ServerMenu(DirectFrame, FSM):
         self.bottomLeftButton['text_scale']= 0.10
         self.bottomLeftButton['text1_scale'] = 0.105
         self.bottomLeftButton['text2_scale'] = 0.105
+        self.background.show()
 
     def exitSignUpScreen(self):
         self.signUpScreen.hide()
         self.logo.show()
+        self.background.hide()
 
     def enterOptions(self):
         self.logo.hide()
         self.optionsButton.hide()
+        self.background.show()
         self.optionsScreen.show()
         self.bottomLeftButton.show()
         self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
@@ -156,6 +162,7 @@ class ServerMenu(DirectFrame, FSM):
 
     def exitOptions(self):
         self.logo.show()
+        self.background.hide()
         self.optionsButton.show()
         self.optionsScreen.hide()
         self.bottomLeftButton.hide()
