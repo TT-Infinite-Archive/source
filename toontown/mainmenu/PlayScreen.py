@@ -95,7 +95,9 @@ class PlayScreen(DirectFrame, FSM):
         self.backButton.hide()
 
     def enter(self):
-        base.setAspectRatio(16./9.)
+        base.setAspectRatio(16./8.5)
+        if base.playScreenFade == True:
+            base.transitions.fadeIn(2)
         for button in self.buttons:
             button.show()
 
@@ -111,6 +113,7 @@ class PlayScreen(DirectFrame, FSM):
         self.optionsScreen.hide()
 
     def exit(self):
+        base.playScreenFade = False
         for button in self.buttons:
             button.show()
 

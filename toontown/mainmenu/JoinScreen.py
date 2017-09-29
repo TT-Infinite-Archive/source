@@ -31,13 +31,12 @@ class JoinScreen(DirectFrame, FSM):
         CAMENDHPR = (189, 0, 0)
 
         self.mainMenu = mainMenu
-        self.serverBrowserElements = []
         self.bookmarkInfoDialog = None
         self.bookmarkMgr = BookmarkManager()
 
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
-            pos=(0.13, 0, 0.13),
+            pos=(0.13, 0, 0.11),
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
@@ -61,15 +60,6 @@ class JoinScreen(DirectFrame, FSM):
         )
         self.addToBookmarksButton.hide()
 
-        self.joinButton = DirectButton(
-            parent=self,
-            pos=(0.91, 0, 0.47),
-            command=lambda: self.mainMenu.request(''),
-            text_align = TextNode.ARight,
-            **MainMenuGlobals.START_BUTTON
-        )
-        self.serverBrowserElements.append(self.joinButton)
-
         gui = preloader.getModel('phase_3/models/gui/pick_a_toon_gui.bam')
         if gui is not None:
             gui2 = preloader.getModel('phase_3/models/gui/quit_button.bam')
@@ -83,68 +73,35 @@ class JoinScreen(DirectFrame, FSM):
 
         quitHover = gui.find('**/QuitBtn_RLVR')
 
-        self.ipConnectButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text='IP Connect',
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=(0, -0.015),
-            text_scale=TTLocalizer.ACleaveButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(-0.55, 0, -0.935),
-            command=self.showIPConnect)
+        self.ipConnectButton = MATShuffleButton(
+            parent=self,
+            text="IP Connect",
+            pos=(0, 0, 0.3),
+            command=self.showIPConnect,
+            **MainMenuGlobals.BUTTON_PROPERTIES_2
+        )
         self.ipConnectButton.hide()
 
-        self.bookmarksButton = DirectButton(
-            image=(quitHover, quitHover, quitHover), relief=None,
-            text='Bookmarks',
-            text_font=ToontownGlobals.getSignFont(),
-            text_fg=(0.977, 0.816, 0.133, 1),
-            text_pos=(0, -0.015),
-            text_scale=TTLocalizer.ACleaveButton, image_scale=1,
-            image1_scale=1.05, image2_scale=1.05, scale=1.05,
-            pos=(0.55, 0, -0.935),
-            command=self.showBookmarks)
+        self.bookmarksButton = MATShuffleButton(
+            parent=self,
+            text="Bookmarks",
+            pos=(0, 0, -0.5),
+            command=self.showBookmarks,
+            **MainMenuGlobals.BUTTON_PROPERTIES_2
+        )
         self.bookmarksButton.hide()
-
-        self.serverNameLabel = DirectLabel(parent=self, relief=None, text='Server Name', pos=(-0.9, 0, 0.6), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.serverBrowserElements.append(self.serverNameLabel)
-
-        self.gameModeLabel = DirectLabel(parent=self, relief=None, text='Game Mode', pos=(-0.2, 0, 0.6), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.serverBrowserElements.append(self.gameModeLabel)
-
-        self.playersLabel = DirectLabel(parent=self, relief=None, text='Players', pos=(0.4, 0, 0.6), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.serverBrowserElements.append(self.playersLabel)
-
-        self.connectLabel = DirectLabel(parent=self, relief=None, text='Connect', pos=(0.9, 0, 0.6), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.serverBrowserElements.append(self.connectLabel)
         
-        self.ipConnectLabel = DirectLabel(parent=self, relief=None, text='Enter an IP Address', pos=(0, 0, 0.3), text_fg=(1, 1, 1, 1),
+        self.ipConnectLabel = DirectLabel(parent=self, relief=None, text='Join a server by entering an IP Address.', pos=(0, 0, 0.5), text_fg=(1, 1, 1, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
         self.ipConnectLabel.hide()
 
-        for button in self.serverBrowserElements:
-            button.hide()
+        self.bookmarksLabel = DirectLabel(parent=self, relief=None, text='View your bookmarked servers.', pos=(0, 0, -0.3), text_fg=(1, 1, 1, 1),
+                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
+        self.bookmarksLabel.hide()
 
-        self.fetchingLabel = DirectLabel(parent=self, relief=None, text='Fetching Servers.', text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.fetchingLabel.hide()
-
-        self.fetchingLabel2 = DirectLabel(parent=self, relief=None, text='Fetching Servers..', text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.fetchingLabel2.hide()
-
-        self.fetchingLabel3 = DirectLabel(parent=self, relief=None, text='Fetching Servers...', text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.fetchingLabel3.hide()
-
-        self.noServers = DirectLabel(parent=self, relief=None, text='No Servers Found.', pos=(0.9, 0, 0.7), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25)
-        self.noServers.hide()
+        self.ipConnectLabel2 = DirectLabel(parent=self, relief=None, text='Enter an IP Address', pos=(0, 0, 0.3), text_fg=(1, 1, 1, 1),
+                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
+        self.ipConnectLabel2.hide()
 
         self.enterPosInterval = camera.posInterval(2, Point3(CAMENDPOS), startPos=Point3(CAMSTARTPOS), blendType = 'easeIn') 
         self.enterHprInterval = camera.hprInterval(2, Point3(CAMENDHPR), startHpr=Point3(CAMSTARTHPR), blendType = 'easeIn')
@@ -169,21 +126,6 @@ class JoinScreen(DirectFrame, FSM):
 
         self.leftDoorCloseInterval = self.leftDoor.hprInterval(2, Point3(0, 0, 0), startHpr=Point3(-90, 0, 0))
         self.rightDoorCloseInterval = self.rightDoor.hprInterval(2, Point3(0, 0, 0), startHpr=Point3(90, 0, 0))
-
-        self.fetchingSequence = Sequence(
-            Parallel(
-                Func(self.fetchingLabel3.hide),
-                Func(self.fetchingLabel.show)),
-            Wait(0.7),
-            Parallel(
-                Func(self.fetchingLabel.hide),
-                Func(self.fetchingLabel2.show)),
-            Wait(0.7),
-            Parallel(
-                Func(self.fetchingLabel2.hide),
-                Func(self.fetchingLabel3.show)),
-            Wait(0.7)
-        )
 
         self.buildingInterior = loader.loadModel('phase_3.5/models/modules/HQ_interior')
         self.buildingInterior.reparentTo(render)
@@ -259,16 +201,19 @@ class JoinScreen(DirectFrame, FSM):
                 self.enterPosInterval2,
                 self.leftDoorOpenInterval,
                 self.rightDoorOpenInterval),
-            Wait(1),
+            Wait(0.5),
+            Func(base.transitions.fadeOut, 0),
             Parallel(
                 Func(base.camera.setH, 186),
                 Func(base.transitions.fadeIn, 1),
-                Func(base.camera.setPosHpr, -380, -263, -16.6, 90, 0, 0),
+                Func(base.camera.setPosHpr, -380, -263, -16.8, 90, 0, 0),
                 self.interiorFovZoomIn),
             Parallel(
+                Func(self.backButton.show),
+                Func(self.ipConnectLabel.show),
+                Func(self.bookmarksLabel.show),
                 Func(self.ipConnectButton.show),
-                Func(self.bookmarksButton.show),
-                Func(self.fetchServers))).start()
+                Func(self.bookmarksButton.show))).start()
         self.bookCloseSfx.setVolume(0)
 
     def enterBack(self):
@@ -277,9 +222,10 @@ class JoinScreen(DirectFrame, FSM):
                 self.interiorFovZoomOut,
                 Func(base.transitions.fadeOut, 1),
                 Func(self.backButton.hide),
+                Func(self.ipConnectLabel.hide),
+                Func(self.bookmarksLabel.hide),
                 Func(self.ipConnectButton.hide),
-                Func(self.bookmarksButton.hide),
-                Func(self.finishFetchingServers)),
+                Func(self.bookmarksButton.hide)),
             Wait(0.5),
             Func(base.transitions.fadeOut, 0),
             Func(base.camLens.setFov, 30),
@@ -295,100 +241,65 @@ class JoinScreen(DirectFrame, FSM):
         self.hideIPConnect()
         self.connectButton.hide()
         self.backButton.hide()
+        self.ipConnectLabel.hide()
+        self.bookmarksLabel.hide()
         self.ipConnectButton.hide()
         self.bookmarksButton.hide()
-        self.hideServerBrowser()
-        self.finishFetchingServers()
-
-    def fetchServers(self):
-        self.fetchingSequence.loop()
-
-        self.hideBookmarks()
-        self.hideIPConnect()
-        self.backButton.setPos(0.12, 0, 0.10)
-        self.backButton.show()
-        self.backButton['command'] = lambda: self.request('Back')
-
-        # Fetch Servers here:
-
-        # Finish server fetching:
-        # self.finishFetchingServers()
-
-    def finishFetchingServers(self):
-        # When fetching is complete, finish the sequence:
-        self.fetchingSequence.finish()
-        self.fetchingLabel.hide()
-        self.fetchingLabel2.hide()
-        self.fetchingLabel3.hide()
-
-        # If servers are found, show browser: self.showServerBrowser()
-
-        # else
-
-        # If servers aren't found, say so:
-        # No servers found.
-        # Refresh button: self.fetchServers()
-
-    def showServerBrowser(self):
-        self.showServerBrowserElements()
-
-        # Display found servers here:
-
-    def hideServerBrowser(self):
-        self.hideServerBrowserElements()
-
-    def showServerBrowserElements(self):
-        for button in self.serverBrowserElements:
-            button.show()
-
-    def hideServerBrowserElements(self):
-        for button in self.serverBrowserElements:
-            button.hide()
 
     def showIPConnect(self):
-        self.finishFetchingServers()
         self.ipInput.show()
         self.__enableIPEntry()
         self.ipInput.enterText('')
         self.connectButton.show()
         self.addToBookmarksButton.show()
+        self.ipConnectLabel.hide()
+        self.bookmarksLabel.hide()
         self.ipConnectButton.hide()
         self.bookmarksButton.hide()
-        self.ipConnectLabel.show()
+        self.ipConnectLabel2.show()
         self.bookCloseSfx.setVolume(0)
         self.mainMenu.background.show()
-        self.backButton['command'] = lambda: self.fetchServers()
+        self.backButton.show()
+
+        self.backButton['command'] = lambda: self.hideIPConnect()
 
     def hideIPConnect(self):
         self.ipInput.hide()
         self.__disableIPEntry()
         self.connectButton.hide()
         self.addToBookmarksButton.hide()
-        self.ipConnectLabel.hide()
+        self.ipConnectLabel2.hide()
         self.mainMenu.background.hide()
-        self.backButton.hide()
+        self.ipConnectLabel.show()
+        self.bookmarksLabel.show()
+        self.ipConnectButton.show()
+        self.bookmarksButton.show()
+        self.backButton['command'] = lambda: self.request('Back')
 
     def showBookmarks(self):
-        self.finishFetchingServers()
         self.bookOpenSfx.play()
         self.bookmarksList.show()
         self.makeBookmarksButtons()
         self.bookmarksBackground.show()
+        self.ipConnectLabel.hide()
+        self.bookmarksLabel.hide()
         self.ipConnectButton.hide()
         self.bookmarksButton.hide()
         self.bookCloseSfx.setVolume(1)
-        self.backButton['command'] = lambda: self.fetchServers()
-        # self.backButton.setPos(0.32, 0, 0.14)
         self.backButton.show()
+
+        self.backButton['command'] = lambda: self.hideBookmarks()
 
     def hideBookmarks(self):
         self.bookmarksList.hide()
         self.bookOpenSfx.stop()
         self.bookCloseSfx.play()
         self.bookmarksBackground.hide()
+        self.ipConnectLabel.show()
+        self.bookmarksLabel.show()
         self.ipConnectButton.show()
         self.bookmarksButton.show()
-        self.backButton.hide()
+        self.backButton['command'] = lambda: self.request('Back')
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
 
@@ -400,6 +311,7 @@ class JoinScreen(DirectFrame, FSM):
         self.ipInput['state'] = DGG.DISABLED
 
     def __submitIP(self, input=None):
+        self.mainMenu.background.hide()
         if input is None:
             input = self.ipInput.get()
             self.ipInput['focus'] = 1
@@ -523,8 +435,8 @@ class JoinScreen(DirectFrame, FSM):
                                        text_wordwrap = 25, text = "\1candidate_inactive\1Address:\2 %s" %address)
             connectButton = MATShuffleButton(parent = self.bookmarkInfoDialog, pos=(0, 0, -0.3), text="Connect", wantArrows=False,
             image_scale=buttonScale, image2_scale=buttonScale_clickhover,
-            image1_scale=buttonScale_clickhover, text_scale=0.082, text2_scale=0.087,
-            text1_scale=0.087, command=done)
+            image1_scale=buttonScale_clickhover, text_scale=0.10, text2_scale=0.105,
+            text1_scale=0.105, command=done)
 
             trashcanGui = loader.loadModel('phase_3/models/gui/trashcan_gui.bam')
             deleteButton = DirectButton(parent = self.bookmarkInfoDialog,

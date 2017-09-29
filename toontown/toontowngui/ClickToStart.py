@@ -54,6 +54,7 @@ class ClickToStart(DirectObject):
         self.logoScaleTrack = None
         self.labelPosTrack = None
         self.labelColorScaleTrack = None
+        base.firstEnter = None
 
         self.music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
         if base.musicManagerIsValid and self.music is not None:
@@ -189,6 +190,7 @@ class ClickToStart(DirectObject):
 
     def begin(self):
         base.cr.introDone = True
+        base.playScreenFade = True
 
         if self.fadeTrack is not None:
             self.fadeTrack.finish()
@@ -201,9 +203,9 @@ class ClickToStart(DirectObject):
             Wait(2),
             Func(self.delete),
             Func(base.cr.introduction.delete),
-            Func(self.startMainMenu),
-            Func(base.transitions.fadeIn, 2)
+            Func(self.startMainMenu)
         ).start()
+
         
         if self.music:
             Sequence(

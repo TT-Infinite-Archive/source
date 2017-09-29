@@ -35,7 +35,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantRacingLabel = TTLabel(
             parent=self,
-            pos=(-0.87, 0, 0.33),
+            pos=(-0.92, 0, 0.33),
             text="Racing",
             text_align=TextNode.ALeft,
         )
@@ -43,7 +43,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantGolfLabel = TTLabel(
             parent=self,
-            pos=(-0.87, 0, 0.23),
+            pos=(-0.92, 0, 0.23),
             text="Golf",
             text_align=TextNode.ALeft,
         )
@@ -51,7 +51,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantSinglePlayer = TTLabel(
             parent=self,
-            pos=(-0.87, 0, 0.13),
+            pos=(-0.92, 0, 0.13),
             text="Single Player",
             text_align=TextNode.ALeft,
         )
@@ -59,7 +59,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantRacingBox = TTCheckBox(
             parent=self,
-            pos=(-0.92, 0, 0.34),
+            pos=(-0.97, 0, 0.34),
             checked=serverSettings[ServerSettingsGlobals.WantRacing],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantRacing]
         )
@@ -67,7 +67,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantGolfBox = TTCheckBox(
             parent=self,
-            pos=(-0.92, 0, 0.24),
+            pos=(-0.97, 0, 0.24),
             checked=serverSettings[ServerSettingsGlobals.WantGolf],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantGolf]
         )
@@ -75,7 +75,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostSinglePlayerBox = TTCheckBox(
             parent=self,
-            pos=(-0.92, 0, 0.14),
+            pos=(-0.97, 0, 0.14),
             checked=serverSettings[ServerSettingsGlobals.WantSinglePlayer],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantSinglePlayer]
         )
@@ -83,17 +83,17 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostExpMultDec = MATArrow(
             parent=self,
-            pos=(-0.77, 0, -0.04), command=self.setServerExpMult)
+            pos=(-0.82, 0, -0.04), command=self.setServerExpMult)
         self.hostScreenElements.append(self.hostExpMultDec)
 
         self.hostExpMultInc = MATArrow(
             parent=self,
-            pos=(-0.27, 0, -0.04), inverted=True, command=self.setServerExpMult)
+            pos=(-0.32, 0, -0.04), inverted=True, command=self.setServerExpMult)
         self.hostScreenElements.append(self.hostExpMultInc)
 
         self.hostExpMultLabel = TTLabel(
             parent=self,
-            pos=(-0.52, 0, -0.06),
+            pos=(-0.57, 0, -0.06),
             text="EXP Multiplier: %sx" % str(serverSettings[ServerSettingsGlobals.ExpMultiplier]),
             text_align=TextNode.ACenter,
         )
@@ -101,7 +101,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.label = DirectLabel(parent=self, relief=None, text=TTLocalizer.ServerSettings, text_fg=(0, 0, 0, 1),
                                    text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
-                                   pos=(-0.52, 0, 0.47))
+                                   pos=(-0.57, 0, 0.48))
         self.hostScreenElements.append(self.label)
 
         gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_mainGui')
@@ -117,7 +117,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.startServerButton = DirectButton(
             parent=base.a2dBottomRight,
-            pos=(-0.13, 0, 0.13),
+            pos=(-0.13, 0, 0.11),
             command=lambda: self.mainMenu.request('StartHost'),
             text=('', TTLocalizer.HostDone, TTLocalizer.HostDone, ''),
             text_align = TextNode.ARight,
@@ -127,7 +127,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
-            pos=(0.13, 0, 0.13),
+            pos=(0.13, 0, 0.11),
             command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )

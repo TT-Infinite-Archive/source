@@ -87,7 +87,7 @@ class MainMenu(DirectFrame, FSM):
         self.loadRandomToons()
         self.generateRandomSuits()
         self.initializeSky()
-        base.setAspectRatio(16./9.)
+        base.setAspectRatio(16./8.5)
 
     def loadStreet(self):
         self.loopyLane = loader.loadModel('phase_4/models/neighborhoods/toontown_central_2200')
@@ -360,7 +360,6 @@ class MainMenu(DirectFrame, FSM):
         self.playScreen.exit()
         self.hostScreen.enter()
         self.hostScreen.show()
-        # base.oobe()
 
         def hideRandomSuits(task):
             self.randomSuit2.reparentTo(hidden)
