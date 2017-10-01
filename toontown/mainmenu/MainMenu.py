@@ -50,9 +50,9 @@ class MainMenu(DirectFrame, FSM):
         self.hostStartScreen = HostStartScreen(self)
         self.hostStartScreen.hide()
 
-        self.createRandomSuitSequence = None
-        self.createRandomSuitSequence2 = None
-        self.createRandomSuitSequence3 = None
+        self.loadRandomSuitSequence = None
+        self.loadRandomSuitSequence2 = None
+        self.loadRandomSuitSequence3 = None
 
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             ToontownGlobals.getNametagFont(10)
@@ -66,15 +66,15 @@ class MainMenu(DirectFrame, FSM):
         self.flyDownSfx.setVolume(0)
 
     def destroy(self):
-        if self.createRandomSuitSequence is not None:
-            self.createRandomSuitSequence.finish()
-            self.createRandomSuitSequence = None
-        if self.createRandomSuitSequence2 is not None:
-            self.createRandomSuitSequence2.finish()
-            self.createRandomSuitSequence2 = None
-        if self.createRandomSuitSequence3 is not None:
-            self.createRandomSuitSequence3.finish()
-            self.createRandomSuitSequence3 = None
+        if self.loadRandomSuitSequence is not None:
+            self.loadRandomSuitSequence.finish()
+            self.loadRandomSuitSequence = None
+        if self.loadRandomSuitSequence2 is not None:
+            self.loadRandomSuitSequence2.finish()
+            self.loadRandomSuitSequence2 = None
+        if self.loadRandomSuitSequence3 is not None:
+            self.loadRandomSuitSequence3.finish()
+            self.loadRandomSuitSequence3 = None
         self.environment.removeNode()
         self.hostScreen.destroyAvScreen()
         self.joinScreen.destroyModels()
@@ -118,28 +118,28 @@ class MainMenu(DirectFrame, FSM):
         self.randomToon2.setBlend(frameBlend = settings['animation-smoothing'])
 
     def generateRandomSuits(self):
-        self.createRandomSuitSequence = Sequence(
-            Func(self.createRandomSuit),
+        self.loadRandomSuitSequence = Sequence(
+            Func(self.loadRandomSuit),
             Wait(40),
             Func(self.killRandomSuit)
         )
-        self.createRandomSuitSequence.loop()
+        self.loadRandomSuitSequence.loop()
 
-        self.createRandomSuitSequence2 = Sequence(
-            Func(self.createRandomSuit2),
+        self.loadRandomSuitSequence2 = Sequence(
+            Func(self.loadRandomSuit2),
             Wait(63),
             Func(self.killRandomSuit2)
         )
-        self.createRandomSuitSequence2.loop()
+        self.loadRandomSuitSequence2.loop()
 
-        self.createRandomSuitSequence3 = Sequence(
-            Func(self.createRandomSuit3),
+        self.loadRandomSuitSequence3 = Sequence(
+            Func(self.loadRandomSuit3),
             Wait(73),
             Func(self.killRandomSuit3)
         )
-        self.createRandomSuitSequence3.loop()
+        self.loadRandomSuitSequence3.loop()
 
-    def createRandomSuit(self):
+    def loadRandomSuit(self):
         self.randomSuit = Suit()
         self.suitDNA = SuitDNA()
         self.suitDNA.newSuitRandom()
@@ -178,7 +178,7 @@ class MainMenu(DirectFrame, FSM):
         )
         self.landingSuitInterval.start()
 
-    def createRandomSuit2(self):
+    def loadRandomSuit2(self):
         self.randomSuit2 = Suit()
         self.suitDNA2 = SuitDNA()
         self.suitDNA2.newSuitRandom()
@@ -231,7 +231,7 @@ class MainMenu(DirectFrame, FSM):
         )
         self.suitInterval2.start()
 
-    def createRandomSuit3(self):
+    def loadRandomSuit3(self):
         self.randomSuit3 = Suit()
         self.suitDNA3 = SuitDNA()
         self.suitDNA3.newSuitRandom()
