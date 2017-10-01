@@ -5,6 +5,7 @@ WantRacing = 'want-racing'
 WantGolf = 'want-golf'
 TTCJukebox = 'want-ttc-jukebox'
 WantSinglePlayer = 'want-singleplayer'
+WantCheats = 'want-cheats'
 
 InitialSettings = {
     EnabledZones: {
@@ -28,6 +29,7 @@ InitialSettings = {
     WantGolf: True,
     TTCJukebox: True,
     WantSinglePlayer: False,
+    WantCheats: False,
 }
     
 def loadInitialSettings():

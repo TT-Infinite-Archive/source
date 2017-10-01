@@ -51,12 +51,8 @@ class HostStartScreen(DirectFrame):
         self.accept(EventGlobals.LocalServerStarterDone, self.__handleServerStarterDone)
 
     def enter(self):
-        if serverSettings[ServerSettingsGlobals.WantSinglePlayer]:
-            base.isSinglePlayer = True
-        else:
-            base.isSinglePlayer = False
+        base.isSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
         base.isHosting = True
-
         Sequence(self.zoomIntoScreen, Func(self.label.show), Func(base.cr.localServerStarter.request, 'Start')).start()
 
     def exitBackToHostScreen(self):

@@ -593,6 +593,7 @@ dclass DistributedPlayer : DistributedAvatar {
 dclass MagicWordManager : DistributedObject {
   sendMagicWord(string, uint32) airecv clsend;
   sendMagicWordResponse(string);
+  doClientWord(uint32, string);
 };
 
 dclass OtpAvatarManager : DistributedObject {

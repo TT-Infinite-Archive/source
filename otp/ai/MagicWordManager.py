@@ -11,6 +11,10 @@ class MagicWordManager(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('MagicWordManager')
     neverDisable = 1
 
+    def __init__(self, cr):
+        DistributedObject.DistributedObject.__init__(self, cr)
+        self.wantCheats = False
+
     def generate(self):
         DistributedObject.DistributedObject.generate(self)
         self.accept('magicWord', self.handleMagicWord)
@@ -22,12 +26,11 @@ class MagicWordManager(DistributedObject.DistributedObject):
     def handleMagicWord(self, magicWord):
         if not self.cr.wantMagicWords:
             return
-
         if base.localAvatar.getAnimState() in ('TeleportIn', 'TeleportOut', 'TeleportedOut'):
             return
 
         if magicWord.startswith('~~'):
-            if lastClickedNametag == None:
+            if lastClickedNametag is None:
                 target = base.localAvatar
             else:
                 target = lastClickedNametag
@@ -38,6 +41,11 @@ class MagicWordManager(DistributedObject.DistributedObject):
 
         targetId = target.doId
         self.sendUpdate('sendMagicWord', [magicWord, targetId])
+
+    def doClientWord(self, targetId, magicWord):
+        target = base.cr.doId2do.get(targetId)
+        if target is None:
+            return
         if target == base.localAvatar:
             response = spellbook.process(base.localAvatar, target, magicWord)
             if response:
@@ -46,3 +54,7 @@ class MagicWordManager(DistributedObject.DistributedObject):
     def sendMagicWordResponse(self, response):
         self.notify.info(response)
         base.localAvatar.setSystemMessage(0, 'Spellbook: ' + str(response))
+
+    def setWantCheats(self, wantCheats):
+        self.notify.debug('setWantCheats', wantCheats)
+        self.wantCheats = wantCheats

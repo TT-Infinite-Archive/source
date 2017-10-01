@@ -8,6 +8,7 @@ from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
 from toontown.toonbase import ToontownGlobals, SettingsGlobals, EventGlobals
+from toontown.toonbase import ServerSettingsGlobals
 
 
 class LocalServerStarter(FSM):
@@ -71,8 +72,6 @@ class LocalServerStarter(FSM):
             thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
         elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]
-            if base.isSinglePlayer:
-                thread.processInfo += ['--singleplayer']
 
         thread.start()
         self.threads.append(thread)

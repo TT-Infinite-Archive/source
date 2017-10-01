@@ -8,11 +8,24 @@ from direct.distributed.MsgTypes import *
 class MagicWordManagerAI(DistributedObjectAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("MagicWordManagerAI")
 
+    def __init__(self, air):
+        DistributedObjectAI.__init__(self, air)
+        self.wantCheats = self.air.wantCheats
+
     def sendMagicWord(self, word, targetId):
         invokerId = self.air.getAvatarIdFromSender()
         invoker = self.air.doId2do.get(invokerId)
         target = self.air.doId2do.get(targetId)
         targets = spellbook.getTargets(word)
+
+        if ' ' in word:
+            cheat = word[0:word.index(' ')]  # Remove arguments from word
+        else:
+            cheat = word
+
+        if not self.wantCheats and cheat not in NON_CHEATS:
+            self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', ['Cheats are disabled on this server. Only magic words that allow for moderation are enabled.'])
+            return
 
         if targets:
             if target is not None and target.__class__.__name__ not in targets:
@@ -40,6 +53,10 @@ class MagicWordManagerAI(DistributedObjectAI):
         response = spellbook.process(invoker, target, word)
         if response:
             self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', [response])
+
+        if targetId == invokerId:
+            # Also do client word in-case it's a client thing
+            self.sendUpdateToAvatarId(invokerId, 'doClientWord', [targetId, word])
 
         self.air.writeServerEvent('magic-word',
                                   invokerId, invoker.getAdminAccess(),

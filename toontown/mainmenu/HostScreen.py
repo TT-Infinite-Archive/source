@@ -49,17 +49,25 @@ class HostScreen(DirectFrame, FSM):
         )
         self.hostScreenElements.append(self.hostWantGolfLabel)
 
-        self.hostWantSinglePlayer = TTLabel(
+        self.hostWantSinglePlayerLabel = TTLabel(
             parent=self,
             pos=(-0.92, 0, 0.13),
             text="Single Player",
             text_align=TextNode.ALeft,
         )
-        self.hostScreenElements.append(self.hostWantSinglePlayer)
+        self.hostScreenElements.append(self.hostWantSinglePlayerLabel)
+
+        self.hostWantCheatsLabel = TTLabel(
+            parent=self,
+            pos=(-0.3, 0, 0.33),
+            text="Cheats",
+            text_align=TextNode.ARight,
+        )
+        self.hostScreenElements.append(self.hostWantCheatsLabel)
 
         self.hostWantRacingBox = TTCheckBox(
             parent=self,
-            pos=(-0.97, 0, 0.34),
+            pos=(-0.97, 0, 0.343),
             checked=serverSettings[ServerSettingsGlobals.WantRacing],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantRacing]
         )
@@ -67,7 +75,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantGolfBox = TTCheckBox(
             parent=self,
-            pos=(-0.97, 0, 0.24),
+            pos=(-0.97, 0, 0.243),
             checked=serverSettings[ServerSettingsGlobals.WantGolf],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantGolf]
         )
@@ -75,11 +83,19 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostSinglePlayerBox = TTCheckBox(
             parent=self,
-            pos=(-0.97, 0, 0.14),
+            pos=(-0.97, 0, 0.143),
             checked=serverSettings[ServerSettingsGlobals.WantSinglePlayer],
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantSinglePlayer]
         )
         self.hostScreenElements.append(self.hostSinglePlayerBox)
+
+        self.hostCheatsBox = TTCheckBox(
+            parent=self,
+            pos=(-0.5, 0, 0.343),
+            checked=serverSettings[ServerSettingsGlobals.WantCheats],
+            command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantCheats]
+        )
+        self.hostScreenElements.append(self.hostCheatsBox)
 
         self.hostExpMultDec = MATArrow(
             parent=self,

@@ -105,6 +105,8 @@ CATEGORY_HOST = MagicWordCategory('Host', defaultAccess=500)
 
 MINIMUM_MAGICWORD_ACCESS = CATEGORY_USER2.defaultAccess
 
+NON_CHEATS = ['ban', 'kick', 'warn', 'mute', 'system']
+
 
 class MagicWord:
     def __init__(self, name, func, types, targets, access, doc):

@@ -103,3 +103,5 @@ want-ttc-jukebox #t
 
 # Mod tools:
 want-mods #f
+
+notify-level-MagicWordManager debug
