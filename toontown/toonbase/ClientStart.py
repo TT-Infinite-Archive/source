@@ -81,6 +81,10 @@ loadPrcFileData('Settings: Texture Quality',
                 'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
 loadPrcFileData('Settings: Texture Compression',
                 'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
+if settings[SettingsGlobals.ThreadedRender]:
+    loadPrcFileData('Settings: Experimental Threaded Rendering',
+                    'threading-model Cull/Draw')
+    notify.warning("Experimental Threaded Rendering is enabled! The game may crash randomly! You have been warned!")
 
 if sys.platform != 'android':
     loadPrcFileData('Settings: loadDisplay',
