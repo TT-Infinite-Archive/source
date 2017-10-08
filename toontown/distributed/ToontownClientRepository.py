@@ -127,10 +127,11 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         state.addTransition('skipTutorialRequest')
         self.wantCogdominiums = base.config.GetBool('want-cogdominiums', 1)
         self.wantEmblems = base.config.GetBool('want-emblems', 0)
+        self.isSinglePlayer = base.config.GetBool('want-singleplayer', 0)
+        self.wantTTCJukeBox = base.config.GetBool('want-ttc-jukebox', 0)
 
         self.progressMultiplier = 1
         self.wantDoubleProgression = base.config.GetBool('want-double-progression', False)
-        self.isSinglePlayer = base.config.GetBool('want-singleplayer', False)
 
         if self.wantDoubleProgression:
             self.progressMultiplier = 2

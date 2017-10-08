@@ -25,6 +25,7 @@ from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toonbase import ToontownLoader
 from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
+from toontown.toonbase import ServerSettingsGlobals
 
 if config.GetBool('want-leak-graph', False):
     from toontown.debug.LeakGraph import LeakGraph
@@ -99,7 +100,10 @@ class ToonBase(OTPBase.OTPBase):
         self.addCullBins()
         self.debugRunningMultiplier /= OTPGlobals.ToonSpeedFactor
         self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
-        self.wantCheats = self.config.GetFloat('want-cheats', 1)
+
+        self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
+        self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
+
         self.toonChatSounds = self.config.GetBool('toon-chat-sounds', 1)
         self.placeBeforeObjects = self.config.GetBool('place-before-objects', 1)
         self.endlessQuietZone = False

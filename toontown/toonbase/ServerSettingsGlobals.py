@@ -27,7 +27,7 @@ InitialSettings = {
     YinYang: True,
     WantRacing: True,
     WantGolf: True,
-    TTCJukebox: True,
+    TTCJukebox: False,
     WantSinglePlayer: False,
     WantCheats: False,
 }

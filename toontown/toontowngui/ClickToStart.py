@@ -190,7 +190,7 @@ class ClickToStart(DirectObject):
 
     def begin(self):
         base.cr.introDone = True
-        base.playScreenFade = True
+        base.initialEntry = True
 
         if self.fadeTrack is not None:
             self.fadeTrack.finish()

@@ -3,25 +3,18 @@ import random
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
 from direct.interval.FunctionInterval import Func, Wait
-from direct.interval.IntervalGlobal import LerpScaleInterval
-from direct.interval.MetaInterval import Parallel
 from direct.interval.MetaInterval import Sequence
 from direct.task.Task import Task
 from pandac.PandaModules import *
 
-from toontown.mainmenu import MainMenuGlobals
 from toontown.mainmenu.HomeScreen import HomeScreen
 from toontown.mainmenu.HostScreen import HostScreen
 from toontown.mainmenu.HostStartScreen import HostStartScreen
 from toontown.mainmenu.JoinScreen import JoinScreen
 from toontown.mainmenu.PlayScreen import PlayScreen
-from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-from toontown.suit.Suit import Suit
-from toontown.suit.SuitDNA import SuitDNA
 from toontown.toon.Toon import Toon
 from toontown.toon.ToonDNA import ToonDNA
 from toontown.toonbase import ToontownGlobals
-from direct.filter.CommonFilters import CommonFilters
 
 
 class MainMenu(DirectFrame, FSM):
@@ -50,9 +43,7 @@ class MainMenu(DirectFrame, FSM):
         self.hostStartScreen = HostStartScreen(self)
         self.hostStartScreen.hide()
 
-        self.loadRandomSuitSequence = None
-        self.loadRandomSuitSequence2 = None
-        self.loadRandomSuitSequence3 = None
+        base.hostFailed = None
 
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             ToontownGlobals.getNametagFont(10)
@@ -62,19 +53,7 @@ class MainMenu(DirectFrame, FSM):
         self.environment = NodePath('mainMenu-environment')
         self.environment.reparentTo(hidden)
 
-        self.flyDownSfx = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_in.ogg')
-        self.flyDownSfx.setVolume(0)
-
     def destroy(self):
-        if self.loadRandomSuitSequence is not None:
-            self.loadRandomSuitSequence.finish()
-            self.loadRandomSuitSequence = None
-        if self.loadRandomSuitSequence2 is not None:
-            self.loadRandomSuitSequence2.finish()
-            self.loadRandomSuitSequence2 = None
-        if self.loadRandomSuitSequence3 is not None:
-            self.loadRandomSuitSequence3.finish()
-            self.loadRandomSuitSequence3 = None
         self.environment.removeNode()
         self.hostScreen.destroyAvScreen()
         self.joinScreen.destroyModels()
@@ -85,7 +64,6 @@ class MainMenu(DirectFrame, FSM):
     def load(self):
         self.loadStreet()
         self.loadRandomToons()
-        self.generateRandomSuits()
         self.initializeSky()
         base.setAspectRatio(16./8.5)
 
@@ -112,190 +90,11 @@ class MainMenu(DirectFrame, FSM):
         self.randomToon2.setPosHpr(-329, -200.5, 0.025, 95, 0, 0)
         self.randomToon2.useLOD(1000)
 
-        self.randomToon.play('bored')
-        self.randomToon2.play('bored')
+        self.randomToon.pingpong('bored', fromFrame=70, toFrame=130)
+        self.randomToon2.pingpong('bored', fromFrame=70, toFrame=130)
         self.randomToon.setBlend(frameBlend = settings['animation-smoothing'])
         self.randomToon2.setBlend(frameBlend = settings['animation-smoothing'])
 
-    def generateRandomSuits(self):
-        self.loadRandomSuitSequence = Sequence(
-            Func(self.loadRandomSuit),
-            Wait(40),
-            Func(self.killRandomSuit)
-        )
-        self.loadRandomSuitSequence.loop()
-
-        self.loadRandomSuitSequence2 = Sequence(
-            Func(self.loadRandomSuit2),
-            Wait(63),
-            Func(self.killRandomSuit2)
-        )
-        self.loadRandomSuitSequence2.loop()
-
-        self.loadRandomSuitSequence3 = Sequence(
-            Func(self.loadRandomSuit3),
-            Wait(73),
-            Func(self.killRandomSuit3)
-        )
-        self.loadRandomSuitSequence3.loop()
-
-    def loadRandomSuit(self):
-        self.randomSuit = Suit()
-        self.suitDNA = SuitDNA()
-        self.suitDNA.newSuitRandom()
-        self.randomSuit.setDNA(self.suitDNA)
-        self.randomSuit.reparentTo(self.environment)
-        self.randomSuit.setDisplayName('')
-        self.randomSuit.setPickable(0)
-        self.randomSuit.setH(90)
-        self.randomSuit.loop('walk')
-
-        self.landingSuitPosInterval = self.randomSuit.posInterval(
-            1, (-417.5, -129, 3), startPos=(-417.5, -129, 10)
-        )
-
-        self.landingSuitPosInterval2 = self.randomSuit.posInterval(
-            1, (-417.5, -129, -0.475), startPos=(-417.5, -129, 3)
-        )
-
-        self.landingSuitPosInterval3 = self.randomSuit.posInterval(
-            8, (-447.5, -129, -0.47), startPos=(-417.5, -129, -0.475)
-        )
-
-        self.landingSuitInterval = Sequence(
-            Parallel(
-                Func(self.flyDownSfx.play),
-                Wait(1),
-                Func(self.randomSuit.pose, 'landing', 0),
-                self.landingSuitPosInterval),
-            Parallel(
-                Func(self.randomSuit.play, 'landing'),
-                self.landingSuitPosInterval2),
-            Wait(2.2),
-             Parallel(
-                Func(self.randomSuit.loop, 'walk'),
-                self.landingSuitPosInterval3),
-        )
-        self.landingSuitInterval.start()
-
-    def loadRandomSuit2(self):
-        self.randomSuit2 = Suit()
-        self.suitDNA2 = SuitDNA()
-        self.suitDNA2.newSuitRandom()
-        self.randomSuit2.setDNA(self.suitDNA2)
-        self.randomSuit2.reparentTo(self.environment)
-        self.randomSuit2.setDisplayName('')
-        self.randomSuit2.setPickable(0)
-        self.randomSuit2.setH(190)
-        self.randomSuit2.loop('walk')
-
-        self.suitPosInterval = self.randomSuit2.posInterval(
-            16, (-348, -212, -0.475), startPos=(-348, -159, -0.475)
-        )
-
-        self.suitHprInterval = self.randomSuit2.hprInterval(
-            0.5, (90, 0, 0), startHpr=(190, 0, 0)
-        )
-
-        self.suitPosInterval2 = self.randomSuit2.posInterval(
-            16, (-404, -215, -0.475), startPos=(-348, -212, -0.475)
-        )
-
-        self.suitHprInterval2 = self.randomSuit2.hprInterval(
-            0.5, (0, 0, 0), startHpr=(90, 0, 0)
-        )
-
-        self.suitPosInterval3 = self.randomSuit2.posInterval(
-            22, (-413.5, -129, -0.475), startPos=(-404, -215, -0.475)
-        )
-
-        self.suitHprInterval3 = self.randomSuit2.hprInterval(
-            0.5, (90, 0, 0), startHpr=(0, 0, 0)
-        )
-
-        self.suitPosInterval4 = self.randomSuit2.posInterval(
-            8, (-447.5, -129, -0.47), startPos=(-413.5, -129, -0.475)
-        )
-
-        self.suitInterval2 = Sequence(
-            self.suitPosInterval,
-            Parallel(
-                self.suitHprInterval,
-                self.suitPosInterval2),
-            Parallel(
-                self.suitHprInterval2,
-                self.suitPosInterval3),
-            Parallel(
-                self.suitHprInterval3,
-                self.suitPosInterval4)
-        )
-        self.suitInterval2.start()
-
-    def loadRandomSuit3(self):
-        self.randomSuit3 = Suit()
-        self.suitDNA3 = SuitDNA()
-        self.suitDNA3.newSuitRandom()
-        self.randomSuit3.setDNA(self.suitDNA3)
-        self.randomSuit3.reparentTo(self.environment)
-        self.randomSuit3.setDisplayName('')
-        self.randomSuit3.setPickable(0)
-        self.randomSuit3.setH(190)
-        self.randomSuit3.loop('walk')
-
-        self.suitPosInterval = self.randomSuit3.posInterval(
-            16, (-348, -212, -0.475), startPos=(-348, -159, -0.475)
-        )
-
-        self.suitHprInterval = self.randomSuit3.hprInterval(
-            0.5, (90, 0, 0), startHpr=(190, 0, 0)
-        )
-
-        self.suitPosInterval2 = self.randomSuit3.posInterval(
-            16, (-404, -215, -0.475), startPos=(-348, -212, -0.475)
-        )
-
-        self.suitHprInterval2 = self.randomSuit3.hprInterval(
-            0.5, (0, 0, 0), startHpr=(90, 0, 0)
-        )
-
-        self.suitPosInterval3 = self.randomSuit3.posInterval(
-            22, (-413.5, -129, -0.475), startPos=(-404, -215, -0.475)
-        )
-
-        self.suitHprInterval3 = self.randomSuit3.hprInterval(
-            0.5, (90, 0, 0), startHpr=(0, 0, 0)
-        )
-
-        self.suitPosInterval4 = self.randomSuit3.posInterval(
-            8, (-447.5, -129, -0.47), startPos=(-413.5, -129, -0.475)
-        )
-
-        self.suitInterval3 = Sequence(
-            Wait(10),
-            self.suitPosInterval,
-            Parallel(
-                self.suitHprInterval,
-                self.suitPosInterval2),
-            Parallel(
-                self.suitHprInterval2,
-                self.suitPosInterval3),
-            Parallel(
-                self.suitHprInterval3,
-                self.suitPosInterval4)
-        )
-        self.suitInterval3.start()
-
-    def killRandomSuit(self):
-        self.randomSuit.cleanup()
-        self.randomSuit.removeNode()
-
-    def killRandomSuit2(self):
-        self.randomSuit2.cleanup()
-        self.randomSuit2.removeNode()
-
-    def killRandomSuit3(self):
-        self.randomSuit3.cleanup()
-        self.randomSuit3.removeNode()
 
     def initializeSky(self):
         def cloudSkyTrack(task):
@@ -331,58 +130,28 @@ class MainMenu(DirectFrame, FSM):
         if not self.skyTrackTask.cloud1.isEmpty() and not self.skyTrackTask.cloud2.isEmpty():
             taskMgr.add(self.skyTrackTask, 'skyTrack')
 
-    def exitOff(self):
-        base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
-        base.camLens.setFov(30)
-
     def enterPlayScreen(self):
         self.playScreen.enter()
         self.playScreen.show()
-        self.flyDownSfx.setVolume(1)
-        self.environment.reparentTo(render)
-
-        Sequence(
-                 Func(self.randomToon.play, 'neutral'),
-                 Wait(2),
-                 Func(self.randomToon.play, 'wave'),
-                 Wait(self.randomToon.getDuration('wave')),
-                 Func(self.randomToon.play, 'bored'),
-                 Wait(2.9),
-                 Func(self.randomToon.pingpong, 'bored', fromFrame = 70, toFrame = 130)
-                 ).start()
-        
-        self.randomToon2.pingpong('bored', fromFrame=70, toFrame=130)
 
     def exitPlayScreen(self):
         self.playScreen.exit()
 
     def enterHostScreen(self):
-        self.playScreen.exit()
         self.hostScreen.enter()
         self.hostScreen.show()
 
-        def hideRandomSuits(task):
-            self.randomSuit2.reparentTo(hidden)
-            self.randomSuit3.reparentTo(hidden)
-
-        taskMgr.doMethodLater(4, hideRandomSuits, 'hideRandomSuits')
-
     def exitHostScreen(self):
-        self.randomSuit2.reparentTo(self.environment)
-        self.randomSuit3.reparentTo(self.environment)
         self.hostScreen.hide()
         self.hostScreen.exit()
-        taskMgr.remove('hideRandomSuits')
 
     def enterJoinScreen(self):
         self.joinScreen.enter()
         self.joinScreen.show()
-        self.flyDownSfx.setVolume(0)
 
     def exitJoinScreen(self):
         self.joinScreen.exit()
         self.joinScreen.hide()
-        self.flyDownSfx.setVolume(1)
 
     def enterStartDirectConnect(self):
         base.isHosting = False
@@ -402,28 +171,11 @@ class MainMenu(DirectFrame, FSM):
             base.connectToServer(ip)
 
     def enterStartHost(self):
-        self.hostScreen.exit()
         self.hostStartScreen.enter()
         self.hostStartScreen.show()
-        self.randomSuit2.hide()
-        self.randomSuit3.hide()
 
     def exitStartHost(self):
         self.hostStartScreen.hide()
-        self.randomSuit2.show()
-        self.randomSuit3.show()
-
-    def enterHostScreenAfterFail(self):
-        self.hostStartScreen.hide()
-        self.randomSuit2.hide()
-        self.randomSuit3.hide()
-        self.hostStartScreen.exitBackToHostScreen()
-        self.hostScreen.enterAfterFail()
-        self.hostScreen.show()
-
-    def exitHostScreenAfterFail(self):
-        self.randomSuit2.show()
-        self.randomSuit3.show()
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')

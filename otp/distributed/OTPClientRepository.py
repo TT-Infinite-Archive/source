@@ -278,6 +278,7 @@ class OTPClientRepository(ClientRepositoryBase):
             State('mainMenu',
                   self.enterMainMenu,
                   self.exitMainMenu, [
+                      'serverMenu'
                       'gameOff',
                       'waitForGameList',
                       'connect',
@@ -2068,7 +2069,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def addTaggedInterest(self, parentId, zoneId, mainTag, desc, otherTags = [], event = None):
         return self.addInterest(parentId, zoneId, desc, event)
 
-    def mainMenuTask(self, task):
+    def enterMainMenu(self):
         if self.mainMenu is None:
             self.mainMenu = MainMenu()
         self.mainMenu.load()
@@ -2078,9 +2079,6 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.isConnected():
             self.sendDisconnect()
         base.isLoggingOut = False
-
-    def enterMainMenu(self):
-        taskMgr.doMethodLater(0.1, self.mainMenuTask, 'mainMenuTask')
 
     def exitMainMenu(self):
         self.mainMenu.destroy()

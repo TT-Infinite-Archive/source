@@ -33,7 +33,7 @@ class HostStartScreen(DirectFrame):
             parent=self,
             pos=(0, 0, -0.45),
             text=TTLocalizer.OptionsGoBack,
-            command=lambda: self.mainMenu.request('HostScreenAfterFail'),
+            command=lambda: self.mainMenu.request('HostScreen'),
             **MainMenuGlobals.BUTTON_PROPERTIES_2
         )
         self.backButton.hide()
@@ -51,15 +51,20 @@ class HostStartScreen(DirectFrame):
         self.accept(EventGlobals.LocalServerStarterDone, self.__handleServerStarterDone)
 
     def enter(self):
-        base.isSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
-        base.isHosting = True
-        Sequence(self.zoomIntoScreen, Func(self.label.show), Func(base.cr.localServerStarter.request, 'Start')).start()
+        if serverSettings[ServerSettingsGlobals.WantCheats]:
+            base.wantCheats = True
+        else:
+            base.wantCheats = False
 
-    def exitBackToHostScreen(self):
-        base.isHosting = False
-        self.backButton.hide()
-        self.label.hide()
-        Sequence(self.zoomOutOfScreen).start()
+        if base.hostFailed:
+            self.label['text'] = ''
+            self.backButton.hide()
+
+        Sequence(
+            self.zoomIntoScreen,
+            Wait(0.1),
+            Func(self.label.show),
+            Func(base.cr.localServerStarter.request, 'Start')).start()
 
     def __handleServerStarterStart(self):
         self.label['text'] = TTLocalizer.LocalServerStarting
@@ -71,11 +76,13 @@ class HostStartScreen(DirectFrame):
             self.label['text'] = TTLocalizer.StartingServerLive
 
     def __handleServerStarterFailed(self, processName):
+        base.hostFailed = True
         self.label['text'] = TTLocalizer.StartingFailed % processName
         self.backButton.show()
         self.label.show()
 
     def __handleServerStarterFailedRunning(self):
+        base.hostFailed = True
         self.label['text'] = TTLocalizer.LocalServerRunningAlready
         self.backButton.show()
         self.label.show()
@@ -83,3 +90,4 @@ class HostStartScreen(DirectFrame):
     def __handleServerStarterDone(self):
         self.label['text'] = TTLocalizer.LocalServerDone
         base.cr.loginFSM.request('serverMenu')
+        base.isHosting = True

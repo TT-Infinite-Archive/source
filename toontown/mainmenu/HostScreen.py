@@ -16,6 +16,7 @@ from direct.gui.DirectGui import DirectButton
 from pandac.PandaModules import Vec4
 from direct.fsm.FSM import FSM
 from toontown.mainmenu.PlayScreen import PlayScreen
+from toontown.mainmenu.HostStartScreen import HostStartScreen
 from toontown.util.PlacerTool3D import PlacerTool3D
 
 
@@ -25,17 +26,18 @@ class HostScreen(DirectFrame, FSM):
         FSM.__init__(self, 'HostScreen')
 
         self.mainMenu = mainMenu
-        base.isSinglePlayer = None
-
         self.playScreen = PlayScreen(self)
         self.playScreen.hide()
+
+        self.hostStartScreen = HostStartScreen(self)
+        self.hostStartScreen.hide()
 
         self.hostScreenElements = []
         self.projectorSfx = loader.loadSfx('phase_5/audio/sfx/TL_presentation.ogg')
 
         self.hostWantRacingLabel = TTLabel(
             parent=self,
-            pos=(-0.92, 0, 0.33),
+            pos=(-0.93, 0, 0.33),
             text="Racing",
             text_align=TextNode.ALeft,
         )
@@ -43,7 +45,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantGolfLabel = TTLabel(
             parent=self,
-            pos=(-0.92, 0, 0.23),
+            pos=(-0.93, 0, 0.23),
             text="Golf",
             text_align=TextNode.ALeft,
         )
@@ -51,7 +53,7 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantSinglePlayerLabel = TTLabel(
             parent=self,
-            pos=(-0.92, 0, 0.13),
+            pos=(-0.93, 0, 0.13),
             text="Single Player",
             text_align=TextNode.ALeft,
         )
@@ -59,11 +61,19 @@ class HostScreen(DirectFrame, FSM):
 
         self.hostWantCheatsLabel = TTLabel(
             parent=self,
-            pos=(-0.3, 0, 0.33),
+            pos=(-0.31, 0, 0.33),
             text="Cheats",
             text_align=TextNode.ARight,
         )
         self.hostScreenElements.append(self.hostWantCheatsLabel)
+
+        self.hostWantTTCJukeboxLabel = TTLabel(
+            parent=self,
+            pos=(-0.19, 0, 0.23),
+            text="TTC Jukebox",
+            text_align=TextNode.ARight,
+        )
+        self.hostScreenElements.append(self.hostWantTTCJukeboxLabel)
 
         self.hostWantRacingBox = TTCheckBox(
             parent=self,
@@ -96,6 +106,14 @@ class HostScreen(DirectFrame, FSM):
             command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantCheats]
         )
         self.hostScreenElements.append(self.hostCheatsBox)
+
+        self.hostWantTTCJukeboxBox = TTCheckBox(
+            parent=self,
+            pos=(-0.5, 0, 0.243),
+            checked=serverSettings[ServerSettingsGlobals.TTCJukebox],
+            command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.TTCJukebox]
+        )
+        self.hostScreenElements.append(self.hostWantTTCJukeboxBox)
 
         self.hostExpMultDec = MATArrow(
             parent=self,
@@ -144,7 +162,7 @@ class HostScreen(DirectFrame, FSM):
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
             pos=(0.13, 0, 0.11),
-            command=lambda: self.request('Back'),
+            command=lambda: self.back(),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
         self.hostScreenElements.append(self.backButton)
@@ -204,37 +222,34 @@ class HostScreen(DirectFrame, FSM):
             elements.show()
 
     def enter(self):
-        Sequence(
-            Parallel(self.cameraPosInterval, self.cameraHprInterval),
-            Parallel(self.cameraPosInterval2, self.cameraHprInterval2),
-            Func(self.avScreen.reparentTo, render),
-            Func(self.propTrackGrow.start),
-            Func(self.projectorSfx.play),
-            Wait(self.propTrackGrowDuration),
-            Func(self.projectorSfx.stop),
-            Func(self.label.show),
-            Func(self.showHostScreenElements)).start()
+        if base.hostFailed:
+            Sequence(
+                self.hostStartScreen.zoomOutOfScreen,
+                Func(self.showHostScreenElements)).start()
+        else:
+            Sequence(
+                Parallel(self.cameraPosInterval, self.cameraHprInterval),
+                Parallel(self.cameraPosInterval2, self.cameraHprInterval2),
+                Func(self.avScreen.reparentTo, render),
+                Func(self.propTrackGrow.start),
+                Func(self.projectorSfx.play),
+                Wait(self.propTrackGrowDuration),
+                Func(self.projectorSfx.stop),
+                Func(self.label.show),
+                Func(self.showHostScreenElements)).start()
 
-    def enterAfterFail(self):
-        Sequence(Wait(1), Func(self.showHostScreenElements)).start()
-
-    def exit(self):
+    def back(self):
         for elements in self.hostScreenElements:
             elements.hide()
 
-    def enterBack(self):
-        for elements in self.hostScreenElements:
-            elements.hide()
+        self.mainMenu.randomToon.pingpong('bored', fromFrame=70, toFrame=130)
 
         self.buttonSequence = Sequence(
-            Func(self.mainMenu.randomSuit2.show),
-            Func(self.mainMenu.randomSuit3.show),
             Wait(4),
             Func(self.playScreen.buttonPosInterval.start),
             Func(self.playScreen.buttonPosInterval2.start),
             Func(self.playScreen.buttonPosInterval3.start)
         )
-
         Sequence(
             Func(self.buttonSequence.start),
             Parallel(Func(self.propTrackShrink.start),
@@ -243,6 +258,10 @@ class HostScreen(DirectFrame, FSM):
             Parallel(self.cameraPosInterval4,
                      self.cameraHprInterval4),
             Func(self.mainMenu.request, 'PlayScreen')).start()
+
+    def exit(self):
+        for elements in self.hostScreenElements:
+                elements.hide()
 
     def destroyAvScreen(self):
         self.avScreen.removeNode()

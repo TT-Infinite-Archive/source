@@ -55,7 +55,7 @@ class PlayScreen(DirectFrame, FSM):
             parent=self,
             text="Options",
             pos=OPTIONS_START_POS,
-            command=lambda: self.request('Options'),
+            command=lambda: self.showOptions(),
             **MainMenuGlobals.BUTTON_PROPERTIES_2
         )
         self.buttons.append(self.optionsButton)
@@ -89,48 +89,71 @@ class PlayScreen(DirectFrame, FSM):
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
             pos=(0.12, 0, 0.10),
-            command=lambda: self.enter(),
+            command=lambda: self.hideOptions(),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
         self.backButton.hide()
 
     def enter(self):
         base.setAspectRatio(16./8.5)
-        if base.playScreenFade == True:
-            base.transitions.fadeIn(2)
-        for button in self.buttons:
-            button.show()
+        self.mainMenu.background.hide()
+        self.mainMenu.environment.reparentTo(render)
+
+        if base.initialEntry:
+            Sequence(
+                Func(self.mainMenu.randomToon.play, 'neutral'),
+                Wait(1),
+                Func(self.mainMenu.randomToon.play, 'wave'),
+                Wait(3.8),
+                Func(self.mainMenu.randomToon.play, 'bored'),
+                Wait(2.9),
+                Func(self.mainMenu.randomToon.pingpong, 'bored', fromFrame=70, toFrame=130)).start()
+
+        if (base.cr.music is None) and base.musicManagerIsValid:
+            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
+            if base.cr.music is not None:
+                base.cr.music.setLoop(1)
+                base.cr.music.setVolume(0.9)
+                base.cr.music.play()
+
+        def showButtons():
+            for button in self.buttons:
+                button.show()
 
         self.buttonSequence = Sequence(
             Func(self.buttonPosInterval.start),
             Func(self.buttonPosInterval2.start),
             Func(self.buttonPosInterval3.start),
-            Func(self.buttonPosInterval4.start)
-        )
+            Func(self.buttonPosInterval4.start))
+
+        if base.initialEntry:
+            base.transitions.fadeIn(2)
+
+        base.camera.setPosHpr(-454.5, -96, 2.7, 215, 0, 0)
+        base.camLens.setFov(30)
+        showButtons()
         self.buttonSequence.start()
-        self.mainMenu.background.hide()
-        self.backButton.hide()
-        self.optionsScreen.hide()
 
     def exit(self):
-        base.playScreenFade = False
+        base.initialEntry = False
         for button in self.buttons:
             button.show()
 
-        self.buttonSequence = Sequence(
+        self.buttonSequence2 = Sequence(
             Func(self.buttonPosInterval5.start),
             Func(self.buttonPosInterval6.start),
             Func(self.buttonPosInterval7.start),
             Func(self.buttonPosInterval8.start)
         )
-        self.buttonSequence.start()
+        self.buttonSequence2.start()
 
     def enterOff(self):
         if self.optionsScreen is not None:
             self.optionsScreen.unload()
             self.optionsScreen = None
 
-    def enterOptions(self):
+    def showOptions(self):
+        base.initialEntry = False
         base.setAspectRatio(0)
         for button in self.buttons:
             button.hide()
@@ -142,6 +165,15 @@ class PlayScreen(DirectFrame, FSM):
         self.hostButton.setPos(HOST_START_POS)
         self.optionsButton.setPos(OPTIONS_START_POS)
         self.quitButton.setPos(QUIT_START_POS)
+
+    def hideOptions(self):
+        base.setAspectRatio(16./8.5)
+        for button in self.buttons:
+            button.show()
+        self.optionsScreen.hide()
+        self.backButton.hide()
+        self.mainMenu.background.hide()
+        self.enter()
 
     def __handleQuit(self):
         cleanupDialog('globalDialog')

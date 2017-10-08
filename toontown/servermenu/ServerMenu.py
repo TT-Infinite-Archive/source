@@ -64,7 +64,7 @@ class ServerMenu(DirectFrame, FSM):
             parent=base.a2dBottomLeft,
             pos=(0.4, 0, 0.2),
             text="",
-            **MainMenuGlobals.BUTTON_PROPERTIES_2
+            **MainMenuGlobals.BUTTON_PROPERTIES
         )
         self.serverMenuElements.append(self.bottomLeftButton)
 
@@ -91,37 +91,31 @@ class ServerMenu(DirectFrame, FSM):
             element.destroy()
         self.backgroundNodePath.removeNode()
         self.background.removeNode()
-        DirectFrame.destroy(self)
-
-    def enterOff(self):
         if self.optionsScreen is not None:
             self.optionsScreen.unload()
             self.optionsScreen = None
+        taskMgr.remove('mainMenuTask')
+        DirectFrame.destroy(self)
 
     def enterLoginOrSignUpScreen(self):
         self.show()
         self.background.show()
         self.loginOrSignUpScreen.show()
 
+        def mainMenuTask(task):
+            self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
+
         for element in self.serverMenuElements:
             element.show()
 
         if (base.isHosting or base.isSinglePlayer):
             self.bottomLeftButton['text'] = "Disconnect"
-            self.localServerStarter.killThreads()
-            self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
         else:
             self.bottomLeftButton['text'] = "Leave Server"
-            self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
+        taskMgr.doMethodLater(0.1, mainMenuTask, 'mainMenuTask')
         self.bottomLeftButton['text_scale']= 0.085
         self.bottomLeftButton['text1_scale'] = 0.09
         self.bottomLeftButton['text2_scale'] = 0.09
-        if (base.cr.music is None) and base.musicManagerIsValid:
-            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
-            if base.cr.music is not None:
-                base.cr.music.setLoop(1)
-                base.cr.music.setVolume(0.9)
-                base.cr.music.play()
 
     def exitLoginOrSignUpScreen(self):
         self.loginOrSignUpScreen.hide()

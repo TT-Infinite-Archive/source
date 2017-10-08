@@ -37,7 +37,6 @@ class JoinScreen(DirectFrame, FSM):
         self.backButton = DirectButton(
             parent=base.a2dBottomLeft,
             pos=(0.13, 0, 0.11),
-            command=lambda: self.request('Back'),
             **MainMenuGlobals.MINIATURE_BACK_BUTTON
         )
         self.backButton.hide()
@@ -216,7 +215,9 @@ class JoinScreen(DirectFrame, FSM):
                 Func(self.bookmarksButton.show))).start()
         self.bookCloseSfx.setVolume(0)
 
-    def enterBack(self):
+        self.backButton['command'] = lambda: self.back()
+
+    def back(self):
         Sequence(
             Parallel(
                 self.interiorFovZoomOut,
@@ -260,7 +261,6 @@ class JoinScreen(DirectFrame, FSM):
         self.bookCloseSfx.setVolume(0)
         self.mainMenu.background.show()
         self.backButton.show()
-
         self.backButton['command'] = lambda: self.hideIPConnect()
 
     def hideIPConnect(self):
@@ -274,7 +274,7 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksLabel.show()
         self.ipConnectButton.show()
         self.bookmarksButton.show()
-        self.backButton['command'] = lambda: self.request('Back')
+        self.backButton['command'] = lambda: self.back()
 
     def showBookmarks(self):
         self.bookOpenSfx.play()
@@ -287,7 +287,6 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksButton.hide()
         self.bookCloseSfx.setVolume(1)
         self.backButton.show()
-
         self.backButton['command'] = lambda: self.hideBookmarks()
 
     def hideBookmarks(self):
@@ -299,9 +298,9 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksLabel.show()
         self.ipConnectButton.show()
         self.bookmarksButton.show()
-        self.backButton['command'] = lambda: self.request('Back')
         if self.bookmarkInfoDialog:
             self.bookmarkInfoDialog.hide()
+        self.backButton['command'] = lambda: self.back()
 
     def __enableIPEntry(self):
         self.ipInput['state'] = DGG.NORMAL

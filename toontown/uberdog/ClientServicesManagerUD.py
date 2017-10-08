@@ -1103,19 +1103,6 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
-        server_ip = ToontownGlobals.getIp()
-        if server_ip != ip_addr and simbase.isSinglePlayer:
-            # Single player server; do not allow external ips to connect
-            datagram = PyDatagram()
-            datagram.addServerHeader(
-                sender,
-                self.air.ourChannel,
-                CLIENTAGENT_EJECT
-            )
-            datagram.addUint16(420)
-            datagram.addString('Attempted to connect to a server that has cooperative play disabled.')
-            self.air.send(datagram)
-            return
 
         self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
         self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
@@ -1142,20 +1129,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def login(self, username, password, authToken):
         self.notify.debug('Received login request to %s from %d' % (username, self.air.getMsgSender()))
-
         sender = self.air.getMsgSender()
-
-        if simbase.isSinglePlayer and self.playerLoggedIn:
-                datagram = PyDatagram()
-                datagram.addServerHeader(
-                    sender,
-                    self.air.ourChannel,
-                    CLIENTAGENT_EJECT
-                )
-                datagram.addUint16(420)
-                datagram.addString('Attempted to connect to a server that has cooperative play disabled.')
-                self.air.send(datagram)
-                return
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):
