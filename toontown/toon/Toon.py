@@ -1,4 +1,5 @@
 from direct.actor import Actor
+from direct.interval.ActorInterval import LerpAnimInterval
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import Functor
@@ -569,7 +570,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.swapToonHead(newDNA.head)
         if fForce or newDNA.torso != oldDNA.torso:
             self.swapToonTorso(newDNA.torso, genClothes=0)
-            self.loop('neutral')
+            self.lerpAnimation('neutral')
         if fForce or newDNA.legs != oldDNA.legs:
             self.swapToonLegs(newDNA.legs)
         self.swapToonColor(newDNA)
@@ -1360,8 +1361,7 @@ class Toon(Avatar.Avatar, ToonHead):
             if anim != self.playingAnim:
                 self.playingAnim = anim
                 self.playingRate = rate
-                self.stop()
-                self.loop(anim)
+                self.lerpAnimation(anim)
                 self.setPlayRate(rate, anim)
                 if self.isDisguised:
                     rightHand = self.suit.rightHand
@@ -1406,28 +1406,28 @@ class Toon(Avatar.Avatar, ToonHead):
         anim = 'neutral'
         if self.isGoofy:
             target = self.goofy
+            target.pose(anim, int(target.getNumFrames(anim) * self.randGen.random()))
+            target.loop(anim, restart=0)
         else:
             target = self
-        target.pose(anim, int(target.getNumFrames(anim) * self.randGen.random()))
-        target.loop(anim, restart=0)
+        self.lerpAnimation(anim)
         target.setPlayRate(animMultiplier, anim)
         self.playingAnim = anim
         self.setActiveShadow(1)
 
     def exitNeutral(self):
-        self.stop()
+        pass
 
     def enterVictory(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         anim = 'victory'
         frame = int(ts * self.getFrameRate(anim) * animMultiplier)
         self.pose(anim, frame)
-        self.loop('victory', restart=0)
-        self.setPlayRate(animMultiplier, 'victory')
+        self.lerpAnimation('victory', restart=0)
         self.playingAnim = anim
         self.setActiveShadow(0)
 
     def exitVictory(self):
-        self.stop()
+        pass
 
     def enterHappy(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         self.playingAnim = None
@@ -1442,7 +1442,6 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def exitHappy(self):
         self.standWalkRunReverse = None
-        self.stop()
         self.motion.exit()
         return
 
@@ -1468,7 +1467,6 @@ class Toon(Avatar.Avatar, ToonHead):
             self.aboutToBeGoofy = 1
             self.applyCheesyEffect(CollectibleInventoryGlobals.CheesyEffectGoofy, 0.5)
         self.standWalkRunReverse = None
-        self.stop()
         self.motion.exit()
         Emote.globalEmote.releaseBody(self, 'toon, exitSad')
         if self.isLocal():
@@ -1488,7 +1486,6 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def exitCatching(self):
         self.standWalkRunReverse = None
-        self.stop()
         self.motion.exit()
         return
 
@@ -1505,7 +1502,6 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def exitCatchEating(self):
         self.standWalkRunReverse = None
-        self.stop()
         self.motion.exit()
         return
 
@@ -1513,12 +1509,11 @@ class Toon(Avatar.Avatar, ToonHead):
         if self.isGoofy:
             self.goofy.loop('walk')
             self.goofy.setPlayRate(animMultiplier, 'walk')
-        self.loop('walk')
-        self.setPlayRate(animMultiplier, 'walk')
+        self.lerpAnimation('walk')
         self.setActiveShadow(1)
 
     def exitWalk(self):
-        self.stop()
+        pass
 
     def getJumpDuration(self):
         if self.playingAnim == 'neutral':
@@ -1533,12 +1528,10 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 anim = 'running-jump'
             self.playingAnim = anim
-            self.setPlayRate(animMultiplier, anim)
-            self.play(anim)
+            self.lerpAnimation(anim, doLoop = False)
         self.setActiveShadow(1)
 
     def exitJump(self):
-        self.stop()
         self.playingAnim = 'neutral'
 
     def enterJumpSquat(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
@@ -1548,12 +1541,10 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 anim = 'running-jump-squat'
             self.playingAnim = anim
-            self.setPlayRate(animMultiplier, anim)
-            self.play(anim)
+            self.lerpAnimation(anim, doLoop = False)
         self.setActiveShadow(1)
 
     def exitJumpSquat(self):
-        self.stop()
         self.playingAnim = 'neutral'
 
     def enterJumpAirborne(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
@@ -1565,12 +1556,10 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 anim = 'running-jump-idle'
             self.playingAnim = anim
-            self.setPlayRate(animMultiplier, anim)
-            self.loop(anim)
+            self.lerpAnimation(anim)
         self.setActiveShadow(1)
 
     def exitJumpAirborne(self):
-        self.stop()
         self.playingAnim = 'neutral'
 
     def enterJumpLand(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
@@ -1582,25 +1571,21 @@ class Toon(Avatar.Avatar, ToonHead):
                 anim = 'jump-land'
                 skipStart = 0.0
             self.playingAnim = anim
-            self.setPlayRate(animMultiplier, anim)
-            self.play(anim)
+            self.lerpAnimation(anim, doLoop = False)
         self.setActiveShadow(1)
 
     def exitJumpLand(self):
-        self.stop()
         self.playingAnim = 'neutral'
 
     def enterRun(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         if self.isGoofy:
             self.goofy.loop('run')
             self.goofy.setPlayRate(animMultiplier, 'run')
-        self.loop('run')
-        self.setPlayRate(animMultiplier, 'run')
+        self.lerpAnimation('run')
         Emote.globalEmote.disableBody(self, 'toon, enterRun')
         self.setActiveShadow(1)
 
     def exitRun(self):
-        self.stop()
         Emote.globalEmote.releaseBody(self, 'toon, exitRun')
 
     def enterSwim(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
@@ -1609,8 +1594,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.clearCheesyEffect(0.5)
         Emote.globalEmote.disableAll(self, 'enterSwim')
         self.playingAnim = 'swim'
-        self.loop('swim')
-        self.setPlayRate(animMultiplier, 'swim')
+        self.lerpAnimation('swim')
         self.getGeomNode().setP(-89.0)
         self.dropShadow.hide()
         if self.isLocal():
@@ -1620,18 +1604,16 @@ class Toon(Avatar.Avatar, ToonHead):
         self.setActiveShadow(0)
 
     def enterCringe(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('cringe')
+        self.lerpAnimation('cringe')
         self.getGeomNode().setPos(0, 0, -2)
-        self.setPlayRate(animMultiplier, 'swim')
 
     def exitCringe(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.stop()
         self.getGeomNode().setPos(0, 0, 0)
         self.playingAnim = 'neutral'
         self.setPlayRate(animMultiplier, 'swim')
 
     def enterDive(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('swim')
+        self.lerpAnimation('swim')
         if hasattr(self.getGeomNode(), 'setPos'):
             self.getGeomNode().setPos(0, 0, -2)
             self.setPlayRate(animMultiplier, 'swim')
@@ -1640,7 +1622,6 @@ class Toon(Avatar.Avatar, ToonHead):
             self.nametag3d.setPos(0, -2, 1)
 
     def exitDive(self):
-        self.stop()
         self.getGeomNode().setPos(0, 0, 0)
         self.playingAnim = 'neutral'
         self.dropShadow.show()
@@ -1652,7 +1633,6 @@ class Toon(Avatar.Avatar, ToonHead):
         self.pose('swim', 55)
 
     def exitSwimHold(self):
-        self.stop()
         self.getGeomNode().setPos(0, 0, 0)
         self.playingAnim = 'neutral'
         self.dropShadow.show()
@@ -1663,7 +1643,6 @@ class Toon(Avatar.Avatar, ToonHead):
             self.wasGoofy = 0
             self.aboutToBeGoofy = 1
             self.applyCheesyEffect(CollectibleInventoryGlobals.CheesyEffectGoofy, 0.5)
-        self.stop()
         self.playingAnim = 'neutral'
         self.stopBobSwimTask()
         self.getGeomNode().setPosHpr(0, 0, 0, 0, 0, 0)
@@ -2023,7 +2002,7 @@ class Toon(Avatar.Avatar, ToonHead):
             trackName = self.uniqueName('died')
         else:
             trackName = 'died'
-        ival = Sequence(Func(Emote.globalEmote.disableBody, self), Func(self.sadEyes), Func(self.blinkEyes), Track((0, ActorInterval(self, 'lose')), (2, SoundInterval(sound, node=self)), (5.333, self.scaleInterval(1.5, VBase3(0.01, 0.01, 0.01), blendType='easeInOut'))), Func(self.detachNode), Func(self.setScale, 1, 1, 1), Func(self.normalEyes), Func(self.blinkEyes), Func(Emote.globalEmote.releaseBody, self), name=trackName, autoFinish=autoFinishTrack)
+        ival = Sequence(Func(Emote.globalEmote.disableBody, self), Func(self.sadEyes), Func(self.blinkEyes), Track((0, Func(self.lerpAnimation, 'lose')), (2, SoundInterval(sound, node=self)), (5.333, self.scaleInterval(1.5, VBase3(0.01, 0.01, 0.01), blendType='easeInOut'))), Func(self.detachNode), Func(self.setScale, 1, 1, 1), Func(self.normalEyes), Func(self.blinkEyes), Func(Emote.globalEmote.releaseBody, self), name=trackName, autoFinish=autoFinishTrack)
         return ival
 
     def enterDied(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
@@ -2092,7 +2071,7 @@ class Toon(Avatar.Avatar, ToonHead):
             hole.clearDepthWrite()
 
         holeTrack.append(Func(restoreHole, hole))
-        toonTrack = Sequence(Wait(0.3), Func(self.getGeomNode().show), Func(self.nametag3d.show), Func(self.dropShadow.show), ActorInterval(self, 'jump', startTime=0.45))
+        toonTrack = Sequence(Wait(0.3), Func(self.getGeomNode().show), Func(self.nametag3d.show), Func(self.dropShadow.show), Func(self.lerpAnimation, 'jump'))
         if hasattr(self, 'uniqueName'):
             trackName = self.uniqueName('teleportIn')
         else:
@@ -2143,9 +2122,9 @@ class Toon(Avatar.Avatar, ToonHead):
         Emote.globalEmote.disableBody(self)
         self.playingAnim = 'sit-start'
         if self.isLocal():
-            self.track = Sequence(ActorInterval(self, 'sit-start'), Func(self.b_setAnimState, 'Sit', animMultiplier))
+            self.track = Sequence(Func(self.lerpAnimation, 'sit-start', doLoop = False), Func(self.b_setAnimState, 'Sit', animMultiplier))
         else:
-            self.track = Sequence(ActorInterval(self, 'sit-start'))
+            self.track = Sequence(Func(self.lerpAnimation, 'sit-start', doLoop = False))
         self.track.start(ts)
         self.setActiveShadow(0)
 
@@ -2161,7 +2140,7 @@ class Toon(Avatar.Avatar, ToonHead):
     def enterSit(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         Emote.globalEmote.disableBody(self)
         self.playingAnim = 'sit'
-        self.loop('sit')
+        self.lerpAnimation('sit')
         self.setActiveShadow(0)
 
     def exitSit(self):
@@ -2176,7 +2155,7 @@ class Toon(Avatar.Avatar, ToonHead):
             # Don't tilt down head while on Goofy CE,
             # it reveals his muzzle on small muzzled toons.
             self.lerpLookAt(Point3(0, 1, -4))
-        self.loop('neutral')
+        self.lerpAnimation('neutral')
         self.setPlayRate(animMultiplier * 0.4, 'neutral')
         if self.isGoofy:
             self.goofy.setPlayRate(animMultiplier * 0.4, 'neutral')
@@ -2211,12 +2190,11 @@ class Toon(Avatar.Avatar, ToonHead):
         if doClear:
             self.clearChat()
         self.lerpLookAt(Point3(0, 1, 0), time=0.25)
-        self.stop()
 
     def enterPush(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         Emote.globalEmote.disableBody(self)
         self.playingAnim = 'push'
-        self.track = Sequence(ActorInterval(self, 'push'))
+        self.track = Sequence(Func(self.lerpAnimation, 'push'))
         self.track.loop()
         self.setActiveShadow(1)
 
@@ -2264,11 +2242,11 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def __returnToLastAnim(self, task):
         if self.playingAnim:
-            self.loop(self.playingAnim)
+            self.lerpAnimation(self.playingAnim)
         elif self.hp > 0:
-            self.loop('neutral')
+            self.lerpAnimation('neutral')
         else:
-            self.loop('sad-neutral')
+            self.lerpAnimation('sad-neutral')
         return Task.done
 
     def __finishEmote(self, task):
@@ -2280,7 +2258,6 @@ class Toon(Avatar.Avatar, ToonHead):
         return Task.done
 
     def exitEmote(self):
-        self.stop()
         if self.emoteTrack != None:
             self.emoteTrack.finish()
             self.emoteTrack = None
@@ -3215,7 +3192,7 @@ class Toon(Avatar.Avatar, ToonHead):
         def getVelocity(toon = self, relVel = relVel):
             return render.getRelativeVector(toon, relVel)
 
-        toss = Track((0, Sequence(Func(self.setPosHpr, x, y, z, h, 0, 0), Func(pie.reparentTo, self.rightHand), Func(pie.setPosHpr, 0, 0, 0, 0, 0, 0), Parallel(ActorInterval(self, 'throw', startFrame=48), animPie), Func(self.loop, 'neutral'))), (16.0 / 24.0, Func(pie.detachNode)))
+        toss = Track((0, Sequence(Func(self.setPosHpr, x, y, z, h, 0, 0), Func(pie.reparentTo, self.rightHand), Func(pie.setPosHpr, 0, 0, 0, 0, 0, 0), Parallel(ActorInterval(self, 'throw', startFrame=48), animPie), Func(self.lerpAnimation, 'neutral'))), (16.0 / 24.0, Func(pie.detachNode)))
         fly = Track((14.0 / 24.0, SoundInterval(sound, node=self)), (16.0 / 24.0, Sequence(Func(flyPie.reparentTo, render), Func(flyPie.setScale, self.pieScale), Func(flyPie.setPosHpr, self, 0.52, 0.97, 2.24, 89.42, -10.56, 87.94), beginFlyIval, ProjectileInterval(flyPie, startVel=getVelocity, duration=3), Func(flyPie.detachNode))))
         return (toss, fly, flyPie)
 
@@ -3256,40 +3233,40 @@ class Toon(Avatar.Avatar, ToonHead):
         return ActorInterval(self, 'callPet')
 
     def enterGolfPuttLoop(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('loop-putt')
+        self.lerpAnimation('loop-putt')
 
     def exitGolfPuttLoop(self):
-        self.stop()
+        pass
 
     def enterGolfRotateLeft(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('rotateL-putt')
+        self.lerpAnimation('rotateL-putt')
 
     def exitGolfRotateLeft(self):
-        self.stop()
+        pass
 
     def enterGolfRotateRight(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('rotateR-putt')
+        self.lerpAnimation('rotateR-putt')
 
     def exitGolfRotateRight(self):
-        self.stop()
+        pass
 
     def enterGolfPuttSwing(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('swing-putt')
+        self.lerpAnimation('swing-putt')
 
     def exitGolfPuttSwing(self):
-        self.stop()
+        pass
 
     def enterGolfGoodPutt(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('good-putt', restart=0)
+        self.lerpAnimation('good-putt', restart=0)
 
     def exitGolfGoodPutt(self):
-        self.stop()
+        pass
 
     def enterGolfBadPutt(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('badloop-putt', restart=0)
+        self.lerpAnimation('badloop-putt', restart=0)
 
     def exitGolfBadPutt(self):
-        self.stop()
+        pass
 
     def enterFlattened(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         Emote.globalEmote.disableAll(self)
@@ -3325,43 +3302,42 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def exitCogThiefRunning(self):
         self.standWalkRunReverse = None
-        self.stop()
         self.motion.exit()
         return
 
     def enterScientistJealous(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('scientistJealous')
+        self.lerpAnimation('scientistJealous')
         if hasattr(self, 'showScientistProp'):
             self.showScientistProp()
 
     def exitScientistJealous(self):
-        self.stop()
-
+        pass
+    
     def enterScientistEmcee(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('scientistEmcee')
+        self.lerpAnimation('scientistEmcee')
 
     def exitScientistEmcee(self):
-        self.stop()
+        pass
 
     def enterScientistWork(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('scientistWork')
+        self.lerpAnimation('scientistWork')
 
     def exitScientistWork(self):
-        self.stop()
+        pass
 
     def enterScientistLessWork(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('scientistWork', fromFrame=319, toFrame=619)
+        self.lerpAnimation('scientistWork', fromFrame=319, toFrame=619)
 
     def exitScientistLessWork(self):
-        self.stop()
+        pass
 
     def enterScientistPlay(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
-        self.loop('scientistGame')
+        self.lerpAnimation('scientistGame')
         if hasattr(self, 'scientistPlay'):
             self.scientistPlay()
 
     def exitScientistPlay(self):
-        self.stop()
+        pass
 
     # Subclassing this just to check if Goofy CE is on
     # or not so it'll wouldn't reveal Goofy's muzzle.
@@ -3369,5 +3345,14 @@ class Toon(Avatar.Avatar, ToonHead):
         if not self.isGoofy:
             ToonHead.startLookAround(self)
 
+    def lerpAnimation(self, nextAnim, playRate = 1.0, doLoop = True):
+        print playRate
+        if self.getCurrentAnim() != nextAnim:
+            LerpAnimInterval(self, 0.1, self.getCurrentAnim(), nextAnim).start()
+            self.stop(self.getCurrentAnim())
+        if doLoop:
+            self.loop(nextAnim, playRate)
+        else:
+            self.play(nextAnim)
 
 compileGlobalAnimList()

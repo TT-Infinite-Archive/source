@@ -280,7 +280,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if self.animFSM.getCurrentState().getName() == 'off':
             self.setAnimState('neutral')
         if settings.get(SettingsGlobals.AnimationSmoothing):
-            self.setBlend(frameBlend=True)
+            self.setBlend(animBlend=True, frameBlend=True)
 
     def _handleClientCleanup(self):
         if self.track is not None:
