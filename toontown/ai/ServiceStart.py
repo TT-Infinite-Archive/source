@@ -39,11 +39,6 @@ if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
 
 loadPrcFileData('Command-line', localconfig)
 
-from otp.settings.Settings import Settings
-__builtin__.serverSettings = Settings("serversettings.json")
-from toontown.toonbase import ServerSettingsGlobals
-ServerSettingsGlobals.loadInitialSettings()
-
 from otp.ai.AIBaseGlobal import *
 
 # We need to disable garbage collection during the AI startup process or we will

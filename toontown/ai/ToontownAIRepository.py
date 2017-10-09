@@ -111,14 +111,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantFireworks = self.config.GetBool('want-fireworks', False)
         self.leakGraph = None
         self.cogSuitMessageSent = False
-        
-        # Server Settings options
-        self.wantYinYang = serverSettings[ServerSettingsGlobals.YinYang]
-        self.baseXpMultiplier = serverSettings[ServerSettingsGlobals.ExpMultiplier]
-        self.wantRacing = serverSettings[ServerSettingsGlobals.WantRacing]
-        self.wantGolf = serverSettings[ServerSettingsGlobals.WantGolf]
-        self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
-        self.wantSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
         self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
 
         # Logging

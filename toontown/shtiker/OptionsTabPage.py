@@ -390,7 +390,7 @@ class OptionsTabPage(DirectFrame):
                 command = self.__doToggleWantFriends
             )
 
-            if (base.isHosting or base.isSinglePlayer):
+            if (base.isHosting or base.wantSinglePlayer):
                 text = TTLocalizer.OptionsDisconnect
             else:
                 text = TTLocalizer.OptionsLeaveServer
@@ -1031,7 +1031,7 @@ class OptionsTabPage(DirectFrame):
             message = TTLocalizer.LeaveServerHost
         else:
             message = TTLocalizer.LeaveServer
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             message = TTLocalizer.LeaveServerHostSP
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',

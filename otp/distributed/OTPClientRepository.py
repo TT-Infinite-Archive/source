@@ -40,7 +40,7 @@ from toontown.mainmenu.MainMenu import MainMenu
 from toontown.server import ServerGlobals
 from toontown.servermenu.ServerMenu import ServerMenu
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
-from toontown.toonbase import EventGlobals
+from toontown.toonbase import TTLocalizer
 
 
 class OTPClientRepository(ClientRepositoryBase):
@@ -63,6 +63,8 @@ class OTPClientRepository(ClientRepositoryBase):
         self.systemMessageSfx = None
         self.blue = None
         base.isLoggingOut = None
+
+        self.failureSfx = base.loadSfx('phase_4/audio/sfx/MG_sfx_travel_game_no_bonus_2.ogg')
 
         self.playToken = None
         if self.launcher:
@@ -592,6 +594,7 @@ class OTPClientRepository(ClientRepositoryBase):
             # self.loginFSM.request('serverMenu')
         # else:
             # self.loginFSM.request('login')
+        base.initialEntry = True
         self.loginFSM.request('serverMenu')
 
     def handleLoginDone(self, doneStatus):
@@ -655,6 +658,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.handler = None
 
     def enterFailedToConnect(self, statusCode, statusString):
+        base.playSfx(self.failureSfx)
         self.handler = self.handleMessageType
         self.bootedIndex = statusCode
         self.bootedText = statusString
@@ -2088,7 +2092,8 @@ class OTPClientRepository(ClientRepositoryBase):
     def enterServerMenu(self):
         if self.serverMenu is None:
             self.serverMenu = ServerMenu()
-        self.serverMenu.request('LoginOrSignUpScreen')
+        self.serverMenu.ServerMenuHomeScreen.welcomeLabel['text'] = TTLocalizer.WelcomeMessage % self.serverList
+        self.serverMenu.request('ServerMenuHomeScreen')
         if base.isLoggingOut == True and self.isConnected():
             self.sendDisconnect()
             self.connect(self.serverList, successCallback=self._sendHello, failureCallback=self.failedToConnect)

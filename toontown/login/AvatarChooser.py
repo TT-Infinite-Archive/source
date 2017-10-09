@@ -65,7 +65,7 @@ class AvatarChooser(StateData.StateData):
             self.load()
         base.disableMouse()
         self.title.reparentTo(aspect2d)
-        self.userNameLabel.reparentTo(aspect2d)
+        self.userNameLabel.reparentTo(hidden)
         # if base.cr.loginInterface.supportsRelogin():
         # self.logoutButton.show()
         self.pickAToonBG.setBin('background', 1)
@@ -119,7 +119,7 @@ class AvatarChooser(StateData.StateData):
             parent=hidden,
             pos=(1.45, 0, 0.9),
             text=TTLocalizer.HomeScreenLoggedIn,
-            text_fg=ColorGlobals.CYellow,
+            text_fg=ColorGlobals.CDefault,
             text_font=ToontownGlobals.getToonFont(),
             text_size=TTLabel.MediumSize,
             text_wordwrap=25
@@ -362,7 +362,7 @@ class AvatarChooser(StateData.StateData):
 
     '''
     def __back(self):
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.confirm = TTDialog.TTGlobalDialog(
                 doneEvent='confirmBack',
                 message=TTLocalizer.LeaveServerHostSP,
@@ -370,7 +370,7 @@ class AvatarChooser(StateData.StateData):
             self.confirm.show()
             base.accept('confirmBack', self.__backConfirm)
             return
-        elif base.isHosting and not base.isSinglePlayer:
+        elif base.isHosting and not base.wantSinglePlayer:
             self.confirm = TTDialog.TTGlobalDialog(
                 doneEvent='confirmBack',
                 message=TTLocalizer.LeaveServerHost,
@@ -378,7 +378,7 @@ class AvatarChooser(StateData.StateData):
             self.confirm.show()
             base.accept('confirmBack', self.__backConfirm)
             return
-        elif not base.isHosting or base.isSinglePlayer:
+        elif not base.isHosting or base.wantSinglePlayer:
             self.confirm = TTDialog.TTGlobalDialog(
                 doneEvent='confirmBack',
                 message=TTLocalizer.LeaveServer,

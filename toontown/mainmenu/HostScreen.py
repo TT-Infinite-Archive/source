@@ -51,13 +51,21 @@ class HostScreen(DirectFrame, FSM):
         )
         self.hostScreenElements.append(self.hostWantGolfLabel)
 
-        self.hostWantSinglePlayerLabel = TTLabel(
+        # self.hostWantSinglePlayerLabel = TTLabel(
+            # parent=self,
+            # pos=(-0.93, 0, 0.13),
+            # text="Single Player",
+            # text_align=TextNode.ALeft,
+        # )
+        # self.hostScreenElements.append(self.hostWantSinglePlayerLabel)
+
+        self.hostYinYangLabel = TTLabel(
             parent=self,
             pos=(-0.93, 0, 0.13),
-            text="Single Player",
+            text="Yin & Yang",
             text_align=TextNode.ALeft,
         )
-        self.hostScreenElements.append(self.hostWantSinglePlayerLabel)
+        self.hostScreenElements.append(self.hostYinYangLabel)
 
         self.hostWantCheatsLabel = TTLabel(
             parent=self,
@@ -91,13 +99,21 @@ class HostScreen(DirectFrame, FSM):
         )
         self.hostScreenElements.append(self.hostWantGolfBox)
 
-        self.hostSinglePlayerBox = TTCheckBox(
+        # self.hostSinglePlayerBox = TTCheckBox(
+            # parent=self,
+            # pos=(-0.97, 0, 0.143),
+            # checked=serverSettings[ServerSettingsGlobals.WantSinglePlayer],
+            # command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantSinglePlayer]
+        # )
+        # self.hostScreenElements.append(self.hostSinglePlayerBox)
+
+        self.hostYinYangBox = TTCheckBox(
             parent=self,
             pos=(-0.97, 0, 0.143),
-            checked=serverSettings[ServerSettingsGlobals.WantSinglePlayer],
-            command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.WantSinglePlayer]
+            checked=serverSettings[ServerSettingsGlobals.YinYang],
+            command=self.toggleServerSetting, extraArgs=[ServerSettingsGlobals.YinYang]
         )
-        self.hostScreenElements.append(self.hostSinglePlayerBox)
+        self.hostScreenElements.append(self.hostYinYangBox)
 
         self.hostCheatsBox = TTCheckBox(
             parent=self,

@@ -54,6 +54,8 @@ class LocalServerStarter(FSM):
     def enterRunning(self):
         messenger.send(EventGlobals.LocalServerStarterDone)
         base.connectToServer('127.0.0.1', self.getPort())
+        base.isHosting = True
+        base.initialEntry = True
         base.cr.loginFSM.request('serverMenu')
 
     def exitRunning(self):

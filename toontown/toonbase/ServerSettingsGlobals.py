@@ -4,7 +4,7 @@ YinYang = 'want-yin-yang'
 WantRacing = 'want-racing'
 WantGolf = 'want-golf'
 TTCJukebox = 'want-ttc-jukebox'
-WantSinglePlayer = 'want-singleplayer'
+# WantSinglePlayer = 'want-singleplayer'
 WantCheats = 'want-cheats'
 
 InitialSettings = {
@@ -24,11 +24,11 @@ InitialSettings = {
         "BossbotHQ": True
         },
     ExpMultiplier: 1,
-    YinYang: True,
+    YinYang: False,
     WantRacing: True,
     WantGolf: True,
     TTCJukebox: False,
-    WantSinglePlayer: False,
+    # WantSinglePlayer: False,
     WantCheats: False,
 }
     

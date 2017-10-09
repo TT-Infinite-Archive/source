@@ -104,7 +104,7 @@ class PlayScreen(DirectFrame, FSM):
                 Func(self.mainMenu.randomToon.play, 'neutral'),
                 Wait(1),
                 Func(self.mainMenu.randomToon.play, 'wave'),
-                Wait(3.8),
+                Wait(4.3),
                 Func(self.mainMenu.randomToon.play, 'bored'),
                 Wait(2.9),
                 Func(self.mainMenu.randomToon.pingpong, 'bored', fromFrame=70, toFrame=130)).start()

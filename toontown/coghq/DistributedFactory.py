@@ -209,7 +209,7 @@ class DistributedFactory(DistributedLevel.DistributedLevel, FactoryBase.FactoryB
     def setQuestProgress(self, progress):
         self.questPoster.setProgress(progress)
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def factoryWarp(zoneNum):
     """
     Warp to a specific factory zone.

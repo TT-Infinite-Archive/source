@@ -42,7 +42,7 @@ class DistributedElevatorFSMAI(DistributedObjectAI.DistributedObjectAI, FSM):
         DistributedObjectAI.DistributedObjectAI.__init__(self, air)
         FSM.__init__(self, 'Elevator_%s_FSM' % self.id)
         self.type = ELEVATOR_NORMAL
-        if simbase.isSinglePlayer:
+        if simbase.wantSinglePlayer:
             self.countdownTime = ElevatorData[self.type]['solo_countdown']
         else:
             self.countdownTime = ElevatorData[self.type]['countdown']

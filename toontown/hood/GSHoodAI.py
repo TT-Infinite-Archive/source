@@ -28,7 +28,7 @@ class GSHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
         
-        if simbase.air.wantRacing:
+        if simbase.wantRacing:
             self.createStartingBlocks()
             self.createLeaderBoards()
             self.cycleLeaderBoards()

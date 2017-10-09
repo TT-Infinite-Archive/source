@@ -56,6 +56,11 @@ class HostStartScreen(DirectFrame):
         else:
             base.wantCheats = False
 
+        # if serverSettings[ServerSettingsGlobals.WantSinglePlayer]:
+            # base.wantSinglePlayer = True
+        # else:
+            # base.wantSinglePlayer = False
+
         if base.hostFailed:
             self.label['text'] = ''
             self.backButton.hide()
@@ -89,5 +94,3 @@ class HostStartScreen(DirectFrame):
 
     def __handleServerStarterDone(self):
         self.label['text'] = TTLocalizer.LocalServerDone
-        base.cr.loginFSM.request('serverMenu')
-        base.isHosting = True

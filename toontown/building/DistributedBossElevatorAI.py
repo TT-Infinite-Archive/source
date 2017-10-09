@@ -16,7 +16,7 @@ class DistributedBossElevatorAI(DistributedElevatorExtAI.DistributedElevatorExtA
         DistributedElevatorExtAI.DistributedElevatorExtAI.__init__(self, air, bldg, numSeats=8, antiShuffle=antiShuffle, minLaff=minLaff)
         self.zone = zone
         self.type = ELEVATOR_VP
-        if simbase.isSinglePlayer:
+        if simbase.wantSinglePlayer:
             self.countdownTime = ElevatorData[self.type]['solo_countdown']
         else:
             self.countdownTime = ElevatorData[self.type]['countdown']

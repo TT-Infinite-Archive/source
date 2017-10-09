@@ -25,22 +25,11 @@ NAME_SUBMISSION_ERROR = 2
 
 accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 
-# If this config variable is set. All accounts new and old will use
-# the specified access level.  It is meant to be used temporarily.
-# NOTE: It doesn't replace the old account's access level, except for new ones.
-forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
-
-accessLevelClamp = ConfigVariableString(
-    'access-level-clamp', '100 500',
-    "Specifies the range in which every user's access level will be confined to.").getValue()
-accessLevelMin = int(accessLevelClamp.split(' ', 1)[0])
-accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
-
 
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 500 access automatically upon login.
+# each user with 400 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -66,7 +55,7 @@ class DeveloperAccountDB(AccountDB):
     
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 500
+        self.accessLevel = 400
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
     
     def lookupUserId(self, userId):
@@ -122,17 +111,7 @@ class ProductionDB(AccountDB):
 
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        if simbase.isSinglePlayer:
-            self.accessLevel = 500
-        else:
-            '''
-            We set everyone in MP to 200 access  by default so people can use commands,
-            however we need an option in the future that allows the host to decide if they
-            want their server to have cheaters or not. If they don't, they select that option
-            then everyone is set to 100 access by default instead for that server. The host will
-            need to set their access to 500 via mongo compass or rpc.
-            '''
-            self.accessLevel = 200
+        self.accessLevel = 100
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
@@ -235,7 +214,7 @@ class LoginAccountFSM(OperationFSM):
         self.username = result.get('username', '')
         self.userId = result.get('userId', 0)
         self.accountId = result.get('accountId', 0)
-        self.accessLevel = forceAccessLevel if forceAccessLevel else result.get('accessLevel', 0)
+        self.accessLevel = result.get('accessLevel', 0)
         if self.accountId:
             self.demand('LoginAccount')
         else:
@@ -302,7 +281,7 @@ class LoginAccountFSM(OperationFSM):
 
     def enterSetAccount(self):
         # If necessary, update their account information:
-        if self.accessLevel and not forceAccessLevel:
+        if self.accessLevel:
             self.csm.air.dbInterface.updateObject(
                 self.csm.air.dbId,
                 self.accountId,
@@ -311,8 +290,8 @@ class LoginAccountFSM(OperationFSM):
 
         # If this is a single player server, Don't allow
         # any more connections.
-        if simbase.isSinglePlayer:
-            self.csm.playerLoggedIn = True
+        # if simbase.wantSinglePlayer:
+            # self.csm.playerLoggedIn = True
 
         # If there's anybody on the account, kill them for redundant login:
         datagram = PyDatagram()
@@ -917,7 +896,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
         # Activate the avatar on the DBSS:
         self.csm.air.sendActivate(
             self.avId, 0, 0, self.csm.air.dclassesByName['DistributedToonUD'],
-            {'setAdminAccess': [forceAccessLevel if forceAccessLevel else self.account.get('ACCESS_LEVEL', 100)],
+            {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
              'setChatMode': [self.account.get('CHAT_MODE', 1)],
              'setPlatform': [self.platform]})
@@ -1046,8 +1025,8 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # Temporary HMAC key:
         self.key = 'bWlub3Iub3BlbmFsLmZpeC5zdGFydC5vZi5oZWFsam9rZXM='
 
-        if simbase.isSinglePlayer:
-            self.playerLoggedIn = False
+        # if simbase.wantSinglePlayer:
+            # self.playerLoggedIn = False
 
         # Instantiate our account DB interface:
         if accountdbType == 'developer':

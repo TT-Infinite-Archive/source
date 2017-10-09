@@ -3,17 +3,24 @@ from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.mainmenu import MainMenuGlobals
-from panda3d.core import URLSpec
+from direct.gui.DirectGui import DGG
+from toontown.toonbase.ColorGlobals import CGray
+from toontown.util import TTCardMaker
 
-
-class LoginOrSignUpScreen(DirectFrame):
+class ServerMenuHomeScreen(DirectFrame):
     def __init__(self, serverMenu):
         DirectFrame.__init__(self, serverMenu)
 
         self.serverMenu = serverMenu
+
+        self.lockImage = TTCardMaker.makeCard('phase_3/maps/lock_icon.png')
+        self.lockImage.reparentTo(self)
+        self.lockImage.setScale(0.0007, 0.0007, 0.0007)
+        self.lockImage.setPos(0.35, 0, -0.79)
+
         self.welcomeLabel = TTLabel(
             parent=self,
-            text=TTLocalizer.WelcomeMessage % 'GAMESERVER',
+            text='',
             pos=(0, 0, -0.13),
             **MainMenuGlobals.LABEL_PROPERTIES
         )
@@ -42,10 +49,13 @@ class LoginOrSignUpScreen(DirectFrame):
             **MainMenuGlobals.BUTTON_PROPERTIES
         )
 
-        self.signUpButton = MATShuffleButton(
+        self.serverInfoButton = MATShuffleButton(
             parent=self,
-            text=TTLocalizer.LoginScreenSignUp,
+            text=TTLocalizer.ServerInformation,
             pos=(0, 0, -0.8),
-            command=lambda: self.serverMenu.request('SignUpScreen'),
-            **MainMenuGlobals.BUTTON_PROPERTIES
+            text_pos=(0, 0.02, 0),
+            state=DGG.DISABLED,
+            command=lambda: self.serverMenu.request('ServerInformationScreen'),
+            **MainMenuGlobals.BUTTON_PROPERTIES_3
         )
+        self.serverInfoButton.setColorScale(CGray)

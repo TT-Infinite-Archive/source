@@ -1240,7 +1240,7 @@ class DistributedRace(DistributedObject.DistributedObject):
 
 
 # TODO: Move this command to the AI server, and add more features to it.
-@magicWord(category=CATEGORY_USER2, types=[str])
+@magicWord(category=CATEGORY_USER, types=[str])
 def race(command):
     """
     A command set for races.

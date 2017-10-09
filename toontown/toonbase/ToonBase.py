@@ -38,7 +38,6 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         self.cr = None
-        self.isSinglePlayer = False
         self.isHosting = False
 
         # Get the native display info:
@@ -101,6 +100,8 @@ class ToonBase(OTPBase.OTPBase):
         self.debugRunningMultiplier /= OTPGlobals.ToonSpeedFactor
         self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
 
+        # self.wantSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
+        self.wantSinglePlayer = None
         self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
         self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
 

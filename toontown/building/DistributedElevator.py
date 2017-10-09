@@ -34,7 +34,7 @@ class DistributedElevator(DistributedObject.DistributedObject):
         self.elevatorPoints = ElevatorPoints
         self.fillSlotTrack = None
         self.type = ELEVATOR_NORMAL
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.countdownTime = ElevatorData[self.type]['solo_countdown']
         else:
             self.countdownTime = ElevatorData[self.type]['countdown']

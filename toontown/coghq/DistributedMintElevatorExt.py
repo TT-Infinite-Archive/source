@@ -18,7 +18,7 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
     def __init__(self, cr):
         DistributedElevatorExt.DistributedElevatorExt.__init__(self, cr)
         self.type = ELEVATOR_MINT
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.countdownTime = ElevatorData[self.type]['solo_countdown']
         else:
             self.countdownTime = ElevatorData[self.type]['countdown']

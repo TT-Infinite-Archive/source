@@ -3,16 +3,16 @@ from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.interval.MetaInterval import Sequence
 from pandac.PandaModules import *
-from toontown.servermenu.SignUpScreen import SignUpScreen
+from toontown.servermenu.ServerInformationScreen import ServerInformationScreen
 
 from toontown.mainmenu import MainMenuGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
-from toontown.servermenu.LoginOrSignUpScreen import LoginOrSignUpScreen
+from toontown.servermenu.ServerMenuHomeScreen import ServerMenuHomeScreen
 from toontown.servermenu.LoginScreen import LoginScreen
 from toontown.toonbase import ToontownGlobals
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
-
+from direct.interval.FunctionInterval import Func, Wait
 
 class ServerMenu(DirectFrame, FSM):
     notify = directNotify.newCategory('ServerMenu')
@@ -29,12 +29,12 @@ class ServerMenu(DirectFrame, FSM):
         self.background.setTransparency(TransparencyAttrib.MAlpha)
         self.background.hide()
 
-        self.loginOrSignUpScreen = LoginOrSignUpScreen(self)
-        self.loginOrSignUpScreen.hide()
+        self.ServerMenuHomeScreen = ServerMenuHomeScreen(self)
+        self.ServerMenuHomeScreen.hide()
         self.loginScreen = LoginScreen(parent=self)
         self.loginScreen.hide()
-        self.signUpScreen = SignUpScreen(self)
-        self.signUpScreen.hide()
+        self.ServerInformationScreen = ServerInformationScreen(self)
+        self.ServerInformationScreen.hide()
         self.optionsScreen = OptionsTabPage()
         self.optionsScreen.hide()
         self.localServerStarter = LocalServerStarter()
@@ -80,8 +80,7 @@ class ServerMenu(DirectFrame, FSM):
         for elements in self.serverMenuElements:
             elements.hide()
 
-        self.flyDownSfx = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_in.ogg')
-        self.flyDownSfx.setVolume(0)
+        self.connectionSuccessfulSfx = loader.loadSfx('phase_3/audio/sfx/server_menu_connection_successful.ogg')
 
     def destroy(self):
         if self.logoScaleTrack is not None:
@@ -97,18 +96,23 @@ class ServerMenu(DirectFrame, FSM):
         taskMgr.remove('mainMenuTask')
         DirectFrame.destroy(self)
 
-    def enterLoginOrSignUpScreen(self):
+    def enterServerMenuHomeScreen(self):
         self.show()
         self.background.show()
-        self.loginOrSignUpScreen.show()
+        self.ServerMenuHomeScreen.show()
+
+        if base.initialEntry:
+            successfulConnectionSfx = base.loadSfx('phase_4/audio/sfx/MG_pairing_match_bonus_both.ogg')
+            base.playSfx(successfulConnectionSfx)
 
         def mainMenuTask(task):
+            base.initialEntry = False
             self.bottomLeftButton['command'] = lambda: base.cr.loginFSM.request('mainMenu')
 
         for element in self.serverMenuElements:
             element.show()
 
-        if (base.isHosting or base.isSinglePlayer):
+        if (base.isHosting or base.wantSinglePlayer):
             self.bottomLeftButton['text'] = "Disconnect"
         else:
             self.bottomLeftButton['text'] = "Leave Server"
@@ -117,13 +121,14 @@ class ServerMenu(DirectFrame, FSM):
         self.bottomLeftButton['text1_scale'] = 0.09
         self.bottomLeftButton['text2_scale'] = 0.09
 
-    def exitLoginOrSignUpScreen(self):
-        self.loginOrSignUpScreen.hide()
+    def exitServerMenuHomeScreen(self):
+        base.initialEntry = False
+        self.ServerMenuHomeScreen.hide()
         self.background.hide()
 
     def enterLoginScreen(self):
         self.loginScreen.show()
-        self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
+        self.bottomLeftButton['command'] = lambda: self.request('ServerMenuHomeScreen')
         self.bottomLeftButton['text'] = "Back"
         self.bottomLeftButton['text_scale']= 0.10
         self.bottomLeftButton['text1_scale'] = 0.105
@@ -134,18 +139,18 @@ class ServerMenu(DirectFrame, FSM):
         self.loginScreen.hide()
         self.background.hide()
 
-    def enterSignUpScreen(self):
-        self.signUpScreen.show()
+    def enterServerInformationScreen(self):
+        self.ServerInformationScreen.show()
         self.logo.hide()
-        self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
+        self.bottomLeftButton['command'] = lambda: self.request('ServerMenuHomeScreen')
         self.bottomLeftButton['text'] = "Back"
         self.bottomLeftButton['text_scale']= 0.10
         self.bottomLeftButton['text1_scale'] = 0.105
         self.bottomLeftButton['text2_scale'] = 0.105
         self.background.show()
 
-    def exitSignUpScreen(self):
-        self.signUpScreen.hide()
+    def exitServerInformationScreen(self):
+        self.ServerInformationScreen.hide()
         self.logo.show()
         self.background.hide()
 
@@ -155,7 +160,7 @@ class ServerMenu(DirectFrame, FSM):
         self.background.show()
         self.optionsScreen.show()
         self.bottomLeftButton.show()
-        self.bottomLeftButton['command'] = lambda: self.request('LoginOrSignUpScreen')
+        self.bottomLeftButton['command'] = lambda: self.request('ServerMenuHomeScreen')
         self.bottomLeftButton['text'] = "Back"
         self.bottomLeftButton['text_scale']= 0.10
         self.bottomLeftButton['text1_scale'] = 0.105

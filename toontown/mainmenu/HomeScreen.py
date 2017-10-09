@@ -30,7 +30,7 @@ class HomeScreen(DirectFrame):
             parent=self,
             pos=(0, 0, -0.8),
             text=TTLocalizer.HomeScreenSignOut,
-            command=lambda: self.mainMenu.request('LoginOrSignUpScreen'),
+            command=lambda: self.mainMenu.request('ServerMenuHomeScreen'),
             **MainMenuGlobals.BUTTON_PROPERTIES_2
         )
 

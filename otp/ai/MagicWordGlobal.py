@@ -98,14 +98,13 @@ class MagicWordCategory:
 
 CATEGORY_UNKNOWN = MagicWordCategory('Unknown')
 CATEGORY_USER = MagicWordCategory('User', defaultAccess=100)
-CATEGORY_USER2 = MagicWordCategory('User2', defaultAccess=200)
-CATEGORY_MODERATOR = MagicWordCategory('Moderator', defaultAccess=300)
-CATEGORY_ADMINISTRATOR = MagicWordCategory('Administrator', defaultAccess=400)
-CATEGORY_HOST = MagicWordCategory('Host', defaultAccess=500)
+CATEGORY_MODERATOR = MagicWordCategory('Moderator', defaultAccess=200)
+CATEGORY_ADMINISTRATOR = MagicWordCategory('Administrator', defaultAccess=300)
+CATEGORY_HOST = MagicWordCategory('Host', defaultAccess=400)
 
-MINIMUM_MAGICWORD_ACCESS = CATEGORY_USER2.defaultAccess
+MINIMUM_MAGICWORD_ACCESS = CATEGORY_USER.defaultAccess
 
-NON_CHEATS = ['ban', 'kick', 'warn', 'mute', 'system', 'gmIcon']
+NON_CHEATS = ['ban', 'kick', 'warn', 'mute', 'system', 'gmIcon', 'target']
 
 class MagicWord:
     def __init__(self, name, func, types, targets, access, doc):
