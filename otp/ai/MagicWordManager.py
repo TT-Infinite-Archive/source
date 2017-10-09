@@ -54,7 +54,3 @@ class MagicWordManager(DistributedObject.DistributedObject):
     def sendMagicWordResponse(self, response):
         self.notify.info(response)
         base.localAvatar.setSystemMessage(0, 'Spellbook: ' + str(response))
-
-    def setWantCheats(self, wantCheats):
-        self.notify.debug('setWantCheats', wantCheats)
-        self.wantCheats = wantCheats
