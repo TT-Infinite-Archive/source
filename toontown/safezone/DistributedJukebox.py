@@ -116,8 +116,8 @@ class DistributedJukebox(DistributedObject):
         self.gui.show()
         base.cr.playGame.getPlace().setState('purchase')
 
-        if not sys.platform == 'android':
-            filters.setBlurSharpen(0)
+        # if not sys.platform == 'android':
+            # filters.setBlurSharpen(0)
 
     def exitGui(self):
         if not self.inGui:
@@ -127,9 +127,9 @@ class DistributedJukebox(DistributedObject):
         base.cr.playGame.getPlace().setState('walk')
 
         # Remove the blur when the user is done with the jukebox
-        if not sys.platform == 'android':
-            filters.setBlurSharpen(1)
-            filters.delBlurSharpen()
+        # if not sys.platform == 'android':
+            # filters.setBlurSharpen(1)
+            # filters.delBlurSharpen()
 
     def d_requestPlaySong(self, songId):
         self.notify.debug('Sending request to play song %s' % songId)
