@@ -1,14 +1,14 @@
 import string
 from otp.otpbase.OTPLocalizerEnglishProperty import *
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'The Gardens'
-lDonaldsDock = "The Docks"
-lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Musical Melodyland"
+lDaisyGardens = 'Daisy Gardens'
+lDonaldsDock = "Donald's Dock"
+lDonaldsDreamland = "Donald's Dreamland"
+lMinniesMelodyland = "Minnie's Melodyland"
 lToontownCentral = 'Toontown Central'
-lGoofySpeedway = 'Toontown Speedway'
-lOutdoorZone = "Acorn Acres"
-lGolfZone = "Toontown MiniGolf"
+lGoofySpeedway = 'Goofy Speedway'
+lOutdoorZone = "Chip 'n Dale's Acorn Acres"
+lGolfZone = "Chip 'n Dale's MiniGolf"
 lCancel = 'Cancel'
 lClose = 'Close'
 lOK = 'OK'
@@ -226,10 +226,9 @@ CRServerConstantsProxyNoPort = 'Unable to contact %s.\n\nYou are communicating t
 CRServerConstantsProxyNoCONNECT = 'Unable to contact %s.\n\nYou are communicating to the internet via a proxy, but your proxy does not support the CONNECT method.\n\nYou must enable this capability, or disable your proxy, in order to play.  If your proxy has been provided by your ISP, you must contact your ISP to request them to enable this capability.'
 CRServerConstantsTryAgain = 'Unable to contact %s.\n\nThe account server might be temporarily down, or there might be some problem with your internet connection.\n\nTry again?'
 CRServerDateTryAgain = 'Could not get server date from %s. Try again?'
-CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
-CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
-CRUpdateAvailableMessage = 'A new update is available. Please restart your game to receive it.'
-AfkForceAcknowledgeMessage = 'Your Toon got sleepy and went to bed.'
+CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes.'
+CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance.'
+AfkForceAcknowledgeMessage = 'Your toon got sleepy and went to bed.'
 PeriodTimerWarning = 'Your available time is almost over!'
 PeriodForceAcknowledgeMessage = 'Sorry, you have used up all of your available time. Please exit to purchase more.'
 CREnteringToontown = 'Entering...'
@@ -334,7 +333,7 @@ FriendSecretNeedsPasswordWarningOK = lOK
 FriendSecretNeedsPasswordWarningCancel = lCancel
 FriendSecretNeedsPasswordWarningWrongUsername = "That's not the correct username.  Please enter the username of the parental account.  This is not the same username used to play the game."
 FriendSecretNeedsPasswordWarningWrongPassword = "That's not the correct password.  Please enter the password of the parental account.  This is not the same password used to play the game."
-FriendSecretIntro = "If you are playing Toontown Infinite and wish to use the Unrestricted Chat feature with close friends, you can become True Friends! Other Toons won't see the Unrestricted Chat unless they are also your True Friend.\n\nTo start, get a True Friend Code. Tell the True Friend Code to your friend, but not to anyone else. When your friend types in your True Friend Code on his or her screen, you'll be True Friends in Toontown!"
+FriendSecretIntro = "If you wish to use the Unrestricted Chat feature with close friends, you can become True Friends! Other Toons won't see the Unrestricted Chat unless they are also your True Friend.\n\nTo start, get a True Friend Code. Tell the True Friend Code to your friend, but not to anyone else. When your friend types in your True Friend Code on his or her screen, you'll be True Friends in Toontown!"
 FriendSecretGetSecret = 'Get a True Friend Code'
 FriendSecretEnterSecret = 'If you have a True Friend Code from someone you know, type it here.'
 FriendSecretOK = lOK
@@ -1032,7 +1031,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  1015: 'Wait!',
  1016: 'Come check out my garden.',
  1017: "Let's catch the next one.",
- 1100: "Let's go to the trolley station!",
+ 1100: "Let's go on the trolley!",
  1101: "Let's go back to the playground!",
  1102: "Let's go fight the %s!" % Cogs,
  1103: "Let's go take over a %s building!" % Cog,
@@ -1828,11 +1827,11 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30100: "Happy April Toons' Week!",
  30101: "Welcome to my April Toons' Week party!",
  30102: 'The Silly Meter is back in Toon Hall!',
- 30110: 'Mickey is in The Gardens.',
+ 30110: 'Mickey is in Daisy Gardens.',
  30111: 'Daisy is in Toontown Central.',
  30112: 'Minnie is in The Brrrgh.',
  30113: 'Pluto is in Melodyland.',
- 30114: 'Donald is sleepwalking at the Toontown Speedway.',
+ 30114: 'Donald is sleepwalking at the Speedway.',
  30115: 'Goofy is in Dreamland.',
  30120: 'Mickey is acting like Daisy!',
  30121: 'Daisy is acting like Mickey!',
@@ -1873,7 +1872,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30173: "I'll stun the VP from the front.",
  30174: "I'll stun the VP from the back.",
  30175: 'Jump when the VP jumps!',
- 30180: 'I got double jellybeans at The Toon Palooza!',
+ 30180: 'I got double jellybeans on the Trolley!',
  30181: 'I got double jellybeans from fishing!',
  30182: 'I got double jellybeans at a party!',
  30183: 'Jellybeans jellybeans jellybeans!',
