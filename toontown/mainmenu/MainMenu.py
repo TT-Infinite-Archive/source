@@ -2,8 +2,6 @@ import random
 
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
-from direct.interval.FunctionInterval import Func, Wait
-from direct.interval.MetaInterval import Sequence
 from direct.task.Task import Task
 from pandac.PandaModules import *
 

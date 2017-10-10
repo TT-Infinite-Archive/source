@@ -537,6 +537,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return self.serverVersion
 
     def enterConnect(self, serverList):
+        base.initialEntry = False
         self.serverList = serverList
         dialogClass = OTPGlobals.getGlobalDialogClass()
         self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
