@@ -25,6 +25,7 @@ from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toonbase import ToontownLoader
 from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
+from toontown.toonbase import ServerSettingsGlobals
 
 if config.GetBool('want-leak-graph', False):
     from toontown.debug.LeakGraph import LeakGraph
@@ -37,7 +38,6 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         self.cr = None
-        self.isSinglePlayer = False
         self.isHosting = False
 
         # Get the native display info:
@@ -99,6 +99,12 @@ class ToonBase(OTPBase.OTPBase):
         self.addCullBins()
         self.debugRunningMultiplier /= OTPGlobals.ToonSpeedFactor
         self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
+
+        # self.wantSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
+        self.wantSinglePlayer = None
+        self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
+        self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
+
         self.toonChatSounds = self.config.GetBool('toon-chat-sounds', 1)
         self.placeBeforeObjects = self.config.GetBool('place-before-objects', 1)
         self.endlessQuietZone = False
@@ -162,7 +168,6 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
-        self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
         self.wantMods = self.config.GetBool('want-mods', False)
         self.wantServerBrowser = self.config.GetBool('want-server-browser', False)
         self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
@@ -542,7 +547,7 @@ class ToonBase(OTPBase.OTPBase):
         self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
         taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
 
-    def connectToServer(self, gameserver='127.0.0.1', port=7000, isMultiplayer = True):
+    def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
         clientagents = base.config.GetInt('client-agents', 1) - 1
 
@@ -555,7 +560,7 @@ class ToonBase(OTPBase.OTPBase):
         if not gameserver.hasPort():
             gameserver.setPort(port)
 
-        base.cr.loginFSM.request('connect', [[gameserver], isMultiplayer])
+        base.cr.loginFSM.request('connect', [[gameserver]])
 
     def __speedHackCheckTick(self, task):
         elapsed = time.time() - self.lastSpeedHackCheck
@@ -749,6 +754,15 @@ class ToonBase(OTPBase.OTPBase):
 
         res = resolutions[0]
         return res
+    
+    def updateGraphicsSettings(self):
+        '''
+        Reloads graphics settings
+        '''
+        loadPrcFileData('Settings: Texture Quality',
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+        loadPrcFileData('Settings: Texture Compression',
+                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])

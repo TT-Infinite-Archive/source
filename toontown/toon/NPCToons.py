@@ -129,13 +129,13 @@ def createNPC(air, npcId, desc, zoneId, posIndex = 0, questCallback = None):
     elif type == NPC_BANKER:
         npc = DistributedNPCBankerAI.DistributedNPCBankerAI(air, npcId)
     elif type == NPC_YIN:
-        if simbase.air.wantYinYang or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
+        if simbase.wantYinYang or simbase.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
             npc = DistributedNPCYinAI.DistributedNPCYinAI(air, npcId)
     elif type == NPC_YANG:
-        if simbase.air.wantYinYang:
+        if simbase.wantYinYang:
             npc = DistributedNPCYangAI.DistributedNPCYangAI(air, npcId)
     elif type == NPC_RESISTANCE:
-        if simbase.air.wantGuilds:
+        if simbase.wantGuilds:
             npc = DistributedNPCLowdenClearAI.DistributedNPCLowdenClearAI(air, npcId)
     else:
         print 'createNPC() error!!!'

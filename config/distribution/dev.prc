@@ -112,8 +112,5 @@ want-yin-yang #t
 want-leak-graph-ai #f
 want-leak-graph-client #f
 
-# Safezone interactables:
-want-ttc-jukebox #t
-
 # Mod tools:
 want-mods #f

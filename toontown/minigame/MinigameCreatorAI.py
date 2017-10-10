@@ -174,7 +174,7 @@ def releaseMinigameZone(zoneId):
         simbase.air.deallocateZone(zoneId)
 
 
-@magicWord(category=CATEGORY_USER2, types=[str, str])
+@magicWord(category=CATEGORY_USER, types=[str, str])
 def minigame(command, arg0=None):
     """
     A command set for Trolley minigames.

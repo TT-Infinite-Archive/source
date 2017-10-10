@@ -5035,10 +5035,12 @@ OptionsPageToggleOff = 'Turn Off'
 OptionsPageChange = 'Change'
 OptionsPageDisplaySettings = 'Display: %(screensize)s, %(api)s'
 OptionsPageDisplaySettingsNoApi = 'Display: %(screensize)s'
-OptionsPageExitConfirmSingleplayer = 'Are you sure you want to disconnect?'
-OptionsPageExitConfirmMultiplayer = 'Are you sure you want to leave this server?'
-OptionsPageExitConfirmMultiplayerHost = 'Are you sure you want to disconnect the server? All Toons currently playing will also be disconnected.'
-OptionsPagePickAToonConfirm = 'Are you sure you want to return to the Pick-A-Toon screen?'
+LeaveServerHostSP = 'Are you sure you want to disconnect?'
+LeaveServer = 'Are you sure you want to leave this server?'
+LeaveServerHost = 'Are you sure you want to disconnect the server? All Toons currently playing will also be disconnected.'
+LogOut = 'Are you sure you want to log out? You will not be disconnected from the server.'
+LogOutHost = 'Are you sure you want to log out? The server will not be disconnected.'
+PickAToonConfirm = 'Are you sure you want to return to the Pick-A-Toon screen?'
 OptionsPageResolution = 'Resolution:'
 OptionsPageVideo = 'Video'
 OptionsPageSound = 'Sound'
@@ -10728,30 +10730,46 @@ IntroNoButton = 'No'
 ClickToStartLabel = '\x01shadow\x01Click anywhere to begin\x02'
 ClickToStartHalloweenLabel = '\x01shadow\x01Click anywhere to begin\n...if you dare...\x02'
 
+# Message of the Day
+MOTDTitle = 'Play Co-Op, Get Sillier, wilder and more!'
+MOTD = 'Play Toontown Infinite with your friends all summer long!'
+
 Jellybeans = 'Jellybeans'
 
 BossLeaderboardLabel = 'Current Damage'
 
 # Main Menu
-WelcomeMessage = 'Welcome to Toontown Infinite!'
-LogIn = "Already have an account? Log in!"
-SignUp = "New to Toontown Infinite? Sign Up!"
-Username = "Username"
-Password = "Password"
-Birthday = "Birthday"
-Email = "Email"
-Warning = "By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service."
-EnterAddress = "Enter a Server Address"
-Help = "The help page is coming soon.\n\nCheck back later!"
-ServerRunningAlready = 'A Singleplayer session is already in progress.'
-MultiServerRunningAlready = 'You are already hosting a Multiplayer session.'
+WelcomeMessage = 'You are connected to %s'
+LoginScreenGreeting = "Already have an account? Log in!"
+LoginScreenGreeting2 = "New to to this server? Sign Up!"
+LoginScreenLogin = 'Login'
+ServerInformation = 'Server\nInformation'
+SignUpTermsOfService = 'Terms of\n Service'
+HomeScreenLoggedIn = 'Logged in as %s'
+HomeScreenPlay = 'Play'
+HomeScreenMods = 'Mods'
+HomeScreenSignOut = 'Sign Out'
+Username = 'Username'
+Password = 'Password'
+Birthday = 'Birthday'
+Email = 'Email'
+SignUpWarning = 'By clicking Sign Up, you are indicating that\nyou have read and agreed to the Terms of Service.'
+SignUpDay = 'Day'
+SignUpMonth = 'Month'
+SignUpYear = 'Year'
+ServerSettings = 'Server Settings'
+EnterAddress = 'Enter a Server Address'
+Help = 'The help page is coming soon.\n\nCheck back later!'
+ServerRunningAlready = 'A Ssession is already in progress.'
+HostDone = 'Start'
+JoinServer = 'Join'
 
-ServerRunningAlready = 'A single player session is already in progress.'
-MultiServerRunningAlready = 'You are already hosting a multiplayer session.'
+LocalServerRunningAlready = 'You are already hosting a server.'
+LocalServerStarting = 'Starting...'
+LocalServerDone = 'Entering...'
 StartingServerLive = 'Loading...'
 StartingServerDev = 'Starting %s...'
 DedicatedServerDone = 'Done. This server is now live.'
-StartingGame = 'Starting the game momentarily...'
 StartingFailed = 'The %s has failed to start.\n\nSee logs for more information.'
 
 # Debug for Dev Distribution
@@ -10779,3 +10797,8 @@ BehaviorName = {
 
 AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
 ToontownRewrittenCredits = 'Created and developed\nby Toontown Rewritten.'
+LoginError = {
+ 0: 'Invalid password or username taken.',
+ 1: 'You are trying to do that too fast!'
+}
+LoggingIn = 'Logging In...'

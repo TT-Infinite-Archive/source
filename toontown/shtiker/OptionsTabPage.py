@@ -390,7 +390,7 @@ class OptionsTabPage(DirectFrame):
                 command = self.__doToggleWantFriends
             )
 
-            if (base.isSinglePlayer or base.isHosting):
+            if (base.isHosting or base.wantSinglePlayer):
                 text = TTLocalizer.OptionsDisconnect
             else:
                 text = TTLocalizer.OptionsLeaveServer
@@ -1028,11 +1028,11 @@ class OptionsTabPage(DirectFrame):
 
     def __handleExitServerShowWithConfirm(self):
         if base.isHosting:
-            message = TTLocalizer.OptionsPageExitConfirmMultiplayerHost
+            message = TTLocalizer.LeaveServerHost
         else:
-            message = TTLocalizer.OptionsPageExitConfirmMultiplayer
-        if base.isSinglePlayer:
-            message = TTLocalizer.OptionsPageExitConfirmSingleplayer
+            message = TTLocalizer.LeaveServer
+        if base.wantSinglePlayer:
+            message = TTLocalizer.LeaveServerHostSP
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',
             message = message,
@@ -1046,7 +1046,7 @@ class OptionsTabPage(DirectFrame):
     def __handleExitToToonSelectShowWithConfirm(self):
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',
-            message = TTLocalizer.OptionsPagePickAToonConfirm,
+            message = TTLocalizer.PickAToonConfirm,
             style = TTDialog.TwoChoice)
         self.confirm.show()
         self._parent.doneStatus = {'mode': 'exit',
@@ -1070,5 +1070,4 @@ class OptionsTabPage(DirectFrame):
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
-            base.cr.loginFSM.request('homeScreen')
-            base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')
+            base.cr.loginFSM.request('mainMenu')
