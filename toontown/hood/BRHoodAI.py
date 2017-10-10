@@ -37,3 +37,10 @@ class BRHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedPlutoAI.DistributedPlutoAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
+
+    def shutdown(self):
+        if self.PolarPlaceEffectManager:
+            self.PolarPlaceEffectManager.requestDelete()
+            self.PolarPlaceEffectManager = None
+
+        HoodAI.HoodAI.shutdown(self)

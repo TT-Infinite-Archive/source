@@ -10,8 +10,7 @@ from toontown.safezone.GZPlayground import GZPlayground
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 import random
-if (__debug__):
-    import pdb
+
 
 class GZSafeZoneLoader(SafeZoneLoader):
 
@@ -30,6 +29,8 @@ class GZSafeZoneLoader(SafeZoneLoader):
          State.State('final', self.enterFinal, self.exitFinal, ['start'])], 'start', 'final')
 
     def load(self):
+        if ToontownGlobals.GolfZone in base.cr.zoneManager.modifiedZones:
+            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.GolfZone)
         SafeZoneLoader.load(self)
         self.birdSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg', 'phase_4/audio/sfx/SZ_TC_bird2.ogg', 'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
 

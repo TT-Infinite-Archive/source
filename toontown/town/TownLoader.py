@@ -191,9 +191,14 @@ class TownLoader(StateData.StateData):
     def exitFinal(self):
         pass
 
-    def createHood(self, dnaFile, loadStorage = 1):
+    def createHood(self, dnaFile, loadStorage=1):
+        if self.canonicalBranchZone in base.cr.zoneManager.modifiedZones:
+            dnaFile = base.cr.zoneManager.getDNAFiles(self.canonicalBranchZone)[0]
         if loadStorage:
-            files = ('phase_5/dna/storage_town.pdna', self.townStorageDNAFile)
+            files = ['phase_5/dna/storage_town.pdna', self.townStorageDNAFile]
+            if self.canonicalBranchZone in base.cr.zoneManager.modifiedZones:
+                files.append(base.cr.zoneManager.getDNAFiles(self.canonicalBranchZone)[1])
+            files = tuple(files)
             dnaBulk = DNABulkLoader(self.hood.dnaStore, files)
             dnaBulk.loadDNAFiles()
         node = loader.loadDNAFile(self.hood.dnaStore, dnaFile)

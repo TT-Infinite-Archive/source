@@ -87,6 +87,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.inGameNewsMgr = None
         self.whitelistMgr = None
 
+        self.zoneManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_ZONE_MANAGER, 'ZoneManager')
+
         self.toontownTimeManager = ToontownTimeManager.ToontownTimeManager()
         self.shardTimeManager = ShardTimeManager(self)
 
@@ -248,7 +250,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         elif done == 'nameIt':
             self.accept('downloadAck-response', self.__handleDownloadAck, [avList, index])
             self.downloadAck = DownloadForceAcknowledge('downloadAck-response')
-            self.downloadAck.enter(4)
+            self.downloadAck.enter(ToontownGlobals.ToontownCentral)
         elif done == 'create':
             self.loginFSM.request('createAvatar', [avList, index])
         elif done == 'delete':

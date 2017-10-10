@@ -4351,7 +4351,7 @@ DownloadForceAcknowledgeVerbList = ['painted',
  'drawn',
  'inflated',
  'built']
-DownloadForceAcknowledgeMsg = 'Sorry, the %(phase)s area is still being %(verb)s, and will be ready for you in a minute.'
+DownloadForceAcknowledgeMsg = 'Sorry, the area is still being %(verb)s, and will be ready for you in a minute.'
 TeaserTop = ''
 TeaserBottom = ''
 TeaserDefault = ',\nyou need to become a Member.\n\nJoin us!'

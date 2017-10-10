@@ -297,7 +297,7 @@ class AvatarChooser(StateData.StateData):
         self.fsm.request('CheckDownload')
 
     def __handleCreate(self):
-        base.transitions.fadeOut(finishIval=EventInterval(self.doneEvent, [self.doneStatus]))
+        self.fsm.request('CheckDownload')
 
     def __handleDelete(self):
         messenger.send(self.doneEvent, [self.doneStatus])
@@ -316,7 +316,7 @@ class AvatarChooser(StateData.StateData):
     def enterCheckDownload(self):
         self.accept('downloadAck-response', self.__handleDownloadAck)
         self.downloadAck = DownloadForceAcknowledge.DownloadForceAcknowledge('downloadAck-response')
-        self.downloadAck.enter(4)
+        self.downloadAck.enter(2000)
 
     def exitCheckDownload(self):
         self.downloadAck.exit()
