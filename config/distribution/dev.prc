@@ -69,6 +69,17 @@ want-cog-headquarters #t
 want-cogbuildings #t
 want-cogdominiums #t
 
+# Animated Props
+zero-pause-mult 1.0
+
+# Interactive Props
+randomize-interactive-idles #t
+interactive-prop-random-idles #t
+interactive-prop-info #f
+props-buff-battles #t
+prop-and-organic-bonus-stack #f
+prop-idle-pause-time 0.0
+
 # Cashbot boss:
 want-resistance-toonup #t
 want-resistance-restock #t
@@ -85,6 +96,9 @@ want-blacklist #f
 
 # Double progression:
 want-double-progression #t
+
+# Holidays
+active-holidays 63, 64, 65, 66, 116
 
 # Developer options:
 force-skip-tutorial #t

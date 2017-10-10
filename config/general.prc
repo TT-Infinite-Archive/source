@@ -122,6 +122,20 @@ want-resistance-dance #f
 # Cog battles:
 base-xp-multiplier 1.0
 
+# Animated Props
+zero-pause-mult 1.0
+
+# Interactive Props
+randomize-interactive-idles #t
+interactive-prop-random-idles #t
+interactive-prop-info #f
+props-buff-battles #t
+prop-and-organic-bonus-stack #f
+prop-idle-pause-time 0.0
+
+# Holidays
+active-holidays 63, 64, 65, 66, 116
+
 # Optional:
 show-total-population #t
 want-mat-all-tailors #t
