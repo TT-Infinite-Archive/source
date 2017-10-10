@@ -36,13 +36,13 @@ class TTHoodAI(HoodAI.HoodAI):
             NPCToons.createNPC(
                 simbase.air, 2021,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2021], ('css', 'ms', 'm', 'm', 26, 0, 26, 26, 0, 27, 0, 27, 0, 27), 'm', 1, NPCToons.NPC_YIN),
-                ToontownGlobals.ToontownCentral, posIndex=0))
+                ToontownGlobals.ToontownCentral, posIndex=0)
 
         if simbase.wantYinYang:
             NPCToons.createNPC(
                 simbase.air, 2022,
                 (ToontownGlobals.ToontownCentral, TTLocalizer.NPCToonNames[2022], ('bss', 'ms', 'm', 'm', 0, 0, 0, 0, 0, 31, 0, 31, 0, 31), 'm', 1, NPCToons.NPC_YANG),
-                ToontownGlobals.ToontownCentral, posIndex=0))
+                ToontownGlobals.ToontownCentral, posIndex=0)
 
     def createTrolley(self):
         self.trolley = DistributedTrolleyAI.DistributedTrolleyAI(self.air)
