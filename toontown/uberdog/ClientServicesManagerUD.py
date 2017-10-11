@@ -49,19 +49,22 @@ class AccountDB:
     def lookup(self, username, callback):
         pass  # Inheritors should override this.
 
+    def __hashedPassword(self, password, salt, pepper):
+        return hashlib.sha512(password + salt + pepper).hexdigest()
+
 
 class DeveloperAccountDB(AccountDB):
     notify = directNotify.newCategory('DeveloperAccountDB')
-    
+
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
         self.accessLevel = 400
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
-    
+
     def lookupUserId(self, userId):
         document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
         dict = {'userId': userId, 'success': True}
-        
+
         if not document or 'dclass' not in document or document['dclass'] != 'Account':
             dict['accessLevel'] = self.accessLevel
             dict['accountId'] = 0
@@ -96,14 +99,11 @@ class DeveloperAccountDB(AccountDB):
             dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
         callback(dict)
         return dict
-    
+
     def lookup(self, username, callback):
         dict = self.lookupUsername(username)
         callback(dict)
         return dict
-
-    def __hashedPassword(self, password, salt, pepper):
-        return hashlib.sha512(password + salt + pepper).hexdigest()
 
 
 class ProductionDB(AccountDB):
@@ -131,11 +131,11 @@ class ProductionDB(AccountDB):
         document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
         dict = {}
         if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['reason'] = 'Invalid Account'
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
         elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
             dict['success'] = True
         else:
-            dict['reason'] = 'Invalid password for existing user'
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
         callback(dict)
         return dict
 
@@ -157,9 +157,6 @@ class ProductionDB(AccountDB):
         dict = self.lookupUsername(username)
         callback(dict)
         return dict
-
-    def __hashedPassword(self, password, salt, pepper):
-        return hashlib.sha512(password + salt + pepper).hexdigest()
 
 
 # --- FSMs ---
