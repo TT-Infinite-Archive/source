@@ -35,16 +35,6 @@ class DistributedNPCClerk(DistributedNPCToonBase):
 
         DistributedNPCToonBase.disable(self)
 
-    def allowedToEnter(self):
-        return True
-
-    def handleOkTeaser(self):
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request('walk')
-
     def handleCollisionSphereEnter(self, collEntry):
         base.cr.playGame.getPlace().fsm.request('purchase')
         self.sendUpdate('avatarEnter', [])

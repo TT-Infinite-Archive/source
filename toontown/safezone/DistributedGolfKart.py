@@ -125,27 +125,9 @@ class DistributedGolfKart(DistributedObject.DistributedObject):
         self.notify.debug('Entering Trolley Sphere....')
         self.loader.place.detectedTrolleyCollision()
 
-    def allowedToEnter(self):
-        if hasattr(base, 'ttAccess') and base.ttAccess and base.ttAccess.canAccess():
-            return True
-        return False
-
     def handleEnterGolfKartSphere(self, collEntry):
         self.notify.debug('Entering Golf Kart Sphere.... %s' % self.getDoId())
-        if self.allowedToEnter():
-            self.loader.place.detectedGolfKartCollision(self)
-        else:
-            place = base.cr.playGame.getPlace()
-            if place:
-                place.fsm.request('stopped')
-            self.dialog = TeaserPanel.TeaserPanel(pageName='golf', doneFunc=self.handleOkTeaser)
-
-    def handleOkTeaser(self):
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request('walk')
+        self.loader.place.detectedGolfKartCollision(self)
 
     def handleEnterTrolley(self):
         toon = base.localAvatar

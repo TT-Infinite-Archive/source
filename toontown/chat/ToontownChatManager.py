@@ -416,7 +416,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                 place.fsm.request('stopped')
             else:
                 self.notify.warning("Enter: %s has no 'stopped' state." % place)
-        self.teaser = TeaserPanel.TeaserPanel(pageName='secretChat', doneFunc=self.handleOkTeaser)
         return
 
     def exitTrueFriendTeaserPanel(self):
@@ -430,9 +429,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                     place.fsm.request('walk')
             else:
                 self.notify.warning("Exit: %s has no 'stopped' state." % place)
-
-    def handleOkTeaser(self):
-        self.fsm.request('mainMenu')
 
     def __whisperScButtonPressed(self, avatarName, avatarId, playerId):
         if base.config.GetBool('want-qa-regression', 0):

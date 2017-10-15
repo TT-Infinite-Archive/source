@@ -11,7 +11,6 @@ class PlantTreeGUI(StateData.StateData):
     def __init__(self, doneEvent):
         self.doneEvent = doneEvent
         self.oldActivateMode = base.localAvatar.inventory.activateMode
-        self._teaserPanel = None
         base.localAvatar.inventory.setActivateMode('plantTree')
         base.localAvatar.inventory.show()
         self.accept('inventory-selection', self.__handleInventory)
@@ -23,9 +22,6 @@ class PlantTreeGUI(StateData.StateData):
         self.ignore('inventory-pass')
         base.localAvatar.inventory.setActivateMode(self.oldActivateMode)
         base.localAvatar.inventory.hide()
-        if self._teaserPanel:
-            self._teaserPanel.destroy()
-            self._teaserPanel = None
         return
 
     def __handleInventory(self, track, level):
