@@ -385,9 +385,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.optionsPage = OptionsPage.OptionsPage()
         self.optionsPage.load()
         self.book.addPage(self.optionsPage, pageName=TTLocalizer.OptionsPageTitle)
-        self.shardPage = ShardPage.ShardPage()
-        self.shardPage.load()
-        self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
+        # self.shardPage = ShardPage.ShardPage()
+        # self.shardPage.load()
+        # self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
         self.mapPage = MapPage.MapPage()
         self.mapPage.load()
         self.book.addPage(self.mapPage, pageName=TTLocalizer.MapPageTitle)
@@ -1141,7 +1141,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             claraXPos += AdjustmentForNewsButton
             notifyXPos += AdjustmentForNewsButton
         newPos = (claraXPos - 0.1, 1.0, 0.45)
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.__clarabelleButton.reparentTo(base.a2dTopRight)
         else:
             self.__clarabelleButton.setPos(newPos)
@@ -1306,7 +1306,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.hideClarabelleGui()
         clarabelleHidden = 1
         self.ignore(ToontownGlobals.FriendsListHotkey)
-        if self.friendsListButtonActive and self.friendsListButtonObscured <= 0 and base.isSinglePlayer == False:
+        if self.friendsListButtonActive and self.friendsListButtonObscured <= 0 and not base.wantSinglePlayer:
             self.bFriendsList.show()
             self.accept(ToontownGlobals.FriendsListHotkey, self.sendFriendsListEvent)
             if self.clarabelleButtonObscured <= 0 and self.isTeleportAllowed():

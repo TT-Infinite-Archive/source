@@ -48,3 +48,22 @@ class DistributedFishingPondAI(DistributedObjectAI):
         for spot in self.spots:
             if self.spots[spot].avId == avId:
                 return self.spots[spot]
+
+    def delete(self):
+        if self.bingoMgr:
+            self.bingoMgr.requestDelete()
+            self.bingoMgr = None
+
+        for target in self.targets:
+            target = self.air.doId2do.get(target)
+            if target:
+                target.requestDelete()
+        self.targets.clear()
+
+        for spot in self.spots:
+            spot = self.air.doId2do.get(spot)
+            if spot:
+                spot.requestDelete()
+        self.spots.clear()
+
+        DistributedObjectAI.delete(self)

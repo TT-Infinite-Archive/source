@@ -146,12 +146,8 @@ def getMac():
     return ':'.join(('%012X' % uid)[i:i+2] for i in range(0, 12, 2))
 
 def getIp():
-    # Temporarily: please move to Astron's IP system
-    try:
-        import urllib2
-        return urllib2.urlopen('http://ip.42.pl/raw').read()
-    except:
-        return '127.0.0.1'
+    import urllib2
+    return urllib2.urlopen('http://ip.42.pl/raw').read()
 
 def getToonFont():
     global ToonFont
@@ -481,6 +477,7 @@ IceGameId = 13
 CogThiefGameId = 14
 TwoDGameId = 15
 PhotoGameId = 16
+CogThiefRewrittenGameId = 17
 TravelGameId = 100
 MinigameNames = {
     'race': RaceGameId,
@@ -502,6 +499,7 @@ MinigameNames = {
     'thief': CogThiefGameId,
     '2d': TwoDGameId,
     'photo': PhotoGameId,
+    'thief rewritten': CogThiefRewrittenGameId,
     'travel': TravelGameId
 }
 MinigameTemplateId = -1
@@ -522,13 +520,14 @@ MinigameIDs = (
     CogThiefGameId,
     TwoDGameId,
     PhotoGameId,
+    CogThiefRewrittenGameId,
     TravelGameId
 )
 MinigamePlayerMatrix = {
-    1: (CannonGameId, MazeGameId, TugOfWarGameId, RingGameId, VineGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
+    1: (CannonGameId, MazeGameId, TugOfWarGameId, RingGameId, VineGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
 }
 MinigameReleaseDates = {
     IceGameId: (2008, 8, 5),
@@ -1713,6 +1712,8 @@ BMovementSpeed = 0
 BMovementSpeedMultiplier = 1.3
 BGagAccuracy = 1
 BGagAccuracyMultiplier = 1.3
+CSM_LOGIN_ERROR_CREDENTIALS_INVALID = 0
+CSM_LOGIN_ERROR_TOO_FAST = 1
 CommonDisplayResolutions = {
     (25, 16): ((1600, 1024),),
     (931, 524): ((1862, 1048),),

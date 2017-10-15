@@ -6,6 +6,7 @@ import DistributedMinigameAI
 import DistributedCannonGameAI
 import DistributedCatchGameAI
 import DistributedCogThiefGameAI
+import DistributedCogThiefRewrittenGameAI
 import DistributedDivingGameAI
 import DistributedIceGameAI
 import DistributedMazeGameAI
@@ -121,6 +122,7 @@ def createMinigame(air, playerArray, trolleyZone, minigameZone=None,
         ToontownGlobals.VineGameId: DistributedVineGameAI.DistributedVineGameAI,
         ToontownGlobals.IceGameId: DistributedIceGameAI.DistributedIceGameAI,
         ToontownGlobals.CogThiefGameId: DistributedCogThiefGameAI.DistributedCogThiefGameAI,
+        ToontownGlobals.CogThiefRewrittenGameId: DistributedCogThiefRewrittenGameAI.DistributedCogThiefRewrittenGameAI,
         ToontownGlobals.TwoDGameId: DistributedTwoDGameAI.DistributedTwoDGameAI,
         ToontownGlobals.TravelGameId: DistributedTravelGameAI.DistributedTravelGameAI,
         ToontownGlobals.PhotoGameId: DistributedPhotoGameAI.DistributedPhotoGameAI
@@ -172,7 +174,7 @@ def releaseMinigameZone(zoneId):
         simbase.air.deallocateZone(zoneId)
 
 
-@magicWord(category=CATEGORY_USER2, types=[str, str])
+@magicWord(category=CATEGORY_USER, types=[str, str])
 def minigame(command, arg0=None):
     """
     A command set for Trolley minigames.

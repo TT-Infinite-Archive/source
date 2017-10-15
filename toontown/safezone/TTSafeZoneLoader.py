@@ -16,14 +16,8 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_4/dna/storage_TT_sz.pdna'
 
     def load(self):
-        if not base.config.GetBool('want-ttc-jukebox', False):
-            # The load method loads music, we want music if don't we have a jukebox that plays music for us
-            SafeZoneLoader.SafeZoneLoader.load(self)
-        else:
-            # Don't play music if we have a jukebox, but do the other things in the loader
-            self.activityMusic = base.loadMusic(self.activityMusicFile)
-            self.createSafeZone(self.dnaFile)
-            self.parentFSMState.addChild(self.fsm)
+        SafeZoneLoader.SafeZoneLoader.load(self)
+
         self.birdSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird2.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird3.ogg'])

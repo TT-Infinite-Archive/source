@@ -349,7 +349,7 @@ class GuildManager(DistributedObjectGlobal):
         self.sendUpdate('requestCheckName', [guildName])
 
 
-@magicWord(category=CATEGORY_USER2, types=[str, str])
+@magicWord(category=CATEGORY_USER, types=[str, str])
 def guild(command, arg0=''):
     target = spellbook.getTarget()
 

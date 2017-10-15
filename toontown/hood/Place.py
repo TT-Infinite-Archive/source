@@ -469,7 +469,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         teleportDebug(requestStatus, 'enterDFA(%s)' % (requestStatus,))
         self.acceptOnce(self.dfaDoneEvent, self.enterDFACallback, [requestStatus])
         self.dfa = DownloadForceAcknowledge.DownloadForceAcknowledge(self.dfaDoneEvent)
-        self.dfa.enter(base.cr.hoodMgr.getPhaseFromHood(requestStatus['hoodId']))
+        self.dfa.enter(requestStatus['zoneId'])
 
     def exitDFA(self):
         self.ignore(self.dfaDoneEvent)

@@ -495,7 +495,7 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
                 return window
         return None
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def findCloset():
     """
     find the closet
@@ -520,7 +520,7 @@ def findCloset():
                     return 'atticItems: %s'%(str(item))
     return "I cannot find your closet"
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def recoverCloset():
     """
     recover the closet
@@ -544,7 +544,7 @@ def recoverCloset():
             fm.saveToHouse()
     return "I cannot find your closet"
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def fillAttic():
     """
     move everything to the attic
@@ -567,7 +567,7 @@ def fillAttic():
     return "everything has been moved to the attic"
 
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def emptyHouse():
     """
     delete everything in the house

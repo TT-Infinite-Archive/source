@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import *
 from toontown.battle.BattleProps import *
 from toontown.battle.BattleSounds import *
 from toontown.distributed.ToontownMsgTypes import *
@@ -17,8 +17,7 @@ from toontown.toon.Toon import teleportDebug
 from toontown.battle import BattleParticles
 from direct.fsm import StateData
 from toontown.building import ToonInterior
-from toontown.hood import QuietZoneState
-from toontown.hood import ZoneUtil
+from toontown.hood import QuietZoneState, ZoneUtil, HydrantInteractiveProp, MailboxInteractiveProp, TrashcanInteractiveProp
 from direct.interval.IntervalGlobal import *
 from toontown.dna.DNAParser import DNABulkLoader
 
@@ -192,9 +191,14 @@ class TownLoader(StateData.StateData):
     def exitFinal(self):
         pass
 
-    def createHood(self, dnaFile, loadStorage = 1):
+    def createHood(self, dnaFile, loadStorage=1):
+        if self.canonicalBranchZone in base.cr.zoneManager.modifiedZones:
+            dnaFile = base.cr.zoneManager.getDNAFiles(self.canonicalBranchZone)[0]
         if loadStorage:
-            files = ('phase_5/dna/storage_town.pdna', self.townStorageDNAFile)
+            files = ['phase_5/dna/storage_town.pdna', self.townStorageDNAFile]
+            if self.canonicalBranchZone in base.cr.zoneManager.modifiedZones:
+                files.append(base.cr.zoneManager.getDNAFiles(self.canonicalBranchZone)[1])
+            files = tuple(files)
             dnaBulk = DNABulkLoader(self.hood.dnaStore, files)
             dnaBulk.loadDNAFiles()
         node = loader.loadDNAFile(self.hood.dnaStore, dnaFile)
@@ -227,11 +231,6 @@ class TownLoader(StateData.StateData):
             nodePath = npc.getPath(i)
             nodePath.wrtReparentTo(bucket)
 
-        npc = self.geom.findAllMatches('**/sb*:*animated_building*_DNARoot')
-        for i in xrange(npc.getNumPaths()):
-            nodePath = npc.getPath(i)
-            nodePath.wrtReparentTo(bucket)
-
     def makeDictionaries(self, dnaStore):
         self.nodeDict = {}
         self.zoneDict = {}
@@ -247,7 +246,6 @@ class TownLoader(StateData.StateData):
             visGroup = dnaStore.getDNAVisGroupAI(i)
             groupName = base.cr.hoodMgr.extractGroupName(groupFullName)
             zoneId = int(groupName)
-            zoneId = ZoneUtil.getTrueZoneId(zoneId, self.zoneId)
             groupNode = self.geom.find('**/' + groupFullName)
             if groupNode.isEmpty():
                 self.notify.error('Could not find visgroup')
@@ -273,18 +271,17 @@ class TownLoader(StateData.StateData):
         for i in xrange(numVisGroups):
             groupFullName = dnaStore.getDNAVisGroupName(i)
             zoneId = int(base.cr.hoodMgr.extractGroupName(groupFullName))
-            zoneId = ZoneUtil.getTrueZoneId(zoneId, self.zoneId)
             for j in xrange(dnaStore.getNumVisiblesInDNAVisGroup(i)):
                 visName = dnaStore.getVisibleName(i, j)
                 groupName = base.cr.hoodMgr.extractGroupName(visName)
                 nextZoneId = int(groupName)
-                nextZoneId = ZoneUtil.getTrueZoneId(nextZoneId, self.zoneId)
                 visNode = self.zoneDict[nextZoneId]
                 self.nodeDict[zoneId].append(visNode)
 
         self.hood.dnaStore.resetPlaceNodes()
         self.hood.dnaStore.resetDNAGroups()
         self.hood.dnaStore.resetDNAVisGroups()
+        self.hood.dnaStore.resetDNAVisGroupsAI()
 
     def tagFloorPolys(self, nodeList):
         for i in nodeList:
@@ -321,50 +318,26 @@ class TownLoader(StateData.StateData):
                 animPropList.append(animPropObj)
 
             interactivePropNodes = i.findAllMatches('**/interactive_prop_*')
-            numInteractivePropNodes = interactivePropNodes.getNumPaths()
-            for j in xrange(numInteractivePropNodes):
-                interactivePropNode = interactivePropNodes.getPath(j)
-                className = 'InteractiveAnimatedProp'
-                if 'hydrant' in interactivePropNode.getName():
-                    className = 'HydrantInteractiveProp'
-                elif 'trashcan' in interactivePropNode.getName():
-                    className = 'TrashcanInteractiveProp'
-                elif 'mailbox' in interactivePropNode.getName():
-                    className = 'MailboxInteractiveProp'
-                symbols = {}
-                base.cr.importModule(symbols, 'toontown.hood', [className])
-                classObj = getattr(symbols[className], className)
-                interactivePropObj = classObj(interactivePropNode)
-                animPropList = self.animPropDict.get(i)
-                if animPropList is None:
-                    animPropList = self.animPropDict.setdefault(i, [])
-                animPropList.append(interactivePropObj)
-                if interactivePropObj.getCellIndex() == 0:
-                    zoneId = int(i.getName())
-                    if zoneId not in self.zoneIdToInteractivePropDict:
-                        self.zoneIdToInteractivePropDict[zoneId] = interactivePropObj
-                    else:
-                        self.notify.error('already have interactive prop %s in zone %s' % (self.zoneIdToInteractivePropDict, zoneId))
 
-            animatedBuildingNodes = i.findAllMatches('**/*:animated_building_*;-h')
-            for np in animatedBuildingNodes:
-                if np.getName().startswith('sb'):
-                    animatedBuildingNodes.removePath(np)
+            for j in xrange(interactivePropNodes.getNumPaths()):
+                propNode = interactivePropNodes.getPath(j)
+                propName = propNode.getName()
 
-            numAnimatedBuildingNodes = animatedBuildingNodes.getNumPaths()
-            for j in xrange(numAnimatedBuildingNodes):
-                animatedBuildingNode = animatedBuildingNodes.getPath(j)
-                className = 'GenericAnimatedBuilding'
-                symbols = {}
-                base.cr.importModule(symbols, 'toontown.hood', [className])
-                classObj = getattr(symbols[className], className)
-                animatedBuildingObj = classObj(animatedBuildingNode)
-                animPropList = self.animPropDict.get(i)
-                if animPropList is None:
-                    animPropList = self.animPropDict.setdefault(i, [])
-                animPropList.append(animatedBuildingObj)
+                if 'hydrant' in propName:
+                    prop = HydrantInteractiveProp.HydrantInteractiveProp(propNode)
+                elif 'trashcan' in propName:
+                    prop = TrashcanInteractiveProp.TrashcanInteractiveProp(propNode)
+                elif 'mailbox' in propName:
+                    prop = MailboxInteractiveProp.MailboxInteractiveProp(propNode)
+                else:
+                    continue
 
-        return
+                if i in self.animPropDict:
+                    self.animPropDict[i].append(prop)
+                else:
+                    self.animPropDict[i] = [prop]
+
+                self.zoneIdToInteractivePropDict[int(i.getName())] = prop
 
     def deleteAnimatedProps(self):
         for zoneNode, animPropList in self.animPropDict.items():
@@ -382,7 +355,6 @@ class TownLoader(StateData.StateData):
             animProp.exit()
 
     def getInteractiveProp(self, zoneId):
-        result = None
         if zoneId in self.zoneIdToInteractivePropDict:
-            result = self.zoneIdToInteractivePropDict[zoneId]
-        return result
+            return self.zoneIdToInteractivePropDict[zoneId]
+        return None

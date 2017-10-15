@@ -3,6 +3,7 @@ from direct.distributed import DistributedNode/AI/UD
 from direct.distributed import DistributedSmoothNode/AI
 from direct.distributed import DistributedCartesianGrid/AI
 from direct.distributed import DistributedCamera/AI/OV
+from direct.directutil import DistributedLargeBlobSender/AI
 from otp.distributed import Account/AI/UD
 from otp.ai import BanManager/AI
 from otp.ai import TimeManager/AI
@@ -314,6 +315,7 @@ from toontown.battle import DistributedBattleDiners/AI
 from toontown.coghq import DistributedGolfSpot/AI
 from toontown.minigame import DistributedIceGame/AI
 from toontown.minigame import DistributedCogThiefGame/AI
+from toontown.minigame import DistributedCogThiefRewrittenGame/AI
 from toontown.minigame import DistributedTwoDGame/AI
 from toontown.uberdog.DistributedMailManager/AI/UD import DistributedMailManager/AI/UD
 from toontown.uberdog.DistributedPartyManager/AI/UD import DistributedPartyManager/AI/UD
@@ -348,6 +350,8 @@ from toontown.parties.GlobalPartyManager/AI/UD import GlobalPartyManager/AI/UD
 from toontown.uberdog import MegaInvasionManager/AI/UD
 from toontown.guilds import GuildManager/AI/UD
 from toontown.battle import DistributedBattleVault/AI
+from toontown.zone import ZoneManager/AI/UD
+from toontown.zone import ZoneBlobSender/UD
 
 typedef uint8 bool;
 
@@ -368,6 +372,9 @@ dclass Account {
   string CREATED db;
   string LAST_LOGIN db;
   string ACCOUNT_ID db;
+  string USERNAME db;
+  string PASSWORD db;
+  string SALT db;
   uint16 ACCESS_LEVEL db;
   uint32 MONEY db;
   uint8 CHAT_MODE db;
@@ -589,6 +596,7 @@ dclass DistributedPlayer : DistributedAvatar {
 dclass MagicWordManager : DistributedObject {
   sendMagicWord(string, uint32) airecv clsend;
   sendMagicWordResponse(string);
+  doClientWord(uint32, string);
 };
 
 dclass OtpAvatarManager : DistributedObject {
@@ -3716,6 +3724,18 @@ dclass DistributedCogThiefGame : DistributedMinigame {
   markBarrelStolen(int32, int32, int8) broadcast;
 };
 
+dclass DistributedCogThiefRewrittenGame : DistributedMinigame {
+  throwingPie(uint32, int32, int32/100, int32/100, int32/100, int32/100) clsend broadcast;
+  hitBySuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
+  pieHitSuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
+  cogHitBarrel(int32, int8, int8, int32/100, int32/100, int32/100) clsend airecv;
+  cogAtReturnPos(int32, int8, int8) clsend airecv;
+  updateSuitGoal(int32, int32, int8, int8, int64, int32/100, int32/100, int32/100) broadcast;
+  makeCogCarryBarrel(int32, int32, int8, int8, int32/100, int32/100, int32/100) broadcast;
+  makeCogDropBarrel(int32, int32, int8, int8, int32/100, int32/100, int32/100) broadcast;
+  markBarrelStolen(int32, int32, int8) broadcast;
+};
+
 struct twoDTreasureInfo {
   uint8 treasureIndex;
   uint8 treasureValue;
@@ -3833,10 +3853,11 @@ struct PotentialToon {
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
-  requestAuthToken(string, string) clsend;
+  requestAuthToken(string mac, string ip) clsend;
   receiveAuthToken(string authToken);
 
-  login(string cookie, string authToken) clsend;
+  login(string username, string password, string authToken) clsend;
+  loginError(uint8 errorCode);
   lockClient(uint32 unlockTime, string message);
   acceptLogin(uint32 timestamp);
 
@@ -4202,4 +4223,24 @@ dclass DistributedJukebox : DistributedObject {
 
   // Client Request
   requestPlaySong(uint32 songId) clsend airecv;
+};
+
+
+dclass ZoneManager : DistributedObject {
+  requestModifiedZones() clsend airecv;
+  setModifiedZones(uint16 zones[]) broadcast ram;
+
+  requestReload() airecv;
+
+  requestZoneData(uint16 zoneId, string hash) clsend airecv;
+  setBlobId(uint32 doId, int8 mode, uint32 filesize);
+
+};
+
+dclass ZoneBlobSender : DistributedObject {
+  setMode(uint8) required broadcast ram;
+  setTargetAvId(uint32) required broadcast ram;
+  setChunk(string);
+  setFilename(string);
+  setAck() airecv clsend;
 };

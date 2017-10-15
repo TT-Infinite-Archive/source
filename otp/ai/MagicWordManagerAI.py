@@ -8,11 +8,24 @@ from direct.distributed.MsgTypes import *
 class MagicWordManagerAI(DistributedObjectAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("MagicWordManagerAI")
 
+    def __init__(self, air):
+        DistributedObjectAI.__init__(self, air)
+        self.wantCheats = self.air.wantCheats
+
     def sendMagicWord(self, word, targetId):
         invokerId = self.air.getAvatarIdFromSender()
         invoker = self.air.doId2do.get(invokerId)
         target = self.air.doId2do.get(targetId)
         targets = spellbook.getTargets(word)
+
+        if ' ' in word:
+            cheat = word[0:word.index(' ')]  # Remove arguments from word
+        else:
+            cheat = word
+
+        if not self.wantCheats and cheat not in NON_CHEATS:
+            self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', ['Cheats are disabled on this server. Only magic words that allow for moderation are enabled.'])
+            return
 
         if targets:
             if target is not None and target.__class__.__name__ not in targets:
@@ -41,13 +54,17 @@ class MagicWordManagerAI(DistributedObjectAI):
         if response:
             self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', [response])
 
+        if targetId == invokerId:
+            # Also do client word in-case it's a client thing
+            self.sendUpdateToAvatarId(invokerId, 'doClientWord', [targetId, word])
+
         self.air.writeServerEvent('magic-word',
                                   invokerId, invoker.getAdminAccess(),
                                   targetId, target.getAdminAccess(),
                                   word, response)
 
 
-@magicWord(category=CATEGORY_USER2, types=[str])
+@magicWord(category=CATEGORY_USER, types=[str])
 def help(wordName=None):
     if not wordName:
         return 'What were you interested getting help for?'
@@ -63,7 +80,7 @@ def help(wordName=None):
     return word.doc.strip()
 
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def words():
     accessLevel = spellbook.getInvoker().getAdminAccess()
     wordString = None

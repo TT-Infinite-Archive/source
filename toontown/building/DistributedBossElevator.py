@@ -23,7 +23,7 @@ class DistributedBossElevator(DistributedElevatorExt.DistributedElevatorExt):
         self.closeSfx = loader.loadSfx('phase_9/audio/sfx/CHQ_FACT_door_open_sliding.ogg')
         self.finalCloseSfx = loader.loadSfx('phase_9/audio/sfx/CHQ_FACT_door_open_final.ogg')
         self.type = ELEVATOR_VP
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.countdownTime = ElevatorData[self.type]['solo_countdown']
         else:
             self.countdownTime = ElevatorData[self.type]['countdown']

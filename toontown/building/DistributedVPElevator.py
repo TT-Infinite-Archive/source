@@ -9,7 +9,7 @@ class DistributedVPElevator(DistributedBossElevator.DistributedBossElevator):
     def __init__(self, cr):
         DistributedBossElevator.DistributedBossElevator.__init__(self, cr)
         self.type = ELEVATOR_VP
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.countdownTime = ElevatorData[self.type]['solo_countdown']
         else:
             self.countdownTime = ElevatorData[self.type]['countdown']

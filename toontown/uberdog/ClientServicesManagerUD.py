@@ -6,6 +6,8 @@ from pandac.PandaModules import *
 from datetime import datetime
 import time
 import random
+import uuid
+import hashlib
 
 from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
@@ -23,22 +25,11 @@ NAME_SUBMISSION_ERROR = 2
 
 accountdbType = simbase.config.GetString('accountdb-type', 'developer')
 
-# If this config variable is set. All accounts new and old will use
-# the specified access level.  It is meant to be used temporarily.
-# NOTE: It doesn't replace the old account's access level, except for new ones.
-forceAccessLevel = simbase.config.GetInt('force-access-level', 0)
-
-accessLevelClamp = ConfigVariableString(
-    'access-level-clamp', '100 500',
-    "Specifies the range in which every user's access level will be confined to.").getValue()
-accessLevelMin = int(accessLevelClamp.split(' ', 1)[0])
-accessLevelMax = int(accessLevelClamp.split(' ', 1)[1])
-
 
 # --- ACCOUNT DATABASES ---
 # These classes make up the available account databases for Toontown Infinite.
 # DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 500 access automatically upon login.
+# each user with 400 access automatically upon login.
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -52,22 +43,28 @@ class AccountDB:
     def isNameAcceptable(self, name, callback, errback):
         callback(True)
 
+    def login(self, username, password, pepper, callback):
+        pass
+
     def lookup(self, username, callback):
         pass  # Inheritors should override this.
+
+    def __hashedPassword(self, password, salt, pepper):
+        return hashlib.sha512(password + salt + pepper).hexdigest()
 
 
 class DeveloperAccountDB(AccountDB):
     notify = directNotify.newCategory('DeveloperAccountDB')
-    
+
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 500
+        self.accessLevel = 400
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
-    
+
     def lookupUserId(self, userId):
         document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
         dict = {'userId': userId, 'success': True}
-        
+
         if not document or 'dclass' not in document or document['dclass'] != 'Account':
             dict['accessLevel'] = self.accessLevel
             dict['accountId'] = 0
@@ -76,9 +73,35 @@ class DeveloperAccountDB(AccountDB):
             dict['accountId'] = document['_id']
 
         return dict
-    
-    def lookup(self, userId, callback):
-        dict = self.lookupUserId(userId)
+
+    def lookupUsername(self, username):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {'username': username, 'success': True}
+
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
+            dict['userId'] = document['fields']['ACCOUNT_ID']
+
+        return dict
+
+    def login(self, username, password, pepper, callback):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {}
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
+        elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
+            dict['success'] = True
+        else:
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
+        callback(dict)
+        return dict
+
+    def lookup(self, username, callback):
+        dict = self.lookupUsername(username)
         callback(dict)
         return dict
 
@@ -88,10 +111,7 @@ class ProductionDB(AccountDB):
 
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        if simbase.isSinglePlayer:
-            self.accessLevel = 500
-        else:
-            self.accessLevel = 200 # We set everyone in MP to 200 access by default so people can use commands, however we need an option in the future that allows the host to decide if they want their server to have cheaters or not. If they don't, they select that option then everyone is set to 100 access by default instead for that server. The host will need to set their access to 500 via mongo compass or rpc.
+        self.accessLevel = 100
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
@@ -107,10 +127,37 @@ class ProductionDB(AccountDB):
 
         return dict
 
-    def lookup(self, userId, callback):
-        dict = self.lookupUserId(userId)
+    def login(self, username, password, pepper, callback):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {}
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
+        elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
+            dict['success'] = True
+        else:
+            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
         callback(dict)
         return dict
+
+    def lookupUsername(self, username):
+        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
+        dict = {'username': username, 'success': True}
+
+        if not document or 'dclass' not in document or document['dclass'] != 'Account':
+            dict['accessLevel'] = self.accessLevel
+            dict['accountId'] = 0
+        else:
+            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
+            dict['accountId'] = document['_id']
+            dict['userId'] = document['fields']['ACCOUNT_ID']
+
+        return dict
+
+    def lookup(self, username, callback):
+        dict = self.lookupUsername(username)
+        callback(dict)
+        return dict
+
 
 # --- FSMs ---
 class OperationFSM(FSM):
@@ -140,26 +187,45 @@ class LoginAccountFSM(OperationFSM):
     notify = directNotify.newCategory('LoginAccountFSM')
     TARGET_CONNECTION = True
 
-    def enterStart(self, token):
-        self.token = token
+    def __init__(self, csm, target):
+        OperationFSM.__init__(self, csm, target)
+        self.pepper = 'a5141419459a4b7d9b1f6035d3f9e238'
+        self.username = ''
+        self.password = ''
+
+    def enterStart(self, username, password):
+        self.username = username
+        self.password = password
         self.demand('QueryAccountDB')
 
     def enterQueryAccountDB(self):
-        self.csm.accountDB.lookup(self.token, self.__handleLookup)
+        self.csm.accountDB.lookup(self.username, self.__handleLookup)
 
     def __handleLookup(self, result):
+        self.notify.debug('Handling Lookup %s' % result)
         if not result.get('success'):
-            self.csm.air.writeServerEvent('tokenRejected', self.target, self.token)
-            self.demand('Kill', result.get('reason', 'The account server rejected your token.'))
+            self.csm.air.writeServerEvent('usernameRejected', self.target, self.username)
+            self.demand('Kill', result.get('reason', 'The account server rejected your username.'))
             return
 
+        self.username = result.get('username', '')
         self.userId = result.get('userId', 0)
         self.accountId = result.get('accountId', 0)
-        self.accessLevel = forceAccessLevel if forceAccessLevel else result.get('accessLevel', 0)
+        self.accessLevel = result.get('accessLevel', 0)
         if self.accountId:
-            self.demand('RetrieveAccount')
+            self.demand('LoginAccount')
         else:
             self.demand('CreateAccount')
+
+    def enterLoginAccount(self):
+        self.csm.accountDB.login(self.username, self.password, self.pepper, self.__handleLogin)
+
+    def __handleLogin(self, result):
+        if not result.get('success'):
+            self.csm.sendUpdateToChannel(self.target, 'loginError', [result['error']])
+            self.demand('Off')
+        else:
+            self.demand('RetrieveAccount')
 
     def enterRetrieveAccount(self):
         self.csm.air.dbInterface.queryObject(
@@ -174,6 +240,8 @@ class LoginAccountFSM(OperationFSM):
         self.demand('SetAccount')
 
     def enterCreateAccount(self):
+        self.notify.debug('Creating Account %s.' % self.username)
+        salt = uuid.uuid4().hex
         self.account = {
             'ACCOUNT_AV_SET': [0] * 6,
             'ESTATE_ID': 0,
@@ -181,6 +249,9 @@ class LoginAccountFSM(OperationFSM):
             'CREATED': time.ctime(),
             'LAST_LOGIN': time.ctime(),
             'ACCOUNT_ID': str(self.userId),
+            'USERNAME': str(self.username),
+            'PASSWORD': self.__hashedPassword(salt),
+            'SALT': salt,
             'ACCESS_LEVEL': self.accessLevel,
             'MONEY': 0,
             'CHAT_MODE': 1
@@ -207,7 +278,7 @@ class LoginAccountFSM(OperationFSM):
 
     def enterSetAccount(self):
         # If necessary, update their account information:
-        if self.accessLevel and not forceAccessLevel:
+        if self.accessLevel:
             self.csm.air.dbInterface.updateObject(
                 self.csm.air.dbId,
                 self.accountId,
@@ -216,7 +287,8 @@ class LoginAccountFSM(OperationFSM):
 
         # If this is a single player server, Don't allow
         # any more connections.
-        if simbase.isSinglePlayer: self.csm.playerLoggedIn = True
+        # if simbase.wantSinglePlayer:
+            # self.csm.playerLoggedIn = True
 
         # If there's anybody on the account, kill them for redundant login:
         datagram = PyDatagram()
@@ -270,13 +342,15 @@ class LoginAccountFSM(OperationFSM):
             self.accountId,
             self.csm.air.dclassesByName['AccountUD'],
             {'LAST_LOGIN': time.ctime(),
-             'ACCOUNT_ID': str(self.userId)})
+             'USERNAME': str(self.username)})
 
         # We're done.
-        self.csm.air.writeServerEvent('accountLogin', self.target, self.accountId, self.userId)
+        self.csm.air.writeServerEvent('accountLogin', self.target, self.accountId, self.username)
         self.csm.sendUpdateToChannel(self.target, 'acceptLogin', [int(time.time())])
         self.demand('Off')
 
+    def __hashedPassword(self, salt):
+        return hashlib.sha512(self.password + salt + self.pepper).hexdigest()
 
 class CreateAvatarFSM(OperationFSM):
     notify = directNotify.newCategory('CreateAvatarFSM')
@@ -557,6 +631,7 @@ class DeleteAvatarFSM(GetAvatarsFSM):
         self.csm.air.writeServerEvent('avatarDeleted', self.avId, self.target)
         self.demand('QueryAvatars')
 
+
 class SetNameTypedFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('SetNameTypedFSM')
     POST_ACCOUNT_STATE = 'RetrieveAvatar'
@@ -818,7 +893,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
         # Activate the avatar on the DBSS:
         self.csm.air.sendActivate(
             self.avId, 0, 0, self.csm.air.dclassesByName['DistributedToonUD'],
-            {'setAdminAccess': [forceAccessLevel if forceAccessLevel else self.account.get('ACCESS_LEVEL', 100)],
+            {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
              'setChatMode': [self.account.get('CHAT_MODE', 1)],
              'setPlatform': [self.platform]})
@@ -856,6 +931,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
         taskMgr.doMethodLater(0.2, self.enterSetAvatarTask,
                               'avatarTask-%s' % self.avId, extraArgs=[channel],
                               appendTask=True)
+
 
 class UnloadAvatarFSM(OperationFSM):
     notify = directNotify.newCategory('UnloadAvatarFSM')
@@ -918,6 +994,7 @@ class UnloadAvatarFSM(OperationFSM):
 # --- CLIENT SERVICES MANAGER UBERDOG ---
 class ClientServicesManagerUD(DistributedObjectGlobalUD):
     notify = directNotify.newCategory('ClientServicesManagerUD')
+    REQUEST_DELAY = 5 # Time in seconds before another request can be made for limited requests
 
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
@@ -935,14 +1012,18 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.connection2fsm = {}
         self.account2fsm = {}
 
+        # Keep track of timestamp of last request made by connection; this is to prevent
+        # clients from doing certain requests too many times
+        self.connection2Timestamp = {}
+
         # For processing name patterns.
         self.nameGenerator = NameGenerator()
 
         # Temporary HMAC key:
         self.key = 'bWlub3Iub3BlbmFsLmZpeC5zdGFydC5vZi5oZWFsam9rZXM='
 
-        if simbase.isSinglePlayer:
-            self.playerLoggedIn = False
+        # if simbase.wantSinglePlayer:
+            # self.playerLoggedIn = False
 
         # Instantiate our account DB interface:
         if accountdbType == 'developer':
@@ -998,18 +1079,6 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
-        server_ip = ToontownGlobals.getIp()
-        if server_ip != ip_addr and simbase.isSinglePlayer:
-            datagram = PyDatagram()
-            datagram.addServerHeader(
-                sender,
-                self.air.ourChannel,
-                CLIENTAGENT_EJECT
-            )
-            datagram.addUint16(420)
-            datagram.addString('Attempted to connect to a server that has cooperative play disabled.')
-            self.air.send(datagram)
-            return
 
         self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
         self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
@@ -1034,14 +1103,9 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         self.sendUpdateToChannel(sender, 'receiveAuthToken', [authToken])
 
-    def login(self, cookie, authToken):
-        self.notify.debug('Received login cookie %r from %d' % (cookie, self.air.getMsgSender()))
-
+    def login(self, username, password, authToken):
+        self.notify.debug('Received login request to %s from %d' % (username, self.air.getMsgSender()))
         sender = self.air.getMsgSender()
-
-        if simbase.isSinglePlayer and self.playerLoggedIn:
-            # Only one connection is allowed in singleplayer mode.
-            self.killConnection(sender, 'Singleplayer servers only allows one connection.')
 
         # Time to check this login to see if its authentic
         if authToken == self.authTokens.get(sender):
@@ -1060,8 +1124,14 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             self.killConnectionFSM(sender)
             return
 
+        if sender in self.connection2Timestamp:
+            if time.time() - self.connection2Timestamp[sender] <= self.REQUEST_DELAY:
+                self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_TOO_FAST])
+                return
+
+        self.connection2Timestamp[sender] = time.time()
         self.connection2fsm[sender] = LoginAccountFSM(self, sender)
-        self.connection2fsm[sender].request('Start', cookie)
+        self.connection2fsm[sender].request('Start', username, password)
 
     def requestAvatars(self):
         self.notify.debug('Received avatar list request from %d' % (self.air.getMsgSender()))
