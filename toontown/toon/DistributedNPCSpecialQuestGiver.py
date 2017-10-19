@@ -66,9 +66,6 @@ class DistributedNPCSpecialQuestGiver(DistributedNPCToonBase):
             self.trackChoiceGui.destroy()
             self.trackChoiceGui = None
 
-    def allowedToTalk(self):
-        return True
-
     def handleCollisionSphereEnter(self, collEntry):
         base.cr.playGame.getPlace().fsm.request('quest', [self])
         self.sendUpdate('avatarEnter', [])

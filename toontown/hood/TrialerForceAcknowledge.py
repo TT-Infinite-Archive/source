@@ -2,10 +2,9 @@ from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 import ZoneUtil
 from toontown.toonbase import ToontownGlobals
-from toontown.toontowngui import TeaserPanel
+
 
 class TrialerForceAcknowledge:
-
     def __init__(self, doneEvent):
         self.doneEvent = doneEvent
         self.dialog = None

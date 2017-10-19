@@ -4,7 +4,6 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.showbase import PythonUtil
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toontowngui import TTDialog
-from toontown.toontowngui.TeaserPanel import TeaserPanel
 from toontown.toonbase import TTLocalizer
 import GardenGlobals
 import HouseGlobals
@@ -29,15 +28,11 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         self.needToLoad = 0
         self.backupFruits = []
         self.signHasBeenStuck2Ground = False
-        self._teaserPanel = None
         self.setName('DistributedGagTree')
         return
 
     def delete(self):
         DistributedPlantBase.DistributedPlantBase.delete(self)
-        if self._teaserPanel:
-            self._teaserPanel.destroy()
-            self._teaserPanel = None
         del self.prop
         del self.prop2
         del self.dirtMound
@@ -397,12 +392,6 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
             self.resultDialog = None
         self.finishInteraction()
         return
-
-    def velvetRoped(self):
-        return False
-
-    def allowedToPick(self):
-        return True
 
     def unlockPick(self):
         retval = True
