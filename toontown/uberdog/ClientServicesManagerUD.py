@@ -49,7 +49,7 @@ class AccountDB:
     def lookup(self, username, callback):
         pass  # Inheritors should override this.
 
-    def __hashedPassword(self, password, salt, pepper):
+    def hashedPassword(self, password, salt, pepper):
         return hashlib.sha512(password + salt + pepper).hexdigest()
 
 
@@ -93,7 +93,7 @@ class DeveloperAccountDB(AccountDB):
         dict = {}
         if not document or 'dclass' not in document or document['dclass'] != 'Account':
             dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
-        elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
+        elif document['fields']['PASSWORD'] == self.hashedPassword(password, document['fields']['SALT'], pepper):
             dict['success'] = True
         else:
             dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
@@ -132,7 +132,7 @@ class ProductionDB(AccountDB):
         dict = {}
         if not document or 'dclass' not in document or document['dclass'] != 'Account':
             dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
-        elif document['fields']['PASSWORD'] == self.__hashedPassword(password, document['fields']['SALT'], pepper):
+        elif document['fields']['PASSWORD'] == self.hashedPassword(password, document['fields']['SALT'], pepper):
             dict['success'] = True
         else:
             dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
