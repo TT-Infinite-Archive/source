@@ -158,7 +158,10 @@ class PlayScreen(DirectFrame, FSM):
                 Func(self.mainMenu.randomToon.pingpong, 'bored', fromFrame=70, toFrame=130)).start()
 
         if (base.cr.music is None) and base.musicManagerIsValid:
-            base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_main_menu_theme.ogg')
+            if not base.wantClassicMusic:
+                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ.ogg')
+            else:
+                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ_og.ogg')
             if base.cr.music is not None:
                 base.cr.music.setLoop(1)
                 base.cr.music.setVolume(0.9)
