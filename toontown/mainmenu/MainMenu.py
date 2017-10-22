@@ -22,6 +22,8 @@ class MainMenu(DirectFrame, FSM):
         DirectFrame.__init__(self, parent=base.aspect2d)
         FSM.__init__(self, 'MainMenu')
 
+        base.setBackgroundColor(Vec4(0, 0, 0, 0))
+
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.background = OnscreenImage(
             parent=self.backgroundNodePath,
