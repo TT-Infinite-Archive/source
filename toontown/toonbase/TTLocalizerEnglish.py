@@ -10741,8 +10741,8 @@ BossLeaderboardLabel = 'Current Damage'
 # Main Menu
 WelcomeMessage = 'You are connected to %s'
 LoginScreenGreeting = "Already have an account? Log in!"
-LoginScreenGreeting2 = "New to to this server? Sign Up!"
-LoginScreenLogin = 'Login'
+LoginScreenGreeting2 = "New to to this server? Sign up!"
+LoginScreenLogin = 'Log in/Sign up'
 ServerInformation = 'Server\nInformation'
 SignUpTermsOfService = 'Terms of\n Service'
 HomeScreenLoggedIn = 'Logged in as %s'
@@ -10798,7 +10798,8 @@ BehaviorName = {
 AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
 ToontownRewrittenCredits = 'Created and developed\nby Toontown Rewritten.'
 LoginError = {
- 0: 'Invalid password or username taken.',
- 1: 'You are trying to do that too fast!'
+ 0: 'Invalid password or the username has been taken.',
+ 1: 'You are trying to do that too fast!',
+ 2: 'You must enter both a username and password.'
 }
 LoggingIn = 'Logging In...'

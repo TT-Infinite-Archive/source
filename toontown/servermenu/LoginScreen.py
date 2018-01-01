@@ -7,6 +7,7 @@ from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.util import PlacerTool3D
 from toontown.toontowngui.TTDialog import TTDialog
 from otp.otpgui import OTPDialog
+from toontown.toonbase import ToontownGlobals
 import hashlib
 
 
@@ -38,13 +39,6 @@ class LoginScreen(DirectFrame):
             **MainMenuGlobals.LABEL_PROPERTIES
         )
 
-        self.usernameInput = DirectEntry(
-            parent=self,
-            pos=(0, 0, -0.30),
-            width=10.5,
-            **MainMenuGlobals.ENTRY_PROPERTIES
-        )
-
         self.passwordInput = DirectEntry(
             parent=self,
             pos=(0, 0, -0.60),
@@ -53,10 +47,17 @@ class LoginScreen(DirectFrame):
             **MainMenuGlobals.ENTRY_PROPERTIES
         )
 
+        self.usernameInput = DirectEntry(
+            parent=self,
+            pos=(0, 0, -0.30),
+            width=10.5,
+            **MainMenuGlobals.ENTRY_PROPERTIES
+        )
+
         self.logInButton = MATShuffleButton(
             parent=self,
             pos=(0, 0, -0.8),
-            text=TTLocalizer.LoginScreenLogin,
+            text='Log In',
             command=self.doLogin,
             **MainMenuGlobals.BUTTON_PROPERTIES
         )
@@ -75,13 +76,18 @@ class LoginScreen(DirectFrame):
 
     def doLogin(self):
         # Do login magic here
-        base.cr.sendSetAvatarIdMsg(0)
-        self.acceptOnce(EventGlobals.LoginError, self.__handleLoginError)
-        self.acceptOnce(EventGlobals.LoginDone, self.__handleLoginSuccess)
-        password = hashlib.sha512(self.passwordInput.get()).hexdigest()
-        base.cr.csm.performLogin(EventGlobals.LoginDone, self.usernameInput.get(), password)
-        base.cr.waitForDatabaseTimeout(requestName='WaitOnCSMLoginResponse')
-        self.showLoginDialog()
+        if self.usernameInput.get().strip() == '' or self.passwordInput.get().strip() == '':
+            self.setErrorMessage(TTLocalizer.LoginError[2])
+            taskMgr.remove('clearLoginErrorTask')
+            taskMgr.doMethodLater(5, self.setErrorMessage, 'clearLoginErrorTask', extraArgs=[''])
+        else:
+            base.cr.sendSetAvatarIdMsg(0)
+            self.acceptOnce(EventGlobals.LoginError, self.__handleLoginError)
+            self.acceptOnce(EventGlobals.LoginDone, self.__handleLoginSuccess)
+            password = hashlib.sha512(self.passwordInput.get()).hexdigest()
+            base.cr.csm.performLogin(EventGlobals.LoginDone, self.usernameInput.get(), password)
+            base.cr.waitForDatabaseTimeout(requestName='WaitOnCSMLoginResponse')
+            self.showLoginDialog()
 
     def showLoginDialog(self):
         if self.loginDialog is not None:

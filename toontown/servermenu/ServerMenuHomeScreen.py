@@ -46,7 +46,13 @@ class ServerMenuHomeScreen(DirectFrame):
             text=TTLocalizer.LoginScreenLogin,
             pos=(0, 0, -0.5),
             command=lambda: self.serverMenu.request('LoginScreen'),
-            **MainMenuGlobals.BUTTON_PROPERTIES
+            wantArrows=False,
+            image_scale=(-1.1, 1.1, 1.1),
+            image2_scale=(-1.2, 1.2, 1.2),
+            image1_scale=(-1.2, 1.2, 1.2),
+            text_scale=0.08,
+            text2_scale=0.085,
+            text1_scale=0.085
         )
 
         self.serverInfoButton = MATShuffleButton(
