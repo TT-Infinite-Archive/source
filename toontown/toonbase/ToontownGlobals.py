@@ -192,7 +192,7 @@ TheBrrrgh = 3000
 MinniesMelodyland = 4000
 DaisyGardens = 5000
 OutdoorZone = 6000
-ResistanceGrounds = 7000
+FunnyFarm = 7000
 GoofySpeedway = 8000
 DonaldsDreamland = 9000
 BarnacleBoulevard = 1100
@@ -254,7 +254,7 @@ HoodHierarchy = {
     MinniesMelodyland: (AltoAvenue, BaritoneBoulevard, TenorTerrace),
     DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
     DonaldsDreamland: (LullabyLane, PajamaPlace),
-    ResistanceGrounds: (),
+    FunnyFarm: (),
     StrikeZone: (),
     GoofySpeedway: ()
 }
@@ -316,7 +316,7 @@ HoodIdToName = {
     MinniesMelodyland: TTLocalizer.lMinniesMelodyland,
     DaisyGardens: TTLocalizer.lDaisyGardens,
     DonaldsDreamland: TTLocalizer.lDonaldsDreamland,
-    ResistanceGrounds: TTLocalizer.lResistanceGrounds,
+    FunnyFarm: TTLocalizer.lFunnyFarm,
     StrikeZone: TTLocalizer.lStrikeZone,
     GoofySpeedway: TTLocalizer.lGoofySpeedway,
     OutdoorZone: TTLocalizer.lOutdoorZone,
@@ -560,7 +560,7 @@ phaseMap = {
     LawbotHQ: 11,
     GolfZone: 6,
     PartyHood: 13,
-    ResistanceGrounds: 6,
+    FunnyFarm: 6,
     StrikeZone: 6,
     StrikeZoneBoss: 6
 }
@@ -590,7 +590,7 @@ dnaMap = {
     DaisyGardens: 'daisys_garden',
     DonaldsDreamland: 'donalds_dreamland',
     OutdoorZone: 'outdoor_zone',
-    ResistanceGrounds: 'resistance_grounds',
+    FunnyFarm: 'funny_farm',
     StrikeZone: 'strike_zone',
     BossbotHQ: 'cog_hq_bossbot',
     SellbotHQ: 'cog_hq_sellbot',
@@ -615,7 +615,7 @@ hoodNameMap = {
     MyEstate: TTLocalizer.MyEstate,
     GolfZone: TTLocalizer.GolfZone,
     PartyHood: TTLocalizer.PartyHood,
-    ResistanceGrounds: TTLocalizer.ResistanceGrounds,
+    FunnyFarm: TTLocalizer.FunnyFarm,
     StrikeZone: TTLocalizer.StrikeZone
 }
 safeZoneCountMap = {
@@ -631,7 +631,7 @@ safeZoneCountMap = {
     OutdoorZone: 500,
     GolfZone: 500,
     PartyHood: 500,
-    ResistanceGrounds: 500,
+    FunnyFarm: 500,
     StrikeZone: 500
 }
 townCountMap = {
