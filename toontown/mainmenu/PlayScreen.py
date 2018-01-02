@@ -81,7 +81,7 @@ class PlayScreen(DirectFrame, FSM):
             text="Join the\nOfficial Server",
             pos=TTI_SERVER_START_POS,
             text_pos=(0, 0.02, 0),
-            command=lambda: base.connectToServer('127.0.0.1'),
+            command=lambda: base.connectToServer('toontowninfinite.com'),
             wantArrows=False,
             image_scale=(-1.4, 1.4, 1.4),
             image2_scale=(-1.5, 1.5, 1.5),
