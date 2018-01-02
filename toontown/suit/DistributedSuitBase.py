@@ -1,33 +1,19 @@
-import copy
+import random
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal
-from direct.directtools.DirectGeometry import CLAMP
 from direct.distributed.ClockDelta import *
-from direct.fsm import ClassicFSM
-from direct.fsm import State
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
-import math
-from pandac.PandaModules import *
+from panda3d.core import *
 
-import DistributedSuitPlanner
 import Suit
 import SuitBase
-import SuitDNA
 import SuitDialog
 import SuitTimings
 from otp.avatar import DistributedAvatar
 from otp.otpbase import OTPGlobals
 from toontown.battle import BattleProps
-from toontown.battle import DistributedBattle
-from toontown.battle import SuitBattleGlobals
-from toontown.collectibles import CollectibleGlobals, CollectibleInventoryGlobals
-from toontown.chat.ChatGlobals import *
-from toontown.nametag.NametagGlobals import *
-from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownBattleGlobals
-from toontown.toonbase import ToontownGlobals
-from toontown.suit import SuitBuffGlobals
+from toontown.toonbase import TTLocalizer, ToontownGlobals
 
 
 class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBase.SuitBase):
@@ -66,6 +52,9 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
         self.interactivePropTrackBonus = -1
         self.buffIndex = 0
         return
+
+    def setInteractivePropTrackBonus(self, trackBonus):
+        self.interactivePropTrackBonus = trackBonus
 
     def setVirtual(self, virtual):
         self.isVirtual = virtual
@@ -388,64 +377,62 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
             if number != 0:
                 if self.hpText:
                     self.hideHpText()
+
                 self.HpTextGenerator.setFont(OTPGlobals.getSignFont())
+
                 if number < 0:
                     self.HpTextGenerator.setText(str(number))
-                    if base.cr.newsManager.isHolidayRunning(ToontownGlobals.SILLY_SURGE_HOLIDAY):
+
+                    if config.GetBool('silly-surge-text', True) and random.randrange(0, 100) < config.GetInt('silly-surge-chance', 10):
                         self.sillySurgeText = True
-                        absNum = abs(number)
-                        index = math.floor(absNum / 10) + 1
-                        if index > 11:
-                            index = 12
-                        self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.SillySurgeTerms[index])
+                        absNumber = int(abs(number) / 10)
+
+                        if len(TTLocalizer.SillySurgeTerms) > absNumber:
+                            self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.SillySurgeTerms[absNumber])
+                        else:
+                            self.HpTextGenerator.setText(str(number) + '\n' + random.choice(TTLocalizer.SillySurgeTerms))
+
                     if self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
                         self.sillySurgeText = True
+
                         if attackTrack in TTLocalizer.InteractivePropTrackBonusTerms:
                             self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.InteractivePropTrackBonusTerms[attackTrack])
                 else:
                     self.HpTextGenerator.setText('+' + str(number))
+
                 self.HpTextGenerator.clearShadow()
                 self.HpTextGenerator.setAlign(TextNode.ACenter)
+
                 if bonus == 1:
-                    r = 1.0
-                    g = 1.0
-                    b = 0
-                    a = 1
+                    color = [1, 1, 0, 1]
                 elif bonus == 2:
-                    r = 1.0
-                    g = 0.5
-                    b = 0
-                    a = 1
+                    color = [1, 0.5, 0, 1]
                 elif number < 0:
-                    r = 0.9
-                    g = 0
-                    b = 0
-                    a = 1
+                    color = [0.9, 0, 0, 1]
+
                     if self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
-                        r = 0
-                        g = 0
-                        b = 1
-                        a = 1
+                        color = [0, 0, 1, 1]
                 else:
-                    r = 0
-                    g = 0.9
-                    b = 0
-                    a = 1
-                self.HpTextGenerator.setTextColor(r, g, b, a)
+                    color = [0, 0.9, 0, 1]
+
+                self.HpTextGenerator.setTextColor(*color)
                 self.hpTextNode = self.HpTextGenerator.generate()
                 self.hpText = self.attachNewNode(self.hpTextNode)
                 self.hpText.setScale(scale)
                 self.hpText.setBillboardPointEye()
                 self.hpText.setBin('fixed', 100)
+
                 if self.sillySurgeText:
                     self.nametag3d.setDepthTest(0)
                     self.nametag3d.setBin('fixed', 99)
+
                 self.hpText.setPos(0, 0, self.height / 2)
-                seq = Sequence(self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'), Wait(0.85), self.hpText.colorInterval(0.1, Vec4(r, g, b, 0), 0.1), Func(self.hideHpText))
-                seq.start()
+                color[3] = 0
+                Sequence(self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'), Wait(0.85), self.hpText.colorInterval(0.1, Vec4(*color), 0.1), Func(self.hideHpText)).start()
 
     def hideHpText(self):
         DistributedAvatar.DistributedAvatar.hideHpText(self)
+
         if self.sillySurgeText:
             self.nametag3d.clearDepthTest()
             self.nametag3d.clearBin()
