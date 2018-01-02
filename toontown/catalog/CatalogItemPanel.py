@@ -458,8 +458,6 @@ class CatalogItemPanel(DirectFrame):
         self.giftButton.show()
         if giftUpdate == 0:
             return
-        if not base.cr.isPaid():
-            self.giftButton['command'] = self.getTeaserPanel()
         self.auxText['text'] = ' '
         numFriends = len(base.localAvatar.friendsList) + len(base.cr.avList) - 1
         if numFriends > 0:

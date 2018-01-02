@@ -34,46 +34,22 @@ class Hood(StateData.StateData):
         self.holidayStorageDNADict = {}
         self.spookySkyFile = None
         self.snowySkyFile = 'phase_3.5/models/props/BR_sky'
-        self.nightSkyFile = None
-        self.sunSkyFile = None
         self.halloweenLights = []
         self.wantSpookySky = False
-
-        self.initialEntry = False
-        self.timeColorScaleLerp = None
-        self.skyAlphaParallel = None
 
     def enter(self, requestStatus):
         hoodId = requestStatus['hoodId']
         zoneId = requestStatus['zoneId']
         hoodText = self.getHoodText(zoneId)
         self.titleText = OnscreenText.OnscreenText(hoodText, fg=self.titleColor, font=getSignFont(), pos=(0, -0.5), scale=TTLocalizer.HtitleText, drawOrder=0, mayChange=1)
-
-        self.initialEntry = True
         self.fsm.request(requestStatus['loader'], [requestStatus])
 
     def processTime(self):
-        transitionDuration = ShardTimeManagerGlobals.MINUTE*.1
-
         # Update render color and sky color.
         colorScale = base.cr.shardTimeManager.getTimedColorScale()
-        currentColorScale = render.getColorScale()
-
-        # Lerp the color scale
-        if self.timeColorScaleLerp:
-            self.timeColorScaleLerp.finish()
-            self.timeColorScaleLerp = None
-
-        self.timeColorScaleLerp = LerpColorScaleInterval(render, transitionDuration, colorScale, currentColorScale)
-        self.timeColorScaleLerp.start()
+        render.setColorScale(colorScale)
 
         # Change the opacity on the normal sky and the night sky based on what time it is.
-        if self.skyAlphaParallel:
-            self.skyAlphaParallel.finish()
-            self.skyAlphaParallel = None
-
-        self.skyAlphaParallel = Parallel(name='sky-alpha-parallel')
-
         currentPeriod = base.cr.shardTimeManager.getCurrentPeriod()
         remaining = base.cr.shardTimeManager.getTimeTillNextPeriod()
         sections = 1./15
@@ -81,107 +57,39 @@ class Hood(StateData.StateData):
         if currentPeriod == ShardTimeManagerGlobals.PERIOD_DAWN:
             if remaining > 15:
                 # Fade in the sun sky from the night sky.
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.nightSky.setAlphaScale, fromData=self.nightSky.getColorScale()[3],
-                             toData=sections*remaining-1, duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sunSky.setAlphaScale, fromData=self.sunSky.getColorScale()[3],
-                             toData=1-sections*(remaining-15), duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sky.setAlphaScale, fromData=self.sky.getColorScale()[3],
-                             toData=0, duration=transitionDuration)
-                )
+                self.nightSky.setAlphaScale(sections*remaining-1)
+                self.sunSky.setAlphaScale(1-sections*(remaining-15))
+                self.sky.setAlphaScale(0)
             else:
                 # Fade in the normal sky from the sun sky.
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sunSky.setAlphaScale, fromData=self.sunSky.getColorScale()[3],
-                             toData=sections*remaining, duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sky.setAlphaScale, fromData=self.sky.getColorScale()[3],
-                             toData=1-sections*remaining, duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.nightSky.setAlphaScale, fromData=self.nightSky.getColorScale()[3],
-                             toData=0, duration=transitionDuration)
-                )
+                self.sunSky.setAlphaScale(sections*remaining)
+                self.sky.setAlphaScale(1-sections*remaining)
+                self.nightSky.setAlphaScale(0)
         elif currentPeriod == ShardTimeManagerGlobals.PERIOD_DUSK:
             if remaining > 15:
                 # Fade in the sun sky from the normal sky.
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sky.setAlphaScale, fromData=self.sky.getColorScale()[3],
-                             toData=sections*remaining-1, duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sunSky.setAlphaScale, fromData=self.sunSky.getColorScale()[3],
-                             toData=1-sections*(remaining-15), duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.nightSky.setAlphaScale, fromData=self.nightSky.getColorScale()[3],
-                             toData=0, duration=transitionDuration)
-                )
+                self.sky.setAlphaScale(sections*remaining-1)
+                self.sunSky.setAlphaScale(1-sections*(remaining-15))
+                self.nightSky.setAlphaScale(0)
             else:
                 # Fade in the night sky from the sun sky.
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sunSky.setAlphaScale, fromData=self.sunSky.getColorScale()[3],
-                             toData=sections*remaining, duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.nightSky.setAlphaScale, fromData=self.nightSky.getColorScale()[3],
-                             toData=1-sections*remaining, duration=transitionDuration)
-                )
-                self.skyAlphaParallel.append(
-                    LerpFunc(self.sky.setAlphaScale, fromData=self.sky.getColorScale()[3],
-                             toData=0, duration=transitionDuration)
-                )
+                self.sunSky.setAlphaScale(sections*remaining)
+                self.nightSky.setAlphaScale(1-sections*remaining)
+                self.sky.setAlphaScale(0)
         elif currentPeriod == ShardTimeManagerGlobals.PERIOD_NIGHT:
-            self.skyAlphaParallel.append(
-                LerpFunc(self.nightSky.setAlphaScale, fromData=self.nightSky.getColorScale()[3],
-                         toData=1, duration=transitionDuration)
-            )
-            self.skyAlphaParallel.append(
-                LerpFunc(self.sunSky.setAlphaScale, fromData=self.sunSky.getColorScale()[3],
-                         toData=0, duration=transitionDuration)
-            )
-            self.skyAlphaParallel.append(
-                LerpFunc(self.sky.setAlphaScale, fromData=self.sky.getColorScale()[3],
-                         toData=0, duration=transitionDuration)
-            )
+            self.nightSky.setAlphaScale(1)
+            self.sunSky.setAlphaScale(0)
+            self.sky.setAlphaScale(0)
         elif currentPeriod == ShardTimeManagerGlobals.PERIOD_MIDDAY:
-            self.skyAlphaParallel.append(
-                LerpFunc(self.sky.setAlphaScale, fromData=self.sky.getColorScale()[3],
-                         toData=1, duration=transitionDuration)
-            )
-            self.skyAlphaParallel.append(
-                LerpFunc(self.sunSky.setAlphaScale, fromData=self.sunSky.getColorScale()[3],
-                         toData=0, duration=transitionDuration)
-            )
-            self.skyAlphaParallel.append(
-                LerpFunc(self.nightSky.setAlphaScale, fromData=self.nightSky.getColorScale()[3],
-                         toData=0, duration=transitionDuration)
-            )
-
-        self.skyAlphaParallel.start()
-
-        # If we are entering the hood for the first time we will automatically complete our time sequences
-        if self.initialEntry:
-            self.initialEntry = False
-
-            self.timeColorScaleLerp.finish()
-            self.timeColorScaleLerp = None
-
-            self.skyAlphaParallel.finish()
-            self.skyAlphaParallel = None
+            self.sky.setAlphaScale(1)
+            self.sunSky.setAlphaScale(0)
+            self.nightSky.setAlphaScale(0)
 
     def getHoodText(self, zoneId):
         hoodText = base.cr.hoodMgr.getFullnameFromId(self.id)
         if self.id != Tutorial:
             streetName = StreetNames.get(ZoneUtil.getCanonicalBranchZone(zoneId))
-            if zoneId in (10000, 11000, 12000, 13000):
-                hoodText = TTLocalizer.CogNation + '\n' + hoodText
-            elif streetName:
+            if streetName:
                 hoodText = hoodText + '\n' + streetName[-1]
         return hoodText
 
@@ -209,12 +117,6 @@ class Hood(StateData.StateData):
         if self.titleText:
             self.titleText.cleanup()
             self.titleText = None
-        if self.timeColorScaleLerp:
-            self.timeColorScaleLerp.finish()
-            self.timeColorScaleLerp = None
-        if self.skyAlphaParallel:
-            self.skyAlphaParallel.finish()
-            self.skyAlphaParallel = None
         base.localAvatar.stopChat()
 
     def load(self):
@@ -229,7 +131,7 @@ class Hood(StateData.StateData):
                     files.append(storageFile)
             if ToontownGlobals.HALLOWEEN_COSTUMES not in holidayIds and ToontownGlobals.SPOOKY_COSTUMES not in holidayIds or not self.spookySkyFile:
                 self.sky = loader.loadModel(self.skyFile)
-                self.sky.setTransparency(TransparencyAttrib.MAlpha)
+                # self.sky.setTransparency(TransparencyAttrib.MAlpha) Fixes Sellbot HQ skybox issue, but may mess up midday to sunset transition
                 self.sky.setTag('sky', 'Regular')
                 self.sky.setScale(1.0)
                 self.sky.setFogOff()
@@ -249,8 +151,6 @@ class Hood(StateData.StateData):
             self.nightSky.setTag('sky', 'Night')
             self.nightSky.setScale(1.0)
             self.nightSky.setFogOff()
-        else:
-            self.notify.warning('Hood %s has no night sky file!' % self.hoodId)
 
         if self.sunSkyFile:
             self.sunSky = loader.loadModel(self.sunSkyFile)
@@ -258,8 +158,6 @@ class Hood(StateData.StateData):
             self.sunSky.setTag('sky', 'Sun')
             self.sunSky.setScale(1.0)
             self.sunSky.setFogOff()
-        else:
-            self.notify.warning('Hood %s has no sun sky file!' % self.hoodId)
 
         dnaBulk = DNABulkLoader(self.dnaStore, tuple(files))
         dnaBulk.loadDNAFiles()

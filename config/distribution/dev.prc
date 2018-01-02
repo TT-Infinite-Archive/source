@@ -32,6 +32,7 @@ generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 generate-global-object 4901 MegaInvasionManager
+generate-global-object 4950 ZoneManager
 
 # Web API:
 want-web-api #f
@@ -70,6 +71,17 @@ want-cog-headquarters #t
 want-cogbuildings #t
 want-cogdominiums #t
 
+# Animated Props
+zero-pause-mult 1.0
+
+# Interactive Props
+randomize-interactive-idles #t
+interactive-prop-random-idles #t
+interactive-prop-info #f
+props-buff-battles #t
+prop-and-organic-bonus-stack #f
+prop-idle-pause-time 0.0
+
 # Cashbot boss:
 want-resistance-toonup #t
 want-resistance-restock #t
@@ -87,6 +99,9 @@ want-blacklist #f
 # Double progression:
 want-double-progression #t
 
+# Holidays
+active-holidays 63, 64, 65, 66, 116
+
 # Developer options:
 force-skip-tutorial #t
 show-population #f
@@ -98,9 +113,6 @@ want-yin-yang #t
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
-
-# Safezone interactables:
-want-ttc-jukebox #t
 
 # Mod tools:
 want-mods #f

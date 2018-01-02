@@ -60,12 +60,12 @@ class BattleCalculatorAI:
         self.__clearBonuses(hp=1)
         self.__clearBonuses(hp=0)
         self.delayedUnlures = []
-        self.__skillCreditMultiplier = simbase.air.baseXpMultiplier
+        self.__skillCreditMultiplier = simbase.baseXpMultiplier
         self.tutorialFlag = tutorialFlag
         self.trainTrapTriggered = False
 
     def setSkillCreditMultiplier(self, mult):
-        self.__skillCreditMultiplier = simbase.air.baseXpMultiplier * mult
+        self.__skillCreditMultiplier = simbase.baseXpMultiplier * mult
 
     def getSkillCreditMultiplier(self):
         return self.__skillCreditMultiplier
@@ -252,10 +252,7 @@ class BattleCalculatorAI:
             return False
 
     def __checkPropBonus(self, track):
-        result = False
-        if self.battle.getInteractivePropTrackBonus() == track:
-            result = True
-        return result
+        return self.battle.getInteractivePropTrackBonus() == track
 
     def __targetDefense(self, suit, atkTrack):
         if atkTrack == HEAL:

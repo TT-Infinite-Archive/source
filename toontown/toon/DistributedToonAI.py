@@ -163,6 +163,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.savedCheesyExpireTime = 0
         self.ghostMode = 0
         self.immortalMode = 0
+        self.unlimitedGags = 0
         self.numPies = 0
         self.pieType = 0
         self._isGM = False
@@ -585,7 +586,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             if oldTracks == 0 and oldLevels == 0:
                 self.notify.warning('reseting invalid inventory to MAX on toon: %s' % self.doId)
                 self.inventory.zeroInv()
-                self.inventory.maxOutInv(1, 1)
+                self.inventory.maxOutInv(1)
             else:
                 newInventory = InventoryBase.InventoryBase(self)
                 oldList = emptyInv.makeFromNetStringForceSize(inventoryNetString, oldTracks, oldLevels)
@@ -2681,7 +2682,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def b_announceBingo(self):
         self.d_announceBingo()
-        self.announceBingo
+        self.announceBingo()
 
     def d_announceBingo(self):
         self.sendUpdate('announceBingo', [])
@@ -4538,7 +4539,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             av.d_setSystemMessage(0, OTPLocalizer.WhisperIgnored % self.getName())
 
 
-@magicWord(category=CATEGORY_USER2, types=[str, int, int])
+@magicWord(category=CATEGORY_USER, types=[str, int, int])
 def cheesyEffect(value, hood=0, expire=0):
     """
     Modify the target's cheesy effect.
@@ -4559,7 +4560,7 @@ def cheesyEffect(value, hood=0, expire=0):
     invoker.b_setCheesyEffect(value, hood, expire)
     return 'Set your cheesy effect to: %d' % value
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def obtainCheesyEffect(effect, obtain=1):
     """
     Add a Cheesy Effect to the target's pool.
@@ -4574,7 +4575,7 @@ def obtainCheesyEffect(effect, obtain=1):
         simbase.air.ciManager.handleItemLost(target.doId, CollectibleInventoryGlobals.CICategoryCheesyEffect, effect)
         return 'Removed cheesy effect %d for %s!' % (effect, target.getName())
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def hp(hp):
     """
     Modify the invoker's current HP.
@@ -4586,7 +4587,7 @@ def hp(hp):
     invoker.b_setHp(hp)
     return 'Set your HP to: %d' % hp
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def maxHp(maxHp):
     """
     Modify the invoker's max HP.
@@ -4599,7 +4600,7 @@ def maxHp(maxHp):
     invoker.toonUp(maxHp - invoker.getHp())
     return 'Set your max HP to: %d' % maxHp
 
-@magicWord(category=CATEGORY_USER2, types=[str])
+@magicWord(category=CATEGORY_USER, types=[str])
 def allSummons():
     """
     Max the invoker's summons
@@ -4612,7 +4613,7 @@ def allSummons():
     invoker.b_setCogSummonsEarned(allSummons)
     return 'Lots of summons!'
 
-@magicWord(category=CATEGORY_USER2, types=[str])
+@magicWord(category=CATEGORY_USER, types=[str])
 def maxToon(missingTrack=None):
     """
     Max the invoker's stats for end-level gameplay.
@@ -4708,7 +4709,7 @@ def maxToon(missingTrack=None):
 
     return 'Maxed your Toon!'
 
-@magicWord(category=CATEGORY_USER2)
+@magicWord(category=CATEGORY_USER)
 def unlocks():
     """
     Unlocks the invoker's teleport access, emotions, and pet trick phrases.
@@ -4738,7 +4739,7 @@ def unlocks():
 
     return 'Unlocked teleport access, emotions, and pet trick phrases!'
 
-@magicWord(category=CATEGORY_USER2, types=[int, str])
+@magicWord(category=CATEGORY_USER, types=[int, str])
 def sos(count, name):
     """
     Modifies the invoker's specified SOS card count.
@@ -4760,7 +4761,7 @@ def sos(count, name):
     invoker.d_setNPCFriendsDict(invoker.NPCFriendsDict)
     return "You were given %d %s SOS cards." % (count, name)
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def unites(value=32767):
     """
     Restock all resistance messages.
@@ -4770,7 +4771,7 @@ def unites(value=32767):
     invoker.restockAllResistanceMessages(value)
     return 'Restocked %d unites!' % value
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def fires(count):
     """
     Modifies the invoker's pink slip count.
@@ -4781,7 +4782,7 @@ def fires(count):
     invoker.b_setPinkSlips(count)
     return 'You were given %d fires.' % count
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def money(money):
     """
     Modifies the target's current money value.
@@ -4793,7 +4794,7 @@ def money(money):
     target.b_setMoney(money)
     return "Set %s's money value to %d!" % (target.getName(), money)
 
-@magicWord(category=CATEGORY_USER2, types=[str, int])
+@magicWord(category=CATEGORY_USER, types=[str, int])
 def bank(command, value):
     """
     Modifies the target's bank money values.
@@ -4828,7 +4829,7 @@ def bank(command, value):
         return 'Invalid command!'
 
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def particleEffect(itemId, obtain=1):
     """
     Add a particle Effect to the target's effect pool.
@@ -4844,7 +4845,7 @@ def particleEffect(itemId, obtain=1):
         return 'Removed particle effect %d for %s!' % (itemId, target.getName())
 
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def fishingRod(rod, obtain=1):
     """
     Modify the target's fishing rod value.
@@ -4860,7 +4861,7 @@ def fishingRod(rod, obtain=1):
         return 'Removed fishing rod %d for %s!' % (rod, target.getName())
 
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def maxFishTank(maxFishTank):
     """
     Modify the target's max fish tank value.
@@ -4872,7 +4873,7 @@ def maxFishTank(maxFishTank):
     return "Set %s's max fish tank value to %d!" % (target.getName(), maxFishTank)
 
 
-@magicWord(category=CATEGORY_USER2, types=[str])
+@magicWord(category=CATEGORY_USER, types=[str])
 def name(name=''):
     """
     Modify the target's name.
@@ -4880,7 +4881,7 @@ def name(name=''):
     target = spellbook.getTarget()
     target.checkForBadName(requestName=True, name=name)
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def hat(hatIndex, hatTex=0):
     """
     Modify the invoker's hat.
@@ -4893,7 +4894,7 @@ def hat(hatIndex, hatTex=0):
     invoker.b_setHat(hatIndex, hatTex, 0)
     return "Set %s's hat to %d, %d!" % (invoker.getName(), hatIndex, hatTex)
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def glasses(glassesIndex, glassesTex=0):
     """
     Modify the invoker's glasses.
@@ -4906,7 +4907,7 @@ def glasses(glassesIndex, glassesTex=0):
     invoker.b_setGlasses(glassesIndex, glassesTex, 0)
     return "Set %s's glasses to %d, %d!" % (invoker.getName(), glassesIndex, glassesTex)
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def backpack(backpackIndex, backpackTex=0):
     """
     Modify the invoker's backpack.
@@ -4919,7 +4920,7 @@ def backpack(backpackIndex, backpackTex=0):
     invoker.b_setBackpack(backpackIndex, backpackTex, 0)
     return "Set %s's backpack to %d, %d!" % (invoker.getName(), backpackIndex, backpackTex)
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def shoes(shoesIndex, shoesTex=0):
     """
     Modify the invoker's shoes.
@@ -5005,7 +5006,7 @@ def revokeName():
            ' screen.')
     return "Revoked %s's name!" % name
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def tickets(tickets):
     """
     Set the invoker's racing tickets value.
@@ -5016,7 +5017,7 @@ def tickets(tickets):
     invoker.b_setTickets(tickets)
     return 'Set your tickets to: %d' % tickets
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def cogIndex(index):
     """
     Modifies the invoker's Cog index.
@@ -5027,7 +5028,7 @@ def cogIndex(index):
     invoker.b_setCogIndex(index)
     return 'Set your Cog index to %d!' % index
 
-@magicWord(category=CATEGORY_USER2, types=[str, int, int])
+@magicWord(category=CATEGORY_USER, types=[str, int, int])
 def inventory(a, b=None, c=None):
     invoker = spellbook.getInvoker()
     inventory = invoker.inventory
@@ -5076,7 +5077,7 @@ def inventory(a, b=None, c=None):
         invoker.b_setInventory(inventory.makeNetString())
         return 'Restored %d Gags to: %d, %d' % (c, targetTrack, maxLevelIndex)
 
-@magicWord(category=CATEGORY_USER2, types=[str, str])
+@magicWord(category=CATEGORY_USER, types=[str, str])
 def dna(part, value):
     """Modify a DNA part on the invoker."""
     invoker = spellbook.getInvoker()
@@ -5273,7 +5274,7 @@ def dna(part, value):
 
     return 'Invalid part: ' + part
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def trophyScore(value):
     """
     Modifies the target's trophy score.
@@ -5284,7 +5285,7 @@ def trophyScore(value):
     simbase.air.trophyMgr.updateTrophyScore(target.doId, value)
     return "%s's trophy score has been set to: %d" % (target.getName(), value)
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def givePies(pieType, numPies=0):
     """
     Give the target (numPies) of (pieType) pies.
@@ -5305,7 +5306,7 @@ def givePies(pieType, numPies=0):
     else:
         target.b_setNumPies(ToontownGlobals.FullPies)
 
-@magicWord(category=CATEGORY_USER2, types=[str, str, int])
+@magicWord(category=CATEGORY_USER, types=[str, str, int])
 def track(command, track, value=None):
     try:
         index = ('toonup', 'trap', 'lure', 'sound', 'throw',
@@ -5346,7 +5347,7 @@ def track(command, track, value=None):
         return 'Set the bonus level of the %s track to: %d!' % (track, value)
     return 'Invalid command.'
 
-@magicWord(category=CATEGORY_USER2, types=[str, str])
+@magicWord(category=CATEGORY_USER, types=[str, str])
 def suit(command, suitName):
     invoker = spellbook.getInvoker()
     command = command.lower()
@@ -5371,7 +5372,7 @@ def invasionend():
     simbase.air.suitInvasionManager.stopInvasion()
     return 'Successfuly stopped the Cog invasion.'
 
-@magicWord(category=CATEGORY_USER2, types=[str, int])
+@magicWord(category=CATEGORY_USER, types=[str, int])
 def achievements(command, achId):
     invoker = spellbook.getInvoker()
     if command.lower() == 'earn':
@@ -5389,13 +5390,13 @@ def achievements(command, achId):
     else:
         return "Unknown Command '%s'"%(command)
 
-@magicWord(category=CATEGORY_USER2)
+@magicWord(category=CATEGORY_USER)
 def getZone():
     invoker = spellbook.getInvoker()
     zone = invoker.zoneId
     return 'ZoneID: %s' % (zone)
 
-@magicWord(category=CATEGORY_USER2, types=[int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int])
 def nametagStyle(itemId, obtain=1):
     target = spellbook.getTarget()
     inventory = target.collectibleInventory
@@ -5410,7 +5411,7 @@ def nametagStyle(itemId, obtain=1):
         simbase.air.ciManager.handleItemLost(target.doId, CollectibleInventoryGlobals.CICategoryNametag, itemId)
         return 'Removed nametag %d from %s' % (itemId, target.getName())
 
-@magicWord(category=CATEGORY_USER2, types=[str, int, int])
+@magicWord(category=CATEGORY_USER, types=[str, int, int])
 def disguise(command, suitIndex, value):
     invoker = spellbook.getInvoker()
 
@@ -5442,26 +5443,36 @@ def disguise(command, suitIndex, value):
     else:
         return 'Unknown command: %s' % command
 
-@magicWord(category=CATEGORY_USER2)
+@magicWord(category=CATEGORY_USER)
 def immortal():
     """ Makes invoker immune to attacks. """
     invoker = spellbook.getInvoker()
     invoker.setImmortalMode(not invoker.immortalMode)
     return 'Immortal Mode: %s' % ('ON' if invoker.immortalMode else 'OFF')
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER)
+def unlimitedGags():
+    invoker = spellbook.getInvoker()
+    if invoker.unlimitedGags:
+        invoker.unlimitedGags = False
+        return 'Unlimited Gags disabled.'
+    else:
+        invoker.unlimitedGags = True
+        return 'Unlimited Gags enabled.'
+
+@magicWord(category=CATEGORY_USER, types=[int])
 def gagPouch(value):
     invoker = spellbook.getInvoker()
     invoker.b_setMaxCarry(value)
     return 'Gag pouch set.'
 
-@magicWord(category=CATEGORY_USER2, types=[int])
+@magicWord(category=CATEGORY_USER, types=[int])
 def shovelSkill(value):
     invoker = spellbook.getInvoker()
     invoker.b_setShovelSkill(value)
     return 'Shovel Skill set.'
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def maxTrees():
     invoker = spellbook.getInvoker()
     estate = simbase.air.estateManager.toon2estate.get(invoker)
@@ -5480,7 +5491,7 @@ def maxTrees():
     return 'Failed to max tree growth.'
 
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def getDNA():
     invoker = spellbook.getInvoker()
     dnaString = invoker.dna.makeArgString()

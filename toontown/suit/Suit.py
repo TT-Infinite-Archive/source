@@ -198,21 +198,6 @@ def loadSuits(level):
 def unloadSuits(level):
     unloadDialog(level)
 
-def cogExists(filePrefix):
-    searchPath = DSearchPath()
-    if AppRunnerGlobal.appRunner:
-        searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5'))
-    else:
-        basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
-        searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/phase_3.5'))
-    filePrefix = filePrefix.strip('/')
-    pfile = Filename(filePrefix)
-    found = vfs.resolveFilename(pfile, searchPath)
-    if not found:
-        return False
-    return True
-
-
 def loadSuitAnims(suit, flag = 1):
     if suit in SuitDNA.suitHeadTypes:
         try:
@@ -413,26 +398,26 @@ class Suit(Avatar.Avatar):
         self.loseActor = None
         self.isSkeleton = 0
 
-        if dna.name in SuitGlobals.suitProperties:
-            if base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
-                self.generateAprilFoolsDNA()
-                return
+        # if dna.name in SuitGlobals.suitProperties:
+            # if base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+                # self.generateAprilFoolsDNA()
+                # return
 
-            self.scale = SuitGlobals.suitProperties[dna.name][SuitGlobals.SCALE_INDEX]
-            self.handColor = SuitGlobals.suitProperties[dna.name][SuitGlobals.HAND_COLOR_INDEX]
+        self.scale = SuitGlobals.suitProperties[dna.name][SuitGlobals.SCALE_INDEX]
+        self.handColor = SuitGlobals.suitProperties[dna.name][SuitGlobals.HAND_COLOR_INDEX]
 
-            if dna.name == 'cc':
-                self.headColor = SuitGlobals.ColdCallerHead
+        if dna.name == 'cc':
+            self.headColor = SuitGlobals.ColdCallerHead
 
-            self.generateBody()
+        self.generateBody()
 
-            if SuitGlobals.suitProperties[dna.name][SuitGlobals.HEAD_TEXTURE_INDEX]:
-                self.headTexture = SuitGlobals.suitProperties[dna.name][SuitGlobals.HEAD_TEXTURE_INDEX]
+        if SuitGlobals.suitProperties[dna.name][SuitGlobals.HEAD_TEXTURE_INDEX]:
+            self.headTexture = SuitGlobals.suitProperties[dna.name][SuitGlobals.HEAD_TEXTURE_INDEX]
 
-            for head in SuitGlobals.suitProperties[dna.name][SuitGlobals.HEADS_INDEX]:
-                self.generateHead(head)
+        for head in SuitGlobals.suitProperties[dna.name][SuitGlobals.HEADS_INDEX]:
+            self.generateHead(head)
 
-            self.setHeight(SuitGlobals.suitProperties[dna.name][SuitGlobals.HEIGHT_INDEX])
+        self.setHeight(SuitGlobals.suitProperties[dna.name][SuitGlobals.HEIGHT_INDEX])
 
         self.setName(SuitBattleGlobals.SuitAttributes[dna.name]['name'])
         self.getGeomNode().setScale(self.scale)

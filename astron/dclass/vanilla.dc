@@ -3,6 +3,7 @@ from direct.distributed import DistributedNode/AI/UD
 from direct.distributed import DistributedSmoothNode/AI
 from direct.distributed import DistributedCartesianGrid/AI
 from direct.distributed import DistributedCamera/AI/OV
+from direct.directutil import DistributedLargeBlobSender/AI
 from otp.distributed import Account/AI/UD
 from otp.ai import BanManager/AI
 from otp.ai import TimeManager/AI
@@ -122,7 +123,6 @@ from toontown.building import DistributedBankInterior/AI
 from toontown.building import DistributedBankCollectable/AI
 from toontown.building import DistributedLibraryInterior/AI
 from toontown.building import DistributedDoor/AI
-from toontown.hood import DistributedStormEvent/AI
 from toontown.building import DistributedAnimDoor/AI
 from toontown.estate import DistributedHouseDoor/AI
 from toontown.coghq import DistributedCogHQDoor/AI
@@ -315,6 +315,7 @@ from toontown.battle import DistributedBattleDiners/AI
 from toontown.coghq import DistributedGolfSpot/AI
 from toontown.minigame import DistributedIceGame/AI
 from toontown.minigame import DistributedCogThiefGame/AI
+from toontown.minigame import DistributedCogThiefRewrittenGame/AI
 from toontown.minigame import DistributedTwoDGame/AI
 from toontown.uberdog.DistributedMailManager/AI/UD import DistributedMailManager/AI/UD
 from toontown.uberdog.DistributedPartyManager/AI/UD import DistributedPartyManager/AI/UD
@@ -355,6 +356,8 @@ from toontown.strike import DistributedCorporateStrike/AI
 from toontown.strike import DistributedStrikeParticipant/AI
 from toontown.strike import DistributedStrikeEnemy/AI
 from toontown.strike import DistributedOperationSaveToontown/AI
+from toontown.zone import ZoneManager/AI/UD
+from toontown.zone import ZoneBlobSender/UD
 
 typedef uint8 bool;
 
@@ -375,6 +378,9 @@ dclass Account {
   string CREATED db;
   string LAST_LOGIN db;
   string ACCOUNT_ID db;
+  string USERNAME db;
+  string PASSWORD db;
+  string SALT db;
   uint16 ACCESS_LEVEL db;
   uint32 MONEY db;
   uint8 CHAT_MODE db;
@@ -590,11 +596,13 @@ dclass DistributedPlayer : DistributedAvatar {
   setAdminAccess(uint16 = 0) broadcast ownrecv required airecv;
   setAsGM(bool = 0) required ram broadcast ownrecv airecv;
   setChatMode(uint16 = 0) broadcast ownrecv required airecv;
+  setPlatform(string = "") required broadcast ram;
 };
 
 dclass MagicWordManager : DistributedObject {
   sendMagicWord(string, uint32) airecv clsend;
   sendMagicWordResponse(string);
+  doClientWord(uint32, string);
 };
 
 dclass OtpAvatarManager : DistributedObject {
@@ -1801,7 +1809,7 @@ dclass DistributedPartyTeamActivity : DistributedPartyActivity {
   setPlayersPerTeam(uint8, uint8) broadcast required;
   setDuration(uint8) broadcast required;
   setCanSwitchTeams(bool) broadcast required;
-  setState(string, int16, uint32) broadcast ram;
+  setState(string, int16, uint32 []) broadcast ram;
   setToonsPlaying(uint32 [0-8], uint32 [0-8]) required broadcast ram;
   setAdvantage(uint16/100);
   switchTeamRequestDenied(uint8);
@@ -1997,7 +2005,6 @@ dclass NewsManager : DistributedObject {
   setOncelyCalendarHolidays(oncelyCalendarHoliday []) required broadcast ram;
   setRelativelyCalendarHolidays(relativelyCalendarHoliday []) required broadcast ram;
   setMultipleStartHolidays(multipleStartHoliday []) required broadcast ram;
-  setStormEnabled(bool) required broadcast ram;
   sendSystemMessage(string, uint8) broadcast ram;
 };
 
@@ -2334,10 +2341,6 @@ dclass DistributedDoor : DistributedObject {
   avatarExit(uint32) broadcast;
   setState(string, int16) required broadcast ram;
   setExitDoorState(string, int16) required broadcast ram;
-};
-
-dclass DistributedStormEvent : DistributedObject {
-  setState(string, uint32) broadcast ram;
 };
 
 dclass DistributedAnimDoor : DistributedDoor {
@@ -3727,6 +3730,18 @@ dclass DistributedCogThiefGame : DistributedMinigame {
   markBarrelStolen(int32, int32, int8) broadcast;
 };
 
+dclass DistributedCogThiefRewrittenGame : DistributedMinigame {
+  throwingPie(uint32, int32, int32/100, int32/100, int32/100, int32/100) clsend broadcast;
+  hitBySuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
+  pieHitSuit(uint32, int32, int8, int32/100, int32/100, int32/100) clsend broadcast airecv;
+  cogHitBarrel(int32, int8, int8, int32/100, int32/100, int32/100) clsend airecv;
+  cogAtReturnPos(int32, int8, int8) clsend airecv;
+  updateSuitGoal(int32, int32, int8, int8, int64, int32/100, int32/100, int32/100) broadcast;
+  makeCogCarryBarrel(int32, int32, int8, int8, int32/100, int32/100, int32/100) broadcast;
+  makeCogDropBarrel(int32, int32, int8, int8, int32/100, int32/100, int32/100) broadcast;
+  markBarrelStolen(int32, int32, int8) broadcast;
+};
+
 struct twoDTreasureInfo {
   uint8 treasureIndex;
   uint8 treasureValue;
@@ -3814,6 +3829,8 @@ dclass DistributedPartyManager : DistributedObject {
 
 dclass GlobalPartyManager : DistributedObjectGlobal {
     partyManagerAIHello(uint32 channel);
+    heartbeat(uint32 channel);
+    heartbeatResponse() airecv;
     queryParty(uint32 hostId);
     addParty(DoId avId, uint64 partyId, string start, string end, int8 isPrivate,
              int8 inviteTheme, activity [], decoration [], DoIdList inviteeIds);
@@ -3823,7 +3840,13 @@ dclass GlobalPartyManager : DistributedObjectGlobal {
     requestPartySlot(uint64 partyId, uint32 avId, uint32 gateId);
     partyDone(uint64 partyId);
     allocIds(uint16 count);
-    avatarJoined(uint32);
+
+    changePrivateRequest(uint32 hostId, uint64 partyId, int8 isPrivate);
+    changePartyStatusRequest(uint32 hostId, uint64 partyId, int8 partyStatus);
+
+    markInviteAsReadButNotReplied(uint32 avId, uint64 inviteKey);
+    respondToInvite(uint32 fromId, uint32 todo0, uint16 context, uint64 inviteKey, uint8 inviteStatus);
+
 };
 
 struct PotentialToon {
@@ -3836,10 +3859,11 @@ struct PotentialToon {
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
-  requestAuthToken(string, string) clsend;
+  requestAuthToken(string mac, string ip) clsend;
   receiveAuthToken(string authToken);
 
-  login(string cookie, string authToken) clsend;
+  login(string username, string password, string authToken) clsend;
+  loginError(uint8 errorCode);
   lockClient(uint32 unlockTime, string message);
   acceptLogin(uint32 timestamp);
 
@@ -3859,7 +3883,7 @@ dclass ClientServicesManager : DistributedObjectGlobal {
 
   deleteAvatar(uint32 avId) clsend;
 
-  chooseAvatar(uint32 avId) clsend;
+  chooseAvatar(uint32 avId, string platform) clsend;
 
   systemMessage(string message);
 };
@@ -4238,3 +4262,23 @@ dclass DistributedStrikeEnemy : DistributedObject {
 };
 
 dclass DistributedOperationSaveToontown : DistributedCorporateStrike {};
+
+
+dclass ZoneManager : DistributedObject {
+  requestModifiedZones() clsend airecv;
+  setModifiedZones(uint16 zones[]) broadcast ram;
+
+  requestReload() airecv;
+
+  requestZoneData(uint16 zoneId, string hash) clsend airecv;
+  setBlobId(uint32 doId, int8 mode, uint32 filesize);
+
+};
+
+dclass ZoneBlobSender : DistributedObject {
+  setMode(uint8) required broadcast ram;
+  setTargetAvId(uint32) required broadcast ram;
+  setChunk(string);
+  setFilename(string);
+  setAck() airecv clsend;
+};

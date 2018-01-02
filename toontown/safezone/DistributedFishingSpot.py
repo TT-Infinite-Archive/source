@@ -164,31 +164,13 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         self.area = self.pond.getArea()
         self.waterLevel = FishingTargetGlobals.getWaterLevel(self.area)
 
-    def allowedToEnter(self):
-        if hasattr(base, 'ttAccess') and base.ttAccess and base.ttAccess.canAccess():
-            return True
-        return False
-
-    def handleOkTeaser(self):
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request('walk')
-
     def __handleEnterSphere(self, collEntry):
-        if self.allowedToEnter():
-            if base.localAvatar.doId == self.lastAvId and globalClock.getFrameCount() <= self.lastFrame + 1:
-                self.notify.debug('Ignoring duplicate entry for avatar.')
-                return
-            if base.localAvatar.hp > 0 and base.cr.playGame.getPlace().fsm.getCurrentState().getName() != 'fishing':
-                self.cr.playGame.getPlace().detectedFishingCollision()
-                self.d_requestEnter()
-        else:
-            place = base.cr.playGame.getPlace()
-            if place:
-                place.fsm.request('stopped')
-            self.dialog = TeaserPanel.TeaserPanel(pageName='fishing', doneFunc=self.handleOkTeaser)
+        if base.localAvatar.doId == self.lastAvId and globalClock.getFrameCount() <= self.lastFrame + 1:
+            self.notify.debug('Ignoring duplicate entry for avatar.')
+            return
+        if base.localAvatar.hp > 0 and base.cr.playGame.getPlace().fsm.getCurrentState().getName() != 'fishing':
+            self.cr.playGame.getPlace().detectedFishingCollision()
+            self.d_requestEnter()
 
     def d_requestEnter(self):
         self.sendUpdate('requestEnter', [])

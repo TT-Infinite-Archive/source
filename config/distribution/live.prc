@@ -28,6 +28,7 @@ generate-global-object 4683 DistributedDeliveryManager
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 generate-global-object 4901 MegaInvasionManager
+generate-global-object 4950 ZoneManager
 
 # Web API:
 want-web-api #f
@@ -85,9 +86,6 @@ want-heartbeat #f
 want-leak-graph-ai #f
 want-leak-graph-client #f
 want-dev-debug #f
-
-# Safezone interactables:
-want-ttc-jukebox #t
 
 # Mod tools:
 want-mods #f

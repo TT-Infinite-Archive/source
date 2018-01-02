@@ -266,6 +266,52 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.resistanceToon.detachNode()
             self.resistanceToonOnstage = 0
 
+    def loseCogSuits(self, toons, battleNode, camLoc, arrayOfObjs = False):
+        seq = Sequence()
+        if not toons:
+            return seq
+        self.notify.debug('battleNode=%s camLoc=%s' % (battleNode, camLoc))
+        seq.append(Func(base.camera.setPosHpr, battleNode, *camLoc))
+        suitsOff = Parallel()
+        if arrayOfObjs:
+            toonArray = toons
+        else:
+            toonArray = []
+            for toonId in toons:
+                toon = base.cr.doId2do.get(toonId)
+                if toon:
+                    toonArray.append(toon)
+
+        for toon in toonArray:
+            dustCloud = DustCloud.DustCloud()
+            dustCloud.setPos(0, 2, 3)
+            dustCloud.setScale(0.5)
+            dustCloud.setDepthWrite(0)
+            dustCloud.setBin('fixed', 0)
+            dustCloud.createTrack()
+            suitsOff.append(
+                Sequence(
+                    Func(dustCloud.reparentTo, toon),
+                    Parallel(
+                        dustCloud.track,
+                        Sequence(
+                            Wait(0.3),
+                            Func(toon.takeOffSuit),
+                            Func(toon.clearGoofyEffect),
+                            Func(toon.blinkEyes),
+                            Func(toon.loop, 'neutral'),
+                            Wait(0.7),
+                        )
+                    ),
+                    Func(dustCloud.detachNode),
+                    Func(dustCloud.destroy),
+                    Wait(3),
+                )
+            )
+
+        seq.append(suitsOff)
+        return seq
+
     def enterElevator(self):
         DistributedBossCog.DistributedBossCog.enterElevator(self)
         self.resistanceToon.removeActive()
@@ -277,7 +323,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.setBlend(frameBlend=True)
         self.setPosHpr(*ToontownGlobals.BossbotBossBattleOnePosHpr)
         self.loop('Ff_neutral')
-        base.camLens.setMinFov(ToontownGlobals.CEOElevatorFov / (4. / 3.))
 
     def enterIntroduction(self):
         if not self.resistanceToonOnstage:
@@ -316,43 +361,37 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                          LerpPosHprInterval(base.camera, 3, closeUpRTCamPos, closeUpRTCamHpr),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome2, CFSpeech),
                          LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)),
-                         Wait(4),
+                         Wait(5),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome3, CFSpeech),
-                         Wait(4),
+                         Wait(5),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome4, CFSpeech),
                          Wait(3),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome5, CFSpeech),
-                         Wait(3),
+                         Wait(4),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome6, CFSpeech),
                          Wait(5),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTWelcome7, CFSpeech),
-                         Wait(3),
+                         Wait(4),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTRemoveSuit, CFSpeech),
-                         Wait(2),
+                         Wait(3),
                          Func(self.clearChat),
                          self.loseCogSuits(self.toonsA + self.toonsB, render, (loseSuitCamPos[0],
-                                                                               loseSuitCamPos[1],
-                                                                               loseSuitCamPos[2],
-                                                                               loseSuitCamHpr[0],
-                                                                               loseSuitCamHpr[1],
-                                                                               loseSuitCamHpr[2])),
-                         self.toonNormalEyes(self.involvedToons),
-                         Func(base.camera.setPosHpr, closeUpRTCamPos, closeUpRTCamHpr),
-                         Func(rToon.setChatAbsolute, TTL.BossbotRTFightWaiter, CFSpeech | CFTimeout),
-                         LerpHprInterval(base.camera, 2, Point3(-15, 5, 0)),
+                         loseSuitCamPos[1],
+                         loseSuitCamPos[2],
+                         loseSuitCamHpr[0],
+                         loseSuitCamHpr[1],
+                         loseSuitCamHpr[2])),
+                         Func(camera.setPosHpr, closeUpRTCamPos, closeUpRTCamHpr),
+                         Func(rToon.setChatAbsolute, TTL.BossbotRTFightWaiters, CFSpeech),
+                         Wait(1.0),
+                         LerpHprInterval(camera, 2, Point3(-15, 5, 0)),
+                         Wait(0.5),
                          Sequence(Func(rToon.suit.loop, 'walk'),
-                                  rToon.hprInterval(1, VBase3(270, 0, 0)),
-                                  rToon.posInterval(2.5, rToonEndPos),
-                                  Func(rToon.suit.loop, 'neutral')),
-                         Func(base.camera.setPosHpr, 24.53, -64.28, 3.69, 270.00, 9.13, 0),
-                         Sequence(Func(rToon.suit.loop, 'walk'),
-                                  rToon.hprInterval(1, VBase3(90, 0, 0)),
-                                  Func(rToon.suit.loop, 'neutral'),
-                                  Func(rToon.setChatAbsolute, TTL.BossbotRTFightWaiter2, CFSpeech),
-                                  Wait(3),
-                                  Func(rToon.setChatAbsolute, TTL.BossbotRTFightWaiter3, CFSpeech),
-                                  Wait(6),
-                                  Func(rToon.clearChat)))
+                            rToon.hprInterval(1, VBase3(270, 0, 0)),
+                            rToon.posInterval(2.5, rToonEndPos),
+                            Func(rToon.suit.loop, 'neutral')),
+                         Func(rToon.clearChat),
+                         Func(self.__hideResistanceToon))
 
         return track
 

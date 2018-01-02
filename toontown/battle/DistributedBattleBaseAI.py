@@ -1354,7 +1354,10 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                     elif track != SOS:
                         toon = self.getToon(toonId)
                         if toon != None:
-                            check = toon.inventory.useItem(track, level)
+                            if toon.unlimitedGags:
+                                check = toon.inventory.useUnlimited(track, level)
+                            else:
+                                check = toon.inventory.useItem(track, level)
                             if check == -1:
                                 self.air.writeServerEvent('suspicious', toonId, 'Toon generating movie for non-existant gag track %s level %s' % (track, level))
                                 self.notify.warning('generating movie for non-existant gag track %s level %s! avId: %s' % (track, level, toonId))
@@ -1833,7 +1836,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
     def getFireCount(self):
         return self.fireCount
 
-@magicWord(category=CATEGORY_USER2)
+@magicWord(category=CATEGORY_USER)
 def skipMovie():
     invoker = spellbook.getInvoker()
     battleId = invoker.getBattleId()

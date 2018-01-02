@@ -469,10 +469,10 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             self.defaultZone = ToontownGlobals.ToontownCentral
             return
 
-        if not base.cr.isPaid() or launcher and not launcher.getPhaseComplete(hoodPhase):
+        if ZoneUtil.getCanonicalHoodId(zoneId) == ToontownGlobals.FunnyFarm:
             self.defaultZone = ToontownGlobals.ToontownCentral
-        else:
-            self.defaultZone = zoneId
+            return
+        self.defaultZone = zoneId
 
     def setShtickerBook(self, string):
         pass
@@ -2844,7 +2844,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             gmType = self._gmType
         iconInfo = [
             (None, None), # User
-            (None, None), # User 2
             ('phase_3/models/props/gm_icons.bam', '**/access_level_300'), # Mod
             ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'), # Admin
             ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'), # Host
@@ -2962,7 +2961,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         reason = 'You have been warned by a moderator for: %s' % reason
         self.setSystemMessage(base.localAvatar.doId, reason)
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER)
 def globalTeleport():
     """
     Activates the global teleport cheat.
@@ -2989,11 +2988,11 @@ def promote(deptIndex):
     invoker.sendUpdate('requestPromotion', [deptIndex])
     return 'Your promotion request has been sent.'
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER)
 def autodoor():
     base.cr.doFind('DistributedCogHQDoor').sendUpdate('requestEnter')
 
-@magicWord(category=CATEGORY_ADMINISTRATOR)
+@magicWord(category=CATEGORY_USER)
 def autoboard():
     invoker = spellbook.getInvoker()
     base.cr.doFind('Boarding').sendUpdate('requestLeave',[invoker.doId])

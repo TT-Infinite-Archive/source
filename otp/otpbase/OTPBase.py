@@ -4,7 +4,7 @@ import time
 import tempfile
 import atexit
 import shutil
-
+import sys
 import OTPGlobals
 import OTPRender
 import __builtin__
@@ -16,8 +16,11 @@ class OTPBase(ShowBase):
 
     def __init__(self, windowType = None):
         # Create a temporary directory:
-        self.tempDir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, self.tempDir)
+        if sys.platform == 'android':
+            self.tempDir = ''
+        else:
+            self.tempDir = tempfile.mkdtemp()
+            atexit.register(shutil.rmtree, self.tempDir)
 
         self.wantEnviroDR = False
         ShowBase.__init__(self, windowType=windowType)
@@ -48,7 +51,6 @@ class OTPBase(ShowBase):
             else:
                 base.cam.node().setCameraMask(OTPRender.MainCameraBitmask | OTPRender.EnviroCameraBitmask)
         taskMgr.setupTaskChain('net')
-        return
 
     def setTaskChainNetThreaded(self):
         if base.config.GetBool('want-threaded-network', 0):
@@ -263,7 +265,7 @@ class OTPBase(ShowBase):
             traceback.print_exc()
 
 
-@magicWord(category=CATEGORY_USER2)
+@magicWord(category=CATEGORY_USER)
 def oobe():
     """
     Toggle the 'out of body experience' view.
@@ -277,7 +279,7 @@ def oobeCull():
     """
     base.oobeCull()
 
-@magicWord(category=CATEGORY_USER2)
+@magicWord(category=CATEGORY_USER)
 def wire():
     """
     Toggle the 'wireframe' view.
@@ -336,7 +338,7 @@ def neglect():
         return 'You are now neglecting network updates.'
 
 
-@magicWord(category=CATEGORY_USER2, types=[float, float, float, float])
+@magicWord(category=CATEGORY_USER, types=[float, float, float, float])
 def backgroundColor(r=None, g=1, b=1, a=1):
     """
     set the background color. Specify no arguments for the default background

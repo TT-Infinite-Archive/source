@@ -20,7 +20,7 @@ class DistributedTrolley(DistributedObject.DistributedObject):
     def __init__(self, cr):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.localToonOnBoard = 0
-        if base.isSinglePlayer:
+        if base.wantSinglePlayer:
             self.trolleyCountdownTime = base.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO)
         else:
             self.trolleyCountdownTime = base.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)
@@ -167,29 +167,11 @@ class DistributedTrolley(DistributedObject.DistributedObject):
     def setState(self, state, timestamp):
         self.fsm.request(state, [globalClockDelta.localElapsedTime(timestamp)])
 
-    def allowedToEnter(self):
-        if hasattr(base, 'ttAccess') and base.ttAccess and base.ttAccess.canAccess():
-            return True
-        return False
-
-    def handleOkTeaser(self):
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request('walk')
-
     def handleEnterTrolleySphere(self, collEntry):
         self.notify.debug('Entering Trolley Sphere....')
         if base.localAvatar.getPos(render).getZ() < self.trolleyCar.getPos(render).getZ():
             return
-        if self.allowedToEnter():
-            self.loader.place.detectedTrolleyCollision()
-        else:
-            place = base.cr.playGame.getPlace()
-            if place:
-                place.fsm.request('stopped')
-            self.dialog = TeaserPanel.TeaserPanel(pageName='minigames', doneFunc=self.handleOkTeaser)
+        self.loader.place.detectedTrolleyCollision()
 
     def handleEnterTrolley(self):
         toon = base.localAvatar

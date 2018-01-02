@@ -87,6 +87,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.inGameNewsMgr = None
         self.whitelistMgr = None
 
+        self.zoneManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_ZONE_MANAGER, 'ZoneManager')
+
         self.toontownTimeManager = ToontownTimeManager.ToontownTimeManager()
         self.shardTimeManager = ShardTimeManager(self)
 
@@ -212,7 +214,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.sendSetAvatarIdMsg(0)
         self.clearFriendState()
         if (self.music is None) and base.musicManagerIsValid:
-            self.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
+            if not base.wantClassicMusic:
+                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ.ogg')
+            else:
+                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ_og.ogg')
         base.playMusic(self.music, looping=1, volume=0.9, interrupt=None)
         self.handler = self.handleMessageType
         self.avChoiceDoneEvent = 'avatarChooserDone'
@@ -248,7 +253,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         elif done == 'nameIt':
             self.accept('downloadAck-response', self.__handleDownloadAck, [avList, index])
             self.downloadAck = DownloadForceAcknowledge('downloadAck-response')
-            self.downloadAck.enter(4)
+            self.downloadAck.enter(ToontownGlobals.ToontownCentral)
         elif done == 'create':
             self.loginFSM.request('createAvatar', [avList, index])
         elif done == 'delete':

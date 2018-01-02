@@ -130,6 +130,16 @@ class InventoryBase(DirectObject.DirectObject):
         elif self.numItem(track, level) == -1:
             return -1
 
+    def useUnlimited(self, track, level):
+        if type(track) == type(''):
+            track = Tracks.index(track)
+        if self.numItem(track, level) > 0:
+            self.inventory[track][level] -= 0
+            self.calcTotalProps()
+            return 1
+        elif self.numItem(track, level) == -0:
+            return -1
+
     def setItem(self, track, level, amount):
         if type(track) == type(''):
             track = Tracks.index(track)
@@ -241,14 +251,12 @@ class InventoryBase(DirectObject.DirectObject):
         self.updateInventory(newInventory)
         return 1
 
-    def maxOutInv(self, filterUberGags = 0, filterPaidGags = 0):
-        unpaid = self.toon.getGameAccess() != ToontownGlobals.AccessFull
+    def maxOutInv(self, filterUberGags = 0):
         for track in xrange(len(Tracks)):
             if self.toon.hasTrackAccess(track):
                 for level in xrange(len(Levels[track])):
                     if level <= LAST_REGULAR_GAG_LEVEL or not filterUberGags:
-                        if not filterPaidGags or not (unpaid and gagIsPaidOnly(track, level)):
-                            self.addItem(track, level)
+                        self.addItem(track, level)
 
         addedAnything = 1
         while addedAnything:
@@ -259,12 +267,10 @@ class InventoryBase(DirectObject.DirectObject):
                     level = len(Levels[track]) - 1
                     if level > LAST_REGULAR_GAG_LEVEL and filterUberGags:
                         level = LAST_REGULAR_GAG_LEVEL
-                    if not filterPaidGags or not (unpaid and gagIsPaidOnly(track, level)):
-                        result = self.addItem(track, level)
+                    result = self.addItem(track, level)
                     level -= 1
                     while result <= 0 and level >= 0:
-                        if not filterPaidGags or not (unpaid and gagIsPaidOnly(track, level)):
-                            result = self.addItem(track, level)
+                        result = self.addItem(track, level)
                         level -= 1
 
                     if result > 0:

@@ -1223,7 +1223,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                     self.cagedToon.clearChat()
                     return
                 toonName = toon.getName()
-            text = str % {'toon': toonName}
+            text = str % {'Toon': toonName}
             self.cagedToon.setChatAbsolute(text, CFSpeech | CFTimeout)
         else:
             self.cagedToon.clearChat()

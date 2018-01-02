@@ -54,3 +54,13 @@ class DGHoodAI(HoodAI.HoodAI):
     def stopGreenToonManager(self):
         if hasattr(self, 'GreenToonEffectManager'):
             self.GreenToonEffectManager.requestDelete()
+            del self.GreenToonEffectManager
+
+    def shutdown(self):
+        if hasattr(self, 'flower') and self.flower:
+            self.flower.requestDelete()
+            self.flower = None
+
+        self.stopGreenToonManager()
+
+        HoodAI.HoodAI.shutdown(self)

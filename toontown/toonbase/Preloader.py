@@ -38,21 +38,8 @@ class Preloader(DirectObject):
 
     def loadModel(self, modelPath, priority=None):
         self.notify.debug('Loading model... ' + modelPath)
-
-        request = self.loader.makeAsyncRequest(
-            Filename(modelPath),
-            LoaderOptions(LoaderOptions.LFSearch |
-                          LoaderOptions.LFReportErrors |
-                          LoaderOptions.LFNoCache))
-        if priority is not None:
-            request.setPriority(priority)
-        request.setDoneEvent(self.asyncRequestDoneEvent)
-        request.setPythonObject(modelPath)
-        self.requests[modelPath] = (
-            request, self.loadModelCallback, [modelPath])
-
-        self.loader.loadAsync(request)
-
+        self.modelPool[modelPath] = loader.loadModel(modelPath)
+        
     def loadModelCallback(self, nodePath, modelPath):
         if nodePath is None:
             return
@@ -83,7 +70,6 @@ class Preloader(DirectObject):
         if priority is not None:
             request.setPriority(priority)
         request.setDoneEvent(self.asyncRequestDoneEvent)
-        request.setPythonObject(sfxPath)
         self.requests[sfxPath] = (
             request, self.loadSfxCallback, [sfxPath])
 
@@ -111,10 +97,15 @@ class Preloader(DirectObject):
         if request is not None:
             self.loader.remove(request)
 
-    def __handleAsyncRequestDone(self, request):
-        key = request.getPythonObject()
+    def getPythonObject(self, request):
+        for key, value in self.requests.iteritems():
+            if value[0] == request:
+                return key
 
-        if key not in self.requests:
+    def __handleAsyncRequestDone(self, request):
+        key = self.getPythonObject(request)
+
+        if (not key) or key not in self.requests:
             return
 
         request, callback, extraArgs = self.requests.pop(key)

@@ -118,6 +118,7 @@ class SafeZoneLoader(StateData.StateData):
         self.hood.dnaStore.resetPlaceNodes()
         self.hood.dnaStore.resetDNAGroups()
         self.hood.dnaStore.resetDNAVisGroups()
+        self.hood.dnaStore.resetDNAVisGroupsAI()
 
     def removeLandmarkBlockNodes(self):
         npc = self.geom.findAllMatches('**/suit_building_origin')

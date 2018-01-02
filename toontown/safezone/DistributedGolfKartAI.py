@@ -21,7 +21,7 @@ class DistributedGolfKartAI(DistributedObjectAI.DistributedObjectAI):
         self.posHpr = (x, y, z, h, p, r)
         self.chooseColor()
         self.accepting = 0
-        if simbase.isSinglePlayer:
+        if simbase.wantSinglePlayer:
             self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO)
         else:
             self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)

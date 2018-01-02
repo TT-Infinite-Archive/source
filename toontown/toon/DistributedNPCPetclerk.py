@@ -47,9 +47,6 @@ class DistributedNPCPetclerk(DistributedNPCToonBase):
     def getCollSphereRadius(self):
         return 4.0
 
-    def allowedToEnter(self):
-        return True
-
     def handleOkTeaser(self):
         self.dialog.destroy()
         del self.dialog

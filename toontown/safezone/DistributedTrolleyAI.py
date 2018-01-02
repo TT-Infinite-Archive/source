@@ -18,7 +18,7 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
         DistributedObjectAI.DistributedObjectAI.__init__(self, air)
         self.seats = [None, None, None, None]
         self.accepting = 0
-        if simbase.isSinglePlayer:
+        if simbase.wantSinglePlayer:
             self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO)
         else:
             self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)

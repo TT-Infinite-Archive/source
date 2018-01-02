@@ -45,6 +45,8 @@ sync-video #f
 texture-power-2 none
 gl-check-errors #f
 garbage-collect-states #t
+support-threads #t
+loader-num-threads 35
 
 # Egg object types:
 egg-object-type-barrier <Scalar> collide-mask { 0x01 } <Collide> { Polyset descend }
@@ -84,7 +86,7 @@ want-resistance-grounds #t
 want-strike-zone #t
 
 # Safe zone settings:
-want-treasure-planners #f
+want-treasure-planners #t
 want-suit-planners #t
 
 # Classic characters:
@@ -122,6 +124,20 @@ want-resistance-dance #f
 # Cog battles:
 base-xp-multiplier 1.0
 
+# Animated Props
+zero-pause-mult 1.0
+
+# Interactive Props
+randomize-interactive-idles #t
+interactive-prop-random-idles #t
+interactive-prop-info #f
+props-buff-battles #t
+prop-and-organic-bonus-stack #f
+prop-idle-pause-time 0.0
+
+# Holidays
+active-holidays 63, 64, 65, 66, 116
+
 # Optional:
 show-total-population #t
 want-mat-all-tailors #t
@@ -129,7 +145,7 @@ want-long-pattern-game #f
 want-talkative-tyler #f
 want-yin-yang #f
 want-butterflies #f
-want-estate-fisherman #f
+want-estate-fisherman #t
 want-fireworks #t
 want-code-redemption #f
 
@@ -148,8 +164,10 @@ want-live-updates #t
 # Heartbeat
 want-heartbeat #t
 
-# Events
-want-storm-event #f
-
 # Toon patches:
 toon-patch-version 0
+
+# Intel:
+stencil-bits 1
+depth-bits 24
+allow-incomplete-render #f

@@ -10,24 +10,14 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         SafeZoneLoader.SafeZoneLoader.__init__(self, hood, parentFSM, doneEvent)
         self.playgroundClass = TTPlayground.TTPlayground
 
-        if base.cr.newsManager.isStormEnabled():
-            self.musicFile = 'phase_4/audio/bgm/ttc_storm_bgm.ogg'
-        else:
-            self.musicFile = 'phase_4/audio/bgm/TC_nbrhood.ogg'
-
+        self.musicFile = 'phase_4/audio/bgm/TC_nbrhood.ogg'
         self.activityMusicFile = 'phase_3.5/audio/bgm/TC_SZ_activity.ogg'
         self.dnaFile = 'phase_4/dna/toontown_central_sz.pdna'
         self.safeZoneStorageDNAFile = 'phase_4/dna/storage_TT_sz.pdna'
 
     def load(self):
-        if not base.config.GetBool('want-ttc-jukebox', False):
-            # The load method loads music, we want music if don't we have a jukebox that plays music for us
-            SafeZoneLoader.SafeZoneLoader.load(self)
-        else:
-            # Don't play music if we have a jukebox, but do the other things in the loader
-            self.activityMusic = base.loadMusic(self.activityMusicFile)
-            self.createSafeZone(self.dnaFile)
-            self.parentFSMState.addChild(self.fsm)
+        SafeZoneLoader.SafeZoneLoader.load(self)
+
         self.birdSound = map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird2.ogg',
                                             'phase_4/audio/sfx/SZ_TC_bird3.ogg'])
@@ -44,20 +34,10 @@ class TTSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
     def enter(self, requestStatus):
         SafeZoneLoader.SafeZoneLoader.enter(self, requestStatus)
 
-        if base.cr.newsManager.isStormEnabled():
-            self.rain.start(camera, self.rainRender)
-
     def exit(self):
         SafeZoneLoader.SafeZoneLoader.exit(self)
-
-        if base.cr.newsManager.isStormEnabled():
-            self.rain.cleanup()
-            self.rainRender.removeNode()
 
     def unload(self):
         SafeZoneLoader.SafeZoneLoader.unload(self)
         del self.birdSound
-
-        if base.cr.newsManager.isStormEnabled():
-            del self.rain
 

@@ -24,8 +24,8 @@ class OptionsTabPage(DirectFrame):
     GameplayState = 2
     SocialState = 3
 
-    def __init__(self, parent=aspect2d):
-        DirectFrame.__init__(self, parent=parent, relief=None, pos=(0.0, 0.0, 0.0), scale=(1.0, 1.0, 1.0))
+    def __init__(self, parent = aspect2d):
+        DirectFrame.__init__(self, parent = parent, relief = None, pos = (0.0, 0.0, 0.0), scale = (1.0, 1.0, 1.0))
 
         self._parent = parent
         self.currentSizeIndex = None
@@ -63,153 +63,153 @@ class OptionsTabPage(DirectFrame):
         leftFrameGeom = loader.loadModel('phase_3/models/gui/tt_m_gui_ups_panelBg')
 
         self.leftFrame = DirectFrame(
-            parent=self, relief=None, pos=(-0.5, 0.0, 0.0), frameSize=(-0.3, 0.4, -0.5, 0.5), geom=leftFrameGeom,
-            geom_scale=(0.75, 0.75, 0.75),
-            geom_pos=(0.05, 0, 0.2)
+            parent = self, relief = None, pos = (-0.5, 0.0, 0.0), frameSize = (-0.3, 0.4, -0.5, 0.5), geom = leftFrameGeom,
+            geom_scale = (0.75, 0.75, 0.75),
+            geom_pos = (0.05, 0, 0.2)
         )
         self.rightFrame = DirectFrame(
-            parent=self, relief=None, pos=(0.5, 0.0, 0.0), frameSize=(-0.4, 0.3, -0.5, 0.5)
+            parent = self, relief = None, pos = (0.5, 0.0, 0.0), frameSize = (-0.4, 0.3, -0.5, 0.5)
         )
 
         self.videoButton = TTClickableLabel.TTClickableLabel(
             self.leftFrame,
-            text=TTLocalizer.OptionsPageVideo,
-            pos=(leftXBase, 0.0, 0.35),
-            command=self.setOptionsState,
-            extraArgs=[self.VideoState]
+            text = TTLocalizer.OptionsPageVideo,
+            pos = (leftXBase, 0.0, 0.35),
+            command = self.setOptionsState,
+            extraArgs = [self.VideoState]
         )
         self.soundButton = TTClickableLabel.TTClickableLabel(
             self.leftFrame,
-            text=TTLocalizer.OptionsPageSound,
-            pos=(leftXBase, 0.0, 0.24),
-            command=self.setOptionsState,
-            extraArgs=[self.SoundState]
+            text = TTLocalizer.OptionsPageSound,
+            pos = (leftXBase, 0.0, 0.24),
+            command = self.setOptionsState,
+            extraArgs = [self.SoundState]
         )
         self.gameplayButton = TTClickableLabel.TTClickableLabel(
             self.leftFrame,
-            text=TTLocalizer.OptionsPageGameplay,
-            pos=(leftXBase, 0.0, 0.13),
-            command=self.setOptionsState,
-            extraArgs=[self.GameplayState]
+            text = TTLocalizer.OptionsPageGameplay,
+            pos = (leftXBase, 0.0, 0.13),
+            command = self.setOptionsState,
+            extraArgs = [self.GameplayState]
         )
         self.socialButton = TTClickableLabel.TTClickableLabel(
             self.leftFrame,
-            text=TTLocalizer.OptionsPageSocial,
-            pos=(leftXBase, 0.0, 0.02),
-            command=self.setOptionsState,
-            extraArgs=[self.SocialState]
+            text = TTLocalizer.OptionsPageSocial,
+            pos = (leftXBase, 0.0, 0.02),
+            command = self.setOptionsState,
+            extraArgs = [self.SocialState]
         )
 
         # -- Video
         self.videoTitle = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text_size=TTLabel.TTLabel.MediumSize,
-            pos=(-0.40, 0, rightYBase + 0.1),
-            text=TTLocalizer.OptionsPageVideo
+            parent = self.rightFrame,
+            text_size = TTLabel.TTLabel.MediumSize,
+            pos = (-0.40, 0, rightYBase + 0.1),
+            text = TTLocalizer.OptionsPageVideo
         )
         self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
         self.resIndex = self.getResIndex()
-        self.resolutionLabel = TTLabel.TTLabel(parent=self.rightFrame, text=TTLocalizer.DisplaySettingsResolution, pos=(-0.33, 0, 0.35))
+        self.resolutionLabel = TTLabel.TTLabel(parent = self.rightFrame, text = TTLocalizer.DisplaySettingsResolution, pos = (-0.33, 0, 0.35))
         self.resolutionValueLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text='%s x %s' % tuple(self.screenSizes[self.resIndex]),
-            pos=(0.12, 0, 0.35)
+            parent = self.rightFrame,
+            text = '%s x %s' % tuple(self.screenSizes[self.resIndex]),
+            pos = (0.12, 0, 0.35)
         )
         self.resolutionLeftArrow = TTArrow(
-            parent=self.rightFrame,
-            orientation=TTArrow.OrientationLeft,
-            pos=(-0.11, 0, 0.36),
-            command=self.__handleLeftResolutionClicked,
-            extraArgs=[]
+            parent = self.rightFrame,
+            orientation = TTArrow.OrientationLeft,
+            pos = (-0.11, 0, 0.36),
+            command = self.__handleLeftResolutionClicked,
+            extraArgs = []
         )
         self.resolutionRightArrow = TTArrow(
-            parent=self.rightFrame,
-            orientation=TTArrow.OrientationRight,
-            pos=(0.34, 0, 0.36),
-            command=self.__handleRightResolutionClicked,
-            extraArgs=[]
+            parent = self.rightFrame,
+            orientation = TTArrow.OrientationRight,
+            pos = (0.34, 0, 0.36),
+            command = self.__handleRightResolutionClicked,
+            extraArgs = []
         )
         self.__updateResolutionArrows()
         self.fullscreenLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text=TTLocalizer.OptionsPageFullscreen,
-            text_align=TextNode.ALeft,
-            pos=(-0.45, 0, 0.21)
+            parent = self.rightFrame,
+            text = TTLocalizer.OptionsPageFullscreen,
+            text_align = TextNode.ALeft,
+            pos = (-0.45, 0, 0.21)
         )
         self.windowLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text=TTLocalizer.OptionsPageWindow,
-            text_align=TextNode.ALeft,
-            pos=(-0.45, 0, 0.10)
+            parent = self.rightFrame,
+            text = TTLocalizer.OptionsPageWindow,
+            text_align = TextNode.ALeft,
+            pos = (-0.45, 0, 0.10)
         )
         isFullscreen = settings.get(SettingsGlobals.Fullscreen, False)
         self.fullscreenRadio = TTRadioButton.TTRadioButton(
-            parent=self.rightFrame, selected=isFullscreen, value='fullscreen', pos=(-0.11, 0, 0.22)
+            parent = self.rightFrame, selected = isFullscreen, value = 'fullscreen', pos = (-0.11, 0, 0.22)
         )
         self.windowRadio = TTRadioButton.TTRadioButton(
-            parent=self.rightFrame, selected=not isFullscreen, value='window', pos=(-0.11, 0, 0.12))
-        self.windowSizeRG = TTRadioGroup.TTRadioGroup(buttons=[self.fullscreenRadio, self.windowRadio], command=self.__handleFullscreenRadioClicked)
+            parent = self.rightFrame, selected = not isFullscreen, value = 'window', pos = (-0.11, 0, 0.12))
+        self.windowSizeRG = TTRadioGroup.TTRadioGroup(buttons = [self.fullscreenRadio, self.windowRadio], command = self.__handleFullscreenRadioClicked)
         self.applyVideoButton = TTButton.TTButton(
-            parent=self.rightFrame, text=TTLocalizer.OptionsPageApply, pos=(-0.31, 0, -0.02), disable=True, command=self.__applyVideoChanges)
+            parent = self.rightFrame, text = TTLocalizer.OptionsPageApply, pos = (-0.31, 0, -0.02), disable = True, command = self.__applyVideoChanges)
 
         self.vsyncLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(-0.36, 0.0, -0.28),
-            text_align=TextNode.ALeft,
-            text=TTLocalizer.OptionsPageVSync,
+            parent = self.rightFrame,
+            pos = (-0.36, 0.0, -0.28),
+            text_align = TextNode.ALeft,
+            text = TTLocalizer.OptionsPageVSync,
         )
         self.vsyncCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(-0.42, 0, -0.27),
-            checked=settings.get(SettingsGlobals.VSync, False),
-            command=self.__doToggleVSync
+            parent = self.rightFrame,
+            pos = (-0.42, 0, -0.27),
+            checked = settings.get(SettingsGlobals.VSync, False),
+            command = self.__doToggleVSync
         )
         self.vsyncRequiresRestartLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(-0.2, 0.0, -0.29),
-            text_align=TextNode.ALeft,
-            text_fg=ColorGlobals.CRed,
-            text='*'
+            parent = self.rightFrame,
+            pos = (-0.2, 0.0, -0.29),
+            text_align = TextNode.ALeft,
+            text_fg = ColorGlobals.CRed,
+            text = '*'
         )
         self.changedVsync = False
         self.showFpsLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(-0.36, 0.0, -0.17),
-            text_align=TextNode.ALeft,
-            text=TTLocalizer.OptionsPageShowFps,
+            parent = self.rightFrame,
+            pos = (-0.36, 0.0, -0.17),
+            text_align = TextNode.ALeft,
+            text = TTLocalizer.OptionsPageShowFps,
         )
         self.showFpsCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(-0.42, 0, -0.16),
-            checked=settings.get(SettingsGlobals.ShowFps, False),
-            command=self.__doToggleShowFps
+            parent = self.rightFrame,
+            pos = (-0.42, 0, -0.16),
+            checked = settings.get(SettingsGlobals.ShowFps, False),
+            command = self.__doToggleShowFps
         )
         self.animationSmoothingLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(-0.36, 0.0, -0.39),
-            text_align=TextNode.ALeft,
-            text=TTLocalizer.OptionsPageAnimationSmoothing
+            parent = self.rightFrame,
+            pos = (-0.36, 0.0, -0.39),
+            text_align = TextNode.ALeft,
+            text = TTLocalizer.OptionsPageAnimationSmoothing
         )
         self.animationSmoothingCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(-0.42, 0, -0.38),
-            checked=settings.get(SettingsGlobals.AnimationSmoothing, True),
-            command=self.__doToggleAnimationSmoothing
+            parent = self.rightFrame,
+            pos = (-0.42, 0, -0.38),
+            checked = settings.get(SettingsGlobals.AnimationSmoothing, True),
+            command = self.__doToggleAnimationSmoothing
         )
         self.animationSmoothingRequiresRestartLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(0.12, 0.0, -0.4),
-            text_align=TextNode.ALeft,
-            text_fg=ColorGlobals.CRed,
-            text='*'
+            parent = self.rightFrame,
+            pos = (0.12, 0.0, -0.4),
+            text_align = TextNode.ALeft,
+            text_fg = ColorGlobals.CRed,
+            text = '*'
         )
         self.changedAnimationSmoothing = False
         self.requiresRestartLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(-0.04, 0.0, -0.57),
-            text_align=TextNode.ALeft,
-            text_fg=ColorGlobals.CRed,
-            text='* %s' % TTLocalizer.OptionsPageRequiresRestart
+            parent = self.rightFrame,
+            pos = (-0.04, 0.0, -0.57),
+            text_align = TextNode.ALeft,
+            text_fg = ColorGlobals.CRed,
+            text = '* %s' % TTLocalizer.OptionsPageRequiresRestart
         )
         self.requiresRestart = False
         self.animationSmoothingRequiresRestartLabel.hide()
@@ -220,69 +220,69 @@ class OptionsTabPage(DirectFrame):
 
         # Volume
         self.volumeTitle = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text_size=TTLabel.TTLabel.MediumSize,
-            pos=(rightXBase + 0.02, 0, rightYBase + 0.1),
-            text=TTLocalizer.OptionsPageSound
+            parent = self.rightFrame,
+            text_size = TTLabel.TTLabel.MediumSize,
+            pos = (rightXBase + 0.02, 0, rightYBase + 0.1),
+            text = TTLocalizer.OptionsPageSound
         )
 
         # Music
         row = 0
         self.musicLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text_align=TextNode.ALeft,
-            text=TTLocalizer.OptionsPageEnableMusic,
+            parent = self.rightFrame,
+            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text_align = TextNode.ALeft,
+            text = TTLocalizer.OptionsPageEnableMusic,
         )
         self.musicCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.musicActive,
-            command=self.__doToggleMusic
+            parent = self.rightFrame,
+            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked = base.musicActive,
+            command = self.__doToggleMusic
         )
         self.musicSlider = TTSlider.TTSlider(
-            parent=self.rightFrame,
-            value=self.getMusicVolume(),
-            pos=(-0.1, 0, rightYBase - textRowHeight * row - 0.07),
-            enabled=base.musicActive,
-            command=self.setMusicVolume
+            parent = self.rightFrame,
+            value = self.getMusicVolume(),
+            pos = (-0.1, 0, rightYBase - textRowHeight * row - 0.07),
+            enabled = base.musicActive,
+            command = self.setMusicVolume
         )
 
         # Sound
         row += 1.5
         self.soundLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageSound,
-            text_align=TextNode.ALeft,
+            parent = self.rightFrame,
+            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text = TTLocalizer.OptionsPageSound,
+            text_align = TextNode.ALeft,
         )
         self.soundCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.sfxActive,
-            command=self.__doToggleSfx
+            parent = self.rightFrame,
+            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked = base.sfxActive,
+            command = self.__doToggleSfx
         )
         self.soundSlider = TTSlider.TTSlider(
-            parent=self.rightFrame,
-            value=self.getSoundVolume(),
-            pos=(-0.1, 0, rightYBase - textRowHeight * row - 0.07),
-            enabled=base.sfxActive,
-            command=self.setSoundVolume
+            parent = self.rightFrame,
+            value = self.getSoundVolume(),
+            pos = (-0.1, 0, rightYBase - textRowHeight * row - 0.07),
+            enabled = base.sfxActive,
+            command = self.setSoundVolume
         )
-        
+
         # Classic Music
         row += 1.5
         self.classicMusicLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageClassicMusic,
-            text_align=TextNode.ALeft,
+            parent = self.rightFrame,
+            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text = TTLocalizer.OptionsPageClassicMusic,
+            text_align = TextNode.ALeft,
         )
         self.classicMusicCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.wantClassicMusic,
-            command=self.__doToggleClassicMusic
+            parent = self.rightFrame,
+            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked = base.wantClassicMusic,
+            command = self.__doToggleClassicMusic
         )
 
         # -- Social
@@ -290,123 +290,123 @@ class OptionsTabPage(DirectFrame):
 
         # - Chat
         self.chatTitle = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text_size=TTLabel.TTLabel.MediumSize,
-            pos=(rightXBase - 0.02, 0, rightYBase + 0.1),
-            text=TTLocalizer.OptionsPageChat
+            parent = self.rightFrame,
+            text_size = TTLabel.TTLabel.MediumSize,
+            pos = (rightXBase - 0.02, 0, rightYBase + 0.1),
+            text = TTLocalizer.OptionsPageChat
         )
         if self.hasAvatar:
             # Whisper Settings
             self.whispersLabel = TTLabel.TTLabel(
-                parent=self.rightFrame,
-                pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text=TTLocalizer.OptionsPageAcceptingWhispers,
-                text_align=TextNode.ALeft
+                parent = self.rightFrame,
+                pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text = TTLocalizer.OptionsPageAcceptingWhispers,
+                text_align = TextNode.ALeft
             )
             self.whispersCheckBox = TTCheckBox.TTCheckBox(
-                parent=self.rightFrame,
-                pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-                checked=base.localAvatar.wantWhispers,
-                command=self.__doToggleWantWhispers
+                parent = self.rightFrame,
+                pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+                checked = base.localAvatar.wantWhispers,
+                command = self.__doToggleWantWhispers
             )
             row += 0.75
             self.whispersAnyoneLabel = TTLabel.TTLabel(
-                parent=self.rightFrame,
-                pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text=TTLocalizer.OptionsPageFromStrangers,
-                text_align=TextNode.ALeft,
-                text_size=TTLabel.TTLabel.SmallSize
+                parent = self.rightFrame,
+                pos = (rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text = TTLocalizer.OptionsPageFromStrangers,
+                text_align = TextNode.ALeft,
+                text_size = TTLabel.TTLabel.SmallSize
             )
             self.whispersAnyoneCheckBox = TTCheckBox.TTCheckBox(
-                parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
-                disable=not base.localAvatar.wantWhispers,
-                checked=base.localAvatar.wantNonFriendWhispers,
-                command=self.__doToggleWantNonFriendWhispers
+                parent = self.rightFrame, pos = (rightXBase, 0, rightYBase - textRowHeight * row),
+                disable = not base.localAvatar.wantWhispers,
+                checked = base.localAvatar.wantNonFriendWhispers,
+                command = self.__doToggleWantNonFriendWhispers
             )
             row += 0.75
             self.whispersFriendsLabel = TTLabel.TTLabel(
-                parent=self.rightFrame,
-                pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text=TTLocalizer.OptionsPageFromFriends,
-                text_align=TextNode.ALeft,
-                text_size=TTLabel.TTLabel.SmallSize
+                parent = self.rightFrame,
+                pos = (rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text = TTLocalizer.OptionsPageFromFriends,
+                text_align = TextNode.ALeft,
+                text_size = TTLabel.TTLabel.SmallSize
             )
             self.whispersFriendsCheckBox = TTCheckBox.TTCheckBox(
-                parent=self.rightFrame, pos=(rightXBase, 0, rightYBase - textRowHeight * row),
-                disable=not base.localAvatar.wantWhispers,
-                checked=base.localAvatar.wantFriendWhispers,
-                command=self.__doToggleWantFriendWhispers
+                parent = self.rightFrame, pos = (rightXBase, 0, rightYBase - textRowHeight * row),
+                disable = not base.localAvatar.wantWhispers,
+                checked = base.localAvatar.wantFriendWhispers,
+                command = self.__doToggleWantFriendWhispers
             )
             row += 1
             self.speedChatStyleLabel = TTLabel.TTLabel(
-                parent=self.rightFrame,
-                pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text=TTLocalizer.OptionsPageSpeedChatStyleLabel,
-                text_align=TextNode.ALeft
+                parent = self.rightFrame,
+                pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text = TTLocalizer.OptionsPageSpeedChatStyleLabel,
+                text_align = TextNode.ALeft
             )
             row += 1
-    
+
             self.speedChatStyleLeftArrow = TTArrow(
-                parent=self,
-                orientation=TTArrow.OrientationLeft,
-                pos=(0.25, 0, rightYBase - textRowHeight * row),
-                command=self.__doSpeedChatStyleLeft)
+                parent = self,
+                orientation = TTArrow.OrientationLeft,
+                pos = (0.25, 0, rightYBase - textRowHeight * row),
+                command = self.__doSpeedChatStyleLeft)
             self.speedChatStyleRightArrow = TTArrow(
-                parent=self,
-                orientation=TTArrow.OrientationRight,
-                pos=(0.65, 0, rightYBase - textRowHeight * row),
-                command=self.__doSpeedChatStyleRight
+                parent = self,
+                orientation = TTArrow.OrientationRight,
+                pos = (0.65, 0, rightYBase - textRowHeight * row),
+                command = self.__doSpeedChatStyleRight
             )
             self.speedChatStyleText = SpeedChat.SpeedChat(
-                name='OptionsPageStyleText',
-                structure=[2000],
-                backgroundModelName='phase_3/models/gui/ChatPanel',
-                guiModelName='phase_3.5/models/gui/speedChatGui'
+                name = 'OptionsPageStyleText',
+                structure = [2000],
+                backgroundModelName = 'phase_3/models/gui/ChatPanel',
+                guiModelName = 'phase_3.5/models/gui/speedChatGui'
             )
             self.speedChatStyleText.setScale(self.speed_chat_scale)
             self.speedChatStyleText.setPos(0.37, 0, rightYBase - textRowHeight * row + 0.03)
             self.speedChatStyleText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
-    
+
             row += 2
             # - Friends
             self.friendsTitle = TTLabel.TTLabel(
-                parent=self.rightFrame,
-                text_size=TTLabel.TTLabel.MediumSize,
-                pos=(rightXBase - 0.08, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text=TTLocalizer.OptionsPageFriends,
-                text_align=TextNode.ALeft
+                parent = self.rightFrame,
+                text_size = TTLabel.TTLabel.MediumSize,
+                pos = (rightXBase - 0.08, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text = TTLocalizer.OptionsPageFriends,
+                text_align = TextNode.ALeft
             )
             row += 1
             self.acceptingFriendsLabel = TTLabel.TTLabel(
-                parent=self.rightFrame,
-                pos=(rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text=TTLocalizer.OptionsPageAcceptingFriends,
-                text_align=TextNode.ALeft
+                parent = self.rightFrame,
+                pos = (rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
+                text = TTLocalizer.OptionsPageAcceptingFriends,
+                text_align = TextNode.ALeft
             )
             self.acceptingFriendsCheckBox = TTCheckBox.TTCheckBox(
-                parent=self.rightFrame,
-                pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-                checked=base.localAvatar.wantFriends,
-                command=self.__doToggleWantFriends
+                parent = self.rightFrame,
+                pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+                checked = base.localAvatar.wantFriends,
+                command = self.__doToggleWantFriends
             )
-    
-            if (base.isSinglePlayer or base.isHosting):
+
+            if (base.isHosting or base.wantSinglePlayer):
                 text = TTLocalizer.OptionsDisconnect
             else:
                 text = TTLocalizer.OptionsLeaveServer
             self.exitButton = TTButton.TTButton(
-                parent=self,
-                buttonScale=1.15,
-                text=text,
-                pos=(-0.45, 0, -0.53),
-                command=self.__handleExitServerShowWithConfirm
+                parent = self,
+                buttonScale = 1.15,
+                text = text,
+                pos = (-0.45, 0, -0.53),
+                command = self.__handleExitServerShowWithConfirm
             )
             self.toonselectButton = TTButton.TTButton(
-                parent=self,
-                buttonScale=1.15,
-                text=TTLocalizer.OptionsReturnToToonSelect,
-                pos=(-0.45, 0, -0.33),
-                command=self.__handleExitToToonSelectShowWithConfirm
+                parent = self,
+                buttonScale = 1.15,
+                text = TTLocalizer.OptionsReturnToToonSelect,
+                pos = (-0.45, 0, -0.33),
+                command = self.__handleExitToToonSelectShowWithConfirm
             )
 
         # -- Gameplay
@@ -414,34 +414,60 @@ class OptionsTabPage(DirectFrame):
         row = 0
         # - Controls
         self.controlsTitle = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text_size=TTLabel.TTLabel.MediumSize,
-            pos=(rightXBase - 0.08, 0, rightYBase + 0.1),
-            text=TTLocalizer.OptionsPageControls,
-            text_align=TextNode.ALeft
+            parent = self.rightFrame,
+            text_size = TTLabel.TTLabel.MediumSize,
+            pos = (rightXBase - 0.08, 0, rightYBase + 0.1),
+            text = TTLocalizer.OptionsPageControls,
+            text_align = TextNode.ALeft
         )
 
         # Custom Controls
         self.wantCustomControlsLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            text_size=TTLabel.TTLabel.NormalSize,
-            text=TTLocalizer.OptionsPageCustomControls,
-            text_align=TextNode.ALeft,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row)
+            parent = self.rightFrame,
+            text_size = TTLabel.TTLabel.NormalSize,
+            text = TTLocalizer.OptionsPageCustomControls,
+            text_align = TextNode.ALeft,
+            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row)
         )
         self.wantCustomControls = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=base.wantCustomControls,
-            command=self.__doToggleWantCustomControls
+            parent = self.rightFrame,
+            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked = base.wantCustomControls,
+            command = self.__doToggleWantCustomControls
         )
         row += 1
         self.configureControlsButton = TTButton.TTButton(
-            parent=self.rightFrame,
-            text=TTLocalizer.OptionsPageConfigure,
-            pos=(rightXBase + 0.2, 0.0, rightYBase - textRowHeight * row),
-            disable=not base.wantCustomControls,
-            command=self.__openKeyRemapDialog
+            parent = self.rightFrame,
+            text = TTLocalizer.OptionsPageConfigure,
+            pos = (rightXBase + 0.2, 0.0, rightYBase - textRowHeight * row),
+            disable = not base.wantCustomControls,
+            command = self.__openKeyRemapDialog
+        )
+        row += 1.5
+        self.doorInteractKeyLabel = TTLabel.TTLabel(
+            parent = self.rightFrame,
+            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text = TTLocalizer.OptionsPageDoorInteract,
+            text_align = TextNode.ALeft,
+        )
+        self.doorInteractKeyCheckbox = TTCheckBox.TTCheckBox(
+            parent = self.rightFrame,
+            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked = base.wantDoorInteract,
+            command = self.__doToggleDoorInteract
+        )
+        row += 1.5
+        self.npcInteractKeyLabel = TTLabel.TTLabel(
+            parent = self.rightFrame,
+            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
+            text = TTLocalizer.OptionsPageNpcInteract,
+            text_align = TextNode.ALeft,
+        )
+        self.npcInteractKeyCheckbox = TTCheckBox.TTCheckBox(
+            parent = self.rightFrame,
+            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
+            checked = base.wantNpcInteract,
+            command = self.__doToggleNpcInteract
         )
         self.setOptionsState(self.VideoState)
 
@@ -578,18 +604,26 @@ class OptionsTabPage(DirectFrame):
         self.soundSlider.hide()
         self.classicMusicCheckBox.hide()
         self.classicMusicLabel.hide()
-        
+
     def showGameplayGui(self):
         self.controlsTitle.show()
         self.wantCustomControlsLabel.show()
         self.wantCustomControls.show()
         self.configureControlsButton.show()
+        self.doorInteractKeyLabel.show()
+        self.doorInteractKeyCheckbox.show()
+        self.npcInteractKeyLabel.show()
+        self.npcInteractKeyCheckbox.show()
 
     def hideGameplayGui(self):
         self.controlsTitle.hide()
         self.wantCustomControlsLabel.hide()
         self.wantCustomControls.hide()
         self.configureControlsButton.hide()
+        self.doorInteractKeyLabel.hide()
+        self.doorInteractKeyCheckbox.hide()
+        self.npcInteractKeyLabel.hide()
+        self.npcInteractKeyCheckbox.hide()
 
     def showSocialGui(self):
         rightXBase = -0.4
@@ -634,28 +668,28 @@ class OptionsTabPage(DirectFrame):
         # We want it as a value between 0-100
         return settings.get(SettingsGlobals.MusicVolume, 1) * 100
 
-    def setMusicVolume(self, volume=None):
+    def setMusicVolume(self, volume = None):
         messenger.send(EventGlobals.WakeUp)
         if volume is None:
             volume = self.musicSlider.getValue()
         else:
             self.musicSlider.setValue(volume)
         # We store it as a value between 0 - 1
-        base.musicManager.setVolume(volume/100)
-        settings[SettingsGlobals.MusicVolume] = volume/100
+        base.musicManager.setVolume(volume / 100)
+        settings[SettingsGlobals.MusicVolume] = volume / 100
 
     def getSoundVolume(self):
         # We want it as a value between 0-100
         return settings.get(SettingsGlobals.SoundVolume, 1) * 100
 
-    def setSoundVolume(self, volume=None):
+    def setSoundVolume(self, volume = None):
         messenger.send(EventGlobals.WakeUp)
         if volume is None:
             volume = self.soundSlider.getValue()
         else:
             self.soundSlider.setValue(volume)
-        base.setSfxVolume(volume/100)
-        settings[SettingsGlobals.SoundVolume] = volume/100
+        base.setSfxVolume(volume / 100)
+        settings[SettingsGlobals.SoundVolume] = volume / 100
 
     def __doToggleMusic(self):
         messenger.send(EventGlobals.WakeUp)
@@ -667,7 +701,7 @@ class OptionsTabPage(DirectFrame):
             base.enableMusic(1)
             settings[SettingsGlobals.Music] = True
             self.musicSlider.enable()
-            
+
     def __doToggleClassicMusic(self):
         messenger.send(EventGlobals.WakeUp)
         if base.wantClassicMusic:
@@ -778,6 +812,24 @@ class OptionsTabPage(DirectFrame):
             base.localAvatar.chatMgr.reloadWASD()
             base.localAvatar.controlManager.disable()
 
+    def __doToggleDoorInteract(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantDoorInteract:
+            settings[SettingsGlobals.DoorInteract] = False
+            base.wantDoorInteract = False
+        else:
+            settings[SettingsGlobals.DoorInteract] = True
+            base.wantDoorInteract = True
+
+    def __doToggleNpcInteract(self):
+        messenger.send(EventGlobals.WakeUp)
+        if base.wantNpcInteract:
+            settings[SettingsGlobals.NPCInteract] = False
+            base.wantNpcInteract = False
+        else:
+            settings[SettingsGlobals.NPCInteract] = True
+            base.wantNpcInteract = True
+
     def __doSpeedChatStyleLeft(self):
         if self.speedChatStyleIndex > 0:
             self.speedChatStyleIndex = self.speedChatStyleIndex - 1
@@ -807,9 +859,9 @@ class OptionsTabPage(DirectFrame):
         wp.setFullscreen(fullscreen)
         base.win.requestProperties(wp)
         # Test the resolution and ask the user if they want to keep it
-        taskMgr.doMethodLater(0.1, self.testResolution, 'testResolution-task', extraArgs=[res])
+        taskMgr.doMethodLater(0.1, self.testResolution, 'testResolution-task', extraArgs = [res])
         # Revert after 15 seconds of inactivity
-        taskMgr.doMethodLater(15, self.revertResolution, 'revertResolution-task', extraArgs=[])
+        taskMgr.doMethodLater(15, self.revertResolution, 'revertResolution-task', extraArgs = [])
         # Disable apply video so, no need now
         self.applyVideoButton.disable()
 
@@ -843,9 +895,9 @@ class OptionsTabPage(DirectFrame):
             if self.warning:
                 self.warning.cleanup()
             self.warning = TTDialog.TTGlobalDialog(
-                style=TTDialog.Acknowledge,
-                doneEvent='confirmWarning',
-                message='Failed to set new display mode: Invalid settings for monitor size.'
+                style = TTDialog.Acknowledge,
+                doneEvent = 'confirmWarning',
+                message = 'Failed to set new display mode: Invalid settings for monitor size.'
             )
             self.accept('confirmWarning', self.__handleWarningDone)
             self.applyVideoButton.enable()
@@ -856,13 +908,13 @@ class OptionsTabPage(DirectFrame):
             if self.videoDialog:
                 self.videoDialog.cleaup()
             self.videoDialog = TTDialog.TTGlobalDialog(
-                style=TTDialog.TwoChoice,
-                doneEvent='confirmVideo',
-                message='Do you want to keep these settings? If you don\'t they will revert in (15) seconds.'
+                style = TTDialog.TwoChoice,
+                doneEvent = 'confirmVideo',
+                message = 'Do you want to keep these settings? If you don\'t they will revert in (15) seconds.'
             )
             self.accept('confirmVideo', self.__handleVideoConfirmDone)
 
-    def __handleVideoConfirmDone(self, e=None):
+    def __handleVideoConfirmDone(self, e = None):
         status = self.videoDialog.doneStatus
         self.ignore('confirmVideo')
         self.videoDialog.cleanup()
@@ -881,7 +933,7 @@ class OptionsTabPage(DirectFrame):
                 taskMgr.remove('revertResolution-task')
                 self.revertResolution()
 
-    def __handleWarningDone(self, e=None):
+    def __handleWarningDone(self, e = None):
         self.ignore('warningDone')
         self.warning.cleanup()
         self.warning = None
@@ -941,9 +993,9 @@ class OptionsTabPage(DirectFrame):
     def updateSpeedChatStyle(self):
         nameKey, arrowColor, rolloverColor, frameColor = OptionsPageGlobals.speedChatStyles[self.speedChatStyleIndex]
         newSCColorScheme = SCColorScheme.SCColorScheme(
-            arrowColor=arrowColor,
-            rolloverColor=rolloverColor,
-            frameColor=frameColor
+            arrowColor = arrowColor,
+            rolloverColor = rolloverColor,
+            frameColor = frameColor
         )
         self.speedChatStyleText.setColorScheme(newSCColorScheme)
         self.speedChatStyleText.clearMenu()
@@ -967,7 +1019,7 @@ class OptionsTabPage(DirectFrame):
             self.speedChatStyleRightArrow.disable()
         base.localAvatar.b_setSpeedChatStyleIndex(self.speedChatStyleIndex)
 
-    def writeDisplaySettings(self, task=None):
+    def writeDisplaySettings(self, task = None):
         if not self.displaySettingsChanged:
             return
         taskMgr.remove(self.DisplaySettingsTaskName)
@@ -976,15 +1028,15 @@ class OptionsTabPage(DirectFrame):
 
     def __handleExitServerShowWithConfirm(self):
         if base.isHosting:
-            message = TTLocalizer.OptionsPageExitConfirmMultiplayerHost
+            message = TTLocalizer.LeaveServerHost
         else:
-            message = TTLocalizer.OptionsPageExitConfirmMultiplayer
-        if base.isSinglePlayer:
-            message = TTLocalizer.OptionsPageExitConfirmSingleplayer
+            message = TTLocalizer.LeaveServer
+        if base.wantSinglePlayer:
+            message = TTLocalizer.LeaveServerHostSP
         self.confirm = TTDialog.TTGlobalDialog(
-            doneEvent='confirmDone',
-            message=message,
-            style=TTDialog.TwoChoice
+            doneEvent = 'confirmDone',
+            message = message,
+            style = TTDialog.TwoChoice
         )
         self.confirm.show()
         self._parent.doneStatus = {'mode': 'exit',
@@ -993,9 +1045,9 @@ class OptionsTabPage(DirectFrame):
 
     def __handleExitToToonSelectShowWithConfirm(self):
         self.confirm = TTDialog.TTGlobalDialog(
-            doneEvent='confirmDone',
-            message=TTLocalizer.OptionsPagePickAToonConfirm,
-            style=TTDialog.TwoChoice)
+            doneEvent = 'confirmDone',
+            message = TTLocalizer.PickAToonConfirm,
+            style = TTDialog.TwoChoice)
         self.confirm.show()
         self._parent.doneStatus = {'mode': 'exit',
                                   'exitTo': 'closeShard'}
@@ -1018,5 +1070,4 @@ class OptionsTabPage(DirectFrame):
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
-            base.cr.loginFSM.request('homeScreen')
-            base.cr.mainMenu.LocalSinglePlayerStart.demand('Off')
+            base.cr.loginFSM.request('mainMenu')

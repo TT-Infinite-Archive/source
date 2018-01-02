@@ -15,6 +15,8 @@ class ControlRemap:
     ACTION_BUTTON = 5
     OPTIONS_PAGE_HOTKEY = 6
     CHAT_HOTKEY = 7
+    SCREENSHOT_KEY = 8
+    INTERACT_KEY = 9
 
     def __init__(self):
         self.dialog = TTDialog.TTGlobalDialog(
@@ -85,6 +87,7 @@ class ControlRemap:
             command=self.enterWaitForKey, extraArgs=[self.OPTIONS_PAGE_HOTKEY],
             wantLabel=True, labelOrientation='top', labelPos=labelPos,
             labelText=Controls[6])
+            
         self.chatHotkey = OptionButton(
             parent=self.dialog,
             text=base.CHAT_HOTKEY,
@@ -93,6 +96,22 @@ class ControlRemap:
             wantLabel=True, labelOrientation='top', labelPos=labelPos,
             labelText=Controls[7])
 
+        self.screenshotKey = OptionButton(
+            parent=self.dialog,
+            text=base.SCREENSHOT_KEY,
+            pos=(button_x, 0.0, button_y - 0.6),
+            command=self.enterWaitForKey, extraArgs=[self.SCREENSHOT_KEY],
+            wantLabel=True, labelOrientation='top', labelPos=labelPos,
+            labelText=Controls[8])
+            
+        self.interactKey = OptionButton(
+            parent=self.dialog,
+            text=base.INTERACT_KEY,
+            pos=(button_x + 1.2, 0.0, button_y - 0.6),
+            command=self.enterWaitForKey, extraArgs=[self.INTERACT_KEY],
+            wantLabel=True, labelOrientation='top', labelPos=labelPos,
+            labelText=Controls[9])
+            
         self.controlsToBeSaved = {
             self.UP: base.MOVE_UP,
             self.LEFT: base.MOVE_LEFT,
@@ -101,7 +120,9 @@ class ControlRemap:
             self.JUMP: base.JUMP,
             self.ACTION_BUTTON: base.ACTION_BUTTON,
             self.OPTIONS_PAGE_HOTKEY: OptionsPageHotkey,
-            self.CHAT_HOTKEY: base.CHAT_HOTKEY
+            self.CHAT_HOTKEY: base.CHAT_HOTKEY,
+            self.SCREENSHOT_KEY: base.SCREENSHOT_KEY,
+            self.INTERACT_KEY: base.INTERACT_KEY
         }
         settings.write()
 
@@ -163,6 +184,10 @@ class ControlRemap:
             self.optionsKey['text'] = keyName
         elif controlNum == self.CHAT_HOTKEY:
             self.chatHotkey['text'] = keyName
+        elif controlNum == self.SCREENSHOT_KEY:
+            self.screenshotKey['text'] = keyName
+        elif controlNum == self.INTERACT_KEY:
+            self.interactKey['text'] = keyName
         self.dialog.show()    
         self.exitWaitForKey(controlNum, keyName)
         
@@ -185,6 +210,8 @@ class ControlRemap:
         keymap['ACTION_BUTTON'] = self.controlsToBeSaved[self.ACTION_BUTTON]
         keymap['OPTIONS_PAGE_HOTKEY'] = self.controlsToBeSaved[self.OPTIONS_PAGE_HOTKEY]
         keymap['CHAT_HOTKEY'] = self.controlsToBeSaved[self.CHAT_HOTKEY]
+        keymap['SCREENSHOT_KEY'] = self.controlsToBeSaved[self.SCREENSHOT_KEY]
+        keymap['INTERACT_KEY'] = self.controlsToBeSaved[self.INTERACT_KEY]
         settings['keymap'] = keymap
         settings.write()
 

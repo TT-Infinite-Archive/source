@@ -14,7 +14,7 @@ class PartyEditorListElement(DirectButton):
         self.id = id
         self.isDecoration = isDecoration
         self.unreleased = self.calcUnreleased(id)
-        self.comingSoonTextScale = 1.0
+        self.unavailableTextScale = 1.0
         if self.isDecoration:
             self.name = TTLocalizer.PartyDecorationNameDict[self.id]['editor']
             colorList = ((1.0, 0.0, 1.0, 1.0),
@@ -35,7 +35,7 @@ class PartyEditorListElement(DirectButton):
                 geom3_color = (0.5, 0.5, 0.5, 1.0)
                 scale = Vec3(2.5, 2.5, 2.5)
                 geom_pos = (0.0, 0.0, 0.0)
-                self.comingSoonTextScale = 0.035
+                self.unavailableTextScale = 0.035
             else:
                 geom_pos = (0.0, 0.0, -3.0)
                 geom3_color = (0.5, 0.5, 0.5, 1.0)
@@ -58,7 +58,7 @@ class PartyEditorListElement(DirectButton):
             scale = 0.35
             geom3_color = (0.5, 0.5, 0.5, 1.0)
             geom_pos = (0.0, 0.0, 0.0)
-            self.comingSoonTextScale = 0.25
+            self.unavailableTextScale = 0.25
         optiondefs = (('geom', geom, None),
          ('geom3_color', geom3_color, None),
          ('geom_pos', geom_pos, None),
@@ -88,14 +88,16 @@ class PartyEditorListElement(DirectButton):
             self.unreleased = False
         elif self.isDecoration:
             self.unreleased = id in PartyGlobals.UnreleasedDecorationIds
+        elif base.wantSinglePlayer:
+            self.unreleased = id in PartyGlobals.UnreleasedActivityIdsSP
         else:
             self.unreleased = id in PartyGlobals.UnreleasedActivityIds
         return self.unreleased
 
     def adjustForUnreleased(self):
         if self.unreleased:
-            textScale = self.comingSoonTextScale
-            comingSoon = DirectLabel(parent=self, text=TTLocalizer.PartyPlannerComingSoon, text_scale=textScale, text_fg=(1.0, 0, 0, 1.0), text_shadow=(0, 0, 0, 1), relief=None)
+            textScale = self.unavailableTextScale
+            unavailable = DirectLabel(parent=self, text=TTLocalizer.PartyPlannerUnavailable, text_scale=textScale, text_fg=(1.0, 0, 0, 1.0), text_shadow=(0, 0, 0, 1), relief=None)
             self['state'] = DirectGuiGlobals.DISABLED
         return
 
@@ -124,9 +126,6 @@ class PartyEditorListElement(DirectButton):
             infoDict = PartyGlobals.DecorationInformationDict
         else:
             infoDict = PartyGlobals.ActivityInformationDict
-        if not base.cr.isPaid() and infoDict[self.id]['paidOnly']:
-            self.setOffLimits()
-            return
         if infoDict[self.id]['cost'] > self.partyEditor.partyPlanner.totalMoney - self.partyEditor.partyPlanner.totalCost:
             self.setTooExpensive(True)
             tooExpensive = True

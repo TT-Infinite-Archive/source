@@ -4,10 +4,11 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
-from toontown.toonbase import UserFunnel
+from toontown.toonbase import ToontownGlobals, EventGlobals
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
+import sys
 
 
 def generateLookupTable(key):
@@ -28,22 +29,29 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.systemMessageSfx = None
 
     # --- LOGIN LOGIC ---
-    def performLogin(self, doneEvent):
+    def performLogin(self, doneEvent, username, password):
+        self.username = username
+        self.password = password
         self.loginDoneEvent = doneEvent
-        getMAC = UserFunnel.getMAC()
-        getIP = UserFunnel.getIP()
-        print 'requestAuthToken sending %s and %s' % (getMAC, getIP)
-
-        self.sendUpdate('requestAuthToken', [getMAC, getIP])
+        getIp = ToontownGlobals.getIp()
+        mac = ToontownGlobals.getMac()
+        self.notify.debug('Performing login: %s.' % [mac, getIp])
+        self.sendUpdate('requestAuthToken', [mac, getIp])
 
     def receiveAuthToken(self, authToken):
+        self.notify.debug('Received auth token %s.' % authToken)
+        self.notify.debug('Requesting login...')
         lookupTable = generateLookupTable(authToken[::2])
-        self.sendUpdate('login', [self.cr.playToken or 'dev', encodeHexString(lookupTable, authToken)])
+        self.sendUpdate('login', [self.username, self.password, encodeHexString(lookupTable, authToken)])
         del lookupTable
 
     def acceptLogin(self, timestamp):
         messenger.send(self.loginDoneEvent, [{'mode': 'success', 'timestamp': timestamp}])
         self.loginDoneEvent = None
+
+    def loginError(self, errorCode):
+        self.notify.debug('Login Error %s' % errorCode)
+        messenger.send(EventGlobals.LoginError, [errorCode])
 
     # --- AVATARS LIST ---
     def requestAvatars(self):
@@ -103,7 +111,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     # --- AVATAR CHOICE ---
     def sendChooseAvatar(self, avId):
-        self.sendUpdate('chooseAvatar', [avId])
+        self.sendUpdate('chooseAvatar', [avId, sys.platform])
 
     def systemMessage(self, message):
         whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)

@@ -1,7 +1,7 @@
 from direct.gui.DirectGui import OnscreenImage, OnscreenText
 from panda3d.core import TransparencyAttrib, Point3, Vec4, Vec3, TextNode
 from direct.interval.IntervalGlobal import LerpPosInterval, Wait, Func
-from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval
+from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval, LerpFunctionInterval
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.showbase.DirectObject import DirectObject
 
@@ -13,16 +13,15 @@ class ClickToStart(DirectObject):
 
     def __init__(self, version='n/a'):
         DirectObject.__init__(self)
-
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.background = OnscreenImage(
             parent=self.backgroundNodePath,
-            image='phase_3/maps/loading_bg_clouds.jpg'
+            image='phase_3/maps/tti_click_to_start_bg.jpg'
         )
         self.background.setTransparency(TransparencyAttrib.MAlpha)
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             bgTex = loader.loadTexture(
-                'phase_3/maps/loading_bg_clouds_halloween.jpg')
+                'phase_3/maps/tti_click_to_start_bg_halloween.jpg')
             self.backgroundNodePath.find('**/bg').setTexture(bgTex, 1)
             self.backgroundNodePath.setScale(1, 1, 1)
 
@@ -55,6 +54,13 @@ class ClickToStart(DirectObject):
         self.logoScaleTrack = None
         self.labelPosTrack = None
         self.labelColorScaleTrack = None
+        base.firstEnter = None
+
+        self.music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
+        if base.musicManagerIsValid and self.music is not None:
+            self.music.setLoop(1)
+            self.music.setVolume(0.9)
+            self.music.play()
 
     def delete(self):
         if self.labelColorScaleTrack is not None:
@@ -180,8 +186,11 @@ class ClickToStart(DirectObject):
 
         self.setColorScale(Vec4(0, 0, 0, 0))
 
+        self.music = None
+
     def begin(self):
         base.cr.introDone = True
+        base.initialEntry = True
 
         if self.fadeTrack is not None:
             self.fadeTrack.finish()
@@ -194,9 +203,15 @@ class ClickToStart(DirectObject):
             Wait(2),
             Func(self.delete),
             Func(base.cr.introduction.delete),
-            Func(self.startMainMenu),
-            Func(base.transitions.fadeIn, 2)
+            Func(self.startMainMenu)
         ).start()
+
+        
+        if self.music:
+            Sequence(
+                LerpFunctionInterval(self.music.setVolume, fromData = self.music.getVolume(), toData = 0, duration = 2),
+                Func(self.music.stop)
+            ).start()
 
     def setColorScale(self, *args, **kwargs):
         self.backgroundNodePath.setColorScale(*args, **kwargs)

@@ -6,6 +6,7 @@ import DistributedMinigameAI
 import DistributedCannonGameAI
 import DistributedCatchGameAI
 import DistributedCogThiefGameAI
+import DistributedCogThiefRewrittenGameAI
 import DistributedDivingGameAI
 import DistributedIceGameAI
 import DistributedMazeGameAI
@@ -47,10 +48,13 @@ def createMinigame(air, playerArray, trolleyZone, minigameZone=None,
         startingVotes=None, metagameRound=-1, desiredNextGame=None):
     if minigameZone is None:
         minigameZone = air.allocateZone()
+
     acquireMinigameZone(minigameZone)
+
     mgId = None
     mgDiff = None
     mgSzId = None
+
     for avId in playerArray:
         request = RequestMinigame.get(avId)
         if request is not None:
@@ -58,26 +62,51 @@ def createMinigame(air, playerArray, trolleyZone, minigameZone=None,
             if not mgKeep:
                 del RequestMinigame[avId]
             break
+
+    toons = []
+    androidPlatform = False
+    
+    for doId in playerArray:
+        toon = simbase.air.doId2do.get(doId)
+        
+        if toon is not None:
+            if toon.getPlatform() == 'android':
+                androidPlatform = True
+
+            toons.append(toon)
+
     if mgId is not None:
         pass
     elif simbase.forcedMinigameId:
         mgId = simbase.forcedMinigameId
     else:
         randomList = list(copy.copy(ToontownGlobals.MinigamePlayerMatrix[len(playerArray)]))
+
         if len(playerArray) > 1:
             randomList = list(copy.copy(ToontownGlobals.MinigameIDs))
+
         for gameId in [ToontownGlobals.TravelGameId] + getDisabledMinigames():
             if gameId in randomList:
                 randomList.remove(gameId)
+
         if previousGameId != ToontownGlobals.NoPreviousGameId:
             if randomList.count(previousGameId) != 0 and len(randomList) > 1:
                 randomList.remove(previousGameId)
+        
+        if androidPlatform:
+            for disabledGame in [ToontownGlobals.IceGameId, ToontownGlobals.TargetGameId]:
+                if disabledGame in randomList:
+                    randomList.remove(disabledGame)
+
+
         mgId = random.choice(randomList)
+
         if metagameRound > -1:
             if (metagameRound%2) == 0:
                 mgId = ToontownGlobals.TravelGameId
             elif desiredNextGame:
                 mgId = desiredNextGame
+
     mgCtors = {
         ToontownGlobals.RaceGameId: DistributedRaceGameAI.DistributedRaceGameAI,
         ToontownGlobals.CannonGameId: DistributedCannonGameAI.DistributedCannonGameAI,
@@ -89,22 +118,25 @@ def createMinigame(air, playerArray, trolleyZone, minigameZone=None,
         ToontownGlobals.CatchGameId: DistributedCatchGameAI.DistributedCatchGameAI,
         ToontownGlobals.DivingGameId: DistributedDivingGameAI.DistributedDivingGameAI,
         ToontownGlobals.TargetGameId: DistributedTargetGameAI.DistributedTargetGameAI,
-        ToontownGlobals.MinigameTemplateId: DistributedMinigameTemplateAI.DistributedMinigameTemplateAI,
         ToontownGlobals.PairingGameId: DistributedPairingGameAI.DistributedPairingGameAI,
         ToontownGlobals.VineGameId: DistributedVineGameAI.DistributedVineGameAI,
         ToontownGlobals.IceGameId: DistributedIceGameAI.DistributedIceGameAI,
         ToontownGlobals.CogThiefGameId: DistributedCogThiefGameAI.DistributedCogThiefGameAI,
+        ToontownGlobals.CogThiefRewrittenGameId: DistributedCogThiefRewrittenGameAI.DistributedCogThiefRewrittenGameAI,
         ToontownGlobals.TwoDGameId: DistributedTwoDGameAI.DistributedTwoDGameAI,
         ToontownGlobals.TravelGameId: DistributedTravelGameAI.DistributedTravelGameAI,
         ToontownGlobals.PhotoGameId: DistributedPhotoGameAI.DistributedPhotoGameAI
     }
+
     from TempMinigameAI import TempMgCtors
+
     for key, value in TempMgCtors.items():
         mgCtors[key] = value
-    try:
-        mg = mgCtors[mgId](air, mgId)
-    except KeyError:
-        raise Exception, 'unknown minigame ID: %s' % mgId
+
+    if mgId not in mgCtors:
+        mgId = random.choice(mgCtors.keys())
+
+    mg = mgCtors[mgId](air, mgId)
     mg.setExpectedAvatars(playerArray)
     mg.setNewbieIds(newbieIds)
     mg.setTrolleyZone(trolleyZone)
@@ -122,17 +154,11 @@ def createMinigame(air, playerArray, trolleyZone, minigameZone=None,
             mg.setStartingVote(avId, votes)
     mg.setMetagameRound(metagameRound)
     mg.generateWithRequired(minigameZone)
-    toons = []
-    for doId in playerArray:
-        toon = simbase.air.doId2do.get(doId)
-        if toon is not None:
-            toons.append(toon)
+    
     for toon in toons:
         simbase.air.questManager.toonPlayedMinigame(toon, toons)
-    retVal = {}
-    retVal['minigameZone'] = minigameZone
-    retVal['minigameId'] = mgId
-    return retVal
+
+    return {'minigameZone': minigameZone, 'minigameId': mgId}
 
 
 def acquireMinigameZone(zoneId):
@@ -148,7 +174,7 @@ def releaseMinigameZone(zoneId):
         simbase.air.deallocateZone(zoneId)
 
 
-@magicWord(category=CATEGORY_USER2, types=[str, str])
+@magicWord(category=CATEGORY_USER, types=[str, str])
 def minigame(command, arg0=None):
     """
     A command set for Trolley minigames.

@@ -150,9 +150,6 @@ class ToontownChatManager(ChatManager.ChatManager):
         directFrameText = OTPLocalizer.PaidNoParentPasswordWarning
         payButtonText = OTPLocalizer.PaidNoParentPasswordWarningSet
         directButtonText = OTPLocalizer.PaidNoParentPasswordWarningContinue
-        if 'QuickLauncher' not in str(base.cr.launcher.__class__) and not base.cr.isPaid():
-            directFrameText = OTPLocalizer.UnpaidNoParentPasswordWarning
-            self.forceHidePayButton = True
         if self.unpaidChatWarning == None:
             guiButton = loader.loadModel('phase_3/models/gui/quit_button')
             buttonImage = (guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR'))
@@ -419,7 +416,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                 place.fsm.request('stopped')
             else:
                 self.notify.warning("Enter: %s has no 'stopped' state." % place)
-        self.teaser = TeaserPanel.TeaserPanel(pageName='secretChat', doneFunc=self.handleOkTeaser)
         return
 
     def exitTrueFriendTeaserPanel(self):
@@ -433,9 +429,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                     place.fsm.request('walk')
             else:
                 self.notify.warning("Exit: %s has no 'stopped' state." % place)
-
-    def handleOkTeaser(self):
-        self.fsm.request('mainMenu')
 
     def __whisperScButtonPressed(self, avatarName, avatarId, playerId):
         if base.config.GetBool('want-qa-regression', 0):

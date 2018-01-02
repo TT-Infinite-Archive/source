@@ -21,6 +21,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         self.DISLid = 0
         self.adminAccess = 0
         self.chatMode = 0
+        self.platform = ''
 
     if __dev__:
 
@@ -141,6 +142,19 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
     def getAdminAccess(self):
         return self.adminAccess
+    
+    def setPlatform(self, platform):
+        self.platform = platform
+    
+    def d_setPlatform(self, platform):
+        self.sendUpdate('setPlatform', [platform])
+    
+    def b_setPlatform(self, platform):
+        self.setPlatform(platform)
+        self.d_setPlatform(platform)
+    
+    def getPlatform(self):
+        return self.platform
 
     def extendFriendsList(self, friendId, friendCode):
         for i in xrange(len(self.friendsList)):
@@ -170,8 +184,6 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         accessName2Id = {
             'user': CATEGORY_USER.defaultAccess,
             'u': CATEGORY_USER.defaultAccess,
-            'user2': CATEGORY_USER2.defaultAccess,
-            'u2': CATEGORY_USER2.defaultAccess,
             'moderator': CATEGORY_MODERATOR.defaultAccess,
             'mod': CATEGORY_MODERATOR.defaultAccess,
             'm': CATEGORY_MODERATOR.defaultAccess,

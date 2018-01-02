@@ -27,20 +27,38 @@ class GSHoodAI(HoodAI.HoodAI):
 
     def startup(self):
         HoodAI.HoodAI.startup(self)
-
-        self.createStartingBlocks()
-        self.createLeaderBoards()
-        self.cycleLeaderBoards()
+        
+        if simbase.wantRacing:
+            self.createStartingBlocks()
+            self.createLeaderBoards()
+            self.cycleLeaderBoards()
         if simbase.config.GetBool('want-goofy', True):
             self.createClassicChar()
 
     def shutdown(self):
-        HoodAI.HoodAI.shutdown(self)
-
         taskMgr.removeTasksMatching('leaderBoardSwitch')
+
         for board in self.leaderBoards:
-            board.delete()
-        del self.leaderBoards
+            board.requestDelete()
+        del self.leaderBoards[:]
+
+        for racingPad in self.racingPads:
+            racingPad.requestDelete()
+        del self.racingPads[:]
+
+        for viewingPad in self.viewingPads:
+            viewingPad.requestDelete()
+        del self.viewingPads[:]
+
+        for viewingBlock in self.viewingBlocks:
+            viewingBlock.requestDelete()
+        del self.viewingBlocks[:]
+
+        for startingBlock in self.startingBlocks:
+            startingBlock.requestDelete()
+        del self.startingBlocks[:]
+
+        HoodAI.HoodAI.shutdown(self)
 
     def findRacingPads(self, dnaGroup, zoneId, area, padType='racing_pad'):
         racingPads = []

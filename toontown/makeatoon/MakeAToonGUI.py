@@ -149,7 +149,8 @@ class MATShuffleButton(DirectButton):
             ('image', (
                 preloaded['shuffleUp'],
                 preloaded['shuffleDown'],
-                preloaded['shuffleUp']
+                preloaded['shuffleUp'],
+                preloaded['shuffleDown']
             ), None),
             ('image_scale', halfButtonInvertScale if not kw.get('image_scale') else kw['image_scale'], None),
             ('image1_scale', (-0.63, 0.6, 0.6) if not kw.get('image1_scale') else kw['image1_scale'], None),

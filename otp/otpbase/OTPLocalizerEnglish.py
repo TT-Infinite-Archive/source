@@ -1,14 +1,14 @@
 import string
 from otp.otpbase.OTPLocalizerEnglishProperty import *
 lTheBrrrgh = 'The Brrrgh'
-lDaisyGardens = 'The Gardens'
-lDonaldsDock = "The Docks"
-lDonaldsDreamland = "Dreamland"
-lMinniesMelodyland = "Melodyland"
+lDaisyGardens = 'Daisy Gardens'
+lDonaldsDock = "Donald's Dock"
+lDonaldsDreamland = "Donald's Dreamland"
+lMinniesMelodyland = "Minnie's Melodyland"
 lToontownCentral = 'Toontown Central'
-lGoofySpeedway = 'Toontown Speedway'
-lOutdoorZone = "Acorn Acres"
-lGolfZone = "Toontown MiniGolf"
+lGoofySpeedway = 'Goofy Speedway'
+lOutdoorZone = "Chip 'n Dale's Acorn Acres"
+lGolfZone = "Chip 'n Dale's MiniGolf"
 lCancel = 'Cancel'
 lClose = 'Close'
 lOK = 'OK'
@@ -198,12 +198,13 @@ CRNoConnectProxyNoPort = 'Could not connect to %s:%s.\n\nYou are communicating t
 CRMissingGameRootObject = 'Missing some root game objects.  (May be a failed network connection).\n\nTry again?'
 CRNoDistrictsTryAgain = 'No Districts are available. Try again?'
 CRRejectRemoveAvatar = 'The avatar was not able to be deleted, try again another time.'
-CRLostConnection = 'Your internet connection to the servers has been unexpectedly broken.'
-CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has been lost, but you should be able to connect again and go right back into the game.',
+CRLostConnection = 'The connection to the server has been closed.'
+CRBootedReasons = {
+ 1: 'An unexpected problem has occurred.  Your connection has been lost, but you should be able to connect again and go right back into the game.',
  100: 'You have been disconnected because someone else just logged in using your account on another computer.',
  120: 'You have been disconnected because of a problem with your authorization to use keyboard chat.',
  122: 'Authentication failed.',
- 124: 'Your installed files are out of date.  Please launch the game from the official launcher so that it can install updates.  If you continue to get this error, contact support.',
+ 124: 'The install files on your computer and/or the server you are trying to connect to are out of date.  To download the latest Toontown Infinite version, be sure to start the game with the official launcher.  If you continue to get this error, contact support.',
  125: 'Your installed files appear to be invalid.  Please use the Play button on the official website to run.',
  126: 'You are not authorized to use administrator privileges.',
  127: 'A problem has occurred with your Toon.  Please contact Member Services via phone or email and reference Error Code 127.  Thank you.',
@@ -212,7 +213,9 @@ CRBootedReasons = {1: 'An unexpected problem has occurred.  Your connection has 
  153: 'The district you were playing on has been reset.  Everyone who was playing on that district has been disconnected.  However, you should be able to connect again and go right back into the game.',
  154: 'Toontown Infinite has been temporarily closed for scheduled downtime. Everyone who was playing on the Kaldron Network has been disconnected from the game.\n\nIf you wish to continue playing, you may go into custom play until maintenance is complete.\n\nFor more information, please visit the Toontown Infinite website.',
  288: 'Sorry, you have used up all of your available minutes this month.',
- 349: 'Sorry, you have used up all of your available minutes this month.'}
+ 349: 'Sorry, you have used up all of your available minutes this month.',
+ 420: 'Sorry, you cannot connect to a server with cooperative play disabled.'
+}
 CRBootedReasonUnknownCode = 'An unexpected problem has occurred (error code %s).  Your connection has been lost, but you should be able to connect again and go right back into the game.'
 CRTryConnectAgain = '\n\nTry to connect again?'
 CRToontownUnavailable = 'The server appears to be temporarily unavailable, still trying...'
@@ -223,9 +226,8 @@ CRServerConstantsProxyNoPort = 'Unable to contact %s.\n\nYou are communicating t
 CRServerConstantsProxyNoCONNECT = 'Unable to contact %s.\n\nYou are communicating to the internet via a proxy, but your proxy does not support the CONNECT method.\n\nYou must enable this capability, or disable your proxy, in order to play.  If your proxy has been provided by your ISP, you must contact your ISP to request them to enable this capability.'
 CRServerConstantsTryAgain = 'Unable to contact %s.\n\nThe account server might be temporarily down, or there might be some problem with your internet connection.\n\nTry again?'
 CRServerDateTryAgain = 'Could not get server date from %s. Try again?'
-CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
-CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance. If you wish to continue playing while the Kaldron Network is down, you may go into custom play.'
-CRUpdateAvailableMessage = 'A new update is available. Please restart your game to receive it.'
+CRMaintenanceCountdownMessage = 'Attention Toons! Toontown Infinite will be going down for maintenance in %d minutes.'
+CRMaintenanceMessage = 'Attention Toons! Toontown Infinite is now going down for maintenance.'
 AfkForceAcknowledgeMessage = 'Your toon got sleepy and went to bed.'
 PeriodTimerWarning = 'Your available time is almost over!'
 PeriodForceAcknowledgeMessage = 'Sorry, you have used up all of your available time. Please exit to purchase more.'
@@ -258,7 +260,7 @@ SCMenuResistance = 'UNITE!'
 SCMenuPets = 'PETS'
 SCMenuPetTricks = 'TRICKS'
 SCMenuCog = 'COG SPEAK'
-SCMenuAlpha = 'ALPHA'
+SCMenuInfinite = 'INFINITE'
 SCMenuBugs = 'BUGS'
 SCMenuHello = 'HELLO'
 SCMenuBye = 'GOODBYE'
@@ -331,7 +333,7 @@ FriendSecretNeedsPasswordWarningOK = lOK
 FriendSecretNeedsPasswordWarningCancel = lCancel
 FriendSecretNeedsPasswordWarningWrongUsername = "That's not the correct username.  Please enter the username of the parental account.  This is not the same username used to play the game."
 FriendSecretNeedsPasswordWarningWrongPassword = "That's not the correct password.  Please enter the password of the parental account.  This is not the same password used to play the game."
-FriendSecretIntro = "If you are playing Toontown Infinite and wish to use the Unrestricted Chat feature with close friends, you can become True Friends! Other Toons won't see the Unrestricted Chat unless they are also your True Friend.\n\nTo start, get a True Friend Code. Tell the True Friend Code to your friend, but not to anyone else. When your friend types in your True Friend Code on his or her screen, you'll be True Friends in Toontown!"
+FriendSecretIntro = "If you wish to use the unrestricted chat feature with close friends, you can become True Friends! Other Toons won't see the unrestricted chat unless they are also your True Friend.\n\nTo start, get a True Friend Code. Tell the True Friend Code to your friend, but not to anyone else. When your friend types in your True Friend Code on his or her screen, you'll be True Friends in Toontown!"
 FriendSecretGetSecret = 'Get a True Friend Code'
 FriendSecretEnterSecret = 'If you have a True Friend Code from someone you know, type it here.'
 FriendSecretOK = lOK
@@ -342,7 +344,7 @@ FriendSecretGotSecret = "Here is your new True Friend Code. Be sure to write it 
 FriendSecretTooMany = "Sorry, you can't have any more True Friend Codes today.  You've already had more than your fair share!\n\nTry again tomorrow."
 FriendSecretTryingSecret = 'Trying True Friend Code. . .'
 FriendSecretNotImplemented = 'True Friends has not been implemented yet!'
-FriendSecretEnteredSecretSuccess = 'You are now True Friends with %s!\nYou may now talk to this Toon using the Unrestricted Chat.'
+FriendSecretEnteredSecretSuccess = 'You are now True Friends with %s!\nYou may now talk to this Toon using the unrestricted chat.'
 FriendSecretTimeOut = 'Sorry, secrets are not working right now.'
 FriendSecretEnteredSecretUnknown = "That's not anyone's True Friend Code.  Are you sure you spelled it correctly?\n\nIf you did type it correctly, it may have expired.  Ask your friend to get a new True Friend Code for you (or get a new one yourself and give it to your friend)."
 FriendSecretEnteredSecretFull = "You can't be friends with %s because one of you has too many friends on your friends list."
@@ -423,9 +425,9 @@ FriendInviterStopBeingFriends = 'Stop being friends'
 FriendInviterConfirmRemove = 'Remove'
 FriendInviterYes = lYes
 FriendInviterNo = lNo
-FriendInviterClickToon = 'Click on the toon you would like to make friends with.'
+FriendInviterClickToon = 'Click on the Toon you would like to make friends with.'
 FriendInviterTooMany = 'You have too many friends on your list to add another one now. You will have to remove some friends if you want to make friends with %s.'
-FriendInviterToonTooMany = 'You have too many toon friends on your list to add another one now. You will have to remove some toon friends if you want to make friends with %s.'
+FriendInviterToonTooMany = 'You have too many Toon friends on your list to add another one now. You will have to remove some Toon friends if you want to make friends with %s.'
 FriendInviterPlayerTooMany = 'You have too many player friends on your list to add another one now. You will have to remove some player friends if you want to make friends with %s.'
 FriendInviterNotYet = 'Would you like to make friends with %s?'
 FriendInviterCheckAvailability = 'Seeing if %s is available.'
@@ -566,7 +568,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
        'This will only hurt for a second.',
        "I'm going to make you dizzy.",
        "Good timing, I'm a pint low.",
-       "You'll B the opposite of A happy toon when I'm finished with you."],
+       "You'll B the opposite of A happy Toon when I'm finished with you."],
  'm': ["You don't know who you're mingling with.",
        'Ever mingle with the likes of me?',
        'Good, it takes two to mingle.',
@@ -583,7 +585,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         'This should shake you up.',
         'Prepare to be moved.',
         "I'm ready to make my move.",
-        "Watch out toon, you're on shaky ground.",
+        "Watch out Toon, you're on shaky ground.",
         'This should be a moving moment.',
         'I feel moved to defeat you.',
         'Are you shaking yet?'],
@@ -616,13 +618,13 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         'That is not proper corporate attire.',
         "You're looking rather vulnerable.",
         'Time to sign over your assets.',
-        "I'm on a toon removal crusade.",
+        "I'm on a Toon removal crusade.",
         'You are defenseless against my ideas.',
         "Relax, you'll find this is for the best."],
  'mh': ['Are you ready for my take?',
         'Lights, camera, action!',
         "Let's start rolling.",
-        'Today the role of defeated toon, will be played by - YOU!',
+        'Today the role of defeated Toon, will be played by - YOU!',
         'This scene will go on the cutting room floor.',
         'I already know my motivation for this scene.',
         'Are you ready for your final scene?',
@@ -679,11 +681,11 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         'I have lots of back up.',
         "There's no backing down now.",
         "I'm the best and I can back that up.",
-        'Whoa, back up there toon.',
+        'Whoa, back up there Toon.',
         'Let me get your back.',
         "You're going to have a stabbing headache soon.",
         'I have perfect puncture.',
-        "Don't worry toon, you can always trust me."],
+        "Don't worry Toon, you can always trust me."],
  'bw': ["Don't brush me aside.",
         'You make my hair curl.',
         'I can make this permanent if you want.',
@@ -693,7 +695,7 @@ SuitFaceoffTaunts = {'b': ['Do you have a donation for me?',
         "I'm so glad you're on time for your cut.",
         "You're in big trouble.",
         "I'm going to wig out on you.",
-        "I'm a big deal little toon."],
+        "I'm a big deal little Toon."],
  'le': ["Careful, my legal isn't very tender.",
         'I soar, then I score.',
         "I'm bringing down the law on you.",
@@ -1029,7 +1031,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  1015: 'Wait!',
  1016: 'Come check out my garden.',
  1017: "Let's catch the next one.",
- 1100: "Let's go to the trolley station!",
+ 1100: "Let's go on the trolley!",
  1101: "Let's go back to the playground!",
  1102: "Let's go fight the %s!" % Cogs,
  1103: "Let's go take over a %s building!" % Cog,
@@ -1099,7 +1101,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  1414: 'I need a Toon-Up.',
  1415: 'You should pass.',
  1416: 'We can do this!',
- 1500: "Let's use toon-up!",
+ 1500: "Let's use Toon-up!",
  1501: "Let's use trap!",
  1502: "Let's use lure!",
  1503: "Let's use sound!",
@@ -1825,11 +1827,11 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30100: "Happy April Toons' Week!",
  30101: "Welcome to my April Toons' Week party!",
  30102: 'The Silly Meter is back in Toon Hall!',
- 30110: 'Mickey is in The Gardens.',
+ 30110: 'Mickey is in Daisy Gardens.',
  30111: 'Daisy is in Toontown Central.',
  30112: 'Minnie is in The Brrrgh.',
  30113: 'Pluto is in Melodyland.',
- 30114: 'Donald is sleepwalking at the Toontown Speedway.',
+ 30114: 'Donald is sleepwalking at the Speedway.',
  30115: 'Goofy is in Dreamland.',
  30120: 'Mickey is acting like Daisy!',
  30121: 'Daisy is acting like Mickey!',
@@ -1870,7 +1872,7 @@ SpeedChatStaticTextToontown = {100: 'Hi!',
  30173: "I'll stun the VP from the front.",
  30174: "I'll stun the VP from the back.",
  30175: 'Jump when the VP jumps!',
- 30180: 'I got double jellybeans at The Toon Palooza!',
+ 30180: 'I got double jellybeans on the Trolley!',
  30181: 'I got double jellybeans from fishing!',
  30182: 'I got double jellybeans at a party!',
  30183: 'Jellybeans jellybeans jellybeans!',

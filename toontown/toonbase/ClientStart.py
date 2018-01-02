@@ -8,6 +8,7 @@ import gc
 gc.disable()
 
 import __builtin__
+import os, sys
 
 __builtin__.process = 'client'
 
@@ -45,12 +46,19 @@ for dtool in ('children', 'parent', 'name'):
 from panda3d.core import loadPrcFileData
 
 from otp.settings.Settings import Settings
+from toontown.toonbase import ToontownGlobals
 
-preferencesPath = ConfigVariableString('preferences-path', 'preferences.json')
-notify.info('Reading %s...' % preferencesPath.getValue())
-__builtin__.settings = Settings(preferencesPath.getValue())
+preferencesPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
+notify.info('Reading %s...' % preferencesPath)
+__builtin__.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
 SettingsGlobals.loadInitialSettings()
+
+# Load server settings (used for the hosting screen)
+from otp.settings.Settings import Settings
+__builtin__.serverSettings = Settings("serversettings.json")
+from toontown.toonbase import ServerSettingsGlobals
+ServerSettingsGlobals.loadInitialSettings()
 
 loadPrcFileData('Settings: res',
                 'win-size %d %d' % tuple(settings.get(SettingsGlobals.Resolution, (800, 600))))
@@ -63,39 +71,52 @@ loadPrcFileData('Settings: musicVol',
                 'audio-master-music-volume %s' % settings[SettingsGlobals.MusicVolume])
 loadPrcFileData('Settings: sfxVol',
                 'audio-master-sfx-volume %s' % settings[SettingsGlobals.SoundVolume])
-loadPrcFileData('Settings: loadDisplay',
-                'load-display %s' % settings[SettingsGlobals.LoadDisplay])
 loadPrcFileData('Settings: showFps',
                 'show-frame-rate-meter %s' % (1 if settings[SettingsGlobals.ShowFps] else 0))
 loadPrcFileData('Settings: vsync',
                 'sync-video %s' % (1 if settings[SettingsGlobals.VSync] else 0))
 loadPrcFileData('Settings: animationSmoothing',
                 'interpolate-frames %s' % (1 if settings[SettingsGlobals.AnimationSmoothing] else 0))
+loadPrcFileData('Settings: Texture Quality',
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+loadPrcFileData('Settings: Texture Compression',
+                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
+if settings[SettingsGlobals.ThreadedRender]:
+    loadPrcFileData('Settings: Experimental Threaded Rendering',
+                    'threading-model Cull/Draw')
+    notify.warning("Experimental Threaded Rendering is enabled! The game may crash randomly! You have been warned!")
 
-import os
+if sys.platform != 'android':
+    loadPrcFileData('Settings: loadDisplay',
+                    'load-display %s' % settings[SettingsGlobals.LoadDisplay])
+else:
+    loadPrcFileData('Settings: loadDisplay',
+                    'load-display pandagles')
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
 
-contentPacksPath = ConfigVariableString('content-packs-path', 'contentpacks')
-if not os.path.exists(contentPacksPath.getValue()):
-    os.makedirs(contentPacksPath.getValue())
-__builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath.getValue())
+contentPacksPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('content-packs-path', 'contentpacks').getValue())
+if not os.path.exists(contentPacksPath):
+    os.makedirs(contentPacksPath)
+__builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath)
 contentPacksMgr.applyAll()
 
-if not os.path.isdir('astron/data/singleplayer'):
-    os.makedirs('astron/data/singleplayer')
-
-if not os.path.isdir('astron/data/multiplayer'):
-    os.makedirs('astron/data/multiplayer')
+if sys.platform != 'android':
+    if not os.path.isdir('astron/data'):
+        os.makedirs('astron/data')
 
 from toontown.launcher.TTILauncher import TTILauncher
 
 __builtin__.launcher = TTILauncher()
 
+if not __debug__:
+    # Check if an username is set or not.
+    if launcher.getPlayToken() is None:
+        notify.error("Username isn't set, please start the game from the launcher.  Aborting.")
+
 notify.info('Starting the game...')
 
 from direct.gui import DirectGuiGlobals
-from toontown.toonbase import ToontownGlobals
 
 DirectGuiGlobals.setDefaultFontFunc(ToontownGlobals.getInterfaceFont)
 
@@ -109,7 +130,6 @@ if base.win is None:
     notify.error('Unable to open window; aborting.')
 
 launcher.setPandaErrorCode(0)
-launcher.setPandaWindowOpen()
 
 from panda3d.core import Vec4
 
@@ -147,10 +167,6 @@ from toontown.toontowngui.ClickToStart import ClickToStart
 
 clickToStart = ClickToStart(version=version)
 clickToStart.setColorScale(0, 0, 0, 0)
-
-music = None
-if base.musicManagerIsValid:
-    music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
 
 from toontown.toonbase import TTLocalizer
 from otp.otpbase import OTPLocalizer
@@ -229,7 +245,6 @@ disclaimerTrack = Sequence(
 from toontown.distributed import ToontownClientRepository
 
 base.cr = ToontownClientRepository.ToontownClientRepository(version, launcher)
-base.cr.music = music
 base.cr.introduction = introduction
 base.cr.clickToStart = clickToStart
 base.initNametagGlobals()
@@ -242,10 +257,6 @@ if not launcher.isDummy():
     base.startShow(gameserver=launcher.getGameServer())
 else:
     base.startShow()
-
-__builtin__.loader = base.loader
-if music is not None:
-    base.playMusic(music, looping=1, volume=0.9)
 
 if __debug__:
     # Skip the introduction if we are in dev mode

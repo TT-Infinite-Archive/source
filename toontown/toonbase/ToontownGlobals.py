@@ -2,8 +2,16 @@ import TTLocalizer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import Enum, invertDict
 from panda3d.core import BitMask32, Vec4
+import sys, os, random
 
 from toontown.toonbase.HolidayGlobals import *
+
+if sys.platform == 'android':
+    CurrentDirectory = '/sdcard/TTI'
+else:
+    CurrentDirectory = os.getcwd()
+
+import struct, uuid, base64
 
 MapHotkeyOn = 'alt'
 MapHotkeyOff = 'alt-up'
@@ -22,7 +30,6 @@ CFOElevatorFov = 43.0
 CJElevatorFov = 59.0
 CEOElevatorFov = 59.0
 CBElevatorFov = 42.0
-RGHoodFov = 58.0
 WantPromotion = 0
 PendingPromotion = 1
 CeilingBitmask = BitMask32(256)
@@ -50,8 +57,6 @@ SpeedwayCameraFar = 8000.0
 SpeedwayCameraNear = 1.0
 DreamlandCameraNear = 1.0
 DreamlandCameraFar = 2000.0
-ResistanceGroundsCameraNear = 1.0
-ResistanceGroundsCameraFar = 6000.0
 StrikeZoneCameraNear = 1.0
 StrikeZoneCameraFar = 4000.0
 SellbotHQCameraNear = 1.0
@@ -129,6 +134,22 @@ BuildingNametagFont = None
 MinnieFont = None
 SuitFont = None
 FontAwesome = None
+
+def getMac():
+    if sys.platform == 'android':
+        if 'uuid' in settings and isinstance(settings['uuid'], (int, long)):
+            uid = settings['uuid']
+        else:
+            uid = random.SystemRandom().getrandbits(50)
+            settings['uuid'] = uid
+    else:
+        uid = uuid.getnode()
+
+    return ':'.join(('%012X' % uid)[i:i+2] for i in range(0, 12, 2))
+
+def getIp():
+    import urllib2
+    return urllib2.urlopen('http://ip.42.pl/raw').read()
 
 def getToonFont():
     global ToonFont
@@ -463,6 +484,7 @@ IceGameId = 13
 CogThiefGameId = 14
 TwoDGameId = 15
 PhotoGameId = 16
+CogThiefRewrittenGameId = 17
 TravelGameId = 100
 MinigameNames = {
     'race': RaceGameId,
@@ -484,6 +506,7 @@ MinigameNames = {
     'thief': CogThiefGameId,
     '2d': TwoDGameId,
     'photo': PhotoGameId,
+    'thief rewritten': CogThiefRewrittenGameId,
     'travel': TravelGameId
 }
 MinigameTemplateId = -1
@@ -504,13 +527,14 @@ MinigameIDs = (
     CogThiefGameId,
     TwoDGameId,
     PhotoGameId,
+    CogThiefRewrittenGameId,
     TravelGameId
 )
 MinigamePlayerMatrix = {
-    1: (CannonGameId, MazeGameId, TugOfWarGameId, RingGameId, VineGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-    4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
+    1: (CannonGameId, MazeGameId, TugOfWarGameId, RingGameId, VineGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
+    4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId, CogThiefRewrittenGameId),
 }
 MinigameReleaseDates = {
     IceGameId: (2008, 8, 5),
@@ -640,7 +664,6 @@ hoodCountMap = {
     LawbotHQ: 2,
     GolfZone: 2,
     PartyHood: 2,
-    ResistanceGrounds: 2,
     StrikeZone: 2
 }
 NoTeleportZones = (
@@ -1700,6 +1723,8 @@ BMovementSpeed = 0
 BMovementSpeedMultiplier = 1.3
 BGagAccuracy = 1
 BGagAccuracyMultiplier = 1.3
+CSM_LOGIN_ERROR_CREDENTIALS_INVALID = 0
+CSM_LOGIN_ERROR_TOO_FAST = 1
 CommonDisplayResolutions = {
     (25, 16): ((1600, 1024),),
     (931, 524): ((1862, 1048),),

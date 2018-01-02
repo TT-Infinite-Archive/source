@@ -1,15 +1,17 @@
-from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from direct.task import Task
-from otp.distributed.OtpDoGlobals import *
-from pandac.PandaModules import *
+
+from toontown.catalog.CatalogBeanItem import CatalogBeanItem
 from toontown.parties.DistributedPartyAI import DistributedPartyAI
-from datetime import datetime
 from toontown.parties.PartyGlobals import *
-from otp.ai.MagicWordGlobal import *
+from toontown.toonbase.TTLocalizer import EventsPageCancelPartyResultOk
+from toontown.toonbase.ToontownGlobals import GIFT_partyrefund, MaxMailboxContents
+
+from datetime import datetime
+import time
+
 
 class DistributedPartyManagerAI(DistributedObjectAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedPartyManagerAI")
+    notify = directNotify.newCategory("DistributedPartyManagerAI")
 
     def announceGenerate(self):
         DistributedObjectAI.announceGenerate(self)
@@ -21,16 +23,9 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         self.id2Party = {}
         self.pubPartyInfo = {}
         self.idPool = range(self.air.ourChannel, self.air.ourChannel + 100000)
-        # get 100 ids at the start and top up
-        #taskMgr.doMethodLater(0, self.__getIds, 'DistributedPartyManagerAI___getIds')
 
     def receiveId(self, ids):
         self.idPool += ids
-
-#    def __getIds(self, task):
-#        if len(self.idPool) < 50:
-#            self.air.globalPartyMgr.allocIds(100 - len(self.idPool))
-#        taskMgr.doMethodLater(180, self.__getIds, 'DistributedPartyManagerAI___getIds')
 
     def _makePartyDict(self, struct):
         PARTY_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -52,6 +47,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
     def partyManagerUdStartingUp(self):
         # This is sent in reply to the GPMAI's hello
         self.notify.info("uberdog has said hello")
+        simbase.air.globalPartyMgr.startHeartbeat()
 
     def partyManagerUdLost(self):
         # well fuck. ud died.
@@ -59,7 +55,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
 
     def canBuyParties(self):
         return True
-
 
     def addPartyRequest(self, hostId, startTime, endTime, isPrivate, inviteTheme, activities, decorations, inviteeIds):
         if hostId != simbase.air.getAvatarIdFromSender():
@@ -76,37 +71,50 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         self.air.doId2do[avId].sendUpdate('setHostedParties', [[partyStruct]])
         pass
 
-    def markInviteAsReadButNotReplied(self, todo0, todo1):
+    def markInviteAsReadButNotReplied(self, avId, inviteKey):
+        simbase.air.globalPartyMgr.sendInviteAsReadButNotReplied(avId, inviteKey)
+
+    def respondToInvite(self, fromId, todo0, context, inviteKey, inviteStatus):
+        simbase.air.globalPartyMgr.respondToInviteAiToUd(fromId, todo0, context, inviteKey, inviteStatus)
+
+    def respondToInviteResponse(self, toId, context, inviteKey, retcode, inviteStatus):
         pass
 
-    def respondToInvite(self, todo0, todo1, todo2, todo3, todo4):
-        pass
+    def changePrivateRequest(self, partyId, isPrivate):
+        hostId = simbase.air.getAvatarIdFromSender()
+        simbase.air.globalPartyMgr.changePrivateRequestAiToUd(hostId, partyId, isPrivate)
 
-    def respondToInviteResponse(self, todo0, todo1, todo2, todo3, todo4):
-        pass
+    def changePrivateResponseUdToAi(self, hostId, partyId, newPrivateStatus, errorCode):
+        if hostId in self.air.doId2do:
+            self.sendUpdateToAvatarId(hostId, 'changePrivateResponse', [partyId, newPrivateStatus, errorCode])
 
-    def changePrivateRequest(self, todo0, todo1):
-        pass
-
-    def changePrivateRequestAiToUd(self, todo0, todo1, todo2):
-        pass
-
-    def changePrivateResponseUdToAi(self, todo0, todo1, todo2, todo3):
-        pass
-
-    def changePrivateResponse(self, todo0, todo1, todo2):
+    def changePrivateResponse(self, partyId, newPrivateStatus, errorCode):
         pass
 
     def changePartyStatusRequest(self, partyId, newPartyStatus):
-        pass
+        hostId = simbase.air.getAvatarIdFromSender()
+        simbase.air.globalPartyMgr.changePartyStatusRequestAiToUd(hostId, partyId, newPartyStatus)
 
-    def changePartyStatusRequestAiToUd(self, todo0, todo1, todo2):
-        pass
+    def changePartyStatusResponseUdToAi(self, hostId, partyId, newPartyStatus, errorCode, refund):
+        self.sendUpdateToAvatarId(hostId, 'changePartyStatusResponse', [partyId, newPartyStatus, errorCode, refund])
+        if refund:
+            self.refundAvatar(hostId, refund)
 
-    def changePartyStatusResponseUdToAi(self, todo0, todo1, todo2, todo3):
-        pass
+    def refundAvatar(self, hostId, refund):
+        refundItem = CatalogBeanItem(refund, GIFT_partyrefund)
+        refundItem.deliveryDate = int(time.time() / 60) + 1
+        av = self.air.doId2do.get(hostId)
+        if not av:
+            return
+        av.d_setSystemMessage(0, EventsPageCancelPartyResultOk % refund)
+        if len(av.mailboxContents) + len(av.onGiftOrder) >= MaxMailboxContents:
+            # Mailbox is full, let's just give them the money directly.
+            av.addMoney(refund)
+            return
+        av.onOrder.append(refundItem)
+        av.b_setDeliverySchedule(av.onOrder)
 
-    def changePartyStatusResponse(self, todo0, todo1, todo2, todo3):
+    def changePartyStatusResponse(self, partyId, newPartyStatus, errorCode, beansRefunded):
         pass
 
     def partyInfoOfHostFailedResponseUdToAi(self, todo0):
@@ -145,7 +153,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         party = self._makePartyDict(partyStruct)
         av = self.air.doId2do.get(party['hostId'], None)
         if not av:
-            return # The host isn't on the district... wat do
+            return  # The host isn't on the district... wat do
         party['inviteeIds'] = inviteeIds
         partyId = party['partyId']
         # This is issued in response to a request for the party to start, essentially. So let's alloc a zone
@@ -170,22 +178,24 @@ class DistributedPartyManagerAI(DistributedObjectAI):
     def closeParty(self, partyId):
         partyAI = self.id2Party[partyId]
         self.air.globalPartyMgr.d_partyDone(partyId)
-        for av in partyAI.avIdsAtParty:
+        for av in partyAI.participants:
             self.sendUpdateToAvatarId(av, 'sendAvToPlayground', [av, 0])
-        partyAI.b_setPartyState(PartyStatus.Finished)
+        partyAI.setPartyState(PartyStatus.Finished)
         taskMgr.doMethodLater(10, self.__deleteParty, 'closeParty%d' % partyId, extraArgs=[partyId])
 
     def __deleteParty(self, partyId):
         partyAI = self.id2Party[partyId]
-        for av in partyAI.avIdsAtParty:
+        for av in partyAI.participants:
             self.sendUpdateToAvatarId(av, 'sendAvToPlayground', [av, 1])
         partyAI.requestDelete()
         zoneId = self.partyId2Zone[partyId]
-        del self.partyId2Zone[partyId]
-        del self.id2Party[partyId]
-        del self.pubPartyInfo[partyId]
+        if partyId in self.partyId2Zone:
+            del self.partyId2Zone[partyId]
+        if partyId in self.id2Party:
+            del self.id2Party[partyId]
+        if partyId in self.pubPartyInfo:
+            del self.pubPartyInfo[partyId]
         self.air.deallocateZone(zoneId)
-
 
     def freeZoneIdFromPlannedParty(self, hostId, zoneId):
         sender = self.air.getAvatarIdFromSender()
@@ -201,7 +211,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             del self.partyId2Host[partyId]
         return
 
-    def sendAvToPlayground(self, todo0, todo1):
+    def sendAvToPlayground(self, avId, retCode):
         pass
 
     def exitParty(self, partyZone):
@@ -210,9 +220,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             if partyInfo['zoneId'] == partyZone:
                 party = self.id2Party.get(partyInfo['partyId'])
                 if party:
-                    party._removeAvatar(avId)
-
-
+                    party.removeAvatar(avId)
 
     def removeGuest(self, ownerId, avId):
         pass
@@ -230,7 +238,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         pass
 
     def partyHasFinishedUdToAllAi(self, partyId):
-        # FIXME I bet i have to do some cleanup
         del self.pubPartyInfo[partyId]
 
     def updateToPublicPartyInfoUdToAllAi(self, shardId, zoneId, partyId, hostId, numGuests, maxGuests, hostName, activities, minLeft):
@@ -246,31 +253,50 @@ class DistributedPartyManagerAI(DistributedObjectAI):
           'maxGuests': maxGuests,
           'hostName': hostName,
           'minLeft': minLeft,
-          'started': datetime.now(),
-          'activities': activities }
+          'started': self.air.toontownTimeManager.getCurServerDateTime(),
+          'activities': activities}
+
+        if hostId not in self.host2PartyId:
+            self.host2PartyId[hostId] = partyId
 
     def updateToPublicPartyCountUdToAllAi(self, partyCount, partyId):
         # Update the number of guests at a party
-        if partyId in self.pubPartyInfo.keys():
+        if partyId in self.pubPartyInfo:
             self.pubPartyInfo[partyId]['numGuests'] = partyCount
 
     def getPublicParties(self):
         p = []
         for partyId in self.pubPartyInfo:
             party = self.pubPartyInfo[partyId]
-            # calculate time left
-            minLeft = party['minLeft'] - int((datetime.now() - party['started']).seconds / 60)
-            #less band-aidy bandaid
+            party['minLeft'] = int(
+                (self.air.toontownTimeManager.getCurServerDateTime() - party['started']).seconds / 60)
+            if party['minLeft'] < 0:
+                minLeft = 0
             guests = party.get('numGuests', 0)
             if guests > 255:
                 guests = 255
             elif guests < 0:
                 guests = 0
-            p.append([party['shardId'], party['zoneId'], guests, party.get('hostName', ''), party.get('activities', []), minLeft])
+            p.append([party['shardId'], party['zoneId'], guests, party.get('hostName', ''), party.get('activities', []),
+                      party['minLeft']])
         return p
 
-    def requestShardIdZoneIdForHostId(self, todo0):
-        pass
+    def requestShardIdZoneIdForHostId(self, hostId):
+        avId = self.air.getAvatarIdFromSender()
+
+        if hostId not in self.host2PartyId:
+            self.notify.warning('Avatar %s attempted to teleport to an invalid party!' % avId)
+            return
+
+        partyId = self.host2PartyId[hostId]
+        if partyId in self.pubPartyInfo:
+            party = self.pubPartyInfo[partyId]
+            shardId = party['shardId']
+            zoneId = party['zoneId']
+            self.sendUpdateToAvatarId(avId, 'sendShardIdZoneIdToAvatar', [shardId, zoneId])
+        else:
+            self.notify.warning("Found partyId without a zone!")
+            return
 
     def sendShardIdZoneIdToAvatar(self, todo0, todo1):
         pass

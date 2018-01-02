@@ -258,6 +258,9 @@ class DNAStorage:
 
         del self.DNAVisGroups[:]
 
+    def resetDNAVisGroupsAI(self):
+        self.resetDNAVisGroups()
+
     def getNumDNAVisGroupsAI(self):
         return self.getNumDNAVisGroups()
 
@@ -347,6 +350,7 @@ class DNAStorage:
         self.resetBlockNumbers()
         self.resetDNAGroups()
         self.resetDNAVisGroups()
+        self.resetDNAVisGroupsAI()
         self.resetFonts()
         self.resetHoodNodes()
         self.resetNodes()

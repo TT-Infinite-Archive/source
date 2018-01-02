@@ -495,7 +495,7 @@ class DistributedFurnitureManagerAI(DistributedObjectAI):
                 return window
         return None
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def findCloset():
     """
     find the closet
@@ -520,7 +520,7 @@ def findCloset():
                     return 'atticItems: %s'%(str(item))
     return "I cannot find your closet"
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def recoverCloset():
     """
     recover the closet
@@ -539,12 +539,12 @@ def recoverCloset():
             fm = house.interior.furnitureManager
             for item in reversed(fm.items):
                 if item.catalogItem.getFlags() & FLCloset:
-                    fm.moveItemToAttic(item.doId);
+                    fm.moveItemToAttic(item.doId)
                     return "Moved the closet"
             fm.saveToHouse()
     return "I cannot find your closet"
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def fillAttic():
     """
     move everything to the attic
@@ -562,12 +562,12 @@ def fillAttic():
         if house.doId == target.houseId:
             fm = house.interior.furnitureManager
             for item in reversed(fm.items):
-                fm.moveItemToAttic(item.doId);
+                fm.moveItemToAttic(item.doId)
             fm.saveToHouse()
     return "everything has been moved to the attic"
 
 
-@magicWord(category=CATEGORY_USER2, types=[])
+@magicWord(category=CATEGORY_USER, types=[])
 def emptyHouse():
     """
     delete everything in the house

@@ -16,6 +16,11 @@ Fullscreen = 'fullscreen'
 AnimationSmoothing = 'animation-smoothing'
 ProcessFailback = 'process-failback'
 ClassicMusic = 'classic-music'
+DoorInteract = 'door-interaction-key'
+NPCInteract = 'npc-interaction-key'
+TextureQuality = 'textures-quality'
+CompressTextures = 'compress-textures'
+ThreadedRender = 'experimental-threaded-render'
 
 InitialSettings = {
     # Initial setting
@@ -40,10 +45,18 @@ InitialSettings = {
         "MOVE_LEFT": "a",
         "MOVE_RIGHT": "d",
         "MOVE_UP": "w",
-        "OPTIONS_PAGE_HOTKEY": "escape"
-    }
+        "OPTIONS_PAGE_HOTKEY": "escape",
+        "SCREENSHOT_KEY": "f9",
+        "INTERACT_KEY": "shift"
+    },
+    DoorInteract: False,
+    NPCInteract: False,
+    TextureQuality: 3,
+    CompressTextures: False,
+    ThreadedRender: False,
 }
 
+TextureOptionToDimension = [128, 256, 1024, 4096]
 
 def loadInitialSettings():
     # Initializes settings if some initial options aren't in there

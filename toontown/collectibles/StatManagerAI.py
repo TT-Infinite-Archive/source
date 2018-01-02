@@ -181,7 +181,7 @@ class StatManagerAI:
                 collectible.reward.awardTo(av)
 
 
-@magicWord(category=CATEGORY_USER2, types=[int, int, int])
+@magicWord(category=CATEGORY_USER, types=[int, int, int])
 def statistic(category, objective, amount=None):
     invoker = spellbook.getInvoker()
     if not simbase.air.wantToonStats:

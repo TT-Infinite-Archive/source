@@ -1,6 +1,7 @@
 from toontown.battle import BattleParticles
 from toontown.safezone import BRPlayground
 from toontown.safezone import SafeZoneLoader
+from toontown.toonbase import ToontownGlobals
 
 
 class BRSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
@@ -13,6 +14,8 @@ class BRSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_8/dna/storage_BR_sz.pdna'
 
     def load(self):
+        if ToontownGlobals.TheBrrrgh in base.cr.zoneManager.modifiedZones:
+            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.TheBrrrgh)
         SafeZoneLoader.SafeZoneLoader.load(self)
         self.windSound = map(loader.loadSfx, ['phase_8/audio/sfx/SZ_TB_wind_1.ogg',
                                             'phase_8/audio/sfx/SZ_TB_wind_2.ogg',

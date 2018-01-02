@@ -582,7 +582,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             Wait(4),
             Parallel(
                 base.camera.posInterval(1, Vec3(104.42, -334.37, 20.10), Vec3(104.42, -334.37, 19.54), blendType='easeInOut'),
-                Func(self.setChatAbsolute, "After all, this is one of the most secured depositories in all of Cog Nation.", CFSpeech|CFTimeout),
+                Func(self.setChatAbsolute, "After all, this is one of the most secured depositories to ever be created.", CFSpeech|CFTimeout),
             ),
             Wait(4),
             Parallel(

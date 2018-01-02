@@ -74,7 +74,6 @@ class PartyEditor(DirectObject, FSM):
 
         self.elementList.refresh()
         self.elementList['command'] = self.scrollItemChanged
-        return
 
     def initPartyClock(self):
         self.partyClockElement.buyButtonClicked((8, 7))

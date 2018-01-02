@@ -3,15 +3,20 @@ from toontown.toonbase.ColorGlobals import CDefault, CGray
 
 
 class TTCheckBox(DirectButton):
-    def __init__(self, parent=aspect2d, pos=(0, 0, 0), checked=False, disable=False, command=None):
-        DirectButton.__init__(self, parent, relief=None)
+    def __init__(self, parent=aspect2d, pos=(0, 0, 0), hpr=(0, 0, 0), checked=False, disable=False, command=None, extraArgs = None):
+        DirectButton.__init__(self, parent, relief=None, pos=pos, hpr=hpr)
         hostingGui = preloader.getModel('phase_4/models/parties/schtickerbookHostingGUI')
+        if not hostingGui:
+            hostingGui = loader.loadModel('phase_4/models/parties/schtickerbookHostingGUI')
         self._parent = parent
         self.checkedImage = hostingGui.find('**/checked_button')
         self.uncheckedImage = hostingGui.find('**/unchecked_button')
         self.checked = checked
         self.command = command
-
+        if extraArgs is None:
+            extraArgs = []
+        self.extraArgs = extraArgs
+        
         if checked:
             image = (self.checkedImage, self.checkedImage, self.checkedImage)
         else:
@@ -20,8 +25,7 @@ class TTCheckBox(DirectButton):
         self.checkButton = DirectButton(
             self,
             relief=None,
-            pos=pos,
-            image=image,
+            image=image
         )
 
         self.checkButton.bind(DGG.B1CLICK, self.__handleClick, extraArgs=[self.checkButton])
@@ -52,7 +56,7 @@ class TTCheckBox(DirectButton):
         self.setChecked(not self.checked)
 
         if self.command:
-            self.command()
+            self.command(*self.extraArgs)
 
     def __handleEnter(self, button, e):
         button['image_scale'] = 1.1

@@ -37,10 +37,5 @@ class BattleManagerAI:
     def destroy(self, battle):
         cellId = battle.battleCellId
         self.notify.debug('BattleManager - destroying battle %d' % cellId)
-        if cellId in self.cellId2battle:
-            try:
-                del self.cellId2battle[cellId]
-            except:
-                pass
-        if not battle.isDeleted():
-            battle.requestDelete()
+        del self.cellId2battle[cellId]
+        battle.requestDelete()

@@ -41,3 +41,10 @@ class DDHoodAI(HoodAI.HoodAI):
         self.classicChar = DistributedDonaldDockAI.DistributedDonaldDockAI(self.air)
         self.classicChar.generateWithRequired(self.zoneId)
         self.classicChar.start()
+
+    def shutdown(self):
+        if hasattr(self, 'boat') and self.boat:
+            self.boat.requestDelete()
+            self.boat = None
+
+        HoodAI.HoodAI.shutdown(self)

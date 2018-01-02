@@ -80,6 +80,7 @@ BOSSBOT_FACTORY_3 = 76
 CEO_1 = 77
 CEO_2 = 78
 JELLYFISH_JAM = 79
+CATDOG_THEME = 80
 
 Songs = {
     0: None,
@@ -162,6 +163,7 @@ Songs = {
     CEO_1: ToontownSong(CEO_1, TTLocalizer.MusicBossbotCeoV1, 'phase_12/audio/bgm/BossBot_CEO_v1.ogg', 30),
     CEO_2: ToontownSong(CEO_2, TTLocalizer.MusicBossbotCeoV2, 'phase_12/audio/bgm/BossBot_CEO_v2.ogg', 30),
     JELLYFISH_JAM: ToontownSong(JELLYFISH_JAM, TTLocalizer.JellyfishJam, 'phase_13/audio/bgm/party_jellyfish_jam.ogg', 279),
+    CATDOG_THEME: ToontownSong(CATDOG_THEME, TTLocalizer.CatDogTheme, 'phase_13/audio/bgm/party_catdog_theme.ogg', 143),
 }
 
 

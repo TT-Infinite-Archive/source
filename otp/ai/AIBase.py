@@ -17,10 +17,17 @@ from direct.task import Task
 from direct.task.TaskManagerGlobal import *
 from otp.otpbase import BackupManager
 from pandac.PandaModules import *
+from toontown.toonbase import ServerSettingsGlobals
+import __builtin__
 
 
 class AIBase:
     notify = directNotify.newCategory('AIBase')
+
+    from otp.settings.Settings import Settings
+    __builtin__.serverSettings = Settings("serversettings.json")
+    from toontown.toonbase import ServerSettingsGlobals
+    ServerSettingsGlobals.loadInitialSettings()
 
     def __init__(self):
         self.config = getConfigShowbase()
@@ -79,6 +86,16 @@ class AIBase:
             self.petPosBroadcastPeriod = self.config.GetFloat('pet-pos-broadcast-period', PetConstants.PosBroadcastPeriod)
         self.wantBingo = self.config.GetBool('want-fish-bingo', 1)
         self.wantKarts = self.config.GetBool('wantKarts', 1)
+
+        # Server Settings options
+        self.wantYinYang = serverSettings[ServerSettingsGlobals.YinYang]
+        self.baseXpMultiplier = serverSettings[ServerSettingsGlobals.ExpMultiplier]
+        self.wantRacing = serverSettings[ServerSettingsGlobals.WantRacing]
+        self.wantGolf = serverSettings[ServerSettingsGlobals.WantGolf]
+        self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
+        self.wantSinglePlayer = None
+        # self.wantSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
+
         self.newDBRequestGen = self.config.GetBool('new-database-request-generate', 1)
         self.waitShardDelete = self.config.GetBool('wait-shard-delete', 1)
         self.blinkTrolley = self.config.GetBool('blink-trolley', 0)
@@ -87,7 +104,6 @@ class AIBase:
         self.wantSwitchboardHacks = self.config.GetBool('want-switchboard-hacks', 0)
         self.GEMdemoWhisperRecipientDoid = self.config.GetBool('gem-demo-whisper-recipient-doid', 0)
         self.sqlAvailable = self.config.GetBool('sql-available', 1)
-        self.isSinglePlayer = self.config.GetBool('want-singleplayer', 0)
         self.backups = BackupManager.BackupManager(
             filepath=self.config.GetString('backups-filepath', 'backups/'),
             extension=self.config.GetString('backups-extension', '.json'))

@@ -25,6 +25,7 @@ from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toonbase import ToontownLoader
 from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
+from toontown.toonbase import ServerSettingsGlobals
 
 if config.GetBool('want-leak-graph', False):
     from toontown.debug.LeakGraph import LeakGraph
@@ -37,13 +38,19 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         self.cr = None
+        self.isHosting = None
+        self.wantSinglePlayer = None
 
         # Get the native display info:
-        self.nativeWidth = self.pipe.getDisplayWidth()
-        self.nativeHeight = self.pipe.getDisplayHeight()
-        ratio = float(self.nativeWidth) / float(self.nativeHeight)
-        fraction = fractions.Fraction(ratio).limit_denominator()
-        self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
+        if sys.platform != 'android':
+            self.nativeWidth = self.pipe.getDisplayWidth()
+            self.nativeHeight = self.pipe.getDisplayHeight()
+            ratio = float(self.nativeWidth) / float(self.nativeHeight)
+            fraction = fractions.Fraction(ratio).limit_denominator()
+            self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
+        else:
+            self.nativeRatio = (16, 9)
+
         self.calcRatio = self.nativeRatio
 
         # Choose the best resolution if we're either fullscreen, or we don't
@@ -93,6 +100,11 @@ class ToonBase(OTPBase.OTPBase):
         self.addCullBins()
         self.debugRunningMultiplier /= OTPGlobals.ToonSpeedFactor
         self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
+
+        # self.wantSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
+        self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
+        self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
+
         self.toonChatSounds = self.config.GetBool('toon-chat-sounds', 1)
         self.placeBeforeObjects = self.config.GetBool('place-before-objects', 1)
         self.endlessQuietZone = False
@@ -105,6 +117,7 @@ class ToonBase(OTPBase.OTPBase):
         self.musicManager.setVolume(settings.get(SettingsGlobals.MusicVolume, 0.6))
         self.setSfxVolume(settings.get(SettingsGlobals.SoundVolume, 0.6))
         self.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
+        self.screenshotSfx = self.loader.loadSfx('phase_4/audio/sfx/Photo_shutter.ogg')
         tpm = TextPropertiesManager.getGlobalPtr()
         candidateActive = TextProperties()
         candidateActive.setTextColor(0, 0, 1, 1)
@@ -122,8 +135,6 @@ class ToonBase(OTPBase.OTPBase):
         if self.config.GetBool('want-particles', 1) == 1:
             self.notify.debug('Enabling particles')
             self.enableParticles()
-
-        self.accept(ToontownGlobals.ScreenshotHotkey, self.takeScreenShot)
 
         # OS X Specific Actions
         if platform == "darwin":
@@ -157,7 +168,6 @@ class ToonBase(OTPBase.OTPBase):
         self.wantGuilds = self.config.GetBool('want-guilds', 0)
         self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
         self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
-        self.wantKaldronNetwork = self.config.GetBool('want-kaldron-network', False)
         self.wantMods = self.config.GetBool('want-mods', False)
         self.wantServerBrowser = self.config.GetBool('want-server-browser', False)
         self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
@@ -253,6 +263,8 @@ class ToonBase(OTPBase.OTPBase):
         self.MOVE_RIGHT = 'arrow_right'
         self.JUMP = 'control'
         self.ACTION_BUTTON = 'delete'
+        self.SCREENSHOT_KEY = 'f9'
+        self.INTERACT_KEY = 'shift'
         
         keymap = settings.get('keymap', {})
         if self.wantCustomControls:
@@ -263,10 +275,17 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = keymap.get('JUMP', self.JUMP)
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
+            self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
+        
+        self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
 
         self.wantClassicMusic = settings.get('classic-music', False)
+        
+        self.wantDoorInteract = settings.get('door-interaction-key')
+        self.wantNpcInteract = settings.get('npc-interaction-key')
         
         self.leakGraph = None
         if config.GetBool('want-leak-graph-client', False):
@@ -283,7 +302,7 @@ class ToonBase(OTPBase.OTPBase):
             result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
         except StandardError as e:
             settings['fullscreen'] = False
-            raise StandardError, 'Could not open window, resetting display options; try to run the game again.'
+            raise StandardError, 'Could not open window, resetting display options try to run the game again.'
 
         self.setCursorAndIcon()
         return result
@@ -294,6 +313,9 @@ class ToonBase(OTPBase.OTPBase):
         MarginGlobals.updateMarginVisibles()
 
     def setCursorAndIcon(self):
+        if sys.platform == 'android':
+            return
+
         vfs = VirtualFileSystem.getGlobalPtr()
 
         searchPath = DSearchPath()
@@ -362,13 +384,29 @@ class ToonBase(OTPBase.OTPBase):
             aspect2d.show()
         else:
             aspect2d.hide()
-            base.transitions.fadeScreen(alpha=0.01)
+            base.transitions.fadeScreen(alpha=0)
+            
+    def showNotification(self, message):
+        if hasattr(self, 'notificationPopup') and self.notificationPopup:
+            self.notificationPopup.destroy()
+            taskMgr.remove('clearNotification')
+        self.notificationPopup = DirectLabel(text = message, scale = 0.05, pos = (0.0, 0.0, 0.3), text_bg = (0, 0, 0, .4), text_fg = (1, 1, 1, 1), frameColor = (1, 1, 1, 0))
+        self.notificationPopup.reparentTo(base.a2dBottomCenter)
+        self.notificationPopup.setBin('gui-popup', 0)     
+        def clearNotificationPopup(task):
+            self.notificationPopup.destroy()
+            return task.done
+
+        taskMgr.doMethodLater(5.0, clearNotificationPopup, 'clearNotification')
 
     def takeScreenShot(self):
+        if hasattr(self, 'notificationPopup') and self.notificationPopup:
+            self.notificationPopup.destroy()
+            taskMgr.remove('clearScreenshot')
         if not os.path.exists(TTLocalizer.ScreenshotPath):
             os.mkdir(TTLocalizer.ScreenshotPath)
             self.notify.info('Made new directory to save screenshots.')
-
+        self.screenshotSfx.play()
         namePrefix = TTLocalizer.ScreenshotPath + launcher.logPrefix + 'screenshot'
         timedif = globalClock.getRealTime() - self.lastScreenShotTime
         if self.glitchCount > 10 and self.walking:
@@ -405,7 +443,11 @@ class ToonBase(OTPBase.OTPBase):
         self.graphicsEngine.renderFrame()
         self.screenshot(namePrefix=namePrefix,
                         imageComment=ctext + ' ' + self.screenshotStr)
+        screenshot = self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
         self.lastScreenShotTime = globalClock.getRealTime()
+        pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
+        winfile = pandafile.toOsSpecific()
+        self.showNotification("Screenshot Saved" + ':\n' + winfile)
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
@@ -549,12 +591,6 @@ class ToonBase(OTPBase.OTPBase):
 
     def setExitErrorCode(self, code):
         self.exitErrorCode = code
-        if os.name == 'nt':
-            exitCode2exitPage = {OTPLauncherGlobals.ExitEnableChat: 'chat',
-                                 OTPLauncherGlobals.ExitSetParentPassword: 'setparentpassword',
-                                 OTPLauncherGlobals.ExitPurchase: 'purchase'}
-            if code in exitCode2exitPage:
-                launcher.setRegistry('EXIT_PAGE', exitCode2exitPage[code])
 
     def getExitErrorCode(self):
         return self.exitErrorCode
@@ -580,7 +616,7 @@ class ToonBase(OTPBase.OTPBase):
             self.cr.dumpAllSubShardObjects()
 
         self.cr.loginFSM.request('shutdown')
-        self.notify.warning('Could not request shutdown; exiting anyway.')
+        self.notify.warning('Could not request shutdown exiting anyway.')
         self.ignore(ToontownGlobals.QuitGameHotKeyOSX)
         self.ignore(ToontownGlobals.QuitGameHotKeyRepeatOSX)
         self.ignore(ToontownGlobals.HideGameHotKeyOSX)
@@ -637,6 +673,7 @@ class ToonBase(OTPBase.OTPBase):
         base.win.requestProperties(wp)
 
     def reloadControls(self):
+        self.ignore(self.SCREENSHOT_KEY) # Ignore the current screenshot key to replace it
         keymap = settings.get('keymap', {})
         self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
         if self.wantCustomControls:
@@ -647,6 +684,8 @@ class ToonBase(OTPBase.OTPBase):
             self.JUMP = keymap.get('JUMP', self.JUMP)
             self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
             ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
+            self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
+            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
         else:
             self.MOVE_UP = 'arrow_up'
             self.MOVE_DOWN = 'arrow_down'
@@ -654,6 +693,10 @@ class ToonBase(OTPBase.OTPBase):
             self.MOVE_RIGHT = 'arrow_right'
             self.JUMP = 'control'
             self.ACTION_BUTTON = 'delete'
+            self.SCREENSHOT_KEY = 'f9'
+            self.INTERACT_KEY = 'shift'
+            
+        self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
     def __tick(self, t=None):
         if platform != 'win32':
@@ -687,6 +730,9 @@ class ToonBase(OTPBase.OTPBase):
                 self.sfxManagerList[i].stopAllSounds()
 
     def getSmallestResolution(self):
+        if sys.platform == 'android':
+            return (1920, 1080)
+
         resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
         if len(resolutions) < 2:
             ratios = ToontownGlobals.CommonDisplayResolutions.keys()
@@ -708,6 +754,15 @@ class ToonBase(OTPBase.OTPBase):
 
         res = resolutions[0]
         return res
+    
+    def updateGraphicsSettings(self):
+        '''
+        Reloads graphics settings
+        '''
+        loadPrcFileData('Settings: Texture Quality',
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+        loadPrcFileData('Settings: Texture Compression',
+                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])

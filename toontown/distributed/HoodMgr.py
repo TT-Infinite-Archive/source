@@ -146,7 +146,7 @@ class HoodMgr(DirectObject.DirectObject):
             [23, 68.5, 4.51, -22.808, 0, 0]
         ),
         # TODO: Add legitimate drop points
-        ToontownGlobals.ResistanceGrounds: (
+        ToontownGlobals.FunnyFarm: (
             [0, 0, 0, 0, 0, 0],
         ),
         # TODO: Add legitimate drop points
@@ -200,7 +200,7 @@ class HoodMgr(DirectObject.DirectObject):
         'cashhq': ToontownGlobals.CashbotHQ,
         'lawhq': ToontownGlobals.LawbotHQ,
         'gz': ToontownGlobals.GolfZone,
-        'rg': ToontownGlobals.ResistanceGrounds,
+        'ff': ToontownGlobals.FunnyFarm,
         'sz': ToontownGlobals.StrikeZone
     }
     hoodId2Name = {
@@ -218,7 +218,7 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.CashbotHQ: 'cashhq',
         ToontownGlobals.LawbotHQ: 'lawhq',
         ToontownGlobals.GolfZone: 'gz',
-        ToontownGlobals.ResistanceGrounds: 'rg',
+        ToontownGlobals.FunnyFarm: 'ff',
         ToontownGlobals.StrikeZone: 'sz'
     }
     dbgDropMode = 0
