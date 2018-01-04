@@ -41,7 +41,7 @@ from toontown.hood import DGHoodAI
 from toontown.hood import DLHoodAI
 from toontown.hood import GSHoodAI
 from toontown.hood import GZHoodAI
-from toontown.hood import SZHoodAI
+from toontown.hood import StrikeZoneAI
 from toontown.hood import LawbotHQAI
 from toontown.hood import MMHoodAI
 from toontown.hood import OZHoodAI
@@ -216,8 +216,6 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.hoods.append(OZHoodAI.OZHoodAI(self))
         if self.config.GetBool('want-golf-zone', True):
             self.hoods.append(GZHoodAI.GZHoodAI(self))
-        if self.config.GetBool('want-strike-zone', True):
-            self.hoods.append(SZHoodAI.SZHoodAI(self))
 
         while self.readerPollOnce():
             pass
@@ -237,6 +235,8 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.countryClubMgr = CountryClubManagerAI.CountryClubManagerAI(
                 self)
             self.cogHeadquarters.append(BossbotHQAI.BossbotHQAI(self))
+        if self.config.GetBool('want-strike-zone', True):
+            self.cogHeadquarters.append(StrikeZoneAI.StrikeZoneAI(self))
 
     def handleConnected(self):
         ToontownInternalRepository.handleConnected(self)

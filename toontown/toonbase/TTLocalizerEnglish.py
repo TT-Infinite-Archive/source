@@ -96,7 +96,7 @@ lOutdoorZone = "Chip 'n Dale's Acorn Acres"
 lGolfZone = "Chip 'n Dale's MiniGolf"
 lPartyHood = 'Party Grounds'
 lFunnyFarm = 'Unpainted Playground'
-lStrikeZone = 'Strike Zone'
+lStrikeZone = 'Governaught Strike Zone'
 GlobalStreetNames = {20000: ('to', 'on', 'Tutorial Terrace'),
  1000: ('to the', 'in the', 'Playground'),
  1100: ('to', 'on', 'Barnacle Boulevard'),

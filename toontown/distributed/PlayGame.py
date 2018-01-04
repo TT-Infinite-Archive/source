@@ -23,7 +23,7 @@ from toontown.hood import QuietZoneState
 from toontown.hood import ZoneUtil
 from toontown.hood import EstateHood
 from toontown.hood import PartyHood
-from toontown.hood import SZHood
+from toontown.hood import StrikeZone
 from toontown.hood import SZBossHood
 from toontown.toonbase import TTLocalizer
 from toontown.parties.PartyGlobals import GoToPartyStatus
@@ -47,7 +47,7 @@ class PlayGame(StateData.StateData):
      ToontownGlobals.LawbotHQ: LawbotHQ.LawbotHQ,
      ToontownGlobals.GolfZone: GZHood.GZHood,
      ToontownGlobals.PartyHood: PartyHood.PartyHood,
-     ToontownGlobals.StrikeZone: SZHood.SZHood,
+     ToontownGlobals.StrikeZone: StrikeZone.StrikeZone,
      ToontownGlobals.StrikeZoneBoss: SZBossHood.SZBossHood}
     Hood2StateDict = {ToontownGlobals.ToontownCentral: 'TTHood',
      ToontownGlobals.DonaldsDock: 'DDHood',
@@ -65,7 +65,7 @@ class PlayGame(StateData.StateData):
      ToontownGlobals.LawbotHQ: 'LawbotHQ',
      ToontownGlobals.GolfZone: 'GZHood',
      ToontownGlobals.PartyHood: 'PartyHood',
-     ToontownGlobals.StrikeZone: 'SZHood',
+     ToontownGlobals.StrikeZone: 'StrikeZone',
      ToontownGlobals.StrikeZoneBoss: 'SZBossHood'}
 
     def __init__(self, parentFSM, doneEvent):
@@ -88,7 +88,7 @@ class PlayGame(StateData.StateData):
           'TutorialHood',
           'EstateHood',
           'PartyHood',
-          'SZHood',
+          'StrikeZone',
           'SZBossHood']),
          State.State('TTHood', self.enterTTHood, self.exitTTHood, ['quietZone']),
          State.State('DDHood', self.enterDDHood, self.exitDDHood, ['quietZone']),
@@ -106,7 +106,7 @@ class PlayGame(StateData.StateData):
          State.State('TutorialHood', self.enterTutorialHood, self.exitTutorialHood, ['quietZone']),
          State.State('EstateHood', self.enterEstateHood, self.exitEstateHood, ['quietZone']),
          State.State('PartyHood', self.enterPartyHood, self.exitPartyHood, ['quietZone']),
-         State.State('SZHood', self.enterSZHood, self.exitSZHood, ['quietZone']),
+         State.State('StrikeZone', self.enterStrikeZone, self.exitStrikeZone, ['quietZone']),
          State.State('SZBossHood', self.enterSZBossHood, self.exitSZBossHood, ['quietZone'])], 'start', 'start')
         self.fsm.enterInitialState()
         self.parentFSM = parentFSM
@@ -239,26 +239,19 @@ class PlayGame(StateData.StateData):
     def handleWaitForSetZoneResponse(self, requestStatus):
         hoodId = requestStatus['hoodId']
         canonicalHoodId = ZoneUtil.getCanonicalZoneId(hoodId)
-        if 'strikeId' not in requestStatus:
-            toHoodPhrase = ToontownGlobals.hoodNameMap[canonicalHoodId][0]
-            hoodName = ToontownGlobals.hoodNameMap[canonicalHoodId][-1]
-        else:
-            toHoodPhrase = ''
-            hoodName = ''
+        toHoodPhrase = ToontownGlobals.hoodNameMap[canonicalHoodId][0]
+        hoodName = ToontownGlobals.hoodNameMap[canonicalHoodId][-1]
         zoneId = requestStatus['zoneId']
         loaderName = requestStatus['loader']
         avId = requestStatus.get('avId', -1)
         ownerId = requestStatus.get('ownerId', avId)
         if base.config.GetBool('want-qa-regression', 0):
             self.notify.info('QA-REGRESSION: NEIGHBORHOODS: Visit %s' % hoodName)
-        if 'strikeId' not in requestStatus:
-            count = ToontownGlobals.hoodCountMap[canonicalHoodId]
-            if loaderName == 'safeZoneLoader':
-                count += ToontownGlobals.safeZoneCountMap[canonicalHoodId]
-            elif loaderName == 'townLoader':
-                count += ToontownGlobals.townCountMap[canonicalHoodId]
-        else:
-            count = 12
+        count = ToontownGlobals.hoodCountMap[canonicalHoodId]
+        if loaderName == 'safeZoneLoader':
+            count += ToontownGlobals.safeZoneCountMap[canonicalHoodId]
+        elif loaderName == 'townLoader':
+            count += ToontownGlobals.townCountMap[canonicalHoodId]
         if not loader.inBulkBlock:
             if hoodId == ToontownGlobals.MyEstate:
                 if avId == -1:
@@ -282,8 +275,6 @@ class PlayGame(StateData.StateData):
             elif ZoneUtil.isGoofySpeedwayZone(zoneId):
                 loader.beginBulkLoad('hood', TTLocalizer.HeadingToHood % {'to': toHoodPhrase,
                  'hood': hoodName}, count, 1, TTLocalizer.TIP_KARTING, zoneId)
-            elif 'strikeId' in requestStatus:
-                loader.beginBulkLoad('strike', '', count, 1, '', requestStatus['strikeId'])
             else:
                 loader.beginBulkLoad('hood', TTLocalizer.HeadingToHood % {'to': toHoodPhrase,
                  'hood': hoodName}, count, 1, TTLocalizer.TIP_GENERAL, zoneId)
@@ -299,6 +290,7 @@ class PlayGame(StateData.StateData):
         if not base.placeBeforeObjects:
             loader.endBulkLoad('hood')
         return
+
 
     def handleLeftQuietZone(self):
         status = self.quietZoneStateData.getRequestStatus()
@@ -511,12 +503,12 @@ class PlayGame(StateData.StateData):
     def exitPartyHood(self):
         self._destroyHood()
 
-    def enterSZHood(self, requestStatus):
+    def enterStrikeZone(self, requestStatus):
         print 'entering strike hood %s' % requestStatus
         self.accept(self.hoodDoneEvent, self.handleHoodDone)
         self.hood.enter(requestStatus)
 
-    def exitSZHood(self):
+    def exitStrikeZone(self):
         self._destroyHood()
 
     def enterSZBossHood(self, requestStatus):

@@ -201,7 +201,7 @@ class HoodMgr(DirectObject.DirectObject):
         'lawhq': ToontownGlobals.LawbotHQ,
         'gz': ToontownGlobals.GolfZone,
         'ff': ToontownGlobals.FunnyFarm,
-        'sz': ToontownGlobals.StrikeZone
+        'gsz': ToontownGlobals.StrikeZone
     }
     hoodId2Name = {
         ToontownGlobals.DonaldsDock: 'dd',
@@ -219,7 +219,7 @@ class HoodMgr(DirectObject.DirectObject):
         ToontownGlobals.LawbotHQ: 'lawhq',
         ToontownGlobals.GolfZone: 'gz',
         ToontownGlobals.FunnyFarm: 'ff',
-        ToontownGlobals.StrikeZone: 'sz'
+        ToontownGlobals.StrikeZone: 'gsz'
     }
     dbgDropMode = 0
     currentDropPoint = 0

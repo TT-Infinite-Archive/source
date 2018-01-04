@@ -255,7 +255,6 @@ HoodHierarchy = {
     DaisyGardens: (ElmStreet, MapleStreet, OakStreet),
     DonaldsDreamland: (LullabyLane, PajamaPlace),
     FunnyFarm: (),
-    StrikeZone: (),
     GoofySpeedway: ()
 }
 cogDept2index = {
@@ -301,7 +300,8 @@ HQToSafezone = {
     SellbotHQ: DaisyGardens,
     CashbotHQ: DonaldsDreamland,
     LawbotHQ: TheBrrrgh,
-    BossbotHQ: DonaldsDock
+    BossbotHQ: DonaldsDock,
+    StrikeZone: ToontownCentral
 }
 CogDeptNames = [
     TTLocalizer.Bossbot,
@@ -317,9 +317,9 @@ HoodIdToName = {
     DaisyGardens: TTLocalizer.lDaisyGardens,
     DonaldsDreamland: TTLocalizer.lDonaldsDreamland,
     FunnyFarm: TTLocalizer.lFunnyFarm,
-    StrikeZone: TTLocalizer.lStrikeZone,
     GoofySpeedway: TTLocalizer.lGoofySpeedway,
     OutdoorZone: TTLocalizer.lOutdoorZone,
+    StrikeZone: TTLocalizer.lStrikeZone[2],
     BossbotHQ: TTLocalizer.BossbotHQ[2],
     SellbotHQ: TTLocalizer.SellbotHQ[2],
     CashbotHQ: TTLocalizer.CashbotHQ[2],
@@ -631,8 +631,7 @@ safeZoneCountMap = {
     OutdoorZone: 500,
     GolfZone: 500,
     PartyHood: 500,
-    FunnyFarm: 500,
-    StrikeZone: 500
+    FunnyFarm: 500
 }
 townCountMap = {
     MyEstate: 8,

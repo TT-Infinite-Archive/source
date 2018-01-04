@@ -1,44 +1,39 @@
-from panda3d.core import Vec4, Fog
+from panda3d.core import Fog
 
-from toontown.safezone.SZSafeZoneLoader import SZSafeZoneLoader
+from toontown.coghq.StrikeZoneCogHQLoader import StrikeZoneCogHQLoader
 from toontown.toonbase import ToontownGlobals
-from toontown.hood.ToonHood import ToonHood
+from toontown.hood.CogHood import CogHood
 from otp.otpbase.OTPGlobals import DefaultCameraFov
 from panda3d.core import Vec4, Filename
 from toontown.battle import BattleParticles
+from toontown.hood import SkyUtil
 
-class SZHood(ToonHood):
-    notify = directNotify.newCategory('SZHood')
+
+class StrikeZone(CogHood):
+    notify = directNotify.newCategory('StrikeZone')
 
     ID = ToontownGlobals.StrikeZone
-    SAFEZONELOADER_CLASS = SZSafeZoneLoader
+    LOADER_CLASS = StrikeZoneCogHQLoader
     STORAGE_DNA = 'phase_6/dna/storage_SZ.pdna'
     SKY_FILE = 'phase_3.5/models/props/TT_sky'
-    SPOOKY_SKY_FILE = 'phase_3.5/models/props/BR_sky'
     TITLE_COLOR = (0.5, 0.5, 0.5, 1.0)
-    NIGHTSKY_FILE = None
-    SUNSKY_FILE = None
-
-    HOLIDAY_DNA = {}
 
     def __init__(self, parentFSM, doneEvent, dnaStore, hoodId):
-        ToonHood.__init__(self, parentFSM, doneEvent, dnaStore, hoodId)
+        CogHood.__init__(self, parentFSM, doneEvent, dnaStore, hoodId)
 
-        self.nightSkyFile = self.NIGHTSKY_FILE
-        self.sunSkyFile = self.SUNSKY_FILE
-        self.titleColor = self.TITLE_COLOR
         self.rain = None
         self.rainRender = None
 
-    def load(self):
-        ToonHood.load(self)
-        self.fog = Fog('SZFog')
+    def load(self, *args):
+        CogHood.load(self)
+        self.fog = Fog('GSZFog')
         self.startRain()
+        SkyUtil.startCloudSky(self)
+        self.sky.setScale(3)
         base.localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
         base.camLens.setNearFar(ToontownGlobals.StrikeZoneCameraNear, ToontownGlobals.StrikeZoneCameraFar)
 
         render.setColorScale(Vec4(0.55, 0.35, 0.35, 1))
-        self.sky.setScale(3)
 
         if __debug__:
             skyblue2Filename = Filename('../resources/phase_3.5/maps/skyblue2_invasion.jpg')
@@ -61,12 +56,38 @@ class SZHood(ToonHood):
             toontown_central_tutorial_palette_4amla_1Filename, toontown_central_tutorial_palette_4amla_1_aFilename, 0,
             0)
 
+    def skyTrack(self, task):
+        return SkyUtil.cloudSkyTrack(task)
+
     def unload(self):
         self.stopRain()
         del self.rain
         del self.rainRender
 
-        ToonHood.exit(self)
+        self.sky.setScale(1)
+
+        if __debug__:
+            skyblue2Filename = Filename('../resources/phase_3.5/maps/skyblue2.jpg')
+            middayskyBFilename = Filename('../resources/phase_3.5/maps/middayskyB.jpg')
+            toontown_central_tutorial_palette_4amla_1Filename = Filename(
+                '../resources/phase_3.5/maps/toontown_central_tutorial_palette_4amla_1.jpg')
+            toontown_central_tutorial_palette_4amla_1_aFilename = Filename(
+                '../resources/phase_3.5/maps/toontown_central_tutorial_palette_4amla_1_a.rgb')
+        else:
+            skyblue2Filename = Filename('/phase_3.5/maps/skyblue2.jpg')
+            middayskyBFilename = Filename('/phase_3.5/maps/middayskyB.jpg')
+            toontown_central_tutorial_palette_4amla_1Filename = Filename(
+                '/phase_3.5/maps/toontown_central_tutorial_palette_4amla_1.jpg')
+            toontown_central_tutorial_palette_4amla_1_aFilename = Filename(
+                '/phase_3.5/maps/toontown_central_tutorial_palette_4amla_1_a.rgb')
+
+        self.sky.findTexture('skyblue2').read(skyblue2Filename)
+        self.sky.findTexture('middayskyB').read(middayskyBFilename)
+        self.sky.findTexture('toontown_central_tutorial_palette_4amla_1').read(
+            toontown_central_tutorial_palette_4amla_1Filename, toontown_central_tutorial_palette_4amla_1_aFilename, 0,
+            0)
+
+        CogHood.exit(self)
         base.localAvatar.setCameraFov(DefaultCameraFov)
 
     def startRain(self):

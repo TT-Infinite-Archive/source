@@ -68,8 +68,11 @@ class CogHQExterior(BattlePlace.BattlePlace):
         BattlePlace.BattlePlace.enter(self)
         self.fsm.enterInitialState()
         base.playMusic(self.loader.music, looping=1, volume=0.8)
-        self.loader.geom.reparentTo(render)
-        self.nodeList = [self.loader.geom]
+        self.nodeList = []
+        if hasattr(self.loader, 'geom'):
+            self.loader.geom.reparentTo(render)
+            self.nodeList.append(self.loader.geom)
+
         self._telemLimiter = TLGatherAllAvs('CogHQExterior', RotationLimitToH)
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)

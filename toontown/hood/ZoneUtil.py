@@ -10,7 +10,7 @@ def isGoofySpeedwayZone(zoneId):
 
 
 def isCogHQZone(zoneId):
-    return zoneId >= 10000 and zoneId < 15000
+    return zoneId >= 10000 and zoneId <= 19000
 
 
 def isMintInteriorZone(zoneId):
