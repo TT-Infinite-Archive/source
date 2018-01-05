@@ -210,6 +210,19 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
     def getWaiter(self):
         return self.waiter
 
+    def setGovernaught(self, flag):
+        SuitBase.SuitBase.setGovernaught(self, flag)
+
+    def d_setGovernaught(self, flag):
+        self.sendUpdate('setGovernaught', [flag])
+
+    def b_setGovernaught(self, flag):
+        self.setGovernaught(flag)
+        self.d_setGovernaught(flag)
+
+    def getGovernaught(self):
+        return self.governaught
+
     def requestTreasure(self, pos, grabberId=0):
         pass
 

@@ -20,6 +20,7 @@ bSize = 5.29
 cSize = 4.14
 SuitDialogArray = []
 SkelSuitDialogArray = []
+GovernaughtSuitDialogArray = []
 AllSuits = (('walk', 'walk'), ('run', 'walk'), ('neutral', 'neutral'))
 AllSuitsMinigame = (('victory', 'victory'),
  ('flail', 'flailing'),
@@ -198,6 +199,21 @@ def loadSuits(level):
 def unloadSuits(level):
     unloadDialog(level)
 
+def cogExists(filePrefix):
+    searchPath = DSearchPath()
+    if AppRunnerGlobal.appRunner:
+        searchPath.appendDirectory(Filename.expandFrom('$TT_3_5_ROOT/phase_3.5'))
+    else:
+        basePath = os.path.expandvars('$TTMODELS') or './ttmodels'
+        searchPath.appendDirectory(Filename.fromOsSpecific(basePath + '/built/phase_3.5'))
+    filePrefix = filePrefix.strip('/')
+    pfile = Filename(filePrefix)
+    found = vfs.resolveFilename(pfile, searchPath)
+    if not found:
+        return False
+    return True
+
+
 def loadSuitAnims(suit, flag = 1):
     if suit in SuitDNA.suitHeadTypes:
         try:
@@ -229,7 +245,7 @@ def loadDialog(level):
          'COG_VO_statement',
          'COG_VO_question']
         for file in SuitDialogFiles:
-            SuitDialogArray.append(loader.loadSfx(loadPath + file + '.ogg'))
+            SuitDialogArray.append(base.loadSfx(loadPath + file + '.ogg'))
 
         SuitDialogArray.append(SuitDialogArray[2])
         SuitDialogArray.append(SuitDialogArray[2])
@@ -251,6 +267,21 @@ def loadSkelDialog():
          statement,
          statement]
 
+def loadGovernaughtDialog():
+    global GovernaughtSuitDialogArray
+    if len(GovernaughtSuitDialogArray) > 0:
+        return
+    else:
+        grunt = loader.loadSfx('phase_5/audio/sfx/GN_Cog_Grunt.ogg')
+        murmur = loader.loadSfx('phase_5/audio/sfx/GN_Cog_Murmur.ogg')
+        statement = loader.loadSfx('phase_5/audio/sfx/GN_Cog_Statement.ogg')
+        question = loader.loadSfx('phase_5/audio/sfx/GN_Cog_Question.ogg')
+        GovernaughtSuitDialogArray = [grunt,
+                               murmur,
+                               statement,
+                               question,
+                               statement,
+                               statement]
 
 def unloadDialog(level):
     global SuitDialogArray
@@ -260,6 +291,11 @@ def unloadDialog(level):
 def unloadSkelDialog():
     global SkelSuitDialogArray
     SkelSuitDialogArray = []
+
+
+def unloadGovernaughtDialog():
+        global GovernaughtSuitDialogArray
+        GovernaughtSuitDialogArray = []
 
 
 def attachSuitHead(node, suitName):
@@ -341,6 +377,7 @@ class Suit(Avatar.Avatar):
         self.healthCondition = 0
         self.isDisguised = 0
         self.isWaiter = 0
+        self.isGovernaught = 0
         self.isRental = 0
         self.isVirtual = 0
         self.isGoofy = 0
@@ -549,6 +586,29 @@ class Suit(Avatar.Avatar):
         modelRoot.find('**/arms').setTexture(armTex, 1)
         modelRoot.find('**/legs').setTexture(legTex, 1)
 
+    def makeGovernaught(self, modelRoot=None, dept=None):
+        if not modelRoot:
+            modelRoot = self
+        self.isGovernaught = True
+        if dept is None:
+            dept = self.style.dept
+        legTex = loader.loadTexture('phase_3.5/maps/gn_leg.jpg')
+        armTex = loader.loadTexture('phase_3.5/maps/gn_sleeve.jpg')
+        handTex = loader.loadTexture('phase_3.5/maps/gn_hand.jpg')
+        deptToTexture = {
+            'c': 'phase_3.5/maps/gn_boss_blazer.jpg',
+            'l': 'phase_3.5/maps/gn_law_blazer.jpg',
+            'm': 'phase_3.5/maps/gn_cash_blazer.jpg',
+            's': 'phase_3.5/maps/gn_sell_blazer.jpg'
+        }
+        torsoTex = loader.loadTexture(deptToTexture[dept])
+        torsoTex.setMinfilter(Texture.FTLinearMipmapLinear)
+        torsoTex.setMagfilter(Texture.FTLinear)
+        modelRoot.find('**/torso').setTexture(torsoTex, 1)
+        modelRoot.find('**/legs').setTexture(legTex, 1)
+        modelRoot.find('**/arms').setTexture(armTex, 1)
+        modelRoot.find('**/hands').setTexture(handTex, 1)
+
     def makeRentalSuit(self, suitType, modelRoot = None):
         if not modelRoot:
             modelRoot = self.getGeomNode()
@@ -747,9 +807,13 @@ class Suit(Avatar.Avatar):
                 for part in self.headParts:
                     part.instanceTo(loseNeck)
 
-                if self.isWaiter:
+                if self.isGovernaught:
+                    print('Is Governaught')
+                    self.makeGovernaught(self.loseActor, self.style.dept)
+                elif self.isWaiter:
                     self.makeWaiter(self.loseActor)
                 else:
+                    print('Setting suit clothes..')
                     self.setSuitClothes(self.loseActor)
             else:
                 loseModel = 'phase_5/models/char/cog' + string.upper(self.style.body) + '_robot-lose-mod'
@@ -855,5 +919,8 @@ class Suit(Avatar.Avatar):
         if self.isSkeleton:
             loadSkelDialog()
             return SkelSuitDialogArray
+        if self.isGovernaught:
+            loadGovernaughtDialog()
+            return GovernaughtSuitDialogArray
         else:
             return SuitDialogArray

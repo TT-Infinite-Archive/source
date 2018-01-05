@@ -23,6 +23,7 @@ class SuitBase:
         self.currHP = 10
         self.isSkelecog = 0
         self.isWaiter = 0
+        self.isGovernaught = 0
         return
 
     def delete(self):
@@ -50,9 +51,11 @@ class SuitBase:
 
     def setLevel(self, level):
         self.level = level
-        nameWLevel = TTLocalizer.SuitBaseNameWithLevel % {'name': self.name,
-         'dept': self.getStyleDept(),
-         'level': self.getActualLevel()}
+        nameWLevel = TTLocalizer.SuitBaseNameWithLevel % {
+            'name': self.name,
+            'dept': self.getStyleDept(),
+            'level': self.getActualLevel()
+        }
         self.setDisplayName(nameWLevel)
         attributes = SuitBattleGlobals.SuitAttributes[self.dna.name]
         self.maxHP = attributes['hp'][self.level]
@@ -66,6 +69,9 @@ class SuitBase:
 
     def setWaiter(self, flag):
         self.isWaiter = flag
+
+    def setGovernaught(self, flag):
+        self.isGovernaught = flag
 
     def getActualLevel(self):
         if hasattr(self, 'dna'):

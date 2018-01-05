@@ -63,9 +63,9 @@ class StrikeZone(CogHood):
         self.hqTelescope.reparentTo(render)
         self.hqTelescope.setPosHpr(20.5, 29, 16.7, -70, 0, 0)
 
-        self.statue = loader.loadModel('phase_4/models/corpstrike/pns_statue_body')
-        self.statue.reparentTo(render)
-        PlacerTool3D(self.statue, increment=1)
+        # self.statue = loader.loadModel('phase_4/models/corpstrike/pns_statue_body')
+        # self.statue.reparentTo(render)
+        # PlacerTool3D(self.statue, increment=1)
 
         # self.painting = loader.loadModel('phase_4/models/corpstrike/gov_philip_painting')
         # self.painting.reparentTo(render)

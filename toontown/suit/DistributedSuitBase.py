@@ -372,6 +372,17 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
         if flag:
             Suit.Suit.makeWaiter(self)
 
+    def setGovernaught(self, flag):
+        SuitBase.SuitBase.setGovernaught(self, flag)
+        if flag:
+            Suit.Suit.makeGovernaught(self, self)
+            nameWLevel = TTLocalizer.SuitBaseGovernaughtNameWithLevel % {
+                'name': self.name,
+                'dept': self.getStyleDept(),
+                'level': self.getActualLevel()
+            }
+            self.setDisplayName(nameWLevel)
+
     def showHpText(self, number, bonus = 0, scale = 1, attackTrack = -1):
         if self.HpTextEnabled and not self.ghostMode:
             if number != 0:
@@ -466,9 +477,18 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
         else:
             name = self.name
 
-        text = TTLocalizer.SuitBaseNameWithLevel % {'name': name,
-                                                    'dept': self.getStyleDept(),
-                                                    'level':self.getActualLevel()}
+        if self.isGovernaught:
+            text = TTLocalizer.SuitBaseGovernaughtNameWithLevel % {
+                'name': name,
+                'dept': self.getStyleDept(),
+                'level': self.getActualLevel()
+            }
+        else:
+            text = TTLocalizer.SuitBaseNameWithLevel % {
+                'name': name,
+                'dept': self.getStyleDept(),
+                'level':self.getActualLevel()
+            }
         self.setDisplayName(text)
 
         if self.buffIndex == SuitBuffGlobals.SuitBuffHealthy:

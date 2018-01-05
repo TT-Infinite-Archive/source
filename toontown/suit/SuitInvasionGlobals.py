@@ -5,4 +5,5 @@ INVASION_TYPE_MEGA = 1
 # Flags:
 IFSkelecog = 1 << 0
 IFWaiter = 1 << 1
+IFGovernaught = 1 << 1
 IFV2 = 1 << 2

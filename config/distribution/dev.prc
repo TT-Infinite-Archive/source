@@ -45,7 +45,7 @@ dc-file astron/dclass/vanilla.dc
 # Core features:
 want-multiplayer #t
 want-pets #t
-want-parties #f
+want-parties #t
 want-achievements #f
 want-grouptracker #f
 want-server-browser #f
@@ -61,8 +61,7 @@ want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
-want-resistance-grounds #t
-want-strike-zone #t
+want-resistance-grounds #f
 
 # Cog headquarters:
 want-cog-headquarters #t

@@ -1,6 +1,7 @@
 from toontown.hood.CogHQAI import CogHQAI
 from toontown.toonbase import ToontownGlobals
 from toontown.suit.DistributedSuitPlannerAI import DistributedSuitPlannerAI
+from toontown.suit import DistributedSuitAI
 from toontown.strike.CorporateStrikeManagerAI import CorporateStrikeManagerAI
 from toontown.strike import StrikeAreaGlobals
 

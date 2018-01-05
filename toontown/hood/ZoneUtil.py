@@ -139,6 +139,9 @@ def getCanonicalBranchZone(zoneId):
 def isWelcomeValley(zoneId):
     return zoneId == WelcomeValleyToken or zoneId >= WelcomeValleyBegin and zoneId < WelcomeValleyEnd
 
+def isStrikeZone(zoneId):
+    return zoneId == StrikeZone
+
 
 def getCanonicalZoneId(zoneId):
     if zoneId == WelcomeValleyToken:

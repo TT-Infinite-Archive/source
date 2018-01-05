@@ -14,7 +14,7 @@ from toontown.building import HQBuildingAI
 from toontown.building import SuitBuildingGlobals
 from toontown.dna.DNAParser import DNASuitPoint
 from toontown.hood import ZoneUtil
-from toontown.suit.SuitInvasionGlobals import IFSkelecog, IFWaiter, IFV2
+from toontown.suit.SuitInvasionGlobals import IFSkelecog, IFWaiter, IFGovernaught, IFV2
 from toontown.suit.SuitLegList import *
 from toontown.toon import NPCToons
 from toontown.toonbase import ToontownBattleGlobals
@@ -245,7 +245,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
     def createNewSuit(self, blockNumbers, streetPoints, toonBlockTakeover=None,
             cogdoTakeover=None, minPathLen=None, maxPathLen=None,
             buildingHeight=None, suitLevel=None, suitType=None, suitTrack=None,
-            suitName=None, skelecog=None, revives=None, waiter=None):
+            suitName=None, skelecog=None, revives=None, waiter=None, governaught=None):
         startPoint = None
         blockNumber = None
         if self.notify.getDebug():
@@ -334,6 +334,8 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
             newSuit.b_setSkeleRevives(revives)
         if waiter:
             newSuit.b_setWaiter(1)
+        if ZoneUtil.isStrikeZone(self.zoneId):
+            newSuit.b_setGovernaught(1)
         newSuit.d_setSPDoId(self.doId)
         newSuit.moveToNextLeg(None)
         self.suitList.append(newSuit)

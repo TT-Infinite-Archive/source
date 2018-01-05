@@ -276,9 +276,11 @@ def createSuitReviveTrack(suit, toon, battle, npcs = []):
     suitTrack.append(Func(removeReviveSuit, suit, deathSuit, name='remove-death-suit'))
     suitTrack.append(Func(notify.debug, 'after removeDeathSuit'))
     suitTrack.append(Func(suit.loop, 'neutral'))
-    spinningSound = loader.loadSfx('phase_3.5/audio/sfx/Cog_Death.ogg')
-    deathSound = loader.loadSfx('phase_3.5/audio/sfx/ENC_cogfall_apart.ogg')
-    deathSoundTrack = Sequence(Wait(0.8), SoundInterval(spinningSound, duration=1.2, startTime=1.5, volume=0.2), SoundInterval(spinningSound, duration=3.0, startTime=0.6, volume=0.8), SoundInterval(deathSound, volume=0.32))
+    spinningSound = base.loadSfx('phase_3.5/audio/sfx/Cog_Death.ogg')
+    deathSound = base.loadSfx('phase_3.5/audio/sfx/ENC_cogfall_apart.ogg')
+    deathSoundTrack = Sequence(Wait(0.8), SoundInterval(spinningSound, duration=1.2, startTime=1.5, volume=0.2),
+                               SoundInterval(spinningSound, duration=3.0, startTime=0.6, volume=0.8),
+                               SoundInterval(deathSound, volume=0.32))
     BattleParticles.loadParticles()
     smallGears = BattleParticles.createParticleEffect(file='gearExplosionSmall')
     singleGear = BattleParticles.createParticleEffect('GearExplosion', numParticles=1)
@@ -325,9 +327,14 @@ def createSuitDeathTrack(suit, toon, battle, npcs=None):
     suitTrack.append(Func(displayBuffVisuals, battle))
     suitTrack.append(Func(dropTreasure, suit))
     suitTrack.append(Func(notify.debug, 'after removeDeathSuit'))
-    spinningSound = loader.loadSfx('phase_3.5/audio/sfx/Cog_Death.ogg')
-    deathSound = loader.loadSfx('phase_3.5/audio/sfx/ENC_cogfall_apart.ogg')
-    deathSoundTrack = Sequence(Wait(0.8), SoundInterval(spinningSound, duration=1.2, startTime=1.5, volume=0.2), SoundInterval(spinningSound, duration=3.0, startTime=0.6, volume=0.8), SoundInterval(deathSound, volume=0.32))
+    if suit.isGovernaught:
+        spinningSound = base.loadSfx('phase_5/audio/sfx/GN_Cog_Death.ogg')
+        deathSoundTrack = Sequence(Wait(1.25),
+        SoundInterval(spinningSound, duration=6.3, startTime=0))
+    else:
+        spinningSound = base.loadSfx('phase_3.5/audio/sfx/Cog_Death.ogg')
+        deathSound = base.loadSfx('phase_3.5/audio/sfx/ENC_cogfall_apart.ogg')
+        deathSoundTrack = Sequence(Wait(0.8), SoundInterval(spinningSound, duration=1.2, startTime=1.5, volume=0.2), SoundInterval(spinningSound, duration=3.0, startTime=0.6, volume=0.8), SoundInterval(deathSound, volume=0.32))
     BattleParticles.loadParticles()
     smallGears = BattleParticles.createParticleEffect(file='gearExplosionSmall')
     singleGear = BattleParticles.createParticleEffect('GearExplosion', numParticles=1)
