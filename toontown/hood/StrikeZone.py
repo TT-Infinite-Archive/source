@@ -7,6 +7,8 @@ from otp.otpbase.OTPGlobals import DefaultCameraFov
 from panda3d.core import Vec4, Filename
 from toontown.battle import BattleParticles
 from toontown.hood import SkyUtil
+from direct.actor import Actor
+from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class StrikeZone(CogHood):
@@ -56,6 +58,23 @@ class StrikeZone(CogHood):
             toontown_central_tutorial_palette_4amla_1Filename, toontown_central_tutorial_palette_4amla_1_aFilename, 0,
             0)
 
+        self.hqTelescope = Actor.Actor('phase_4/models/corpstrike/hqTT_telescope_ost', {'animation': 'phase_4/models/corpstrike/hqTT_telescope_ost'})
+        self.hqTelescope.loop('animation')
+        self.hqTelescope.reparentTo(render)
+        self.hqTelescope.setPosHpr(20.5, 29, 16.7, -70, 0, 0)
+
+        self.statue = loader.loadModel('phase_4/models/corpstrike/pns_statue_body')
+        self.statue.reparentTo(render)
+        PlacerTool3D(self.statue, increment=1)
+
+        # self.painting = loader.loadModel('phase_4/models/corpstrike/gov_philip_painting')
+        # self.painting.reparentTo(render)
+        # PlacerTool3D(self.painting, increment=1)
+
+        # self.painting2 = loader.loadModel('phase_4/models/corpstrike/gov_philip_painting')
+        # self.painting2.reparentTo(render)
+        # PlacerTool3D(self.painting2, increment=1)
+
     def skyTrack(self, task):
         return SkyUtil.cloudSkyTrack(task)
 
@@ -65,6 +84,9 @@ class StrikeZone(CogHood):
         del self.rainRender
 
         self.sky.setScale(1)
+        self.hqTelescope.removeNode()
+        del self.hqTelescope
+        self.hqTelescope = None
 
         if __debug__:
             skyblue2Filename = Filename('../resources/phase_3.5/maps/skyblue2.jpg')
