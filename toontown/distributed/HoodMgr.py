@@ -151,7 +151,7 @@ class HoodMgr(DirectObject.DirectObject):
         ),
         # TODO: Add legitimate drop points
         ToontownGlobals.StrikeZone: (
-            [0, 0, 0, 0, 0, 0],
+            [-104.557, 61.342, 0.025, -127.800, 0, 0],
         ),
         ToontownGlobals.Tutorial: (
             [130.9, -8.6, -1.3, 105.5, 0, 0],

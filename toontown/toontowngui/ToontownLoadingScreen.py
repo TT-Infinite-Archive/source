@@ -42,7 +42,8 @@ class ToontownLoadingScreen:
         ToontownGlobals.SellbotHQ : 'phase_3.5/maps/loading/sbhq.jpg',
         ToontownGlobals.CashbotHQ : 'phase_3.5/maps/loading/cbhq.jpg',
         ToontownGlobals.LawbotHQ : 'phase_3.5/maps/loading/lbhq.jpg',
-        ToontownGlobals.BossbotHQ : 'phase_3.5/maps/loading/bbhq.jpg'
+        ToontownGlobals.BossbotHQ : 'phase_3.5/maps/loading/bbhq.jpg',
+        ToontownGlobals.StrikeZone : 'phase_3.5/maps/loading/gsz.jpg'
     }
 
     def __init__(self):
