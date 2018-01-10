@@ -14,6 +14,7 @@ from otp.avatar import DistributedAvatar
 from otp.otpbase import OTPGlobals
 from toontown.battle import BattleProps
 from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.chat.ChatGlobals import CFSpeech, CFTimeout
 
 
 class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBase.SuitBase):
