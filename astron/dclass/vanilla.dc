@@ -328,9 +328,6 @@ from toontown.coderedemption.TTCodeRedemptionMgr/AI/UD import TTCodeRedemptionMg
 from toontown.distributed.NonRepeatableRandomSourceAI import NonRepeatableRandomSourceAI
 from toontown.distributed.NonRepeatableRandomSourceUD import NonRepeatableRandomSourceUD
 from toontown.ai.DistributedPhaseEventMgr/AI import DistributedPhaseEventMgr/AI
-from toontown.ai.DistributedHydrantZeroMgr/AI import DistributedHydrantZeroMgr/AI
-from toontown.ai.DistributedMailboxZeroMgr/AI import DistributedMailboxZeroMgr/AI
-from toontown.ai.DistributedTrashcanZeroMgr/AI import DistributedTrashcanZeroMgr/AI
 from toontown.ai import DistributedSillyMeterMgr/AI
 from toontown.cogdominium import DistributedCogdoInterior/AI
 from toontown.cogdominium import DistributedCogdoBattleBldg/AI
@@ -4009,15 +4006,6 @@ dclass DistributedPhaseEventMgr : DistributedObject {
   setDates(datetime []) broadcast required;
   setCurPhase(int8) required broadcast ram;
   setIsRunning(bool) required broadcast ram;
-};
-
-dclass DistributedHydrantZeroMgr : DistributedPhaseEventMgr {
-};
-
-dclass DistributedMailboxZeroMgr : DistributedPhaseEventMgr {
-};
-
-dclass DistributedTrashcanZeroMgr : DistributedPhaseEventMgr {
 };
 
 dclass DistributedSillyMeterMgr : DistributedPhaseEventMgr {

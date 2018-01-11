@@ -134,9 +134,6 @@ props-buff-battles #t
 prop-and-organic-bonus-stack #f
 prop-idle-pause-time 0.0
 
-# Holidays
-active-holidays 63, 64, 65, 66, 116
-
 # Optional:
 show-total-population #t
 want-mat-all-tailors #t

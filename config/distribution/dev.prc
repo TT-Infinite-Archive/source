@@ -98,9 +98,6 @@ want-blacklist #f
 # Double progression:
 want-double-progression #t
 
-# Holidays
-active-holidays 63, 64, 65, 66, 116
-
 # Developer options:
 force-skip-tutorial #t
 show-population #f
