@@ -384,7 +384,7 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
                 if number < 0:
                     self.HpTextGenerator.setText(str(number))
 
-                    if config.GetBool('silly-surge-text', True) and random.randrange(0, 100) < config.GetInt('silly-surge-chance', 10):
+                    if config.GetBool('silly-surge-text', True) and random.randrange(0, 100) < config.GetInt('silly-surge-chance', 100) and bonus == 2 and self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
                         self.sillySurgeText = True
                         absNumber = int(abs(number) / 10)
 
@@ -392,8 +392,7 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
                             self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.SillySurgeTerms[absNumber])
                         else:
                             self.HpTextGenerator.setText(str(number) + '\n' + random.choice(TTLocalizer.SillySurgeTerms))
-
-                    if self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
+                    elif self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
                         self.sillySurgeText = True
 
                         if attackTrack in TTLocalizer.InteractivePropTrackBonusTerms:
