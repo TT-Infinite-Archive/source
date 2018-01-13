@@ -86,10 +86,16 @@ class PlayScreen(DirectFrame, FSM):
             image_scale=(-1.4, 1.4, 1.4),
             image2_scale=(-1.5, 1.5, 1.5),
             image1_scale=(-1.5, 1.5, 1.5),
+            image3_color=VBase4(0.6, 0.6, 0.6, 1.0),
+            text3_fg=VBase4(0.7, 0.7, 0.7, 1.0),
             text_scale=0.10,
             text2_scale=0.105,
             text1_scale=0.105
         )
+        # Disable the button for now
+        self.ttiServerButton['state'] = DGG.DISABLED
+        # ---
+
         self.buttons.append(self.ttiServerButton)
 
         self.icon = OnscreenImage(
