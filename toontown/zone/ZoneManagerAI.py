@@ -39,7 +39,7 @@ class ZoneManagerAI(DistributedObjectGlobalAI):
             self.notify.debug('%s does not exist! Skipping...' % location)
             return
         self.extract(location)
-        self.zoneData[zoneId] = 'tmp/' + 'zone_%d/' % zoneId + 'zone_%d.pdna' % zoneId
+        self.zoneData[zoneId] = '%s/tmp/zone_%d/zone_%d.pdna' % (self.mountPoint, zoneId, zoneId)
 
     def extract(self, filename):
         from panda3d.core import Multifile, Filename
