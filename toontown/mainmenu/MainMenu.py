@@ -148,7 +148,7 @@ class MainMenu(DirectFrame, FSM):
         self.randomSuit.setDisplayName('')
         self.randomSuit.setPickable(0)
         self.randomSuit.setH(90)
-        self.randomSuit.loop('walk')
+        self.randomSuit.lerpAnimation('walk')
 
         self.landingSuitPosInterval = self.randomSuit.posInterval(
             1, (-417.5, -129, 3), startPos=(-417.5, -129, 10)
@@ -169,11 +169,11 @@ class MainMenu(DirectFrame, FSM):
                 Func(self.randomSuit.pose, 'landing', 0),
                 self.landingSuitPosInterval),
             Parallel(
-                Func(self.randomSuit.play, 'landing'),
+                Func(self.randomSuit.lerpAnimation, 'landing'),
                 self.landingSuitPosInterval2),
             Wait(2.2),
              Parallel(
-                Func(self.randomSuit.loop, 'walk'),
+                Func(self.randomSuit.lerpAnimation, 'walk'),
                 self.landingSuitPosInterval3),
         )
         self.landingSuitInterval.start()
@@ -187,7 +187,7 @@ class MainMenu(DirectFrame, FSM):
         self.randomSuit2.setDisplayName('')
         self.randomSuit2.setPickable(0)
         self.randomSuit2.setH(190)
-        self.randomSuit2.loop('walk')
+        self.randomSuit2.lerpAnimation('walk')
 
         self.suitPosInterval = self.randomSuit2.posInterval(
             16, (-348, -212, -0.475), startPos=(-348, -159, -0.475)
@@ -240,7 +240,7 @@ class MainMenu(DirectFrame, FSM):
         self.randomSuit3.setDisplayName('')
         self.randomSuit3.setPickable(0)
         self.randomSuit3.setH(190)
-        self.randomSuit3.loop('walk')
+        self.randomSuit3.lerpAnimation('walk')
 
         self.suitPosInterval = self.randomSuit3.posInterval(
             16, (-348, -212, -0.475), startPos=(-348, -159, -0.475)

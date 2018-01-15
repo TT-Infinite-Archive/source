@@ -47,6 +47,10 @@ gl-check-errors #f
 garbage-collect-states #t
 support-threads #t
 loader-num-threads 35
+default-lod-type fade
+fmod-speaker-mode 7.1
+show-frame-rate-meter #t
+frame-rate-meter-update-interval 0.02
 
 # Egg object types:
 egg-object-type-barrier <Scalar> collide-mask { 0x01 } <Collide> { Polyset descend }
@@ -136,7 +140,10 @@ want-code-redemption #f
 
 # Developer options:
 want-dev #f
-want-pstats 0
+want-pstats 1
+pstats-host localhost
+pstats-port 5185
+pstats-gpu-timing 1
 want-threaded-ai-start #f
 
 # Temporary:

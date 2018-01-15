@@ -1,4 +1,5 @@
 from direct.actor import Actor
+from direct.interval.ActorInterval import LerpAnimInterval
 from otp.avatar import Avatar
 import SuitDNA
 from toontown.toonbase import ToontownGlobals
@@ -424,7 +425,7 @@ class Suit(Avatar.Avatar):
         self.generateHealthBar()
         self.generateCorporateMedallion()
         if settings.get(SettingsGlobals.AnimationSmoothing):
-            self.setBlend(frameBlend=True)
+            self.setBlend(frameBlend=True, animBlend = True)
 
     def generateAprilFoolsDNA(self):
         dna = self.style
@@ -462,6 +463,8 @@ class Suit(Avatar.Avatar):
         self.loadModel(preloader.getModel(filepath), copy=True)
         self.loadAnims(animDict)
         self.setSuitClothes()
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.setBlend(frameBlend=True, animBlend = True)
 
     def generateAnimDict(self):
         animDict = {}
@@ -761,7 +764,7 @@ class Suit(Avatar.Avatar):
         self.loseActor.setPos(self.getPos())
         self.loseActor.setHpr(self.getHpr())
         if settings.get(SettingsGlobals.AnimationSmoothing):
-            self.loseActor.setBlend(frameBlend=True)
+            self.loseActor.setBlend(frameBlend=True, animBlend=True)
         shadowJoint = self.loseActor.find('**/joint_shadow')
         dropShadow = loader.loadModel('phase_3/models/props/drop_shadow')
         dropShadow.setScale(0.45)
@@ -813,7 +816,7 @@ class Suit(Avatar.Avatar):
             dropShadow.setScale(0.75)
             if not self.shadowJoint.isEmpty():
                 dropShadow.reparentTo(self.shadowJoint)
-        self.loop(anim)
+        self.lerpAnimation(anim)
         self.isSkeleton = 1
 
     def makeVirtual(self, modelRoot=None, healthColored=False):
@@ -857,3 +860,15 @@ class Suit(Avatar.Avatar):
             return SkelSuitDialogArray
         else:
             return SuitDialogArray
+            
+    def lerpAnimation(self, nextAnim, playRate = 1.0, doLoop = True, lerpDuration = 0.1):
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.setBlend(frameBlend=True, animBlend = True)
+        print playRate
+        if self.getCurrentAnim() != nextAnim:
+            LerpAnimInterval(self, lerpDuration, self.getCurrentAnim(), nextAnim).start()
+            self.stop(self.getCurrentAnim())
+        if doLoop:
+            self.loop(nextAnim, playRate)
+        else:
+            self.play(nextAnim)

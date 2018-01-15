@@ -424,7 +424,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
 
     def enterFromSky(self, leg, time):
         self.enableBattleDetect('fromSky', self.__handleToonCollision)
-        self.loop('neutral', 0)
+        self.lerpAnimation('neutral')
         if not self.verifySuitPlanner():
             return
         a = leg.getPosA()
@@ -442,7 +442,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
 
     def enterWalkToStreet(self, leg, time):
         self.enableBattleDetect('walkToStreet', self.__handleToonCollision)
-        self.loop('walk', 0)
+        self.lerpAnimation('walk')
         a = leg.getPosA()
         b = leg.getPosB()
         delta = Vec3(b - a)
@@ -463,7 +463,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
 
     def enterWalkFromStreet(self, leg, time):
         self.enableBattleDetect('walkFromStreet', self.__handleToonCollision)
-        self.loop('walk', 0)
+        self.lerpAnimation('walk')
         a = leg.getPosA()
         b = leg.getPosB()
         delta = Vec3(b - a)
@@ -484,7 +484,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
 
     def enterWalk(self, leg, time):
         self.enableBattleDetect('bellicose', self.__handleToonCollision)
-        self.loop('walk', 0)
+        self.lerpAnimation('walk')
         a = leg.getPosA()
         b = leg.getPosB()
         h = self.calculateHeading(a, b)
@@ -518,7 +518,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
 
     def enterFromSuitBuilding(self, leg, time):
         self.enableBattleDetect('fromSuitBuilding', self.__handleToonCollision)
-        self.loop('walk', 0)
+        self.lerpAnimation('walk')
         if not self.verifySuitPlanner():
             return
         a = leg.getPosA()
@@ -541,13 +541,13 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         del self.mtrack
 
     def enterToToonBuilding(self, leg, time):
-        self.loop('neutral', 0)
+        self.lerpAnimation('neutral')
 
     def exitToToonBuilding(self):
         pass
 
     def enterToSuitBuilding(self, leg, time):
-        self.loop('walk', 0)
+        self.lerpAnimation('walk')
         if not self.verifySuitPlanner():
             return
         a = leg.getPosA()
@@ -569,13 +569,13 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
         del self.mtrack
 
     def enterToCogHQ(self, leg, time):
-        self.loop('neutral', 0)
+        self.lerpAnimation('neutral')
 
     def exitToCogHQ(self):
         pass
 
     def enterFromCogHQ(self, leg, time):
-        self.loop('neutral', 0)
+        self.lerpAnimation('neutral')
         self.detachNode()
 
     def exitFromCogHQ(self):
@@ -588,7 +588,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
     def enterNeutral(self):
         self.notify.debug('DistributedSuit: Neutral (entering a Door)')
         self.resumePath(0)
-        self.loop('neutral', 0)
+        self.lerpAnimation('neutral')
 
     def exitNeutral(self):
         pass

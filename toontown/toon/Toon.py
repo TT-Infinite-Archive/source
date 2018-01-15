@@ -30,7 +30,7 @@ from toontown.hood import ZoneUtil
 from toontown.nametag.NametagGlobals import *
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals
 
 
 def teleportDebug(requestStatus, msg, onlyIfToAv = True):
@@ -1528,7 +1528,7 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 anim = 'running-jump'
             self.playingAnim = anim
-            self.lerpAnimation(anim, doLoop = False)
+            self.lerpAnimation(anim)
         self.setActiveShadow(1)
 
     def exitJump(self):
@@ -1541,7 +1541,7 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 anim = 'running-jump-squat'
             self.playingAnim = anim
-            self.lerpAnimation(anim, doLoop = False)
+            self.lerpAnimation(anim)
         self.setActiveShadow(1)
 
     def exitJumpSquat(self):
@@ -1556,7 +1556,7 @@ class Toon(Avatar.Avatar, ToonHead):
             else:
                 anim = 'running-jump-idle'
             self.playingAnim = anim
-            self.lerpAnimation(anim)
+            self.lerpAnimation(anim, lerpDuration = 0.05)
         self.setActiveShadow(1)
 
     def exitJumpAirborne(self):
@@ -1571,7 +1571,7 @@ class Toon(Avatar.Avatar, ToonHead):
                 anim = 'jump-land'
                 skipStart = 0.0
             self.playingAnim = anim
-            self.lerpAnimation(anim, doLoop = False)
+            self.lerpAnimation(anim)
         self.setActiveShadow(1)
 
     def exitJumpLand(self):
@@ -1610,13 +1610,11 @@ class Toon(Avatar.Avatar, ToonHead):
     def exitCringe(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         self.getGeomNode().setPos(0, 0, 0)
         self.playingAnim = 'neutral'
-        self.setPlayRate(animMultiplier, 'swim')
 
     def enterDive(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
         self.lerpAnimation('swim')
         if hasattr(self.getGeomNode(), 'setPos'):
             self.getGeomNode().setPos(0, 0, -2)
-            self.setPlayRate(animMultiplier, 'swim')
             self.setActiveShadow(0)
             self.dropShadow.hide()
             self.nametag3d.setPos(0, -2, 1)
@@ -2122,9 +2120,9 @@ class Toon(Avatar.Avatar, ToonHead):
         Emote.globalEmote.disableBody(self)
         self.playingAnim = 'sit-start'
         if self.isLocal():
-            self.track = Sequence(Func(self.lerpAnimation, 'sit-start', doLoop = False), Func(self.b_setAnimState, 'Sit', animMultiplier))
+            self.track = Sequence(Func(self.lerpAnimation, 'sit-start'), Func(self.b_setAnimState, 'Sit', animMultiplier))
         else:
-            self.track = Sequence(Func(self.lerpAnimation, 'sit-start', doLoop = False))
+            self.track = Sequence(Func(self.lerpAnimation, 'sit-start'))
         self.track.start(ts)
         self.setActiveShadow(0)
 
@@ -2237,6 +2235,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.wakeUp()
             if self.hasTrackAnimToSpeed():
                 self.trackAnimToSpeed(None)
+        self.setBlend(animBlend = False)
         self.emoteTrack, duration = Emote.globalEmote.doEmote(self, emoteIndex, ts)
         return
 
@@ -2262,6 +2261,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.emoteTrack.finish()
             self.emoteTrack = None
         taskMgr.remove(self.taskName('finishEmote'))
+        self.lerpAnimation('neutral')
         return
 
     def enterSquish(self, animMultiplier = 1, ts = 0, callback = None, extraArgs = []):
@@ -3345,14 +3345,21 @@ class Toon(Avatar.Avatar, ToonHead):
         if not self.isGoofy:
             ToonHead.startLookAround(self)
 
-    def lerpAnimation(self, nextAnim, playRate = 1.0, doLoop = True):
+    def lerpAnimation(self, nextAnim, playRate = 1.0, doLoop = True, lerpDuration = 0.2):
         print playRate
-        if self.getCurrentAnim() != nextAnim:
-            LerpAnimInterval(self, 0.1, self.getCurrentAnim(), nextAnim).start()
-            self.stop(self.getCurrentAnim())
-        if doLoop:
-            self.loop(nextAnim, playRate)
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.setBlend(frameBlend=True, animBlend = True)
+            if self.getCurrentAnim() != nextAnim:
+                LerpAnimInterval(self, lerpDuration, self.getCurrentAnim(), nextAnim).start()
+                self.stop(self.getCurrentAnim())
+            if doLoop:
+                self.loop(nextAnim, playRate)
+            else:
+                self.play(nextAnim)
         else:
-            self.play(nextAnim)
+            if doLoop:
+                self.loop(nextAnim, playRate)
+            else:
+                self.play(nextAnim)
 
 compileGlobalAnimList()
