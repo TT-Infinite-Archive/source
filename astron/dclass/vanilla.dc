@@ -3847,6 +3847,7 @@ struct PotentialToon {
   uint8 avPosition;
   uint8 aname;
   uint32 guildId;
+  uint32 lastHoodId;
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {

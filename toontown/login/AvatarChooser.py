@@ -314,9 +314,15 @@ class AvatarChooser(StateData.StateData):
         pass
 
     def enterCheckDownload(self):
+        for avatar in self.avatarList:
+            if avatar.position == self.choice:
+                lastHoodId = avatar.lastHoodId
+                break
+        else:
+            lastHoodId = 0
         self.accept('downloadAck-response', self.__handleDownloadAck)
         self.downloadAck = DownloadForceAcknowledge.DownloadForceAcknowledge('downloadAck-response')
-        self.downloadAck.enter(2000)
+        self.downloadAck.enter(lastHoodId)
 
     def exitCheckDownload(self):
         self.downloadAck.exit()

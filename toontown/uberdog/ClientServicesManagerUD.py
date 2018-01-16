@@ -529,6 +529,10 @@ class GetAvatarsFSM(AvatarOperationFSM):
             else:
                 guildId = fields['setGuildId'][0]
 
+            lastHoodId = fields['setLastHood'][0]
+            if lastHoodId == 0:
+                lastHoodId = 2000
+
             nameState = 0
 
             if wishNameState == 'OPEN':
@@ -541,7 +545,7 @@ class GetAvatarsFSM(AvatarOperationFSM):
                 nameState = 4
 
             potentialAvs.append([avId, name, fields['setDNAString'][0],
-                                 index, nameState, guildId])
+                                 index, nameState, guildId, lastHoodId])
 
         self.csm.sendUpdateToAccountId(self.target, 'setAvatars', [potentialAvs])
         self.demand('Off')
