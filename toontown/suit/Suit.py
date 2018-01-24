@@ -398,10 +398,10 @@ class Suit(Avatar.Avatar):
         self.loseActor = None
         self.isSkeleton = 0
 
-        # if dna.name in SuitGlobals.suitProperties:
-            # if base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
-                # self.generateAprilFoolsDNA()
-                # return
+        if dna.name in SuitGlobals.suitProperties:
+            if base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+                self.generateAprilFoolsDNA()
+                return
 
         self.scale = SuitGlobals.suitProperties[dna.name][SuitGlobals.SCALE_INDEX]
         self.handColor = SuitGlobals.suitProperties[dna.name][SuitGlobals.HAND_COLOR_INDEX]
