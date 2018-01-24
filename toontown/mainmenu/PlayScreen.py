@@ -165,9 +165,9 @@ class PlayScreen(DirectFrame, FSM):
 
         if (base.cr.music is None) and base.musicManagerIsValid:
             if not base.wantClassicMusic:
-                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ.ogg')
+                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
             else:
-                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ_og.ogg')
+                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme_og.ogg')
             if base.cr.music is not None:
                 base.cr.music.setLoop(1)
                 base.cr.music.setVolume(0.9)

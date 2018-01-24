@@ -56,7 +56,7 @@ class ClickToStart(DirectObject):
         self.labelColorScaleTrack = None
         base.firstEnter = None
 
-        self.music = loader.loadMusic('phase_3/audio/bgm/tti_theme.ogg')
+        self.music = loader.loadMusic('phase_3/audio/bgm/tti_intro_cinematic_theme.ogg')
         if base.musicManagerIsValid and self.music is not None:
             self.music.setLoop(1)
             self.music.setVolume(0.9)

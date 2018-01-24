@@ -215,9 +215,9 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.clearFriendState()
         if (self.music is None) and base.musicManagerIsValid:
             if not base.wantClassicMusic:
-                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ.ogg')
+                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme.ogg')
             else:
-                base.cr.music = base.musicManager.getSound('phase_3.5/audio/bgm/TC_SZ_og.ogg')
+                base.cr.music = base.musicManager.getSound('phase_3/audio/bgm/tti_theme_og.ogg')
         base.playMusic(self.music, looping=1, volume=0.9, interrupt=None)
         self.handler = self.handleMessageType
         self.avChoiceDoneEvent = 'avatarChooserDone'
