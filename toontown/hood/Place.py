@@ -316,7 +316,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         base.localAvatar.book.showButton()
         base.localAvatar.book.enter()
         base.localAvatar.setGuiConflict(1)
-        base.localAvatar.startSleepWatch(self.__handleFallingAsleep)
         self.accept('bookDone', self.__handleBook)
         base.localAvatar.b_setAnimState('ReadBook', 1)
         self.enablePeriodTimer()
@@ -848,7 +847,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.laffMeter.start()
         base.localAvatar.obscureMoveFurnitureButton(1)
-        base.localAvatar.startSleepWatch(self.__handleFallingAsleepBanking)
         self.enablePeriodTimer()
 
     def __handleFallingAsleepBanking(self, arg):
@@ -871,7 +869,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.laffMeter.start()
         base.localAvatar.obscureMoveFurnitureButton(1)
-        base.localAvatar.startSleepWatch(self.__handleFallingAsleepPhone)
         self.enablePeriodTimer()
 
     def __handleFallingAsleepPhone(self, arg):
@@ -898,7 +895,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.laffMeter.start()
         base.localAvatar.obscureMoveFurnitureButton(1)
-        base.localAvatar.startSleepWatch(self.__handleFallingAsleepStopped)
         self.enablePeriodTimer()
 
     def __handleFallingAsleepStopped(self, arg):

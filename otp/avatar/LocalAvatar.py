@@ -28,7 +28,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     wantDevCameraPositions = base.config.GetBool('want-dev-camera-positions', 0)
     wantMouse = base.config.GetBool('want-mouse', 0)
     sleepTimeout = base.config.GetInt('sleep-timeout', 120)
-    swimTimeout = base.config.GetInt('afk-timeout', 600)
     __enableMarkerPlacement = base.config.GetBool('place-markers', 0)
 
     def __init__(self, cr, chatMgr, talkAssistant = None, passMessagesThrough = False):
@@ -1079,7 +1078,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def wakeUp(self):
         if self.neverSleep:
             return
-        if self.sleepCallback != None:
+        if self.sleepCallback is not None:
             taskMgr.remove(self.uniqueName('sleepwatch'))
             self.startSleepWatch(self.sleepCallback)
         self.lastMoved = globalClock.getFrameTime()
@@ -1095,9 +1094,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             self.sleepFlag = 1
 
     def forceGotoSleep(self):
-        if self.hp > 0:
-            self.sleepFlag = 0
-            self.gotoSleep()
+        return
 
     def startSleepWatch(self, callback):
         self.sleepCallback = callback
@@ -1134,15 +1131,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             self.swimmingFlag = 0
         if self.swimmingFlag or self.hp <= 0:
             self.wakeUp()
-        elif not self.sleepFlag:
-            now = globalClock.getFrameTime()
-            if now - self.lastMoved > self.swimTimeout:
-                self.swimTimeoutAction()
-                return Task.done
         return Task.cont
-
-    def swimTimeoutAction(self):
-        pass
 
     def trackAnimToSpeed(self, task):
         speed, rotSpeed, slideSpeed = self.controlManager.getSpeeds()
