@@ -928,7 +928,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
 
         return activeGoons
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def startCraneRound():
     """
     Skips to the crane round of the CFO.
@@ -941,7 +941,7 @@ def startCraneRound():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a CFO!"
+        return "You aren't in a C.F.O.!"
     if boss.state in ('PrepareBattleTwo', 'PrepareBattleThree', 'BattleThree'):
         return "You can't skip this round."
     boss.exitIntroduction()
@@ -951,7 +951,7 @@ def startCraneRound():
     boss.b_setState('BattleThree')
     return 'Starting the crane round...'
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def restartCraneRound():
     """
     Restarts the crane round in the CFO.
@@ -964,13 +964,13 @@ def restartCraneRound():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a CFO!"
+        return "You aren't in a C.F.O.!"
     boss.exitIntroduction()
     boss.b_setState('PrepareBattleTwo')
     boss.b_setState('BattleThree')
     return 'Restarting the crane round...'
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def skipCFO():
     """
     Skips the current round in the CFO.
@@ -983,7 +983,7 @@ def skipCFO():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a CFO!"
+        return "You aren't in a C.F.O.!"
     if boss.state in ('PrepareBattleTwo', 'PrepareBattleThree', 'BattleThree'):
         return "You can't skip this round."
     boss.exitIntroduction()
@@ -991,9 +991,9 @@ def skipCFO():
         boss.b_setState('PrepareBattleThree')
     else:
         boss.b_setState('PrepareBattleTwo')
-    return 'Skipping the first round...'
+    return 'Skipping the round...'
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def killCFO():
     """
     Kills the CFO.
@@ -1006,14 +1006,16 @@ def killCFO():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a CFO!"
+        return "You aren't in a C.F.O.!"
+    if boss.state in ('Victory', 'Reward', 'Epilogue'):
+        return "The C.F.O. has already been defeated!"
     boss.b_setState('Victory')
-    return 'Killed CFO.'
+    return 'Killed C.F.O.'
 
-@magicWord(category=CATEGORY_USER, types=[int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def hitCFO(dmg):
     """
-    Kills the CFO.
+    Hits the CFO.
     """
     invoker = spellbook.getInvoker()
     boss = None
