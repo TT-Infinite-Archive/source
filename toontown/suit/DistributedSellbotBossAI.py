@@ -406,7 +406,7 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         self.air.achievementsManager.toonsFinishedVP(self.involvedToons)
         DistributedBossCogAI.DistributedBossCogAI.enterReward(self)
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def skipVP():
     """
     Skips to the final round of the VP.
@@ -426,7 +426,7 @@ def skipVP():
     boss.b_setState('PrepareBattleThree')
     return 'Skipping the first round...'
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def killVP():
     """
     Kills the VP.
@@ -439,6 +439,11 @@ def killVP():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a VP!"
-    boss.b_setState('Victory')
-    return 'Killed VP.'
+        return "You aren't in a V.P.!"
+    if boss.state in ('Victory', 'Reward', 'Epilogue'):
+        return "The V.P. has already been defeated!"
+    if boss.state == 'BattleThree':
+        boss.b_setState('Victory')
+        return 'Killed V.P.'
+    else:
+        return "You must be in the final battle with the V.P. to kill him."

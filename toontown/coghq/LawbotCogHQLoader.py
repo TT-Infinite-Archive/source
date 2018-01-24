@@ -19,7 +19,7 @@ class LawbotCogHQLoader(CogHQLoader.CogHQLoader):
     notify = DirectNotifyGlobal.directNotify.newCategory('LawbotCogHQLoader')
 
     zone2music = {
-        LawbotHQExterior : 'phase_11/audio/bgm/LB_courtyard_encntr.ogg'
+        LawbotHQExterior : 'phase_11/audio/bgm/LB_encntr.ogg'
     }
 
     def __init__(self, hood, parentFSMState, doneEvent):
@@ -44,7 +44,7 @@ class LawbotCogHQLoader(CogHQLoader.CogHQLoader):
         CogHQLoader.CogHQLoader.load(self, zoneId)
         Toon.loadSellbotHQAnims()
         self.battleMusic = base.loadMusic(self.musicFile)
-        self.battleMusic = base.loadMusic(self.zone2music.get(ZoneUtil.getHoodId(zoneId), 'phase_11/audio/bgm/LB_courtyard_encntr.ogg'))
+        self.battleMusic = base.loadMusic(self.zone2music.get(ZoneUtil.getHoodId(zoneId), 'phase_11/audio/bgm/LB_encntr.ogg'))
 
     def unloadPlaceGeom(self):
         if self.geom:

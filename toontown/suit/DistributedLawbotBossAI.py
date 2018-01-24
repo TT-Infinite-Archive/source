@@ -301,12 +301,16 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         self.notify.debug('enterElevatro')
         DistributedBossCogAI.DistributedBossCogAI.enterElevator(self)
         self.b_setBossDamage(ToontownGlobals.LawbotBossInitialDamage, 0, 0)
+        self.__makeChairs()
 
     def enterIntroduction(self):
         self.notify.debug('enterIntroduction')
-        DistributedBossCogAI.DistributedBossCogAI.enterIntroduction(self)
+        self.resetBattles()
+        self.arenaSide = None
+        self.makeBattleOneBattles()
+        self.barrier = self.beginBarrier('Introduction', self.involvedToons, 80, self.doneIntroduction)
         self.b_setBossDamage(ToontownGlobals.LawbotBossInitialDamage, 0, 0)
-        self.__makeChairs()
+        return
 
     def exitIntroduction(self):
         self.notify.debug('exitIntroduction')
@@ -887,7 +891,7 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         self.b_setBattleDifficulty(self.toonLevels)
 
 
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def skipCJ():
     """
     Skips to the final round of the CJ.
@@ -900,14 +904,47 @@ def skipCJ():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a CJ!"
-    if boss.state in ('PrepareBattleThree', 'BattleThree'):
+        return "You aren't in a C.J.!"
+    if boss.state == 'Elevator':
+        return "You can't skip the C.J. while in the elevator!"
+    if boss.state in ('Introduction', 'PrepareBattleOne', 'BattleOne'):
+        boss.exitIntroduction()
+        boss.b_setState('RollToBattleTwo')
+        return 'Skipping the round...'
+    else:
         return "You can't skip this round."
+
+
+@magicWord(category=CATEGORY_ADMINISTRATOR)
+def startCourt():
+    """
+    Skips to the final round of the CJ.
+    """
+    invoker = spellbook.getInvoker()
+    boss = None
+    for do in simbase.air.doId2do.values():
+        if isinstance(do, DistributedLawbotBossAI):
+            if invoker.doId in do.involvedToons:
+                boss = do
+                break
+    if not boss:
+        return "You aren't in a C.J.!"
+    if boss.state == 'Elevator':
+        return "You can't start court while in the elevator!"
+    if boss.state == 'RollToBattleTwo':
+        return "You can't start court while the C.J. heads to his chambers!"
+    if boss.state in ('PrepareBattleTwo', 'BattleTwo', 'PrepareBattleThree', 'BattleThree', 'Defeat'):
+        return "Court is already in session!"
+    if boss.state in ('Victory', 'Reward', 'Epilogue'):
+        return "Unable to start court because it has ended already."
+    if boss.state == 'Defeat':
+        return "You can't kill the C.J. right after being defeated!"
     boss.exitIntroduction()
-    boss.b_setState('PrepareBattleThree')
+    boss.b_setState('RollToBattleTwo')
+    boss.b_setState('PrepareBattleTwo')
+    return 'Court is now in session!'
 
-
-@magicWord(category=CATEGORY_USER)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def killCJ():
     """
     Kills the CJ.
@@ -920,6 +957,33 @@ def killCJ():
                 boss = do
                 break
     if not boss:
-        return "You aren't in a CJ"
-    boss.b_setState('Victory')
-    return 'Killed CJ.'
+        return "You aren't in a C.J.!"
+    if boss.state == 'Elevator':
+        return "You can't kill the C.J. while in the elevator!"
+    if boss.state in ('Victory', 'Reward', 'Epilogue'):
+        return "The C.J. has already been defeated!"
+    if boss.state == 'BattleThree':
+        boss.b_setState('Victory')
+        return 'Killed C.J.'
+    else:
+        return "You must be in the final battle with the C.J. to kill him."
+
+@magicWord(category=CATEGORY_ADMINISTRATOR)
+def forfeit():
+    """
+    Kills the CJ.
+    """
+    invoker = spellbook.getInvoker()
+    boss = None
+    for do in simbase.air.doId2do.values():
+        if isinstance(do, DistributedLawbotBossAI):
+            if invoker.doId in do.involvedToons:
+                boss = do
+                break
+    if not boss:
+        return "You aren't in a C.J."
+    if boss.state == 'BattleThree':
+        boss.b_setState('Defeat')
+        return "You forfeited to the C.J."
+    else:
+        return "You must be in the final battle with the C.J. to forfeit."

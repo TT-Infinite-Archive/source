@@ -936,7 +936,6 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
                     ),
                     Func(dustCloud.detachNode),
                     Func(dustCloud.destroy),
-                    Wait(3),
                 )
             )
 
@@ -1107,7 +1106,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
 
         self.toMovieMode()
         base.camera.reparentTo(self.elevatorModel)
-        base.camera.setPosHpr(0, 25, 8, 180, 0, 0)
+        base.camera.setPosHpr(0, 30, 8, 180, 0, 0)
         base.playMusic(self.elevatorMusic, looping=1, volume=1.0)
         ival = Sequence(ElevatorUtils.getRideElevatorInterval(self.elevatorType), ElevatorUtils.getRideElevatorInterval(self.elevatorType), self.openDoors, Func(base.camera.wrtReparentTo, render), Func(self.__doneElevator))
         intervalName = 'ElevatorMovie'

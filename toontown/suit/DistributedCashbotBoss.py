@@ -136,8 +136,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.physicsMgr.clearLinearForces()
         self.battleThreeMusic.stop()
         self.epilogueMusic.stop()
-        render.setColorScale(1, 1, 1, 1)
-        aspect2d.setColorScale(1, 1, 1, 1)
 
         if self.bossBattleTimer:
             self.bossBattleTimer.destroy()
@@ -355,7 +353,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             goon.posHprInterval(9, Point3(111, -287, 0), VBase3(345, 0, 0)),
             goon.hprInterval(1, VBase3(165, 0, 0)),
             goon.posHprInterval(9.5, Point3(104, -316, 0), VBase3(165, 0, 0)),
-            Wait(7.3),
+            Wait(1.2),
             Func(goon.request, 'Stunned'),
             Wait(1)))
         goon = self.fakeGoons[1]
@@ -374,7 +372,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             goon.posHprInterval(9, Point3(102, -320, 0), VBase3(51, 0, 0)),
             goon.hprInterval(1, VBase3(231, 0, 0)),
             goon.posHprInterval(9, Point3(127, -337, 0), VBase3(231, 0, 0))))
-
         return Sequence(Func(self.__showFakeGoons, 'Walk'), goonTrack, Func(self.__hideFakeGoons))
 
     def makeIntroductionMovie(self, delayDeletes):
@@ -402,14 +399,12 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         attackToons = TTLocalizer.CashbotBossCogAttack
         rToon = self.resistanceToon
         rToon.setPosHpr(*ToontownGlobals.CashbotRTBattleOneStartPosHpr)
-        t = Parallel()
-        t.append(Sequence(Wait(3), goonTrack))
         track = Sequence(
             Func(base.camera.setPosHpr, 68.55, -222.21, 7, 267, 0, 0),
-            Parallel(
             Func(self.titleText.show),
             Func(rToon.setChatAbsolute, TTLocalizer.ResistanceToonWelcome, CFSpeech),
-            Wait(3)),
+            Wait(3),
+            Sequence(goonTrack, duration=0),
             Parallel(
                 base.camera.posHprInterval(4, Point3(108, -244, 4), VBase3(211.5, 0, 0)),
                 Sequence(
@@ -418,73 +413,59 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                     Parallel(
                         rToon.hprInterval(1, VBase3(180, 0, 0)),
                         rToon.posInterval(3, VBase3(120, -255, 0)),
+                        LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)),
                         Sequence(
                             Wait(2),
                             Func(rToon.clearChat),
-                            LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0))
-                        )
-                    ),
-                    Func(rToon.suit.loop, 'neutral'),
-                    self.door2.posInterval(3, VBase3(0, 0, 30))
-                )
-            ),
-            Func(rToon.setHpr, 180, 0, 0),
-            Func(rToon.setChatAbsolute, TTLocalizer.ResistanceToonTooLate, CFSpeech),
-            Func(base.camera.reparentTo, render),
-            Func(base.camera.setPosHpr, 120.04, -229.33, 6.36, 180.00, 0, 0),
-            Sequence(
-                Func(rToon.suit.loop, 'walk'),
-                rToon.hprInterval(1, VBase3(0, 0, 0))),
-                Func(rToon.suit.loop, 'neutral'),
-
-            self.door1.posInterval(2, VBase3(0, 0, 30)),
-            Parallel(
-                bossTrack,
-                Sequence(
-                    Func(base.camera.setPosHpr, 61.1, -228.8, 10.2, -90, 0, 0),
-                    Wait(1),
-                    Func(rToon.clearChat),
-                    self.door1.posInterval(3, VBase3(0, 0, 0))
-                )
-            ),
-            Func(self.setChatAbsolute, TTLocalizer.CashbotBossDiscoverToons1, CFSpeech),
-            base.camera.posHprInterval(1.5, Point3(93.3, -230, 0.7), VBase3(-92.9, 39.7, 8.3)),
-            Func(self.setChatAbsolute, TTLocalizer.CashbotBossDiscoverToons2, CFSpeech),
-            Wait(4),
-            Func(self.clearChat),
-            self.loseCogSuits(self.toonsA + self.toonsB, render, (113, -228, 10, 90, 0, 0)),
-            Wait(1),
-            Func(rToon.setHpr, 0, 0, 0),
-            self.loseCogSuits([rToon], render, (133, -243, 5, 143, 0, 0), True),
-            Func(rToon.setChatAbsolute, TTLocalizer.ResistanceToonKeepHimBusy, CFSpeech),
-            Wait(1),
-            Func(self.__showResistanceToon, False),
-            Sequence(
-                Func(rToon.animFSM.request, 'run'),
-                rToon.hprInterval(1, VBase3(180, 0, 0)),
-                Parallel(
-                    Sequence(
-                        rToon.posInterval(1.5, VBase3(109, -294, 0)),
-                        Parallel(Func(rToon.animFSM.request, 'jump')),
-                        rToon.posInterval(1.5, VBase3(93.935, -341.065, 2))
-                    ),
-                    self.door2.posInterval(3, VBase3(0, 0, 0))
-                ),
-                Func(rToon.animFSM.request, 'neutral')
-            ),
-            self.toonNormalEyes(self.involvedToons),
-            self.toonNormalEyes([self.resistanceToon], True),
-            Func(rToon.clearChat),
-            Func(base.camera.setPosHpr, 93.3, -230, 0.7, -92.9, 39.7, 8.3),
-            Func(self.setChatAbsolute, attackToons, CFSpeech),
-            Parallel(
-                LerpColorScaleInterval(render, 3, Vec4(0.7, 0.98, 0.8, 1)),
-            ),
-            Wait(2),
-            Func(self.clearChat)
-        )
-        t.append(track)
-        return Sequence(Func(base.camera.reparentTo, render), t)
+                            LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)))),
+                        Func(rToon.suit.loop, 'neutral'),
+                        self.door2.posInterval(3, VBase3(0, 0, 30)))),
+                        Parallel(
+                            Func(rToon.setChatAbsolute, TTLocalizer.ResistanceToonTooLate, CFSpeech),
+                            Func(base.camera.reparentTo, render),
+                            Func(base.camera.setPosHpr, 120.04, -229.33, 6.36, 180.00, 0, 0)),
+                        Sequence(
+                            Func(rToon.suit.loop, 'walk'),
+                            rToon.hprInterval(1, VBase3(0, 0, 0)),
+                            Func(rToon.suit.loop, 'neutral')),
+                        self.door1.posInterval(2, VBase3(0, 0, 30)),
+                        Parallel(
+                            bossTrack,
+                            Sequence(
+                                Func(base.camera.setPosHpr, 61.1, -228.8, 10.2, -90, 0, 0),
+                                Wait(1),
+                                Func(rToon.clearChat),
+                                self.door1.posInterval(3, VBase3(0, 0, 0)))),
+                            Func(self.setChatAbsolute, TTLocalizer.CashbotBossDiscoverToons1, CFSpeech),
+                            base.camera.posHprInterval(1.5, Point3(93.3, -230, 0.7), VBase3(-92.9, 39.7, 8.3)),
+                            Func(self.setChatAbsolute, TTLocalizer.CashbotBossDiscoverToons2, CFSpeech),
+                            Wait(4),
+                            Func(self.clearChat),
+                            self.loseCogSuits(self.toonsA + self.toonsB, render, (113, -228, 10, 90, 0, 0)),
+                            Wait(1),
+                            Func(rToon.setHpr, 0, 0, 0),
+                            self.loseCogSuits([rToon], render, (133, -243, 5, 143, 0, 0), True),
+                            Func(rToon.setChatAbsolute, TTLocalizer.ResistanceToonKeepHimBusy, CFSpeech),
+                            Wait(1),
+                            Func(self.__showResistanceToon, False),
+                            Sequence(
+                                Func(rToon.animFSM.request, 'run'),
+                                rToon.hprInterval(1, VBase3(180, 0, 0)),
+                                Parallel(
+                                    Sequence(
+                                        rToon.posInterval(1.5, VBase3(109, -294, 0)),
+                                        Parallel(Func(rToon.animFSM.request, 'jump')),
+                                        rToon.posInterval(1.5, VBase3(93.935, -341.065, 2))),
+                                    self.door2.posInterval(3, VBase3(0, 0, 0))),
+                                    Func(rToon.animFSM.request, 'neutral')),
+                                    self.toonNormalEyes(self.involvedToons),
+                                    self.toonNormalEyes([self.resistanceToon], True),
+                                    Func(rToon.clearChat),
+                                    Func(base.camera.setPosHpr, 93.3, -230, 0.7, -92.9, 39.7, 8.3),
+                                    Func(self.setChatAbsolute, attackToons, CFSpeech),
+                                    Wait(4),
+                                    Func(self.clearChat))
+        return Sequence(Func(base.camera.reparentTo, render), track)
 
     def __makeGoonMovieForBattleThree(self):
         goonPosHprs = [[Point3(111, -287, 0),
@@ -569,7 +550,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             Func(self.resistanceToon.setChatAbsolute, "This ends now!", CFSpeech),
             Wait(3),
             Func(self.resistanceToon.clearChat),
-            Func(base.camera.setPosHpr, 103.42, -333.37, 17.64, 320, 11.09, 0),
+            Func(base.camera.setPosHpr, 103.42, -333.37, 17.54, 320, 11.09, 0),
             Wait(0.5),
             Func(self.setChatAbsolute, "Ha ha! Those cranes are meaningless!", CFSpeech|CFTimeout),
             Wait(3.3),
@@ -608,7 +589,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 delayDeletes.append(DelayDelete.DelayDelete(toon, 'CashbotBoss.makePrepareBattleTwoMovie'))
 
         base.playMusic(self.battleTwoCutsceneMusic, looping=1, volume=0.9)
-        base.camLens.setMinFov(ToontownGlobals.CFOElevatorFov/(4./3.))
 
         startPos = Point3(ToontownGlobals.CashbotBossBattleOnePosHpr[0], ToontownGlobals.CashbotBossBattleOnePosHpr[1], ToontownGlobals.CashbotBossBattleOnePosHpr[2])
         battlePos = Point3(ToontownGlobals.CashbotBossBattleThreePosHpr[0], ToontownGlobals.CashbotBossBattleThreePosHpr[1], ToontownGlobals.CashbotBossBattleThreePosHpr[2])
@@ -759,11 +739,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             (9.5, SoundInterval(boomSfx)),
             (9.5, Sequence(
                 self.posInterval(0.4, Point3(0, -250, 0)),
-                Func(self.stash))),
-            (9.5, Parallel(
-                LerpColorScaleInterval(render, 3, Vec4(1, 1, 1, 1)),
-                LerpColorScaleInterval(aspect2d, 3, Vec4(1, 1, 1, 1)),
-            )))
+                Func(self.stash))))
         return bossTrack
 
     def grabObject(self, obj):
@@ -1138,6 +1114,12 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         if self.cranes:
             self.cranes[1].demand('Off')
         self.releaseToons(finalBattle=1)
+        if self.bossBattleTimer:
+            self.bossBattleTimer.destroy()
+            self.bossBattleTimer = None
+        if self.bossBattleLeaderboard:
+            self.bossBattleLeaderboard.destroy()
+            self.bossBattleLeaderboard = None
         # if self.bossBattleHealthBar:
             # self.bossBattleHealthBar.destroy()
             # self.bossBattleHealthBar = None
@@ -1166,14 +1148,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def enterReward(self):
         self.cleanupIntervals()
         self.clearChat()
-
-        if self.bossBattleTimer:
-            self.bossBattleTimer.destroy()
-            self.bossBattleTimer = None
-
-        if self.bossBattleLeaderboard:
-            self.bossBattleLeaderboard.destroy()
-            self.bossBattleLeaderboard = None
 
         self.resistanceToon.clearChat()
         self.stash()

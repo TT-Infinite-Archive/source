@@ -73,6 +73,10 @@ class MainMenu(DirectFrame, FSM):
         self.loopyLane.reparentTo(self.environment)
         self.loopyLane.find('**/door_double_curved_ur_flat').removeNode()
 
+        self.doorAbyss = loader.loadModel('phase_4/models/modules/doors_practical_abyss')
+        self.doorAbyss.setPosHpr(-392.20, -246.90, 4, 185, 0, 0)
+        self.doorAbyss.reparentTo(self.environment)
+
     def loadRandomToons(self):
         self.randomToon = Toon()
         self.toonDNA = ToonDNA()

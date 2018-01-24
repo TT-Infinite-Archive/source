@@ -149,8 +149,6 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.battleTwoMusic.stop()
         self.battleThreeMusic.stop()
         self.epilogueMusic.stop()
-        render.setColorScale(1, 1, 1, 1)
-        aspect2d.setColorScale(1, 1, 1, 1)
         while len(self.toonMopathInterval):
             toonMopath = self.toonMopathInterval[0]
             toonMopath.finish()
@@ -269,8 +267,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def makeIntroductionMovie(self, delayDeletes):
         track = Parallel()
         base.camera.reparentTo(render)
-        self.titleSeq = Sequence(Func(self.titleText.show), Wait(5), LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)))
-        track.append(Parallel(self.titleSeq, base.camera.posHprInterval(1.75, Point3(0, 25, 30), Point3(-10, -13, 0), blendType='easeInOut')))
+        base.camera.setPosHpr(0, 25, 30, 0, 0, 0)
         localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
         dooberTrack = Parallel()
         if self.doobers:
@@ -319,22 +316,24 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             ActorInterval(self, 'ltTurn2Wave', startTime=2, endTime=0),
             ActorInterval(self, 'Ff_speech', duration=8.5, loop=1))
         track.append(bossAnimTrack)
+        titleTextSeq = Sequence(Func(self.titleText.show), Wait(5), LerpColorScaleInterval(self.titleText, 1, VBase4(1, 1, 1, 0)))
         dialogTrack = Track(
             (0, Parallel(
+                Func(titleTextSeq.start),
                 base.camera.posHprInterval(8, Point3(-22, -100, 35), Point3(-10, -13, 0), blendType='easeInOut'),
                 IndirectInterval(toonTrack, 0, 18))),
             (5.6, Func(self.setChatAbsolute, promoteDoobers, CFSpeech)),
             (9, IndirectInterval(dooberTrack, 0, 9)),
             (10, Sequence(
                 Func(self.clearChat),
-                base.camera.posHprInterval(5, Point3(0, -61.60, 6.67), Point3(0, 25.20, 0), blendType='easeInOut'))),
+                Func(base.camera.setPosHpr, -23.1, 15.7, 17.2, -160, -2.4, 0))),
             (12, Func(self.setChatAbsolute, doobersAway, CFSpeech)),
-            (18, Parallel(
+            (16, Parallel(
                 Func(self.clearChat),
+                Func(camera.setPosHpr, -25, -99, 10, -14, 10, 0),
                 IndirectInterval(dooberTrack, 14),
-                base.camera.posHprInterval(4, Point3(-25, -99, 10), Point3(-14, 10, 0), blendType='easeInOut'),
                 IndirectInterval(toonTrack, 30))),
-            (20.5, Func(self.setChatAbsolute, welcomeToons, CFSpeech)),
+            (18, Func(self.setChatAbsolute, welcomeToons, CFSpeech)),
             (23, Func(self.setChatAbsolute, promoteToons, CFSpeech)),
             (23.05, Sequence(
                 Func(self.cagedToon.nametag3d.setScale, 2),
@@ -361,23 +360,18 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 Func(self.clearChat),
                 self.loseCogSuits(self.toonsA, self.battleANode, (0, 18, 5, -180, 0, 0)),
                 self.loseCogSuits(self.toonsB, self.battleBNode, (0, 18, 5, -180, 0, 0)))),
-            (38, Parallel(
-                LerpColorScaleInterval(render, 3, Vec4(0.7, 0.7, 0.9, 1)),
-                LerpColorScaleInterval(self.skyNode, 3, Vec4(0.6, 0.6, 0.8, 1)),
-                Sequence(
-                    Wait(3.0),
-                    self.toonNormalEyes(self.involvedToons),
-                    Func(base.camera.setPosHpr, -23.4, -145.6, 44.0, -10.0, -12.5, 0),
-                    Func(self.loop, 'Fb_neutral'),
-                    Func(self.rampA.request, 'retract'),
-                    Func(self.rampB.request, 'retract'),
-                    Parallel(self.backupToonsToBattlePosition(self.toonsA, self.battleANode),
-                             self.backupToonsToBattlePosition(self.toonsB, self.battleBNode),
-                             Sequence(
-                                 Wait(2),
-                                 Func(self.setChatAbsolute, attackToons, CFSpeech),
-                                 Wait(2.5)
-                                ))))))
+            (37, Sequence(
+                self.toonNormalEyes(self.involvedToons),
+                Func(base.camera.setPosHpr, -23.4, -145.6, 44.0, -10.0, -12.5, 0),
+                Func(self.loop, 'Fb_neutral'),
+                Func(self.rampA.request, 'retract'),
+                Func(self.rampB.request, 'retract'),
+                Parallel(self.backupToonsToBattlePosition(self.toonsA, self.battleANode),
+                         self.backupToonsToBattlePosition(self.toonsB, self.battleBNode),
+                         Sequence(
+                             Wait(4),
+                             Func(self.setChatAbsolute, attackToons, CFSpeech),
+                             Wait(3))))))
         track.append(dialogTrack)
         return Sequence(Func(self.stickToonsToFloor), track, Func(self.unstickToons), name=self.uniqueName('Introduction'))
 
@@ -1017,6 +1011,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.battleThreeMusic.stop()
 
     def enterReward(self):
+        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
         self.cleanupIntervals()
         self.clearChat()
         self.cagedToon.clearChat()

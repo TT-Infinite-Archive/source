@@ -79,6 +79,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def announceGenerate(self):
         global OneBossCog
         DistributedBossCog.DistributedBossCog.announceGenerate(self)
+        self.setName(TTLocalizer.BossbotBossName)
         self.loadEnvironment()
         self.__makeResistanceToon()
         base.localAvatar.chatMgr.chatInputSpeedChat.addCEOMenu()
@@ -118,6 +119,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         demotedCeo.dna.newSuit('f')
         demotedCeo.setDNA(demotedCeo.dna)
         demotedCeo.reparentTo(self.geom)
+        demotedCeo.setName(TTLocalizer.DemotedCEO)
         demotedCeo.loop('neutral')
         demotedCeo.stash()
         self.demotedCeo = demotedCeo
@@ -173,9 +175,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- loadEnvironment')
         DistributedBossCog.DistributedBossCog.loadEnvironment(self)
         self.geom = loader.loadModel('phase_12/models/bossbotHQ/BanquetInterior_1')
-
-        self.banquet = self.geom.find('**/Banquet')
-        self.banquet.hide()
 
         self.elevatorEntrance = self.geom.find('**/elevator_origin')
         self.elevatorEntrance.showThrough()
@@ -266,52 +265,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.resistanceToon.detachNode()
             self.resistanceToonOnstage = 0
 
-    def loseCogSuits(self, toons, battleNode, camLoc, arrayOfObjs = False):
-        seq = Sequence()
-        if not toons:
-            return seq
-        self.notify.debug('battleNode=%s camLoc=%s' % (battleNode, camLoc))
-        seq.append(Func(base.camera.setPosHpr, battleNode, *camLoc))
-        suitsOff = Parallel()
-        if arrayOfObjs:
-            toonArray = toons
-        else:
-            toonArray = []
-            for toonId in toons:
-                toon = base.cr.doId2do.get(toonId)
-                if toon:
-                    toonArray.append(toon)
-
-        for toon in toonArray:
-            dustCloud = DustCloud.DustCloud()
-            dustCloud.setPos(0, 2, 3)
-            dustCloud.setScale(0.5)
-            dustCloud.setDepthWrite(0)
-            dustCloud.setBin('fixed', 0)
-            dustCloud.createTrack()
-            suitsOff.append(
-                Sequence(
-                    Func(dustCloud.reparentTo, toon),
-                    Parallel(
-                        dustCloud.track,
-                        Sequence(
-                            Wait(0.3),
-                            Func(toon.takeOffSuit),
-                            Func(toon.clearGoofyEffect),
-                            Func(toon.blinkEyes),
-                            Func(toon.loop, 'neutral'),
-                            Wait(0.7),
-                        )
-                    ),
-                    Func(dustCloud.detachNode),
-                    Func(dustCloud.destroy),
-                    Wait(3),
-                )
-            )
-
-        seq.append(suitsOff)
-        return seq
-
     def enterElevator(self):
         DistributedBossCog.DistributedBossCog.enterElevator(self)
         self.resistanceToon.removeActive()
@@ -381,6 +334,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                          loseSuitCamHpr[0],
                          loseSuitCamHpr[1],
                          loseSuitCamHpr[2])),
+                         Wait(2),
                          Func(camera.setPosHpr, closeUpRTCamPos, closeUpRTCamHpr),
                          Func(rToon.setChatAbsolute, TTL.BossbotRTFightWaiters, CFSpeech),
                          Wait(1.0),
@@ -399,7 +353,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         DistributedBossCog.DistributedBossCog.exitBattleOne(self)
 
         self.show()
-        self.banquet.show()
 
     def enterFrolic(self):
         self.notify.debug('----- enterFrolic')
