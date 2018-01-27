@@ -216,11 +216,6 @@ class OTPClientRepository(ClientRepositoryBase):
                       'mainMenu',
                       'serverMenu'
                       'shutdown']),
-            State('afkTimeout',
-                  self.enterAfkTimeout,
-                  self.exitAfkTimeout, [
-                      'waitForAvatarList',
-                      'shutdown']),
             State('periodTimeout',
                   self.enterPeriodTimeout,
                   self.exitPeriodTimeout, [
@@ -273,7 +268,6 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'waitForAvatarList',
                       'shutdown',
-                      'afkTimeout',
                       'periodTimeout',
                       'noShards',
                       'mainMenu']),
@@ -918,23 +912,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.handler = None
         self.ignore('lostConnectionAck')
         self.lostConnectionBox.cleanup()
-
-    def enterAfkTimeout(self):
-        self.sendSetAvatarIdMsg(0)
-        msg = OTPLocalizer.AfkForceAcknowledgeMessage
-        dialogClass = OTPGlobals.getDialogClass()
-        self.afkDialog = dialogClass(text=msg, command=self.__handleAfkOk, style=OTPDialog.Acknowledge)
-        self.handler = self.handleMessageType
-
-    def __handleAfkOk(self, value):
-        self.loginFSM.request('waitForAvatarList')
-
-    def exitAfkTimeout(self):
-        if self.afkDialog:
-            self.afkDialog.cleanup()
-            self.afkDialog = None
-        self.handler = None
-        return
 
     def enterPeriodTimeout(self):
         self.sendSetAvatarIdMsg(0)

@@ -157,7 +157,6 @@ class House(Place.Place):
         base.localAvatar.setTeleportAvailable(1)
         base.localAvatar.laffMeter.start()
         base.localAvatar.obscureMoveFurnitureButton(1)
-        base.localAvatar.startSleepWatch(self.__handleFallingAsleepCloset)
         self.enablePeriodTimer()
 
     def __handleFallingAsleepCloset(self, arg):

@@ -11,11 +11,9 @@ class ChineseTutorial(DirectFrame, FSM.FSM):
     def __init__(self, doneFunction, doneEvent=None, callback=None):
         FSM.FSM.__init__(self, 'ChineseTutorial')
         self.doneFunction = doneFunction
-        base.localAvatar.startSleepWatch(self.handleQuit)
         self.doneEvent = doneEvent
         self.callback = callback
         self.setStateArray(['Page1', 'Page2', 'Quit'])
-        base.localAvatar.startSleepWatch(self.handleQuit)
         DirectFrame.__init__(self, pos=(-0.7, 0.0, 0.0), image_color=ToontownGlobals.GlobalDialogColor,
                              image_scale=(1.0, 1.5, 1.0), text='', text_scale=0.06)
         self.accept('stoppedAsleep', self.handleQuit)
@@ -137,7 +135,6 @@ class CheckersTutorial(DirectFrame, FSM.FSM):
     def __init__(self, doneFunction, doneEvent=None, callback=None):
         FSM.FSM.__init__(self, 'CheckersTutorial')
         self.doneFunction = doneFunction
-        base.localAvatar.startSleepWatch(self.handleQuit)
         self.doneEvent = doneEvent
         self.callback = callback
         self.setStateArray(['Page1',
@@ -284,7 +281,6 @@ class FindFourTutorial(DirectFrame, FSM.FSM):
     def __init__(self, doneFunction, doneEvent=None, callback=None):
         FSM.FSM.__init__(self, 'FindFourTutorial')
         self.doneFunction = doneFunction
-        base.localAvatar.startSleepWatch(self.handleQuit)
         self.doneEvent = doneEvent
         self.callback = callback
         self.setStateArray(['Page1',

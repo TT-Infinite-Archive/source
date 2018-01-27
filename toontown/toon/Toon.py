@@ -399,7 +399,6 @@ def unloadDialog():
 
 class Toon(Avatar.Avatar, ToonHead):
     notify = DirectNotifyGlobal.directNotify.newCategory('Toon')
-    afkTimeout = base.config.GetInt('afk-timeout', 600)
 
     def __init__(self):
         try:
@@ -2183,23 +2182,9 @@ class Toon(Avatar.Avatar, ToonHead):
         self.setChatAbsolute(SLEEP_STRING, CFThought)
         if self == base.localAvatar:
             self.notify.debug('Adding timeout task to Toon.')
-            taskMgr.doMethodLater(self.afkTimeout, self.__handleAfkTimeout, self.uniqueName('afkTimeout'))
         self.setActiveShadow(0)
 
-    def __handleAfkTimeout(self, task):
-        self.notify.debug('Handling timeout task on Toon.')
-        self.ignore('wakeup')
-        self.takeOffSuit()
-        base.cr.playGame.getPlace().fsm.request('final')
-        self.b_setAnimState('TeleportOut', 1, self.__handleAfkExitTeleport, [0])
-        return Task.done
-
-    def __handleAfkExitTeleport(self, requestStatus):
-        self.notify.info('closing shard...')
-        base.cr.gameFSM.request('closeShard', ['afkTimeout'])
-
     def exitSleep(self):
-        taskMgr.remove(self.uniqueName('afkTimeout'))
         if not self.isGoofy:
             self.startLookAround()
         self.openEyes()
