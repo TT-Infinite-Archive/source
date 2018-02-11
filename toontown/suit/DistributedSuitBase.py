@@ -16,6 +16,7 @@ from toontown.battle import BattleProps
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.chat.ChatGlobals import CFSpeech, CFTimeout
 from toontown.suit import SuitBuffGlobals
+from toontown.collectibles import CollectibleGlobals, CollectibleInventoryGlobals
 
 
 
