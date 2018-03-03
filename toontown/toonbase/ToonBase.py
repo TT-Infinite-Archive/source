@@ -615,6 +615,8 @@ class ToonBase(OTPBase.OTPBase):
             messenger.send('clientLogout')
             self.cr.dumpAllSubShardObjects()
 
+        # If the user closes the main window, we should close our server.
+        self.cr.disconnectLocalServer()
         self.cr.loginFSM.request('shutdown')
         self.notify.warning('Could not request shutdown exiting anyway.')
         self.ignore(ToontownGlobals.QuitGameHotKeyOSX)

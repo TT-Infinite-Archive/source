@@ -2054,17 +2054,20 @@ class OTPClientRepository(ClientRepositoryBase):
     def addTaggedInterest(self, parentId, zoneId, mainTag, desc, otherTags = [], event = None):
         return self.addInterest(parentId, zoneId, desc, event)
 
-    def mainMenuTask(self, task):
-        if self.mainMenu is None:
-            self.mainMenu = MainMenu()
-        self.mainMenu.load()
-        self.mainMenu.request('PlayScreen')
+    def disconnectLocalServer(self):
         if self.isConnected() and base.isHosting:
             self.localServerStarter.demand('Off')
         if self.isConnected():
             self.sendDisconnect()
         base.isLoggingOut = False
         base.isHosting = None
+
+    def mainMenuTask(self, task):
+        if self.mainMenu is None:
+            self.mainMenu = MainMenu()
+        self.mainMenu.load()
+        self.mainMenu.request('PlayScreen')
+        self.disconnectLocalServer()
 
     def enterMainMenu(self):
         taskMgr.doMethodLater(0.1, self.mainMenuTask, 'mainMenuTask')
