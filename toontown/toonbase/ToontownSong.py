@@ -1,3 +1,4 @@
+from panda3d.core import AudioSound
 class ToontownSong:
     def __init__(self, uid, name, path, length):
         self.uid = uid

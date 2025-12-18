@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM

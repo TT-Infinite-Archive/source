@@ -1,3 +1,4 @@
+from panda3d.core import Vec4
 from direct.gui.DirectGui import DirectFrame, DGG
 from direct.fsm import StateData
 
@@ -6,7 +7,6 @@ from toontown.toon import ToonDNA
 
 from .MakeAToonGlobals import *
 from .MakeAToonGUI import MATFrame, MATShuffleButton
-from panda3d.core import Vec4
 from . import ShuffleButton
 import random
 

@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import ConfigVariableBool
 from direct.task import Task
 from string import maketrans
 import pickle
@@ -22,7 +22,7 @@ class DataStore:
         return newTypes
 
     notify = DirectNotifyGlobal.directNotify.newCategory('DataStore')
-    wantAnyDbm = ConfigVariableBool('want-ds-anydbm', 1).getValue()
+    wantAnyDbm = ConfigVariableBool('want-ds-anydbm', True).getValue()
 
     def __init__(self, filepath, writePeriod = 300, writeCountTrigger = 100):
         self.filepath = filepath

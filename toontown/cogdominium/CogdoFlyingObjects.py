@@ -1,5 +1,6 @@
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, LinearVectorForce, SparkleParticleRenderer
+from panda3d.core import CollideMask, Fog, Texture, TextureStage, Vec3, Vec4
 import random
-from panda3d.core import *
 from direct.interval.IntervalGlobal import Sequence, Func, Parallel, Wait, LerpHprInterval, LerpScaleInterval, LerpFunctionInterval
 from otp.otpbase import OTPGlobals
 from toontown.toonbase import ToontownGlobals

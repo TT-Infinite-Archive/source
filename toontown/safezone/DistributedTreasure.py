@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import HideInterval, ShowInterval
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, VBase4
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from direct.distributed import DistributedObject

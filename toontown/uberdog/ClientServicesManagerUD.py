@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableInt, ConfigVariableString, Connection, Datagram
 import semidbm
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
 from direct.fsm.FSM import FSM
-from pandac.PandaModules import *
 from datetime import datetime
 import time
 import random
@@ -23,7 +23,7 @@ NAME_SUBMITTED = 1
 NAME_SUBMISSION_ERROR = 2
 
 
-accountdbType = simbase.config.GetString('accountdb-type', 'developer')
+accountdbType = ConfigVariableString('accountdb-type', 'developer').getValue()
 
 
 # --- ACCOUNT DATABASES ---
@@ -403,7 +403,7 @@ class CreateAvatarFSM(OperationFSM):
         animalType = TTLocalizer.AnimalToSpecies[dna.getAnimal()]
         name = ' '.join((colorString, animalType))
         toonFields = {
-            'setPatchVersion': (config.GetInt('toon-patch-version', 0),),
+            'setPatchVersion': (ConfigVariableInt('toon-patch-version', 0).getValue(),),
             'setName': (name,),
             'WishNameState': ('OPEN',),
             'WishName': ('',),
@@ -463,14 +463,14 @@ class AvatarOperationFSM(OperationFSM):
         self.account = fields
 
         # Check if the server might be locked:
-        if config.GetBool('want-unlock-timer', False):
+        if ConfigVariableBool('want-unlock-timer', False).getValue():
             # Get the unlock time:
-            dt = datetime.strptime(config.GetString('unlock-time', ''), '%a %b %d %H:%M:%S %Y')
+            dt = datetime.strptime(ConfigVariableString('unlock-time', '').getValue(), '%a %b %d %H:%M:%S %Y')
             ts = int(time.mktime(dt.timetuple()))
 
             # Check if the client should be locked out:
             if time.time() < ts and self.account['ACCESS_LEVEL'] < 175:
-                self.csm.sendUpdateToAccountId(self.target, 'lockClient', [ts, config.GetString('unlock-text', '')])
+                self.csm.sendUpdateToAccountId(self.target, 'lockClient', [ts, ConfigVariableString('unlock-text', '').getValue()])
                 self.demand('Off')
                 return
 

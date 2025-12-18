@@ -1,4 +1,4 @@
-from pandac.PandaModules import VBase3, BitMask32
+from panda3d.core import BitMask32, VBase3
 
 
 GameTime = 60

@@ -1,6 +1,5 @@
 from otp.ai.AIBaseGlobal import *
 from direct.task.Task import Task
-from pandac.PandaModules import *
 from .DistributedNPCToonBaseAI import *
 
 class DistributedNPCClerkAI(DistributedNPCToonBaseAI):

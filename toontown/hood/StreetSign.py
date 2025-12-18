@@ -1,7 +1,7 @@
+from panda3d.core import ConfigVariableString, DSearchPath, DocumentSpec, Filename, HTTPClient, HTTPDate, Texture
 import os
 import shutil
 import datetime
-from pandac.PandaModules import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.showbase import AppRunnerGlobal
@@ -9,9 +9,9 @@ from toontown.toonbase import TTLocalizer
 
 class StreetSign(DistributedObject.DistributedObject):
     RedownloadTaskName = 'RedownloadStreetSign'
-    StreetSignFileName = config.GetString('street-sign-filename', 'texture.jpg')
-    StreetSignBaseDir = config.GetString('street-sign-base-dir', 'sign')
-    StreetSignUrl = base.config.GetString('street-sign-url', 'http://cdn.toontown.disney.go.com/toontown/en/street-signs/img/')
+    StreetSignFileName = ConfigVariableString('street-sign-filename', 'texture.jpg').getValue()
+    StreetSignBaseDir = ConfigVariableString('street-sign-base-dir', 'sign').getValue()
+    StreetSignUrl = ConfigVariableString('street-sign-url', 'http://cdn.toontown.disney.go.com/toontown/en/street-signs/img/').getValue()
     notify = DirectNotifyGlobal.directNotify.newCategory('StreetSign')
 
     def __init__(self):

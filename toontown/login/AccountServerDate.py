@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, URLSpec
 from otp.login.HTTPUtil import *
 from direct.directnotify import DirectNotifyGlobal
 from otp.login import TTAccount
@@ -18,7 +19,7 @@ class AccountServerDate:
         if self.__grabbed and not force:
             self.notify.debug('using cached account server date')
             return
-        if base.cr.accountOldAuth or base.config.GetBool('use-local-date', 0):
+        if base.cr.accountOldAuth or ConfigVariableBool('use-local-date', False).getValue():
             self.__useLocalClock()
             return
         url = URLSpec(self.getServer())

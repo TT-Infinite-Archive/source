@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool
 from otp.ai.AIBaseGlobal import *
-from pandac.PandaModules import *
 from .DistributedNPCToonBaseAI import *
 from . import ToonDNA
 from direct.task.Task import Task
@@ -7,9 +7,9 @@ from toontown.ai import DatabaseObject
 from toontown.estate import ClosetGlobals
 
 class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
-    freeClothes = simbase.config.GetBool('free-clothes', 0)
-    housingEnabled = simbase.config.GetBool('want-housing', 1)
-    useJellybeans = simbase.config.GetBool('want-tailor-jellybeans', False)
+    freeClothes = ConfigVariableBool('free-clothes', False).getValue()
+    housingEnabled = ConfigVariableBool('want-housing', True).getValue()
+    useJellybeans = ConfigVariableBool('want-tailor-jellybeans', False).getValue()
 
     def __init__(self, air, npcId):
         DistributedNPCToonBaseAI.__init__(self, air, npcId)
@@ -22,8 +22,6 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
         if self.freeClothes:
             self.useJellybeans = False
 
-        return
-
     def getTailor(self):
         return 1
 
@@ -33,7 +31,6 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
         self.customerDNA = None
         self.customerId = None
         DistributedNPCToonBaseAI.delete(self)
-        return
 
     def avatarEnter(self):
         avId = self.air.getAvatarIdFromSender()
@@ -197,4 +194,3 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
             self.sendClearMovie(None)
         else:
             self.notify.warning('not busy with avId: %s, busy: %s ' % (avId, self.busy))
-        return

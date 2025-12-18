@@ -1,7 +1,7 @@
+from panda3d.core import Connection, TP_normal
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.stdpy import threading
 import errno
-from panda3d.core import TP_normal
 import select
 import socket
 import urllib.parse

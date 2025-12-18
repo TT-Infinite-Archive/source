@@ -1,5 +1,5 @@
+from panda3d.core import Point3, Vec3
 from direct.directnotify.DirectNotifyGlobal import *
-from pandac.PandaModules import *
 
 from toontown.suit import SuitDNA
 from toontown.suit import SuitDialog

@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import WaitInterval
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, NodePath, Point3, Point4, TextNode, Vec3
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *
 from direct.interval.IntervalGlobal import *
@@ -637,7 +638,7 @@ class DistributedCatchGame(DistributedMinigame):
         self.timer.hide()
 
         #For the Alpha Blueprint ARG
-        if base.config.GetBool('want-blueprint4-ARG', False):
+        if ConfigVariableBool('want-blueprint4-ARG', False).getValue():
             MinigameGlobals.generateDebugARGPhrase()
 
         if self.fruitsCaught >= self.numFruits:

@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, LinearJitterForce, LinearVectorForce
+from panda3d.core import NodePath, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.particles import ParticleEffect
 from direct.particles import Particles

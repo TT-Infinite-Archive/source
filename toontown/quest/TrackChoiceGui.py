@@ -1,5 +1,5 @@
+from panda3d.core import TextNode, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals

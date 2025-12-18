@@ -1,4 +1,4 @@
-from panda3d.core import BamFile, NodePath, StringStream, decompressString
+from panda3d.core import BamFile, NodePath, StringStream, compressString, decompressString
 from . import DNANode
 
 class DNASignBaseline(DNANode.DNANode):

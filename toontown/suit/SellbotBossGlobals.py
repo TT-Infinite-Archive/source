@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Point3, Vec3
 
 try:
     from toontown.coghq.DistributedHealBarrelAI import DistributedHealBarrelAI

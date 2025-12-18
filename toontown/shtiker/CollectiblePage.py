@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CardMaker, TextNode, Vec4
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectScrolledList, DGG, DirectButton
 from toontown.collectibles import CollectibleGlobals
 from toontown.collectibles.CollectibleInventoryGlobals import DefaultItems

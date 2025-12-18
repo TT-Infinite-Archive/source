@@ -1,5 +1,4 @@
 from direct.showbase.DirectObject import DirectObject
-from pandac.PandaModules import *
 
 from toontown.guilds.GuildGlobals import *
 

@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableBool, Datagram, DatagramIterator, HTTPClient, ModelPool, Texture, TexturePool, Vec4
 import types
 import time
 from direct.distributed.ClockDelta import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import ivalMgr
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedSmoothNode
@@ -98,7 +98,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.ttiFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TTI_FRIENDS_MANAGER, 'TTIFriendsManager')
         self.speedchatRelay = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TOONTOWN_SPEEDCHAT_RELAY, 'TTSpeedchatRelay')
         self.deliveryManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TOONTOWN_DELIVERY_MANAGER, 'DistributedDeliveryManager')
-        if config.GetBool('want-code-redemption', 1):
+        if ConfigVariableBool('want-code-redemption', True).getValue():
             self.codeRedemptionManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_TOONTOWN_CODE_REDEMPTION_MANAGER, 'TTCodeRedemptionMgr')
         self.guildManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_GUILDS_MANAGER, 'GuildManager')
         self.globalGroupTracker = self.generateGlobalObject(OTP_DO_ID_GLOBAL_GROUP_TRACKER, 'GlobalGroupTracker')
@@ -127,16 +127,16 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         state.addTransition('skipTutorialRequest')
         state = self.gameFSM.getStateNamed('playGame')
         state.addTransition('skipTutorialRequest')
-        self.wantCogdominiums = base.config.GetBool('want-cogdominiums', 1)
-        self.wantEmblems = base.config.GetBool('want-emblems', 0)
+        self.wantCogdominiums = ConfigVariableBool('want-cogdominiums', True).getValue()
+        self.wantEmblems = ConfigVariableBool('want-emblems', 0).getValue()
 
         self.progressMultiplier = 1
-        self.wantDoubleProgression = base.config.GetBool('want-double-progression', False)
+        self.wantDoubleProgression = ConfigVariableBool('want-double-progression', False).getValue()
 
         if self.wantDoubleProgression:
             self.progressMultiplier = 2
 
-        if base.config.GetBool('tt-node-check', 0):
+        if ConfigVariableBool('tt-node-check', 0).getValue():
             for species in ToonDNA.toonSpeciesTypes:
                 for head in ToonDNA.getHeadList(species):
                     for torso in ToonDNA.toonTorsoTypes:

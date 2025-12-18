@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.directnotify import DirectNotifyGlobal
 from . import Quests
 from toontown.toonbase import ToontownGlobals

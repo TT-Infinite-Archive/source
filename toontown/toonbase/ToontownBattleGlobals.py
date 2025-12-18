@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3
 from .ToontownGlobals import *
 import math
 from . import TTLocalizer

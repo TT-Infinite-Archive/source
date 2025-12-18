@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath, SequenceNode
 from direct.interval.IntervalGlobal import *
 from toontown.battle.BattleProps import globalPropPool
 

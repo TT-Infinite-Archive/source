@@ -1,7 +1,7 @@
+from panda3d.core import Vec3
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 
 from . import DistributedAnimatedProp
 from .KnockKnockJokes import *

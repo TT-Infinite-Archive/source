@@ -1,3 +1,4 @@
+from panda3d.core import Datagram, DatagramIterator
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from direct.distributed.PyDatagram import PyDatagram
 

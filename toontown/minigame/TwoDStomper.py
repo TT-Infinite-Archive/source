@@ -1,3 +1,4 @@
+from panda3d.core import NodePath, Point3, VBase4
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase.ToontownGlobals import *
 from direct.directnotify import DirectNotifyGlobal

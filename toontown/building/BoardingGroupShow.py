@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionSegment, NodePath, Point3, TextNode, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
 from direct.task.Task import Task

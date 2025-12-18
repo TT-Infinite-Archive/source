@@ -1,6 +1,6 @@
+from panda3d.core import CardMaker, NodePath, Texture, TransparencyAttrib, VBase4
 from toontown.toonbase.ToontownGlobals import getSuitFont
 from direct.gui.DirectGui import DirectWaitBar, DirectFrame, DGG, OnscreenText
-from panda3d.core import TransparencyAttrib, CardMaker, NodePath, VBase4
 from toontown.toonbase import TTLocalizer
 from toontown.coghq import FactoryQuestGlobals
 from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval

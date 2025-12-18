@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, Point4, TextEncoder, TextNode, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownBattleGlobals import *
 from . import InventoryBase
 from toontown.toonbase import TTLocalizer
@@ -47,13 +47,12 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         self.gagTutMode = 0
         self.showSuperGags = ShowSuperGags
         self.clickSuperGags = 1
-        self.propAndOrganicBonusStack = base.config.GetBool('prop-and-organic-bonus-stack', 0)
+        self.propAndOrganicBonusStack = ConfigVariableBool('prop-and-organic-bonus-stack', False).getValue()
         self.propBonusIval = Parallel()
         self.activateMode = 'book'
         if toon.isLocal():
             self.load()
             self.hide()
-        return
 
     def setBattleCreditMultiplier(self, mult):
         self.__battleCreditMultiplier = mult
@@ -174,7 +173,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         del self.buttons
         InventoryBase.InventoryBase.unload(self)
         DirectFrame.destroy(self)
-        return
 
     def load(self):
         self.notify.debug('Loading Inventory for %d' % self.toon.doId)
@@ -246,8 +244,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 button.bind(DGG.ENTER, self.showDetail, extraArgs=[track, item])
                 button.bind(DGG.EXIT, self.hideDetail)
                 self.buttons[track].append(button)
-
-        return
 
     def __handleSelection(self, track, level):
         if self.activateMode == 'purchaseDelete' or self.activateMode == 'bookDelete' or self.activateMode == 'storePurchaseDelete':
@@ -324,7 +320,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         else:
             self.setDetailCredit(track, None)
         self.detailCreditLabel.show()
-        return
 
     def setDetailCredit(self, track, credit):
         if credit != None:
@@ -346,7 +341,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCreditNone
             self.detailCreditLabel['text_fg'] = (0.5, 0.0, 0.0, 1.0)
         self.detailCredit = credit
-        return
 
     def hideDetail(self, event = None):
         self.totalLabel.show()
@@ -416,7 +410,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             self.plantTreeDeactivateButtons()
         else:
             self.notify.error('No such mode as %s' % self.previousActivateMode)
-        return None
 
     def __activateButtons(self):
         if hasattr(self, 'activateMode'):
@@ -444,7 +437,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 self.plantTreeActivateButtons()
             else:
                 self.notify.error('No such mode as %s' % self.activateMode)
-        return None
 
     def bookActivateButtons(self):
         self.setPos(0, 0, 0.52)
@@ -476,11 +468,8 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return None
-
     def bookDeactivateButtons(self):
         self.deleteEnterButton['command'] = None
-        return
 
     def bookDeleteActivateButtons(self):
         messenger.send('enterBookDelete')
@@ -557,8 +546,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return
-
     def purchaseDeleteDeactivateButtons(self):
         self.invFrame.reparentTo(self)
         self.purchaseFrame.hide()
@@ -617,8 +604,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return
-
     def storePurchaseDeleteDeactivateButtons(self):
         self.invFrame.reparentTo(self)
         self.storePurchaseFrame.hide()
@@ -656,8 +641,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return
-
     def storePurchaseBrokeDeactivateButtons(self):
         self.invFrame.reparentTo(self)
         self.storePurchaseFrame.hide()
@@ -687,11 +670,8 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return None
-
     def deleteDeactivateButtons(self):
         self.deleteExitButton['command'] = None
-        return
 
     def purchaseActivateButtons(self):
         self.reparentTo(aspect2d)
@@ -733,8 +713,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
 
             else:
                 self.hideTrack(track)
-
-        return
 
     def purchaseDeactivateButtons(self):
         self.invFrame.reparentTo(self)
@@ -779,8 +757,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return
-
     def storePurchaseDeactivateButtons(self):
         self.invFrame.reparentTo(self)
         self.storePurchaseFrame.hide()
@@ -820,8 +796,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return
-
     def purchaseBrokeDeactivateButtons(self):
         self.invFrame.reparentTo(self)
         self.purchaseFrame.hide()
@@ -858,8 +832,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
 
             else:
                 self.hideTrack(track)
-
-        return
 
     def gagTutDisabledDeactivateButtons(self):
         self.invFrame.reparentTo(self)
@@ -921,7 +893,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
                 self.hideTrack(track)
 
         self.propBonusIval.loop()
-        return
 
     def battleDeactivateButtons(self):
         self.invFrame.reparentTo(self)
@@ -964,8 +935,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             else:
                 self.hideTrack(track)
 
-        return
-
     def plantTreeDeactivateButtons(self):
         self.passButton['text'] = TTLocalizer.InventoryPass
         self.invFrame.reparentTo(self)
@@ -989,7 +958,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
             return 1
         else:
             return level < self.battleCreditLevel
-        return
 
     def getMax(self, track, level):
         if self.gagTutMode and (track not in (4, 5) or level > 0):
@@ -1110,7 +1078,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         InventoryBase.InventoryBase.updateInvString(self, invString)
         if self.toon.isLocal():
             self.updateGUI()
-        return None
 
     def updateButton(self, track, level):
         button = self.buttons[track][level]
@@ -1155,7 +1122,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         else:
             self.notify.error('Invalid use of updateGUI')
         self.__activateButtons()
-        return
 
     def getSingleGroupStr(self, track, level):
         if track == HEAL_TRACK:
@@ -1193,7 +1159,6 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         self.tutArrows = BlinkingArrows.BlinkingArrows(parent=self.battleFrame)
         battleModels.removeNode()
         self.battleFrame.hide()
-        return
 
     def loadPurchaseFrame(self):
         purchaseModels = loader.loadModel('phase_4/models/gui/purchase_gui')
@@ -1201,14 +1166,12 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         self.purchaseFrame.setX(-.06)
         self.purchaseFrame.hide()
         purchaseModels.removeNode()
-        return
 
     def loadStorePurchaseFrame(self):
         storePurchaseModels = loader.loadModel('phase_4/models/gui/gag_shop_purchase_gui')
         self.storePurchaseFrame = DirectFrame(relief=None, image=storePurchaseModels.find('**/gagShopPanel'), image_pos=(-0.21, 0, 0.18), parent=self)
         self.storePurchaseFrame.hide()
         storePurchaseModels.removeNode()
-        return
 
     def buttonLookup(self, track, level):
         return self.invModels[track][level]

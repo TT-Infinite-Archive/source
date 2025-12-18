@@ -1,7 +1,6 @@
-from pandac import PandaModules as PM
+from panda3d.core import HashVal
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase.PythonUtil import list2dict, uniqueElements
-import string
+from direct.showbase.PythonUtil import list2dict
 from . import LevelConstants
 import types
 if __dev__:
@@ -389,10 +388,8 @@ class LevelSpec:
                         if attribName not in spec:
                             LevelSpec.notify.warning("entId %s (%s): missing attrib '%s'" % (entId, spec['type'], attribName))
 
-            return
-
         def stringHash(self):
-            h = PM.HashVal()
+            h = HashVal()
             h.hashString(repr(self))
             return h.asHex()
 

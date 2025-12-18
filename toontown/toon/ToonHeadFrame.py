@@ -1,5 +1,4 @@
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 
 from . import ToonHead
 from toontown.distributed import DelayDelete

@@ -1,18 +1,9 @@
+from panda3d.core import CardMaker, ConfigVariable, ConfigVariableBool, ConfigVariableString, NodePath, PNMImage, Point2, Point3, Texture, TextureStage
 import array, sys
 from direct.showbase.DirectObject import DirectObject
 from direct.task.Task import Task
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import Texture
-from pandac.PandaModules import CardMaker
-from pandac.PandaModules import NodePath
-from pandac.PandaModules import Point3, Vec3, Vec4, VBase4D, Point2
-from pandac.PandaModules import PNMImage
-from pandac.PandaModules import TextureStage
-from pandac.PandaModules import Texture
-from pandac.PandaModules import WindowProperties
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import AwWebView
-from pandac.PandaModules import AwWebCore
 WEB_WIDTH_PIXELS = 784
 WEB_HEIGHT_PIXELS = 451
 WEB_WIDTH = 1024
@@ -24,7 +15,7 @@ GlobalWebcore = None
 
 class HtmlView(DirectObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('HtmlView')
-    useHalfTexture = base.config.GetBool('news-half-texture', 0)
+    useHalfTexture = ConfigVariableBool('news-half-texture', False).getValue()
 
     def __init__(self, parent = aspect2d):
         global GlobalWebcore
@@ -75,7 +66,7 @@ class HtmlView(DirectObject):
         self.accept('mouse3-up', self.mouseUp, [AwWebView.RIGHTMOUSEBTN])
 
     def getInGameNewsUrl(self):
-        return base.config.GetString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/')
+        return ConfigVariableString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/').getValue()
 
     def setupTexture(self):
         cm = CardMaker('quadMaker')

@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionHandlerPusher, CollisionNode, CollisionSphere, CollisionTraverser, NodePath, Point3, Vec2, Vec3
 from direct.showbase.ShowBaseGlobal import *
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *

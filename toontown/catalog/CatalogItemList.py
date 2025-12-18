@@ -1,5 +1,5 @@
+from panda3d.core import Datagram, DatagramIterator
 from . import CatalogItem
-from pandac.PandaModules import *
 import types
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator

@@ -1,4 +1,4 @@
-from direct.actor import Actor
+from panda3d.core import ConfigVariableDouble
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import Sequence, Func
 from toontown.hood import InteractiveAnimatedProp
@@ -67,7 +67,7 @@ class HydrantInteractiveProp(InteractiveAnimatedProp.InteractiveAnimatedProp):
         ToontownGlobals.TheBrrrgh: ('tt_a_ara_tbr_hydrant_fightBoost', 'tt_a_ara_tbr_hydrant_fightCheer', 'tt_a_ara_tbr_hydrant_fightIdle'),
         ToontownGlobals.DonaldsDreamland: ('tt_a_ara_ddl_hydrant_fightBoost', 'tt_a_ara_ddl_hydrant_fightCheer', 'tt_a_ara_ddl_hydrant_fightIdle')}
 
-    IdlePauseTime = base.config.GetFloat('prop-idle-pause-time', 0.0)
+    IdlePauseTime = ConfigVariableDouble('prop-idle-pause-time', 0.0).getValue()
 
     def __init__(self, node):
         self.leftWater = None

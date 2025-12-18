@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import WaitInterval
+from panda3d.core import CollideMask
 from direct.showbase.DirectObject import DirectObject
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import globalClockDelta

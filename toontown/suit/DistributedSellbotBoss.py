@@ -1,3 +1,6 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionPolygon, CollisionTube, ConfigVariable, ConfigVariableBool, GeomNode, NodePath, Point3, RopeNode, TextNode, Texture, VBase3, VBase4, Vec3, Vec4
+import math
+import random
 from direct.directnotify import DirectNotifyGlobal
 from direct.directutil import Mopath
 from direct.distributed.ClockDelta import *
@@ -8,9 +11,6 @@ from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import Functor
 from direct.showutil import Rope
 from direct.task import Task
-import math
-from pandac.PandaModules import *
-import random
 
 from . import DistributedBossCog
 from . import SuitDNA
@@ -1177,7 +1177,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         taskMgr.remove(self.uniqueName('PieAdvice'))
 
     def __pieSplat(self, toon, pieCode):
-        if base.config.GetBool('easy-vp', 0):
+        if ConfigVariableBool('easy-vp', False).getValue():
             if not self.dizzy:
                 pieCode = ToontownGlobals.PieCodeBossInsides
         if pieCode == ToontownGlobals.PieCodeBossInsides:

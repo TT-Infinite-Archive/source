@@ -1,7 +1,7 @@
+from panda3d.core import Texture, VBase4
 from toontown.pets.PetMood import PetMood
 from toontown.pets.PetTraits import getTraitNames
 from toontown.toon import ToonDNA
-from pandac.PandaModules import VBase4
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 from direct.showbase import PythonUtil
 NumFields = 9

@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from . import DistributedCCharBase
 from . import DistributedDonald

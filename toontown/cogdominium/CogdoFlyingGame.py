@@ -1,3 +1,4 @@
+from panda3d.core import AudioManager, Fog
 from direct.showbase.DirectObject import DirectObject
 from direct.task.Task import Task
 from direct.showbase.RandomNumGen import RandomNumGen

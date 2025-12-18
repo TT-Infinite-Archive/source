@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed.ClockDelta import globalClockDelta
 from direct.directnotify.DirectNotifyGlobal import *
 from toontown.ai import DistributedTrickOrTreatTargetAI
@@ -70,10 +71,10 @@ class HoodAI:
             self.createFishingPonds()
         if self.air.wantParties:
             self.createPartyPeople()
-        if simbase.config.GetBool('want-treasure-planners', True):
+        if ConfigVariableBool('want-treasure-planners', True).getValue():
             self.createTreasurePlanner()
         self.createBuildingManagers()
-        if simbase.config.GetBool('want-suit-planners', True):
+        if ConfigVariableBool('want-suit-planners', True).getValue():
             self.createSuitPlanners()
         if simbase.air.wantHalloween or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.TRICK_OR_TREAT):
             self.startupTrickOrTreat()

@@ -1,3 +1,4 @@
+from panda3d.core import Datagram
 from . import CatalogItem
 import time
 from toontown.toonbase import ToontownGlobals

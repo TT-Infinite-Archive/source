@@ -1,3 +1,4 @@
+from panda3d.core import NodePath, Point3
 from . import DistributedLawnDecor
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.ShowBase import *
@@ -6,8 +7,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toontowngui import TTDialog
 from toontown.toonbase import TTLocalizer
-from pandac.PandaModules import NodePath
-from pandac.PandaModules import Point3
 
 class DistributedStatuary(DistributedLawnDecor.DistributedLawnDecor):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedStatuary')

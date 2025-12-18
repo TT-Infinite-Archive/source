@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedDonaldAI
 from toontown.hood import HoodAI
 from toontown.safezone import DistributedTrolleyAI
@@ -19,10 +20,10 @@ class DLHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if simbase.config.GetBool('want-minigames', True):
+        if ConfigVariableBool('want-minigames', True).getValue():
             self.createTrolley()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-donald-dreamland', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-donald-dreamland', True).getValue():
                 self.createClassicChar()
         
         self.resistanceEmoteManager = DistributedResistanceEmoteMgrAI.DistributedResistanceEmoteMgrAI(self.air)

@@ -1,6 +1,6 @@
+from panda3d.core import Point3, TextEncoder, TextNode, Vec3, Vec4
 from direct.gui.DirectGui import *
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from . import NPCToons
 from . import ToonHead
 from . import ToonDNA

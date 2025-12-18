@@ -1,7 +1,6 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, Plane, PlaneNode, Point3, TextNode, Vec3, Vec4
 from toontown.toonbase.ToontownGlobals import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.showbase import DirectObject
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData
@@ -160,7 +159,7 @@ class TownBattleSOSPanel(DirectFrame, StateData.StateData):
 
     def __updateScrollList(self):
         newFriends = []
-        battlePets = base.config.GetBool('want-pets-in-battle', 1)
+        battlePets = ConfigVariableBool('want-pets-in-battle', True).getValue()
         if base.wantPets and battlePets == 1 and base.localAvatar.hasPet():
             newFriends.append((base.localAvatar.getPetId(), 0))
         if not self.bldg or self.factoryToonIdList is not None:

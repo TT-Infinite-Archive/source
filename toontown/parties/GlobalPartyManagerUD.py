@@ -1,9 +1,9 @@
+from panda3d.core import ConfigVariableBool, UniqueIdAllocator
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
 from direct.task import Task
 from .PartyGlobals import *
 from datetime import datetime, timedelta
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import P_InvalidIndex, P_ItemAvailable
 from .ToontownTimeZone import ToontownTimeZone
 
@@ -39,7 +39,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
             for inviteKey in list(self.inviteKey2Invite.keys()):
                 self.inviteKeyAllocator.initialReserveId(inviteKey)
 
-        self.wantInstantParties = simbase.config.GetBool('want-instant-parties', 0)
+        self.wantInstantParties = ConfigVariableBool('want-instant-parties', False).getValue()
 
         # Setup tasks
         self.runAtNextInterval()

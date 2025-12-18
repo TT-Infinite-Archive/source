@@ -1,3 +1,4 @@
+from panda3d.core import TextNode, VBase4
 from direct.interval.IntervalGlobal import Sequence, Func, Wait, LerpColorScaleInterval, Parallel
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
@@ -7,7 +8,6 @@ from toontown.distributed import DelayDelete
 from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
-from pandac.PandaModules import *
 from direct.gui.DirectGui import *
 from direct.distributed.ClockDelta import *
 from direct.fsm.FSM import FSM

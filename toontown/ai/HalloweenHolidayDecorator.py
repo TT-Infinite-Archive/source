@@ -1,3 +1,4 @@
+from panda3d.core import CSDefault, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
@@ -6,7 +7,6 @@ from toontown.toonbase import ToontownGlobals
 from toontown.safezone import Playground
 from toontown.town import Street
 from toontown.estate import Estate
-from pandac.PandaModules import Vec4, TransformState, NodePath, TransparencyAttrib
 
 class HalloweenHolidayDecorator(HolidayDecorator.HolidayDecorator):
     notify = DirectNotifyGlobal.directNotify.newCategory('HalloweenHolidayDecorator')

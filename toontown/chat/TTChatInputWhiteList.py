@@ -1,19 +1,17 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableString, TextNode, Vec4
 from otp.chat.ChatInputWhiteListFrame import ChatInputWhiteListFrame
 from otp.chat import ChatGlobals
 from otp.otpbase import OTPLocalizer
 from toontown.chat.TTWhiteList import TTWhiteList
-from direct.showbase import DirectObject
 from otp.otpbase import OTPGlobals
-import sys
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
 
 class TTChatInputWhiteList(ChatInputWhiteListFrame):
     notify = DirectNotifyGlobal.directNotify.newCategory('TTChatInputWhiteList')
-    TFToggleKey = base.config.GetString('true-friend-toggle-key', 'alt')
+    TFToggleKey = ConfigVariableString('true-friend-toggle-key', 'alt').getValue()
     TFToggleKeyUp = TFToggleKey + '-up'
 
     def __init__(self, parent = None, **kw):
@@ -60,9 +58,8 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
                                              font=OTPGlobals.getInterfaceFont(),
                                              fg=(1.0, 1.0, 0.0, 1.0),
                                              pos=(0.02, -0.225, 0.0))
-        if base.config.GetBool('whisper-to-nearby-true-friends', 1):
+        if ConfigVariableBool('whisper-to-nearby-true-friends', True).getValue():
             self.accept(self.TFToggleKey, self.shiftPressed)
-        return
 
     def shiftPressed(self):
         self.ignore(self.TFToggleKey)
@@ -106,7 +103,6 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
     def delete(self):
         base.whiteList = None
         ChatInputWhiteListFrame.delete(self)
-        return
 
     def sendChat(self, text, overflow = False):
         if self.typeGrabbed:
@@ -139,7 +135,6 @@ class TTChatInputWhiteList(ChatInputWhiteListFrame):
             avatarUnderstandable = av.isUnderstandable()
         if avatarUnderstandable and online:
             base.talkAssistant.sendWhisperTalk(text, avatarId)
-        return
 
     def chatButtonPressed(self):
         if self.okayToSubmit:

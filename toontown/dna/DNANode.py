@@ -1,4 +1,4 @@
-from panda3d.core import LVector3f, PandaNode
+from panda3d.core import LVector3f
 from . import DNAGroup
 
 class DNANode(DNAGroup.DNAGroup):

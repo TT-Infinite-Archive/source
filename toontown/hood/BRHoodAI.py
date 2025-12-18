@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedPlutoAI
 from toontown.hood import HoodAI
 from toontown.safezone import DistributedTrolleyAI
@@ -19,10 +20,10 @@ class BRHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if simbase.config.GetBool('want-minigames', True):
+        if ConfigVariableBool('want-minigames', True).getValue():
             self.createTrolley()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-pluto', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-pluto', True).getValue():
                 self.createClassicChar()
 
         self.PolarPlaceEffectManager = DistributedPolarPlaceEffectMgrAI.DistributedPolarPlaceEffectMgrAI(self.air)

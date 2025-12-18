@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, Point3, Quat, Vec3, rad2Deg
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from toontown.nametag.NametagFloat3d import NametagFloat3d
 from toontown.nametag.Nametag import Nametag
 from toontown.toonbase.ToonBaseGlobal import *
@@ -19,7 +19,6 @@ from toontown.effects import Splash
 from toontown.effects import DustCloud
 from . import CannonGameGlobals
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 LAND_TIME = 2
 WORLD_SCALE = 2.0
@@ -366,7 +365,7 @@ class DistributedCannonGame(DistributedMinigame):
         DistributedMinigame.setGameStart(self, timestamp)
         self.__stopIntro()
         self.__putCameraBehindCannon()
-        if not base.config.GetBool('endless-cannon-game', 0):
+        if not ConfigVariableBool('endless-cannon-game', False).getValue():
             self.timer.show()
             self.timer.countdown(CannonGameGlobals.GameTime, self.__gameTimerExpired)
         self.rewardPanel.reparentTo(base.a2dTopRight)

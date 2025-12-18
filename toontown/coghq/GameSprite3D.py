@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Point3, TransparencyAttrib, Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 import math
 import random

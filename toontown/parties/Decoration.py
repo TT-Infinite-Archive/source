@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, SequenceNode, TextureStage, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.actor import Actor
 from toontown.toonbase import ToontownGlobals

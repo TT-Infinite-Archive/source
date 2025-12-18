@@ -1,9 +1,7 @@
-from pandac.PandaModules import *
 from direct.task.Task import Task
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject
-from pandac.PandaModules import NodePath
 from toontown.toonbase import ToontownGlobals
 ChangeDirectionDebounce = 1.0
 ChangeDirectionTime = 1.0

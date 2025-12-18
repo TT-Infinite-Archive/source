@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from toontown.toonbase.AprilToonsGlobals import *
 
@@ -15,7 +16,7 @@ class DistributedAprilToonsMgrAI(DistributedObjectAI):
         return self.events
 
     def isEventActive(self, eventId):
-        if not self.air.config.GetBool('want-april-toons', False):
+        if not ConfigVariableBool('want-april-toons', False).getValue():
             # If this DO is generated but we don't want april toons, always return
             # false regardless.
             return False

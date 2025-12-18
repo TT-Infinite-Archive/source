@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 import random
 import time
 
@@ -156,7 +157,7 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
             numFloors = buildingHeight + 1
             if (numFloors < minFloors) or (numFloors > maxFloors):
                 numFloors = random.randint(minFloors, maxFloors)
-        if simbase.config.GetBool('want-lawbot-offices', True):
+        if ConfigVariableBool('want-lawbot-offices', True).getValue():
             self.track = suitTrack
         else:
             self.track = 's'
@@ -377,7 +378,7 @@ class DistributedBuildingAI(DistributedObjectAI.DistributedObjectAI):
     def enterToon(self):
         self.d_setState('toon')
         (exteriorZoneId, interiorZoneId) = self.getExteriorAndInteriorZoneId()
-        if simbase.config.GetBool('want-new-toonhall', 1) and ZoneUtil.getCanonicalZoneId(interiorZoneId) == ToonHall:
+        if ConfigVariableBool('want-new-toonhall', True).getValue() and ZoneUtil.getCanonicalZoneId(interiorZoneId) == ToonHall:
             self.interior = DistributedToonHallInteriorAI.DistributedToonHallInteriorAI(self.block, self.air, interiorZoneId, self)
         else:
             self.interior = DistributedToonInteriorAI.DistributedToonInteriorAI(self.block, self.air, interiorZoneId, self)

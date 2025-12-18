@@ -1,9 +1,8 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, RopeNode, Texture, VBase3
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *
 from .DistributedMinigame import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from toontown.toonbase import ToontownTimer
@@ -941,7 +940,7 @@ class DistributedTugOfWarGame(DistributedMinigame):
             return
         if self.suit:
             #For the Alpha Blueprint ARG
-            if base.config.GetBool('want-blueprint4-ARG', False):
+            if ConfigVariableBool('want-blueprint4-ARG', False).getValue():
                 MinigameGlobals.generateDebugARGPhrase()
             if self.suitId in winners:
                 newPos = VBase3(2.65, 18, 0.1)

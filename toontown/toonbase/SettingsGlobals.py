@@ -1,3 +1,4 @@
+from panda3d.core import Texture
 Music = 'music'
 MusicVolume = 'music-volume'
 Sound = 'sfx'

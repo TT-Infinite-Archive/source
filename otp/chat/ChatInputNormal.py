@@ -1,6 +1,6 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableInt, Vec3
 from direct.gui.DirectGui import *
 from direct.showbase import DirectObject
-from pandac.PandaModules import *
 import sys
 
 from otp.otpbase import OTPGlobals
@@ -19,9 +19,9 @@ class ChatInputNormal(DirectObject.DirectObject):
         wantHistory = 0
         if __dev__:
             wantHistory = 1
-        self.wantHistory = base.config.GetBool('want-chat-history', wantHistory)
+        self.wantHistory = ConfigVariableBool('want-chat-history', wantHistory).getValue()
         self.history = ['']
-        self.historySize = base.config.GetInt('chat-history-size', 10)
+        self.historySize = ConfigVariableInt('chat-history-size', 10).getValue()
         self.historyIndex = 0
         return
 

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableDouble
 from .DistributedNPCToonBaseAI import *
 from toontown.toonbase import TTLocalizer
 from direct.task import Task
@@ -129,7 +130,7 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
         seed = self.petSeeds[petNum]
 
         cost = PetUtil.getPetCostFromSeed(seed, self.safezoneId)
-        cost = int(cost * config.GetFloat('pet-cost-multiplier', 1.0))
+        cost = int(cost * ConfigVariableDouble('pet-cost-multiplier', 1.0).getValue())
 
         if cost > av.getTotalMoney():
             self.air.writeServerEvent('suspicious', avId, "DistributedNPCPetshopAI.petAdopted and toon doesn't have enough money!")

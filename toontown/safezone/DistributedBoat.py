@@ -1,10 +1,9 @@
-from pandac.PandaModules import *
+from panda3d.core import VBase3
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
-from pandac.PandaModules import NodePath
 from direct.directutil import Mopath
 from toontown.toonbase import ToontownGlobals
 

@@ -1,8 +1,8 @@
+from panda3d.core import TextNode
 """Undocumented Module"""
 
 __all__ = ['DirectScrolledListItem', 'DirectScrolledList']
 
-from panda3d.core import *
 from direct.gui import DirectGuiGlobals as DGG
 from direct.directnotify import DirectNotifyGlobal
 from direct.task.Task import Task

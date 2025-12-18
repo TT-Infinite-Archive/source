@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Vec3
 from otp.level import BasicEntities
 from direct.directnotify import DirectNotifyGlobal
 

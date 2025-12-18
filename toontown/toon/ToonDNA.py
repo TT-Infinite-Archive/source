@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, Datagram, DatagramIterator, VBase4
 import random
-from pandac.PandaModules import *
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
@@ -7,7 +7,7 @@ from otp.avatar import AvatarDNA
 from toontown.toon.ColorDNA import ToonColorDNA
 from toontown.toon import ColorDNA
 notify = directNotify.newCategory('ToonDNA')
-mergeMATTailor = config.GetBool('want-mat-all-tailors', 0)
+mergeMATTailor = ConfigVariableBool('want-mat-all-tailors', False).getValue()
 toonSpeciesTypes = ['d',
  'c',
  'h',

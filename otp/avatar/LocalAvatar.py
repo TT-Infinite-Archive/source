@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionEntry, CollisionHandler, CollisionHandlerFloor, CollisionHandlerPusher, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSegment, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, ConfigVariableInt, GeomNode, NodePath, Point3, TextNode, Vec3, Vec4, deg2Rad
 from direct.controls.GhostWalker import GhostWalker
 from direct.controls.GravityWalker import GravityWalker
 from direct.controls.ObserverWalker import ObserverWalker
@@ -11,7 +12,6 @@ from direct.showbase.InputStateGlobal import inputState
 from direct.showbase.PythonUtil import *
 from direct.task import Task
 import math
-from pandac.PandaModules import *
 import random
 
 from . import DistributedAvatar
@@ -25,10 +25,10 @@ from toontown.toonbase import ToontownGlobals, EventGlobals
 
 class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.DistributedSmoothNode):
     notify = DirectNotifyGlobal.directNotify.newCategory('LocalAvatar')
-    wantDevCameraPositions = base.config.GetBool('want-dev-camera-positions', 0)
-    wantMouse = base.config.GetBool('want-mouse', 0)
-    sleepTimeout = base.config.GetInt('sleep-timeout', 120)
-    __enableMarkerPlacement = base.config.GetBool('place-markers', 0)
+    wantDevCameraPositions = ConfigVariableBool('want-dev-camera-positions', False).getValue()
+    wantMouse = ConfigVariableBool('want-mouse', False).getValue()
+    sleepTimeout = ConfigVariableInt('sleep-timeout', 120).getValue()
+    __enableMarkerPlacement = ConfigVariableBool('place-markers', False).getValue()
 
     def __init__(self, cr, chatMgr, talkAssistant = None, passMessagesThrough = False):
         try:

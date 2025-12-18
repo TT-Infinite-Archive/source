@@ -1,4 +1,4 @@
-from pandac.PandaModules import Point3
+from panda3d.core import NodePath, Point3
 
 from direct.interval.IntervalGlobal import *
 

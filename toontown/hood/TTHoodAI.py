@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedMickeyAI
 from toontown.hood import HoodAI
 from toontown.safezone import DistributedTrolleyAI
@@ -26,10 +27,10 @@ class TTHoodAI(HoodAI.HoodAI):
 
         if simbase.wantTTCJukebox:
             self.createJukeBox()
-        if simbase.config.GetBool('want-minigames', True):
+        if ConfigVariableBool('want-minigames', True).getValue():
             self.createTrolley()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-mickey', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-mickey', True).getValue():
                 self.createClassicChar()
 
         if simbase.wantYinYang or simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble
 from .TrolleyConstants import *
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed import DistributedObjectAI
@@ -19,9 +20,9 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
         self.seats = [None, None, None, None]
         self.accepting = 0
         if simbase.wantSinglePlayer:
-            self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO)
+            self.trolleyCountdownTime = ConfigVariableDouble('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO).getValue()
         else:
-            self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)
+            self.trolleyCountdownTime = ConfigVariableDouble('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME).getValue()
         self.fsm = ClassicFSM.ClassicFSM(
             'DistributedTrolleyAI',
             [
@@ -273,7 +274,7 @@ class DistributedTrolleyAI(DistributedObjectAI.DistributedObjectAI):
                     playerArray.append(i)
             startingVotes = None
             metagameRound = -1
-            trolleyGoesToMetagame = simbase.config.GetBool('want-travel-game', 0)
+            trolleyGoesToMetagame = ConfigVariableBool('want-travel-game', False).getValue()
             trolleyHoliday = simbase.air.holidayManager.isHolidayRunning(TROLLEY_HOLIDAY) or\
                 simbase.air.holidayManager.isHolidayRunning(SILLY_SATURDAY_TROLLEY)
             trolleyWeekend = simbase.air.holidayManager.isHolidayRunning(TROLLEY_WEEKEND)

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed import DistributedObjectAI
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM, State
@@ -112,7 +113,7 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         self.lockedDoor = locked
 
     def isLockedDoor(self):
-        if simbase.config.GetBool('no-locked-doors', 0):
+        if ConfigVariableBool('no-locked-doors', False).getValue():
             return 0
         else:
             return self.lockedDoor

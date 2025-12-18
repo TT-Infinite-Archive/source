@@ -1,3 +1,4 @@
+from panda3d.core import NodePath, Point2, Point3, Point4, TextNode, Texture, VBase3, VBase4, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.particles import ParticleEffect

@@ -1,7 +1,7 @@
+from panda3d.physics import ActorNode
+from panda3d.core import ConfigVariableInt, FadeLODNode, GeomNode, LODNode, NodePath, Point3, Texture
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from otp.avatar import ShadowCaster
 from toontown.racing.KartDNA import *
@@ -60,13 +60,13 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         self.pitchNode = {}
         self.toonNode = {}
         self.rotateNode = self.attachNewNode('rotate')
-        levelIn = [base.config.GetInt('lod1-in', 30), base.config.GetInt('lod2-in', 80), base.config.GetInt('lod2-in', 200)]
-        levelOut = [base.config.GetInt('lod1-out', 0), base.config.GetInt('lod2-out', 30), base.config.GetInt('lod2-out', 80)]
+        levelIn = [ConfigVariableInt('lod1-in', 30).getValue(), ConfigVariableInt('lod2-in', 80).getValue(), ConfigVariableInt('lod2-in', 200).getValue()]
+        levelOut = [ConfigVariableInt('lod1-out', 0).getValue(), ConfigVariableInt('lod2-out', 30).getValue(), ConfigVariableInt('lod2-out', 80).getValue()]
         lodRequired = 3
         if forGui:
             lodRequired = 1
-            levelIn[0] = base.config.GetInt('lod1-in', 2500)
-            levelIn[1] = base.config.GetInt('lod1-out', 0)
+            levelIn[0] = ConfigVariableInt('lod1-in', 2500).getValue()
+            levelIn[1] = ConfigVariableInt('lod1-out', 0).getValue()
         self.toonSeat = NodePath('toonSeat')
         for level in range(lodRequired):
             self.__createLODKart(level)

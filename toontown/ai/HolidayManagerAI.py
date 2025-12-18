@@ -1,3 +1,5 @@
+from panda3d.core import ConfigVariableString
+
 from toontown.ai.NewsManagerGlobals import DEFAULT_YEARLY_HOLIDAYS, DEFAULT_WEEKLY_HOLIDAYS
 from toontown.effects.FireworkShows import shows
 from toontown.toonbase.HolidayGlobals import *
@@ -28,7 +30,7 @@ class HolidayManagerAI:
         self.weeklyHolidayTask()
 
     def setup(self):
-        holidays = config.GetString('active-holidays', '')
+        holidays = ConfigVariableString('active-holidays', '').getValue()
         if holidays != '':
             for holiday in holidays.split(","):
                 holiday = int(holiday)

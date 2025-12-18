@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedGoofySpeedwayAI
 from toontown.dna.DNAParser import DNAGroup, DNAVisGroup
 from toontown.hood import HoodAI
@@ -32,7 +33,7 @@ class GSHoodAI(HoodAI.HoodAI):
             self.createStartingBlocks()
             self.createLeaderBoards()
             self.cycleLeaderBoards()
-        if simbase.config.GetBool('want-goofy', True):
+        if ConfigVariableBool('want-goofy', True).getValue():
             self.createClassicChar()
 
     def shutdown(self):

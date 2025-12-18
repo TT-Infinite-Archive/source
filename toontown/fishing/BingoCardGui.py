@@ -1,6 +1,6 @@
+from panda3d.core import Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.task import Task
 import random
 from toontown.fishing import BingoCardCell

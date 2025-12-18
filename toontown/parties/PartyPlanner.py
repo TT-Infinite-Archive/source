@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableInt, NodePath, Point3, TextNode, VBase4
 import calendar
 from datetime import datetime
 from datetime import timedelta
@@ -7,8 +8,6 @@ from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import DirectFrame, DirectButton, DirectLabel, DirectScrolledList, DirectCheckButton
 from direct.showbase import DirectObject
 from direct.showbase import PythonUtil
-from pandac.PandaModules import *
-from pandac.PandaModules import Vec3, Vec4, Point3, TextNode, VBase4
 
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLocalizer
@@ -62,7 +61,7 @@ class PartyPlanner(DirectFrame, FSM):
          'minute': (15, -15),
          'ampm': (1, -1)}
         self.partyInfo = None
-        self.asapMinuteRounding = base.config.GetInt('party-asap-minute-rounding', PartyGlobals.PartyPlannerAsapMinuteRounding)
+        self.asapMinuteRounding = ConfigVariableInt('party-asap-minute-rounding', PartyGlobals.PartyPlannerAsapMinuteRounding).getValue()
         self.load()
         self.request('Welcome')
 

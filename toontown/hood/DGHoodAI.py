@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedDaisyAI
 from toontown.hood import HoodAI
 from toontown.safezone import ButterflyGlobals
@@ -23,11 +24,11 @@ class DGHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if simbase.config.GetBool('want-minigames', True):
+        if ConfigVariableBool('want-minigames', True).getValue():
             self.createTrolley()
         self.createFlower()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-daisy', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-daisy', True).getValue():
                 self.createClassicChar()
 
     def createTrolley(self):

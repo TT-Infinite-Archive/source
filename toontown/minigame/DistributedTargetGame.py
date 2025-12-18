@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerPusher, CollisionNode, CollisionSphere, CollisionTraverser, CompassEffect, Fog, Geom, GeomNode, GeomTrifans, GeomTristrips, GeomVertexData, GeomVertexFormat, GeomVertexWriter, NodePath, Point3, TextNode, Texture, TransparencyAttrib, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *
 from .DistributedMinigame import *

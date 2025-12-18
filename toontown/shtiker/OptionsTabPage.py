@@ -1,4 +1,4 @@
-from panda3d.core import TextNode, Vec4, loadPrcFileData, WindowProperties
+from panda3d.core import ConfigVariableBool, FrameRateMeter, TextNode, WindowProperties
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import DirectFrame, DirectButton, DGG
@@ -17,8 +17,8 @@ class OptionsTabPage(DirectFrame):
     notify = directNotify.newCategory('OptionsTabPage')
     DisplaySettingsTaskName = 'save-display-settings'
     DisplaySettingsDelay = 60
-    ChangeDisplaySettings = base.config.GetBool('change-display-settings', 1)
-    ChangeDisplayAPI = base.config.GetBool('change-display-api', 0)
+    ChangeDisplaySettings = ConfigVariableBool('change-display-settings', True).getValue()
+    ChangeDisplayAPI = ConfigVariableBool('change-display-api', False).getValue()
     VideoState = 0
     SoundState = 1
     GameplayState = 2

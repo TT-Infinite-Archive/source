@@ -1,5 +1,4 @@
-from pandac.PandaModules import CollisionSphere, CollisionNode, CollisionTube
-from pandac.PandaModules import TextNode, NodePath, Vec3, Point3
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, CollisionTube, GeomNode, NodePath, Point3, TextNode, Vec3
 from direct.distributed.ClockDelta import globalClockDelta
 from direct.distributed import DistributedObject
 from direct.showbase import RandomNumGen

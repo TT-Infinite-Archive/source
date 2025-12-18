@@ -1,7 +1,8 @@
+from panda3d.core import ConfigVariableString, Filename
 import os
 
 class ModuleList:
-    serverDataFolder = simbase.config.GetString('server-data-folder', '')
+    serverDataFolder = ConfigVariableString('server-data-folder', '').getValue()
 
     def __init__(self):
         self.moduleWhitelistFilename = self.getWhitelistFilename()

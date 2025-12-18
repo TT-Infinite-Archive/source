@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3, Vec4
 from toontown.toonbase import TTLocalizer
 from toontown.coghq.SpecImports import *
 GlobalEntities = {1000: {'type': 'levelMgr',

@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from .ElevatorConstants import *

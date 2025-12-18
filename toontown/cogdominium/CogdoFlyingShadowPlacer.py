@@ -1,6 +1,6 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionTraverser, NodePath
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from direct.task.Task import Task
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.ShadowPlacer import ShadowPlacer

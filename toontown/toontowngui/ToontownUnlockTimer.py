@@ -1,4 +1,4 @@
-from pandac.PandaModules import NodePath, TextNode, TransparencyAttrib, Vec3
+from panda3d.core import NodePath, TextNode, TransparencyAttrib, Vec3
 
 from direct.interval.IntervalGlobal import Sequence, LerpScaleInterval
 from direct.gui.OnscreenImage import OnscreenImage

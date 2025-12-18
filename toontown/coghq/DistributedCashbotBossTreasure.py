@@ -1,7 +1,7 @@
+from panda3d.core import NodePath, Point3
 from toontown.safezone import DistributedTreasure
 from toontown.toonbase import ToontownGlobals
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import Point3
 
 
 class DistributedCashbotBossTreasure(DistributedTreasure.DistributedTreasure):

@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import fitSrcAngle2Dest
 from direct.task.Task import Task

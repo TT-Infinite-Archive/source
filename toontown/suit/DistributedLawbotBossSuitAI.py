@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3
 from otp.ai.AIBaseGlobal import *
 from direct.distributed.ClockDelta import *
 from direct.directnotify import DirectNotifyGlobal

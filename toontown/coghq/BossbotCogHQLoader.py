@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, TextEncoder, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from . import CogHQLoader
 from toontown.toonbase import ToontownGlobals
@@ -9,10 +10,8 @@ from toontown.coghq import BossbotHQExterior
 from toontown.coghq import BossbotHQBossBattle
 from toontown.coghq import BossbotOfficeExterior
 from toontown.coghq import CountryClubInterior
-from pandac.PandaModules import TextEncoder
 from toontown.battle import BattleParticles
 import random
-from panda3d.core import Vec3
 aspectSF = 0.7227
 
 class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
@@ -68,7 +67,7 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
             self.skyBoxLoop.loop()
             self.geom.flattenMedium()
         elif zoneId == ToontownGlobals.BossbotLobby:
-            if base.config.GetBool('want-qa-regression', 0):
+            if ConfigVariableBool('want-qa-regression', False).getValue():
                 self.notify.info('QA-REGRESSION: COGHQ: Visit BossbotLobby')
             self.notify.debug('cogHQLobbyModelPath = %s' % self.cogHQLobbyModelPath)
             self.geom = loader.loadModel(self.cogHQLobbyModelPath)

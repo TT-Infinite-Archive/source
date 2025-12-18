@@ -1,5 +1,5 @@
+from panda3d.core import Vec4
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 
 class BlinkingArrows:
 

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import LVector3f, NodePath
 
 from direct.showbase.PythonUtil import reduceAngle
 from otp.movement.Impulse import Impulse

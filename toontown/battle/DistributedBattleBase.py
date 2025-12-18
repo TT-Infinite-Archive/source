@@ -1,4 +1,4 @@
-from panda3d.core import *
+from panda3d.core import CollideMask, CollisionNode, CollisionTube, ConfigVariable, ConfigVariableBool, LineSegs, NodePath, Point3, VBase3
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *
 from .BattleBase import *
@@ -317,7 +317,7 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
         pass
 
     def getInteractiveProp(self):
-        if config.GetBool('want-anim-props', True):
+        if ConfigVariableBool('want-anim-props', True).getValue():
             if self.interactiveProp:
                 return self.interactiveProp
             elif base.cr.playGame.hood and hasattr(base.cr.playGame.hood, 'loader'):

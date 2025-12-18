@@ -1,7 +1,7 @@
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, SequenceNode
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase.ToontownGlobals import *
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from . import VineGameGlobals
 
 class VineSpider(NodePath, DirectObject):

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool
 from direct.showbase import DirectObject
 from toontown.suit import SuitDNA
 from direct.directnotify import DirectNotifyGlobal
@@ -14,7 +14,7 @@ class LevelSuitPlannerAI(DirectObject.DirectObject):
         self.level = level
         self.cogCtor = cogCtor
         self.cogSpecs = cogSpecs
-        if simbase.config.GetBool('level-reserve-suits', 0):
+        if ConfigVariableBool('level-reserve-suits', False).getValue():
             self.reserveCogSpecs = reserveCogSpecs
         else:
             self.reserveCogSpecs = []

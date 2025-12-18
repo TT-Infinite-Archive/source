@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTube, NodePath, TextNode, Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 from direct.gui.DirectGui import *
 from direct.distributed import DistributedNode

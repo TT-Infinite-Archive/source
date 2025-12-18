@@ -1,4 +1,3 @@
-from pandac.PandaModules import NodePath
 from toontown.toonbase import TTLocalizer
 from toontown.parties.DistributedPartyCatchActivity import DistributedPartyCatchActivity
 from toontown.parties import PartyGlobals

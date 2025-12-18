@@ -1,10 +1,11 @@
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, LinearVectorForce, SparkleParticleRenderer
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, CollisionTube, NodePath, Point3, TextureStage, TransformState, Vec3
 import random
 from direct.showbase.DirectObject import DirectObject
 from direct.interval.IntervalGlobal import LerpFunc, ActorInterval, LerpPosInterval
 from direct.interval.MetaInterval import Sequence
 from direct.directutil import Mopath
 from direct.showbase import PythonUtil
-from panda3d.core import *
 from toontown.toonbase import ToontownGlobals
 from toontown.suit import Suit
 from toontown.suit import SuitDNA
@@ -192,7 +193,6 @@ class CogdoFlyingObstacle(DirectObject):
         messenger.send(CogdoFlyingObstacle.ExitEventName, [self, collEntry])
 
 
-from pandac.PandaModules import TransformState
 
 class CogdoFlyingWhirlwind(CogdoFlyingObstacle):
 

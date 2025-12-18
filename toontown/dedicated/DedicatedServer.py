@@ -1,3 +1,5 @@
+from panda3d.direct import DCFile
+from panda3d.core import StringStream
 import atexit
 import copy
 import sys
@@ -9,8 +11,6 @@ import yaml
 import os
 
 from direct.directnotify.DirectNotifyGlobal import *
-from panda3d.direct import DCFile
-from panda3d.core import StringStream
 from direct.fsm.FSM import FSM
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *

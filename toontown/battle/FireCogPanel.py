@@ -1,10 +1,10 @@
+from panda3d.core import Vec4
 from toontown.toonbase.ToontownBattleGlobals import *
 from toontown.toonbase import ToontownGlobals
 from direct.fsm import StateData
 from direct.directnotify import DirectNotifyGlobal
 from toontown.battle import BattleBase
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 
 class FireCogPanel(StateData.StateData):

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import TextNode
 from direct.gui.DirectGui import *
 from otp.otpbase import OTPLocalizer
 

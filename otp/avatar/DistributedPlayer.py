@@ -1,6 +1,6 @@
+from panda3d.core import ConfigVariableBool
 from direct.showbase import PythonUtil
 from direct.task import Task
-from pandac.PandaModules import *
 import string
 import time
 
@@ -19,7 +19,7 @@ from toontown.chat.ChatGlobals import *
 from toontown.chat.WhisperPopup import WhisperPopup
 
 
-if base.config.GetBool('want-chatfilter-hacks', 0):
+if ConfigVariableBool('want-chatfilter-hacks', False).getValue():
     from otp.switchboard import badwordpy
     import os
     badwordpy.init(os.environ.get('OTP') + '\\src\\switchboard\\', '')
@@ -49,7 +49,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
             self.adminAccess = 0
             self.chatMode = 0
             self.autoRun = 0
-            self.whiteListEnabled = base.config.GetBool('want-whitelist', True)
+            self.whiteListEnabled = ConfigVariableBool('want-whitelist', True).getValue()
             self.lastTeleportQuery = time.time()
             self.platform = ''
 
@@ -213,8 +213,8 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
         if self.cr.wantMagicWords and len(chatString) > 0 and chatString[0] == '~':
             messenger.send('magicWord', [chatString])
         else:
-            if base.config.GetBool('want-chatfilter-hacks', 0):
-                if base.config.GetBool('want-chatfilter-drop-offending', 0):
+            if ConfigVariableBool('want-chatfilter-hacks', False).getValue():
+                if ConfigVariableBool('want-chatfilter-drop-offending', False).getValue():
                     if badwordpy.test(chatString):
                         return
                 else:
@@ -343,7 +343,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
                     teleportNotify.debug('party is ending')
                     self.d_teleportResponse(self.doId, 0, 0, 0, 0, sendToId=requesterId)
                     return
-            if self.__teleportAvailable and not self.ghostMode and base.config.GetBool('can-be-teleported-to', 1):
+            if self.__teleportAvailable and not self.ghostMode and ConfigVariableBool('can-be-teleported-to', 1).getValue():
                 teleportNotify.debug('teleport initiation successful')
                 self.setSystemMessage(requesterId, OTPLocalizer.WhisperComingToVisit % avatar.getName())
                 messenger.send('teleportQuery', [avatar, self])

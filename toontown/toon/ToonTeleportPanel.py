@@ -1,10 +1,7 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableInt
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import ToontownGlobals
-from direct.showbase import DirectObject
 from direct.fsm import ClassicFSM, State
-from direct.fsm import State
 from direct.directnotify import DirectNotifyGlobal
 from otp.avatar.Avatar import teleportNotify
 from . import ToonAvatarDetailPanel
@@ -18,7 +15,6 @@ def showTeleportPanel(avId, avName, avDisableName):
         globalTeleport.cleanup()
         globalTeleport = None
     globalTeleport = ToonTeleportPanel(avId, avName, avDisableName)
-    return
 
 
 def hideTeleportPanel():
@@ -26,7 +22,6 @@ def hideTeleportPanel():
     if globalTeleport != None:
         globalTeleport.cleanup()
         globalTeleport = None
-    return
 
 
 def unloadTeleportPanel():
@@ -34,7 +29,6 @@ def unloadTeleportPanel():
     if globalTeleport != None:
         globalTeleport.cleanup()
         globalTeleport = None
-    return
 
 
 class ToonTeleportPanel(DirectFrame):
@@ -102,7 +96,6 @@ class ToonTeleportPanel(DirectFrame):
         self.show()
         self.fsm.enterInitialState()
         self.fsm.request('begin')
-        return
 
     def cleanup(self):
         self.fsm.request('off')
@@ -217,7 +210,7 @@ class ToonTeleportPanel(DirectFrame):
 
         self.bYes.show()
         self.bNo.show()
-        midPop = config.GetInt('shard-mid-pop', 300)
+        midPop = ConfigVariableInt('shard-mid-pop', 300).getValue()
 
         if pop and pop > midPop:
             self.notify.warning('Entering full shard: issuing performance warning')
@@ -234,7 +227,6 @@ class ToonTeleportPanel(DirectFrame):
         self.shardId = shardId
         self.hoodId = hoodId
         self.zoneId = zoneId
-        return
 
     def exitOtherShard(self):
         self.bYes.hide()
@@ -265,7 +257,6 @@ class ToonTeleportPanel(DirectFrame):
             place = base.cr.playGame.getPlace()
             place.requestTeleport(hoodId, zoneId, shardId, self.avId)
             unloadTeleportPanel()
-        return
 
     def exitTeleport(self):
         pass

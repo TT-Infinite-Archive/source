@@ -1,3 +1,4 @@
+from panda3d.core import Fog
 from toontown.town import Street
 
 

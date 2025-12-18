@@ -1,3 +1,4 @@
+from panda3d.core import ModelNode
 from . import DNAProp
 from .DNAUtil import *
 

@@ -1,3 +1,4 @@
+from panda3d.core import Plane
 from otp.level import EntityCreator
 import FactoryLevelMgr
 import PlatformEntity

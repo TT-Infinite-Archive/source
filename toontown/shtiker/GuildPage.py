@@ -1,5 +1,5 @@
+from panda3d.core import CardMaker, TextNode, Vec4
 from direct.gui.DirectGui import DirectLabel, DirectFrame, DirectButton, DirectScrolledList, DGG, OnscreenText, DirectWaitBar
-from panda3d.core import TextNode, Vec4, CardMaker, NodePath, TransparencyAttrib
 
 from toontown.toontowngui import ConfirmDialog
 from toontown.toonbase import EventGlobals, FontAwesomeGlobals

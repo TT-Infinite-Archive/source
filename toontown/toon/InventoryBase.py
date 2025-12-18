@@ -1,7 +1,8 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, Datagram, DatagramIterator
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 from direct.showbase import DirectObject
+from direct.showbase.PythonUtil import StackTrace
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
@@ -24,7 +25,6 @@ class InventoryBase(DirectObject.DirectObject):
         else:
             self.inventory = self.makeFromNetString(invStr)
         self.calcTotalProps()
-        return
 
     def unload(self):
         del self.toon
@@ -212,7 +212,7 @@ class InventoryBase(DirectObject.DirectObject):
                 if tempInv[track][level] > 0 and not self.toon.hasTrackAccess(track):
                     commentStr = "Player %s trying to purchase gag they don't have track access to. track: %s level: %s" % (self.toon.doId, track, level)
                     dislId = self.toon.DISLid
-                    if simbase.config.GetBool('want-ban-gagtrack', False):
+                    if ConfigVariableBool('want-ban-gagtrack', False).getValue():
                         #simbase.air.banManager.ban(self.toon.doId, dislId, commentStr)
                         pass
                     return 0

@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import WaitInterval
+from panda3d.core import NodePath, Point2, TextNode, VBase4, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *
 from direct.fsm import ClassicFSM, State

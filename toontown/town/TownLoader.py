@@ -1,4 +1,4 @@
-from panda3d.core import *
+from panda3d.core import CollideMask, ModelPool, NodePath, Texture, TexturePool, Vec4
 from toontown.battle.BattleProps import *
 from toontown.battle.BattleSounds import *
 from toontown.distributed.ToontownMsgTypes import *

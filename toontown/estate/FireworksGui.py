@@ -1,5 +1,5 @@
+from panda3d.core import VBase4, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.gui.DirectScrolledList import *
 from toontown.toonbase import ToontownGlobals
 from . import FireworkItemPanel

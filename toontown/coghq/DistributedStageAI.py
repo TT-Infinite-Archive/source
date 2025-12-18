@@ -1,7 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
 from otp.level import DistributedLevelAI
-from pandac.PandaModules import *
 from toontown.building import DistributedElevatorFloorAI
 from toontown.coghq import BattleExperienceAggregatorAI
 from toontown.coghq import StageLayout, DistributedStageRoomAI

@@ -1,4 +1,4 @@
-from pandac.PandaModules import NodePath, TextNode, Vec4
+from panda3d.core import NodePath, TextNode, Vec4
 
 from direct.gui.DirectWaitBar import DirectWaitBar
 from direct.gui import DirectGuiGlobals

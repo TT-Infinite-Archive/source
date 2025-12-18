@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, ModelPool, NodePath, Texture, TexturePool
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.distributed.ToontownMsgTypes import *
 from toontown.hood import ZoneUtil
@@ -65,7 +65,7 @@ class SafeZoneLoader(StateData.StateData):
         self.fsm.enterInitialState()
         messenger.send('enterSafeZone')
         self.setState(requestStatus['where'], requestStatus)
-        if not base.config.GetBool('want-parties', True):
+        if not ConfigVariableBool('want-parties', True).getValue():
             partyGate = self.geom.find('**/prop_party_gate_DNARoot')
             if not partyGate.isEmpty():
                 partyGate.removeNode()

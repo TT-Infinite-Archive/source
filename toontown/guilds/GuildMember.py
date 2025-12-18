@@ -1,6 +1,5 @@
 from direct.distributed.PyDatagram import *
 from direct.showbase.DirectObject import DirectObject
-from pandac.PandaModules import *
 
 from toontown.guilds.GuildGlobals import *
 from toontown.toon.ToonDNA import ToonDNA

@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 from otp.ai.AIBase import *
 from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal

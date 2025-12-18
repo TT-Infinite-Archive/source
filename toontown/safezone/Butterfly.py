@@ -1,11 +1,10 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, GeomNode, LODNode, NodePath, PartBundle, Point3, Vec4
 import random
 
 from direct.actor import Actor
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.fsm.FSM import FSM
 from direct.interval.IntervalGlobal import *
-from panda3d.core import NodePath, Vec4, Point3, LODNode, CollisionSphere, CollisionNode
-from panda3d.core import PartBundle
 
 from toontown.toonbase import ToontownGlobals
 

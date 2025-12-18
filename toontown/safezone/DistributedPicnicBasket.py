@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableDouble, Point3, Vec3, deg2Rad
 from direct.distributed.ClockDelta import *
 from direct.task.Task import Task
 from direct.interval.IntervalGlobal import *
@@ -27,7 +27,7 @@ class DistributedPicnicBasket(DistributedObject.DistributedObject):
         self.localToonOnBoard = 0
         self.seed = 0
         self.random = None
-        self.picnicCountdownTime = base.config.GetFloat('picnic-countdown-time', ToontownGlobals.PICNIC_COUNTDOWN_TIME)
+        self.picnicCountdownTime = ConfigVariableDouble('picnic-countdown-time', ToontownGlobals.PICNIC_COUNTDOWN_TIME).getValue()
         self.picnicBasketTrack = None
         states = [
             State.State('off', self.enterOff, self.exitOff, ['waitEmpty', 'waitCountdown']),

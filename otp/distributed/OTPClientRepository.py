@@ -1,12 +1,13 @@
-import builtins
+from panda3d.direct import CConnectionRepository
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, Filename, HTTPClient, HashVal, MemoryUsage, NodePath, Notify, StringStream, hashPrcVariables, ostream
 import gc
 import os
 import sys
 import time
 import types
 import hashlib
-
 import yaml
+
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed import DistributedSmoothNode
 from direct.distributed.ClientRepositoryBase import ClientRepositoryBase
@@ -20,7 +21,6 @@ from direct.showbase import PythonUtil, GarbageReport
 from direct.showbase.ContainerLeakDetector import ContainerLeakDetector
 from direct.showbase.GarbageReportScheduler import GarbageReportScheduler
 from direct.task import Task
-from pandac.PandaModules import *
 
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
 from otp.avatar.DistributedPlayer import DistributedPlayer
@@ -58,7 +58,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.launcher = launcher
         base.launcher = launcher
         self.__currentAvId = 0
-        self.productName = config.GetString('product-name', 'DisneyOnline-US')
+        self.productName = ConfigVariableString('product-name', 'DisneyOnline-US').getValue()
         self.createAvatarClass = None
         self.systemMessageSfx = None
         self.blue = None
@@ -77,23 +77,22 @@ class OTPClientRepository(ClientRepositoryBase):
         else:
             self.http = HTTPClient()
 
-        self.accountOldAuth = config.GetBool('account-old-auth', 0)
+        self.accountOldAuth = ConfigVariableBool('account-old-auth', False).getValue()
 
-        self.accountOldAuth = config.GetBool('%s-account-old-auth' % process,
-                                             self.accountOldAuth)
+        self.accountOldAuth = ConfigVariableBool(f'{process}-account-old-auth', self.accountOldAuth).getValue()
 
         self.loginInterface = LoginTTIAccount.LoginTTIAccount(self)
 
 
-        self.secretChatAllowed = base.config.GetBool('allow-secret-chat', True)
-        self.openChatAllowed = base.config.GetBool('allow-open-chat', False)
+        self.secretChatAllowed = ConfigVariableBool('allow-secret-chat', True).getValue()
+        self.openChatAllowed = ConfigVariableBool('allow-open-chat', False).getValue()
 
-        self.secretChatNeedsParentPassword = base.config.GetBool('secret-chat-needs-parent-password', 0)
+        self.secretChatNeedsParentPassword = ConfigVariableBool('secret-chat-needs-parent-password', False).getValue()
 
-        self.parentPasswordSet = base.config.GetBool('parent-password-set', True)
+        self.parentPasswordSet = ConfigVariableBool('parent-password-set', True).getValue()
 
 
-        self.userSignature = base.config.GetString('signature', 'none')
+        self.userSignature = ConfigVariableString('signature', 'none').getValue()
 
         self.freeTimeExpiresAt = -1
         self.__isPaid = 1
@@ -107,19 +106,19 @@ class OTPClientRepository(ClientRepositoryBase):
 
         self.timeManager = None
 
-        if config.GetBool('detect-leaks', 0) or config.GetBool('client-detect-leaks', 0):
+        if ConfigVariableBool('detect-leaks', False).getValue() or ConfigVariableBool('client-detect-leaks', False).getValue():
             self.startLeakDetector()
 
-        if config.GetBool('detect-messenger-leaks', 0) or config.GetBool('ai-detect-messenger-leaks', 0):
+        if ConfigVariableBool('detect-messenger-leaks', False).getValue() or ConfigVariableBool('ai-detect-messenger-leaks', False).getValue():
             self.messengerLeakDetector = MessengerLeakDetector.MessengerLeakDetector('client messenger leak detector')
 
-            if config.GetBool('leak-messages', 0):
+            if ConfigVariableBool('leak-messages', False).getValue():
                 MessengerLeakDetector._leakMessengerObject()
 
-        if config.GetBool('run-garbage-reports', 0) or config.GetBool('client-run-garbage-reports', 0):
+        if ConfigVariableBool('run-garbage-reports', False).getValue() or ConfigVariableBool('client-run-garbage-reports', False).getValue():
             noneValue = -1.0
-            reportWait = config.GetFloat('garbage-report-wait', noneValue)
-            reportWaitScale = config.GetFloat('garbage-report-wait-scale', noneValue)
+            reportWait = ConfigVariableDouble('garbage-report-wait', noneValue).getValue()
+            reportWaitScale = ConfigVariableDouble('garbage-report-wait-scale', noneValue).getValue()
             if reportWait == noneValue:
                 reportWait = 60.0 * 2.0
             if reportWaitScale == noneValue:
@@ -127,8 +126,8 @@ class OTPClientRepository(ClientRepositoryBase):
             self.garbageReportScheduler = GarbageReportScheduler(waitBetween=reportWait,
                                                                  waitScale=reportWaitScale)
 
-        self._proactiveLeakChecks = config.GetBool('proactive-leak-checks', 1) or config.GetBool('client-proactive-leak-checks', 1)
-        self._crashOnProactiveLeakDetect = config.GetBool('crash-on-proactive-leak-detect', 1)
+        self._proactiveLeakChecks = ConfigVariableBool('proactive-leak-checks', True).getValue() or ConfigVariableBool('client-proactive-leak-checks', True).getValue()
+        self._crashOnProactiveLeakDetect = ConfigVariableBool('crash-on-proactive-leak-detect', True).getValue()
         self.activeDistrictMap = {}
         self.telemetryLimiter = TelemetryLimiter()
         self.serverVersion = serverVersion
@@ -330,8 +329,8 @@ class OTPClientRepository(ClientRepositoryBase):
         self.playGame = playGame(self.gameFSM, self.gameDoneEvent)
         self.shardListHandle = None
         self.uberZoneInterest = None
-        self.wantSwitchboard = config.GetBool('want-switchboard', 0)
-        self.wantSwitchboardHacks = base.config.GetBool('want-switchboard-hacks', 0)
+        self.wantSwitchboard = ConfigVariableBool('want-switchboard', False).getValue()
+        self.wantSwitchboardHacks = ConfigVariableBool('want-switchboard-hacks', False).getValue()
 
         self.__pendingGenerates = {}
         self.__pendingMessages = {}
@@ -504,7 +503,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def startLeakDetector(self):
         if hasattr(self, 'leakDetector'):
             return False
-        firstCheckDelay = config.GetFloat('leak-detector-first-check-delay', 2 * 60.0)
+        firstCheckDelay = ConfigVariableDouble('leak-detector-first-check-delay', 2 * 60.0).getValue()
         self.leakDetector = ContainerLeakDetector('client container leak detector', firstCheckDelay=firstCheckDelay)
         self.objectTypesLeakDetector = LeakDetectors.ObjectTypesLeakDetector()
         self.garbageLeakDetector = LeakDetectors.GarbageLeakDetector()
@@ -581,7 +580,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def gotoFirstScreen(self):
         self.startReaderPollTask()
-        if config.GetBool('want-heartbeat', True):
+        if ConfigVariableBool('want-heartbeat', True).getValue():
             self.startHeartbeat()
 
         # Leave this commented out until feature/main-menu is ready to be merged into master
@@ -796,7 +795,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('noShards')
 
     def _shardsAreReady(self):
-        maxPop = config.GetInt('shard-mid-pop', 300)
+        maxPop = ConfigVariableInt('shard-mid-pop', 300).getValue()
         for shard in list(self.activeDistrictMap.values()):
             if shard.available:
                 if shard.avatarCount < maxPop:
@@ -1035,7 +1034,7 @@ class OTPClientRepository(ClientRepositoryBase):
             else:
                 logFunc = self.notify.warning
                 allowExit = False
-            if base.config.GetBool('direct-gui-edit', 0):
+            if ConfigVariableBool('direct-gui-edit', False).getValue():
                 logFunc('There are leaks: %s tasks, %s events, %s ivals, %s garbage cycles\nLeaked Events may be due to direct gui editing' % (leakedTasks,
                  leakedEvents,
                  leakedIvals,
@@ -1424,7 +1423,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if not self.SupportTutorial or base.localAvatar.tutorialAck:
             self.gameFSM.request('playGame', [hoodId, zoneId, avId])
             return
-        if base.config.GetBool('force-tutorial', 0):
+        if ConfigVariableBool('force-tutorial', False).getValue():
             self.gameFSM.request('tutorialQuestion', [hoodId, zoneId, avId])
             return
         else:
@@ -1471,9 +1470,9 @@ class OTPClientRepository(ClientRepositoryBase):
     def isFreeTimeExpired(self):
         if self.accountOldAuth:
             return 0
-        if base.config.GetBool('free-time-expired', 0):
+        if ConfigVariableBool('free-time-expired', False).getValue():
             return 1
-        if base.config.GetBool('unlimited-free-time', 0):
+        if ConfigVariableBool('unlimited-free-time', False).getValue():
             return 0
         if self.freeTimeExpiresAt == -1:
             return 0
@@ -1499,7 +1498,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return self.blue != None
 
     def isPaid(self):
-        paidStatus = base.config.GetString('force-paid-status', '')
+        paidStatus = ConfigVariableString('force-paid-status', '').getValue()
         if not paidStatus:
             return self.__isPaid
         elif paidStatus == 'paid':
@@ -1517,7 +1516,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.__isPaid = isPaid
 
     def allowFreeNames(self):
-        return base.config.GetInt('allow-free-names', 1)
+        return ConfigVariableInt('allow-free-names', 1).getValue()
 
     def allowSecretChat(self):
         return self.secretChatAllowed or self.productName == 'Terra-DMC' and self.isBlue() and self.secretChatAllowed
@@ -1566,7 +1565,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.notify.info('no shards')
             return
 
-        maxPop = config.GetInt('shard-mid-pop', 300)
+        maxPop = ConfigVariableInt('shard-mid-pop', 300).getValue()
 
         # Join the least populated district.
         for shard in list(self.activeDistrictMap.values()):

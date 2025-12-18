@@ -1,9 +1,10 @@
+from panda3d.physics import ForceNode, LinearEulerIntegrator, LinearForce, LinearFrictionForce, LinearIntegrator, LinearVectorForce, PhysicalNode, PhysicsManager, PhysicsObject
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerGravity, CollisionHandlerPusher, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, Mat3, NodePath, Point3, Vec3
 import math
 import random
 from direct.showbase.PythonUtil import *
 from direct.showbase.DirectObject import DirectObject
 from direct.task import Task
-from pandac.PandaModules import *
 from direct.fsm import FSM
 from direct.distributed import DistributedSmoothNode
 from otp.avatar import ShadowCaster

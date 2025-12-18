@@ -1,5 +1,6 @@
+from panda3d.direct import WaitInterval
+from panda3d.core import Vec4
 from . import PartyCatchActivityToonSD
-from pandac.PandaModules import Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
 from direct.interval.IntervalGlobal import LerpColorScaleInterval

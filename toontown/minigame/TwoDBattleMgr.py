@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, NodePath, Point3, Point4, VBase3, Vec3
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.directnotify import DirectNotifyGlobal

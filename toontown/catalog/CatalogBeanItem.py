@@ -1,3 +1,4 @@
+from panda3d.core import Datagram
 from . import CatalogItem
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer

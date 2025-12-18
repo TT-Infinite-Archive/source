@@ -1,5 +1,5 @@
+from panda3d.core import CardMaker, TextNode
 from direct.gui.DirectGui import DirectFrame, DirectButton, OnscreenText, DGG
-from panda3d.core import TextNode, NodePath, CardMaker, TransparencyAttrib
 from toontown.toonbase import ToontownGlobals
 from toontown.guilds import IconGlobals
 from toontown.util import TTCardMaker

@@ -1,5 +1,5 @@
+from panda3d.core import CollideMask, CollisionBox, CollisionNode, CollisionSphere, ColorBlendAttrib, Point3, Texture, VBase3, Vec3, Vec4
 from direct.interval.IntervalGlobal import *
-from panda3d.core import ColorBlendAttrib, CollisionNode, CollisionSphere, VBase3, Point3, Vec3, Vec4, CollisionBox
 
 from toontown.battle import SuitBattleGlobals
 from toontown.battle import BattleProps

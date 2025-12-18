@@ -1,3 +1,5 @@
+from panda3d.core import CollideMask, ConfigVariable, ConfigVariableBool, GeomNode, PartBundle, Point3, Texture
+import random
 from direct.actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import globalClockDelta
@@ -6,9 +8,6 @@ from direct.fsm.State import *
 from direct.interval.IntervalGlobal import *
 from direct.showbase import PythonUtil
 from direct.task import Task
-from pandac.PandaModules import *
-import random
-import types
 
 from .PetDNA import HeadParts, EarParts, NoseParts, TailParts, BodyTypes, BodyTextures, AllPetColors, getColors, ColorScales, PetEyeColors, EarTextures, TailTextures, getFootTexture, getEarTexture, GiraffeTail, LeopardTail, PetGenders
 from otp.avatar import Avatar
@@ -71,7 +70,6 @@ class Pet(Avatar.Avatar):
         self.soundTeleportIn = None
         self.soundTeleportOut = None
         self.teleportHole = None
-        return
 
     def isPet(self):
         return True
@@ -326,7 +324,8 @@ class Pet(Avatar.Avatar):
     def speakMood(self, mood):
         if self.moodModel:
             self.moodModel.hide()
-        if base.config.GetBool('want-speech-bubble', 1):
+
+        if ConfigVariableBool('want-speech-bubble', True).getValue():
             self.nametag.setChatText(random.choice(TTLocalizer.SpokenMoods[mood]))
         else:
             self.nametag.setChatText(random.choice(TTLocalizer.SpokenMoods[mood]))

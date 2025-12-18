@@ -1,8 +1,7 @@
+from panda3d.core import Character, NSError, TextEncoder, TextNode
 import string
 from otp.otpbase import OTPLocalizer
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import NSError
-from pandac.PandaModules import TextEncoder, TextNode
 notify = DirectNotifyGlobal.directNotify.newCategory('NameCheck')
 
 def filterString(str, filter):

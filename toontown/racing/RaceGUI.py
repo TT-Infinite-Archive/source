@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CardMaker, LineSegs, Point3, TextNode, VBase4, Vec3, Vec4
 from direct.distributed.ClockDelta import *
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
@@ -14,7 +14,6 @@ from toontown.racing.RaceHeadFrame import RaceHeadFrame
 from toontown.racing.RaceGag import RaceGag
 from toontown.racing.RaceEndPanels import RaceEndPanel
 from toontown.racing import RaceGlobals
-from pandac.PandaModules import CardMaker, OrthographicLens, LineSegs
 from direct.particles.ParticleEffect import *
 from math import fmod
 from math import sqrt

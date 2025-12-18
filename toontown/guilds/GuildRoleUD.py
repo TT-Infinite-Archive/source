@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 
 from toontown.guilds.GuildGlobals import *
 

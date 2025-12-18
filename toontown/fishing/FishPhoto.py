@@ -1,5 +1,5 @@
+from panda3d.core import CardMaker, DisplayRegion, NodePath, PerspectiveLens
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from . import FishGlobals
 

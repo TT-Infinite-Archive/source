@@ -1,7 +1,7 @@
+from panda3d.core import NodePath, TextNode
 import operator
 from direct.interval.IntervalGlobal import Func, Track
 from direct.task import Task
-from panda3d.core import TextNode
 from toontown.toonbase.TTLocalizerEnglish import BossLeaderboardLabel
 from toontown.toonbase.ToontownGlobals import getSuitFont
 

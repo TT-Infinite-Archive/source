@@ -1,5 +1,5 @@
+from panda3d.core import TextNode, Vec3, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.task.Task import Task
 from otp.avatar import AvatarPanel
 from toontown.toonbase import ToontownGlobals, EventGlobals

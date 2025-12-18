@@ -2,7 +2,6 @@ import random
 from io import StringIO
 from direct.showbase import AppRunnerGlobal
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from toontown.pets import PetNameMasterEnglish
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer

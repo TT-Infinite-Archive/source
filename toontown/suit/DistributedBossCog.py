@@ -1,8 +1,4 @@
-from panda3d.core import BitMask32, Mat3, Mat4, Point3, Vec2, Vec3, VBase3, VBase4
-from panda3d.core import BoundingSphere, NodePath
-from panda3d.core import CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, CollisionTube
-from panda3d.core import CollisionHandlerFloor, CollisionHandlerQueue, CollisionHandlerPusher
-from panda3d.core import CSDefault, decomposeMatrix, headsUp, lookAt
+from panda3d.core import BitMask32, BoundingSphere, CSDefault, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionHandlerPusher, CollisionHandlerQueue, CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, CollisionTube, Mat3, Mat4, NodePath, Point3, VBase3, VBase4, Vec2, Vec3, decomposeMatrix
 
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal

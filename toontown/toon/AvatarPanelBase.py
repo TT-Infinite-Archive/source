@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.gui.DirectGui import *
 from direct.showbase import DirectObject
 from otp.avatar import AvatarPanel

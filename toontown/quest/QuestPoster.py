@@ -1,5 +1,5 @@
+from panda3d.core import ButtonEvent, NodePath, Point3, TextNode, Vec3, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from . import Quests
 from toontown.toon import NPCToons
 from toontown.toon import ToonHead

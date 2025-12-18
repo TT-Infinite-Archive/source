@@ -1,5 +1,5 @@
+from panda3d.core import ColorBlendAttrib, Fog
 from toontown.toonbase.ToontownGlobals import *
-from panda3d.core import Fog
 from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
 from toontown.suit import GoonPathData

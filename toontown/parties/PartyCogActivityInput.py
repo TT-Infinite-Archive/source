@@ -1,5 +1,5 @@
+from panda3d.core import ModifierButtons
 from direct.showbase.DirectObject import DirectObject
-from pandac.PandaModules import ModifierButtons
 ROTATE_LEFT_KEY = base.MOVE_LEFT
 ROTATE_RIGHT_KEY = base.MOVE_RIGHT
 FORWARD_KEY = base.MOVE_UP

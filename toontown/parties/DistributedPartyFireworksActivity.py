@@ -1,7 +1,4 @@
-from pandac.PandaModules import Vec3
-from pandac.PandaModules import OmniBoundingVolume
-from pandac.PandaModules import AlphaTestAttrib
-from pandac.PandaModules import RenderAttrib
+from panda3d.core import AlphaTestAttrib, BoundingVolume, OmniBoundingVolume, RenderAttrib, Vec3
 from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import globalClockDelta

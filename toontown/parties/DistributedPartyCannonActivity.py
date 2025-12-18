@@ -1,5 +1,5 @@
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionSphere, LRotation, LRotationf, NodePath, Plane, Point3, Vec3
 import math
-from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.task import Task

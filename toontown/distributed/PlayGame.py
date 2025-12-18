@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableString, ModelPool, Texture, TexturePool
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData
@@ -232,7 +232,7 @@ class PlayGame(StateData.StateData):
         loaderName = requestStatus['loader']
         avId = requestStatus.get('avId', -1)
         ownerId = requestStatus.get('ownerId', avId)
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: NEIGHBORHOODS: Visit %s' % hoodName)
         count = ToontownGlobals.hoodCountMap[canonicalHoodId]
         if loaderName == 'safeZoneLoader':
@@ -394,8 +394,8 @@ class PlayGame(StateData.StateData):
         base.localAvatar.chatMgr.obscure(1, 1)
         base.localAvatar.obscureFriendsListButton(1)
         requestStatus['how'] = 'tutorial'
-        if base.config.GetString('language', 'english') == 'japanese':
-            musicVolume = base.config.GetFloat('tutorial-music-volume', 0.5)
+        if ConfigVariableString('language', 'english').getValue() == 'japanese':
+            musicVolume = ConfigVariableDouble('tutorial-music-volume', 0.5).getValue()
             requestStatus['musicVolume'] = musicVolume
         self.hood.enter(requestStatus)
 

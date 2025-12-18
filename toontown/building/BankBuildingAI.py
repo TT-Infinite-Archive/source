@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 
 from toontown.building import DistributedBankInteriorAI
 from toontown.building import DistributedDoorAI

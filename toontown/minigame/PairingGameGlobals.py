@@ -1,7 +1,8 @@
+from panda3d.core import ConfigVariableBool
 from . import PlayingCardDeck
 EasiestGameDuration = 120
 HardestGameDuration = 90
-EndlessGame = config.GetBool('endless-pairing-game', 0)
+EndlessGame = ConfigVariableBool('endless-pairing-game', False).getValue()
 MaxRankIndexUsed = [7,
  7,
  7,

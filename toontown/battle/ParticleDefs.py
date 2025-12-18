@@ -1,5 +1,6 @@
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, ColorInterpolationManager, LinearCylinderVortexForce, LinearDistanceForce, LinearJitterForce, LinearNoiseForce, LinearSinkForce, LinearSourceForce, LinearVectorForce, SparkleParticleRenderer
+from panda3d.core import ColorBlendAttrib, GeomNode, Point3, Texture, Vec3, Vec4
 from direct.particles import Particles, ForceGroup
-from pandac.PandaModules import *
 
 ParticleTable = {}
 

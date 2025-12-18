@@ -1,3 +1,4 @@
+from panda3d.core import TypeRegistry
 from direct.fsm.StatePush import FunctionCall
 from otp.level.EntityStateVarSet import EntityStateVarSet
 from otp.level.LevelSpec import LevelSpec

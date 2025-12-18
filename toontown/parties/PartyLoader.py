@@ -1,10 +1,9 @@
+from panda3d.core import CollisionNode, CollisionPlane, NodePath, Plane, Point3, Vec3, Vec4
 import math
 import random
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State
-from pandac.PandaModules import *
-from pandac.PandaModules import NodePath
 from toontown.toonbase.ToontownGlobals import *
 from toontown.safezone import SafeZoneLoader
 from toontown.parties import Party

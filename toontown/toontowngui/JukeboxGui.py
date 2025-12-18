@@ -1,4 +1,4 @@
-from panda3d.core import Vec4, TextNode
+from panda3d.core import TextNode, Vec4
 from direct.gui.DirectGui import DirectFrame, DirectScrolledList, DirectLabel, DirectButton, DGG
 from toontown.toonbase import TTLocalizer
 from toontown.safezone import JukeboxGlobals

@@ -1,7 +1,6 @@
-from pandac.PandaModules import *
+from panda3d.core import BoundingSphere, CollideMask, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, NodePath, Point3, TextNode, VBase3, Vec4, deg2Rad, rad2Deg
 from direct.interval.IntervalGlobal import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.directtools.DirectGeometry import LineNodePath
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
@@ -586,7 +585,7 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         self.itemGui.detachNode()
 
     def __makeGui(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: FISHING: ZoneId: %s' % self.pond.getArea())
         if self.madeGui:
             return
@@ -881,7 +880,7 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         self.initMouseX = self.mouseX
         self.initMouseY = self.mouseY
         self.__hideBob()
-        if config.GetBool('fishing-independent-axes', 0):
+        if ConfigVariableBool('fishing-independent-axes', False).getValue():
             taskMgr.add(self.localAdjustingCastTaskIndAxes, self.taskName('adjustCastTask'))
         else:
             taskMgr.add(self.localAdjustingCastTask, self.taskName('adjustCastTask'))

@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from .StomperGlobals import *
 from direct.distributed import ClockDelta
@@ -6,7 +5,6 @@ from direct.showbase.PythonUtil import lerp
 import math
 from otp.level import DistributedEntity
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import NodePath
 from otp.level import BasicEntities
 from direct.task import Task
 from toontown.toonbase import ToontownGlobals

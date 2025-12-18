@@ -1,5 +1,4 @@
-from pandac.PandaModules import NodePath, Plane, Vec3, Point3
-from pandac.PandaModules import CollisionPlane, CollisionNode
+from panda3d.core import CollideMask, CollisionNode, CollisionPlane, Fog, NodePath, Plane, Point3, Vec3, getModelPath
 from direct.showbase.RandomNumGen import RandomNumGen
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.PythonUtil import bound as clamp

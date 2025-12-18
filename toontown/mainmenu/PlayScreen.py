@@ -1,3 +1,4 @@
+from panda3d.core import Point3, TransparencyAttrib, VBase4, Vec3
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
 from direct.interval.FunctionInterval import Func
@@ -5,7 +6,6 @@ from direct.interval.FunctionInterval import Wait
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.interval.IntervalGlobal import Sequence
 from direct.interval.LerpInterval import LerpPosInterval
-from pandac.PandaModules import *
 
 from toontown.mainmenu import MainMenuGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
 from direct.task import Task
 from direct.distributed.DistributedObjectGlobalUD import \
@@ -21,8 +22,8 @@ class ChatAgentUD(DistributedObjectGlobalUD):
     def announceGenerate(self):
         DistributedObjectGlobalUD.announceGenerate(self)
 
-        self.wantWhiteList = config.GetBool('want-whitelist', True)
-        self.wantBlackList = config.GetBool('want-blacklist', True)
+        self.wantWhiteList = ConfigVariableBool('want-whitelist', True).getValue()
+        self.wantBlackList = ConfigVariableBool('want-blacklist', True).getValue()
 
         self.whiteList = DummyWhiteList()
         if self.wantWhiteList:
@@ -60,7 +61,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
 
         self.air.writeServerEvent('chat-said', senderId, message, message)
 
-        if config.GetBool('want-chat-logging', False):
+        if ConfigVariableBool('want-chat-logging', False).getValue():
             def handleQueryObjectLocationResp(parentId, zoneId):
                 self.air.mongodb.chat.messages.insert_one(
                     {'type': ChannelToType[channel],

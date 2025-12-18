@@ -1,3 +1,4 @@
+from panda3d.core import Texture
 from direct.showbase.PythonUtil import contains, lerp
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal

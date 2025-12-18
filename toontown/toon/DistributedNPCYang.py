@@ -1,7 +1,6 @@
 from direct.fsm import ClassicFSM, State
 from direct.gui.DirectGui import *
 from direct.task.Task import Task
-from pandac.PandaModules import *
 import time
 
 from .DistributedNPCToonBase import *

@@ -1,18 +1,15 @@
+from panda3d.core import CollideMask, ColorBlendAttrib, ConfigVariable, ConfigVariableBool, GeomNode, NodePath, Point3, Texture, Vec4
 from direct.actor import Actor
 from otp.avatar import Avatar
 from . import SuitDNA
 from toontown.toonbase import ToontownGlobals
-from pandac.PandaModules import *
 from toontown.battle import SuitBattleGlobals
 from toontown.nametag import NametagGlobals
 from direct.task.Task import Task
 from toontown.battle import BattleProps
 from toontown.toonbase import TTLocalizer, SettingsGlobals
-from pandac.PandaModules import VirtualFileMountHTTP, VirtualFileSystem, Filename, DSearchPath
-from direct.showbase import AppRunnerGlobal
 from toontown.nametag import NametagGroup
 import string
-import os
 from toontown.suit import SuitGlobals
 
 aSize = 6.06
@@ -155,7 +152,7 @@ bw = (('finger-wag', 'fingerwag', 5),
  ('magic1', 'magic1', 5),
  ('throw-object', 'throw-object', 5),
  ('throw-paper', 'throw-paper', 5))
-if not base.config.GetBool('want-new-cogs', 0):
+if not ConfigVariableBool('want-new-cogs', False).getValue():
     ModelDict = {'a': ('/models/char/suitA-', 4),
      'b': ('/models/char/suitB-', 4),
      'c': ('/models/char/suitC-', 3.5)}
@@ -734,7 +731,6 @@ class Suit(Avatar.Avatar):
         if self.healthCondition == 4 or self.healthCondition == 5:
             taskMgr.remove(self.uniqueName('blink-task'))
         self.healthCondition = 0
-        return
 
     def getLoseActor(self):
         if self.loseActor == None:
@@ -775,7 +771,6 @@ class Suit(Avatar.Avatar):
             self.notify.debug('cleanupLoseActor() - got one')
             self.loseActor.cleanup()
         self.loseActor = None
-        return
 
     def makeSkeleton(self, wantNameInfo=True):
         model = 'phase_5/models/char/cog' + string.upper(self.style.body) + '_robot-zero'

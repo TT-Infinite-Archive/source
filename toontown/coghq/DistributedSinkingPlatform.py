@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import WaitInterval
+from panda3d.core import Vec3
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State

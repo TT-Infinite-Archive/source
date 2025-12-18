@@ -1,9 +1,9 @@
+from panda3d.core import ModelPool, Texture, TexturePool
 from . import CogHQLobby
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.fsm import StateData
-from pandac.PandaModules import *
 from toontown.hood import QuietZoneState
 from toontown.hood import ZoneUtil
 from toontown.suit import Suit

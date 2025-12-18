@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, DecalEffect
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData
 from . import CogHQLoader, MintInterior
@@ -8,7 +9,6 @@ from toontown.toon import Toon
 from direct.fsm import State
 from . import CashbotHQExterior
 from . import CashbotHQBossBattle
-from pandac.PandaModules import DecalEffect
 
 class CashbotCogHQLoader(CogHQLoader.CogHQLoader):
     notify = DirectNotifyGlobal.directNotify.newCategory('CashbotCogHQLoader')
@@ -52,7 +52,7 @@ class CashbotCogHQLoader(CogHQLoader.CogHQLoader):
             signText.setDepthWrite(0)
             self.geom.flattenMedium()
         elif zoneId == ToontownGlobals.CashbotLobby:
-            if base.config.GetBool('want-qa-regression', 0):
+            if ConfigVariableBool('want-qa-regression', False).getValue():
                 self.notify.info('QA-REGRESSION: COGHQ: Visit CashbotLobby')
             self.geom = loader.loadModel(self.cogHQLobbyModelPath)
             self.geom.flattenMedium()

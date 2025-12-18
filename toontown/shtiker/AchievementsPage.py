@@ -1,6 +1,6 @@
+from panda3d.core import LVecBase3
 from . import ShtikerPage
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 

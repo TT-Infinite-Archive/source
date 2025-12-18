@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableDouble
 import random
 
 from .TrolleyConstants import *
@@ -22,9 +23,9 @@ class DistributedGolfKartAI(DistributedObjectAI.DistributedObjectAI):
         self.chooseColor()
         self.accepting = 0
         if simbase.wantSinglePlayer:
-            self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO)
+            self.trolleyCountdownTime = ConfigVariableDouble('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO).getValue()
         else:
-            self.trolleyCountdownTime = simbase.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)
+            self.trolleyCountdownTime = ConfigVariableDouble('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME).getValue()
         self.fsm = ClassicFSM.ClassicFSM(
             'DistributedGolfKartAI',
             [

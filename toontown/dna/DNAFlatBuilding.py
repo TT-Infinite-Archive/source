@@ -1,4 +1,4 @@
-from panda3d.core import NodePath, DecalEffect
+from panda3d.core import DecalEffect, NodePath
 from . import DNANode
 from . import DNAWall
 

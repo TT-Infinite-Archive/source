@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.direct import ShowInterval
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase.ToontownBattleGlobals import *
 from toontown.toonbase.ToontownGlobals import *

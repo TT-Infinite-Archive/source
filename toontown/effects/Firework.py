@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath, Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 from toontown.effects.FireworkGlobals import *
 from toontown.effects.FireworkEffect import FireworkEffect

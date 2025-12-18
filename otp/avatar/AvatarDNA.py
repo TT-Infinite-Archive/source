@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ostream
 from direct.directnotify.DirectNotifyGlobal import *
 import random
 from direct.distributed.PyDatagram import PyDatagram

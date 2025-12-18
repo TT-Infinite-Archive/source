@@ -1,3 +1,4 @@
+from panda3d.core import Plane, Point3, Vec3, Vec4
 from otp.level.EntityTypes import *
 
 class FactoryLevelMgr(LevelMgr):

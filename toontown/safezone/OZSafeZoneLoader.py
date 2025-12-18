@@ -1,10 +1,10 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, CullBinManager, NodePath, Point3, TextureStage, Vec3
 import copy
 from direct.actor import Actor
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 import random
 
 from otp.avatar import Avatar
@@ -115,7 +115,7 @@ class OZSafeZoneLoader(SafeZoneLoader):
         self.constructionSign.setPosHpr(-47.941, -138.724, 0.122, 181, 0, 0)
 
         # If Chestnut Park is under construction, create the construction site:
-        if base.config.GetBool('want-chestnut-park-construction', False):
+        if ConfigVariableBool('want-chestnut-park-construction', False).getValue():
             self.constructionSite = render.attachNewNode('constructionSite')
 
             self.constructionSiteBlocker = self.constructionSite.attachNewNode(CollisionNode('constructionSiteBlocker'))
@@ -145,7 +145,7 @@ class OZSafeZoneLoader(SafeZoneLoader):
             self.paintersWantedSign.reparentTo(self.constructionSite)
             self.paintersWantedSign.setPosHpr(-57, -129.613, 0.025, 160, 0, 0)
 
-            if base.config.GetBool('want-oz-painter-pete', False):
+            if ConfigVariableBool('want-oz-painter-pete', False).getValue():
                 self.painterPete = Toon.Toon()
 
                 self.painterPete.setName('Painter Pete')

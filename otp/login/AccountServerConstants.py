@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, URLSpec
 from .RemoteValueSet import *
 from direct.directnotify import DirectNotifyGlobal
 from . import TTAccount
@@ -22,13 +22,13 @@ class AccountServerConstants(RemoteValueSet):
          'creditCardUpFront': '0',
          'priceFirstMonth': '9.95',
          'pricePerMonth': '9.95'}
-        noquery = 1
+        noquery = True
         if cr.productName == 'DisneyOnline-US':
-            if base.config.GetBool('tt-specific-login', 0):
+            if ConfigVariableBool('tt-specific-login', False).getValue():
                 pass
             else:
-                noquery = 0
-        if cr.accountOldAuth or base.config.GetBool('default-server-constants', noquery):
+                noquery = False
+        if cr.accountOldAuth or ConfigVariableBool('default-server-constants', noquery).getValue():
             self.notify.debug('setting defaults, not using account server constants')
             self.dict = {}
             for constantName in self.expectedConstants:

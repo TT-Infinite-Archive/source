@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, ColorBlendAttrib, NodePath, Point3, VBase3, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.task.Task import Task

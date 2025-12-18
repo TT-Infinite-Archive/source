@@ -1,4 +1,4 @@
-from pandac.PandaModules import Vec4, Vec3, TextNode, PNMImage, StringStream, Texture, HTTPClient, DocumentSpec, Ramfile, Point3
+from panda3d.core import ConfigVariableBool, ConfigVariableString, DocumentSpec, HTTPClient, PNMImage, Point3, Ramfile, StringStream, TextNode, Texture, Vec3, Vec4
 from direct.task.Task import Task
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList, DirectCheckButton, OnscreenText
 from direct.gui import DirectGuiGlobals
@@ -21,17 +21,17 @@ EventsPage_News = 3
 
 class EventsPage(ShtikerPage.ShtikerPage):
     notify = DirectNotifyGlobal.directNotify.newCategory('EventsPage')
-    UseNewsTab = base.config.GetBool('want-news-tab', 0)
+    UseNewsTab = ConfigVariableBool('want-news-tab', False).getValue()
     DefaultNewsUrl = '/news/news_urls.txt'
-    NewsUrl = base.config.GetString('news-url', DefaultNewsUrl)
+    NewsUrl = ConfigVariableString('news-url', DefaultNewsUrl).getValue()
     DownloadArticlesTaskName = 'downloadArticlesTask'
-    NonblockingDownload = base.config.GetBool('news-nonblocking', 1)
+    NonblockingDownload = ConfigVariableBool('news-nonblocking', True).getValue()
 
     def __init__(self):
         ShtikerPage.ShtikerPage.__init__(self)
         self.mode = EventsPage_Calendar
         self.setMode(self.mode)
-        self.noTeleport = config.GetBool('Parties-page-disable', 0)
+        self.noTeleport = ConfigVariableBool('Parties-page-disable', False).getValue()
         self.isPrivate = True
         self.gotRssFeed = False
         self.gotArticles = False

@@ -1,3 +1,4 @@
+from panda3d.core import NodePath, Vec4
 from . import DistributedLawnDecor
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.ShowBase import *
@@ -8,8 +9,6 @@ from toontown.estate import PlantingGUI
 from toontown.estate import PlantTreeGUI
 from toontown.estate import ToonStatueSelectionGUI
 from toontown.toontowngui import TTDialog
-from pandac.PandaModules import Vec4
-from pandac.PandaModules import NodePath
 import types
 
 class DistributedGardenPlot(DistributedLawnDecor.DistributedLawnDecor):

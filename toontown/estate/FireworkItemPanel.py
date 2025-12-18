@@ -1,5 +1,4 @@
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.effects import FireworkGlobals

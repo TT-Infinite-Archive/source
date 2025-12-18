@@ -1,4 +1,4 @@
-from panda3d.core import LVector4f, NodePath, DecalEffect
+from panda3d.core import DecalEffect, LVector4f, NodePath
 from . import DNAGroup
 from . import DNAError
 from . import DNAUtil

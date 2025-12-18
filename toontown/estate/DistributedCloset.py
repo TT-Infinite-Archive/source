@@ -1,8 +1,7 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, Vec3
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase.ToonBaseGlobal import *
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from toontown.toonbase import ToontownGlobals

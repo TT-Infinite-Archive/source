@@ -1,8 +1,7 @@
-from panda3d.core import TextNode
+from panda3d.core import TextNode, Vec4
 from direct.gui.DirectGui import DGG
 from toontown.toonbase import TTLocalizer, ToontownGlobals, ColorGlobals
 from toontown.toontowngui.TTLabel import TTLabel
-from pandac.PandaModules import Vec4
 
 
 LABEL_PROPERTIES = {

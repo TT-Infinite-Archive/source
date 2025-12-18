@@ -1,9 +1,9 @@
+from panda3d.core import CompassEffect, NodePath, TransparencyAttrib, Vec4
 import random
 
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
 from direct.task.Task import Task
-from pandac.PandaModules import *
 
 from toontown.mainmenu.HomeScreen import HomeScreen
 from toontown.mainmenu.HostScreen import HostScreen

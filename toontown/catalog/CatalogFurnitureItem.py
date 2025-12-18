@@ -1,3 +1,4 @@
+from panda3d.core import Datagram, Filename
 from . import CatalogAtticItem
 from . import CatalogItem
 import random

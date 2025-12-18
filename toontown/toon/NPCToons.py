@@ -1,7 +1,4 @@
-from pandac.PandaModules import *
-import random
-import string
-import sys, os
+from panda3d.core import ConfigVariableBool, ConfigVariableList, Point3
 
 from . import ToonDNA
 from toontown.hood import ZoneUtil
@@ -180,7 +177,7 @@ def createNpcsInZone(air, zoneId):
             if not air.wantParties:
                 continue
         if npcDesc[5] == NPC_SMART:
-            if not config.GetBool('want-talkative-tyler', False):
+            if not ConfigVariableBool('want-talkative-tyler', False).getValue():
                 continue
         npcs.append(createNPC(air, npcId, npcDesc, zoneId, posIndex=i))
     return npcs
@@ -11702,7 +11699,7 @@ NPCToonDict = {20000: (-1,
         0,
         NPC_REGULAR)}
 
-if config.GetBool('want-new-toonhall', 1):
+if ConfigVariableBool('want-new-toonhall', True).getValue():
     NPCToonDict[2001] = (2513,
      lnames[2001],
      ('dss',

@@ -1,9 +1,8 @@
+from panda3d.core import Point3, VBase4, Vec3, Vec4
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
-from pandac.PandaModules import *
 import random
 import string
 

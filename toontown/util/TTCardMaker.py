@@ -1,4 +1,4 @@
-from panda3d.core import CardMaker, NodePath, TransparencyAttrib
+from panda3d.core import CardMaker, NodePath, Texture, TransparencyAttrib
 
 
 def makeCard(filepath):

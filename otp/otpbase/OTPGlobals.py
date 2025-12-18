@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, Point3, TextNode
 QuietZone = 1
 UberZone = 2
 WallBitmask = BitMask32(1)

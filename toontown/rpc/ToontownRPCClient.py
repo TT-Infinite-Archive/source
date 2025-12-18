@@ -1,9 +1,9 @@
+from panda3d.core import ConfigVariableString, DocumentSpec, HTTPClient, StringStream, URLSpec
 import json
 import time
 import os
 import base64
 
-from panda3d.core import URLSpec, HTTPClient, StringStream, DocumentSpec
 from Crypto.Cipher import AES
 
 
@@ -76,7 +76,7 @@ class ToontownRPCMethod:
         data = json.dumps({'timestamp': int(time.mktime(time.gmtime())),
                            'accesslevel': accessLevel})
         iv = os.urandom(AES.block_size)
-        webRpcSecret = config.GetString('web-rpc-secret', '7368686868686868')
+        webRpcSecret = ConfigVariableString('web-rpc-secret', '7368686868686868').getValue()
         cipher = AES.new(webRpcSecret, mode=AES.MODE_CBC, IV=iv)
         data += '\x00' * (16 - (len(data) % AES.block_size))
         token = cipher.encrypt(data)

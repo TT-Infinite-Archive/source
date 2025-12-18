@@ -1,4 +1,3 @@
-from pandac.PandaModules import Vec3, Vec4, Point3, TextNode, VBase4
 from direct.gui.DirectGui import DirectFrame, DirectButton, DirectLabel, DirectScrolledList, DirectCheckButton
 from direct.gui import DirectGuiGlobals
 from direct.showbase import DirectObject

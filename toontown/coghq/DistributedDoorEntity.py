@@ -1,5 +1,5 @@
-from pandac.PandaModules import *
-from pandac.PandaModules import *
+from panda3d.direct import HideInterval, ShowInterval
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, NodePath, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from toontown.toonbase import ToontownGlobals

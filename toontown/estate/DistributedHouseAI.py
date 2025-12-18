@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from toontown.estate.DistributedHouseInteriorAI import DistributedHouseInteriorAI
 from toontown.estate.DistributedHouseDoorAI import DistributedHouseDoorAI
@@ -61,7 +62,7 @@ class DistributedHouseAI(DistributedObjectAI):
             self.mailbox = DistributedMailboxAI(self.air, self)
             self.mailbox.generateWithRequired(self.zoneId)
 
-        if config.GetBool('want-gardening', False):
+        if ConfigVariableBool('want-gardening', False).getValue():
             self.createGardenManager()
 
         if not self.isInteriorInitialized:

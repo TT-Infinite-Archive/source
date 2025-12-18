@@ -1,6 +1,6 @@
+from panda3d.core import CollideMask, ConfigVariable, ConfigVariableBool, NodePath, TextNode, Vec4
 from direct.distributed.ClockDelta import *
-from pandac.PandaModules import *
-from direct.showbase.PythonUtil import Functor, sameElements, list2dict, uniqueElements
+from direct.showbase.PythonUtil import Functor, sameElements, list2dict
 from direct.interval.IntervalGlobal import *
 from toontown.distributed.ToontownMsgTypes import *
 from toontown.toonbase import ToontownGlobals
@@ -17,7 +17,7 @@ import random
 
 class DistributedLevel(DistributedObject.DistributedObject, Level.Level):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedLevel')
-    WantVisibility = config.GetBool('level-visibility', 1)
+    WantVisibility = ConfigVariableBool('level-visibility', True).getValue()
     ColorZonesAllDOs = 0
     FloorCollPrefix = 'zoneFloor'
     OuchTaskName = 'ouchTask'

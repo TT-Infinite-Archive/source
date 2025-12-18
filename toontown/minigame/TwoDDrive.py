@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3
 from toontown.toonbase.ToonBaseGlobal import *
 from otp.otpbase import OTPGlobals
 from direct.interval.IntervalGlobal import *

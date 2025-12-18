@@ -1,7 +1,7 @@
+from panda3d.core import Vec4
 from . import ShtikerBook
 from direct.fsm import StateData
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 
 
 class ShtikerPage(DirectFrame, StateData.StateData):

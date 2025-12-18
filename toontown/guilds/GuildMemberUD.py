@@ -1,6 +1,6 @@
+from panda3d.core import Datagram
 from direct.distributed.PyDatagram import *
 from direct.showbase.DirectObject import DirectObject
-from pandac.PandaModules import *
 
 from toontown.toon.ToonDNA import ToonDNA
 from toontown.guilds.GuildGlobals import *

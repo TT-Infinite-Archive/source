@@ -1,7 +1,9 @@
+from panda3d.core import ConfigVariableInt, ConfigVariableString
 import base64
-from direct.directnotify.DirectNotifyGlobal import directNotify
 import json
 import time
+
+from direct.directnotify.DirectNotifyGlobal import directNotify
 
 from Crypto.Cipher import AES
 
@@ -50,7 +52,7 @@ class ToontownRPCHandlerBase:
             return (-32002, 'Invalid token length')
 
         # Next, decrypt the token using AES-128 in CBC mode:
-        rpcServerSecret = config.GetString('rpc-server-secret', '7368686868686868')
+        rpcServerSecret = ConfigVariableString('rpc-server-secret', '7368686868686868').getValue()
 
         # Ensure that our secret is the correct size:
         if len(rpcServerSecret) > AES.block_size:
@@ -76,7 +78,7 @@ class ToontownRPCHandlerBase:
             return (-32003, 'Invalid token')
 
         # Next, check if this token has expired:
-        period = config.GetInt('rpc-token-period', 5)
+        period = ConfigVariableInt('rpc-token-period', 5).getValue()
         delta = int(time.time()) - token['timestamp']
         if delta > period:
             return (-32004, 'Token expired')

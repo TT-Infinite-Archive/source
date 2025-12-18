@@ -1,3 +1,4 @@
+from panda3d.core import TextProperties, TextPropertiesManager
 import string
 from otp.otpbase.OTPLocalizerEnglishProperty import *
 lTheBrrrgh = 'The Brrrgh'
@@ -85,8 +86,6 @@ WhisperFromFormatName = '%s whispers'
 ThoughtOtherFormatName = '%s thinks'
 ThoughtSelfFormatName = 'You think'
 
-from pandac.PandaModules import TextProperties
-from pandac.PandaModules import TextPropertiesManager
 
 propertyManager = TextPropertiesManager.getGlobalPtr()
 

@@ -1,8 +1,7 @@
+from panda3d.core import NodePath, Point3, VBase3
 from direct.showbase import DirectObject
 from direct.directnotify import DirectNotifyGlobal
 from . import BasicEntities
-from pandac.PandaModules import *
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from toontown.toonbase import ToontownGlobals

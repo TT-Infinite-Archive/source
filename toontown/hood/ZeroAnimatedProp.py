@@ -1,4 +1,4 @@
-import types
+from panda3d.core import AnimControl, ConfigVariable, ConfigVariableBool
 import math
 from direct.interval.IntervalGlobal import Sequence, Wait, ActorInterval, Func, SoundInterval, Parallel
 from direct.task import Task
@@ -24,7 +24,6 @@ class ZeroAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
         self.curIval = None
         self.curPhase = -1
         self.okToStartNextAnim = False
-        return
 
     def delete(self):
         self.exit()
@@ -95,7 +94,7 @@ class ZeroAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
 
     def chooseAnimToRun(self):
         result = self.curPhase
-        if base.config.GetBool('anim-props-randomized', True):
+        if ConfigVariableBool('anim-props-randomized', True).getValue():
             pairs = []
             for i in range(self.curPhase + 1):
                 pairs.append((math.pow(2, i), i))

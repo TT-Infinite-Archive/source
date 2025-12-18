@@ -1,6 +1,5 @@
+from panda3d.core import CollisionNode, CollisionSphere, TextNode, VBase4, Vec3, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase import ToontownTimer

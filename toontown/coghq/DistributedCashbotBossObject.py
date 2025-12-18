@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.physics import ActorNode, PhysicalNode, PhysicsCollisionHandler, PhysicsObject
+from panda3d.core import CollideMask, CollisionHandler, CollisionNode, NodePath, Plane
 from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedSmoothNode

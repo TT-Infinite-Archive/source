@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Texture
 from direct.showbase.PythonUtil import weightedChoice, randFloat, lerp
 from direct.showbase.PythonUtil import contains, list2dict
 from direct.directnotify import DirectNotifyGlobal

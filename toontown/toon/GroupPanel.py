@@ -1,9 +1,9 @@
+from panda3d.core import Plane, PlaneNode, Point3, TextNode, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.nametag import NametagGlobals
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.showbase import DirectObject
 from toontown.toon import ToonAvatarPanel
 from toontown.toontowngui import TTDialog

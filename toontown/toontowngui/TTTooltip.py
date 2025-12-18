@@ -1,4 +1,3 @@
-from panda3d.core import TextNode
 from direct.gui.DirectButton import DirectFrame, DGG
 from direct.gui.DirectLabel import DirectLabel
 

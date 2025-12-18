@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import ShowInterval, WaitInterval
+from panda3d.core import Point3
 from direct.interval.IntervalGlobal import *
 from .BattleBase import *
 from .BattleProps import *

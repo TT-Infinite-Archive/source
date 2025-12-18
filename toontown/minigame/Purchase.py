@@ -1,3 +1,4 @@
+from panda3d.core import CollisionNode, CollisionPolygon, ConfigVariable, ConfigVariableBool, Point3, Texture, VBase4, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui import DirectGuiGlobals as DGG
 from direct.showbase.PythonUtil import Functor
@@ -14,7 +15,6 @@ from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
 from direct.interval.IntervalGlobal import Sequence
 from direct.interval.IntervalGlobal import LerpScaleInterval
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 
 
@@ -643,10 +643,10 @@ class Purchase(PurchaseBase):
             base.cr.loginFSM.request('periodTimeout')
             return
         if not self.tutorialMode:
-            if not config.GetBool('disable-purchase-timer', 0):
+            if not ConfigVariableBool('disable-purchase-timer', False).getValue():
                 self.timer.show()
                 self.timer.countdown(self.remain, self.__timerExpired)
-            if config.GetBool('metagame-disable-playAgain', 0):
+            if ConfigVariableBool('metagame-disable-playAgain', 0).getValue():
                 if self.metagameRound > -1:
                     self.disablePlayAgain()
         else:

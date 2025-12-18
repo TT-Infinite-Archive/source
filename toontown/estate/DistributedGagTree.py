@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionTraverser, NodePath, Point3
 from toontown.estate import DistributedPlantBase
 from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
@@ -8,7 +9,6 @@ from toontown.toonbase import TTLocalizer
 from . import GardenGlobals
 from . import HouseGlobals
 from direct.task import Task
-from pandac.PandaModules import *
 from otp.otpbase import OTPGlobals
 from toontown.estate import DistributedLawnDecor
 DIRT_AS_WATER_INDICATOR = True

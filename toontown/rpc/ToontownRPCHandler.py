@@ -1,3 +1,4 @@
+from panda3d.core import Datagram
 import datetime
 import re
 

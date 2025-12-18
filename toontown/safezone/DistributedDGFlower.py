@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere
 from direct.distributed.ClockDelta import *
 from direct.distributed import DistributedObject
 from toontown.toonbase import ToontownGlobals

@@ -1,10 +1,9 @@
+from panda3d.ode import OdeRayGeom
+from panda3d.direct import WaitInterval
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionSegment, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, ConfigVariableDouble, Mat3, NodePath, Point3, Quat, TextNode, TransparencyAttrib, VBase4, Vec3, Vec4, deg2Rad
 import math
-import random
-import time
-from pandac.PandaModules import TextNode, BitMask32, Point3, Vec3, Vec4, deg2Rad, Mat3, NodePath, VBase4, CollisionTraverser, CollisionSegment, CollisionNode, CollisionHandlerQueue
-from direct.distributed import DistributedObject
-from direct.directnotify import DirectNotifyGlobal
-from otp.otpbase import OTPGlobals
+    Mat3, NodePath, VBase4, CollisionTraverser, CollisionSegment, CollisionNode, CollisionHandlerQueue
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownTimer
@@ -23,7 +22,6 @@ from toontown.distributed import DelayDelete
 import sys
 
 if sys.platform != 'android':
-    from panda3d.ode import OdeRayGeom
 
 class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, GolfHoleBase.GolfHoleBase):
     defaultTransitions = {'Off': ['Cleanup', 'ChooseTee', 'WatchTee'],
@@ -60,10 +58,10 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
      'Cleanup': ['Off']}
     id = 0
     notify = directNotify.newCategory('DistributedGolfHole')
-    unlimitedAimTime = base.config.GetBool('unlimited-aim-time', 0)
-    unlimitedTeeTime = base.config.GetBool('unlimited-tee-time', 0)
-    golfPowerSpeed = base.config.GetDouble('golf-power-speed', 3)
-    golfPowerExponent = base.config.GetDouble('golf-power-exponent', 0.75)
+    unlimitedAimTime = ConfigVariableBool('unlimited-aim-time', False).getValue()
+    unlimitedTeeTime = ConfigVariableBool('unlimited-tee-time', False).getValue()
+    golfPowerSpeed = ConfigVariableDouble('golf-power-speed', 3).getValue()
+    golfPowerExponent = ConfigVariableDouble('golf-power-exponent', 0.75).getValue()
     DefaultCamP = -16
     MaxCamP = -90
 
@@ -292,7 +290,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             curNodePath = self.hardSurfaceNodePath.find('**/locator%d' % locatorNum)
 
     def loadBlockers(self):
-        loadAll = base.config.GetBool('golf-all-blockers', 0)
+        loadAll = ConfigVariableBool('golf-all-blockers', False).getValue()
         self.createLocatorDict()
         self.blockerNums = self.holeInfo['blockers']
         for locatorNum in self.locDict:

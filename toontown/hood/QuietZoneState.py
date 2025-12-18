@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.showbase.PythonUtil import Functor
 from toontown.util.PriorityCallbacks import PriorityCallbacks
 from direct.task import Task

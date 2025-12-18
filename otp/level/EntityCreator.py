@@ -1,3 +1,4 @@
+from panda3d.core import CollisionSolid
 import CutScene
 import EntityCreatorBase
 import BasicEntities

@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, NodePath, Point3
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase.ToontownGlobals import *
 from direct.directnotify import DirectNotifyGlobal

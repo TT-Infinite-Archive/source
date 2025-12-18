@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, Vec3
 from direct.showbase import DirectObject
 from direct.fsm import ClassicFSM, State
 from toontown.toonbase import ToontownGlobals

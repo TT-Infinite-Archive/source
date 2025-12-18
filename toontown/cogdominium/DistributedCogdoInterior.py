@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, Point3, VBase3, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.distributed.ClockDelta import *
@@ -5,7 +6,6 @@ from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.fsm.StatePush import StateVar, FunctionCall
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import NodePath
 import random
 
 from .CogdoElevatorMovie import CogdoElevatorMovie
@@ -46,7 +46,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
         self.reserveSuits = []
         self.joiningReserves = []
         self.distBldgDoId = None
-        self._CogdoGameRepeat = config.GetBool('cogdo-game-repeat', 0)
+        self._CogdoGameRepeat = ConfigVariableBool('cogdo-game-repeat', 0).getValue()
         self.currentFloor = -1
         self.elevatorName = self.__uniqueName('elevator')
         self.floorModel = None
@@ -75,7 +75,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
          120,
          12,
          38]
-        self._wantBarrelRoom = config.GetBool('cogdo-want-barrel-room', 0)
+        self._wantBarrelRoom = ConfigVariableBool('cogdo-want-barrel-room', 0).getValue()
         self.barrelRoom = CogdoBarrelRoom.CogdoBarrelRoom()
         self.brResults = [[], []]
         self.barrelRoomIntroTrack = None

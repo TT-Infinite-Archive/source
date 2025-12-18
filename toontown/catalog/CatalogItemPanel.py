@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, TextNode, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.collectibles import CollectibleInventoryGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toontowngui import TTDialog
@@ -397,7 +397,7 @@ class CatalogItemPanel(DirectFrame):
         self.accept('verifyDone', self.__handleVerifyPurchase)
 
     def __handleVerifyPurchase(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CATALOG: Order item')
         status = self.verify.doneStatus
         self.ignore('verifyDone')
@@ -429,7 +429,7 @@ class CatalogItemPanel(DirectFrame):
         self.accept('verifyGiftDone', self.__handleVerifyGift)
 
     def __handleVerifyGift(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CATALOG: Gift item')
         status = self.verify.doneStatus
         self.ignore('verifyGiftDone')

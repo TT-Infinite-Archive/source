@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *
 from direct.fsm import ClassicFSM, State

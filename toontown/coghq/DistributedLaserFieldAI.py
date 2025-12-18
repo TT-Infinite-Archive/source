@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 import random
 
 from direct.directnotify import DirectNotifyGlobal

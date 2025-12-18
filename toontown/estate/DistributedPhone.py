@@ -1,3 +1,4 @@
+from panda3d.core import BoundingSphere, CollideMask, CollisionNode, CollisionSphere, GeomNode, Point3, TextEncoder, VBase3
 from direct.actor import Actor
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed import ClockDelta
@@ -5,7 +6,6 @@ from direct.interval.IntervalGlobal import *
 from direct.showbase import PythonUtil
 from direct.showutil import Rope
 from direct.task import Task
-from pandac.PandaModules import *
 
 from . import DistributedFurnitureItem
 from . import PhoneGlobals

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, Vec3
 from direct.task.Task import Task
 from .DistributedNPCToonBase import *
 from . import NPCToons
@@ -153,7 +154,7 @@ class DistributedNPCPetclerk(DistributedNPCToonBase):
             self.resetPetshopClerk()
 
     def __handlePetAdopted(self, whichPet, nameIndex):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: ADOPTADOOLE: Adopt a doodle.')
         base.cr.removePetFromFriendsMap()
         self.ignore(self.eventDict['petAdopted'])

@@ -1,3 +1,4 @@
+from panda3d.core import LVector4f
 from direct.gui.DirectGui import *
 
 from toontown.toonbase.ToontownGlobals import *

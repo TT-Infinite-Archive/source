@@ -1,9 +1,7 @@
-from direct.gui.DirectGui import *
-from direct.showbase import DirectObject
-from pandac.PandaModules import *
-import sys
+from panda3d.core import ConfigVariableBool, ConfigVariableInt
 
-from otp.otpbase import OTPGlobals
+from direct.showbase import DirectObject
+
 from otp.otpbase import OTPLocalizer
 from toontown.chat.ChatGlobals import *
 
@@ -17,11 +15,10 @@ class ChatInputTyped(DirectObject.DirectObject):
         wantHistory = 0
         if __dev__:
             wantHistory = 1
-        self.wantHistory = base.config.GetBool('want-chat-history', wantHistory)
+        self.wantHistory = ConfigVariableBool('want-chat-history', wantHistory).getValue()
         self.history = ['']
-        self.historySize = base.config.GetInt('chat-history-size', 10)
+        self.historySize = ConfigVariableInt('chat-history-size', 10).getValue()
         self.historyIndex = 0
-        return
 
     def typeCallback(self, extraArgs):
         self.activate()
@@ -61,7 +58,6 @@ class ChatInputTyped(DirectObject.DirectObject):
         if self.wantHistory:
             self.accept('arrow_up-up', self.getPrevHistory)
             self.accept('arrow_down-up', self.getNextHistory)
-        return
 
     def hide(self):
         self.chatEntry.set('')

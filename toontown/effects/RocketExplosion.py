@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath, Vec4
 from direct.particles import ParticleEffect
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *

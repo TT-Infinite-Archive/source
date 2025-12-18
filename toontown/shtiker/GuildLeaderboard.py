@@ -1,5 +1,5 @@
+from panda3d.core import CardMaker, TextNode, Vec4
 from direct.gui.DirectGui import DirectFrame, DirectButton, DirectLabel, DirectScrolledList, DGG
-from panda3d.core import Vec4, TextNode
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals
 from toontown.util import TTCardMaker
 

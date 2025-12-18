@@ -1,7 +1,7 @@
+from panda3d.core import Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
 from direct.task.Task import Task
-from pandac.PandaModules import *
 
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals

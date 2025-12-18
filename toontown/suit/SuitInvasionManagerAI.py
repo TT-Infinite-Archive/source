@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableInt
 import time
 
 from direct.showbase.DirectObject import DirectObject
@@ -97,7 +98,7 @@ class SuitInvasionManagerAI(DirectObject):
         # If this is a normal invasion, and the players take too long to defeat
         # all of the Cogs, we'll want the invasion to timeout:
         if invasionType == INVASION_TYPE_NORMAL:
-            timeout = config.GetInt('invasion-timeout', 1800)
+            timeout = ConfigVariableInt('invasion-timeout', 1800).getValue()
             taskMgr.doMethodLater(timeout, self.stopInvasion, 'invasionTimeout')
 
         self.sendInvasionStatus()

@@ -1,5 +1,5 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, Vec4
 import math
-from pandac.PandaModules import *
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Func
 from direct.interval.LerpInterval import LerpScaleInterval, LerpColorScaleInterval

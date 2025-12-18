@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerPusher, CollisionNode, CollisionSphere, NodePath
 
 from otp.movement.Impulse import Impulse
 from otp.otpbase import OTPGlobals

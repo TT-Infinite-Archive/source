@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, ConfigVariable, ConfigVariableBool, Filename, NodePath, Texture, Vec4
 from toontown.battle.BattleProps import *
 from toontown.battle.BattleSounds import *
 from toontown.distributed.ToontownMsgTypes import *
@@ -21,7 +21,7 @@ from toontown.toonbase import TTLocalizer
 from direct.interval.IntervalGlobal import *
 from toontown.nametag import NametagGlobals
 
-visualizeZones = base.config.GetBool('visualize-zones', 0)
+visualizeZones = ConfigVariableBool('visualize-zones', False).getValue()
 
 class Street(BattlePlace.BattlePlace):
 

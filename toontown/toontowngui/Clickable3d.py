@@ -1,4 +1,4 @@
-from panda3d.core import Quat, Point3, Point2
+from panda3d.core import Point2, Point3, Quat
 
 from toontown.toontowngui.Clickable import Clickable
 

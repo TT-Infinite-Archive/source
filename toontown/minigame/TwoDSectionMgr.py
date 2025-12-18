@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import DecalEffect, NodePath, Point3
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 from toontown.minigame import ToonBlitzGlobals

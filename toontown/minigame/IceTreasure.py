@@ -1,4 +1,4 @@
-from pandac.PandaModules import Point3, CollisionSphere, CollisionNode, BitMask32
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, NodePath, Point3
 from direct.interval.IntervalGlobal import Sequence, LerpScaleInterval, Parallel, Func, SoundInterval
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject

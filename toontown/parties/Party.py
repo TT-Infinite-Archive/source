@@ -1,5 +1,4 @@
-from pandac.PandaModules import *
-from panda3d.core import Fog
+from panda3d.core import ConfigVariableBool, Fog, NodePath
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from direct.gui.DirectGui import *
@@ -100,7 +99,7 @@ class Party(Place.Place):
     def enter(self, requestStatus):
         hoodId = requestStatus['hoodId']
         zoneId = requestStatus['zoneId']
-        if config.GetBool('want-party-telemetry-limiter', 1):
+        if ConfigVariableBool('want-party-telemetry-limiter', True).getValue():
             limiter = TLGatherAllAvs('Party', RotationLimitToH)
         else:
             limiter = TLNull()

@@ -1,7 +1,7 @@
+from panda3d.core import BitMask32, Vec4, pixel
 from . import TTLocalizer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import Enum, invertDict
-from panda3d.core import BitMask32, Vec4
 import sys, os, random
 
 from toontown.toonbase.HolidayGlobals import *

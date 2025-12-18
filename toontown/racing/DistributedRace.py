@@ -1,5 +1,4 @@
-from pandac.PandaModules import *
-from panda3d.core import Fog
+from panda3d.core import BitMask32, CardMaker, CollideMask, CollisionNode, CollisionSphere, CollisionTube, CompassEffect, Fog, NodePath, Plane, Point3, TextNode, Texture, Vec3, Vec4
 from direct.distributed.ClockDelta import *
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
@@ -13,7 +12,6 @@ from .RaceGag import RaceGag
 from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.toon import ToonHeadFrame
 from toontown.racing.KartDNA import InvalidEntry, getAccessory, getDefaultColor
-from pandac.PandaModules import CardMaker, OrthographicLens, LineSegs
 from direct.distributed import DistributedSmoothNode
 from math import fmod
 from math import sqrt

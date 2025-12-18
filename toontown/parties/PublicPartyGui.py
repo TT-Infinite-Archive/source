@@ -1,4 +1,4 @@
-from pandac.PandaModules import Vec3, Vec4, Point3, TextNode, VBase4
+from panda3d.core import Point3, TextNode, Vec3, Vec4
 from direct.gui.DirectGui import DGG, DirectFrame, DirectButton, DirectLabel, DirectScrolledList, DirectCheckButton
 from direct.gui import DirectGuiGlobals
 from direct.showbase import DirectObject

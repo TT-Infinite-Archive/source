@@ -1,3 +1,5 @@
+from panda3d.direct import WaitInterval
+from panda3d.core import Point3, Vec3
 from toontown.toonbase.ToontownGlobals import *
 from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal

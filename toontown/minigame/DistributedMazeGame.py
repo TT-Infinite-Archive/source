@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, GeomNode, Plane, Point3, Vec3
 from direct.interval.IntervalGlobal import LerpPosInterval, LerpHprInterval, LerpPosHprInterval
 from direct.interval.IntervalGlobal import SoundInterval, LerpScaleInterval, LerpFunctionInterval
 from direct.interval.IntervalGlobal import Wait, Func
@@ -8,7 +9,6 @@ from direct.fsm import ClassicFSM, State
 from direct.showbase import RandomNumGen
 from direct.task.Task import Task
 from direct.distributed.ClockDelta import globalClockDelta
-from pandac.PandaModules import Point3, Vec3
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownTimer
 from .DistributedMinigame import DistributedMinigame
@@ -1095,7 +1095,7 @@ class DistributedMazeGame(DistributedMinigame):
         self.showScoreTrack.start()
 
         #For the Alpha Blueprint ARG
-        if base.config.GetBool('want-blueprint4-ARG', False):
+        if ConfigVariableBool('want-blueprint4-ARG', False).getValue():
             MinigameGlobals.generateDebugARGPhrase()
 
     def exitShowScores(self):

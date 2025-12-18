@@ -1,6 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.core import Point3, TextNode, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.showbase import DirectObject
 from otp.avatar import Avatar
 from direct.distributed import DistributedObject

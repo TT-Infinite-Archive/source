@@ -1,6 +1,6 @@
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionTraverser, GeomNode, NodePath
 from direct.showbase.DirectObject import DirectObject
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from panda3d.core import *
 
 
 class TTPicker(DirectObject):

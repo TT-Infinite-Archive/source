@@ -1,10 +1,10 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionNode, CollisionRay, CollisionSphere, NodePath, TransparencyAttrib, Vec4
 import copy
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 import string
 
 from . import CCharChatter

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import TextNode, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *
 from direct.task import Task

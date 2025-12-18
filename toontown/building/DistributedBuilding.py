@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, DecalEffect, DepthOffsetAttrib, NodePath, Point3, TextNode, VBase4, Vec3
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.directtools.DirectGeometry import *
@@ -6,7 +6,6 @@ from .ElevatorConstants import *
 from .ElevatorUtils import *
 from .SuitBuildingGlobals import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import ToontownGlobals
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
@@ -359,7 +358,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         return
 
     def loadAnimToSuitSfx(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: COGBUILDING: Cog Take Over')
         if self.cogDropSound == None:
             self.cogDropSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_drop.ogg')
@@ -369,7 +368,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         return
 
     def loadAnimToToonSfx(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: COGBUILDING: Toon Take Over')
         if self.cogWeakenSound == None:
             self.cogWeakenSound = loader.loadSfx(self.TAKEOVER_SFX_PREFIX + 'cogbldg_weaken.ogg')

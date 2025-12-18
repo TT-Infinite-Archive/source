@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import GeomNode, NodePath, Plane, Point3
 from otp.level.BasicEntities import DistributedNodePathEntity
 from direct.directnotify import DirectNotifyGlobal
 from toontown.coghq import MoleHill

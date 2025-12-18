@@ -1,15 +1,14 @@
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, NodePath, Point3, TextNode, VBase4, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from direct.task.Task import Task
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import CollisionSphere, CollisionNode
 from toontown.toonbase import ToontownGlobals
 from toontown.estate import DistributedCannon
 from toontown.estate import CannonGlobals
 from toontown.nametag import NametagGlobals
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toon import NPCToons
 from toontown.toon import ToonHead
 from toontown.toonbase import TTLocalizer

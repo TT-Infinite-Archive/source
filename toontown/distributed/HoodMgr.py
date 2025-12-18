@@ -1,6 +1,6 @@
+from panda3d.core import CollideMask
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase import DirectObject
-from pandac.PandaModules import *
 import random
 
 from toontown.hood import ZoneUtil

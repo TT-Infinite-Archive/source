@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Point3
 from direct.gui.DirectGui import *
 from .SCObject import SCObject
 from .SCElement import SCElement

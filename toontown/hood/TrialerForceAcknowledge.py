@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 from . import ZoneUtil
 from toontown.toonbase import ToontownGlobals

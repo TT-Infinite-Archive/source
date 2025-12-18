@@ -1,5 +1,5 @@
+from panda3d.core import CollisionNode, CollisionSphere, NodePath
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from direct.distributed import DistributedObjectAI
 from toontown.toonbase import ToontownGlobals
 from otp.otpbase import OTPGlobals

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed.DistributedNodeAI import DistributedNodeAI
 
 from direct.distributed.ClockDelta import *
@@ -138,7 +139,7 @@ class DistributedGameTableAI(DistributedNodeAI):
             return
 
         if gameNum == 1:
-            if simbase.config.GetBool('want-chinese', 1):
+            if ConfigVariableBool('want-chinese', True).getValue():
                 self.game = DistributedChineseCheckersAI.DistributedChineseCheckersAI(self.air, self.doId, 'chinese',
                                                                                       self.posHpr[0], self.posHpr[1],
                                                                                       self.posHpr[2] + 2.8300000000000001,
@@ -147,7 +148,7 @@ class DistributedGameTableAI(DistributedNodeAI):
                 self.sendUpdate('setZone', [self.game.zoneId])
 
         elif gameNum == 2:
-            if simbase.config.GetBool('want-checkers', 1):
+            if ConfigVariableBool('want-checkers', True).getValue():
                 self.game = DistributedCheckersAI.DistributedCheckersAI(self.air, self.doId, 'checkers',
                                                                         self.posHpr[0], self.posHpr[1],
                                                                         self.posHpr[2] + 2.8300000000000001,
@@ -156,7 +157,7 @@ class DistributedGameTableAI(DistributedNodeAI):
                 self.sendUpdate('setZone', [self.game.zoneId])
 
         elif gameNum == 3:
-            if simbase.config.GetBool('want-findfour', 1):
+            if ConfigVariableBool('want-findfour', True).getValue():
                 self.game = DistributedFindFourAI.DistributedFindFourAI(self.air, self.doId, 'findFour', 
                                                                         self.posHpr[0], self.posHpr[1],
                                                                         self.posHpr[2] + 2.8300000000000001,

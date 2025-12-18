@@ -1,7 +1,8 @@
+from panda3d.ode import OdeBody, OdeBoxGeom, OdeHingeJoint, OdeJoint, OdeJointGroup, OdeMass, OdePlaneGeom, OdeSimpleSpace, OdeSliderJoint, OdeSphereGeom, OdeTriMeshData, OdeTriMeshGeom, OdeWorld
+from panda3d.core import BitMask32, NodePath, Point3, Quat, Vec3, Vec4
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
-from pandac.PandaModules import *
 from math import *
 import math
 from direct.fsm.FSM import FSM
@@ -14,7 +15,6 @@ from toontown.golf import GolfGlobals
 import random, time, sys
 
 if sys.platform != 'android':
-    from panda3d.ode import OdeBody, OdeBoxGeom, OdeHingeJoint, OdeJoint, OdeJointGroup, OdeMass, OdePlaneGeom, OdeSimpleSpace, OdeSliderJoint, OdeSphereGeom, OdeTriMeshData, OdeTriMeshGeom, OdeWorld
 
 def scalp(vec, scal):
     vec0 = vec[0] * scal

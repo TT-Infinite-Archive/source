@@ -1,6 +1,6 @@
+from panda3d.core import TextNode, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer, EventGlobals
 from toontown.fishing import FishPicker
 from toontown.fishing import FishBrowser

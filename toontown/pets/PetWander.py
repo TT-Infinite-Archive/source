@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 from direct.showbase.PythonUtil import randFloat, normalDistrib
 
 from toontown.pets.PetChase import PetChase

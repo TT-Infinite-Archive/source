@@ -1,3 +1,5 @@
+from panda3d.direct import DCFile
+from panda3d.core import ConfigVariableBool, ConfigVariableString, Datagram, StringStream, loadPrcFile
 import builtins
 import types
 import urllib.parse
@@ -5,13 +7,12 @@ import urllib.parse
 import pymongo
 from direct.distributed.AstronInternalRepository import AstronInternalRepository
 from direct.distributed.PyDatagram import PyDatagram
-from panda3d.core import loadPrcFile
 
 from otp.distributed.OtpDoGlobals import *
 from toontown.distributed.ToontownNetMessengerAI import ToontownNetMessengerAI
 from toontown.toonbase import EventGlobals
 
-if config.GetBool('want-web-api', False):
+if ConfigVariableBool('want-web-api', False).getValue():
     from toontown.web.WebserverAPIClient import WebserverAPIClient
 
 
@@ -28,8 +29,8 @@ class ToontownInternalRepository(AstronInternalRepository):
 
         self.__callbacks = {}
 
-        url = config.GetString('mongodb-url', 'mongodb://localhost')
-        replicaset = config.GetString('mongodb-replicaset', '')
+        url = ConfigVariableString('mongodb-url', 'mongodb://localhost').getValue()
+        replicaset = ConfigVariableString('mongodb-replicaset', '').getValue()
         if replicaset:
             self.mongo = pymongo.MongoClient(url, replicaset=replicaset)
         else:
@@ -38,10 +39,10 @@ class ToontownInternalRepository(AstronInternalRepository):
         self.mongodb = self.mongo[db]
         self.dbAstronCursor = self.mongodb.astron
 
-        if config.GetBool('want-web-api', False):
-            endpoint = config.GetString(
-                'web-api-endpoint', 'https://localhost:8000/api/')
-            token = config.GetString('web-api-token', '')
+        if ConfigVariableBool('want-web-api', False).getValue():
+            endpoint = ConfigVariableString(
+                'web-api-endpoint', 'https://localhost:8000/api/').getValue()
+            token = ConfigVariableString('web-api-token', '').getValue()
             self.webApi = WebserverAPIClient(endpoint, token)
         else:
             self.webApi = None

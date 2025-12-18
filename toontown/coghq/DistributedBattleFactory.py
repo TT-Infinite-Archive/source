@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.coghq import DistributedLevelBattle
 from direct.directnotify import DirectNotifyGlobal
 from toontown.suit import SuitDNA

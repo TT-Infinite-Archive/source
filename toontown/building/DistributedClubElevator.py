@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, Vec3, deg2Rad
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from toontown.building import ElevatorConstants

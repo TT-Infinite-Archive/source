@@ -1,4 +1,4 @@
-from panda3d.core import LVector4f
+from panda3d.core import LVector4f, Texture
 from . import DNANode
 from . import DNAError
 from . import DNAUtil

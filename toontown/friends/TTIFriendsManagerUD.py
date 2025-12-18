@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, Datagram
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
 from direct.task import Task
@@ -544,7 +545,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
                 return
         self.whisperRequests[fromId] = currStamp
         self.sendUpdateToAvatarId(toId, 'receiveTalkWhisper', [fromId, message])
-        if config.GetBool('want-chat-logging', False):
+        if ConfigVariableBool('want-chat-logging', False).getValue():
             self.air.mongodb.chat.messages.insert_one(
                 {'type': 1, 'timestamp': int(time.time()),
                  'sender': fromId, 'recipient': toId, 'location': [-1, -1],
@@ -566,7 +567,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
         requester = self.air.getAvatarIdFromSender()
         owner = self.secret2avId.get(secret)
         
-        if not config.GetBool('want-true-friends', True):
+        if not ConfigVariableBool('want-true-friends', True).getValue():
             self.sendUpdateToAvatarId(requester, 'submitSecretResponse', [0, 0])
             return
 

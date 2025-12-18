@@ -1,5 +1,5 @@
+from panda3d.core import Datagram, DatagramIterator
 import random
-from pandac.PandaModules import *
 from direct.directnotify.DirectNotifyGlobal import *
 import random
 from direct.distributed.PyDatagram import PyDatagram

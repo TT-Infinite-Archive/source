@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.hood import HoodAI
 from toontown.toonbase import ToontownGlobals
 from toontown.distributed.DistributedTimerAI import DistributedTimerAI
@@ -28,11 +29,11 @@ class OZHoodAI(HoodAI.HoodAI):
         HoodAI.HoodAI.startup(self)
 
         self.createTimer()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-chip-and-dale', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-chip-and-dale', True).getValue():
                 self.createClassicChars()
         self.createPicnicTables()
-        if simbase.config.GetBool('want-game-tables', True):
+        if ConfigVariableBool('want-game-tables', True).getValue():
             self.createGameTables()
         if self.air.wantGuilds:
             self.createLowdenClear()

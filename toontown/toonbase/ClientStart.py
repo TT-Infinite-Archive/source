@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableString, NodePath, Texture, Vec4, loadPrcFile, loadPrcFileData
 #!/usr/bin/env python2
 import gc
 
@@ -12,7 +13,6 @@ import os, sys
 
 builtins.process = 'client'
 
-from panda3d.core import ConfigVariableString
 
 builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
 
@@ -23,27 +23,24 @@ notify = directNotify.newCategory('ClientStart')
 notify.setInfo(True)
 
 if __debug__:
-    from panda3d.core import loadPrcFile
 
     loadPrcFile('config/general.prc')
     loadPrcFile('config/distribution/dev.prc')
 
     try:
         import wx
-    except ImportError as e:
-        notify.warning('Failed to start injector -- %s' % e.message)
+    except ModuleNotFoundError as e:
+        notify.warning('Failed to start injector -- %s' % e)
     else:
         from otp.otpbase.OTPInjectorDev import Injector
 
         notify.info('Starting injector...')
         builtins.injector = Injector()
 
-from panda3d.core import *
 
 for dtool in ('children', 'parent', 'name'):
     del NodePath.DtoolClassDict[dtool]
 
-from panda3d.core import loadPrcFileData
 
 from otp.settings.Settings import Settings
 from toontown.toonbase import ToontownGlobals
@@ -131,7 +128,6 @@ if base.win is None:
 
 launcher.setPandaErrorCode(0)
 
-from panda3d.core import Vec4
 
 base.setBackgroundColor(Vec4(0, 0, 0, 0))
 base.graphicsEngine.renderFrame()
@@ -280,7 +276,7 @@ gc.enable()
 gc.collect()
 
 try:
-    if config.GetBool('want-leak-graph-client', False):
+    if ConfigVariableBool('want-leak-graph-client', False).getValue():
         from toontown.debug import LeakGraph
         LeakGraph.outputLeaking()
 

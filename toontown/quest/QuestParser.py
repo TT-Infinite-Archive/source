@@ -1,3 +1,5 @@
+from panda3d.direct import WaitInterval
+from panda3d.core import ConfigVariableString, Point3, Point4, VBase3, VBase4
 import copy
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
@@ -5,7 +7,6 @@ from direct.showbase import AppRunnerGlobal
 from direct.showbase import DirectObject
 from direct.showbase import PythonUtil
 import os
-from pandac.PandaModules import *
 import re
 import sys
 import token
@@ -506,12 +507,11 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         token, varName, fileName = line
         if varName == 'tomDialogue_01':
             notify.debug('VarName tomDialogue getting added. Tutorial Ack: %d' % base.localAvatar.tutorialAck)
-        if base.config.GetString('language', 'english') == 'japanese':
+        if ConfigVariableString('language', 'english').getValue() == 'japanese':
             dialogue = loader.loadSfx(fileName)
         else:
             dialogue = None
         self.setVar(varName, dialogue)
-        return
 
     def parseLoadCCDialogue(self, line):
         token, varName, filenameTemplate = line
@@ -520,12 +520,11 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         else:
             classicChar = 'minnie'
         filename = filenameTemplate % classicChar
-        if base.config.GetString('language', 'english') == 'japanese':
+        if ConfigVariableString('language', 'english').getValue() == 'japanese':
             dialogue = loader.loadSfx(filename)
         else:
             dialogue = None
         self.setVar(varName, dialogue)
-        return
 
     def parseLoadChar(self, line):
         token, name, charType = line
@@ -1059,7 +1058,7 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         return Sequence(Func(grabCurTrackAccess), LerpFunctionInterval(updateGagLevel, fromData=1, toData=7, duration=0.3), WaitInterval(3.5), LerpFunctionInterval(updateGagLevel, fromData=7, toData=1, duration=0.3), Func(restoreTrackAccess), Func(messenger.send, 'doneThrowSquirtPreview'))
 
     def parseSetMusicVolume(self, line):
-        if base.config.GetString('language', 'english') == 'japanese':
+        if ConfigVariableString('language', 'english').getValue() == 'japanese':
             try:
                 loader = base.cr.playGame.place.loader
                 type = 'music'

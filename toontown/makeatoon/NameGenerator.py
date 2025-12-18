@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import DSearchPath, Filename, StreamReader, TextNode
 import random
 import string
 import copy

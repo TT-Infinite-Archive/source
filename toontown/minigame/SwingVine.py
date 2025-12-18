@@ -1,5 +1,6 @@
+from panda3d.physics import ActorNode
+from panda3d.core import BoundingSphere, CardMaker, CollideMask, CollisionNode, CollisionPolygon, CollisionSphere, CollisionTube, GeomNode, NodePath, Point3, RopeNode, Texture, TextureStage, Vec3, deg2Rad, rad2Deg
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject

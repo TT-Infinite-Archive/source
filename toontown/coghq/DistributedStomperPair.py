@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 import math
 from . import StomperGlobals

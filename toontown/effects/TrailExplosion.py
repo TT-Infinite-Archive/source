@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 from .EffectController import EffectController
 from .PooledEffect import PooledEffect

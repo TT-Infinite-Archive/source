@@ -1,7 +1,7 @@
+from panda3d.core import CardMaker, ConfigVariable, ConfigVariableBool, NodePath, TextNode, Vec4
 import random
 import time
 import datetime
-from pandac.PandaModules import Vec4, TextNode, CardMaker, NodePath
 from direct.distributed import DistributedObject
 from direct.task import Task
 from direct.interval.IntervalGlobal import *
@@ -156,7 +156,7 @@ class DistributedParty(DistributedObject.DistributedObject):
         base.localAvatar.chatMgr.chatInputSpeedChat.addInsidePartiesMenu()
         self.spawnTitleText()
         messenger.send(self.generatedEvent)
-        if config.GetBool('show-debug-party-grid', 0):
+        if ConfigVariableBool('show-debug-party-grid', False).getValue():
             self.testGrid = NodePath('test_grid')
             self.testGrid.reparentTo(base.cr.playGame.hood.loader.geom)
             for i in range(len(self.grid)):

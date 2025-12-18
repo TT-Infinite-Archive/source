@@ -1,5 +1,5 @@
+from panda3d.core import Plane, Point3, Vec2, Vec3
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from math import *
 
 class Trajectory:

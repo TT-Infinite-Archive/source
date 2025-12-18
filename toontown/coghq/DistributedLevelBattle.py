@@ -1,8 +1,8 @@
+from panda3d.core import Point3, VBase3
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 import random
 
 from otp.avatar import Emote

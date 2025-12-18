@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3, rad2Deg
 import copy
 from direct.directnotify import DirectNotifyGlobal
 from direct.directtools.DirectGeometry import CLAMP
@@ -7,7 +8,6 @@ from direct.fsm import State
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
 import math
-from pandac.PandaModules import *
 import random
 
 from . import DistributedSuitBase

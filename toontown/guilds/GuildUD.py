@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool
 
 from toontown.guilds.GuildRoleUD import GuildRoleUD
 from toontown.guilds.GuildMemberUD import GuildMemberUD
@@ -136,7 +136,7 @@ class GuildUD:
         self.saveGuild()
 
     def startQuest(self):
-        if not config.GetBool('want-guild-quests', True):
+        if not ConfigVariableBool('want-guild-quests', True).getValue():
             # We don't want quests right now, shut it all down
             quest = GuildQuestGlobals.GUILD_QUEST_EMPTY
             self.questContributions = {}

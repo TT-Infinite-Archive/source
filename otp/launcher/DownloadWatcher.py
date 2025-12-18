@@ -1,7 +1,7 @@
+from panda3d.core import TextNode
 from direct.task import Task
 from otp.otpbase import OTPLocalizer
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.showbase.DirectObject import DirectObject
 
 

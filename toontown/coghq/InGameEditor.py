@@ -1,4 +1,4 @@
-from pandac.PandaModules import Point3, Vec3, VBase3
+from panda3d.core import Filename, Point3, VBase3, Vec3, Vec4, getModelPath
 from direct.tkwidgets.AppShell import *
 from direct.showbase.TkGlobal import *
 from direct.tkwidgets.Tree import *

@@ -1,10 +1,10 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionTube, NodePath, Point3, VBase4
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import ClockDelta
 from direct.distributed import DistributedObject
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 import random
 
 from . import DistributedToon

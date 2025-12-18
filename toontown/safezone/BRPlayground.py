@@ -1,3 +1,4 @@
+from panda3d.core import Fog
 from direct.task.Task import Task
 import random
 

@@ -1,3 +1,6 @@
+from panda3d.core import ConfigVariableBool, Point3
+import math
+import random
 from otp.ai.AIBaseGlobal import *
 from direct.distributed.ClockDelta import *
 from otp.ai.MagicWordGlobal import *
@@ -14,13 +17,11 @@ from toontown.battle import BattleBase
 from toontown.toon import NPCToons
 from toontown.building import SuitBuildingGlobals
 from . import SuitDNA
-import random
 from toontown.coghq import DistributedLawbotBossGavelAI
 from toontown.suit import DistributedLawbotBossSuitAI
 from toontown.coghq import DistributedLawbotCannonAI
 from toontown.coghq import DistributedLawbotChairAI
 from toontown.toonbase import ToontownBattleGlobals
-import math
 
 
 class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM):
@@ -278,7 +279,7 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
              (1, 1),
              (1, 1, 1, 1, 1))
             listVersion = list(SuitBuildingGlobals.SuitBuildingInfo)
-            if simbase.config.GetBool('lawbot-boss-cheat', 0):
+            if ConfigVariableBool('lawbot-boss-cheat', False).getValue():
                 listVersion[13] = weakenedValue
                 SuitBuildingGlobals.SuitBuildingInfo = tuple(listVersion)
             return self.invokeSuitPlanner(13, 0)
@@ -509,7 +510,7 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         jurorsOver = self.numToonJurorsSeated - ToontownGlobals.LawbotBossJurorsForBalancedScale
         dmgAdjust = jurorsOver * ToontownGlobals.LawbotBossDamagePerJuror
         self.b_setBossDamage(ToontownGlobals.LawbotBossInitialDamage + dmgAdjust, 0, 0)
-        if simbase.config.GetBool('lawbot-boss-cheat', 0):
+        if ConfigVariableBool('lawbot-boss-cheat', False).getValue():
             self.b_setBossDamage(ToontownGlobals.LawbotBossMaxDamage - 1, 0, 0)
         self.battleThreeStart = globalClock.getFrameTime()
         for toonId in self.involvedToons:

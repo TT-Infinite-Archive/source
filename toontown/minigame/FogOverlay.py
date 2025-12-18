@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Fog, Geom, GeomNode, GeomTristrips, GeomVertexData, GeomVertexFormat, GeomVertexWriter, Point3, TransparencyAttrib
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *

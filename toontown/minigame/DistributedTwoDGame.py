@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, Point3, VBase4, Vec3
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import TTLocalizer
@@ -243,7 +243,7 @@ class DistributedTwoDGame(DistributedMinigame):
         self.showScoreTrack.start()
 
         #For the Alpha Blueprint ARG
-        if base.config.GetBool('want-blueprint4-ARG', False):
+        if ConfigVariableBool('want-blueprint4-ARG', False).getValue():
             MinigameGlobals.generateDebugARGPhrase()
 
     def exitShowScores(self):

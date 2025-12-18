@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionHandlerFloor, CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, GeomVertexWriter, NodePath, PandaNode, Point3, Vec3, Vec4
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.distributed import DistributedObject
 from direct.distributed.ClockDelta import *
@@ -7,8 +8,6 @@ from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
 from direct.task.Task import Task
 import math
-from pandac.PandaModules import *
-from pandac.PandaModules import *
 
 from . import CannonGlobals
 from toontown.effects import DustCloud

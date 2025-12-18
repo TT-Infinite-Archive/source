@@ -1,3 +1,4 @@
+from panda3d.core import Mat4, NodePath, Point3, TextNode, Texture
 import random
 
 from . import ToonInterior
@@ -9,7 +10,6 @@ from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
 from otp.speedchat import SpeedChatGlobals
-from pandac.PandaModules import *
 from toontown.dna.DNAParser import DNADoor
 from toontown.hood import ZoneUtil
 from toontown.toon import ToonDNA

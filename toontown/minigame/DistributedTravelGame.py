@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Plane, PlaneNode, Point2, Point3, TextNode, VBase4, Vec3, Vec4, rad2Deg
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import GlobalDialogColor
 from .DistributedMinigame import *
@@ -8,7 +8,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownTimer
 from . import TravelGameGlobals
 import math
-from pandac.PandaModules import rad2Deg
 from toontown.toontowngui import TTDialog
 from direct.interval.IntervalGlobal import *
 from . import VoteResultsPanel

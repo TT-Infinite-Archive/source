@@ -1,4 +1,4 @@
-import sys
+from panda3d.core import ConfigVariableBool, TextNode, VBase4, Vec3, Vec4
 from direct.showbase import DirectObject
 from direct.showbase.PythonUtil import traceFunctionCall
 from otp.otpbase import OTPGlobals
@@ -7,7 +7,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TeaserPanel
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from otp.chat import ChatManager
 from .TTChatInputSpeedChat import TTChatInputSpeedChat
 from .TTChatInputNormal import TTChatInputNormal
@@ -52,7 +51,7 @@ class ToontownChatManager(ChatManager.ChatManager):
         self.whisperCancelButton = DirectButton(parent=self.whisperFrame, image=(gui.find('**/CloseBtn_UP'), gui.find('**/CloseBtn_DN'), gui.find('**/CloseBtn_Rllvr')), pos=(0.125, 0, -0.1), scale=1.179, relief=None, text=('', OTPLocalizer.ChatManagerCancel, OTPLocalizer.ChatManagerCancel), text_scale=0.05, text_fg=(0, 0, 0, 1), text_pos=(0, -0.09), textMayChange=0, command=self.__whisperCancelPressed)
         gui.removeNode()
         ChatManager.ChatManager.__init__(self, cr, localAvatar)
-        self.defaultToWhiteList = base.config.GetBool('white-list-is-default', 1)
+        self.defaultToWhiteList = ConfigVariableBool('white-list-is-default', True).getValue()
         self.chatInputSpeedChat = TTChatInputSpeedChat(self)
         self.normalPos = Vec3(0.25, 0, -0.196)
         self.whisperPos = Vec3(0.3, 0, -0.3)
@@ -68,7 +67,6 @@ class ToontownChatManager(ChatManager.ChatManager):
         self.chatInputWhiteList.setPos(self.speedChatPlusPos)
         self.chatInputWhiteList.reparentTo(base.a2dTopLeft)
         self.chatInputWhiteList.desc = 'chatInputWhiteList'
-        return
 
     def delete(self):
         ChatManager.ChatManager.delete(self)
@@ -130,7 +128,6 @@ class ToontownChatManager(ChatManager.ChatManager):
             self.scButton.show()
         if not normObs:
             self.normalButton.show()
-        return
 
     def enterMainMenu(self):
         self.chatInputNormal.setPos(self.normalPos)
@@ -167,7 +164,6 @@ class ToontownChatManager(ChatManager.ChatManager):
             self.scButton.show()
         if not normObs:
             self.normalButton.show()
-        return
 
     def exitUnpaidChatWarning(self):
         if self.unpaidChatWarning:
@@ -183,7 +179,6 @@ class ToontownChatManager(ChatManager.ChatManager):
             DirectButton(self.noSecretChatAtAll, image=okButtonImage, relief=None, text=OTPLocalizer.NoSecretChatAtAllOK, text_scale=0.05, text_pos=(0.0, -0.1), textMayChange=0, pos=(0.0, 0.0, -0.4), command=self.__handleNoSecretChatAtAllOK)
             buttons.removeNode()
         self.noSecretChatAtAll.show()
-        return
 
     def exitNoSecretChatAtAll(self):
         self.noSecretChatAtAll.hide()
@@ -222,7 +217,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                 self.passwordEntry['focus'] = 1
                 self.passwordEntry.enterText('')
         self.noSecretChatWarning.show()
-        return
 
     def exitNoSecretChatWarning(self):
         self.noSecretChatWarning.hide()
@@ -273,7 +267,6 @@ class ToontownChatManager(ChatManager.ChatManager):
             innerCircle.removeNode()
         self.__initializeCheckBoxen()
         self.activateChatGui.show()
-        return
 
     def __initializeCheckBoxen(self):
         if base.cr.secretChatAllowed and not base.cr.secretChatNeedsParentPassword:
@@ -324,7 +317,6 @@ class ToontownChatManager(ChatManager.ChatManager):
         else:
             self.secretChatActivated['text'] = modeText
         self.secretChatActivated.show()
-        return
 
     def exitSecretChatActivated(self):
         self.secretChatActivated.hide()
@@ -337,13 +329,12 @@ class ToontownChatManager(ChatManager.ChatManager):
             DirectButton(self.problemActivatingChat, image=buttonImage, relief=None, text=OTPLocalizer.ProblemActivatingChatOK, text_scale=0.05, text_pos=(0.0, -0.1), textMayChange=0, pos=(0.0, 0.0, -0.28), command=self.__handleProblemActivatingChatOK)
             buttons.removeNode()
         self.problemActivatingChat.show()
-        return
 
     def exitProblemActivatingChat(self):
         self.problemActivatingChat.hide()
 
     def __normalButtonPressed(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CHAT: Speedchat Plus')
         messenger.send('wakeup')
         if self.localAvatar.canChat() or self.cr.wantMagicWords:
@@ -352,7 +343,7 @@ class ToontownChatManager(ChatManager.ChatManager):
         self.fsm.request('openChatWarning')
 
     def __scButtonPressed(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CHAT: Speedchat')
         messenger.send('wakeup')
         if self.fsm.getCurrentState().getName() == 'speedChat':
@@ -367,14 +358,12 @@ class ToontownChatManager(ChatManager.ChatManager):
         if avatarId:
             self.enterWhisperChat(avatarName, avatarId)
         self.whisperFrame.hide()
-        return
 
     def enterNormalChat(self):
         result = ChatManager.ChatManager.enterNormalChat(self)
         if result == None:
             self.notify.warning('something went wrong in enterNormalChat, falling back to main menu')
             self.fsm.request('mainMenu')
-        return
 
     def enterWhisperChatPlayer(self, avatarName, playerId):
         result = ChatManager.ChatManager.enterWhisperChatPlayer(self, avatarName, playerId)
@@ -382,7 +371,6 @@ class ToontownChatManager(ChatManager.ChatManager):
         if result == None:
             self.notify.warning('something went wrong in enterWhisperChatPlayer, falling back to main menu')
             self.fsm.request('mainMenu')
-        return
 
     def enterWhisperChat(self, avatarName, avatarId):
         result = ChatManager.ChatManager.enterWhisperChat(self, avatarName, avatarId)
@@ -391,7 +379,6 @@ class ToontownChatManager(ChatManager.ChatManager):
         if result == None:
             self.notify.warning('something went wrong in enterWhisperChat, falling back to main menu')
             self.fsm.request('mainMenu')
-        return
 
     def enterNoSecretChatAtAllAndNoWhitelist(self):
         if self.noSecretChatAtAllAndNoWhitelist == None:
@@ -402,7 +389,6 @@ class ToontownChatManager(ChatManager.ChatManager):
             DirectButton(self.noSecretChatAtAllAndNoWhitelist, image=okButtonImage, relief=None, text=OTPLocalizer.NoSecretChatAtAllOK, text_scale=0.05, text_pos=(0.0, -0.1), textMayChange=0, pos=(0.0, 0.0, -0.64), command=self.__handleNoSecretChatAtAllOK)
             buttons.removeNode()
         self.noSecretChatAtAllAndNoWhitelist.show()
-        return
 
     def exitNoSecretChatAtAllAndNoWhitelist(self):
         self.noSecretChatAtAllAndNoWhitelist.hide()
@@ -416,7 +402,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                 place.fsm.request('stopped')
             else:
                 self.notify.warning("Enter: %s has no 'stopped' state." % place)
-        return
 
     def exitTrueFriendTeaserPanel(self):
         self.teaser.destroy()
@@ -431,7 +416,7 @@ class ToontownChatManager(ChatManager.ChatManager):
                 self.notify.warning("Exit: %s has no 'stopped' state." % place)
 
     def __whisperScButtonPressed(self, avatarName, avatarId, playerId):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CHAT: Whisper')
         messenger.send('wakeup')
         hasManager = hasattr(base.cr, 'playerFriendsManager')
@@ -516,7 +501,6 @@ class ToontownChatManager(ChatManager.ChatManager):
                 message = 'Parent Password was invalid.'
             self.fsm.request('problemActivatingChat')
             self.problemActivatingChat['text'] = OTPLocalizer.ProblemActivatingChat % message
-        return
 
     def __handleActivateChatMoreInfo(self):
         self.fsm.request('chatMoreInfo')

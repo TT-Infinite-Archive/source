@@ -1,4 +1,4 @@
-from pandac.PandaModules import decompressString
+from panda3d.core import decompressString
 
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.distributed.ClockDelta import globalClockDelta

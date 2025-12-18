@@ -1,6 +1,5 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 
 from . import MovieCamera
 from toontown.chat.ChatGlobals import *

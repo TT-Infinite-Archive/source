@@ -1,3 +1,4 @@
+from panda3d.core import Semaphore
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.stdpy import threading
 from direct.stdpy import threading2

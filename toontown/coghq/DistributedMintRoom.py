@@ -1,7 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 import random
 
 from . import FactoryEntityCreator

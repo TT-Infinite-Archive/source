@@ -1,3 +1,4 @@
+from panda3d.core import TypeRegistry
 from . import FactorySpecs
 from otp.level import LevelSpec
 from toontown.toonbase import ToontownGlobals

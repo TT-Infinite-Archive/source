@@ -1,8 +1,8 @@
-from pandac.PandaModules import *
+from panda3d.physics import ForceNode, LinearEulerIntegrator, LinearForce, LinearFrictionForce, LinearIntegrator, LinearVectorForce, PhysicalNode, PhysicsCollisionHandler, PhysicsManager, PhysicsObject
+from panda3d.core import BitMask32, CardMaker, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionHandlerGravity, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, Mat3, NodePath, Point3, Vec3, Vec4
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.fsm import FSM
 from direct.distributed import DistributedSmoothNode
 from direct.interval.IntervalGlobal import *
@@ -82,7 +82,7 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         DistributedSmoothNode.DistributedSmoothNode.__init__(self, cr)
         FSM.FSM.__init__(self, 'DistributedVehicle')
         Kart.Kart.__init__(self)
-        if base.config.GetBool('want-racer', 0) == 1:
+        if ConfigVariableBool('want-racer', False).getValue():
             DistributedVehicle.proRacer = 1
             DistributedVehicle.accelerationMult = 35
             DistributedVehicle.accelerationBase = 30
@@ -132,8 +132,8 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         for piece in range(self.numPieChunks):
             self.pieSlideSpeed.append(randFloat(0.0, 0.2))
 
-        self.wantSmoke = ConfigVariableBool('want-kart-smoke', 1).getValue()
-        self.wantSparks = ConfigVariableBool('want-kart-sparks', 1).getValue()
+        self.wantSmoke = ConfigVariableBool('want-kart-smoke', True).getValue()
+        self.wantSparks = ConfigVariableBool('want-kart-sparks', True).getValue()
         self.__loadTextures()
         return
 

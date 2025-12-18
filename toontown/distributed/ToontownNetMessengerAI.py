@@ -1,3 +1,4 @@
+from panda3d.core import Datagram
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.PyDatagram import PyDatagram
 

@@ -1,3 +1,4 @@
+from panda3d.core import Point3
 from otp.ai.AIBase import *
 from .BattleBase import *
 from .BattleCalculatorAI import *

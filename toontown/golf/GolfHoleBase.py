@@ -1,7 +1,8 @@
+from panda3d.ode import OdeBody, OdeRayGeom, OdeTriMeshData, OdeTriMeshGeom
+from panda3d.core import BitMask32, Mat3, NodePath, Vec3
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
-from pandac.PandaModules import *
 from direct.fsm.FSM import FSM
 from toontown.ai.ToonBarrier import *
 from toontown.golf import GolfGlobals
@@ -10,7 +11,6 @@ import math
 import sys
 
 if sys.platform != 'android':
-    from panda3d.ode import OdeBody, OdeRayGeom, OdeTriMeshData, OdeTriMeshGeom
 
 class GolfHoleBase:
 

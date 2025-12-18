@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionSegment, CollisionTraverser, CollisionTube, NodePath, Point3, Vec3, deg2Rad
 from direct.task.TaskManagerGlobal import *
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *

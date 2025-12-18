@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollisionNode, CollisionPlane, NodePath, Plane, Point3, Vec3
 from toontown.toonbase.ToontownGlobals import *
 from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State

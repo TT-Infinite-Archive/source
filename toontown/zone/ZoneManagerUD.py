@@ -1,3 +1,4 @@
+from panda3d.core import Filename
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from toontown.zone.ZoneBlobSenderUD import ZoneBlobSenderUD
 from toontown.toonbase.ToontownGlobals import HoodHierarchy

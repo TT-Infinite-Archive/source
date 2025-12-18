@@ -1,6 +1,6 @@
+from panda3d.core import NodePath
 from . import Entity
 from . import DistributedEntity
-from pandac.PandaModules import NodePath
 
 class NodePathEntityBase:
 

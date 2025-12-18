@@ -1,12 +1,10 @@
-from direct.distributed import DistributedObjectAI
-from direct.directnotify import DirectNotifyGlobal
-from toontown.toonbase import ToontownGlobals
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, NodePath, Vec3
+import random
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from . import DistributedPhysicsWorldAI
 from direct.fsm.FSM import FSM
 from toontown.ai.ToonBarrier import *
 from toontown.golf import GolfGlobals
-import random
 from toontown.golf import GolfHoleBase
 
 class DistributedGolfHoleAI(DistributedPhysicsWorldAI.DistributedPhysicsWorldAI, FSM, GolfHoleBase.GolfHoleBase):
@@ -213,7 +211,7 @@ class DistributedGolfHoleAI(DistributedPhysicsWorldAI.DistributedPhysicsWorldAI,
             curNodePath = self.hardSurfaceNodePath.find('**/locator%d' % locatorNum)
 
     def loadBlockers(self):
-        loadAll = simbase.config.GetBool('golf-all-blockers', 0)
+        loadAll = ConfigVariableBool('golf-all-blockers', False).getValue()
         self.createLocatorDict()
         self.blockerNums = self.holeInfo['blockers']
         for locatorNum in self.locDict:
@@ -278,7 +276,7 @@ class DistributedGolfHoleAI(DistributedPhysicsWorldAI.DistributedPhysicsWorldAI,
     def choosePlayerToSimulate(self):
         stillPlaying = self.golfCourse.getStillPlayingAvIds()
         playerId = 0
-        if simbase.air.config.GetBool('golf-trust-driver-first', 0):
+        if ConfigVariableBool('golf-trust-driver-first', False).getValue():
             if stillPlaying:
                 playerId = stillPlaying[0]
         else:

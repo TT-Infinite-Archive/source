@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 
 from . import BoardingGroupShow
 from toontown.building import BoardingPartyBase
@@ -41,7 +41,7 @@ class DistributedBoardingParty(DistributedObject.DistributedObject, BoardingPart
         canonicalZoneId = ZoneUtil.getCanonicalZoneId(self.zoneId)
         self.notify.debug('canonicalZoneId = %s' % canonicalZoneId)
         localAvatar.chatMgr.chatInputSpeedChat.addBoardingGroupMenu(canonicalZoneId)
-        if base.config.GetBool('want-singing', 0):
+        if ConfigVariableBool('want-singing', False).getValue():
             localAvatar.chatMgr.chatInputSpeedChat.addSingingGroupMenu()
 
     def delete(self):
@@ -167,7 +167,7 @@ class DistributedBoardingParty(DistributedObject.DistributedObject, BoardingPart
                     self.inviterPanels.forceCleanup()
                 self.groupInviteePanel = GroupInvitee.GroupInvitee()
                 self.groupInviteePanel.make(self, inviter, leaderId, merger)
-                if base.config.GetBool('reject-boarding-group-invites', 0):
+                if ConfigVariableBool('reject-boarding-group-invites', False).getValue():
                     self.groupInviteePanel.forceCleanup()
                     self.groupInviteePanel = None
         return

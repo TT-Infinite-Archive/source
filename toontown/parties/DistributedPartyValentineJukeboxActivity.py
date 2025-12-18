@@ -1,3 +1,4 @@
+from panda3d.core import Texture
 from toontown.parties.DistributedPartyJukeboxActivityBase import DistributedPartyJukeboxActivityBase
 from toontown.parties import PartyGlobals
 

@@ -1,3 +1,4 @@
+from panda3d.core import TextNode, VBase3
 from direct.distributed import DistributedObject
 from toontown.toonbase import ToontownGlobals
 from . import MailboxGlobals
@@ -8,7 +9,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.catalog import MailboxScreen
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed.ClockDelta import *
-from pandac.PandaModules import *
 import random
 from direct.interval.IntervalGlobal import SoundInterval
 FlagPitchEmpty = -70

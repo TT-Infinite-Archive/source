@@ -1,4 +1,4 @@
-from panda3d.core import VBase4, VBase3
+from panda3d.core import Datagram, VBase3, VBase4
 
 from direct.distributed.PyDatagram import PyDatagram
 

@@ -1,3 +1,4 @@
+from panda3d.core import CollideMask, CollisionSphere, Point3, VBase3, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import *
 from direct.distributed.DistributedSmoothNodeBase import DummyTask, DistributedSmoothNodeBase
@@ -9,10 +10,6 @@ from toontown.coghq import DistributedCashbotBossObject
 from direct.showbase import PythonUtil
 from . import DistributedGoon
 from toontown.util.ThreadedCall import ThreadedCall
-from panda3d.core import CollisionSphere
-from pandac.PandaModules import Point3
-from pandac.PandaModules import Vec3
-from panda3d.core import VBase3
 
 
 class DistributedCashbotBossGoon(DistributedGoon.DistributedGoon, DistributedCashbotBossObject.DistributedCashbotBossObject):

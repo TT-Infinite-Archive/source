@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, BoundingSphere, CSDefault, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionPlane, CollisionSphere, CollisionTube, GeomNode, Mat3, NodePath, Plane, Point3, Texture, TextureStage, VBase3, VBase4, Vec2, Vec3, composeMatrix, decomposeMatrix
 from direct.distributed.ClockDelta import globalClockDelta
 from toontown.effects import DustCloud
 from toontown.suit import Suit

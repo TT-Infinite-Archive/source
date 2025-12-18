@@ -1,7 +1,7 @@
+from panda3d.core import ConfigVariableString, Datagram
 import semidbm
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
-from pandac.PandaModules import *
 from toontown.friends.TTIFriendsManagerUD import OperationFSM
 from toontown.guilds.GuildGlobals import *
 from toontown.guilds.GuildUD import *
@@ -101,7 +101,7 @@ class CreateGuildOperation(OperationFSM):
             else:
                 # Submit our name if its not reserved
                 if self.air.webApi is not None:
-                    payload = {'distribution': config.GetString('distribution'), 'name': guild.pendingName}
+                    payload = {'distribution': ConfigVariableString('distribution').getValue(), 'name': guild.pendingName}
                     self.air.webApi.execute('guilds/%d' % guildId, payload, 'post')
             self.demand('Off')
 
@@ -113,7 +113,7 @@ class CreateGuildOperation(OperationFSM):
 
         # Check if the name is available via the rpc
         if self.air.webApi is not None:
-            payload = {'name': guild.pendingName, 'distribution': config.GetString('distribution')}
+            payload = {'name': guild.pendingName, 'distribution': ConfigVariableString('distribution').getValue()}
             self.air.webApi.execute('reserved-guilds', payload, 'get', callback=handleNameAvailable,
                                     errback=handleNameError)
         else:
@@ -334,7 +334,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
                 self.nameResponse(guildId, False)
 
             if self.air.webApi is not None:
-                payload = {'distribution': config.GetString('distribution'), 'name': guild.pendingName}
+                payload = {'distribution': ConfigVariableString('distribution').getValue(), 'name': guild.pendingName}
                 self.air.webApi.execute('guilds/%d' % guildId, payload, 'post')
 
         def handleNameError():
@@ -345,7 +345,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
         # Check if the name is available via the rpc
         if self.air.webApi is not None:
             self.notify.debug('Asking webApi if guild name is taken')
-            payload = {'name': guild.pendingName, 'distribution': config.GetString('distribution')}
+            payload = {'name': guild.pendingName, 'distribution': ConfigVariableString('distribution').getValue()}
             self.air.webApi.execute('reserved-guilds', payload, 'get', callback=handleNameAvailable,
                                     errback=handleNameError)
         else:
@@ -507,7 +507,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
         # Check if the name is available via the rpc
         if self.air.webApi is not None:
             self.notify.debug('Asking webApi if guild name is taken')
-            payload = {'name': guildName, 'distribution': config.GetString('distribution')}
+            payload = {'name': guildName, 'distribution': ConfigVariableString('distribution').getValue()}
             self.air.webApi.execute('reserved-guilds', payload, 'get', callback=handleNameAvailable,
                                     errback=handleNameError)
         else:

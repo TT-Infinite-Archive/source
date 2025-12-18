@@ -1,3 +1,4 @@
+from panda3d.core import DecalEffect, NodePath, TextEncoder
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from toontown.building.ElevatorConstants import *

@@ -1,3 +1,4 @@
+from panda3d.core import GeomNode
 from . import AnimatedProp
 from direct.actor import Actor
 from direct.interval.IntervalGlobal import *

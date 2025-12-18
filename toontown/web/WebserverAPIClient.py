@@ -1,3 +1,4 @@
+from panda3d.core import DocumentSpec, HTTPClient, StringStream, URLSpec
 import requests
 
 
@@ -23,7 +24,6 @@ class WebserverAPIClient:
 '''
 import json
 
-from panda3d.core import URLSpec, HTTPClient, StringStream, DocumentSpec
 
 
 class ProtocolError(Exception):

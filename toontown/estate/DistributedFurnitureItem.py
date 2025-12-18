@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 from toontown.toonbase.ToontownGlobals import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *

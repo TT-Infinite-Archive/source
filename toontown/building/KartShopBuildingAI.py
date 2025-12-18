@@ -1,5 +1,4 @@
 from direct.directnotify.DirectNotifyGlobal import *
-from pandac.PandaModules import *
 from toontown.building import DoorTypes
 from toontown.building.DistributedDoorAI import DistributedDoorAI
 from toontown.building.DistributedKartShopInteriorAI import DistributedKartShopInteriorAI

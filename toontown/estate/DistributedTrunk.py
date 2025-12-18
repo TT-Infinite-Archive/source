@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Vec3
 from direct.gui.DirectGui import *
 from direct.task.Task import Task
 from direct.interval.IntervalGlobal import *

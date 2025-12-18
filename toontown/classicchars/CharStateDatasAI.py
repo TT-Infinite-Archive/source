@@ -1,3 +1,4 @@
+from panda3d.core import deg2Rad
 # File: C (Python 2.4)
 
 from otp.ai.AIBaseGlobal import *

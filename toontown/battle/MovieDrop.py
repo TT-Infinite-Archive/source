@@ -1,3 +1,4 @@
+from panda3d.core import BoundingVolume, GeomNode, OmniBoundingVolume, Point3, VBase3, Vec3
 from direct.interval.IntervalGlobal import *
 from .BattleBase import *
 from .BattleProps import *

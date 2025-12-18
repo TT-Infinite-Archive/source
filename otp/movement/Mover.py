@@ -1,4 +1,4 @@
-from pandac.PandaModules import LVector3f
+from panda3d.core import LVector3, LVector3f, NodePath
 
 from toontown.pets import PetConstants
 

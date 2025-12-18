@@ -1,3 +1,5 @@
+from panda3d.direct import WaitInterval
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, GeomNode, NodePath, Plane, Point3, TextNode, TransparencyAttrib, Vec4
 from direct.distributed.ClockDelta import globalClockDelta
 from direct.fsm import ClassicFSM
 from direct.fsm import State
@@ -6,7 +8,6 @@ from direct.interval.IntervalGlobal import Wait, LerpFunctionInterval, LerpHprIn
     SoundInterval, ActorInterval, ProjectileInterval, Track, LerpScaleInterval, WaitInterval, LerpPosHprInterval
 from direct.showbase import RandomNumGen
 from direct.task import Task
-from pandac.PandaModules import Point3, CollisionSphere, CollisionNode, CollisionHandlerEvent, NodePath, TextNode
 
 from toontown.minigame import CogThiefGameToonSD
 from toontown.minigame import CogThiefRewritten
@@ -23,9 +24,7 @@ from toontown.toonbase import ToontownTimer
 
 CTGG = CogThiefRewrittenGameGlobals
 from direct.gui.DirectGui import OnscreenImage
-from panda3d.core import TransparencyAttrib
 from direct.interval.IntervalGlobal import LerpColorScaleInterval
-from panda3d.core import Vec4
 from toontown.minigame import MinigameRulesPanel
 
 class DistributedCogThiefRewrittenGame(DistributedMinigame):
@@ -51,7 +50,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         self.cogInfo = {}
         self.lastTimeControlPressed = 0
         self.stolenBarrels = []
-        self.useOrthoWalk = config.GetBool('cog-thief-ortho', 0)
+        self.useOrthoWalk = ConfigVariableBool('cog-thief-ortho', False).getValue()
         self.resultIval = None
         self.gameIsEnding = False
         self.__textGen = TextNode('cogThiefGame')
@@ -293,7 +292,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             return
         self.notify.debug('setGameStart')
         DistributedMinigame.setGameStart(self, timestamp)
-        if not config.GetBool('cog-thief-endless', 0):
+        if not ConfigVariableBool('cog-thief-endless', False).getValue():
             self.timer.show()
             self.timer.countdown(CTGG.GameTime, self.__gameTimerExpired)
         self.clockStopTime = None
@@ -362,7 +361,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         camera.reparentTo(render)
         p = self.cameraTopView
         camera.setPosHpr(p[0], p[1], p[2], p[3], p[4], p[5])
-        camera.setZ(camera.getZ() + config.GetFloat('cog-thief-z-camera-adjust', 0.0))
+        camera.setZ(camera.getZ() + ConfigVariableDouble('cog-thief-z-camera-adjust', 0.0).getValue())
 
     def destroyGameWalk(self):
         self.notify.debug('destroyOrthoWalk')
@@ -803,8 +802,8 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             self.stolenBarrels.append(barrelIndex)
             barrel = self.barrels[barrelIndex]
             barrel.hide()
-        if config.GetBool('cog-thief-check-barrels', 1):
-            if not config.GetBool('cog-thief-endless', 0):
+        if ConfigVariableBool('cog-thief-check-barrels', True).getValue():
+            if not ConfigVariableBool('cog-thief-endless', False).getValue():
                 if len(self.stolenBarrels) == len(self.barrels):
                     localStamp = globalClockDelta.networkToLocalTime(timestamp, bits=32)
                     gameTime = self.local2GameTime(localStamp)
@@ -875,7 +874,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         return False
 
     def getNumCogs(self):
-        result = config.GetInt('cog-thief-num-cogs', 0)
+        result = ConfigVariableInt('cog-thief-num-cogs', 0).getValue()
         if not result:
             safezone = self.getSafezoneId()
             result = CTGG.calculateCogs(self.numPlayers, safezone)
@@ -935,7 +934,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
                 soundTrack = Sequence()
             self.resultIval = Parallel(textTrack, soundTrack)
             self.resultIval.start()
-            if config.GetBool('want-blueprint4-ARG', False):
+            if ConfigVariableBool('want-blueprint4-ARG', False).getValue():
                 MinigameGlobals.generateDebugARGPhrase()
 
     def __genText(self, text):

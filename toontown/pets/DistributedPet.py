@@ -1,5 +1,4 @@
-from pandac.PandaModules import *
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionNode, CollisionRay, NodePath, Point3, Texture, VBase4
 from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import *
 from direct.directnotify import DirectNotifyGlobal

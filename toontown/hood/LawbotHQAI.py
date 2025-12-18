@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.building import DistributedCJElevatorAI
 from toontown.building import FADoorCodes
 from toontown.building.DistributedBoardingPartyAI import DistributedBoardingPartyAI
@@ -27,9 +28,9 @@ class LawbotHQAI(CogHQAI.CogHQAI):
 
         self.createLawOfficeElevators()
         self.makeCogHQDoor(ToontownGlobals.LawbotOfficeExt, 0, 0)
-        if simbase.config.GetBool('want-boarding-groups', True):
+        if ConfigVariableBool('want-boarding-groups', True).getValue():
             self.createOfficeBoardingParty()
-        if simbase.config.GetBool('want-suit-planners', True):
+        if ConfigVariableBool('want-suit-planners', True).getValue():
             self.createSuitPlanners()
 
     def makeCogHQDoor(self, destinationZone, intDoorIndex, extDoorIndex, lock=0):

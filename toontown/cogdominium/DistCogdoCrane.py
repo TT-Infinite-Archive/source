@@ -1,3 +1,6 @@
+from panda3d.physics import ActorNode, PhysicalNode, PhysicsCollisionHandler, PhysicsObject
+from panda3d.direct import SmoothMover
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionInvSphere, CollisionNode, CollisionSphere, CollisionTube, GeomNode, Mat4, NodePath, NodePathCollection, Point3, RopeNode, TextNode, Texture, TextureStage, VBase3, VBase4, Vec3
 from direct.distributed import DistributedObject
 from direct.distributed.ClockDelta import *
 from direct.fsm import FSM
@@ -6,7 +9,6 @@ from direct.interval.IntervalGlobal import *
 from direct.showbase import PythonUtil
 from direct.showutil import Rope
 from direct.task import Task
-from pandac.PandaModules import *
 import random
 
 from otp.otpbase import OTPGlobals

@@ -3,7 +3,6 @@ from toontown.toonbase import ToontownGlobals
 from direct.fsm import StateData
 from toontown.shtiker.PurchaseManagerConstants import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.task import Task
 from direct.fsm import State
 from direct.fsm import ClassicFSM, State

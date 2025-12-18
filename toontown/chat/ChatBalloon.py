@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import AntialiasAttrib, DepthWriteAttrib, NodePath, TextNode, VBase4
 
 
 class ChatBalloon(NodePath):

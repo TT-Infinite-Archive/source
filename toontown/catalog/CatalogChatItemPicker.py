@@ -1,5 +1,5 @@
+from panda3d.core import Plane, PlaneNode, Point3, TextNode, Vec3, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.showbase import DirectObject
 from . import CatalogItem
 from toontown.toonbase import ToontownGlobals

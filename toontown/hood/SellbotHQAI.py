@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.building import DistributedVPElevatorAI
 from toontown.building import FADoorCodes
 from toontown.building.DistributedBoardingPartyAI import DistributedBoardingPartyAI
@@ -31,9 +32,9 @@ class SellbotHQAI(CogHQAI.CogHQAI):
             extDoor = self.makeCogHQDoor(self.lobbyZoneId, 0, i + 1, self.lobbyFADoorCode)
             self.cogHQDoors.append(extDoor)
         self.createFactoryElevators()
-        if simbase.config.GetBool('want-boarding-groups', True):
+        if ConfigVariableBool('want-boarding-groups', True).getValue():
             self.createFactoryBoardingParty()
-        if simbase.config.GetBool('want-suit-planners', True):
+        if ConfigVariableBool('want-suit-planners', True).getValue():
             self.createSuitPlanners()
 
         # Our suit planner needs the Cog HQ doors as well:

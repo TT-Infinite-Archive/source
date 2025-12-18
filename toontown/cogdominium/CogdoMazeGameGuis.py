@@ -1,9 +1,9 @@
+from panda3d.core import CardMaker, NodePath, Point3, TextNode
 from direct.gui.DirectLabel import DirectLabel
 from direct.gui.DirectGui import DirectFrame, DGG
 from direct.task.Task import Task
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Wait, Func
-from pandac.PandaModules import TextNode, NodePath, Point3, CardMaker
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownIntervals

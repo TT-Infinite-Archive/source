@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, TrueClock, URLSpec, VBase4, VirtualFileSystem, WindowProperties, loadPrcFileData
 import fractions
 import os
 import random
@@ -9,7 +10,6 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.filter.CommonFilters import CommonFilters
 from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 
 from otp.ai.MagicWordGlobal import *
 from otp.otpbase import OTPBase
@@ -27,7 +27,7 @@ from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
 from toontown.toonbase import ServerSettingsGlobals
 
-if config.GetBool('want-leak-graph', False):
+if ConfigVariableBool('want-leak-graph', False).getValue():
     from toontown.debug.LeakGraph import LeakGraph
 
 
@@ -99,14 +99,14 @@ class ToonBase(OTPBase.OTPBase):
         self.disableShowbaseMouse()
         self.addCullBins()
         self.debugRunningMultiplier /= OTPGlobals.ToonSpeedFactor
-        self.baseXpMultiplier = self.config.GetFloat('base-xp-multiplier', 1.0)
+        self.baseXpMultiplier = ConfigVariableDouble('base-xp-multiplier', 1.0).getValue()
 
         # self.wantSinglePlayer = serverSettings[ServerSettingsGlobals.WantSinglePlayer]
         self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
         self.wantTTCJukebox = serverSettings[ServerSettingsGlobals.TTCJukebox]
 
-        self.toonChatSounds = self.config.GetBool('toon-chat-sounds', 1)
-        self.placeBeforeObjects = self.config.GetBool('place-before-objects', 1)
+        self.toonChatSounds = ConfigVariableBool('toon-chat-sounds', True).getValue()
+        self.placeBeforeObjects = ConfigVariableBool('place-before-objects', True).getValue()
         self.endlessQuietZone = False
         self.wantDynamicShadows = 0
         self.exitErrorCode = 0
@@ -132,7 +132,7 @@ class ToonBase(OTPBase.OTPBase):
             launcher.setPandaErrorCode(11)
 
         globalClock.setMaxDt(0.2)
-        if self.config.GetBool('want-particles', 1) == 1:
+        if ConfigVariableBool('want-particles', True).getValue():
             self.notify.debug('Enabling particles')
             self.enableParticles()
 
@@ -158,20 +158,20 @@ class ToonBase(OTPBase.OTPBase):
         __builtins__['preloader'] = self.preloader
         self.accept('PandaPaused', self.disableAllAudio)
         self.accept('PandaRestarted', self.enableAllAudio)
-        self.friendMode = self.config.GetBool('switchboard-friends', 0)
-        self.wantPets = self.config.GetBool('want-pets', 1)
-        self.wantBingo = self.config.GetBool('want-fish-bingo', 1)
-        self.wantKarts = self.config.GetBool('want-karts', 1)
-        self.wantNewSpecies = self.config.GetBool('want-new-species', 0)
-        self.wantAchievements = self.config.GetBool('want-achievements', 1)
-        self.wantGroupTracker = self.config.GetBool('want-grouptracker', 0)
-        self.wantGuilds = self.config.GetBool('want-guilds', 0)
-        self.wantCollectibles = self.config.GetBool('want-collectibles', 1)
-        self.wantMultiplayer = self.config.GetBool('want-multiplayer', False)
-        self.wantMods = self.config.GetBool('want-mods', False)
-        self.wantServerBrowser = self.config.GetBool('want-server-browser', False)
-        self.wantTrolleyTTC = self.config.GetBool('want-ttc-trolley', False)
-        self.inactivityTimeout = self.config.GetFloat('inactivity-timeout', ToontownGlobals.KeyboardTimeout)
+        self.friendMode = ConfigVariableBool('switchboard-friends', False).getValue()
+        self.wantPets = ConfigVariableBool('want-pets', True).getValue()
+        self.wantBingo = ConfigVariableBool('want-fish-bingo', True).getValue()
+        self.wantKarts = ConfigVariableBool('want-karts', True).getValue()
+        self.wantNewSpecies = ConfigVariableBool('want-new-species', False).getValue()
+        self.wantAchievements = ConfigVariableBool('want-achievements', True).getValue()
+        self.wantGroupTracker = ConfigVariableBool('want-grouptracker', False).getValue()
+        self.wantGuilds = ConfigVariableBool('want-guilds', False).getValue()
+        self.wantCollectibles = ConfigVariableBool('want-collectibles', True).getValue()
+        self.wantMultiplayer = ConfigVariableBool('want-multiplayer', False).getValue()
+        self.wantMods = ConfigVariableBool('want-mods', False).getValue()
+        self.wantServerBrowser = ConfigVariableBool('want-server-browser', False).getValue()
+        self.wantTrolleyTTC = ConfigVariableBool('want-ttc-trolley', False).getValue()
+        self.inactivityTimeout = ConfigVariableDouble('inactivity-timeout', ToontownGlobals.KeyboardTimeout).getValue()
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)
             self.mouseWatcherNode.setInactivityTimeout(self.inactivityTimeout)
@@ -179,43 +179,43 @@ class ToonBase(OTPBase.OTPBase):
         self.mouseWatcherNode.setLeavePattern('mouse-leave-%r')
         self.mouseWatcherNode.setButtonDownPattern('button-down-%r')
         self.mouseWatcherNode.setButtonUpPattern('button-up-%r')
-        self.randomMinigameAbort = self.config.GetBool('random-minigame-abort', 0)
-        self.randomMinigameDisconnect = self.config.GetBool('random-minigame-disconnect', 0)
-        self.randomMinigameNetworkPlugPull = self.config.GetBool('random-minigame-netplugpull', 0)
-        self.autoPlayAgain = self.config.GetBool('auto-play-again', 0)
-        self.skipMinigameReward = self.config.GetBool('skip-minigame-reward', 0)
-        self.wantMinigameDifficulty = self.config.GetBool('want-minigame-difficulty', 0)
-        self.minigameDifficulty = self.config.GetFloat('minigame-difficulty', -1.0)
+        self.randomMinigameAbort = ConfigVariableBool('random-minigame-abort', False).getValue()
+        self.randomMinigameDisconnect = ConfigVariableBool('random-minigame-disconnect', False).getValue()
+        self.randomMinigameNetworkPlugPull = ConfigVariableBool('random-minigame-netplugpull', False).getValue()
+        self.autoPlayAgain = ConfigVariableBool('auto-play-again', False).getValue()
+        self.skipMinigameReward = ConfigVariableBool('skip-minigame-reward', False).getValue()
+        self.wantMinigameDifficulty = ConfigVariableBool('want-minigame-difficulty', False).getValue()
+        self.minigameDifficulty = ConfigVariableDouble('minigame-difficulty', -1.0).getValue()
         if self.minigameDifficulty == -1.0:
             del self.minigameDifficulty
-        self.minigameSafezoneId = self.config.GetInt('minigame-safezone-id', -1)
+        self.minigameSafezoneId = ConfigVariableInt('minigame-safezone-id', -1).getValue()
         if self.minigameSafezoneId == -1:
             del self.minigameSafezoneId
-        cogdoGameSafezoneId = self.config.GetInt('cogdo-game-safezone-id', -1)
-        cogdoGameDifficulty = self.config.GetFloat('cogdo-game-difficulty', -1)
+        cogdoGameSafezoneId = ConfigVariableInt('cogdo-game-safezone-id', -1).getValue()
+        cogdoGameDifficulty = ConfigVariableDouble('cogdo-game-difficulty', -1).getValue()
         if cogdoGameDifficulty != -1:
             self.cogdoGameDifficulty = cogdoGameDifficulty
         if cogdoGameSafezoneId != -1:
             self.cogdoGameSafezoneId = cogdoGameSafezoneId
-        ToontownBattleGlobals.SkipMovie = self.config.GetBool('skip-battle-movies', 0)
-        self.creditCardUpFront = self.config.GetInt('credit-card-up-front', -1)
+        ToontownBattleGlobals.SkipMovie = ConfigVariableBool('skip-battle-movies', 0).getValue()
+        self.creditCardUpFront = ConfigVariableInt('credit-card-up-front', -1).getValue()
         if self.creditCardUpFront == -1:
             del self.creditCardUpFront
         else:
             self.creditCardUpFront = self.creditCardUpFront != 0
-        self.housingEnabled = self.config.GetBool('want-housing', 1)
-        self.cannonsEnabled = self.config.GetBool('estate-cannons', 0)
-        self.fireworksEnabled = self.config.GetBool('estate-fireworks', 0)
-        self.dayNightEnabled = self.config.GetBool('estate-day-night', 0)
-        self.cloudPlatformsEnabled = self.config.GetBool('estate-clouds', 0)
-        self.greySpacing = self.config.GetBool('allow-greyspacing', 0)
-        self.goonsEnabled = self.config.GetBool('estate-goon', 0)
-        self.restrictTrialers = self.config.GetBool('restrict-trialers', 1)
-        self.roamingTrialers = self.config.GetBool('roaming-trialers', 1)
-        self.slowQuietZone = self.config.GetBool('slow-quiet-zone', 0)
-        self.slowQuietZoneDelay = self.config.GetFloat('slow-quiet-zone-delay', 5)
-        self.killInterestResponse = self.config.GetBool('kill-interest-response', 0)
-        self.forceSkipTutorial = self.config.GetBool('force-skip-tutorial', 0)
+        self.housingEnabled = ConfigVariableBool('want-housing', True).getValue()
+        self.cannonsEnabled = ConfigVariableBool('estate-cannons', 0).getValue()
+        self.fireworksEnabled = ConfigVariableBool('estate-fireworks', 0).getValue()
+        self.dayNightEnabled = ConfigVariableBool('estate-day-night', 0).getValue()
+        self.cloudPlatformsEnabled = ConfigVariableBool('estate-clouds', 0).getValue()
+        self.greySpacing = ConfigVariableBool('allow-greyspacing', 0).getValue()
+        self.goonsEnabled = ConfigVariableBool('estate-goon', 0).getValue()
+        self.restrictTrialers = ConfigVariableBool('restrict-trialers', True).getValue()
+        self.roamingTrialers = ConfigVariableBool('roaming-trialers', True).getValue()
+        self.slowQuietZone = ConfigVariableBool('slow-quiet-zone', 0).getValue()
+        self.slowQuietZoneDelay = ConfigVariableDouble('slow-quiet-zone-delay', 5).getValue()
+        self.killInterestResponse = ConfigVariableBool('kill-interest-response', 0).getValue()
+        self.forceSkipTutorial = ConfigVariableBool('force-skip-tutorial', 0).getValue()
 
         self.showGroupTracker = settings.get('grouptracker', True)
         settings['grouptracker'] = self.showGroupTracker
@@ -247,9 +247,9 @@ class ToonBase(OTPBase.OTPBase):
             ToontownGlobals.setNametagFont(i, TTLocalizer.NametagFonts[i])
 
         # Free black/white Toons:
-        self.wantYinYang = config.GetBool('want-yin-yang', False)
+        self.wantYinYang = ConfigVariableBool('want-yin-yang', False).getValue()
 
-        activeHolidays = config.GetString('active-holidays', '')
+        activeHolidays = ConfigVariableString('active-holidays', '').getValue()
         self.clientHolidayIdList = []
         for holidayId in activeHolidays.split(','):
             if holidayId:
@@ -288,7 +288,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantNpcInteract = settings.get('npc-interaction-key')
         
         self.leakGraph = None
-        if config.GetBool('want-leak-graph-client', False):
+        if ConfigVariableBool('want-leak-graph-client', False).getValue():
             self.leakGraph = LeakGraph('tti-client-process')
             self.leakGraph.start()
 
@@ -418,7 +418,7 @@ class ToonBase(OTPBase.OTPBase):
             self.screenshot(namePrefix=namePrefix)
             self.lastScreenShotTime = globalClock.getRealTime()
             return
-        coordOnScreen = self.config.GetBool('screenshot-coords', 0)
+        coordOnScreen = ConfigVariableBool('screenshot-coords', 0).getValue()
         self.localAvatar.stopThisFrame = 1
         ctext = self.localAvatar.getAvPosStr()
         self.screenshotStr = ''
@@ -549,13 +549,13 @@ class ToonBase(OTPBase.OTPBase):
 
     def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
-        clientagents = base.config.GetInt('client-agents', 1) - 1
+        clientagents = ConfigVariableInt('client-agents', 1).getValue() - 1
 
         # Get a new port.
         port += random.randint(0, clientagents) * 100
 
         gameserver = URLSpec(gameserver, 1)
-        if base.config.GetBool('server-force-ssl', False):
+        if ConfigVariableBool('server-force-ssl', False).getValue():
             gameserver.setScheme('s')
         if not gameserver.hasPort():
             gameserver.setPort(port)
@@ -637,9 +637,9 @@ class ToonBase(OTPBase.OTPBase):
 
     def getShardPopLimits(self):
         return (
-            config.GetInt('shard-low-pop', ToontownGlobals.LOW_POP),
-            config.GetInt('shard-mid-pop', ToontownGlobals.MID_POP),
-            config.GetInt('shard-high-pop', ToontownGlobals.HIGH_POP)
+            ConfigVariableInt('shard-low-pop', ToontownGlobals.LOW_POP).getValue(),
+            ConfigVariableInt('shard-mid-pop', ToontownGlobals.MID_POP).getValue(),
+            ConfigVariableInt('shard-high-pop', ToontownGlobals.HIGH_POP).getValue()
         )
 
     def playMusic(self, music, looping=0, interrupt=1, volume=None, time=0.0):

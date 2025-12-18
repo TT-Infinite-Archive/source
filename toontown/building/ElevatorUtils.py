@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Point3
 from direct.interval.IntervalGlobal import *
 from .ElevatorConstants import *
 

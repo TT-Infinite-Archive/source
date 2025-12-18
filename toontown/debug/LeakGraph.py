@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableInt
 import objgraph
 import random
 import time
@@ -22,8 +23,8 @@ class LeakGraph(threading.Thread):
     notify = directNotify.newCategory('LeakGraph')
     notify.setInfo(True)
 
-    CHECK_CYCLE = config.GetInt('leak-graph-check-cycle', 3)
-    GRAPH_CYCLE = config.GetInt('leak-graph-graph-cycle', 90)
+    CHECK_CYCLE = ConfigVariableInt('leak-graph-check-cycle', 3).getValue()
+    GRAPH_CYCLE = ConfigVariableInt('leak-graph-graph-cycle', 90).getValue()
 
     def __init__(self, name):
         threading.Thread.__init__(self)

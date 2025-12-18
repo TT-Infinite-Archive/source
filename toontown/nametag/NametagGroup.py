@@ -1,5 +1,5 @@
+from panda3d.core import PandaNode, VBase4
 from direct.task.Task import Task
-from pandac.PandaModules import VBase4, PandaNode
 from direct.distributed.ClockDelta import globalClockDelta
 
 from toontown.margins.MarginVisible import MarginVisible

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionTube, NodePath, Point3, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.showbase import DirectObject
 from .DroppedGag import *

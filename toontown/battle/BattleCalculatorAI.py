@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, NodePath
 from .BattleBase import *
 from .DistributedBattleAI import *
 from toontown.toonbase.ToontownBattleGlobals import *
@@ -38,13 +39,13 @@ class BattleCalculatorAI:
     KBBONUS_LURED_FLAG = 0
     KBBONUS_TGT_LURED = 1
     notify = DirectNotifyGlobal.directNotify.newCategory('BattleCalculatorAI')
-    toonsAlwaysHit = simbase.config.GetBool('toons-always-hit', 0)
-    toonsAlwaysMiss = simbase.config.GetBool('toons-always-miss', 0)
-    toonsAlways5050 = simbase.config.GetBool('toons-always-5050', 0)
-    suitsAlwaysHit = simbase.config.GetBool('suits-always-hit', 0)
-    suitsAlwaysMiss = simbase.config.GetBool('suits-always-miss', 0)
-    immortalSuits = simbase.config.GetBool('immortal-suits', 0)
-    propAndOrganicBonusStack = simbase.config.GetBool('prop-and-organic-bonus-stack', 0)
+    toonsAlwaysHit = ConfigVariableBool('toons-always-hit', False).getValue()
+    toonsAlwaysMiss = ConfigVariableBool('toons-always-miss', False).getValue()
+    toonsAlways5050 = ConfigVariableBool('toons-always-5050', False).getValue()
+    suitsAlwaysHit = ConfigVariableBool('suits-always-hit', False).getValue()
+    suitsAlwaysMiss = ConfigVariableBool('suits-always-miss', False).getValue()
+    immortalSuits = ConfigVariableBool('immortal-suits', False).getValue()
+    propAndOrganicBonusStack = ConfigVariableBool('prop-and-organic-bonus-stack', False).getValue()
 
     def __init__(self, battle, tutorialFlag = 0):
         self.battle = battle

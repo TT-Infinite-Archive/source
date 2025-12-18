@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, ColorInterpolationManager, LinearVectorForce
+from panda3d.core import ColorBlendAttrib, Point3, Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 from direct.particles import ParticleEffect, Particles, ForceGroup
 from .EffectController import EffectController

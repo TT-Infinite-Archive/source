@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from .ElevatorConstants import *

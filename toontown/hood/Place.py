@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, NodePath
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData
@@ -35,7 +35,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         self._leftQuietZoneSubframeCall = None
         self._setZoneCompleteLocalCallbacks = PriorityCallbacks()
         self._setZoneCompleteSubframeCall = None
-        return
 
     def load(self):
         StateData.StateData.load(self)
@@ -66,7 +65,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         if self.trialerFA:
             self.trialerFA.exit()
             del self.trialerFA
-        return
 
     def _getQZState(self):
         if hasattr(base, 'cr') and hasattr(base.cr, 'playGame'):
@@ -91,13 +89,11 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             qzsd = self._getQZState()
             if qzsd:
                 qzsd.removeLeftQuietZoneCallback(token)
-        return
 
     def _doLeftQuietZoneCallbacks(self):
         self._leftQuietZoneLocalCallbacks()
         self._leftQuietZoneLocalCallbacks.clear()
         self._leftQuietZoneSubframeCall = None
-        return
 
     def addSetZoneCompleteCallback(self, callback, priority = None):
         qzsd = self._getQZState()
@@ -116,14 +112,12 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             qzsd = self._getQZState()
             if qzsd:
                 qzsd.removeSetZoneCompleteCallback(token)
-        return
 
     def _doSetZoneCompleteLocalCallbacks(self):
         self._setZoneCompleteSubframeCall = None
         localCallbacks = self._setZoneCompleteLocalCallbacks
         self._setZoneCompleteLocalCallbacks()
         localCallbacks.clear()
-        return
 
     def setState(self, state):
         if hasattr(self, 'fsm'):
@@ -147,7 +141,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         return 1
 
     def handleTeleportQuery(self, fromAvatar, toAvatar):
-        if base.config.GetBool('want-tptrack', False):
+        if ConfigVariableBool('want-tptrack', False).getValue():
             if toAvatar == localAvatar:
                 toAvatar.doTeleportResponse(fromAvatar, toAvatar, toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId(), fromAvatar.doId)
             else:
@@ -943,7 +937,6 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         self.quietZoneStateData.exit()
         self.quietZoneStateData.unload()
         self.quietZoneStateData = None
-        return
 
     def handleQuietZoneDone(self):
         how = base.cr.handlerArgs['how']

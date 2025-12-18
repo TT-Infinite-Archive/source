@@ -1,3 +1,10 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, NodePath, Notify, Point3, TextNode, VBase4, Vec2, Vec3, Vec4
+import math
+import random
+import time
+
+    CollisionHandlerEvent, CollisionNode, CollisionSphere, NodePath, Vec3, Vec4
+
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.gui import DirectGuiGlobals
@@ -6,12 +13,6 @@ from direct.interval.IntervalGlobal import *
 from direct.showbase import PythonUtil
 from direct.showbase.PythonUtil import *
 from direct.task import Task
-import math
-from pandac.PandaModules import *
-import random
-import re
-import time
-import zlib
 
 from . import DistributedToon
 from . import LaffMeter
@@ -65,7 +66,7 @@ from toontown.toontowngui import NewsPageButtonManager
 from toontown.friends.FriendHandle import FriendHandle
 import sys
 
-WantNewsPage = base.config.GetBool('want-news-page', ToontownGlobals.DefaultWantNewsPageSetting)
+WantNewsPage = ConfigVariableBool('want-news-page', ToontownGlobals.DefaultWantNewsPageSetting).getValue()
 if WantNewsPage:
     from toontown.shtiker import NewsPage
 AdjustmentForNewsButton = -0.275
@@ -76,8 +77,8 @@ if (__debug__):
 
 class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     neverDisable = 1
-    piePowerSpeed = base.config.GetDouble('pie-power-speed', 0.2)
-    piePowerExponent = base.config.GetDouble('pie-power-exponent', 0.75)
+    piePowerSpeed = ConfigVariableDouble('pie-power-speed', 0.2).getValue()
+    piePowerExponent = ConfigVariableDouble('pie-power-exponent', 0.75).getValue()
 
     def __init__(self, cr):
         try:
@@ -135,8 +136,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.tossPieStart = None
             self.__presentingPie = 0
             self.__pieSequence = 0
-            self.wantBattles = base.config.GetBool('want-battles', 1)
-            wantNameTagAvIds = base.config.GetBool('want-nametag-avids', 0)
+            self.wantBattles = ConfigVariableBool('want-battles', True).getValue()
+            wantNameTagAvIds = ConfigVariableBool('want-nametag-avids', False).getValue()
             if wantNameTagAvIds:
                 messenger.send('nameTagShowAvId', [])
                 base.idTags = 1
@@ -147,7 +148,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.ticker = 0
             self.glitchOkay = 1
             self.tempGreySpacing = 0
-            self.wantStatePrint = base.config.GetBool('want-statePrint', 0)
+            self.wantStatePrint = ConfigVariableBool('want-statePrint', False).getValue()
             self.__gardeningGui = None
             self.__gardeningGuiFake = None
             self.__shovelButton = None
@@ -627,11 +628,11 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.notify.debug('Setting GM State: %s in LocalToon' % state)
         DistributedToon.DistributedToon.setAsGM(self, state)
         if self.gmState:
-            if base.config.GetString('gm-nametag-string', '') != '':
-                self.gmNameTagString = base.config.GetString('gm-nametag-string')
-            if base.config.GetString('gm-nametag-color', '') != '':
-                self.gmNameTagColor = base.config.GetString('gm-nametag-color')
-            if base.config.GetInt('gm-nametag-enabled', 0):
+            if ConfigVariableString('gm-nametag-string', '').getValue() != '':
+                self.gmNameTagString = ConfigVariableString('gm-nametag-string').getValue()
+            if ConfigVariableString('gm-nametag-color', '').getValue() != '':
+                self.gmNameTagColor = ConfigVariableString('gm-nametag-color').getValue()
+            if ConfigVariableInt('gm-nametag-enabled', 0).getValue():
                 self.gmNameTagEnabled = 1
             self.d_updateGMNameTag()
 
@@ -1204,14 +1205,14 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if self.__catalogNotifyDialog:
             self.__catalogNotifyDialog.cleanup()
             self.__catalogNotifyDialog = None
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: VISITESTATE: Visit estate')
         place.goHomeNow(self.lastHood)
         return
 
     def __startMoveFurniture(self):
         self.oldPos = self.getPos()
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableDouble('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: ESTATE:  Furniture Placement')
         if self.cr.furnitureManager != None:
             self.cr.furnitureManager.d_suggestDirector(self.doId)
@@ -1975,7 +1976,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def getAccountDays(self):
         days = 0
-        defaultDays = base.cr.config.GetInt('account-days', -1)
+        defaultDays = ConfigVariableInt('account-days', -1).getValue()
         if defaultDays >= 0:
             days = defaultDays
         elif hasattr(base.cr, 'accountDays'):
@@ -2029,7 +2030,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         return self.lastTimeReadNews
 
     def cheatCogdoMazeGame(self, kindOfCheat = 0):
-        if base.config.GetBool('allow-cogdo-maze-suit-hit-cheat'):
+        if ConfigVariableBool('allow-cogdo-maze-suit-hit-cheat', False).getValue():
             maze = base.cr.doFind('DistCogdoMazeGame')
             if maze:
                 if kindOfCheat == 0:

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase import PythonUtil
 from toontown.toonbase import ToontownBattleGlobals
@@ -3666,7 +3667,7 @@ QuestDict = {
     10206: (ELDER_TIER, Start, (BuildingNewbieQuest, Anywhere, 4, Any, 1, NEWBIE_HP), Any, ToonHQ, NA, 10207, DefaultDialog),
     10207: (ELDER_TIER, Cont, (DeliverItemQuest, 1000), Any, ToonTailor, 1000, NA, DefaultDialog) }
 
-if not config.GetBool('want-phone-quest', 1):
+if not ConfigVariableBool('want-phone-quest', True).getValue():
     QuestDict[150] = (TT_TIER, Cont, (FriendQuest,), Same, ToonHQ, 100, NA, DefaultDialog)
     QuestDict[175] = (TT_TIER, OBSOLETE, (PhoneQuest,), Same, ToonHQ, 100, NA, DialogDict[175])
 

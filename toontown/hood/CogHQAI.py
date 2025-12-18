@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.building import DoorTypes
 from toontown.building.DistributedBoardingPartyAI import DistributedBoardingPartyAI
 from toontown.coghq import DistributedCogHQDoorAI
@@ -39,7 +40,7 @@ class CogHQAI:
         self.createLobbyManager()
         self.createLobbyElevator()
         self.extDoor = self.makeCogHQDoor(self.lobbyZoneId, 0, 0, self.lobbyFADoorCode)
-        if simbase.config.GetBool('want-boarding-groups', True):
+        if ConfigVariableBool('want-boarding-groups', True).getValue():
             self.createBoardingParty()
 
     def createLobbyManager(self):

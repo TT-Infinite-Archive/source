@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableBool, TextNode, Vec4
 from .TrolleyConstants import *
 from direct.distributed.ClockDelta import *
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.safezone import PicnicGameGlobals
@@ -57,13 +57,13 @@ class PicnicGameSelectMenu(DirectFrame):
                          btn3.find('**/findfourBtnUp')),
             scale=0.36, relief=0, pos=(-0.8, 0, -0.7),
             command=self.findFourSelected)
-        if not base.config.GetBool('want-checkers', 0):
+        if not ConfigVariableBool('want-checkers', False).getValue():
             self.Checkers['command'] = lambda:None
             self.Checkers.setColor(0.7, 0.7, 0.7, 0.7)
-        if not base.config.GetBool('want-chinese-checkers', 0):
+        if not ConfigVariableBool('want-chinese-checkers', False).getValue():
             self.ChineseCheckers['command'] = lambda:None
             self.ChineseCheckers.setColor(0.7, 0.7, 0.7, 0.7)
-        if not base.config.GetBool('want-find-four', 0):
+        if not ConfigVariableBool('want-find-four', 0).getValue():
             self.FindFour['command'] = lambda:None
             self.FindFour.setColor(0.7, 0.7, 0.7, 0.7)
         self.chineseText = OnscreenText(

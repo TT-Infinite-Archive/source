@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableString
 from datetime import datetime, timedelta, tzinfo
 
 
@@ -29,7 +30,7 @@ class UTC(tzinfo):
 
 class ToontownTimeZone(tzinfo):
     def __init__(self):
-        timeZoneInfo = config.GetString('server-timezone', 'EST/EDT/-5')
+        timeZoneInfo = ConfigVariableString('server-timezone', 'EST/EDT/-5').getValue()
         self.stdName, self.dstName, self.stdOffset = timeZoneInfo.split('/')
         self.stdOffset = int(self.stdOffset)
 

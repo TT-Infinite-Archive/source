@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableDouble
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from .ElevatorConstants import *
@@ -15,7 +15,7 @@ class DistributedElevatorInt(DistributedElevator.DistributedElevator):
 
     def __init__(self, cr):
         DistributedElevator.DistributedElevator.__init__(self, cr)
-        self.countdownTime = base.config.GetFloat('int-elevator-timeout', INTERIOR_ELEVATOR_COUNTDOWN_TIME)
+        self.countdownTime = ConfigVariableDouble('int-elevator-timeout', INTERIOR_ELEVATOR_COUNTDOWN_TIME).getValue()
 
     def setupElevator(self):
         self.leftDoor = self.bldg.leftDoorOut

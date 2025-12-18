@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
 from toontown.golf import DistributedGolfHoleAI
-from pandac.PandaModules import *
 from direct.fsm.FSM import FSM
 from toontown.ai.ToonBarrier import *
 from toontown.golf import GolfGlobals
@@ -587,7 +587,7 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
 
     def calcHolesToUse(self):
         retval = []
-        if simbase.air.config.GetBool('golf-course-randomized', 1):
+        if ConfigVariableBool('golf-course-randomized', True).getValue():
             retval = self.calcHolesToUseRandomized(self.courseId)
             self.notify.debug('randomized courses!')
             for x in range(len(retval)):

@@ -1,6 +1,6 @@
+from panda3d.core import Point3
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 from toontown.building import Elevator
 from toontown.coghq.CogHQExterior import CogHQExterior
 from toontown.safezone import Train

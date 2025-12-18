@@ -1,4 +1,4 @@
-from panda3d.core import NodePath, CardMaker, TransparencyAttrib
+from panda3d.core import CardMaker, NodePath, Texture, TransparencyAttrib
 from direct.actor import Actor
 from direct.gui.DirectGui import DirectButton, DGG
 from toontown.battle import ParticleDefs

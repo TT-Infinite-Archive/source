@@ -1,5 +1,5 @@
+from panda3d.core import Datagram, DatagramIterator, VBase4
 import random
-from pandac.PandaModules import *
 from direct.directnotify.DirectNotifyGlobal import *
 from toontown.toonbase import TTLocalizer
 import random

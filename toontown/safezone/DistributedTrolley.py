@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, ConfigVariable, ConfigVariableDouble, Fog, Point3, TextNode, Vec3
 from direct.distributed.ClockDelta import *
 from direct.task.Task import Task
 from direct.interval.IntervalGlobal import *
@@ -21,9 +21,9 @@ class DistributedTrolley(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.localToonOnBoard = 0
         if base.wantSinglePlayer:
-            self.trolleyCountdownTime = base.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO)
+            self.trolleyCountdownTime = ConfigVariableDouble('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME_SOLO).getValue()
         else:
-            self.trolleyCountdownTime = base.config.GetFloat('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME)
+            self.trolleyCountdownTime = ConfigVariableDouble('trolley-countdown-time', TROLLEY_COUNTDOWN_TIME).getValue()
         self.fsm = ClassicFSM.ClassicFSM('DistributedTrolley', [State.State('off', self.enterOff, self.exitOff, ['entering',
           'waitEmpty',
           'waitCountdown',

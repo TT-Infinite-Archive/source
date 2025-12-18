@@ -1,3 +1,4 @@
+from panda3d.core import CardMaker
 from direct.gui.DirectGui import DirectFrame
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TTLabel import TTLabel

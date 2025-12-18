@@ -1,8 +1,8 @@
+from panda3d.core import Point3
 from direct.gui.DirectGui import DirectFrame, DirectLabel
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.toonbase import ServerSettingsGlobals
-from panda3d.core import Point3
 from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.MetaInterval import Sequence, Parallel
 from toontown.mainmenu import MainMenuGlobals

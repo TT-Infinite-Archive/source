@@ -1,8 +1,7 @@
+from panda3d.core import ConfigVariableBool, DisplayRegion, NodePath, PerspectiveLens, Plane, PlaneNode, Point3, TextNode, Vec3, Vec4
 from direct.actor import Actor
 from direct.gui.DirectGui import *
 from direct.gui.DirectScrolledList import *
-from pandac.PandaModules import *
-from pandac.PandaModules import *
 import random
 
 from . import CatalogFurnitureItem
@@ -192,7 +191,7 @@ class CatalogScreen(DirectFrame):
         self.emblemCatalogButton['state'] = DGG.DISABLED
 
     def showNewItems(self, index = None):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CATALOG: New item')
         taskMgr.remove('clarabelleHelpText1')
         messenger.send('wakeup')
@@ -208,7 +207,7 @@ class CatalogScreen(DirectFrame):
         self.showPageItems()
 
     def showBackorderItems(self, index = None):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CATALOG: Backorder item')
         taskMgr.remove('clarabelleHelpText1')
         messenger.send('wakeup')
@@ -224,7 +223,7 @@ class CatalogScreen(DirectFrame):
         self.showPageItems()
 
     def showLoyaltyItems(self, index = None):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CATALOG: Special item')
         taskMgr.remove('clarabelleHelpText1')
         messenger.send('wakeup')
@@ -240,7 +239,7 @@ class CatalogScreen(DirectFrame):
         self.showPageItems()
 
     def showEmblemItems(self, index = None):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: CATALOG: Emblem item')
         taskMgr.remove('clarabelleHelpText1')
         messenger.send('wakeup')

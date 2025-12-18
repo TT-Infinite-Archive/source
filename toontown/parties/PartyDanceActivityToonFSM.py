@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath
 from direct.fsm.FSM import FSM
 from direct.showbase import PythonUtil
 from direct.interval.MetaInterval import Sequence

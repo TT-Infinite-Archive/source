@@ -1,4 +1,8 @@
+from panda3d.core import CollideMask, ConfigVariable, ConfigVariableBool, NodePath, Notify, Point3, TextNode, TransparencyAttrib, VBase4, Vec4
 import copy
+import operator
+import random
+import time
 from direct.controls.GravityWalker import GravityWalker
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
@@ -9,10 +13,6 @@ from direct.fsm import ClassicFSM
 from direct.interval.IntervalGlobal import Sequence, Wait, Func, Parallel, SoundInterval
 from direct.showbase import PythonUtil
 from direct.task.Task import Task
-import operator
-from pandac.PandaModules import *
-import random
-import time
 
 from . import Experience
 from . import InventoryNew
@@ -273,7 +273,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             if hasattr(base, 'localAvatar') and base.localAvatar:
                 if self.getName() not in base.localAvatar.toonNameCache:
                     base.localAvatar.toonNameCache.append(self.getName())
-        return
 
     def announceGenerate(self):
         DistributedPlayer.DistributedPlayer.announceGenerate(self)
@@ -372,7 +371,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
     def b_setSCToontask(self, taskId, toNpcId, toonProgress, msgIndex):
         self.setSCToontask(taskId, toNpcId, toonProgress, msgIndex)
         self.d_setSCToontask(taskId, toNpcId, toonProgress, msgIndex)
-        return None
 
     def d_setSCToontask(self, taskId, toNpcId, toonProgress, msgIndex):
         messenger.send('wakeup')
@@ -554,7 +552,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 flaggedIndexes.extend(list(range(currentIndex, currentIndex + rangeEnd)))
                 break
 
-        return [(i, config.GetBool('want-whitelist', 1)) for i in flaggedIndexes]
+        return [(i, ConfigVariableBool('want-whitelist', True).getValue()) for i in flaggedIndexes]
 
     def messageCleaner(self, message):
         modifications = []
@@ -602,7 +600,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if base.cr.ttiFriendsManager.checkIgnored(self.doId):
             return
         localTimestamp = time.strftime('%m-%d-%Y %H:%M:%S', time.localtime())
-        if base.config.GetBool('want-sleep-reply-on-regular-chat', 0):
+        if ConfigVariableBool('want-sleep-reply-on-regular-chat', False).getValue():
             if base.localAvatar.sleepFlag == 1:
                 base.cr.ttiFriendsManager.d_sleepAutoReply(fromAV)
 
@@ -649,7 +647,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if base.cr.ttiFriendsManager.checkIgnored(fromAV):
             self.d_setWhisperIgnored(fromAV)
             return
-        if base.config.GetBool('ignore-whispers', 0):
+        if ConfigVariableBool('ignore-whispers', False).getValue():
             return
         if base.localAvatar.sleepFlag == 1:
             if not base.cr.identifyAvatar(fromAV) == base.localAvatar:
@@ -686,7 +684,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if chatString:
             self.displayWhisper(fromId, chatString, WTEmote)
             base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_EMOTE, emoteId, fromId)
-        return
 
     def setWhisperSCFrom(self, fromId, msgIndex):
         handle = base.cr.identifyFriend(fromId)
@@ -708,7 +705,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if chatString:
             self.displayWhisper(fromId, chatString, WTQuickTalker)
             base.talkAssistant.receiveAvatarWhisperSpeedChat(TalkAssistant.SPEEDCHAT_NORMAL, msgIndex, fromId)
-        return
 
     def setWhisperSCCustomFrom(self, fromId, msgIndex):
         handle = base.cr.identifyFriend(fromId)
@@ -850,7 +846,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                     'shardId': None,
                     'avId': -1,
                     'battle': 1}])
-        return
 
     def setInterface(self, string):
         pass
@@ -974,12 +969,10 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if self.track != None:
             DelayDelete.cleanupDelayDeletes(self.track)
         Toon.Toon.exitTeleportOut(self)
-        return
 
     def b_setAnimState(self, animName, animMultiplier = 1.0, callback = None, extraArgs = []):
         self.d_setAnimState(animName, animMultiplier, None, extraArgs)
         self.setAnimState(animName, animMultiplier, None, None, callback, extraArgs)
-        return
 
     def d_setAnimState(self, animName, animMultiplier = 1.0, timestamp = None, extraArgs = []):
         timestamp = globalClockDelta.getFrameNetworkTime()
@@ -993,14 +986,13 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             ts = 0.0
         else:
             ts = globalClockDelta.localElapsedTime(timestamp)
-        if base.config.GetBool('check-invalid-anims', True):
+        if ConfigVariableBool('check-invalid-anims', True).getValue():
             if animMultiplier > 1.0 and animName in ['neutral']:
                 animMultiplier = 1.0
         if self.animFSM.getStateNamed(animName):
             self.animFSM.request(animName, [animMultiplier, ts, callback, extraArgs])
         self.animState = animName
         self.cleanupPieInHand()
-        return
 
     def getAnimState(self):
         return self.animState

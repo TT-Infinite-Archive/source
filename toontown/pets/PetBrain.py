@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import LVector3, LVector3f, NodePath
 from direct.showbase.PythonUtil import weightedChoice, randFloat, Functor
 from direct.showbase.PythonUtil import list2dict
 from direct.showbase import DirectObject
@@ -11,7 +11,6 @@ from toontown.pets import PetConstants, PetObserve, PetGoal, PetGoalMgr
 from toontown.pets import PetTricks, PetLookerAI
 import random, types
 from math import sqrt
-from pandac.PandaModules import LVector3f
 
 class PetBrain(DirectObject.DirectObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('PetBrain')

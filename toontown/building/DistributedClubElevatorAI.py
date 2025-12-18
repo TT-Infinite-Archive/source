@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.fsm.FSM import FSM
@@ -39,7 +40,7 @@ class DistributedClubElevatorAI(DistributedElevatorFSMAI.DistributedElevatorFSMA
         'Closed': [
             'Opening'] }
     id = 0
-    DoBlockedRoomCheck = simbase.config.GetBool('elevator-blocked-rooms-check', 1)
+    DoBlockedRoomCheck = ConfigVariableBool('elevator-blocked-rooms-check', True).getValue()
 
     def __init__(self, air, lawOfficeId, bldg, avIds, markerId = None, numSeats = 4, antiShuffle = 0, minLaff = 0):
         DistributedElevatorFSMAI.DistributedElevatorFSMAI.__init__(self, air, bldg, numSeats, antiShuffle = antiShuffle, minLaff = minLaff)

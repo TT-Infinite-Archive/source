@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath
 from toontown.toonbase.ToontownGlobals import *
 from direct.interval.IntervalGlobal import *
 from toontown.effects.DustCloud import DustCloud

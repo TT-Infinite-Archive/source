@@ -1,6 +1,6 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, TransparencyAttrib, Vec3, Vec4
 from direct.distributed.DistributedObject import DistributedObject
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 
 from otp.otpbase import OTPGlobals
 from toontown.effects import DustCloud

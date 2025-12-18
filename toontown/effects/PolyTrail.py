@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ColorBlendAttrib, Mat4, NodePath, Texture, Vec3, Vec4
 from direct.motiontrail.MotionTrail import *
 import random
 

@@ -1,5 +1,5 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3
 from otp.level.BasicEntities import DistributedNodePathEntity
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 import random

@@ -1,3 +1,4 @@
+from panda3d.core import TextNode, Vec4
 from direct.fsm import StateData
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import Sequence, Func, Wait

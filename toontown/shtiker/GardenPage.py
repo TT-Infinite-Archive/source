@@ -1,7 +1,7 @@
+from panda3d.core import TextNode, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from . import ShtikerPage
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 from toontown.estate import FlowerBrowser
 from toontown.estate import GardenGlobals

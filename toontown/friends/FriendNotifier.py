@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import *
 from direct.showbase import DirectObject
 from direct.directnotify import DirectNotifyGlobal

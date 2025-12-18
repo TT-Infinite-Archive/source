@@ -1,3 +1,4 @@
+from panda3d.core import Texture, Vec4
 from direct.particles.ParticleEffect import *
 from direct.directnotify import DirectNotifyGlobal
 from . import ParticleDefs

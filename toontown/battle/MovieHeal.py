@@ -1,3 +1,4 @@
+from panda3d.core import GeomNode, NodePath, Point3, VBase4, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.task import Task

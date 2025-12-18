@@ -1,3 +1,4 @@
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, Vec3, deg2Rad
 import math
 
 from direct.distributed import DistributedNode

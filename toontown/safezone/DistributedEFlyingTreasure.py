@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.toonbase.ToonBaseGlobal import *
 import DistributedSZTreasure
 from direct.task.Task import Task

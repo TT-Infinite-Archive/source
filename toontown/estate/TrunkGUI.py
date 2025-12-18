@@ -1,6 +1,6 @@
+from panda3d.core import rotateTo
 from direct.showbase.PythonUtil import Functor
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.distributed import ClockDelta
 from direct.fsm import StateData
 from direct.task.Task import Task

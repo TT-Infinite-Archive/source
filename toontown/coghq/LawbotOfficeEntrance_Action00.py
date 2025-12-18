@@ -1,3 +1,4 @@
+from panda3d.core import Point3, Vec3
 from toontown.coghq.SpecImports import *
 import random
 GlobalEntities = {1000: {'type': 'levelMgr',

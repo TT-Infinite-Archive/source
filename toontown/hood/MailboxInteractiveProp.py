@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableDouble
 from direct.actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import Sequence, Func
@@ -67,7 +68,7 @@ class MailboxInteractiveProp(InteractiveAnimatedProp.InteractiveAnimatedProp):
         ToontownGlobals.TheBrrrgh: ('tt_a_ara_tbr_mailbox_fightBoost', 'tt_a_ara_tbr_mailbox_fightCheer', 'tt_a_ara_tbr_mailbox_fightIdle'),
         ToontownGlobals.DonaldsDreamland: ('tt_a_ara_ddl_mailbox_fightBoost', 'tt_a_ara_ddl_mailbox_fightCheer', 'tt_a_ara_ddl_mailbox_fightIdle')}
 
-    IdlePauseTime = base.config.GetFloat('prop-idle-pause-time', 0.0)
+    IdlePauseTime = ConfigVariableDouble('prop-idle-pause-time', 0.0).getValue()
 
     def setupActor(self, node):
         self.pieActor = Actor.Actor('phase_5/models/char/tt_r_prp_ext_piePackage', {'fightBoost': 'phase_5/models/char/tt_a_prp_ext_piePackage_fightBoost'})

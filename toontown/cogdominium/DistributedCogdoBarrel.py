@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, CollisionTube, NodePath, Texture
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from toontown.toonbase import ToontownGlobals, ToontownIntervals

@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from otp.level import BasicEntities
 from . import DistributedSwitchBase

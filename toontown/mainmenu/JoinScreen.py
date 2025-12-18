@@ -1,3 +1,4 @@
+from panda3d.core import Point3, TextNode, Vec3
 from direct.fsm.FSM import FSM
 from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import DirectFrame, DirectEntry, DGG, DirectButton
@@ -5,9 +6,6 @@ from direct.gui.DirectGui import DirectLabel
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.interval.IntervalGlobal import Sequence, Parallel, Func, Wait
 from direct.interval.LerpInterval import LerpFunc
-from panda3d.core import Point3
-from panda3d.core import TextNode
-from pandac.PandaModules import Vec3
 
 from toontown.mainmenu import MainMenuGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton

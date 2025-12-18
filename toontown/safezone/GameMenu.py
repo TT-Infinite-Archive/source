@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, TextNode, Vec4
 from direct.distributed.ClockDelta import *
 
 from direct.gui.DirectGui import *
@@ -122,13 +123,13 @@ class GameMenu(DirectFrame):
         self.checkersText.setR(8)
 
         # We don't want the buttons to work if the config is disabled
-        if not config.GetBool('want-chinese-table', True):
+        if not ConfigVariableBool('want-chinese-table', True).getValue():
             self.ChineseCheckers['command'] = self.doNothing
             self.ChineseCheckers.setColor(0.7, 0.7, 0.7, 0.7)
-        if not config.GetBool('want-checkers-table', True):
+        if not ConfigVariableBool('want-checkers-table', True).getValue():
             self.Checkers['command'] = self.doNothing
             self.Checkers.setColor(0.7, 0.7, 0.7, 0.7)
-        if not config.GetBool('want-findfour-table', True):
+        if not ConfigVariableBool('want-findfour-table', True).getValue():
             self.FindFour['command'] = self.doNothing
             self.FindFour.setColor(0.7, 0.7, 0.7, 0.7)
             

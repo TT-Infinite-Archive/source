@@ -1,5 +1,3 @@
-from pandac.PandaModules import *
-
 from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup

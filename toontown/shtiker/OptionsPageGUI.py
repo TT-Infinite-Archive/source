@@ -1,5 +1,5 @@
-from direct.gui.DirectGui import DirectButton, DirectLabel
 from panda3d.core import TextNode, Vec4
+from direct.gui.DirectGui import DirectButton, DirectLabel
 
 Preloaded = {}
 

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, VBase4
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase import PythonUtil

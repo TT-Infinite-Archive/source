@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollisionNode, CollisionSphere, NodePath, Point3, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State

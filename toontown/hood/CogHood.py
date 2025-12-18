@@ -1,3 +1,4 @@
+from panda3d.core import Fog
 from direct.fsm import ClassicFSM, State
 from toontown.toonbase import ToontownGlobals
 from toontown.hood.Hood import Hood

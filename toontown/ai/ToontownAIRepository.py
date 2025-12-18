@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
 from direct.distributed.PyDatagram import *
-from pandac.PandaModules import *
 
 from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
@@ -59,7 +59,7 @@ from toontown.parties.ToontownTimeManager import ToontownTimeManager
 from toontown.distributed.ShardTimeManagerAI import ShardTimeManagerAI
 import threading
 
-if config.GetBool('want-leak-graph-ai', False):
+if ConfigVariableBool('want-leak-graph-ai', False).getValue():
     from toontown.debug.LeakGraph import LeakGraph
 
 
@@ -89,32 +89,31 @@ class ToontownAIRepository(ToontownInternalRepository):
         )
         self.zoneDataStore = AIZoneDataStore()
 
-        self.wantFishing = self.config.GetBool('want-fishing', True)
-        self.wantHousing = self.config.GetBool('want-housing', True)
-        self.wantPets = self.config.GetBool('want-pets', True)
-        self.wantParties = self.config.GetBool('want-parties', True)
-        self.wantCogbuildings = self.config.GetBool('want-cogbuildings', True)
-        self.wantCogdominiums = self.config.GetBool('want-cogdominiums', True)
-        self.wantEmblems = self.config.GetBool('want-emblems', False)
-        self.wantAchievements = self.config.GetBool('want-achievements', True)
-        self.wantCodeRedemption = self.config.GetBool('want-code-redemption', True)
-        self.wantGroupTracker = self.config.GetBool('want-grouptracker', True)
-        self.wantGuilds = self.config.GetBool('want-guilds', True)
-        self.wantGuildQuests = self.config.GetBool('want-guild-quests', True)
-        self.wantToonStats = self.config.GetBool('want-toon-stats', True)
-        self.wantCollectibles = self.config.GetBool('want-collectibles', True)
-        self.wantFreeGuilds = self.config.GetBool('want-free-guilds', False)
-        self.doLiveUpdates = self.config.GetBool('want-live-updates', False)
-        self.wantTrackClsends = self.config.GetBool('want-track-clsends', False)
-        self.wantHalloween = self.config.GetBool('want-halloween', False)
-        self.wantChristmas = self.config.GetBool('want-christmas', False)
-        self.wantFireworks = self.config.GetBool('want-fireworks', False)
+        self.wantFishing = ConfigVariableBool('want-fishing', True).getValue()
+        self.wantHousing = ConfigVariableBool('want-housing', True).getValue()
+        self.wantPets = ConfigVariableBool('want-pets', True).getValue()
+        self.wantParties = ConfigVariableBool('want-parties', True).getValue()
+        self.wantCogbuildings = ConfigVariableBool('want-cogbuildings', True).getValue()
+        self.wantCogdominiums = ConfigVariableBool('want-cogdominiums', True).getValue()
+        self.wantEmblems = ConfigVariableBool('want-emblems', False).getValue()
+        self.wantAchievements = ConfigVariableBool('want-achievements', True).getValue()
+        self.wantCodeRedemption = ConfigVariableBool('want-code-redemption', True).getValue()
+        self.wantGroupTracker = ConfigVariableBool('want-grouptracker', True).getValue()
+        self.wantGuilds = ConfigVariableBool('want-guilds', True).getValue()
+        self.wantGuildQuests = ConfigVariableBool('want-guild-quests', True).getValue()
+        self.wantToonStats = ConfigVariableBool('want-toon-stats', True).getValue()
+        self.wantCollectibles = ConfigVariableBool('want-collectibles', True).getValue()
+        self.wantFreeGuilds = ConfigVariableBool('want-free-guilds', False).getValue()
+        self.doLiveUpdates = ConfigVariableBool('want-live-updates', False).getValue()
+        self.wantTrackClsends = ConfigVariableBool('want-track-clsends', False).getValue()
+        self.wantHalloween = ConfigVariableBool('want-halloween', False).getValue()
+        self.wantChristmas = ConfigVariableBool('want-christmas', False).getValue()
+        self.wantFireworks = ConfigVariableBool('want-fireworks', False).getValue()
         self.leakGraph = None
         self.cogSuitMessageSent = False
         self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
 
         # Logging
-        from panda3d.core import MultiplexStream, Notify, StreamWriter
         from direct.directnotify import Notifier
         self.nout = MultiplexStream()
         Notify.ptr().setOstreamPtr(self.nout, 0)
@@ -199,21 +198,21 @@ class ToontownAIRepository(ToontownInternalRepository):
         while self.readerPollOnce():
             pass
 
-        if self.config.GetBool('want-minnies-melodyland', True):
+        if ConfigVariableBool('want-minnies-melodyland', True).getValue():
             self.hoods.append(MMHoodAI.MMHoodAI(self))
-        if self.config.GetBool('want-the-burrrgh', True):
+        if ConfigVariableBool('want-the-burrrgh', True).getValue():
             self.hoods.append(BRHoodAI.BRHoodAI(self))
-        if self.config.GetBool('want-donalds-dreamland', True):
+        if ConfigVariableBool('want-donalds-dreamland', True).getValue():
             self.hoods.append(DLHoodAI.DLHoodAI(self))
 
         while self.readerPollOnce():
             pass
 
-        if self.config.GetBool('want-goofy-speedway', True):
+        if ConfigVariableBool('want-goofy-speedway', True).getValue():
             self.hoods.append(GSHoodAI.GSHoodAI(self))
-        if self.config.GetBool('want-outdoor-zone', True):
+        if ConfigVariableBool('want-outdoor-zone', True).getValue():
             self.hoods.append(OZHoodAI.OZHoodAI(self))
-        if self.config.GetBool('want-golf-zone', True):
+        if ConfigVariableBool('want-golf-zone', True).getValue():
             self.hoods.append(GZHoodAI.GZHoodAI(self))
 
         while self.readerPollOnce():
@@ -221,16 +220,16 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def createCogHeadquarters(self):
         NPCToons.generateZone2NpcDict()
-        if self.config.GetBool('want-sellbot-headquarters', True):
+        if ConfigVariableBool('want-sellbot-headquarters', True).getValue():
             self.factoryMgr = FactoryManagerAI.FactoryManagerAI(self)
             self.cogHeadquarters.append(SellbotHQAI.SellbotHQAI(self))
-        if self.config.GetBool('want-cashbot-headquarters', True):
+        if ConfigVariableBool('want-cashbot-headquarters', True).getValue():
             self.mintMgr = MintManagerAI.MintManagerAI(self)
             self.cogHeadquarters.append(CashbotHQAI.CashbotHQAI(self))
-        if self.config.GetBool('want-lawbot-headquarters', True):
+        if ConfigVariableBool('want-lawbot-headquarters', True).getValue():
             self.lawOfficeMgr = LawOfficeManagerAI.LawOfficeManagerAI(self)
             self.cogHeadquarters.append(LawbotHQAI.LawbotHQAI(self))
-        if self.config.GetBool('want-bossbot-headquarters', True):
+        if ConfigVariableBool('want-bossbot-headquarters', True).getValue():
             self.countryClubMgr = CountryClubManagerAI.CountryClubManagerAI(
                 self)
             self.cogHeadquarters.append(BossbotHQAI.BossbotHQAI(self))
@@ -239,27 +238,26 @@ class ToontownAIRepository(ToontownInternalRepository):
         ToontownInternalRepository.handleConnected(self)
         self.registerForChannel(MESSENGER_CHANNEL_AI)
 
-        if self.config.GetBool('want-threaded-ai-start', False):
+        if ConfigVariableBool('want-threaded-ai-start', False).getValue():
             threading.Thread(target=self.startDistrict).start()
         else:
             self.startDistrict()
 
     def startDistrict(self):
         self.districtId = self.allocateChannel()
-        self.notify.info('Creating ToontownDistrictAI(%d)...' % self.districtId)
+        self.notify.info(f'Creating ToontownDistrictAI({self.districtId})...')
         self.distributedDistrict = ToontownDistrictAI(self)
         self.distributedDistrict.setName(self.districtName)
         self.distributedDistrict.generateWithRequiredAndId(
             self.districtId, self.getGameDoId(), 2)
-        self.notify.info(
-            'Claiming ownership of channel ID: %d...' % self.districtId)
+        self.notify.info(f'Claiming ownership of channel ID: {self.districtId}...')
         self.claimOwnership(self.districtId)
 
         self.districtStats = ToontownDistrictStatsAI(self)
         self.districtStats.settoontownDistrictId(self.districtId)
         self.districtStats.generateWithRequiredAndId(
             self.allocateChannel(), self.getGameDoId(), 3)
-        self.notify.info('Created ToontownDistrictStats(%d)' % self.districtStats.doId)
+        self.notify.info(f'Created ToontownDistrictStats({self.districtStats.doId})')
 
         self.toontownTimeManager = ToontownTimeManager()
         self.shardTimeManager = ShardTimeManagerAI(self)
@@ -268,13 +266,13 @@ class ToontownAIRepository(ToontownInternalRepository):
                          self.shardTimeManager.formatTimeZone(
                              self.districtStats.timeZone))
 
-        if config.GetBool('want-quest-verification', False):
+        if ConfigVariableBool('want-quest-verification', False).getValue():
             self.notify.info('Verifying Quests...')
             assertAllQuestsValid()
 
         self.notify.info('Creating managers...')
         self.createManagers()
-        if self.config.GetBool('want-safe-zones', True):
+        if ConfigVariableBool('want-safe-zones', True).getValue():
             self.notify.info('Creating safe zones...')
             self.createSafeZones()
 
@@ -282,7 +280,7 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.notify.info('Generating Pet seeds...')
             self.petMgr.generateSeeds()
 
-        if self.config.GetBool('want-cog-headquarters', True):
+        if ConfigVariableBool('want-cog-headquarters', True).getValue():
             self.notify.info('Creating Cog headquarters...')
             self.createCogHeadquarters()
 
@@ -293,8 +291,8 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.distributedDistrict.b_setAvailable(1)
         self.notify.info('Done.')
 
-        if config.GetBool('want-leak-graph-ai', False):
-            self.leakGraph = LeakGraph('tti-ai-process-%s' % self.ourChannel)
+        if ConfigVariableBool('want-leak-graph-ai', False).getValue():
+            self.leakGraph = LeakGraph(f'tti-ai-process-{self.ourChannel}')
             self.leakGraph.start()
 
     def claimOwnership(self, channelId):
@@ -304,7 +302,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         datagram.addChannel(self.ourChannel)
         self.send(datagram)
 
-    def lookupDNAFileName(self, zoneId):
+    def lookupDNAFileName(self, zoneId: int) -> str:
         zoneId = ZoneUtil.getCanonicalZoneId(zoneId)
         hoodId = ZoneUtil.getCanonicalHoodId(zoneId)
         hood = ToontownGlobals.dnaMap[hoodId]
@@ -313,7 +311,7 @@ class ToontownAIRepository(ToontownInternalRepository):
             phaseNum = ToontownGlobals.phaseMap[hoodId]
         else:
             phaseNum = ToontownGlobals.streetPhaseMap[hoodId]
-        return 'phase_%s/dna/%s_%s.pdna' % (phaseNum, hood, zoneId)
+        return f'phase_{phaseNum}/dna/{hood}_{zoneId}.pdna'
 
     def loadDNAFileAI(self, dnastore, filename):
         return loadDNAFileAI(dnastore, filename)
@@ -338,8 +336,8 @@ class ToontownAIRepository(ToontownInternalRepository):
     def getTrackClsends(self):
         return self.wantTrackClsends
 
-    def getAvatarExitEvent(self, avId):
-        return 'distObjDelete-%d' % avId
+    def getAvatarExitEvent(self, avId: int) -> str:
+        return f'distObjDelete-{avId}'
 
     def trueUniqueName(self, name):
         return self.uniqueName(name)

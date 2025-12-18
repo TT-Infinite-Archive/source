@@ -1,13 +1,12 @@
+from panda3d.direct import HideInterval, ShowInterval
+from panda3d.core import CollideMask, ColorBlendAttrib, ConfigVariable, ConfigVariableBool, ConfigVariableInt, Filename, GeomNode, LODNode, NodePath, PartBundle, Plane, PlaneNode, Point3, Texture, VBase3, VBase4, Vec3
+import os
+import posixpath
 from direct.actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import Functor
 from direct.task.Task import Task
-from pandac.PandaModules import *
-import random
-import types
-import os
-import posixpath
 
 from . import AccessoryGlobals
 from . import Motion
@@ -597,7 +596,7 @@ class Toon(Avatar.Avatar, ToonHead):
     def parentToonParts(self):
         if self.hasLOD():
             for lodName in self.getLODNames():
-                if base.config.GetBool('want-new-anims', 1):
+                if ConfigVariableBool('want-new-anims', True).getValue():
                     if not self.getPart('torso', lodName).find('**/def_head').isEmpty():
                         self.attach('head', 'torso', 'def_head', lodName)
                     else:
@@ -624,12 +623,12 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def setLODs(self):
         self.setLODNode()
-        levelOneIn = base.config.GetInt('lod1-in', 20)
-        levelOneOut = base.config.GetInt('lod1-out', 0)
-        levelTwoIn = base.config.GetInt('lod2-in', 80)
-        levelTwoOut = base.config.GetInt('lod2-out', 20)
-        levelThreeIn = base.config.GetInt('lod3-in', 280)
-        levelThreeOut = base.config.GetInt('lod3-out', 80)
+        levelOneIn = ConfigVariableInt('lod1-in', 20).getValue()
+        levelOneOut = ConfigVariableInt('lod1-out', 0).getValue()
+        levelTwoIn = ConfigVariableInt('lod2-in', 80).getValue()
+        levelTwoOut = ConfigVariableInt('lod2-out', 20).getValue()
+        levelThreeIn = ConfigVariableInt('lod3-in', 280).getValue()
+        levelThreeOut = ConfigVariableInt('lod3-out', 80).getValue()
         self.addLOD(1000, levelOneIn, levelOneOut)
         self.addLOD(500, levelTwoIn, levelTwoOut)
         self.addLOD(250, levelThreeIn, levelThreeOut)
@@ -654,14 +653,14 @@ class Toon(Avatar.Avatar, ToonHead):
         self.leftHand = None
         for lodName in self.getLODNames():
             hand = self.getPart('torso', lodName).find('**/joint_Rhold')
-            if base.config.GetBool('want-new-anims', 1):
+            if ConfigVariableBool('want-new-anims', True).getValue():
                 if not self.getPart('torso', lodName).find('**/def_joint_right_hold').isEmpty():
                     hand = self.getPart('torso', lodName).find('**/def_joint_right_hold')
             else:
                 hand = self.getPart('torso', lodName).find('**/joint_Rhold')
             self.rightHands.append(hand)
             rightHand = rightHand.instanceTo(hand)
-            if base.config.GetBool('want-new-anims', 1):
+            if ConfigVariableBool('want-new-anims', True).getValue():
                 if not self.getPart('torso', lodName).find('**/def_joint_left_hold').isEmpty():
                     hand = self.getPart('torso', lodName).find('**/def_joint_left_hold')
             else:
@@ -677,7 +676,6 @@ class Toon(Avatar.Avatar, ToonHead):
         self.legsParts = self.findAllMatches('**/__Actor_legs')
         self.hipsParts = self.legsParts.findAllMatches('**/joint_hips')
         self.torsoParts = self.hipsParts.findAllMatches('**/__Actor_torso')
-        return
 
     def initializeBodyCollisions(self, collIdStr):
         Avatar.Avatar.initializeBodyCollisions(self, collIdStr)
@@ -2189,7 +2187,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.startLookAround()
         self.openEyes()
         self.startBlink()
-        if config.GetBool('stuck-sleep-fix', 1):
+        if ConfigVariableBool('stuck-sleep-fix', True).getValue():
             doClear = SLEEP_STRING in (self.nametag.getChatText(), self.nametag.getStompChatText())
         else:
             doClear = self.nametag.getChatText() == SLEEP_STRING

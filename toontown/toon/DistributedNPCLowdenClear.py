@@ -1,3 +1,4 @@
+from panda3d.core import TextEncoder, TextNode, Vec4
 from direct.distributed.ClockDelta import *
 from direct.gui.DirectGui import *
 

@@ -3,7 +3,6 @@ from toontown.battle import BattlePlace
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.showbase import BulletinBoardWatcher
-from pandac.PandaModules import *
 from otp.distributed.TelemetryLimiter import RotationLimitToH, TLGatherAllAvs
 from toontown.toon import Toon
 from toontown.toonbase import ToontownGlobals

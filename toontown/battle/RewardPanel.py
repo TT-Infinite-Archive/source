@@ -1,9 +1,9 @@
+from panda3d.core import ConfigVariableBool, Point3, TextEncoder, TextNode, Vec4
 import copy
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
 import math
-from pandac.PandaModules import *
 import random
 
 from . import Fanfare
@@ -640,7 +640,7 @@ class RewardPanel(DirectFrame):
                         else:
                             num = quest.doesCogCount(avId, cogDict, zoneId, toonShortList)
                         if num:
-                            if base.config.GetBool('battle-passing-no-credit', True):
+                            if ConfigVariableBool('battle-passing-no-credit', True).getValue():
                                 if avId in helpfulToonsList:
                                     earned += num
                                 else:

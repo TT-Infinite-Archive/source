@@ -1,3 +1,5 @@
+from panda3d.direct import ShowInterval
+from panda3d.core import Point3, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 import random

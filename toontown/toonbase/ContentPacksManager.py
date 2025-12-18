@@ -1,7 +1,7 @@
+from panda3d.core import Filename, Multifile, VirtualFileSystem
 from direct.directnotify.DirectNotifyGlobal import directNotify
 import fnmatch
 import os
-from panda3d.core import Multifile, Filename, VirtualFileSystem
 
 import yaml
 

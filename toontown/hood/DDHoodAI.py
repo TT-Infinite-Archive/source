@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedDonaldDockAI
 from toontown.hood import HoodAI
 from toontown.safezone import DistributedBoatAI
@@ -20,11 +21,11 @@ class DDHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if simbase.config.GetBool('want-minigames', True):
+        if ConfigVariableBool('want-minigames', True).getValue():
             self.createTrolley()
         self.createBoat()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-donald-dock', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-donald-dock', True).getValue():
                 self.createClassicChar()
 
     def createTrolley(self):

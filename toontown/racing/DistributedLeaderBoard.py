@@ -1,10 +1,10 @@
+from panda3d.core import NodePath, TextNode
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from otp.otpbase import OTPTimer
 from toontown.toonbase import TTLocalizer
 from toontown.racing import KartShopGlobals
 from toontown.toonbase.ToonBaseGlobal import *
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import *
 import random
 import pickle

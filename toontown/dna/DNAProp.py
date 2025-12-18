@@ -1,4 +1,4 @@
-from panda3d.core import LVector4f, ModelNode, NodePath
+from panda3d.core import LVector4f, ModelNode
 from . import DNANode
 from . import DNAUtil
 

@@ -1,3 +1,4 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, NodePath, Point3, TextNode, Vec4
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from toontown.building.ElevatorConstants import *
@@ -494,7 +495,7 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
 
     def enterEnterMovie(self):
         self.notify.debug('%d enterEnterMovie: Entering the Enter Movie State.' % self.doId)
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             raceName = TTLocalizer.KartRace_RaceNames[self.kartPad.trackType]
             self.notify.info('QA-REGRESSION: KARTING: %s' % raceName)
         self.av.clearGoofyEffect(0.5)
@@ -678,7 +679,7 @@ class DistributedViewingBlock(DistributedStartingBlock):
 
     def enterEnterMovie(self):
         self.notify.debug('%d enterEnterMovie: Entering the Enter Movie State.' % self.doId)
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             raceName = TTLocalizer.KartRace_RaceNames[self.kartPad.trackType]
             self.notify.info('QA-REGRESSION: KARTING: %s' % raceName)
         pos = self.nodePath.getPos(render)

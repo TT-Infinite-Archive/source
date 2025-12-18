@@ -1,4 +1,4 @@
-from panda3d.core import CollisionNode, CollisionTube, Point3
+from panda3d.core import CollideMask, CollisionNode, CollisionTube, GeomNode, NodePath, Point3
 
 from direct.actor.Actor import Actor
 from direct.directnotify.DirectNotifyGlobal import directNotify

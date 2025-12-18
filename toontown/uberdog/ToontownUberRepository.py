@@ -1,11 +1,11 @@
-from panda3d.core import ConfigVariableList
+from panda3d.core import ConfigVariableBool, ConfigVariableList, ConfigVariableString, MultiplexStream, Notify, StreamWriter
 
 from otp.distributed.DistributedDirectoryAI import DistributedDirectoryAI
 from toontown.distributed.ToontownInternalRepository import \
     ToontownInternalRepository
 from otp.distributed import OtpDoGlobals
 
-if config.GetBool('want-rpc-server', False):
+if ConfigVariableBool('want-rpc-server', False).getValue():
     from toontown.rpc.ToontownRPCServer import ToontownRPCServer
     from toontown.rpc.ToontownRPCHandler import ToontownRPCHandler
 
@@ -22,7 +22,6 @@ class ToontownUberRepository(ToontownInternalRepository):
         self.notify.setInfo(True)
 
         # Logging
-        from panda3d.core import MultiplexStream, Notify, StreamWriter
         from direct.directnotify import Notifier
         self.nout = MultiplexStream()
         Notify.ptr().setOstreamPtr(self.nout, 0)
@@ -33,13 +32,13 @@ class ToontownUberRepository(ToontownInternalRepository):
         ToontownInternalRepository.handleConnected(self)
         self.registerForChannel(OtpDoGlobals.MESSENGER_CHANNEL_UD)
 
-        if config.GetBool('generate-root-object', False):
+        if ConfigVariableBool('generate-root-object', False).getValue():
             rootObj = DistributedDirectoryAI(self)
             rootObj.generateWithRequiredAndId(self.getGameDoId(), 0, 0)
 
-        if config.GetBool('want-rpc-server', False):
-            endpoint = config.GetString(
-                'rpc-server-endpoint', 'http://localhost:8080/')
+        if ConfigVariableBool('want-rpc-server', False).getValue():
+            endpoint = ConfigVariableString(
+                'rpc-server-endpoint', 'http://localhost:8080/').getValue()
             self.rpcServer = ToontownRPCServer(
                 endpoint, ToontownRPCHandler(self))
             self.rpcServer.start(useTaskChain=True)

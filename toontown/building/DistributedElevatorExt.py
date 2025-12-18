@@ -1,9 +1,9 @@
+from panda3d.core import NodePath
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 
 from . import DistributedElevator
 from .ElevatorConstants import *

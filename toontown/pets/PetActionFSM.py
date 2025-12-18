@@ -1,3 +1,4 @@
+from panda3d.direct import WaitInterval
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import FSM
 from direct.interval.IntervalGlobal import *

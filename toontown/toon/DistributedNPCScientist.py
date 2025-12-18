@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 from . import DistributedNPCToonBase
 

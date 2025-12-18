@@ -1,10 +1,10 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionNode, CollisionRay, ConfigVariable, ConfigVariableBool, ConfigVariableInt, GeomNode, NodePath, Point3, TextNode, TransparencyAttrib, VBase4, Vec3, Vec4
 import random
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
-from panda3d.core import *
 
 from . import Suit
 from . import SuitBase
@@ -168,7 +168,7 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
             self.propInSound = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_in.ogg')
         if self.propOutSound == None:
             self.propOutSound = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_out.ogg')
-        if base.config.GetBool('want-new-cogs', 0):
+        if ConfigVariableBool('want-new-cogs', False).getValue():
             head = self.find('**/to_head')
             if head.isEmpty():
                 head = self.find('**/joint_head')
@@ -177,7 +177,6 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
         if head.isEmpty():
             head = self.getGeomNode().find('**/to_head')
         self.prop.reparentTo(head)
-        return
 
     def detachPropeller(self):
         if self.prop:
@@ -188,7 +187,6 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
             self.propInSound = None
         if self.propOutSound:
             self.propOutSound = None
-        return
 
     def beginSupaFlyMove(self, pos, moveIn, trackName, walkAfterLanding=True, neutralAfterLanding=False, geomNode=False):
         skyPos = Point3(pos)
@@ -387,7 +385,7 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
                 if number < 0:
                     self.HpTextGenerator.setText(str(number))
 
-                    if config.GetBool('silly-surge-text', True) and random.randrange(0, 100) < config.GetInt('silly-surge-chance', 100) and bonus == 2 and self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
+                    if ConfigVariableBool('silly-surge-text', True).getValue() and random.randrange(0, 100) < ConfigVariableInt('silly-surge-chance', 100).getValue() and bonus == 2 and self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
                         self.sillySurgeText = True
                         absNumber = int(abs(number) / 10)
 

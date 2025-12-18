@@ -1,9 +1,9 @@
+from panda3d.core import ConfigVariableBool, Vec4
 from . import ShtikerPage
 from toontown.toonbase import ToontownGlobals
 from direct.showbase import PythonUtil
 from toontown.hood import ZoneUtil
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 
 class MapPage(ShtikerPage.ShtikerPage):
@@ -222,7 +222,7 @@ class MapPage(ShtikerPage.ShtikerPage):
         messenger.send(self.doneEvent)
 
     def goHome(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: VISITESTATE: Visit estate')
         self.doneStatus = {'mode': 'gohome',
          'hood': base.localAvatar.lastHood}

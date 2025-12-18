@@ -1,4 +1,4 @@
-from panda3d.core import CollisionNode, CollisionPolygon, TextureStage, Point3, VBase3
+from panda3d.core import CollideMask, CollisionNode, CollisionPolygon, GeomNode, Point3, Texture, TextureStage, VBase3
 
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import FSM

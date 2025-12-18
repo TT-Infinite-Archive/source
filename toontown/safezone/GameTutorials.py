@@ -1,6 +1,6 @@
+from panda3d.core import CardMaker, NodePath, Texture, TransparencyAttrib, Vec4
 from direct.gui.DirectGui import *
 from direct.fsm import FSM
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 
 from toontown.toonbase import ToontownGlobals

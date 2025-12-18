@@ -1,7 +1,8 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString
+import random
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed import DistributedObjectAI
 from direct.task import Task
-import random
 
 from . import DistributedSuitAI
 from . import SuitDNA
@@ -23,8 +24,8 @@ from toontown.toonbase import ToontownGlobals
 
 class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlannerBase.SuitPlannerBase):
     notify = directNotify.newCategory('DistributedSuitPlannerAI')
-    CogdoPopFactor = config.GetFloat('cogdo-pop-factor', 1.5)
-    CogdoRatio = min(1.0, max(0.0, config.GetFloat('cogdo-ratio', 0.32)))
+    CogdoPopFactor = ConfigVariableDouble('cogdo-pop-factor', 1.5).getValue()
+    CogdoRatio = min(1.0, max(0.0, ConfigVariableDouble('cogdo-ratio', 0.32).getValue()))
     MAX_SUIT_TYPES = 6
     POP_UPKEEP_DELAY = 10
     POP_ADJUST_DELAY = 300
@@ -41,7 +42,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
     ]
     TOTAL_SUIT_BUILDING_PCT = 18 * CogdoPopFactor
     BUILDING_HEIGHT_DISTRIBUTION = [14, 18, 25, 23, 20]
-    defaultSuitName = simbase.config.GetString('suit-type', 'random')
+    defaultSuitName = ConfigVariableString('suit-type', 'random').getValue()
     if defaultSuitName == 'random':
         defaultSuitName = None
 
@@ -94,10 +95,10 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
                 bldg.setSuitPlannerExt(self)
         self.dnaStore.resetBlockNumbers()
         self.initBuildingsAndPoints()
-        numSuits = simbase.config.GetInt('suit-count', -1)
+        numSuits = ConfigVariableInt('suit-count', -1).getValue()
         if numSuits >= 0:
             self.currDesired = numSuits
-        suitHood = simbase.config.GetInt('suits-only-in-hood', -1)
+        suitHood = ConfigVariableInt('suits-only-in-hood', -1).getValue()
         if suitHood >= 0:
             if self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_ZONE] != suitHood:
                 self.currDesired = 0
@@ -852,7 +853,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
                 toon.b_setBattleId(toonId)
         pos = self.battlePosDict[canonicalZoneId]
 
-        if config.GetBool('props-buff-battles', True) and canonicalZoneId in self.cellToGagBonusDict:
+        if ConfigVariableBool('props-buff-battles', True).getValue() and canonicalZoneId in self.cellToGagBonusDict:
             interactivePropTrackBonus = self.cellToGagBonusDict[canonicalZoneId]
         else:
             interactivePropTrackBonus = -1
@@ -883,7 +884,7 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
         if len(battle.suits) >= 4:
             return 0
         if battle:
-            if simbase.config.GetBool('suits-always-join', 0):
+            if ConfigVariableBool('suits-always-join', False).getValue():
                 return 1
             jChanceList = self.SuitHoodInfo[self.hoodInfoIdx][self.SUIT_HOOD_INFO_JCHANCE]
             ratioIdx = (len(battle.toons) - battle.numSuitsEver) + 2

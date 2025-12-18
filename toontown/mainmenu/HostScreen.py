@@ -1,6 +1,5 @@
+from panda3d.core import Point3, TextNode
 from direct.gui.DirectGui import DirectFrame
-from panda3d.core import Point3
-from pandac.PandaModules import TextNode
 from toontown.toontowngui.TTLabel import TTLabel
 from direct.interval.IntervalGlobal import Func, Sequence
 from direct.interval.MetaInterval import Parallel
@@ -13,7 +12,6 @@ from toontown.toontowngui.TTCheckBox import TTCheckBox
 from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.gui.DirectGui import DirectButton
-from pandac.PandaModules import Vec4
 from direct.fsm.FSM import FSM
 from toontown.mainmenu.PlayScreen import PlayScreen
 from toontown.mainmenu.HostStartScreen import HostStartScreen

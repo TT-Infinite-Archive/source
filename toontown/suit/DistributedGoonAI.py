@@ -1,3 +1,4 @@
+from panda3d.core import Vec3
 from otp.ai.AIBaseGlobal import *
 from direct.directnotify import DirectNotifyGlobal
 from toontown.battle import SuitBattleGlobals

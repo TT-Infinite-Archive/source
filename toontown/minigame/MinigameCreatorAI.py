@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableInt
 import copy
 import random
 import time
@@ -28,7 +29,7 @@ from toontown.minigame.TempMinigameAI import *
 from toontown.toonbase import ToontownGlobals
 
 
-simbase.forcedMinigameId = simbase.config.GetInt('force-minigame', 0)
+simbase.forcedMinigameId = ConfigVariableInt('force-minigame', 0).getValue()
 RequestMinigame = {}
 MinigameZoneRefs = {}
 DisabledMinigames = []
@@ -37,7 +38,7 @@ DisabledMinigames = []
 def getDisabledMinigames():
     if not DisabledMinigames:
         for name, minigameId in list(ToontownGlobals.MinigameNames.items()):
-            if not simbase.config.GetBool('want-%s-game' % name, True):
+            if not ConfigVariableBool('want-%s-game' % name, True).getValue():
                 if minigameId not in DisabledMinigames:
                     DisabledMinigames.append(minigameId)
     return DisabledMinigames[:]

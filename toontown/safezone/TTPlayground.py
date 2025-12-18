@@ -4,7 +4,6 @@ from toontown.safezone import Playground
 from toontown.toonbase import TTLocalizer
 
 from toontown.nametag.NametagGroup import *
-from panda3d.core import *
 from toontown.toonbase import ToontownGlobals
 from toontown.safezone import Butterfly
 from toontown.safezone import ButterflyGlobals

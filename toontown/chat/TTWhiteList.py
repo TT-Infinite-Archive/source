@@ -1,6 +1,6 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableString, DSearchPath, DocumentSpec, Filename, HTTPClient, HTTPDate, VirtualFileSystem
 import os
 import datetime
-from pandac.PandaModules import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.showbase import AppRunnerGlobal
@@ -9,10 +9,10 @@ from toontown.toonbase import TTLocalizer
 
 class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
     RedownloadTaskName = 'RedownloadWhitelistTask'
-    WhitelistBaseDir = config.GetString('whitelist-base-dir', '')
-    WhitelistStageDir = config.GetString('whitelist-stage-dir', 'whitelist')
-    WhitelistOverHttp = config.GetBool('whitelist-over-http', False)
-    WhitelistFileName = config.GetString('whitelist-filename', 'twhitelist.dat')
+    WhitelistBaseDir = ConfigVariableString('whitelist-base-dir', '').getValue()
+    WhitelistStageDir = ConfigVariableString('whitelist-stage-dir', 'whitelist').getValue()
+    WhitelistOverHttp = ConfigVariableBool('whitelist-over-http', False).getValue()
+    WhitelistFileName = ConfigVariableString('whitelist-filename', 'twhitelist.dat').getValue()
 
     def __init__(self):
         self.redownloadingWhitelist = False
@@ -73,7 +73,7 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
             self.updateWhitelist()
 
     def getWhitelistUrl(self):
-        return base.config.GetString('fallback-whitelist-url', 'http://cdn.toontown.disney.go.com/toontown/en/')
+        return ConfigVariableString('fallback-whitelist-url', 'http://cdn.toontown.disney.go.com/toontown/en/').getValue()
 
     def addDownloadingTextTask(self):
         self.removeDownloadingTextTask()

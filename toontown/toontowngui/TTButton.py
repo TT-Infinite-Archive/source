@@ -1,5 +1,5 @@
-from direct.gui.DirectGui import DirectButton, DGG
 from panda3d.core import TextNode
+from direct.gui.DirectGui import DirectButton, DGG
 from toontown.toonbase.ColorGlobals import CGray, CDefault
 
 

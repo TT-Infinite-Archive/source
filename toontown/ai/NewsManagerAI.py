@@ -1,3 +1,5 @@
+from panda3d.core import ConfigVariableBool, Notify
+
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 
@@ -13,7 +15,7 @@ class NewsManagerAI(DistributedObjectAI):
         self.weeklyHolidays = DEFAULT_WEEKLY_HOLIDAYS
         self.yearlyHolidays = DEFAULT_YEARLY_HOLIDAYS
         self.OncelyHolidays = []
-        self.stormEnabled = simbase.config.GetBool('want-storm-event', False)
+        self.stormEnabled = ConfigVariableBool('want-storm-event', False).getValue()
 
     def announceGenerate(self):
         DistributedObjectAI.announceGenerate(self)

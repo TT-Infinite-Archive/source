@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Point3, Vec3, rad2Deg
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from direct.fsm import StateData

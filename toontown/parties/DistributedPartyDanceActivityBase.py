@@ -1,5 +1,5 @@
+from panda3d.core import NodePath, Point3, Vec3
 import random
-from pandac.PandaModules import *
 from direct.interval.FunctionInterval import Wait, Func
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.showbase.PythonUtil import lerp, Enum

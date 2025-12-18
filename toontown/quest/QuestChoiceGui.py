@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from . import QuestPoster
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase import ToontownGlobals
@@ -53,7 +53,7 @@ class QuestChoiceGui(DirectFrame):
 
     def chooseQuest(self, questId):
         if questId != 0:
-            if base.config.GetBool('want-qa-regression', 0):
+            if ConfigVariableBool('want-qa-regression', False).getValue():
                 self.notify.info('QA-REGRESSION: CREATEATASK: Create A Task.')
         base.setCellsActive(base.leftCells, 1)
         base.setCellsActive([base.bottomCells[0], base.bottomCells[1]], 1)

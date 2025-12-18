@@ -1,10 +1,9 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, CollisionTube, NodePath, Point3, Vec3
 from direct.interval.IntervalGlobal import *
 from direct.distributed import ClockDelta
 from direct.showbase.PythonUtil import lerp
 import math
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import NodePath
 from direct.task import Task
 from toontown.toonbase import ToontownGlobals
 from direct.distributed import DistributedObject

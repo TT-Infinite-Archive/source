@@ -1,5 +1,5 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, CollisionTube, NodePath, Point3, Vec3, rad2Deg
 import math
-from pandac.PandaModules import CollisionSphere, CollisionNode, Point3, CollisionTube, Vec3, rad2Deg
 from direct.showbase.DirectObject import DirectObject
 from direct.distributed.ClockDelta import globalClockDelta
 from direct.interval.IntervalGlobal import Parallel, SoundInterval, Sequence, Func, LerpScaleInterval

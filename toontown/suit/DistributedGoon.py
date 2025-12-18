@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, GeomNode, NodePath, Plane, VBase3, Vec4
 from direct.interval.IntervalGlobal import *
 from toontown.battle.BattleProps import *
 from .GoonGlobals import *

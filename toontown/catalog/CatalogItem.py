@@ -1,4 +1,5 @@
-from pandac.PandaModules import *
+from panda3d.direct import STInt16, STInt8
+from panda3d.core import Datagram, DatagramIterator, Filename, Notify, Texture, VBase3, VBase4, Vec3, oldToNewHpr
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from direct.interval.IntervalGlobal import *

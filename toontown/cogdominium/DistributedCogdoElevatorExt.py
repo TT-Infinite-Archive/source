@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 from toontown.building.DistributedElevatorExt import DistributedElevatorExt
 
 class DistributedCogdoElevatorExt(DistributedElevatorExt):

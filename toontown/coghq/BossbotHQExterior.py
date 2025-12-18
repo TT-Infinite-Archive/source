@@ -1,5 +1,4 @@
 from direct.fsm import State
-from pandac.PandaModules import *
 
 from toontown.building import Elevator
 from toontown.coghq.CogHQExterior import CogHQExterior

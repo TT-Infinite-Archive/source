@@ -1,5 +1,5 @@
+from panda3d.core import ConfigVariableBool, Point3, Vec3
 from otp.ai.AIBaseGlobal import *
-from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from otp.avatar import DistributedAvatarAI
 from . import SuitTimings
@@ -18,8 +18,8 @@ from toontown.toon import NPCToons
 import random
 
 class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
-    SUIT_BUILDINGS = simbase.config.GetBool('want-suit-buildings', 1)
-    DEBUG_SUIT_POSITIONS = simbase.config.GetBool('debug-suit-positions', 0)
+    SUIT_BUILDINGS = ConfigVariableBool('want-suit-buildings', True).getValue()
+    DEBUG_SUIT_POSITIONS = ConfigVariableBool('debug-suit-positions', False).getValue()
     UPDATE_TIMESTAMP_INTERVAL = 180.0
     myId = 0
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedSuitAI')
@@ -262,7 +262,7 @@ class DistributedSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
             taskMgr.remove(self.taskName('move'))
             taskMgr.doMethodLater(delay, self.moveToNextLeg, self.taskName('move'))
         else:
-            if simbase.config.GetBool('want-cogbuildings', True):
+            if ConfigVariableBool('want-cogbuildings', True).getValue():
                 self.startTakeOver()
             self.requestRemoval()
         return Task.done

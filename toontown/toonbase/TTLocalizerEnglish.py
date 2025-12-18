@@ -1,3 +1,4 @@
+from panda3d.core import Fog, TextNode
 from toontown.toonbase.TTLocalizerEnglishProperty import *
 from toontown.catalog import CatalogAccessoryItemGlobals
 from otp.otpbase import OTPLocalizer as OL
@@ -5635,7 +5636,6 @@ PetTutorialPage2 = "Use the new 'Pets' area in the SpeedChat menu to get a Doodl
 PetTutorialPage3 = "Purchase new Doodle tricks from Clarabelle's Cattlelog.  Better tricks give better Toon-Ups!"
 
 def getPetGuiAlign():
-    from pandac.PandaModules import TextNode
     return TextNode.ACenter
 
 

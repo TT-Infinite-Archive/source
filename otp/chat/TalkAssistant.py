@@ -1,6 +1,6 @@
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase import DirectObject
-from pandac.PandaModules import *
 import sys
 import time
 
@@ -25,7 +25,7 @@ class TalkAssistant(DirectObject.DirectObject):
         self.zeroTimeDay = time.time()
         self.zeroTimeGame = globalClock.getRealTime()
         self.floodThreshold = 10.0
-        self.useWhiteListFilter = base.config.GetBool('white-list-filter-openchat', 0)
+        self.useWhiteListFilter = ConfigVariableBool('white-list-filter-openchat', False).getValue()
         self.lastWhisperDoId = None
         self.lastWhisperPlayerId = None
         self.lastWhisper = None
@@ -555,7 +555,7 @@ class TalkAssistant(DirectObject.DirectObject):
             message.encode('ascii')
         except UnicodeEncodeError:
             return
-        if base.config.GetBool('want-talkative-tyler', False):
+        if ConfigVariableBool('want-talkative-tyler', False).getValue():
             if base.localAvatar.zoneId == 2000:
                 tyler = base.cr.doFind('Talkative Tyler')
                 if tyler:
@@ -581,7 +581,7 @@ class TalkAssistant(DirectObject.DirectObject):
         words = message.split(' ')
         offset = 0
 
-        WantWhitelist = config.GetBool('want-whitelist', 1)
+        WantWhitelist = ConfigVariableBool('want-whitelist', True).getValue()
         friendsList = base.localAvatar.getFriendsList()
         for friendEntry in friendsList:
             if friendEntry[0] == receiverAvId and friendEntry[1]:

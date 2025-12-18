@@ -1,3 +1,4 @@
+from panda3d.core import Vec3
 from math import *
 import math
 import random
@@ -9,8 +10,6 @@ from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import lerp
 from direct.task import Task
 from otp.level import BasicEntities
-from pandac.PandaModules import *
-from pandac.PandaModules import NodePath
 
 
 class DistributedMover(BasicEntities.DistributedNodePathEntity):

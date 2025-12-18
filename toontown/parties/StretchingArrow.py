@@ -1,6 +1,6 @@
+from panda3d.core import Point3
 import math
 from direct.gui.DirectGui import DirectFrame
-from pandac.PandaModules import Point3
 
 class StretchingArrow(DirectFrame):
     notify = directNotify.newCategory('StretchingArrow')

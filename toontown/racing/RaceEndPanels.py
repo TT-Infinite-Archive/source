@@ -1,5 +1,5 @@
+from panda3d.core import Point3, TextNode, VBase4, Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase import ToontownGlobals

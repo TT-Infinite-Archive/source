@@ -1,8 +1,9 @@
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, LinearDistanceForce, LinearSinkForce, LinearSourceForce, LinearVectorForce, SparkleParticleRenderer
+from panda3d.core import Point3, Texture, Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 from direct.particles import ParticleEffect
 from direct.particles import Particles
 from direct.particles import ForceGroup
-from pandac.PandaModules import *
 import random
 from .FireworkGlobals import *
 colors = {WHITE: Vec4(1, 1, 1, 1),

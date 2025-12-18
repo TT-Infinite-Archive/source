@@ -1,6 +1,6 @@
-from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, GeomNode, NodePath, VBase4
 import random
+from direct.interval.IntervalGlobal import *
 
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
@@ -16,13 +16,13 @@ RESISTANCE_RESTOCK = 1
 RESISTANCE_MONEY = 2
 RESISTANCE_DANCE = 3
 allowedResistanceMessages = []
-if config.GetBool('want-resistance-toonup', True):
+if ConfigVariableBool('want-resistance-toonup', True).getValue():
     allowedResistanceMessages.append(RESISTANCE_TOONUP)
-if config.GetBool('want-resistance-restock', True):
+if ConfigVariableBool('want-resistance-restock', True).getValue():
     allowedResistanceMessages.append(RESISTANCE_RESTOCK)
-if config.GetBool('want-resistance-money', True):
+if ConfigVariableBool('want-resistance-money', True).getValue():
     allowedResistanceMessages.append(RESISTANCE_MONEY)
-if config.GetBool('want-resistance-dance', True):
+if ConfigVariableBool('want-resistance-dance', True).getValue():
     allowedResistanceMessages.append(RESISTANCE_DANCE)
 resistanceMenu = [
     RESISTANCE_TOONUP, RESISTANCE_RESTOCK, RESISTANCE_MONEY,

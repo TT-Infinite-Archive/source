@@ -1,8 +1,8 @@
+from panda3d.core import BitMask32, CollideMask, CollisionBox, CollisionNode, NodePath, Point3, Texture, Vec3
 from direct.distributed.ClockDelta import *
 from direct.distributed.DistributedObject import DistributedObject
 from direct.fsm import ClassicFSM, State
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 import random
 
 from . import ToonInteriorColors

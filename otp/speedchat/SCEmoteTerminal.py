@@ -1,3 +1,4 @@
+from panda3d.core import TextNode
 from direct.gui.DirectGui import *
 from .SCTerminal import SCTerminal
 from otp.otpbase.OTPLocalizer import EmoteList, EmoteWhispers

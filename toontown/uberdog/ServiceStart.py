@@ -1,11 +1,10 @@
+from panda3d.core import ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFile, loadPrcFileData
 import builtins
 
 
 builtins.process = 'uberdog'
 
 
-# Temporary hack patch:
-builtins.__dict__.update(__import__('pandac.PandaModules', fromlist=['*']).__dict__)
 from direct.extensions_native import HTTPChannel_extensions
 
 
@@ -44,9 +43,9 @@ loadPrcFileData('Command-line', localconfig)
 from otp.ai.AIBaseGlobal import *
 
 from toontown.uberdog.ToontownUberRepository import ToontownUberRepository
-simbase.air = ToontownUberRepository(config.GetInt('air-base-channel', 400000000),
-                                     config.GetInt('air-stateserver', 4002))
-host = config.GetString('air-connect', '127.0.0.1')
+simbase.air = ToontownUberRepository(ConfigVariableInt('air-base-channel', 400000000).getValue(),
+                                     ConfigVariableInt('air-stateserver', 4002).getValue())
+host = ConfigVariableString('air-connect', '127.0.0.1').getValue()
 port = 7010
 if ':' in host:
     host, port = host.split(':', 1)

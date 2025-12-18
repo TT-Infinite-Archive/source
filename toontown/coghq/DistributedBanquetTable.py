@@ -1,6 +1,7 @@
+from panda3d.direct import SmoothMover
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionSegment, ConfigVariable, ConfigVariableDouble, NodePath, Point3, TextNode, VBase4, Vec3, deg2Rad
 import math
 import random
-from pandac.PandaModules import NodePath, Point3, VBase4, TextNode, Vec3, deg2Rad, CollisionSegment, CollisionHandlerQueue, CollisionNode, BitMask32, SmoothMover
 from direct.fsm import FSM
 from direct.distributed import DistributedObject
 from direct.distributed.ClockDelta import globalClockDelta
@@ -22,8 +23,8 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
     pitcherMinH = -360
     pitcherMaxH = 360
     rotateSpeed = 30
-    waterPowerSpeed = base.config.GetDouble('water-power-speed', 15)
-    waterPowerExponent = base.config.GetDouble('water-power-exponent', 0.75)
+    waterPowerSpeed = ConfigVariableDouble('water-power-speed', 15).getValue()
+    waterPowerExponent = ConfigVariableDouble('water-power-exponent', 0.75).getValue()
     useNewAnimations = True
     TugOfWarControls = False
     OnlyUpArrow = True

@@ -1,5 +1,4 @@
 from otp.ai.AIBaseGlobal import *
-from pandac.PandaModules import *
 from . import DistributedToonAI
 from direct.fsm import ClassicFSM
 from direct.fsm import State

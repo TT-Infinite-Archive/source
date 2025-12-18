@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.fsm import StateData
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer

@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableList
 import builtins
 import os
 import sys
 
-from panda3d.core import ConfigVariableList
 
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 

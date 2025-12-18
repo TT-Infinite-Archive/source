@@ -1,5 +1,5 @@
+from panda3d.core import Vec4
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from otp.chat import ChatInputNormal, ChatGlobals
 from otp.otpbase import OTPLocalizer
 from otp.otpbase import OTPGlobals

@@ -1,7 +1,8 @@
+from panda3d.core import ConfigVariableBool
 from . import MinigameGlobals
 
 
-if config.GetBool('want-long-pattern-game', False):
+if ConfigVariableBool('want-long-pattern-game', False).getValue():
     INITIAL_ROUND_LENGTH = 1
     ROUND_LENGTH_INCREMENT = 1
     NUM_ROUNDS = 100

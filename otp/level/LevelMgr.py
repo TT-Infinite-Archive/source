@@ -1,3 +1,4 @@
+from panda3d.core import Filename
 from direct.showbase.PythonUtil import Functor
 from . import LevelMgrBase
 

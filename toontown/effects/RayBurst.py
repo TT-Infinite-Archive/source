@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ColorBlendAttrib, NodePath, Vec4
 from direct.interval.IntervalGlobal import *
 from .EffectController import EffectController
 

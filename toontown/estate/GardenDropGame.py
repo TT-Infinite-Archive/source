@@ -1,7 +1,5 @@
-from pandac.PandaModules import *
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.gui.DirectScrolledList import *
 from direct.distributed.ClockDelta import *
 from toontown.toontowngui import TTDialog

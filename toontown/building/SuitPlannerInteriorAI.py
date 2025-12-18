@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableString
 from direct.directnotify import DirectNotifyGlobal
 import random
 import types
@@ -15,12 +16,12 @@ class SuitPlannerInteriorAI:
     notify = DirectNotifyGlobal.directNotify.newCategory('SuitPlannerInteriorAI')
 
     def __init__(self, numFloors, bldgLevel, bldgTrack, zone):
-        self.dbg_4SuitsPerFloor = config.GetBool('4-suits-per-floor', 0)
-        self.dbg_1SuitPerFloor = config.GetBool('1-suit-per-floor', 0)
+        self.dbg_4SuitsPerFloor = ConfigVariableBool('4-suits-per-floor', False).getValue()
+        self.dbg_1SuitPerFloor = ConfigVariableBool('1-suit-per-floor', False).getValue()
         self.zoneId = zone
         self.numFloors = numFloors
         self.respectInvasions = 1
-        dbg_defaultSuitName = simbase.config.GetString('suit-type', 'random')
+        dbg_defaultSuitName = ConfigVariableString('suit-type', 'random').getValue()
         if dbg_defaultSuitName == 'random':
             self.dbg_defaultSuitType = None
         else:

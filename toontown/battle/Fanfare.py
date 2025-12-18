@@ -1,3 +1,5 @@
+from panda3d.physics import ColorInterpolationManager
+from panda3d.core import Vec3, Vec4
 from direct.interval.IntervalGlobal import *
 from .BattleBase import *
 from .BattleProps import *
@@ -6,7 +8,6 @@ from toontown.toon.ToonDNA import *
 from toontown.suit.SuitDNA import *
 from direct.particles.ParticleEffect import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from . import MovieUtil
 from . import MovieCamera
 from direct.directnotify import DirectNotifyGlobal

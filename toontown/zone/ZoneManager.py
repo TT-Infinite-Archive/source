@@ -1,5 +1,5 @@
+from panda3d.core import Filename, Multifile, VirtualFileSystem
 from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
-from panda3d.core import Multifile, Filename, VirtualFileSystem
 import os
 
 

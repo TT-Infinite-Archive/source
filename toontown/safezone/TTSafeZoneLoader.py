@@ -1,4 +1,3 @@
-from panda3d.core import CollisionNode, CollisionSphere
 from toontown.safezone import SafeZoneLoader
 from toontown.safezone import TTPlayground
 from toontown.toonbase import ToontownGlobals

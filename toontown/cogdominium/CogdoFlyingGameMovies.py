@@ -1,4 +1,4 @@
-from pandac.PandaModules import Point3, PlaneNode
+from panda3d.core import GeomNode, Plane, PlaneNode, Point3
 from direct.showbase.ShowBase import Plane
 from direct.showbase.RandomNumGen import RandomNumGen
 from direct.interval.MetaInterval import Sequence, Parallel

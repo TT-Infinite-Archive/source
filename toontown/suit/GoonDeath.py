@@ -1,5 +1,5 @@
+from panda3d.core import NodePath
 from direct.interval.IntervalGlobal import *
-from pandac.PandaModules import *
 from direct.particles import ParticleEffect
 from toontown.battle import BattleParticles
 

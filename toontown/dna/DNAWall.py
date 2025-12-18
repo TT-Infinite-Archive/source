@@ -1,4 +1,4 @@
-from panda3d.core import LVector4f
+from panda3d.core import, LVector4f
 from . import DNANode
 from . import DNAFlatBuilding
 from . import DNAError

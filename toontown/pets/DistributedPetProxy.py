@@ -1,3 +1,4 @@
+from panda3d.core import Texture
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from toontown.pets import PetTraits

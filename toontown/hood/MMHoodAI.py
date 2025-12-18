@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.classicchars import DistributedMinnieAI
 from toontown.hood import HoodAI
 from toontown.safezone import DistributedTrolleyAI
@@ -18,10 +19,10 @@ class MMHoodAI(HoodAI.HoodAI):
     def startup(self):
         HoodAI.HoodAI.startup(self)
 
-        if simbase.config.GetBool('want-minigames', True):
+        if ConfigVariableBool('want-minigames', True).getValue():
             self.createTrolley()
-        if simbase.config.GetBool('want-classic-chars', True):
-            if simbase.config.GetBool('want-minnie', True):
+        if ConfigVariableBool('want-classic-chars', True).getValue():
+            if ConfigVariableBool('want-minnie', True).getValue():
                 self.createClassicChar()
 
     def createTrolley(self):

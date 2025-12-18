@@ -1,3 +1,4 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere
 from toontown.toonbase.ToontownGlobals import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
@@ -5,8 +6,6 @@ from .HouseGlobals import *
 from toontown.effects import DistributedFireworkShow
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
-from pandac.PandaModules import CollisionSphere
-from pandac.PandaModules import CollisionNode
 from . import FireworksGui
 
 class DistributedFireworksCannon(DistributedFireworkShow.DistributedFireworkShow):

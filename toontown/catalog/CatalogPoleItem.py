@@ -1,3 +1,4 @@
+from panda3d.core import Datagram, Filename
 from . import CatalogItem
 from toontown.collectibles import CollectibleInventoryGlobals
 from toontown.toonbase import ToontownGlobals

@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.task.Task import Task
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData

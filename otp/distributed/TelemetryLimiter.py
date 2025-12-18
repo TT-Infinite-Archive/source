@@ -1,3 +1,4 @@
+from panda3d.core import EventHandler
 from direct.showbase.DirectObject import DirectObject
 from otp.avatar.DistributedPlayer import DistributedPlayer
 from direct.task.Task import Task

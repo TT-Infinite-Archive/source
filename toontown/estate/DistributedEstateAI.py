@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 
 from toontown.fishing.DistributedFishingPondAI import DistributedFishingPondAI
@@ -60,7 +61,7 @@ class DistributedEstateAI(DistributedObjectAI):
             target.generateWithRequired(self.zoneId)
             self.targets.append(target)
 
-        if simbase.config.GetBool('want-estate-fisherman', False):
+        if ConfigVariableBool('want-estate-fisherman', False).getValue():
             self.fisherman = NPCToons.createNPC(self.air, 91919,
                                 NPCToons.NPCToonDict[91919], self.zoneId)
             self.fisherman.setPosHpr(75.476, -127.599, 0, 36, 0, 0)
@@ -137,7 +138,7 @@ class DistributedEstateAI(DistributedObjectAI):
         if self.treasurePlanner is not None:
             self.treasurePlanner.stop()
         
-        if simbase.config.GetBool('want-estate-fisherman', False):
+        if ConfigVariableBool('want-estate-fisherman', False).getValue():
             self.fisherman.requestDelete()
 
         for child in self.getRender().getChildren():

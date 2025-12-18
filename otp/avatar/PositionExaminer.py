@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSegment, CollisionSphere, CollisionTraverser, NodePath
 from direct.showbase.DirectObject import DirectObject
 from otp.otpbase import OTPGlobals
 

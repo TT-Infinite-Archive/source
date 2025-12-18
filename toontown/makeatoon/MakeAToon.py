@@ -1,3 +1,4 @@
+from panda3d.core import CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionTraverser, ConfigVariable, ConfigVariableBool, ConfigVariableDouble, GeomNode, ModelPool, NodePath, Point3, SequenceNode, TextNode, Texture, TexturePool, Vec4, rotateTo
 from direct.actor.Actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
@@ -6,7 +7,6 @@ from direct.fsm import StateData
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
-from pandac.PandaModules import *
 import random
 
 from . import BodyShop
@@ -92,7 +92,7 @@ class MakeAToon(StateData.StateData):
 
     def enter(self):
         self.notify.debug('Starting Make A Toon.')
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: MAKEATOON: Starting Make A Toon')
         base.transitions.fadeOut(1)
         base.camLens.setMinFov(ToontownGlobals.MakeAToonCameraFov/(4./3.))
@@ -294,8 +294,8 @@ class MakeAToon(StateData.StateData):
         self.cls.load()
         self.ns.load()
         self.music = base.loadMusic('phase_3/audio/bgm/create_a_toon.ogg')
-        self.musicVolume = base.config.GetFloat('makeatoon-music-volume', 1)
-        self.sfxVolume = base.config.GetFloat('makeatoon-sfx-volume', 1)
+        self.musicVolume = ConfigVariableDouble('makeatoon-music-volume', 1).getValue()
+        self.sfxVolume = ConfigVariableDouble('makeatoon-sfx-volume', 1).getValue()
         self.soundBack = loader.loadSfx('phase_3/audio/sfx/GUI_create_toon_back.ogg')
         self.crashSounds = list(map(loader.loadSfx, ['phase_3/audio/sfx/tt_s_ara_mat_crash_boing.ogg',
                                               'phase_3/audio/sfx/tt_s_ara_mat_crash_glassBoing.ogg',
@@ -641,7 +641,7 @@ class MakeAToon(StateData.StateData):
         self.ns.rejectName(TTLocalizer.RejectNameText)
 
     def __handleNameShopDone(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: MAKEATOON: Creating A Toon')
         self.guiLastButton.hide()
         self.guiCheckButton.hide()

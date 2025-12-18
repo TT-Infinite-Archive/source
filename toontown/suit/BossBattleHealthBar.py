@@ -1,3 +1,4 @@
+from panda3d.core import TextNode, VBase4
 from .BossCog import AnimList, GenericModel, ModelDict
 from toontown.battle.BattleProps import globalPropPool
 from toontown.suit import Suit
@@ -6,7 +7,6 @@ from direct.gui.DirectGui import DirectWaitBar, DirectFrame, DGG
 from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence, Parallel, ActorInterval, Func, Wait
 from direct.task.Task import Task
-from panda3d.core import TextNode, VBase4
 
 
 class BossBattleHealthBar(DirectFrame):

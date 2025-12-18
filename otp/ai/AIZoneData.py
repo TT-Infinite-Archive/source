@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CollisionTraverser, ConfigVariable, ConfigVariableBool, NodePath
 from direct.distributed import ParentMgr
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.task import Task
@@ -90,7 +90,7 @@ class AIZoneDataObj:
     def getRender(self):
         if not hasattr(self, '_render'):
             self._render = NodePath('render-%s-%s' % (self._parentId, self._zoneId))
-            if config.GetBool('leak-scene-graph', 0):
+            if ConfigVariableBool('leak-scene-graph', False).getValue():
                 self._renderLeakDetector = LeakDetectors.SceneGraphLeakDetector(self._render)
         return self._render
 

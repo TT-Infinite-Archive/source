@@ -1,10 +1,10 @@
+from panda3d.core import ConfigVariableBool, Point3
 from otp.ai.AIBase import *
 from direct.distributed.ClockDelta import *
 from .BattleBase import *
 from .BattleCalculatorAI import *
 from toontown.toonbase.ToontownBattleGlobals import *
 from .SuitBattleGlobals import *
-from pandac.PandaModules import *
 from . import BattleExperienceAI
 from direct.distributed import DistributedObjectAI
 from direct.fsm import ClassicFSM, State
@@ -18,7 +18,7 @@ from toontown.toonbase import ToontownGlobals
 import random
 from toontown.toon import NPCToons
 from otp.ai.MagicWordGlobal import *
-if config.GetBool('want-pets', False):
+if ConfigVariableBool('want-pets', False).getValue():
     from toontown.pets.PetDNA import FIELD_LIST
 
 class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBase):

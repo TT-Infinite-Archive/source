@@ -1,3 +1,4 @@
+from panda3d.core import CollideMask, CollisionNode, CollisionSphere, CollisionTube, NodePath, Point3, TextNode, Texture, VBase3, VBase4
 import math
 import time
 import random
@@ -12,17 +13,6 @@ from direct.interval.FunctionInterval import Wait
 from direct.interval.LerpInterval import LerpFunc
 from direct.interval.MetaInterval import Parallel
 from direct.interval.MetaInterval import Sequence
-from pandac.PandaModules import CardMaker
-from pandac.PandaModules import NodePath
-from pandac.PandaModules import TextNode
-from pandac.PandaModules import Point3
-from pandac.PandaModules import Vec3
-from pandac.PandaModules import VBase3
-from pandac.PandaModules import VBase4
-from pandac.PandaModules import CollisionSphere
-from pandac.PandaModules import CollisionTube
-from pandac.PandaModules import CollisionNode
-from pandac.PandaModules import BitMask32
 from otp.otpbase import OTPGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer

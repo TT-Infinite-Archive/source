@@ -1,8 +1,8 @@
+from panda3d.core import NodePath, TransparencyAttrib, Vec3, Vec4
 from direct.fsm.FSM import FSM
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.interval.MetaInterval import Sequence
-from pandac.PandaModules import *
 from toontown.servermenu.ServerInformationScreen import ServerInformationScreen
 
 from toontown.mainmenu import MainMenuGlobals

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from toontown.building import DistributedCFOElevatorAI
 from toontown.building import FADoorCodes
 from toontown.building.DistributedBoardingPartyAI import DistributedBoardingPartyAI
@@ -26,9 +27,9 @@ class CashbotHQAI(CogHQAI.CogHQAI):
         CogHQAI.CogHQAI.startup(self)
 
         self.createMintElevators()
-        if simbase.config.GetBool('want-boarding-groups', True):
+        if ConfigVariableBool('want-boarding-groups', True).getValue():
             self.createMintBoardingParty()
-        if simbase.config.GetBool('want-suit-planners', True):
+        if ConfigVariableBool('want-suit-planners', True).getValue():
             self.createSuitPlanners()
 
     def createMintElevators(self):

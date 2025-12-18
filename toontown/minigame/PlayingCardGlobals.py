@@ -1,6 +1,6 @@
+from panda3d.core import Vec4
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
-from pandac.PandaModules import Vec4
 Up = 1
 Down = 0
 MaxRank = 13

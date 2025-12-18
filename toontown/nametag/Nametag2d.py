@@ -1,6 +1,6 @@
+from panda3d.core import DepthWriteAttrib, NodePath, PGButton, Point3, Quat, TextNode, VBase4
 from direct.task.Task import Task
 import math
-from panda3d.core import PGButton, VBase4, DepthWriteAttrib, Point3
 
 from toontown.chat.ChatBalloon import ChatBalloon
 from toontown.margins import MarginGlobals

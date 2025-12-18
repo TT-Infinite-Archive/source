@@ -1,3 +1,6 @@
+from panda3d.core import BitMask32, CSDefault, CollideMask, CollisionNode, CollisionPlane, CollisionPolygon, CollisionTube, ConfigVariable, ConfigVariableBool, Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, GeomVertexWriter, Mat3, NodePath, Plane, Point3, RigidBodyCombiner, TextNode, VBase3, VBase4, Vec3, composeMatrix, decomposeMatrix
+import math
+import random
 from direct.directnotify import DirectNotifyGlobal
 from direct.directutil import Mopath
 from direct.distributed.ClockDelta import *
@@ -8,9 +11,6 @@ from direct.showbase.PythonUtil import Functor
 from direct.showbase.PythonUtil import StackTrace
 from direct.showbase.ShowBase import *
 from direct.task import Task
-import math
-from pandac.PandaModules import *
-import random
 
 from . import DistributedBossCog
 from . import SuitDNA
@@ -75,7 +75,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.reflectedMainDoor = None
         self.panFlashInterval = None
         self.panDamage = ToontownGlobals.LawbotBossDefensePanDamage
-        if base.config.GetBool('lawbot-boss-cheat', 0):
+        if ConfigVariableBool('lawbot-boss-cheat', False).getValue():
             self.panDamage = 25
         self.evidenceHitSfx = None
         self.toonUpSfx = None
@@ -89,7 +89,6 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.cannonIndex = -1
         self.titleText = None
         base.boss = self
-        return
 
     def announceGenerate(self):
         global OneBossCog
@@ -155,7 +154,6 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         if OneBossCog != None:
             self.notify.warning('Multiple BossCogs visible.')
         OneBossCog = self
-        return
 
     def disable(self):
         global OneBossCog
@@ -497,7 +495,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         colNode.setName('WitnessStand')
 
     def loadScale(self):
-        self.useProgrammerScale = base.config.GetBool('want-injustice-scale-debug', 0)
+        self.useProgrammerScale = ConfigVariableBool('want-injustice-scale-debug', False).getValue()
         if self.useProgrammerScale:
             self.loadScaleOld()
         else:

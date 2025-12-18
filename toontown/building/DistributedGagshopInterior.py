@@ -1,5 +1,5 @@
+from panda3d.core import Texture
 from toontown.toonbase.ToonBaseGlobal import *
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import *
 import random
 from direct.distributed import DistributedObject

@@ -1,6 +1,6 @@
+from panda3d.core import CardMaker, NodePath, TextNode, Texture, TransparencyAttrib, VBase4
 from toontown.toonbase.ToontownGlobals import getSuitFont
 from direct.gui.DirectGui import DirectWaitBar, DirectFrame, DGG
-from panda3d.core import TextNode, TransparencyAttrib, Texture, CardMaker, NodePath, Vec4, VBase4
 from . import SuitTreasureGlobals
 
 

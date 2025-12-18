@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import BitMask32, CollideMask, CollisionEntry, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, NodePath
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase import DirectObject
 from otp.ai.AIZoneData import AIZoneData

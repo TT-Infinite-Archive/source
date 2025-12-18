@@ -1,10 +1,9 @@
+from panda3d.core import ConfigVariableDouble, TextNode, Vec4
+import random
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import Sequence, LerpScaleInterval
 from direct.showbase.DirectObject import DirectObject
-from pandac.PandaModules import *
-import random
-import string
 
 from toontown.fishing import FishSellGUI
 from toontown.hood import ZoneUtil
@@ -211,7 +210,7 @@ class PetshopGUI(DirectObject):
             name, _, _ = PetUtil.getPetInfoFromSeed(petSeed, zoneId)
             name = PetNameGenerator.PetNameGenerator().getName(petNameIndex)
             cost = PetUtil.getPetCostFromSeed(petSeed, zoneId)
-            saleMultiplier = config.GetFloat('pet-cost-multiplier', 1.0)
+            saleMultiplier = ConfigVariableDouble('pet-cost-multiplier', 1.0).getValue()
             isOnSale = saleMultiplier < 1.0
             if isOnSale:
                 cost = int(cost * saleMultiplier)
@@ -281,7 +280,6 @@ class PetshopGUI(DirectObject):
                 self.petModel.enterNeutralSad()
                 model.removeNode()
                 self.initialized = True
-                return
 
             self.initialized = False
             self.petPanel = PetDetail.PetDetail(base.localAvatar.getPetId(), showDialog)
@@ -340,10 +338,10 @@ class PetshopGUI(DirectObject):
                                             text_shadow=(0, 0, 0, 1), pos=(0.23, 0, 0.75), hpr=(0, 0, 15),
                                             text_font=ToontownGlobals.getSignFont())
 
-            self.saleMultiplier = config.GetFloat('pet-cost-multiplier', 1.0)
+            self.saleMultiplier = ConfigVariableDouble('pet-cost-multiplier', 1.0).getValue()
             self.isOnSale = self.saleMultiplier < 1.0
             if self.isOnSale:
-                self.saleText['text'] = str(int(config.GetFloat('pet-cost-multiplier', 1.0) * 100)) + ' PERCENT\n OFF!'
+                self.saleText['text'] = str(int(ConfigVariableDouble('pet-cost-multiplier', 1.0).getValue() * 100)) + ' PERCENT\n OFF!'
 
             self.accept(localAvatar.uniqueName('moneyChange'), self.__moneyChange)
             self.accept(localAvatar.uniqueName('bankMoneyChange'), self.__moneyChange)
@@ -398,7 +396,7 @@ class PetshopGUI(DirectObject):
                     descList.append('\t%s' % trait)
 
                 descList.append(TTLocalizer.PetshopDescCost % cost)
-                self.petDesc.append(string.join(descList, '\n'))
+                self.petDesc.append('\n'.join(descList))
                 self.petCost.append(cost)
 
         def destroy(self):

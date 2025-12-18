@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath, TextNode, Vec3
 from direct.distributed.DistributedObject import DistributedObject
 from direct.task.Task import Task
 from toontown.minigame import CannonGameGlobals

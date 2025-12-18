@@ -1,3 +1,5 @@
+from panda3d.physics import ForceNode, LinearEulerIntegrator, LinearForce, LinearIntegrator, LinearVectorForce, PhysicsManager
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionPlane, CollisionPolygon, NodePath, Plane, Point3, Texture, Vec3
 from pandac import PandaModules as PM
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.task.Task import Task

@@ -1,10 +1,10 @@
-from pandac.PandaModules import Quat
+from panda3d.ode import OdeJoint, OdeJointGroup, OdeSimpleSpace, OdeUtil, OdeWorld
+from panda3d.core import NodePath, Quat
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import globalClockDelta
 import sys
 
 if sys.platform != 'android':
-    from panda3d.ode import OdeWorld, OdeSimpleSpace, OdeJointGroup, OdeUtil
 
 class MinigamePhysicsWorldBase:
     notify = DirectNotifyGlobal.directNotify.newCategory('MinigamePhysicsWorldBase')

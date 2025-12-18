@@ -1,3 +1,4 @@
+from panda3d.core import TextNode
 from .QuestPoster import *
 IMAGE_SCALE_LARGE = 0.15
 IMAGE_SCALE_SMALL = 0.1

@@ -1,3 +1,4 @@
+from panda3d.core import NodePath, Texture
 from direct.distributed.DistributedObject import DistributedObject
 import random
 

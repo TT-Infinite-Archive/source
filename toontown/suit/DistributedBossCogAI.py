@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 import math
 from direct.directnotify import DirectNotifyGlobal
 from otp.avatar import DistributedAvatarAI
@@ -8,7 +9,6 @@ from toontown.toon import InventoryBase
 from toontown.battle import DistributedBattleFinalAI
 from toontown.building import SuitPlannerInteriorAI
 from toontown.battle import BattleBase
-from pandac.PandaModules import *
 from . import SuitDNA
 import random
 AllBossCogs = []

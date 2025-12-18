@@ -1,4 +1,4 @@
-from pandac.PandaModules import TextNode, Vec3
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, Filename, TextNode, Vec3
 from direct.actor import Actor
 from direct.fsm import FSM
 from direct.interval.IntervalGlobal import Sequence, ActorInterval, Wait, Func, SoundInterval, Parallel
@@ -22,7 +22,7 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
     ZoneToFightAnims = {}
     ZoneToVictoryAnims = {}
     ZoneToSadAnims = {}
-    IdlePauseTime = base.config.GetFloat('prop-idle-pause-time', 0.0)
+    IdlePauseTime = ConfigVariableDouble('prop-idle-pause-time', 0.0).getValue()
     HpTextGenerator = TextNode('HpTextGenerator')
     BattleCheerText = '+'
 
@@ -206,7 +206,7 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
     def enter(self):
         GenericAnimatedProp.GenericAnimatedProp.enter(self)
 
-        if base.config.GetBool('props-buff-battles', True):
+        if ConfigVariableBool('props-buff-battles', True).getValue():
             self.notify.debug('props buff battles is true')
             self.node.stop()
             self.node.pose('idle0', 0)
@@ -261,7 +261,7 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
     def chooseIdleAnimToRun(self):
         result = self.numIdles - 1
 
-        if base.config.GetBool('randomize-interactive-idles', True):
+        if ConfigVariableBool('randomize-interactive-idles', True):
             pairs = []
             for i in range(self.numIdles):
                 reversedChance = self.numIdles - i - 1

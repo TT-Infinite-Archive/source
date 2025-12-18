@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from . import CogHQLoader
 from . import LawbotHQBossBattle
 from . import LawbotHQExterior
@@ -68,7 +69,7 @@ class LawbotCogHQLoader(CogHQLoader.CogHQLoader):
             ug.setBin('ground', -10)
             self.geom.flattenMedium()
         elif zoneId == ToontownGlobals.LawbotLobby:
-            if base.config.GetBool('want-qa-regression', 0):
+            if ConfigVariableBool('want-qa-regression', False).getValue():
                 self.notify.info('QA-REGRESSION: COGHQ: Visit LawbotLobby')
             self.notify.debug('cogHQLobbyModelPath = %s' % self.cogHQLobbyModelPath)
             self.geom = loader.loadModel(self.cogHQLobbyModelPath)

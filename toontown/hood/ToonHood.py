@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import CompassEffect, Fog, NodePath, TransparencyAttrib, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.distributed.ToontownMsgTypes import *

@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath, TextNode
 from direct.gui.DirectGui import *
 from direct.task import Task
 from .SCConstants import *

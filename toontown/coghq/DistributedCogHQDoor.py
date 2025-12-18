@@ -1,3 +1,4 @@
+from panda3d.core import NodePath, VBase3
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
 from toontown.toonbase import ToontownGlobals
@@ -8,7 +9,6 @@ from toontown.hood import ZoneUtil
 from toontown.building import FADoorCodes
 from toontown.building import DoorTypes
 from toontown.toonbase import TTLocalizer
-from panda3d.core import VBase3
 
 
 class DistributedCogHQDoor(DistributedDoor.DistributedDoor):

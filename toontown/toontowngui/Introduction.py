@@ -1,5 +1,5 @@
+from panda3d.core import TextNode, Vec4
 from direct.gui.DirectGui import OnscreenImage, OnscreenText, DirectButton
-from panda3d.core import TransparencyAttrib, Vec4, TextNode
 from direct.interval.IntervalGlobal import Wait
 from direct.interval.IntervalGlobal import Sequence, LerpColorScaleInterval
 from direct.showbase.DirectObject import DirectObject

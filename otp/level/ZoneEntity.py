@@ -1,3 +1,4 @@
+from panda3d.core import NodePath
 from . import ZoneEntityBase
 from . import BasicEntities
 

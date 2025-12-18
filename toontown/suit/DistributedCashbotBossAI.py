@@ -1,4 +1,6 @@
-from pandac.PandaModules import *
+from panda3d.core import CollisionInvSphere, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, NodePath, Point3, Vec3
+import math
+import random
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
@@ -14,10 +16,7 @@ from toontown.chat import ResistanceChat
 from direct.fsm import FSM
 from time import time
 from . import DistributedBossCogAI
-from . import SuitDNA
-import random
 from otp.ai.MagicWordGlobal import *
-import math
 
 
 class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM):
@@ -639,7 +638,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
                 if self.battleDifficulty == 3:
                     toon.doResistanceEffect(self.rewardIds[2])
 
-            if simbase.config.GetBool('cfo-staff-event', False):
+            if ConfigVariableBool('cfo-staff-event', False).getValue():
 
                 withStaff = False
                 for avId in self.involvedToons:

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFile, loadPrcFileData
 import builtins
 
 
@@ -5,7 +6,6 @@ builtins.process = 'ai'
 
 
 # Temporary hack patch:
-builtins.__dict__.update(__import__('pandac.PandaModules', fromlist=['*']).__dict__)
 from direct.extensions_native import HTTPChannel_extensions
 
 
@@ -47,10 +47,10 @@ import gc
 gc.disable()
 
 from toontown.ai.ToontownAIRepository import ToontownAIRepository
-simbase.air = ToontownAIRepository(config.GetInt('air-base-channel', 401000000),
-                                   config.GetInt('air-stateserver', 4002),
-                                   config.GetString('district-name', 'Devhaven'))
-host = config.GetString('air-connect', '127.0.0.1')
+simbase.air = ToontownAIRepository(ConfigVariableInt('air-base-channel', 401000000).getValue(),
+                                   ConfigVariableInt('air-stateserver', 4002).getValue(),
+                                   ConfigVariableString('district-name', 'Devhaven').getValue())
+host = ConfigVariableString('air-connect', '127.0.0.1').getValue()
 port = 7010
 if ':' in host:
     host, port = host.split(':', 1)
@@ -58,7 +58,7 @@ if ':' in host:
 simbase.air.connect(host, port)
 
 try:
-    if config.GetBool('want-leak-graph-ai', False):
+    if ConfigVariableBool('want-leak-graph-ai', False).getValue():
         from toontown.debug import LeakGraph
         LeakGraph.outputLeaking()
     simbase.run()

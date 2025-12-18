@@ -1,5 +1,5 @@
+from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, DisplayRegion, Fog, GeomNode, LensNode, NodePath, PerspectiveLens, Point3, Quat, Texture, TransparencyAttrib, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
-from pandac.PandaModules import *
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *
 from direct.distributed.ClockDelta import *
@@ -13,7 +13,6 @@ import math
 from toontown.toon import ToonHead
 from . import PhotoGameGlobals
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
 from toontown.golf import BuildGeometry
 from toontown.toon import Toon
@@ -888,7 +887,7 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         DistributedMinigame.setGameStart(self, timestamp)
         self.__stopIntro()
         self.__putCameraOnTripod()
-        if not base.config.GetBool('endless-cannon-game', 0):
+        if not ConfigVariableBool('endless-cannon-game', False).getValue():
             self.timer.show()
             self.timer.countdown(self.data['TIME'], self.__gameTimerExpired)
         self.filmPanel.reparentTo(base.a2dTopRight)

@@ -1,3 +1,4 @@
+from panda3d.core import Texture
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectUD import DistributedObjectUD
 

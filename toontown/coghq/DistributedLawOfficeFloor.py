@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import *
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *

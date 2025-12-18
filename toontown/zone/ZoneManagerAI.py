@@ -1,3 +1,4 @@
+from panda3d.core import Filename, Multifile
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
 from toontown.toonbase.ToontownGlobals import HoodHierarchy
 import os
@@ -42,7 +43,6 @@ class ZoneManagerAI(DistributedObjectGlobalAI):
         self.zoneData[zoneId] = '%s/tmp/zone_%d/zone_%d.pdna' % (self.mountPoint, zoneId, zoneId)
 
     def extract(self, filename):
-        from panda3d.core import Multifile, Filename
         self.notify.debug('Extracting %s...' % filename)
         mf = Multifile()
         fn = Filename(filename)

@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool, Fog, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
@@ -73,7 +74,7 @@ class FireworkShowMixin:
         if self.currentShow:
             self.currentShow.pause()
             self.currentShow = None
-            if base.config.GetBool('want-old-fireworks', False):
+            if ConfigVariableBool('want-old-fireworks', False).getValue():
                 ivalMgr.finishIntervalsMatching('shootFirework*')
             else:
                 self.destroyFireworkShow()
@@ -108,7 +109,7 @@ class FireworkShowMixin:
         self.timestamp = timestamp
         self.showMusic = None
         self.eventId = eventId
-        if base.config.GetBool('want-old-fireworks', 0):
+        if ConfigVariableBool('want-old-fireworks', False).getValue():
             self.currentShow = self.getFireworkShowIval(eventId, style, songId, t)
             if self.currentShow:
                 self.currentShow.start(t)

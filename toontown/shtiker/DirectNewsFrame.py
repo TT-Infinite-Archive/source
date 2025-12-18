@@ -1,8 +1,7 @@
+from panda3d.core import ConfigVariableBool, ConfigVariableString, DSearchPath, DocumentSpec, Filename, HTTPClient, Ramfile
 import os
 import time
 import datetime
-from pandac.PandaModules import Filename, DSearchPath, TextNode
-from pandac.PandaModules import HTTPClient, Ramfile, DocumentSpec
 from direct.showbase import DirectObject
 from direct.gui.DirectGui import DirectFrame, DGG
 from direct.directnotify import DirectNotifyGlobal
@@ -16,15 +15,15 @@ class DirectNewsFrame(DirectObject.DirectObject):
     TaskName = 'HtmlViewUpdateTask'
     TaskChainName = 'RedownladTaskChain'
     RedownloadTaskName = 'RedownloadNewsTask'
-    NewsBaseDir = config.GetString('news-base-dir', '/httpNews')
-    NewsStageDir = config.GetString('news-stage-dir', 'news')
+    NewsBaseDir = ConfigVariableString('news-base-dir', '/httpNews').getValue()
+    NewsStageDir = ConfigVariableString('news-stage-dir', 'news').getValue()
     FrameDimensions = (-1.30666637421,
      1.30666637421,
      -0.751666665077,
      0.751666665077)
     notify = DirectNotifyGlobal.directNotify.newCategory('DirectNewsFrame')
-    NewsIndexFilename = config.GetString('news-index-filename', 'http_news_index.txt')
-    NewsOverHttp = config.GetBool('news-over-http', True)
+    NewsIndexFilename = ConfigVariableString('news-index-filename', 'http_news_index.txt').getValue()
+    NewsOverHttp = ConfigVariableBool('news-over-http', True).getValue()
     CacheIndexFilename = 'cache_index.txt'
     SectionIdents = ['hom',
      'new',
@@ -369,7 +368,7 @@ class DirectNewsFrame(DirectObject.DirectObject):
                 self.redownloadNews()
 
     def getInGameNewsUrl(self):
-        return base.config.GetString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/')
+        return ConfigVariableString('fallback-news-url', 'http://cdn.toontown.disney.go.com/toontown/en/gamenews/').getValue()
 
     def calcIssueVersion(self, dateStr):
         majorVer = 1

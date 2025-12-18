@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from .CrateGlobals import *

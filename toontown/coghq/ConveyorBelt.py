@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import Plane, PlaneNode, Point3
 from direct.interval.IntervalGlobal import *
 from . import MovingPlatform
 from otp.level import BasicEntities

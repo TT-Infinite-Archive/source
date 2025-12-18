@@ -1,3 +1,4 @@
+from panda3d.core import TypeRegistry
 from toontown.toonbase import ToontownGlobals
 
 class MintRoomBase:

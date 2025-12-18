@@ -1,10 +1,10 @@
+from panda3d.core import ModelPool, Texture, TexturePool
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.fsm import StateData
 from direct.showbase import DirectObject
 from direct.task import Task
-from pandac.PandaModules import *
 
 from otp.distributed.TelemetryLimiter import RotationLimitToH, TLGatherAllAvs
 from toontown.hood import Place

@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from . import DistributedCCharBase
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State

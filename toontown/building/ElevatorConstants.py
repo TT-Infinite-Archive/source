@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableDouble, Vec4
 ELEVATOR_NORMAL = 0
 ELEVATOR_VP = 1
 ELEVATOR_MINT = 2
@@ -20,7 +20,7 @@ REJECT_NOTPAID = 8
 MAX_GROUP_BOARDING_TIME = 6.0
 
 if __dev__:
-    elevatorCountdown = config.GetFloat('elevator-countdown', -1)
+    elevatorCountdown = ConfigVariableDouble('elevator-countdown', -1).getValue()
     if elevatorCountdown != -1:
         bboard.post('elevatorCountdown', elevatorCountdown)
 

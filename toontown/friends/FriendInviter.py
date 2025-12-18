@@ -1,8 +1,7 @@
-from pandac.PandaModules import *
+from panda3d.core import ConfigVariableBool, TextNode, Vec3
 from direct.task.Task import Task
 from toontown.toonbase.ToontownGlobals import *
 from direct.gui.DirectGui import *
-from pandac.PandaModules import *
 from direct.showbase import DirectObject
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
@@ -45,7 +44,7 @@ class FriendInviter(DirectFrame):
     notify = DirectNotifyGlobal.directNotify.newCategory('FriendInviter')
 
     def __init__(self, avId, avName, avDisableName):
-        self.wantPlayerFriends = base.config.GetBool('want-player-friends', 0)
+        self.wantPlayerFriends = ConfigVariableBool('want-player-friends', False).getValue()
         DirectFrame.__init__(self, pos=(-1.033, 0.1, -0.35), parent=base.a2dTopRight, image_color=GlobalDialogColor, image_scale=(1.0, 1.0, 0.6), text='', text_wordwrap=TTLocalizer.FIdirectFrameWordwrap, text_scale=TTLocalizer.FIdirectFrame, text_pos=TTLocalizer.FIdirectFramePos)
         self['image'] = DGG.getDefaultDialogGeom()
         self.avId = avId
@@ -459,7 +458,7 @@ class FriendInviter(DirectFrame):
         pass
 
     def __handleOk(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: MAKEAFRIENDSHIP: Make a friendship')
         unloadFriendInviter()
 
@@ -470,7 +469,7 @@ class FriendInviter(DirectFrame):
         unloadFriendInviter()
 
     def __handleStop(self):
-        if base.config.GetBool('want-qa-regression', 0):
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: BREAKAFRIENDSHIP: Break a friendship')
         self.fsm.request('endFriendship')
 

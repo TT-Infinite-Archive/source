@@ -5,7 +5,6 @@ import random, time
 from . import BuildGeometry
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
-from pandac.PandaModules import *
 from toontown.golf import PhysicsWorldBase
 from toontown.toonbase import ToontownGlobals
 

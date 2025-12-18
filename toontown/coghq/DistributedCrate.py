@@ -1,4 +1,4 @@
-from pandac.PandaModules import *
+from panda3d.core import NodePath, VBase3, VBase4, Vec3
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from .CrateGlobals import *

@@ -1,4 +1,3 @@
-from pandac.PandaModules import *
 from direct.interval.IntervalGlobal import *
 from toontown.suit import DistributedLawbotBoss
 from direct.directnotify import DirectNotifyGlobal

@@ -1,7 +1,7 @@
+from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, GeomNode, LPoint3, LPoint3f, LineSegs, TextNode, TransparencyAttrib, Vec3
 from . import SuitPlannerBase
 from direct.distributed import DistributedObject
 from otp.ai.MagicWordGlobal import *
-from pandac.PandaModules import *
 from toontown.dna.DNAParser import DNASuitPoint
 from toontown.toonbase import ToontownGlobals
 

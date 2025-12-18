@@ -1,3 +1,4 @@
+from panda3d.core import ConfigVariableBool
 from direct.distributed.DistributedObject import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase.AprilToonsGlobals import *
@@ -26,7 +27,7 @@ class DistributedAprilToonsMgr(DistributedObject):
     def isEventActive(self, eventId):
         # NOTE: Possible race condition where the client checks for if an event is active
         # *before* it gets a response from the AI.
-        if not base.cr.config.GetBool('want-april-toons', False):
+        if not ConfigVariableBool('want-april-toons', False).getValue():
             # If this DO is generated but we don't want april toons, always return
             # false regardless.
             return False

@@ -1,10 +1,10 @@
+from panda3d.core import ConfigVariableList, Filename, StringStream, VirtualFileSystem, loadPrcFile, loadPrcFileData
 #!/usr/bin/env python2
 """"Entry point for a compiled build of Toontown Infinite."""
 import builtins
 import sys
 
 import game_data
-from panda3d.core import loadPrcFileData, VirtualFileSystem, \
     ConfigVariableList, Filename, StringStream
 
 # Hack fix for ctypes
