@@ -49,7 +49,7 @@ class BookmarkManager:
                 if address != '':
                     oldbookmarks.append([name, address])
             
-            for index in xrange(data.get_uint8()):
+            for index in range(data.get_uint8()):
                 getBookmark(index, data)
         
             for bookmark in oldbookmarks:

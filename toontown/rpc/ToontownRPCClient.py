@@ -33,7 +33,7 @@ class ToontownRPCClient:
         return 'ToontownRPCClient-' + str(id(self))
 
     def pollOnce(self):
-        for channel, method in self.channels.items():
+        for channel, method in list(self.channels.items()):
             if not channel.run():
                 del self.channels[channel]
                 method.finish()

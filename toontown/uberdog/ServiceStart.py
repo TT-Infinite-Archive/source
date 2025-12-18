@@ -1,11 +1,11 @@
-import __builtin__
+import builtins
 
 
-__builtin__.process = 'uberdog'
+builtins.process = 'uberdog'
 
 
 # Temporary hack patch:
-__builtin__.__dict__.update(__import__('pandac.PandaModules', fromlist=['*']).__dict__)
+builtins.__dict__.update(__import__('pandac.PandaModules', fromlist=['*']).__dict__)
 from direct.extensions_native import HTTPChannel_extensions
 
 
@@ -23,7 +23,7 @@ parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server t
 parser.add_argument('--singleplayer', help="If passed, the server will start in singleplayer mode.", action='store_true')
 parser.add_argument('--cheats', help="If passed, the server will start in with cheats enabled.", action='store_true')
 if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
-__builtin__.args = parser.parse_known_args()[0]
+builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
     for prc in args.config:

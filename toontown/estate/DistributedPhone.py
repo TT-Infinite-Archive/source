@@ -7,8 +7,8 @@ from direct.showutil import Rope
 from direct.task import Task
 from pandac.PandaModules import *
 
-import DistributedFurnitureItem
-import PhoneGlobals
+from . import DistributedFurnitureItem
+from . import PhoneGlobals
 from toontown.catalog import CatalogItem
 from toontown.catalog.CatalogScreen import CatalogScreen
 from toontown.quest import Quests
@@ -364,7 +364,7 @@ class DistributedPhone(DistributedFurnitureItem.DistributedFurnitureItem):
         w = 0.05
         shakeOnce = Sequence(Func(phone.setR, r), Wait(w), Func(phone.setR, -r), Wait(w))
         shakeSeq = Sequence()
-        for i in xrange(16):
+        for i in range(16):
             shakeSeq.append(shakeOnce)
 
         ringIval = Parallel(Func(base.playSfx, self.ringSfx), shakeSeq, Func(phone.setR, 0))

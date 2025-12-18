@@ -124,7 +124,7 @@ class TutorialManagerAI(DistributedObjectAI):
             av.b_setQuests([[110, 1, 1000, 100, 1]])
             av.b_setQuestHistory([101])
             av.b_setRewardHistory(1, [])
-            for category, itemStruct in CollectibleInventoryGlobals.DefaultItems.items():
+            for category, itemStruct in list(CollectibleInventoryGlobals.DefaultItems.items()):
                 # Give the Toon the default collectible items
                 for itemId, equip in itemStruct:
                     self.air.ciManager.handleItemObtained(av.doId, category, itemId)
@@ -169,7 +169,7 @@ class TutorialManagerAI(DistributedObjectAI):
         av.b_setRewardHistory(0, [])
         av.b_setHp(15)
         av.b_setMaxHp(15)
-        for category, itemStruct in CollectibleInventoryGlobals.DefaultItems.items():
+        for category, itemStruct in list(CollectibleInventoryGlobals.DefaultItems.items()):
             # Give the Toon the default collectible items
             for itemId, equip in itemStruct:
                 self.air.ciManager.handleItemObtained(av.doId, category, itemId)

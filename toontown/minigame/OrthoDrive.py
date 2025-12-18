@@ -3,7 +3,7 @@ from direct.showbase.PythonUtil import fitSrcAngle2Dest
 from direct.task.Task import Task
 from otp.otpbase import OTPGlobals
 from toontown.toonbase.ToonBaseGlobal import *
-import ArrowKeys
+from . import ArrowKeys
 
 class OrthoDrive:
     notify = DirectNotifyGlobal.directNotify.newCategory('OrthoDrive')

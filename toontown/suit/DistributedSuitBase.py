@@ -6,10 +6,10 @@ from direct.interval.IntervalGlobal import *
 from direct.task import Task
 from panda3d.core import *
 
-import Suit
-import SuitBase
-import SuitDialog
-import SuitTimings
+from . import Suit
+from . import SuitBase
+from . import SuitDialog
+from . import SuitTimings
 from otp.avatar import DistributedAvatar
 from otp.otpbase import OTPGlobals
 from toontown.battle import BattleProps
@@ -314,7 +314,7 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
     def makePathTrack(self, nodePath, posPoints, velocity, name):
         track = Sequence(name=name)
         nodePath.setPos(posPoints[0])
-        for pointIndex in xrange(len(posPoints) - 1):
+        for pointIndex in range(len(posPoints) - 1):
             startPoint = posPoints[pointIndex]
             endPoint = posPoints[pointIndex + 1]
             track.append(Func(nodePath.headsUp, endPoint[0], endPoint[1], endPoint[2]))

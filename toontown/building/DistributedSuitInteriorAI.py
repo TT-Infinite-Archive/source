@@ -1,7 +1,7 @@
 import copy
 
-import DistributedElevatorIntAI
-from ElevatorConstants import *
+from . import DistributedElevatorIntAI
+from .ElevatorConstants import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
 from direct.distributed.ClockDelta import *
@@ -289,7 +289,7 @@ class DistributedSuitInteriorAI(DistributedObjectAI.DistributedObjectAI):
         self.battle.setInitialMembers(self.toons, self.suits)
         self.battle.generateWithRequired(self.zoneId)
         mult = getGagCreditMultiplier(self.currentFloor, self.bldg.planner.lvlPool)
-        print 'gag credit: %s, lvlpool %s' % (mult, self.bldg.planner.lvlPool)
+        print('gag credit: %s, lvlpool %s' % (mult, self.bldg.planner.lvlPool))
         if self.air.suitInvasionManager.getInvading():
             mult *= getInvasionMultiplier()
         self.battle.battleCalc.setSkillCreditMultiplier(mult)

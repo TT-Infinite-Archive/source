@@ -67,7 +67,7 @@ class FactoryQuestPoster(DirectFrame):
             self.progress = self.goal
             self.setCompleted()
         else:
-            print('Progress is now', self.progress)
+            print(('Progress is now', self.progress))
             self.completed = False
             self.questPosterBar['text'] = (str(self.progress)+'/'+str(self.goal)+' '+TTLocalizer.FactoryQuestProgressString[self.questId])
             self.questPosterBar['value'] = (float(self.progress)/float(self.goal))

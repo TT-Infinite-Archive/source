@@ -1,6 +1,6 @@
 import cProfile
 import pstats
-import StringIO
+import io
 
 
 # Times how long it takes a function to be called and prints it in a pretty way :)
@@ -10,10 +10,10 @@ def timeFunc(func):
         pr.enable()
         x = func(*args, **kwargs)
         pr.disable()
-        s = StringIO.StringIO()
+        s = io.StringIO()
         sortby = 'cumulative'
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         ps.print_stats()
-        print s.getvalue()
+        print(s.getvalue())
         return x
     return _decorator

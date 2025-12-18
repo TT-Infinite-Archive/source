@@ -14,28 +14,28 @@ URL_API_RPC = 'https://toontowninfinite.com/api/rpc/'
 service = None
 while service not in ('maintenance', 'game'):
     if service is not None:
-        print 'Invalid service.'
-    service = raw_input('Enter service: ')
+        print('Invalid service.')
+    service = input('Enter service: ')
 
 distribution = None
 while distribution not in ('qa', 'test', 'live'):
     if distribution is not None:
-        print 'Invalid distribution.'
-    distribution = raw_input('Enter distribution: ')
+        print('Invalid distribution.')
+    distribution = input('Enter distribution: ')
 
 api_token = None
 while api_token is None:
-    username = raw_input('Enter username: ')
+    username = input('Enter username: ')
     password = getpass.getpass('Enter password: ')
     if (not username) or (not password):
-        print 'Missing required login credentials.'
+        print('Missing required login credentials.')
         continue
     payload = {'username': username, 'password': password}
     headers = {'User-Agent': USER_AGENT}
     response = requests.post(URL_API_AUTH_TOKEN_GET, data=payload, headers=headers).json()
     if 'non_field_errors' in response:
         for error in response['non_field_errors']:
-            print error
+            print(error)
     else:
         api_token = response['token']
 
@@ -72,7 +72,7 @@ def parse_rpc_method_call(module):
         if not isinstance(const, compiler.ast.Const):
             raise SyntaxError('unexpected syntax for RPC method call')
         write_path = const.value
-        if not isinstance(write_path, basestring):
+        if not isinstance(write_path, str):
             raise SyntaxError('unexpected syntax for RPC method call')
 
     const_count = 0
@@ -93,7 +93,7 @@ def parse_rpc_method_call(module):
 
     params = []
     if const_count > 0:
-        params = map(lambda a: a.value, call_func.args)
+        params = [a.value for a in call_func.args]
     elif keyword_count > 0:
         params = dict((a.name, a.expr.value) for a in call_func.args)
 
@@ -102,22 +102,22 @@ def parse_rpc_method_call(module):
 
 while True:
     try:
-        module = compiler.parse(raw_input('$ '))
+        module = compiler.parse(input('$ '))
         method, params, write_mode, write_path = parse_rpc_method_call(module)
         payload = {'service': service, 'distribution': distribution, 'method': method,
                    'params': json.dumps(params)}
         response = session.post(URL_API_RPC, data=payload).json()
         error = response.get('error')
         if error is not None:
-            print 'RPC method call resulted in error: %d\n%s' % (error[0], error[1].strip())
+            print('RPC method call resulted in error: %d\n%s' % (error[0], error[1].strip()))
         else:
             result = json.dumps(response['result'], indent=4)
             if write_mode is not None:
                 with open(write_path, write_mode) as f:
                     f.write(result + '\n')
             else:
-                print result
-    except (SyntaxError, TypeError, ValueError), e:
-        print 'Error while parsing RPC method call:\n', e
+                print(result)
+    except (SyntaxError, TypeError, ValueError) as e:
+        print('Error while parsing RPC method call:\n', e)
     except IndexError:
         pass

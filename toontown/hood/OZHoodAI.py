@@ -86,7 +86,7 @@ class OZHoodAI(HoodAI.HoodAI):
         picnicTables = []
         if isinstance(dnaGroup, DNAGroup) and ('picnic_table' in dnaGroup.getName()):
             nameInfo = dnaGroup.getName().split('_')
-            for i in xrange(dnaGroup.getNumChildren()):
+            for i in range(dnaGroup.getNumChildren()):
                 childDnaGroup = dnaGroup.at(i)
                 if 'picnic_table' in childDnaGroup.getName():
                     pos = childDnaGroup.getPos()
@@ -98,7 +98,7 @@ class OZHoodAI(HoodAI.HoodAI):
                     picnicTables.append(picnicTable)
         elif isinstance(dnaGroup, DNAVisGroup) and (not overrideDNAZone):
             zoneId = ZoneUtil.getTrueZoneId(int(dnaGroup.getName().split(':')[0]), zoneId)
-        for i in xrange(dnaGroup.getNumChildren()):
+        for i in range(dnaGroup.getNumChildren()):
             foundPicnicTables = self.findPicnicTables(
                 dnaGroup.at(i), zoneId, area, overrideDNAZone=overrideDNAZone)
             picnicTables.extend(foundPicnicTables)
@@ -121,7 +121,7 @@ class OZHoodAI(HoodAI.HoodAI):
         gameTables = []
         if isinstance(dnaGroup, DNAGroup) and ('game_table' in dnaGroup.getName()):
             nameInfo = dnaGroup.getName().split('_')
-            for i in xrange(dnaGroup.getNumChildren()):
+            for i in range(dnaGroup.getNumChildren()):
                 nameInfo = dnaGroup.getName().split('_')
                 childDnaGroup = dnaGroup.at(i)
                 if 'game_table' in childDnaGroup.getName():
@@ -133,7 +133,7 @@ class OZHoodAI(HoodAI.HoodAI):
                     gameTables.append(gameTable)
         elif isinstance(dnaGroup, DNAVisGroup) and (not overrideDNAZone):
             zoneId = ZoneUtil.getTrueZoneId(int(dnaGroup.getName().split(':')[0]), zoneId)
-        for i in xrange(dnaGroup.getNumChildren()):
+        for i in range(dnaGroup.getNumChildren()):
             foundGameTables = self.findGameTables(
                 dnaGroup.at(i), zoneId, area, overrideDNAZone=overrideDNAZone)
             gameTables.extend(foundGameTables)

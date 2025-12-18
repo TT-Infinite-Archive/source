@@ -16,10 +16,10 @@ class DGSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         if ToontownGlobals.DaisyGardens in base.cr.zoneManager.modifiedZones:
             self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DaisyGardens)
         SafeZoneLoader.SafeZoneLoader.load(self)
-        self.birdSound = map(loader.loadSfx, ['phase_8/audio/sfx/SZ_DG_bird_01.ogg',
+        self.birdSound = list(map(loader.loadSfx, ['phase_8/audio/sfx/SZ_DG_bird_01.ogg',
                                             'phase_8/audio/sfx/SZ_DG_bird_02.ogg',
                                             'phase_8/audio/sfx/SZ_DG_bird_03.ogg',
-                                            'phase_8/audio/sfx/SZ_DG_bird_04.ogg'])
+                                            'phase_8/audio/sfx/SZ_DG_bird_04.ogg']))
 
     def unload(self):
         SafeZoneLoader.SafeZoneLoader.unload(self)

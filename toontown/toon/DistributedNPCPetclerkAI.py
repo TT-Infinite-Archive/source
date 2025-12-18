@@ -1,4 +1,4 @@
-from DistributedNPCToonBaseAI import *
+from .DistributedNPCToonBaseAI import *
 from toontown.toonbase import TTLocalizer
 from direct.task import Task
 from toontown.fishing import FishGlobals
@@ -55,7 +55,7 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
 
         self.initializePetData()
 
-        print('avatarEnter() from av %s. petSeeds= %s' % (avId, self.petSeeds))
+        print(('avatarEnter() from av %s. petSeeds= %s' % (avId, self.petSeeds)))
 
         self.sendUpdateToAvatarId(avId, 'setPetData', [self.petSeeds, self.petDNA, self.petTraitSeeds])
         self.transactionType = ''
@@ -121,7 +121,7 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
             return
 
 
-        if petNum not in xrange(0, len(self.petSeeds)):
+        if petNum not in range(0, len(self.petSeeds)):
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.petAdopted and no such pet!')
             self.notify.warning('somebody called petAdopted on a non-existent pet! avId: %s' % avId)
             return
@@ -140,14 +140,14 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
             self.petMgr.deleteToonsPet(avId)
 
         gender = petNum % len(PetDNA.PetGenders)
-        if nameIndex not in xrange(0, TTLocalizer.PetNameIndexMAX):
+        if nameIndex not in range(0, TTLocalizer.PetNameIndexMAX):
             self.air.writeServerEvent('avoid_crash', avId, "DistributedNPCPetclerkAI.petAdopted and didn't have valid nameIndex!")
             self.notify.warning("somebody called petAdopted and didn't have valid nameIndex to adopt! avId: %s" % avId)
             return
 
         dna = self.petDNA.pop(petNum / len(PetDNA.PetGenders))
         traitSeed = self.petTraitSeeds.pop(petNum / len(PetDNA.PetGenders))
-        print('createNewPetFromSeed %s %s %s' % (avId, seed, self.safezoneId))
+        print(('createNewPetFromSeed %s %s %s' % (avId, seed, self.safezoneId)))
         self.petMgr.createNewPetFromSeed(avId, seed, dna, traitSeed, nameIndex, gender,
                                          self.safezoneId)
 
@@ -156,11 +156,11 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
         walletPrice = cost - bankPrice
         av.b_setBankMoney(av.getBankMoney() - bankPrice)
         av.b_setMoney(av.getMoney() - walletPrice)
-        print('Using up seed %s and petNum %s for av %s.' % (seed, petNum, avId))
+        print(('Using up seed %s and petNum %s for av %s.' % (seed, petNum, avId)))
 
         # Use up current seed
         self.petMgr.getAvailablePets(self.doId).remove(seed)
-        for i in xrange(self.petSeeds.count(seed)):
+        for i in range(self.petSeeds.count(seed)):
             self.petSeeds.remove(seed)
 
         self.petSeeds.sort()

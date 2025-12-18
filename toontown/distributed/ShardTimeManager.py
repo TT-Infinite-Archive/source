@@ -16,7 +16,7 @@ class ShardTimeManager(ShardTimeManagerBase):
             minutes = dawnLength - self.getTimeTillNextPeriod()
 
             # Loop through the r, g, b values:
-            for i in xrange(3):
+            for i in range(3):
                 # Get the difference between NIGHT and MIDDAY color:
                 difference = ShardTimeManagerGlobals.MIDDAY_COLOR_SCALE[i] - ShardTimeManagerGlobals.NIGHT_COLOR_SCALE[i]
 
@@ -39,7 +39,7 @@ class ShardTimeManager(ShardTimeManagerBase):
             minutes = duskLength - self.getTimeTillNextPeriod()
 
             # Loop through the r, g, b values:
-            for i in xrange(3):
+            for i in range(3):
                 # Get the difference between NIGHT and MIDDAY color:
                 difference = ShardTimeManagerGlobals.MIDDAY_COLOR_SCALE[i] - ShardTimeManagerGlobals.NIGHT_COLOR_SCALE[i]
 

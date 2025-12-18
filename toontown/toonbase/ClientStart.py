@@ -7,18 +7,18 @@ import gc
 # ~ Chan
 gc.disable()
 
-import __builtin__
+import builtins
 import os, sys
 
-__builtin__.process = 'client'
+builtins.process = 'client'
 
 from panda3d.core import ConfigVariableString
 
-__builtin__.version = ConfigVariableString('server-version', 'n/a').getValue()
+builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
-__builtin__.directNotify = directNotify
+builtins.directNotify = directNotify
 notify = directNotify.newCategory('ClientStart')
 notify.setInfo(True)
 
@@ -36,7 +36,7 @@ if __debug__:
         from otp.otpbase.OTPInjectorDev import Injector
 
         notify.info('Starting injector...')
-        __builtin__.injector = Injector()
+        builtins.injector = Injector()
 
 from panda3d.core import *
 
@@ -50,13 +50,13 @@ from toontown.toonbase import ToontownGlobals
 
 preferencesPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
 notify.info('Reading %s...' % preferencesPath)
-__builtin__.settings = Settings(preferencesPath)
+builtins.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
 # Load server settings (used for the hosting screen)
 from otp.settings.Settings import Settings
-__builtin__.serverSettings = Settings("serversettings.json")
+builtins.serverSettings = Settings("serversettings.json")
 from toontown.toonbase import ServerSettingsGlobals
 ServerSettingsGlobals.loadInitialSettings()
 
@@ -98,7 +98,7 @@ from toontown.toonbase.ContentPacksManager import ContentPacksManager
 contentPacksPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('content-packs-path', 'contentpacks').getValue())
 if not os.path.exists(contentPacksPath):
     os.makedirs(contentPacksPath)
-__builtin__.contentPacksMgr = ContentPacksManager(contentPacksPath)
+builtins.contentPacksMgr = ContentPacksManager(contentPacksPath)
 contentPacksMgr.applyAll()
 
 if sys.platform != 'android':
@@ -107,7 +107,7 @@ if sys.platform != 'android':
 
 from toontown.launcher.TTILauncher import TTILauncher
 
-__builtin__.launcher = TTILauncher()
+builtins.launcher = TTILauncher()
 
 if not __debug__:
     # Check if an username is set or not.

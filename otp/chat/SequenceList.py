@@ -4,7 +4,7 @@ class SequenceList:
     def __init__(self, filePath):
         self.list = Settings.Settings(filePath)
 
-        for key in self.list.keys():
+        for key in list(self.list.keys()):
             sequences = self.list[key]
             if ',' in key:
                 words = key.split(',')

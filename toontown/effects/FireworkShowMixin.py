@@ -4,9 +4,9 @@ from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase import TTLocalizer
 from toontown.parties import PartyGlobals
-import Fireworks
-import FireworkShows
-from FireworkGlobals import skyTransitionDuration, preShowPauseDuration
+from . import Fireworks
+from . import FireworkShows
+from .FireworkGlobals import skyTransitionDuration, preShowPauseDuration
 from toontown.effects.FireworkShow import FireworkShow
 
 FIREWORK_SHOW_LOCATION = {

@@ -1,7 +1,7 @@
 from direct.directnotify import DirectNotifyGlobal
 from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivityAI
 from direct.task import Task
-import PartyGlobals
+from . import PartyGlobals
 
 class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedPartyJukeboxActivityBaseAI")
@@ -35,7 +35,7 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         else:
             self.queue.append(song)
             self.owners.append(avId)
-        for toon in self.toonsPlaying.keys():
+        for toon in list(self.toonsPlaying.keys()):
             self.sendUpdateToAvatarId(toon, 'setSongInQueue', [song])
         if not self.playing:
             #stop default party music...
@@ -135,5 +135,5 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         self.owners.insert(0, host)
         self.queue.insert(0, song)
 
-        for toon in self.toonsPlaying.keys():
+        for toon in list(self.toonsPlaying.keys()):
             self.sendUpdateToAvatarId(toon, 'moveHostSongToTop', [])

@@ -62,4 +62,4 @@ FQSabotageRewardPosition = [6, 472, 29]
 FQRescuePossibleNPCs = [5207, 5313, 5317]
 
 def getRandomQuestId():
-    return random.choice(FactoryQuests.keys())
+    return random.choice(list(FactoryQuests.keys()))

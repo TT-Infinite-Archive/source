@@ -1,24 +1,24 @@
-from CatalogItemList import CatalogItemList
-from CatalogInvalidItem import CatalogInvalidItem
-from CatalogFurnitureItem import CatalogFurnitureItem
-from CatalogChatItem import CatalogChatItem
-from CatalogClothingItem import CatalogClothingItem
-from CatalogEmoteItem import CatalogEmoteItem
-from CatalogWallpaperItem import CatalogWallpaperItem
-from CatalogWindowItem import CatalogWindowItem
-from CatalogFlooringItem import CatalogFlooringItem
-from CatalogMouldingItem import CatalogMouldingItem
-from CatalogWainscotingItem import CatalogWainscotingItem
-from CatalogPoleItem import CatalogPoleItem
-from CatalogPetTrickItem import CatalogPetTrickItem
-from CatalogBeanItem import CatalogBeanItem
-from CatalogGardenItem import CatalogGardenItem
-from CatalogRentalItem import CatalogRentalItem
-from CatalogGardenStarterItem import CatalogGardenStarterItem
-from CatalogNametagItem import CatalogNametagItem
-from CatalogToonStatueItem import CatalogToonStatueItem
-from CatalogAnimatedFurnitureItem import CatalogAnimatedFurnitureItem
-from CatalogAccessoryItem import CatalogAccessoryItem
+from .CatalogItemList import CatalogItemList
+from .CatalogInvalidItem import CatalogInvalidItem
+from .CatalogFurnitureItem import CatalogFurnitureItem
+from .CatalogChatItem import CatalogChatItem
+from .CatalogClothingItem import CatalogClothingItem
+from .CatalogEmoteItem import CatalogEmoteItem
+from .CatalogWallpaperItem import CatalogWallpaperItem
+from .CatalogWindowItem import CatalogWindowItem
+from .CatalogFlooringItem import CatalogFlooringItem
+from .CatalogMouldingItem import CatalogMouldingItem
+from .CatalogWainscotingItem import CatalogWainscotingItem
+from .CatalogPoleItem import CatalogPoleItem
+from .CatalogPetTrickItem import CatalogPetTrickItem
+from .CatalogBeanItem import CatalogBeanItem
+from .CatalogGardenItem import CatalogGardenItem
+from .CatalogRentalItem import CatalogRentalItem
+from .CatalogGardenStarterItem import CatalogGardenStarterItem
+from .CatalogNametagItem import CatalogNametagItem
+from .CatalogToonStatueItem import CatalogToonStatueItem
+from .CatalogAnimatedFurnitureItem import CatalogAnimatedFurnitureItem
+from .CatalogAccessoryItem import CatalogAccessoryItem
 
 
 class PopularItemManagerAI:
@@ -58,7 +58,7 @@ class PopularItemManagerAI:
         except ValueError:
             pass
 
-        sortedItems = [(x,y) for y,x in sorted([(y,x) for x,y in self.popularItemDict.items()],reverse=True)]
+        sortedItems = [(x,y) for y,x in sorted([(y,x) for x,y in list(self.popularItemDict.items())],reverse=True)]
 
         finalItems = []
         if len(sortedItems) <= 12:
@@ -66,7 +66,7 @@ class PopularItemManagerAI:
                 item = eval(item[0])
                 finalItems.append(item)
         else:
-            for i in xrange(12):
+            for i in range(12):
                 item = eval(sortedItems[i][0])
                 finalItems.append(item)
 

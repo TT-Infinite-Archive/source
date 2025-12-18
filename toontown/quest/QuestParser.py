@@ -10,9 +10,9 @@ import re
 import sys
 import token
 import tokenize
-from StringIO import StringIO
+from io import StringIO
 
-import BlinkingArrows
+from . import BlinkingArrows
 from otp.speedchat import SpeedChatGlobals
 from toontown.ai import DistributedBlackCatMgr
 from toontown.char import Char
@@ -88,7 +88,7 @@ def getLineOfTokens(gen):
     tokens = []
     nextNeg = 0
     try:
-        token = gen.next()
+        token = next(gen)
     except StopIteration:
         return None
     if token[0] == tokenize.ENDMARKER:
@@ -116,7 +116,7 @@ def getLineOfTokens(gen):
             notify.warning('Ignored token type: %s on line: %s' % (tokenize.tok_name[token[0]], token[2][0]))
 
         try:
-            token = gen.next()
+            token = next(gen)
         except StopIteration:
             break
 
@@ -184,7 +184,7 @@ class NPCMoviePlayer(DirectObject.DirectObject):
             self.currentTrack = None
         self.ignoreAll()
         taskMgr.remove(self.uniqueId)
-        for toonHeadFrame in self.toonHeads.values():
+        for toonHeadFrame in list(self.toonHeads.values()):
             toonHeadFrame.destroy()
 
         while self.chars:

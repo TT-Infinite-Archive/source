@@ -316,7 +316,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         self.crowdBuildupSfx = []
         self.crowdApplauseSfx = []
         self.crowdMissSfx = []
-        for i in xrange(4):
+        for i in range(4):
             self.crowdBuildupSfx.append(loader.loadSfx('phase_6/audio/sfx/Golf_Crowd_Buildup.ogg'))
             self.crowdApplauseSfx.append(loader.loadSfx('phase_6/audio/sfx/Golf_Crowd_Applause.ogg'))
             self.crowdMissSfx.append(loader.loadSfx('phase_6/audio/sfx/Golf_Crowd_Miss.ogg'))
@@ -358,7 +358,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         base.camera.setHpr(self.camHprBallFollow)
         if self.holeBottomNodePath.isEmpty():
             holePositions = self.holePositions
-            for index in xrange(len(holePositions)):
+            for index in range(len(holePositions)):
                 holePos = holePositions[index]
                 targetNodePathGeom, t1, t2 = BuildGeometry.addCircleGeom(self.targets, 16, 1)
                 targetNodePathGeom.setPos(holePos)
@@ -1295,7 +1295,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
             self.currentGolferActive = True
             if avId in self.ballDict:
                 self.ballDict[avId]['golfBallOdeGeom'].setCollideBits(BitMask32(16777215))
-                self.ballDict[avId]['golfBallOdeGeom'].setCategoryBits(BitMask32(4278190080L))
+                self.ballDict[avId]['golfBallOdeGeom'].setCategoryBits(BitMask32(4278190080))
         else:
             self.currentGolferActive = False
 
@@ -1405,7 +1405,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
 
     def __updateGolfPower(self, task):
         if not self.powerBar:
-            print '### no power bar!!!'
+            print('### no power bar!!!')
             return Task.done
         newPower = self.__getGolfPower(globalClock.getFrameTime())
         self.power = newPower
@@ -1529,7 +1529,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         cameraAnimFullPath = path + cameraName
         try:
             self.flyOverActor = Actor.Actor(camModelFullPath, {'camera': cameraAnimFullPath})
-        except StandardError:
+        except Exception:
             self.notify.debug("Couldn't find flyover %s" % camModelFullPath)
             return False
 
@@ -1539,7 +1539,7 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         flyOverJoint = self.flyOverActor.find('**/camera1')
         children = flyOverJoint.getChildren()
         numChild = children.getNumPaths()
-        for i in xrange(numChild):
+        for i in range(numChild):
             childNodePath = children.getPath(i)
             childNodePath.removeNode()
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 """"Entry point for a compiled build of Toontown Infinite."""
-import __builtin__
+import builtins
 import sys
 
 import game_data
@@ -31,7 +31,7 @@ for mount in mounts:
     vfs.mount(mountFile, mountPoint, 0)
 
 # Store the deobfuscated DC file data for later use
-__builtin__.dcData = game_data.deobfuscate(game_data.DC)
+builtins.dcData = game_data.deobfuscate(game_data.DC)
 
 # __builtin__.process is automatically defined by the runtime
 if process == 'client':

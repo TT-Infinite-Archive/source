@@ -2,8 +2,8 @@ from toontown.chat import ChatGlobals
 from toontown.toonbase import EventGlobals
 from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 from direct.directnotify import DirectNotifyGlobal
-from GroupTrackerGlobals import *
-from itertools import izip
+from .GroupTrackerGlobals import *
+
 
 
 class GlobalGroupTracker(DistributedObjectGlobal):
@@ -14,7 +14,7 @@ class GlobalGroupTracker(DistributedObjectGlobal):
         self.leader2Group = {}
 
     def requestGroupsResponse(self, leaderIds, groups):
-        self.leader2Group = dict(izip(leaderIds, [list(group) for group in groups]))
+        self.leader2Group = dict(zip(leaderIds, [list(group) for group in groups]))
         messenger.send(EventGlobals.GroupTrackerResponse)
 
     def updateGroup(self, leaderId, category, memberIds, memberNames, show):

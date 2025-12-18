@@ -12,7 +12,7 @@ import sys
 
 
 def generateLookupTable(key):
-    return [hex(ord(str(key)[i % len(str(key))]) & ord(key[4]) & i) for i in xrange(255)]
+    return [hex(ord(str(key)[i % len(str(key))]) & ord(key[4]) & i) for i in range(255)]
 
 
 def encodeHexString(lookupTable, hexString):

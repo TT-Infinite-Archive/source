@@ -155,7 +155,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             self.creditSequence = None
 
         del self.barrels
-        for avId in self.toonSDs.keys():
+        for avId in list(self.toonSDs.keys()):
             toonSD = self.toonSDs[avId]
             toonSD.unload()
 
@@ -182,7 +182,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         toonSD.fsm.request('normal')
         self.stopGameWalk()
         base.localAvatar.setAnimState('neutral')
-        for cogIndex in xrange(self.getNumCogs()):
+        for cogIndex in range(self.getNumCogs()):
             suit = self.cogInfo[cogIndex]['suit'].suit
             pos = self.cogInfo[cogIndex]['pos']
             suit.reparentTo(self.gameBoard)
@@ -192,12 +192,12 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             self.toonHitTracks[avId] = Wait(0.1)
 
         self.toonRNGs = []
-        for i in xrange(self.numPlayers):
+        for i in range(self.numPlayers):
             self.toonRNGs.append(RandomNumGen.RandomNumGen(self.randomNumGen))
 
         self.sndTable = {'hitBySuit': [None] * self.numPlayers,
          'falling': [None] * self.numPlayers}
-        for i in xrange(self.numPlayers):
+        for i in range(self.numPlayers):
             self.sndTable['hitBySuit'][i] = base.loadSfx('phase_4/audio/sfx/MG_Tag_C.ogg')
             self.sndTable['falling'][i] = base.loadSfx('phase_4/audio/sfx/MG_cannon_whizz.ogg')
 
@@ -209,7 +209,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         for barrel in self.barrels:
             barrel.hide()
 
-        for avId in self.toonSDs.keys():
+        for avId in list(self.toonSDs.keys()):
             self.toonSDs[avId].exit()
 
         for avId in self.avIdList:
@@ -393,7 +393,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             base.mouseInterfaceNode.setRotateSpeed(ToontownGlobals.ToonRotateSpeed * 4)
 
     def initCogInfo(self):
-        for cogIndex in xrange(self.getNumCogs()):
+        for cogIndex in range(self.getNumCogs()):
             self.cogInfo[cogIndex] = {'pos': Point3(CTGG.CogStartingPositions[cogIndex]),
              'goal': CTGG.NoGoal,
              'goalId': CTGG.InvalidGoalId,
@@ -404,7 +404,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
          'ac',
          'bc',
          'ms']
-        for suitIndex in xrange(self.getNumCogs()):
+        for suitIndex in range(self.getNumCogs()):
             st = self.randomNumGen.choice(suitTypes)
             suit = CogThiefRewritten.CogThiefRewritten(suitIndex, st, self, self.getCogSpeed())
             self.cogInfo[suitIndex]['suit'] = suit
@@ -444,7 +444,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             return
         if self.gameIsEnding:
             return
-        self.notify.debug('avatar ' + `avId` + ' hit by a suit')
+        self.notify.debug('avatar ' + repr(avId) + ' hit by a suit')
         if avId != self.localAvId:
             self.showToonHitBySuit(avId, timestamp)
             self.makeSuitRespondToToonHit(timestamp, suitNum)
@@ -460,7 +460,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             oldTrack.finish()
         toon.setPos(curPos)
         toon.setZ(self.TOON_Z)
-        parentNode = render.attachNewNode('mazeFlyToonParent-' + `avId`)
+        parentNode = render.attachNewNode('mazeFlyToonParent-' + repr(avId))
         parentNode.setPos(toon.getPos())
         toon.reparentTo(parentNode)
         toon.setPos(0, 0, 0)
@@ -689,7 +689,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
         if self.gameFSM.getCurrentState().getName() not in ('play',):
             self.notify.warning('ignoring msg: av %s hit by suit' % avId)
             return
-        self.notify.debug('avatar ' + `avId` + ' throwing pie')
+        self.notify.debug('avatar ' + repr(avId) + ' throwing pie')
         if avId != self.localAvId:
             pos = Point3(x, y, z)
             self.showToonThrowingPie(avId, timestamp, heading, pos)
@@ -784,7 +784,7 @@ class DistributedCogThiefRewrittenGame(DistributedMinigame):
             return
         if self.gameIsEnding:
             return
-        self.notify.debug('avatar ' + `avId` + ' hit by a suit')
+        self.notify.debug('avatar ' + repr(avId) + ' hit by a suit')
         if avId != self.localAvId:
             self.makeSuitRespondToPieHit(timestamp, suitNum)
 

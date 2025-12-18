@@ -26,7 +26,7 @@ def generate_token(accessLevel):
 
 
 while True:
-    methodCall = raw_input('>')
+    methodCall = input('>')
     if methodCall.endswith('()'):
         extraParam = 'generate_token(700)'
     else:
@@ -34,5 +34,5 @@ while True:
     methodCall = 'client.' + methodCall[:methodCall.find('(') + 1] + extraParam + methodCall[methodCall.find('(') + 1:]
     try:
         exec('print ' + methodCall)
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)

@@ -508,7 +508,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                         guildMembersOnline.append((member.doId, member.name))
 
         if self.panelType == FLPPets:
-            for objId, obj in base.cr.doId2do.items():
+            for objId, obj in list(base.cr.doId2do.items()):
                 from toontown.pets import DistributedPet
                 if isinstance(obj, DistributedPet.DistributedPet):
                     friendPair = (objId, 0)
@@ -522,7 +522,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             if base.wantPets and base.localAvatar.hasPet():
                 petFriends.insert(0, (base.localAvatar.getPetId(), 0))
 
-        for friendPair in self.friends.keys():
+        for friendPair in list(self.friends.keys()):
             friendButton = self.friends[friendPair]
             self.scrollList.removeItem(friendButton, refresh=0)
             friendButton.destroy()

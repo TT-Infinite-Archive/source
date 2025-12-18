@@ -17,9 +17,9 @@ class BRSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         if ToontownGlobals.TheBrrrgh in base.cr.zoneManager.modifiedZones:
             self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.TheBrrrgh)
         SafeZoneLoader.SafeZoneLoader.load(self)
-        self.windSound = map(loader.loadSfx, ['phase_8/audio/sfx/SZ_TB_wind_1.ogg',
+        self.windSound = list(map(loader.loadSfx, ['phase_8/audio/sfx/SZ_TB_wind_1.ogg',
                                             'phase_8/audio/sfx/SZ_TB_wind_2.ogg',
-                                            'phase_8/audio/sfx/SZ_TB_wind_3.ogg'])
+                                            'phase_8/audio/sfx/SZ_TB_wind_3.ogg']))
         self.snow = BattleParticles.loadParticleFile('snowdisk.ptf')
         self.snow.setPos(0, 0, 5)
         self.snowRender = self.geom.attachNewNode('snowRender')

@@ -63,7 +63,7 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
     def calculateOffset(self):
         f = [0, 0]
         for i in [0, 1]:
-            for x in self.forceDict[i].values():
+            for x in list(self.forceDict[i].values()):
                 f[i] += x
         deltaF = f[1] - f[0]
         deltaX = deltaF * MOVEMENT_MULTIPLIER

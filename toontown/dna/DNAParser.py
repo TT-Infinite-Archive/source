@@ -1,11 +1,11 @@
 from direct.stdpy import threading
 
-import DNALoader
-from DNAStorage import DNAStorage
-from DNASuitPoint import DNASuitPoint
-from DNAGroup import DNAGroup
-from DNAVisGroup import DNAVisGroup
-from DNADoor import DNADoor
+from . import DNALoader
+from .DNAStorage import DNAStorage
+from .DNASuitPoint import DNASuitPoint
+from .DNAGroup import DNAGroup
+from .DNAVisGroup import DNAVisGroup
+from .DNADoor import DNADoor
 
 
 class DNABulkLoader:
@@ -15,7 +15,7 @@ class DNABulkLoader:
 
     def loadDNAFiles(self):
         for file in self.dnaFiles:
-            print 'Reading DNA file...', file
+            print('Reading DNA file...', file)
             loadDNABulk(self.dnaStorage, file)
 
         self.dnaStorage = None
@@ -34,7 +34,7 @@ def loadDNABulk(dnaStorage, file):
 
 
 def loadDNAFile(dnaStorage, file):
-    print 'Reading DNA file...', file
+    print('Reading DNA file...', file)
     dnaLoader = DNALoader.DNALoader()
     if file[0] != '/':
         if __debug__:

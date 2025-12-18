@@ -16,7 +16,7 @@ class DownloadForceAcknowledge(DirectObject):
 
     def enter(self, zone):
         doneStatus = {}
-        if zone not in ToontownGlobals.HoodHierarchy.keys():
+        if zone not in list(ToontownGlobals.HoodHierarchy.keys()):
             zone = ZoneUtil.getBranchZone(zone)
 
         if base.cr.zoneManager.getZoneComplete(zone):

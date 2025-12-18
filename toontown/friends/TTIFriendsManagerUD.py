@@ -6,7 +6,7 @@ import string
 import random
 import hashlib
 import time
-import cPickle
+import pickle
 import zlib
 import hmac
 import base64
@@ -117,7 +117,7 @@ class RemoveFriendOperation(OperationFSM):
 
     def enterRetrieved(self, friendsList):
         newList = []
-        for i in xrange(len(friendsList)):
+        for i in range(len(friendsList)):
             if friendsList[i][0] == self.target:
                 continue
             newList.append(friendsList[i])
@@ -380,10 +380,10 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
                 return
 
             for fieldName in BAD_FIELDS:
-                if fieldName in fields.keys():
+                if fieldName in list(fields.keys()):
                     del fields[fieldName]
 
-            data = zlib.compress(fieldsIn(cPickle.dumps(fields, protocol=cPickle.HIGHEST_PROTOCOL)))
+            data = zlib.compress(fieldsIn(pickle.dumps(fields, protocol=pickle.HIGHEST_PROTOCOL)))
             k = str(avId + self.doId)
             sig = hmac.new(k, data, hashlib.sha1).hexdigest()
 
@@ -466,7 +466,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
     # -- Teleport and Whispers --
     def routeTeleportQuery(self, toId):
         fromId = self.air.getAvatarIdFromSender()
-        if fromId in self.tpRequests.values():
+        if fromId in list(self.tpRequests.values()):
             return
         if toId in self.avId2IgnoredList:
             if fromId in self.avId2IgnoredList[toId]:
@@ -555,7 +555,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
         avId = self.air.getAvatarIdFromSender()
         allowed = string.lowercase + string.digits
         secret = ''
-        for i in xrange(6):
+        for i in range(6):
             secret += random.choice(allowed)
             if i == 2:
                 secret += ' '

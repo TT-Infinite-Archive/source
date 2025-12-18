@@ -1,7 +1,7 @@
 from direct.gui.DirectGui import DGG, DirectLabel
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
-import ShtikerPage
+from . import ShtikerPage
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.shtiker.CodesTabPage import CodesTabPage
 from toontown.shtiker.OptionsPageGUI import OptionTab

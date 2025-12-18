@@ -5,7 +5,7 @@ from direct.interval.IntervalGlobal import *
 from pandac.PandaModules import *
 import random
 
-import ToonInteriorColors
+from . import ToonInteriorColors
 from toontown.dna.DNAParser import DNADoor
 from toontown.hood import ZoneUtil
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
@@ -156,7 +156,7 @@ class DistributedBankInterior(DistributedObject):
     def replaceRandomInModel(self, model):
         baseTag = 'random_'
         npc = model.findAllMatches('**/' + baseTag + '???_*')
-        for i in xrange(npc.getNumPaths()):
+        for i in range(npc.getNumPaths()):
             np = npc.getPath(i)
             name = np.getName()
             b = len(baseTag)

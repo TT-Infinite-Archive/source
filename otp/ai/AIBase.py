@@ -18,14 +18,14 @@ from direct.task.TaskManagerGlobal import *
 from otp.otpbase import BackupManager
 from pandac.PandaModules import *
 from toontown.toonbase import ServerSettingsGlobals
-import __builtin__
+import builtins
 
 
 class AIBase:
     notify = directNotify.newCategory('AIBase')
 
     from otp.settings.Settings import Settings
-    __builtin__.serverSettings = Settings("serversettings.json")
+    builtins.serverSettings = Settings("serversettings.json")
     from toontown.toonbase import ServerSettingsGlobals
     ServerSettingsGlobals.loadInitialSettings()
 

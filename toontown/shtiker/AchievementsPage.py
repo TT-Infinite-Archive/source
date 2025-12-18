@@ -1,4 +1,4 @@
-import ShtikerPage
+from . import ShtikerPage
 from direct.gui.DirectGui import *
 from pandac.PandaModules import *
 from toontown.toonbase import TTLocalizer
@@ -33,7 +33,7 @@ class AchievementsPage(ShtikerPage.ShtikerPage):
 
         self.scrollFrame = DirectScrolledFrame(parent=self, frameSize=(0, 1.5, -1.2, 0), pos=(-0.75, 1, 0.52),
                                                canvasSize=(0, 1, -7, 0), frameColor=(0.85, 0.95, 1, 1))
-        for achievement in xrange(len(AchievementsGlobals.AchievementTitles)):
+        for achievement in range(len(AchievementsGlobals.AchievementTitles)):
             achievementFrame = DirectFrame(parent=self.scrollFrame.getCanvas(), image=DGG.getDefaultDialogGeom(), scale=(1.3, 0, 0.32),
                                            relief=None, pos=(start_pos.x, 1, start_pos.z - seperation.z * achievement),
                                            text=AchievementsGlobals.AchievementTitles[achievement], text_scale=(0.05, 0.13),
@@ -62,7 +62,7 @@ class AchievementsPage(ShtikerPage.ShtikerPage):
         start_pos = LVecBase3(0.72, 1, -0.21)
         seperation = LVecBase3(0.45, 0, 0.4)
 
-        for achievement in xrange(len(AchievementsGlobals.AchievementTitles)):
+        for achievement in range(len(AchievementsGlobals.AchievementTitles)):
             achievementFrame = DirectFrame(parent=self.scrollFrame.getCanvas(), image=DGG.getDefaultDialogGeom(), scale=(1.3, 0, 0.32),
                                            relief=None, pos=(start_pos.x, 1, start_pos.z - seperation.z * achievement),
                                            text=AchievementsGlobals.AchievementTitles[achievement], text_scale=(0.05, 0.13),

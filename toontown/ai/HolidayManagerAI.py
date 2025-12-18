@@ -85,7 +85,7 @@ class HolidayManagerAI:
                 for fishingPond in hood.fishingPonds:
                     fishingPond.bingoMgr.b_enableBingo()
 
-            for estate in self.air.estateManager.estate2toons.keys():
+            for estate in list(self.air.estateManager.estate2toons.keys()):
                 if estate.pond:
                     estate.pond.bingoMgr.enableBingo()
 
@@ -134,7 +134,7 @@ class HolidayManagerAI:
                 for fishingPond in hood.fishingPonds:
                     fishingPond.bingoMgr.disableBingo()
 
-            for estate in self.air.estateManager.estate2toons.keys():
+            for estate in list(self.air.estateManager.estate2toons.keys()):
                 if estate.pond:
                     estate.pond.bingoMgr.disableBingo()
 

@@ -1,6 +1,6 @@
-import __builtin__
+import builtins
 import types
-import urlparse
+import urllib.parse
 
 import pymongo
 from direct.distributed.AstronInternalRepository import AstronInternalRepository
@@ -34,7 +34,7 @@ class ToontownInternalRepository(AstronInternalRepository):
             self.mongo = pymongo.MongoClient(url, replicaset=replicaset)
         else:
             self.mongo = pymongo.MongoClient(url)
-        db = (urlparse.urlparse(url).path or '/game')[1:]
+        db = (urllib.parse.urlparse(url).path or '/game')[1:]
         self.mongodb = self.mongo[db]
         self.dbAstronCursor = self.mongodb.astron
 
@@ -53,7 +53,7 @@ class ToontownInternalRepository(AstronInternalRepository):
         self.dclassesByNumber = {}
         self.hashVal = 0
 
-        if isinstance(dcFileNames, types.StringTypes):
+        if isinstance(dcFileNames, (str,)):
             # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 
@@ -133,7 +133,7 @@ class ToontownInternalRepository(AstronInternalRepository):
                         continue
                     classDef = getattr(classDef, className)
 
-                if type(classDef) != types.ClassType and type(classDef) != types.TypeType:
+                if type(classDef) != type and type(classDef) != type:
                     self.notify.error('Symbol %s is not a class name.' % className)
                 else:
                     dclass.setClassDef(classDef)

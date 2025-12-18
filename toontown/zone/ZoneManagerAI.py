@@ -27,7 +27,7 @@ class ZoneManagerAI(DistributedObjectGlobalAI):
         if os.path.exists(tmpFolder):
             shutil.rmtree(tmpFolder)
 
-        for hoodId in HoodHierarchy.keys():
+        for hoodId in list(HoodHierarchy.keys()):
             self.loadZone(hoodId)
             for branchId in HoodHierarchy[hoodId]:
                 self.loadZone(branchId)

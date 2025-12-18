@@ -146,7 +146,7 @@ class GuildUD:
             self.questContributions = {}
         else:
             # We have a quest, lets make sure this quest actually exists (safety-net)
-            if self.quest[GuildQuestGlobals.GUILD_QUEST_ID] not in GuildQuestGlobals.GuildQuestDict.keys():
+            if self.quest[GuildQuestGlobals.GUILD_QUEST_ID] not in list(GuildQuestGlobals.GuildQuestDict.keys()):
                 # Something went wrong with this quest, get a new one
                 quest = GuildQuestGlobals.getQuestFromNum(self.questNum)
                 self.questContributions = {}
@@ -309,7 +309,7 @@ class GuildUD:
                 self.avId2MemberIndex[member.id] = self.members.index(fields)
 
                 # Check if this guild is ready
-                for avId, _member in self.avId2Member.items():
+                for avId, _member in list(self.avId2Member.items()):
                     if _member is None:
                         return
 
@@ -510,7 +510,7 @@ class GuildUD:
         return self.avId2Member.get(avId)
 
     def getMemberCount(self):
-        return len(self.avId2Member.keys())
+        return len(list(self.avId2Member.keys()))
 
     def getMemberIndex(self, member):
         if member.asEntry() not in self.members:

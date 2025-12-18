@@ -1,5 +1,5 @@
-import DoorTypes
-import FADoorCodes
+from . import DoorTypes
+from . import FADoorCodes
 import sys
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject

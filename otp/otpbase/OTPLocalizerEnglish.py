@@ -129,7 +129,7 @@ TextColors = {
  'forestGreen': (0.15, 0.8, 0.15, 1)   # Forest-green
 }
 
-for name, color in TextColors.iteritems():
+for name, color in TextColors.items():
     property = TextProperties()
     property.setTextColor(*color)
     propertyManager.setProperties(name, property)

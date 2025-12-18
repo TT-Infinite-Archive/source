@@ -26,7 +26,7 @@ class FishManagerAI:
         av.addMoney(value)
         av.b_setFishTank([], [], [])
         if trophies > curTrophies:
-            av.b_setFishingTrophies(range(trophies))
+            av.b_setFishingTrophies(list(range(trophies)))
             return True
         return False
 

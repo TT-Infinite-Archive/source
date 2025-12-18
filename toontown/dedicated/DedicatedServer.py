@@ -2,7 +2,7 @@ import atexit
 import copy
 import sys
 import types
-import __builtin__
+import builtins
 import tempfile
 import shutil
 import yaml
@@ -122,7 +122,7 @@ class DedicatedServer(FSM):
         dcFile = DCFile()
         dcFile.clear()
 
-        if isinstance(dcFileNames, types.StringTypes):
+        if isinstance(dcFileNames, (str,)):
             # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 

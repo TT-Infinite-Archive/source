@@ -1,6 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from toontown.cogdominium.DistCogdoGameAI import DistCogdoGameAI
-import CogdoMazeGameGlobals
+from . import CogdoMazeGameGlobals
 from direct.distributed.ClockDelta import *
 from direct.task import Timer
 from toontown.battle import BattleBase
@@ -104,7 +104,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
 
     def hitSuitAI(self, suitType, suitNum):
         cogKey = None
-        for cogNum in self.suitTypes[suitType].keys():
+        for cogNum in list(self.suitTypes[suitType].keys()):
             if cogNum == suitNum:
                 cogKey = cogNum
                 break

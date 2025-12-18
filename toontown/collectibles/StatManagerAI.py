@@ -135,7 +135,7 @@ class StatManagerAI:
         for av in avs:
             if av is not None:
                 # Add the amounts for the objectives we found
-                for objective, amount in objectiveToAmount.items():
+                for objective, amount in list(objectiveToAmount.items()):
                     self.handleObjectiveCompleted(av, category, objective, amount)
                 # Save this av's stats
                 av.stats.saveStat(category)

@@ -21,16 +21,16 @@ class GuildDB:
         self.dbm.sync()
 
     def getGuildIds(self):
-        return [int(guildId) for guildId in self.dbm.keys()]
+        return [int(guildId) for guildId in list(self.dbm.keys())]
 
     def getOwnerIds(self):
-        return [int(ownerId) for ownerId in self.dbm.values()]
+        return [int(ownerId) for ownerId in list(self.dbm.values())]
 
     def getOwnerIdFromGuildId(self, guildId):
         return int(self.dbm[str(guildId)])
 
     def getGuildIdFromOwnerId(self, ownerId):
-        for key, value in self.dbm.values():
+        for key, value in list(self.dbm.values()):
             if int(value) == ownerId:
                 return int(key)
 
@@ -587,7 +587,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
             self.notify.warning('Could not retrieve matching guild for id %d' % guildId)
             return
 
-        for i in xrange(0, amount):
+        for i in range(0, amount):
             quest = GuildQuestGlobals.GuildQuestDict[guild.questInst.questId]
             category = quest[0]
             objective = quest[1]
@@ -601,7 +601,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
 
         if targetId == 0:
             # This is a request to cancel an invite
-            for otherTargetId, otherSenderId in self.invites.iteritems():
+            for otherTargetId, otherSenderId in self.invites.items():
                 # Check if we have an invite pending
                 if senderId == otherSenderId:
                     # Tell the target we no longer want them

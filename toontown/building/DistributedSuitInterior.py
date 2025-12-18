@@ -1,7 +1,7 @@
 from direct.interval.IntervalGlobal import *
 from direct.distributed.ClockDelta import *
-from ElevatorConstants import *
-import ElevatorUtils
+from .ElevatorConstants import *
+from . import ElevatorUtils
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals
 from direct.directnotify import DirectNotifyGlobal
@@ -83,7 +83,7 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
 
     def setElevatorLights(self, elevatorModel):
         npc = elevatorModel.findAllMatches('**/floor_light_?;+s')
-        for i in xrange(npc.getNumPaths()):
+        for i in range(npc.getNumPaths()):
             np = npc.getPath(i)
             floor = int(np.getName()[-1:]) - 1
             if floor == self.currentFloor:
@@ -149,7 +149,7 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
                 interval.finish()
 
     def __cleanupIntervals(self):
-        for interval in self.activeIntervals.values():
+        for interval in list(self.activeIntervals.values()):
             interval.finish()
 
         self.activeIntervals = {}
@@ -215,7 +215,7 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
                 self.notify.warning('setSuits() - no suit: %d' % suitId)
 
         self.reserveSuits = []
-        for index in xrange(len(reserveIds)):
+        for index in range(len(reserveIds)):
             suitId = reserveIds[index]
             if suitId in self.cr.doId2do:
                 suit = self.cr.doId2do[suitId]
@@ -267,7 +267,7 @@ class DistributedSuitInterior(DistributedObject.DistributedObject):
         self.floorModel.reparentTo(render)
         elevIn = self.floorModel.find('**/elevator-in')
         elevOut = self.floorModel.find('**/elevator-out')
-        for index in xrange(len(self.suits)):
+        for index in range(len(self.suits)):
             self.suits[index].setPos(SuitPositions[index])
             if len(self.suits) > 2:
                 self.suits[index].setH(SuitHs[index])

@@ -8,12 +8,12 @@ from toontown.coghq import FactoryQuestGlobals
 from toontown.suit import DistributedFactorySuitAI
 from toontown.toonbase import ToontownBattleGlobals
 
-import LevelSuitPlannerAI
-import FactoryBase
-import FactoryEntityCreatorAI
-import FactorySpecs
-import FactoryGlobals
-import SuitTreasureGlobals
+from . import LevelSuitPlannerAI
+from . import FactoryBase
+from . import FactoryEntityCreatorAI
+from . import FactorySpecs
+from . import FactoryGlobals
+from . import SuitTreasureGlobals
 
 import math
 import random

@@ -1,6 +1,6 @@
 from otp.uberdog.GlobalOtpObjectUD import GlobalOtpObjectUD
 from direct.directnotify import DirectNotifyGlobal
-from GroupTrackerGlobals import *
+from .GroupTrackerGlobals import *
 
 
 class GlobalGroupTrackerUD(GlobalOtpObjectUD):
@@ -55,7 +55,7 @@ class GlobalGroupTrackerUD(GlobalOtpObjectUD):
         self.requestGroupsResponse(avId)
 
     def requestGroupsResponse(self, avId):
-        self.sendUpdateToAvatarId(avId, 'requestGroupsResponse', [self.leader2Group.keys(), self.leader2Group.values()])
+        self.sendUpdateToAvatarId(avId, 'requestGroupsResponse', [list(self.leader2Group.keys()), list(self.leader2Group.values())])
 
     def cleanupAvatar(self, avId):
         self.notify.debug('Cleaning up avatar no longer with us %s' % avId)

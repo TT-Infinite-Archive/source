@@ -1,11 +1,11 @@
-import __builtin__
+import builtins
 
 
-__builtin__.process = 'ai'
+builtins.process = 'ai'
 
 
 # Temporary hack patch:
-__builtin__.__dict__.update(__import__('pandac.PandaModules', fromlist=['*']).__dict__)
+builtins.__dict__.update(__import__('pandac.PandaModules', fromlist=['*']).__dict__)
 from direct.extensions_native import HTTPChannel_extensions
 
 
@@ -22,7 +22,7 @@ parser.add_argument('--astron-ip', help="The IP address of the Astron Message Di
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
 if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
-__builtin__.args = parser.parse_known_args()[0]
+builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
     for prc in args.config:

@@ -60,6 +60,6 @@ TextureOptionToDimension = [128, 256, 1024, 4096]
 
 def loadInitialSettings():
     # Initializes settings if some initial options aren't in there
-    for setting, default in InitialSettings.items():
+    for setting, default in list(InitialSettings.items()):
         if setting not in settings:
             settings[setting] = default

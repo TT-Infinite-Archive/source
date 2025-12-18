@@ -293,7 +293,7 @@ class RetrieveAvatarInfoFSM(FSM):
             fields['setDNAString']
         )
 
-        if self.fromId is not None and self.fromId not in self.avInfo.keys():
+        if self.fromId is not None and self.fromId not in list(self.avInfo.keys()):
             self.demand('QueryAvatar', self.fromId)
         else:
             self.demand('Finished')

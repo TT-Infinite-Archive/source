@@ -1,3 +1,3 @@
 if hasattr(simbase, 'wantPets') and simbase.wantPets:
-    import DistributedPetAI
-    import DistributedPetUD
+    from . import DistributedPetAI
+    from . import DistributedPetUD

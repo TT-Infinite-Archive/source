@@ -32,7 +32,7 @@ class BulkLoader():
         self.modelPool[modelPath] = model
 
     def unload(self):
-        for model in self.modelPool.values():
+        for model in list(self.modelPool.values()):
             if not model.isEmpty():
                 model.removeNode()
 

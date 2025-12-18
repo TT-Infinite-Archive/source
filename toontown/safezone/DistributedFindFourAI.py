@@ -262,7 +262,7 @@ class DistributedFindFourAI(DistributedNodeAI):
         if self.board[0][moveColumn] != 0:
             self.sendUpdateToAvatarId(avId, 'illegalMove', [])
         
-        for x in xrange(6):
+        for x in range(6):
             if self.board[x][moveColumn] == 0:
                 movePos = x
                 continue
@@ -292,7 +292,7 @@ class DistributedFindFourAI(DistributedNodeAI):
             turn])
 
     def checkForTie(self):
-        for x in xrange(7):
+        for x in range(7):
             if self.board[0][x] == 0:
                 return False
         
@@ -350,14 +350,14 @@ class DistributedFindFourAI(DistributedNodeAI):
 
     def checkHorizontal(self, rVal, cVal, playerNum):
         if cVal == 3:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal][cVal - x] != playerNum:
                     break
                 
                 if self.board[rVal][cVal - x] == playerNum and x == 3:
                     return True
             
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal][cVal + x] != playerNum:
                     break
                 
@@ -366,7 +366,7 @@ class DistributedFindFourAI(DistributedNodeAI):
             
             return False
         elif cVal == 2:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal][cVal + x] != playerNum:
                     break
                 
@@ -375,7 +375,7 @@ class DistributedFindFourAI(DistributedNodeAI):
             
             return False
         elif cVal == 4:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal][cVal - x] != playerNum:
                     break
                 
@@ -388,7 +388,7 @@ class DistributedFindFourAI(DistributedNodeAI):
 
     def checkVertical(self, rVal, cVal, playerNum):
         if rVal == 2:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal + x][cVal] != playerNum:
                     break
                 
@@ -397,7 +397,7 @@ class DistributedFindFourAI(DistributedNodeAI):
             
             return False
         elif rVal == 3:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal - x][cVal] != playerNum:
                     break
                 
@@ -411,7 +411,7 @@ class DistributedFindFourAI(DistributedNodeAI):
     def checkDiagonal(self, rVal, cVal, playerNum):
         if cVal <= 2:
             if rVal == 2:
-                for x in xrange(1, 4):
+                for x in range(1, 4):
                     if self.board[rVal + x][cVal + x] != playerNum:
                         break
                     
@@ -420,7 +420,7 @@ class DistributedFindFourAI(DistributedNodeAI):
                 
                 return False
             elif rVal == 3:
-                for x in xrange(1, 4):
+                for x in range(1, 4):
                     if self.board[rVal - x][cVal + x] != playerNum:
                         break
                     
@@ -431,7 +431,7 @@ class DistributedFindFourAI(DistributedNodeAI):
             
         elif cVal >= 4:
             if rVal == 2:
-                for x in xrange(1, 4):
+                for x in range(1, 4):
                     if self.board[rVal + x][cVal - x] != playerNum:
                         break
                     
@@ -440,7 +440,7 @@ class DistributedFindFourAI(DistributedNodeAI):
                 
                 return False
             elif rVal == 3:
-                for x in xrange(1, 4):
+                for x in range(1, 4):
                     if self.board[rVal - x][cVal - x] != playerNum:
                         break
                     
@@ -450,14 +450,14 @@ class DistributedFindFourAI(DistributedNodeAI):
                 return False
             
         elif rVal == 3 and rVal == 4 or rVal == 5:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal - x][cVal - x] != playerNum:
                     break
                 
                 if self.board[rVal - x][cVal - x] == playerNum and x == 3:
                     return True
             
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal + x][cVal - x] != playerNum:
                     break
                 
@@ -466,14 +466,14 @@ class DistributedFindFourAI(DistributedNodeAI):
             
             return False
         elif rVal == 0 and rVal == 1 or rVal == 2:
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal + x][cVal - x] != playerNum:
                     break
                 
                 if self.board[rVal + x][cVal - x] == playerNum and x == 3:
                     return True
             
-            for x in xrange(1, 4):
+            for x in range(1, 4):
                 if self.board[rVal + x][cVal + x] != playerNum:
                     break
                 

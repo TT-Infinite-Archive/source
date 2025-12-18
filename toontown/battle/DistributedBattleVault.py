@@ -18,7 +18,7 @@ class DistributedBattleVault(DistributedBattleWaiters):
         self.showSuitsFalling(self.suits, 0, self.uniqueName('initial-FlyDown'), self.flyDownDone)
 
     def flyDownDone(self):
-        print 'flyDownDone'
+        print('flyDownDone')
 
     def showSuitsFalling(self, suits, ts, name, callback):
         if self.bossCog == None:

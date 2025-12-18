@@ -11,7 +11,7 @@ from toontown.cogdominium import DistCogdoMazeGameAI
 from toontown.cogdominium import CogdoMazeGameGlobals
 from toontown.cogdominium import DistributedCogdoElevatorIntAI
 from toontown.cogdominium import DistCogdoFlyingGameAI
-from DistributedCogdoBattleBldgAI import DistributedCogdoBattleBldgAI
+from .DistributedCogdoBattleBldgAI import DistributedCogdoBattleBldgAI
 
 from toontown.toon import NPCToons
 from toontown.hood import ZoneUtil
@@ -24,7 +24,7 @@ class DistributedCogdoInteriorAI(DistributedObjectAI, FSM.FSM):
     def __init__(self, air, exterior):
         DistributedObjectAI.__init__(self, air)
         FSM.FSM.__init__(self, 'CogdoInteriorAIFSM')
-        self.toons = filter(None, exterior.elevator.seats[:])
+        self.toons = [_f for _f in exterior.elevator.seats[:] if _f]
         self.responses = {}
         self.bldgDoId = exterior.doId
         self.numFloors = 1
@@ -68,16 +68,16 @@ class DistributedCogdoInteriorAI(DistributedObjectAI, FSM.FSM):
             npc = zoneDict.get(self.zoneId, [])[0]
         else:
             # The building does not have a set NPC. Getting a random one.
-            npc = random.choice(NPCToons.FOnpcFriends.keys())
+            npc = random.choice(list(NPCToons.FOnpcFriends.keys()))
         return npc
 
     def generateSOS(self, difficulty):
 
         def chooseNPC():
             if random.random() >= 0.88:
-                toon = random.choice(NPCToons.HQnpcFriends.keys())
+                toon = random.choice(list(NPCToons.HQnpcFriends.keys()))
             else:
-                toon = random.choice(NPCToons.FOnpcFriends.keys())
+                toon = random.choice(list(NPCToons.FOnpcFriends.keys()))
 
             return toon
 
@@ -251,7 +251,7 @@ class DistributedCogdoInteriorAI(DistributedObjectAI, FSM.FSM):
             if toon not in seats:
                 self.removeToon(toon)
 
-        self.toons = filter(None, seats)
+        self.toons = [_f for _f in seats if _f]
         self.d_setToons()
         self.request('Elevator')
 

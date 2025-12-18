@@ -1,7 +1,7 @@
 from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from toontown.toonbase import ToontownGlobals
-import DistributedSwitch
+from . import DistributedSwitch
 
 class DistributedTrigger(DistributedSwitch.DistributedSwitch):
 

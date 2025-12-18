@@ -1,7 +1,7 @@
 from pandac.PandaModules import *
 from direct.distributed.ClockDelta import *
 from otp.level import BasicEntities
-import DistributedSwitchBase
+from . import DistributedSwitchBase
 from direct.fsm import ClassicFSM, State
 
 class DistributedSwitch(DistributedSwitchBase.DistributedSwitchBase, BasicEntities.DistributedNodePathEntity):

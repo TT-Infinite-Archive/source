@@ -1,5 +1,5 @@
 from direct.distributed.ClockDelta import *
-import DistributedSwitchBase
+from . import DistributedSwitchBase
 from direct.task import Task
 from direct.fsm import ClassicFSM, State
 from otp.level import DistributedEntityAI

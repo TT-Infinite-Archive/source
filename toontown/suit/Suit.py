@@ -1,6 +1,6 @@
 from direct.actor import Actor
 from otp.avatar import Avatar
-import SuitDNA
+from . import SuitDNA
 from toontown.toonbase import ToontownGlobals
 from pandac.PandaModules import *
 from toontown.battle import SuitBattleGlobals
@@ -183,7 +183,7 @@ PreloadModels = (
 )
 
 def preload():
-    print 'Preloading Cog models...'
+    print('Preloading Cog models...')
 
     for modelPath in PreloadModels:
         preloader.loadModel(modelPath)
@@ -206,7 +206,7 @@ def loadSuitAnims(suit, flag = 1):
             animList = ()
 
     else:
-        print 'Invalid suit name: ', suit
+        print('Invalid suit name: ', suit)
         return -1
     for anim in animList:
         phase = 'phase_' + str(anim[2])
@@ -572,7 +572,7 @@ class Suit(Avatar.Avatar):
         headModel = NodePath('cog_head')
         preloader.getModel(filepath).copyTo(headModel)
         headReferences = headModel.findAllMatches('**/' + headType)
-        for i in xrange(0, headReferences.getNumPaths()):
+        for i in range(0, headReferences.getNumPaths()):
             headPart = self.instance(headReferences.getPath(i), 'modelRoot', 'joint_head')
             if self.headTexture:
                 headTex = loader.loadTexture('phase_' + str(phase) + '/maps/' + self.headTexture)
@@ -698,7 +698,7 @@ class Suit(Avatar.Avatar):
 
     def updateHealthColor(self, condition):
         parts = self.findAllMatches('*')
-        for thingIndex in xrange(0, parts.getNumPaths()):
+        for thingIndex in range(0, parts.getNumPaths()):
             thing = parts[thingIndex]
             if thing.getName() not in ('joint_attachMeter', 'joint_nameTag', 'def_nameTag', 'nametag3d'):
                 thing.clearColorScale()
@@ -793,7 +793,7 @@ class Suit(Avatar.Avatar):
         self.generateCorporateTie()
         self.setHeight(self.height)
         parts = self.findAllMatches('**/pPlane*')
-        for partNum in xrange(0, parts.getNumPaths()):
+        for partNum in range(0, parts.getNumPaths()):
             bb = parts.getPath(partNum)
             bb.setTwoSided(1)
 
@@ -821,7 +821,7 @@ class Suit(Avatar.Avatar):
             modelRoot = self
         self.isVirtual = 1
         parts = self.findAllMatches('*')
-        for thingIndex in xrange(0, parts.getNumPaths()):
+        for thingIndex in range(0, parts.getNumPaths()):
             thing = parts[thingIndex]
             if thing.getName() not in ('joint_attachMeter', 'joint_nameTag', 'def_nameTag', 'nametag3d'):
                 if healthColored:

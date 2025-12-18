@@ -3,7 +3,7 @@ from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import Sequence, Func, Wait
 from direct.interval.MetaInterval import Parallel
 
-import MinigameGlobals
+from . import MinigameGlobals
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase.ToontownGlobals import *
 

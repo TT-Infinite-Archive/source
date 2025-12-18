@@ -75,7 +75,7 @@ class GuildManagerAI(DistributedObjectGlobalAI):
             involvedToons = guildId2ToonIds[guildId]
 
             suitType = suit['type']
-            if suitType not in ToontownGlobals.SuitToDeptNames.keys():
+            if suitType not in list(ToontownGlobals.SuitToDeptNames.keys()):
                 self.notify.warning('We don\'t handle suit %s' % suitType)
                 return
             self.notify.debug('Handling members %s of guild %s defeating a cog of type %s' % (involvedToons, guildId, suitType))
@@ -298,7 +298,7 @@ def guildId():
     guildId = target.getGuildId()
     if guildId == 0:
         return 'Target does not belong to a Guild!'
-    print('Got guildId: %d' % guildId)
+    print(('Got guildId: %d' % guildId))
     return 'Guild Id: %d' % guildId
 
 

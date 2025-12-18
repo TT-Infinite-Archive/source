@@ -1,11 +1,11 @@
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
 from direct.task import Task
-from PartyGlobals import *
+from .PartyGlobals import *
 from datetime import datetime, timedelta
 from pandac.PandaModules import *
 from toontown.toonbase.ToontownGlobals import P_InvalidIndex, P_ItemAvailable
-from ToontownTimeZone import ToontownTimeZone
+from .ToontownTimeZone import ToontownTimeZone
 
 
 PARTY_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -36,7 +36,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
 
         # Preallocate any used invite keys.
         if self.inviteKey2Invite:
-            for inviteKey in self.inviteKey2Invite.keys():
+            for inviteKey in list(self.inviteKey2Invite.keys()):
                 self.inviteKeyAllocator.initialReserveId(inviteKey)
 
         self.wantInstantParties = simbase.config.GetBool('want-instant-parties', 0)
@@ -69,7 +69,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         # JSON doesn't allow ints as dictionary keys so we have to convert them.
         # Our party times also have to be converted from strings.
         try:
-            convert = lambda d: dict((int(k), v) for k, v in d.iteritems())
+            convert = lambda d: dict((int(k), v) for k, v in d.items())
 
             self.hostsToRefund = convert(self.air.backups.load('parties', ('hostsToRefund',), default=({})))
 
@@ -89,7 +89,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
             self.notify.warning('Party backup loading failed!\n%s' % e.message)
 
         if self.id2Party:
-            for partyId in self.id2Party.keys():
+            for partyId in list(self.id2Party.keys()):
                 # Apparently timezones are broken in Python 2.7 so we have to do this.
                 try:
                     self.id2Party[partyId]['start'] = datetime.strptime(
@@ -166,7 +166,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         return endStartable < now
 
     def __checkPartyStarts(self, task):
-        for partyId in self.id2Party.keys():
+        for partyId in list(self.id2Party.keys()):
             party = self.id2Party[partyId]
             hostId = party['hostId']
             if self.canPartyStart(party) and party['status'] == PartyStatus.Pending:
@@ -252,7 +252,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         party = self.party2PubInfo.get(partyId)
         if not party:
             return
-        for sender in self.senders2Mgrs.keys():
+        for sender in list(self.senders2Mgrs.keys()):
             actIds = []
             for activity in self.id2Party[partyId]['activities']:
                 actIds.append(activity[0])  # First part of activity tuple should be actId
@@ -264,7 +264,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
                            party['numGuests'], party['maxGuests'], party['hostName'], actIds, minLeft], sender=sender)
 
     def sendPartyInfo(self, sender, channel):
-        for partyId, party in self.party2PubInfo.items():
+        for partyId, party in list(self.party2PubInfo.items()):
             actIds = []
             for activity in self.id2Party[partyId]['activities']:
                 actIds.append(activity[0])  # First part of activity tuple should be actId
@@ -278,7 +278,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
 
     def __updatePartyCount(self, partyId):
         # Update the party guest count
-        for sender in self.senders2Mgrs.keys():
+        for sender in list(self.senders2Mgrs.keys()):
             if partyId in self.party2PubInfo:
                 self.sendToAI('updateToPublicPartyCountUdToAllAi', [self.party2PubInfo[partyId]['numGuests'], partyId], sender=sender)
 
@@ -338,7 +338,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
     def partyManagerAIHello(self, channel):
         # Upon AI boot, DistributedPartyManagerAIs are supposed to say hello. 
         # They send along the DPMAI's doId as well, so that I can talk to them later.
-        print 'AI with base channel %s, will send replies to DPM %s' % (simbase.air.getAvatarIdFromSender(), channel)
+        print('AI with base channel %s, will send replies to DPM %s' % (simbase.air.getAvatarIdFromSender(), channel))
         self.senders2Mgrs[simbase.air.getAvatarIdFromSender()] = channel
         self.sendToAI('partyManagerUdStartingUp', [])
 
@@ -410,7 +410,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
             party = self.id2Party[self.host2PartyId[hostId]]
             self.sendToAI('partyInfoOfHostResponseUdToAi', [self._formatParty(party), party.get('inviteeIds', [])])
             return
-        print 'query failed, av %s isnt hosting anything' % hostId
+        print('query failed, av %s isnt hosting anything' % hostId)
 
     def requestPartySlot(self, partyId, avId, gateId):
         if partyId not in self.party2PubInfo:
@@ -504,7 +504,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         if not invite:
             return
         if invite[1] not in self.id2Party:
-            if fromId in self.inviteeId2Invites.keys():
+            if fromId in list(self.inviteeId2Invites.keys()):
                 if invite in self.inviteeId2Invites[fromId]:
                     self.inviteeId2Invites[fromId].remove(invite)
                     return
@@ -542,7 +542,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
             return
         if invite[1] not in self.id2Party:
             self.air.writeServerEvent('suspicious', fromId, 'Avatar tried to respond to a invalid party!')
-            if fromId in self.inviteeId2Invites.keys():
+            if fromId in list(self.inviteeId2Invites.keys()):
                 if inviteKey in self.inviteeId2Invites[fromId]:
                     self.inviteeId2Invites[fromId].remove(inviteKey)
             return

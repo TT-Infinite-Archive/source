@@ -1,10 +1,10 @@
 from otp.ai.AIBaseGlobal import *
 from direct.task.Task import Task
 from pandac.PandaModules import *
-from DistributedNPCToonBaseAI import *
+from .DistributedNPCToonBaseAI import *
 from toontown.quest import Quests
 import time
-from QuestionMgr import ChatterBotFactory, ChatterBotType
+from .QuestionMgr import ChatterBotFactory, ChatterBotType
 from direct.task import Task
 
 class DistributedSmartNPCAI(DistributedNPCToonBaseAI):

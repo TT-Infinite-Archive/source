@@ -1,7 +1,7 @@
 from direct.distributed.ClockDelta import *
 from direct.gui.DirectGui import *
 
-from DistributedNPCToonBase import *
+from .DistributedNPCToonBase import *
 from toontown.chat.ChatGlobals import *
 from toontown.toonbase import TTLocalizer, ToontownGlobals, EventGlobals
 from toontown.guilds.IconSelector import IconSelectionDialog

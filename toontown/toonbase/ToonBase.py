@@ -243,7 +243,7 @@ class ToonBase(OTPBase.OTPBase):
         ToontownGlobals.setInterfaceFont(TTLocalizer.InterfaceFont)
         ToontownGlobals.setSignFont(TTLocalizer.SignFont)
         ToontownGlobals.setFancyFont(TTLocalizer.FancyFont)
-        for i in xrange(len(TTLocalizer.NametagFonts)):
+        for i in range(len(TTLocalizer.NametagFonts)):
             ToontownGlobals.setNametagFont(i, TTLocalizer.NametagFonts[i])
 
         # Free black/white Toons:
@@ -300,9 +300,9 @@ class ToonBase(OTPBase.OTPBase):
     def openMainWindow(self, *args, **kw):
         try:
             result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
-        except StandardError as e:
+        except Exception as e:
             settings['fullscreen'] = False
-            raise StandardError, 'Could not open window, resetting display options try to run the game again.'
+            raise Exception('Could not open window, resetting display options try to run the game again.')
 
         self.setCursorAndIcon()
         return result
@@ -737,7 +737,7 @@ class ToonBase(OTPBase.OTPBase):
 
         resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
         if len(resolutions) < 2:
-            ratios = ToontownGlobals.CommonDisplayResolutions.keys()
+            ratios = list(ToontownGlobals.CommonDisplayResolutions.keys())
             ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
 
             while ratios:

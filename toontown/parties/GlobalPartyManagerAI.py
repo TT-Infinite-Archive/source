@@ -2,7 +2,7 @@ from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobal
 from direct.distributed.PyDatagram import *
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.task import Task
-from PartyGlobals import AddPartyErrorCode
+from .PartyGlobals import AddPartyErrorCode
 
 
 class GlobalPartyManagerAI(DistributedObjectGlobalAI):

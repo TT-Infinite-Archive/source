@@ -82,7 +82,7 @@ class GolfPage(ShtikerPage):
             self.recordsTab['state'] = DGG.NORMAL
             self.trophyTab['state'] = DGG.DISABLED
         else:
-            raise StandardError, 'GolfPage::setMode - Invalid Mode %s' % mode
+            raise Exception('GolfPage::setMode - Invalid Mode %s' % mode)
         self.updatePage()
 
     def updatePage(self):
@@ -93,7 +93,7 @@ class GolfPage(ShtikerPage):
             self.golfTrophies.show()
             self.golfRecords.hide()
         else:
-            raise StandardError, 'GolfPage::updatePage - Invalid Mode %s' % self.mode
+            raise Exception('GolfPage::updatePage - Invalid Mode %s' % self.mode)
 
 
 class GolfingRecordsUI(DirectFrame):
@@ -160,16 +160,16 @@ class GolfingRecordsUI(DirectFrame):
         bestHoles = self.avatar.getGolfHoleBest()
         bestCourses = self.avatar.getGolfCourseBest()
         if bestHoles != self.lastHoleBest or bestCourses != self.lastCourseBest:
-            numCourse = len(GolfGlobals.CourseInfo.keys())
-            numHoles = len(GolfGlobals.HoleInfo.keys())
-            for i in xrange(numCourse):
+            numCourse = len(list(GolfGlobals.CourseInfo.keys()))
+            numHoles = len(list(GolfGlobals.HoleInfo.keys()))
+            for i in range(numCourse):
                 score = bestCourses[i]
                 if score != 0:
                     self.bestDisplayList[i]['text'] = (str(score),)
                 else:
                     self.bestDisplayList[i]['text'] = TTLocalizer.KartRace_Unraced
 
-            for i in xrange(numHoles):
+            for i in range(numHoles):
                 score = bestHoles[i]
                 if score != 0:
                     self.bestDisplayList[i + numCourse]['text'] = str(score)
@@ -223,8 +223,8 @@ class GolfTrophiesUI(DirectFrame):
         yStart = 0.275
         xOffset = 0.17
         yOffset = 0.25
-        for j in xrange(GolfGlobals.NumCups):
-            for i in xrange(GolfGlobals.TrophiesPerCup):
+        for j in range(GolfGlobals.NumCups):
+            for i in range(GolfGlobals.TrophiesPerCup):
                 trophyPanel = DirectLabel(parent=self, relief=None, pos=(xStart + i * xOffset, 0.0, yStart - j * yOffset), state=DGG.NORMAL, image=DGG.getDefaultDialogGeom(), image_scale=(0.75, 1, 1), image_color=(0.8, 0.8, 0.8, 1), text=TTLocalizer.SuitPageMystery[0], text_scale=0.45, text_fg=(0, 0, 0, 1), text_pos=(0, 0, -0.25), text_font=ToontownGlobals.getInterfaceFont(), text_wordwrap=5.5)
                 trophyPanel.scale = 0.2
                 trophyPanel.setScale(trophyPanel.scale)
@@ -262,7 +262,7 @@ class GolfTrophiesUI(DirectFrame):
         DirectFrame.show(self)
 
     def updateTrophies(self):
-        for t in xrange(len(self.trophyPanels)):
+        for t in range(len(self.trophyPanels)):
             if self.trophies[t]:
                 trophyPanel = self.trophyPanels[t]
                 trophyPanel['text'] = ''

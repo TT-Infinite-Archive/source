@@ -3,10 +3,10 @@ from direct.task.Task import Task
 from pandac.PandaModules import *
 from pandac.PandaModules import *
 
-from DistributedNPCToonBase import *
-import NPCToons
-import TailorClothesGUI
-import ToonDNA
+from .DistributedNPCToonBase import *
+from . import NPCToons
+from . import TailorClothesGUI
+from . import ToonDNA
 from toontown.chat.ChatGlobals import *
 from toontown.estate import ClosetGlobals
 from toontown.toonbase import TTLocalizer
@@ -188,7 +188,7 @@ class DistributedNPCTailor(DistributedNPCToonBase):
                 which = which | ClosetGlobals.SHIRT
             if self.clothesGUI.bottomChoice != -1:
                 which = which | ClosetGlobals.SHORTS
-            print 'setDNA: which = %d, top = %d, bot = %d' % (which, self.clothesGUI.topChoice, self.clothesGUI.bottomChoice)
+            print('setDNA: which = %d, top = %d, bot = %d' % (which, self.clothesGUI.topChoice, self.clothesGUI.bottomChoice))
             if self.roomAvailable == 0:
                 if self.isLocalToon:
                     if self.av.isClosetFull() or which & ClosetGlobals.SHIRT and which & ClosetGlobals.SHORTS:

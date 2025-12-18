@@ -1,4 +1,4 @@
-import TTLocalizer
+from . import TTLocalizer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import Enum, invertDict
 from panda3d.core import BitMask32, Vec4
@@ -135,7 +135,7 @@ FontAwesome = None
 
 def getMac():
     if sys.platform == 'android':
-        if 'uuid' in settings and isinstance(settings['uuid'], (int, long)):
+        if 'uuid' in settings and isinstance(settings['uuid'], int):
             uid = settings['uuid']
         else:
             uid = random.SystemRandom().getrandbits(50)
@@ -418,7 +418,7 @@ factoryId2factoryType = {
     LawbotOfficeInt: FT_FullSuit
 }
 StreetNames = TTLocalizer.GlobalStreetNames
-StreetBranchZones = StreetNames.keys()
+StreetBranchZones = list(StreetNames.keys())
 Hoods = (
     DonaldsDock,
     ToontownCentral,

@@ -24,12 +24,12 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
             self.mountPoint = 'resources'
 
     def loadZones(self):
-        for hoodId in HoodHierarchy.keys():
+        for hoodId in list(HoodHierarchy.keys()):
             self.loadZone(hoodId)
             for branchId in HoodHierarchy[hoodId]:
                 self.loadZone(branchId)
-        self.sendUpdate('setModifiedZones', [self.zoneData.keys()])
-        self.notify.debug("Modified zones loaded: %s" % self.zoneData.keys())
+        self.sendUpdate('setModifiedZones', [list(self.zoneData.keys())])
+        self.notify.debug("Modified zones loaded: %s" % list(self.zoneData.keys()))
 
     def loadZone(self, zoneId):
         filename = self.getZoneFilename(zoneId)
@@ -53,13 +53,13 @@ class ZoneManagerUD(DistributedObjectGlobalUD):
 
     def requestModifiedZones(self):
         senderId = self.air.getAccountIdFromSender()
-        self.sendUpdateToAccountId(senderId, 'setModifiedZones', [self.zoneData.keys()])
+        self.sendUpdateToAccountId(senderId, 'setModifiedZones', [list(self.zoneData.keys())])
 
     def requestZoneData(self, zone, hash):
         senderId = self.air.getAccountIdFromSender()
         self.notify.debug('requestZoneData: %s %s' % (zone, hash))
 
-        if zone not in self.zoneData.keys():
+        if zone not in list(self.zoneData.keys()):
             self.sendUpdateToAccountId(senderId, 'setBlobId', [0, self.COMPLETED, 0])
             return
         if hash == self.zoneData[zone][1]:

@@ -2,7 +2,7 @@ class ChineseCheckersBoard:
     def __init__(self):
         self.squareList = []
 
-        for i in xrange(121):
+        for i in range(121):
             self.squareList.append(CheckersTile(i))
 
         self.squareList[0].setAdjacent([None, 1, 2, None, None, None])

@@ -1,4 +1,4 @@
-import __builtin__
+import builtins
 import os
 import sys
 
@@ -7,7 +7,7 @@ from panda3d.core import ConfigVariableList
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 
 LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
-print str(LogsPath)
+print(str(LogsPath))
 if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []

@@ -34,7 +34,7 @@ class DistributedPartyActivityAI(DistributedObjectAI):
         return self.party.doId
 
     def updateToonsPlaying(self):
-        self.sendUpdate('setToonsPlaying', [self.toonsPlaying.keys()])
+        self.sendUpdate('setToonsPlaying', [list(self.toonsPlaying.keys())])
 
     def toonJoinRequest(self):
         avId = self.air.getAvatarIdFromSender()
@@ -85,7 +85,7 @@ class DistributedPartyActivityAI(DistributedObjectAI):
         pass
 
     def allToonsReady(self):
-        for status in self.toonsPlaying.values():
+        for status in list(self.toonsPlaying.values()):
             if status is False:
                 return False
 

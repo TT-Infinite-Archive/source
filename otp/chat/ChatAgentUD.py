@@ -144,7 +144,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
                     break
                 if cleanSlice != subseqStrings:
                     continue
-                flaggedIndexes.extend(range(currentIndex, currentIndex + rangeEnd))
+                flaggedIndexes.extend(list(range(currentIndex, currentIndex + rangeEnd)))
                 break
 
         return [(i, self.wantWhiteList) for i in flaggedIndexes]

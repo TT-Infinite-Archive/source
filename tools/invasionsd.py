@@ -48,11 +48,11 @@ while True:
         shards = client.listShards(generate_token(700))
 
         if args.invasion_max > 0:
-            invasion_count = len(filter(lambda v: v['invasion'], shards.values()))
+            invasion_count = len([v for v in list(shards.values()) if v['invasion']])
             if invasion_count >= args.invasion_max:
                 continue
 
-        for key, value in shards.items():
+        for key, value in list(shards.items()):
             if (str(key) not in args.shard) or value['invasion']:
                 continue
             if random.random() < args.invasion_probability:
@@ -60,7 +60,7 @@ while True:
                 suit_type_index = int(random.random() * 8)
                 client.startInvasion(generate_token(700), int(key), suit_dept_index,
                                      suit_type_index, 0, 0)
-                print 'Spawning an invasion in shard %s: %d, %d' % (
-                    key, suit_dept_index, suit_type_index)
-    except Exception, e:
-        print e
+                print('Spawning an invasion in shard %s: %d, %d' % (
+                    key, suit_dept_index, suit_type_index))
+    except Exception as e:
+        print(e)

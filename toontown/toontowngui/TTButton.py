@@ -10,7 +10,7 @@ class TTButton(DirectButton):
             extraArgs = []
         self.extraArgs = extraArgs
 
-        if isinstance(buttonScale, (int, long, float)):
+        if isinstance(buttonScale, (int, float)):
             buttonScale = (buttonScale, buttonScale, buttonScale)
 
         buttonScale = (0.7 * buttonScale[0], 1 * buttonScale[1], 1 * buttonScale[2])

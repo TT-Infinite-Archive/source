@@ -1,6 +1,6 @@
 from pandac.PandaModules import *
 
-from DistributedNPCToonBase import *
+from .DistributedNPCToonBase import *
 from toontown.chat.ChatGlobals import *
 from toontown.hood import ZoneUtil
 from toontown.nametag.NametagGlobals import *
@@ -44,4 +44,4 @@ class DistributedSmartNPC(DistributedNPCToonBase):
             name = base.cr.doId2do.get(avId).getName()
             self.setChatAbsolute(message, CFSpeech | CFTimeout)
         except:
-            print 'Responding to non-available character!'
+            print('Responding to non-available character!')

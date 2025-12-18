@@ -48,10 +48,10 @@ class MegaInvasionManagerAI(DistributedObjectGlobalAI):
         random.seed(time() + self.air.ourChannel)
 
         if suitDept == RANDOM:
-            suitDept = random.choice(range(0, 4))
+            suitDept = random.choice(list(range(0, 4)))
 
         if suitIndex == RANDOM:
-            suitIndex = random.choice(range(0, 8))
+            suitIndex = random.choice(list(range(0, 8)))
 
         if amount == RANDOM:
             amount = int(random.random() * 10000) + 1000

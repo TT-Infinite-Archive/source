@@ -203,7 +203,7 @@ class JukeboxGui(DirectFrame):
             self.leftArrow['state'] = DGG.DISABLED
         else:
             self.leftArrow['state'] = DGG.NORMAL
-        if self.pickerSongId == JukeboxGlobals.Songs.keys()[-1]:
+        if self.pickerSongId == list(JukeboxGlobals.Songs.keys())[-1]:
             self.rightArrow['state'] = DGG.DISABLED
         else:
             self.rightArrow['state'] = DGG.NORMAL
@@ -224,7 +224,7 @@ class JukeboxGui(DirectFrame):
         self.updateArrows()
 
     def __handleRightClicked(self):
-        if self.pickerSongId == JukeboxGlobals.Songs.keys()[-1]:
+        if self.pickerSongId == list(JukeboxGlobals.Songs.keys())[-1]:
             return
         self.pickerSongId += 1
         self.updateSelectorText()

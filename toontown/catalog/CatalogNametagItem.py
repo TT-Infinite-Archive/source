@@ -1,4 +1,4 @@
-import CatalogItem
+from . import CatalogItem
 from toontown.collectibles.CollectibleInventoryGlobals import CICategoryNametag
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer

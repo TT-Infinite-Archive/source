@@ -8,7 +8,7 @@ from toontown.hood import ZoneUtil
 from toontown.toonbase import ToontownGlobals
 from toontown.quest import Quests
 from toontown.suit import SuitPlannerBase
-import QuestMapGlobals
+from . import QuestMapGlobals
 class QuestMap(DirectFrame):
     notify = DirectNotifyGlobal.directNotify.newCategory('QuestMap')
 
@@ -190,7 +190,7 @@ class QuestMap(DirectFrame):
             if (self.hoodId != hoodId) or (self.zoneId != branchId):
                 continue
 
-            for blockIndex in xrange(base.cr.playGame.dnaStore.getNumBlockNumbers()):
+            for blockIndex in range(base.cr.playGame.dnaStore.getNumBlockNumbers()):
                 blockNumber = base.cr.playGame.dnaStore.getBlockNumberAt(blockIndex)
                 zoneId = base.cr.playGame.dnaStore.getZoneFromBlockNumber(blockNumber)
                 interiorZoneId = (zoneId - (zoneId % 100)) + 500 + blockNumber
@@ -202,7 +202,7 @@ class QuestMap(DirectFrame):
                         isSuitBlock=base.cr.playGame.dnaStore.isSuitBlock(blockNumber))
                     continue
 
-        for blockIndex in xrange(base.cr.playGame.dnaStore.getNumBlockNumbers()):
+        for blockIndex in range(base.cr.playGame.dnaStore.getNumBlockNumbers()):
             blockNumber = base.cr.playGame.dnaStore.getBlockNumberAt(blockIndex)
             if base.cr.playGame.dnaStore.isSuitBlock(blockNumber) and blockNumber not in taskBlocks:
                 self.putCogMarker(blockNumber,

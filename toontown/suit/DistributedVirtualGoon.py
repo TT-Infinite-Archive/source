@@ -465,7 +465,7 @@ class DistributedVirtualGoon(DistributedCashbotBossGoon):
         numberSpillTrack2 = getPartTrack(numberSpill2, 1.5, 1.0, [numberSpill2, self.virtualSuit, 0])
         numberSprayTracks = Parallel()
         numOfNumbers = random.randint(5, 9)
-        for i in xrange(0, numOfNumbers - 1):
+        for i in range(0, numOfNumbers - 1):
             nextSpray = BattleParticles.createParticleEffect(file='numberSpray')
             nextTexture = random.choice(numberNames)
             BattleParticles.setEffectTexture(nextSpray, 'audit-' + nextTexture)
@@ -500,7 +500,7 @@ class DistributedVirtualGoon(DistributedCashbotBossGoon):
             throwSequence.start()
 
         numberTracks = Parallel()
-        for i in xrange(0, numOfNumbers):
+        for i in range(0, numOfNumbers):
             texture = random.choice(numberNames)
             next = copyProp(BattleParticles.getParticle('audit-' + texture))
             next.reparentTo(self.virtualSuit.getRightHand())

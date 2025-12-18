@@ -1,4 +1,4 @@
-import CatalogItem
+from . import CatalogItem
 from toontown.collectibles import CollectibleInventoryGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.fishing import FishGlobals
@@ -117,7 +117,7 @@ def nextAvailablePole(avatar, duplicateItems):
 
 def getAllPoles():
     list = []
-    for rodId in xrange(0, FishGlobals.MaxRodId + 1):
+    for rodId in range(0, FishGlobals.MaxRodId + 1):
         list.append(CatalogPoleItem(rodId))
 
     return list

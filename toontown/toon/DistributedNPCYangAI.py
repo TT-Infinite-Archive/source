@@ -1,4 +1,4 @@
-from DistributedNPCToonBaseAI import *
+from .DistributedNPCToonBaseAI import *
 from toontown.toon import ToonDNA
 
 

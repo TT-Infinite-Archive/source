@@ -1,4 +1,4 @@
-from BossCog import AnimList, GenericModel, ModelDict
+from .BossCog import AnimList, GenericModel, ModelDict
 from toontown.battle.BattleProps import globalPropPool
 from toontown.suit import Suit
 from toontown.toonbase.ToontownGlobals import getBuildingNametagFont
@@ -141,7 +141,7 @@ class BossBattleHealthBar(DirectFrame):
 
         redBarTrack = Sequence()
         healthBarTrack = Sequence()
-        for i in xrange(int(lastHp - hp)):
+        for i in range(int(lastHp - hp)):
             lastHp -= 1
 
             redBarTrack.append(Func(update, lastHp))

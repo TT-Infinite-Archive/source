@@ -5,10 +5,10 @@ from direct.interval.IntervalGlobal import *
 import random
 from otp.level import DistributedLevel
 from direct.directnotify import DirectNotifyGlobal
-import FactoryBase
-import FactoryEntityCreator
-import FactoryGlobals
-import FactorySpecs
+from . import FactoryBase
+from . import FactoryEntityCreator
+from . import FactoryGlobals
+from . import FactorySpecs
 from otp.level import LevelSpec
 from otp.level import LevelConstants
 from toontown.chat.ChatGlobals import CFThought, CFTimeout
@@ -17,9 +17,9 @@ from toontown.coghq import FactoryCameraViews
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from otp.ai.MagicWordGlobal import *
 from toontown.nametag.NametagGlobals import *
-from FactoryMeritCounter import FactoryMeritCounter
-from FactoryQuestPoster import FactoryQuestPoster
-from SuitTreasureGlobals import TreasureS
+from .FactoryMeritCounter import FactoryMeritCounter
+from .FactoryQuestPoster import FactoryQuestPoster
+from .SuitTreasureGlobals import TreasureS
 
 if __dev__:
     from otp.level import EditorGlobals
@@ -120,7 +120,7 @@ class DistributedFactory(DistributedLevel.DistributedLevel, FactoryBase.FactoryB
         def printPos(self = self):
             pos = base.localAvatar.getPos(self.getZoneNode(self.lastToonZone))
             h = base.localAvatar.getH(self.getZoneNode(self.lastToonZone))
-            print 'factory pos: %s, h: %s, zone %s' % (repr(pos), h, self.lastToonZone)
+            print('factory pos: %s, h: %s, zone %s' % (repr(pos), h, self.lastToonZone))
             posStr = 'X: %.3f' % pos[0] + '\nY: %.3f' % pos[1] + '\nZ: %.3f' % pos[2] + '\nH: %.3f' % h + '\nZone: %s' % str(self.lastToonZone)
             base.localAvatar.setChatAbsolute(posStr, CFThought | CFTimeout)
 

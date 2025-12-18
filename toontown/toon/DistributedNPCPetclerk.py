@@ -1,6 +1,6 @@
 from direct.task.Task import Task
-from DistributedNPCToonBase import *
-import NPCToons
+from .DistributedNPCToonBase import *
+from . import NPCToons
 from toontown.chat.ChatGlobals import *
 from toontown.pets import PetshopGUI
 from toontown.toonbase import TTLocalizer
@@ -81,7 +81,7 @@ class DistributedNPCPetclerk(DistributedNPCToonBase):
         return Task.done
 
     def ignoreEventDict(self):
-        for event in self.eventDict.values():
+        for event in list(self.eventDict.values()):
             self.ignore(event)
 
     def setPetData(self, petSeeds, petDNA, petTraitSeeds):

@@ -2,7 +2,7 @@ from toontown.toonbase.ToonBaseGlobal import *
 from otp.otpbase import OTPGlobals
 from direct.interval.IntervalGlobal import *
 from direct.showbase.PythonUtil import fitSrcAngle2Dest
-import ArrowKeys
+from . import ArrowKeys
 from direct.task.Task import Task
 
 

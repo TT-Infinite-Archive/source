@@ -7,8 +7,8 @@ from direct.interval.IntervalGlobal import *
 from pandac.PandaModules import *
 import string
 
-import CCharChatter
-import CCharPaths
+from . import CCharChatter
+from . import CCharPaths
 from otp.avatar import Avatar
 from toontown.char import CharDNA
 from toontown.char import DistributedChar

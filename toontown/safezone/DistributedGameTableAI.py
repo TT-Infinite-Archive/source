@@ -129,7 +129,7 @@ class DistributedGameTableAI(DistributedNodeAI):
             self.pickGame(gameNum)
             if self.game:
                 self.hasPicked = True
-                for x in xrange(numPickers):
+                for x in range(numPickers):
                     self.game.informGameOfPlayer()
 
     def pickGame(self, gameNum):
@@ -292,7 +292,7 @@ class DistributedGameTableAI(DistributedNodeAI):
         self.hasPicked = False
 
     def findAvatar(self, avId):
-        for si in xrange(len(self.seats)):
+        for si in range(len(self.seats)):
             if self.seats[si] == avId:
                 return si
                 
@@ -307,7 +307,7 @@ class DistributedGameTableAI(DistributedNodeAI):
         return toonCount
 
     def findAvailableSeat(self):
-        for si in xrange(len(self.seats)):
+        for si in range(len(self.seats)):
             if self.seats[si] is None:
                 return si
                 

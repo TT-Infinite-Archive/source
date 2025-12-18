@@ -1,5 +1,5 @@
 import random
-from StringIO import StringIO
+from io import StringIO
 from direct.showbase import AppRunnerGlobal
 from direct.directnotify import DirectNotifyGlobal
 from pandac.PandaModules import *
@@ -33,7 +33,7 @@ class PetNameGenerator:
                     self.nameDictionary[int(line[0:a1])] = (int(line[a1 + 1:a2]), line[a2 + 1:len(line)].strip())
 
         masterList = [self.boyFirsts, self.girlFirsts, self.neutralFirsts]
-        for tu in self.nameDictionary.values():
+        for tu in list(self.nameDictionary.values()):
             masterList[tu[0]].append(tu[1])
 
         return 1
@@ -49,7 +49,7 @@ class PetNameGenerator:
         newtu[0] = (0, name)
         newtu[1] = (1, name)
         newtu[2] = (2, name)
-        for tu in self.nameDictionary.items():
+        for tu in list(self.nameDictionary.items()):
             for g in newtu:
                 if tu[1] == g:
                     return tu[0]

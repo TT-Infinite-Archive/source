@@ -7,7 +7,7 @@ from direct.task.Task import Task
 from toontown.toonbase import ToontownGlobals
 from toontown.coghq import DistributedCashbotBossObject
 from direct.showbase import PythonUtil
-import DistributedGoon
+from . import DistributedGoon
 from toontown.util.ThreadedCall import ThreadedCall
 from panda3d.core import CollisionSphere
 from pandac.PandaModules import Point3

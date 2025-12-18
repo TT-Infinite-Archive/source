@@ -44,7 +44,7 @@ class ProcessThread(threading.Thread):
             self.killed = True
     
     def run(self):
-        print('Starting %s in %s' % (self.processInfo, self.folder))
+        print(('Starting %s in %s' % (self.processInfo, self.folder)))
         try:
             print('Creating log file....')
             name = self.name.split(' ', 1)[0].lower()
@@ -53,11 +53,11 @@ class ProcessThread(threading.Thread):
                 os.makedirs(path)
             filename = os.path.join(path, '%s-%s.log' % (name, int(time.time())))
             f = open(filename, 'w')
-            print("Created Log File: " + f.name)
+            print(("Created Log File: " + f.name))
             os.chdir(self.folder)
             self.process = subprocess.Popen(self.processInfo, stdout=subprocess.PIPE, stderr=f)
         except Exception as e:
-            print('failed', e.message, e.args)
+            print(('failed', e.message, e.args))
             self.failed()
             return
 

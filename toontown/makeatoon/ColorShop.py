@@ -6,10 +6,10 @@ from toontown.toon.ColorDNA import convertToRgb, ToonColorDNA, PartColorDNA
 from toontown.toonbase.ToontownGlobals import getInterfaceFont
 from toontown.toonbase import TTLocalizer
 
-import ShuffleButton
+from . import ShuffleButton
 import random
 
-from MakeAToonGUI import *
+from .MakeAToonGUI import *
 
 
 class ColorShop(StateData.StateData):
@@ -137,7 +137,7 @@ class ColorShop(StateData.StateData):
         try:
             del self.toon
         except:
-            print 'ColorShop: toon not found'
+            print('ColorShop: toon not found')
 
         self.hideButtons()
 

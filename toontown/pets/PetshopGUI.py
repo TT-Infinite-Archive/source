@@ -369,7 +369,7 @@ class PetshopGUI(DirectObject):
             self.petName = []
             self.petDesc = []
             self.petCost = []
-            for i in xrange(self.numPets):
+            for i in range(self.numPets):
                 random.seed(self.petSeeds[i])
                 zoneId = ZoneUtil.getCanonicalSafeZoneId(base.localAvatar.getZoneId())
                 name = PetUtil.getPetInfoFromSeed(self.petSeeds[i], zoneId)[0]

@@ -7,8 +7,8 @@ from direct.interval.IntervalGlobal import *
 from pandac.PandaModules import *
 import random
 
-import DistributedToon
-import NPCToons
+from . import DistributedToon
+from . import NPCToons
 from toontown.nametag import NametagGlobals
 from toontown.quest import QuestChoiceGui
 from toontown.quest import QuestParser

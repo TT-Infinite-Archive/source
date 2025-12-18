@@ -3,8 +3,8 @@ from direct.gui.DirectGui import DirectLabel, DirectButton
 
 from toontown.shtiker.ShtikerPage import ShtikerPage
 from toontown.toonbase import TTLocalizer
-from GuildPage import GuildPage
-from GroupTrackerPage import GroupTrackerPage
+from .GuildPage import GuildPage
+from .GroupTrackerPage import GroupTrackerPage
 
 
 class SocialPage(ShtikerPage):

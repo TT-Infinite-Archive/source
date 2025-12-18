@@ -3,7 +3,7 @@ from otp.distributed.OtpDoGlobals import OTP_DO_ID_GLOBAL_GROUP_TRACKER
 from otp.ai.AIBase import *
 from toontown.toonbase import ToontownGlobals
 from direct.distributed.ClockDelta import *
-from ElevatorConstants import *
+from .ElevatorConstants import *
 from direct.distributed import DistributedObjectAI
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
@@ -668,7 +668,7 @@ class DistributedBoardingPartyAI(DistributedObjectAI.DistributedObjectAI, Boardi
     def updateBroadcast(self, leaderId, show, memberIds=None, category=None, memberNames=None):
         if not self.air.wantGroupTracker:
             return
-        if leaderId not in self.groupListDict.keys():
+        if leaderId not in list(self.groupListDict.keys()):
             return
         
         if not memberIds or not memberNames:

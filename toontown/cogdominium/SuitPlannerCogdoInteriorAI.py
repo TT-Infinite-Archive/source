@@ -16,7 +16,7 @@ class SuitPlannerCogdoInteriorAI:
         difficulty = min(difficulty + 4, len(SuitBuildingGlobals.SuitBuildingInfo) - 1)
         self.respectInvasions = 1
 
-        if isinstance(difficulty, types.StringType):
+        if isinstance(difficulty, bytes):
             self.notify.warning('difficulty is a string!')
             difficulty = int(difficulty)
 
@@ -24,7 +24,7 @@ class SuitPlannerCogdoInteriorAI:
 
     def __genJoinChances(self, num):
         joinChances = []
-        for currChance in xrange(num):
+        for currChance in range(num):
             joinChances.append(random.randint(1, 100))
 
         joinChances.sort(cmp)
@@ -33,7 +33,7 @@ class SuitPlannerCogdoInteriorAI:
     def _genSuitInfos(self, numFloors, difficulty, bldgTrack):
         self.suitInfos = []
         self.notify.debug('\n\ngenerating suitsInfos with numFloors (' + str(numFloors) + ') difficulty (' + str(difficulty) + '+1) and bldgTrack (' + str(bldgTrack) + ')')
-        for currFloor in xrange(numFloors):
+        for currFloor in range(numFloors):
             infoDict = {}
             lvls = self.__genLevelList(difficulty, currFloor, numFloors)
             activeDicts = []
@@ -58,7 +58,7 @@ class SuitPlannerCogdoInteriorAI:
             else:
                 revives = 0
 
-            for currActive in xrange(numActive - 1, -1, -1):
+            for currActive in range(numActive - 1, -1, -1):
                 level = lvls[currActive]
                 type = self.__genNormalSuitType(level)
                 activeDict = {}
@@ -71,7 +71,7 @@ class SuitPlannerCogdoInteriorAI:
             reserveDicts = []
             numReserve = min(len(lvls) - numActive, random.randint(8, 14))
             joinChances = self.__genJoinChances(numReserve)
-            for currReserve in xrange(numReserve):
+            for currReserve in range(numReserve):
                 level = lvls[currReserve + numActive]
                 type = self.__genNormalSuitType(level)
                 reserveDict = {}
@@ -163,7 +163,7 @@ class SuitPlannerCogdoInteriorAI:
 
     def genSuits(self):
         suitHandles = []
-        for floor in xrange(len(self.suitInfos)):
+        for floor in range(len(self.suitInfos)):
             floorSuitHandles = self.genFloorSuits(floor)
             suitHandles.append(floorSuitHandles)
 

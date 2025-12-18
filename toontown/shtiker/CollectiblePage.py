@@ -250,7 +250,7 @@ class CategoryItemsDisplay(DirectFrame):
             pos=(0.0, 0.0, 0.5)
         )
         self.loadCategories()
-        self.loadItems(self.cItems.values()[0], 0)
+        self.loadItems(list(self.cItems.values())[0], 0)
 
         listGui.removeNode()
         gui.removeNode()
@@ -317,7 +317,7 @@ class CategoryItemsDisplay(DirectFrame):
 
         self.itemsHeading['text'] = category.name
         items = category.getOrderedItems(page*self.maxPerPage, (page+1)*self.maxPerPage)
-        for index in xrange(0, self.maxPerPage):
+        for index in range(0, self.maxPerPage):
             item = None
             if len(items) > index:
                 item = items[index]

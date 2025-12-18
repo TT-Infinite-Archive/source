@@ -1,6 +1,6 @@
 from otp.settings.Settings import Settings
 from direct.stdpy import threading
-import OTPLocalizer
+from . import OTPLocalizer
 import wx
 
 class CustomDialog(wx.Dialog):
@@ -77,7 +77,7 @@ class Injector:
         return wx.MessageDialog(parent, message, caption, buttons | icon).ShowModal() == wx.ID_YES
 
     def chooseSnippet(self, caption):
-        dialog = ListDialog(self.frame, caption, OTPLocalizer.InjectorTitle, self.snippets.keys())
+        dialog = ListDialog(self.frame, caption, OTPLocalizer.InjectorTitle, list(self.snippets.keys()))
 
         if dialog.ShowModal() == wx.ID_OK:
             return dialog.input.GetStringSelection()

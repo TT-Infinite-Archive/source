@@ -1,4 +1,4 @@
-from ElevatorConstants import *
+from .ElevatorConstants import *
 from toontown.toonbase import ToontownGlobals
 
 
@@ -348,7 +348,7 @@ def getPossibleBuildingDifficulty(level, zoneId):
     minDiff = max(level - 1, 0)
     maxDiff = min(level + 1, 10)
     zoneDiffs = zone2plannerId.get(zoneId, [])
-    return range(minDiff, maxDiff) + zoneDiffs
+    return list(range(minDiff, maxDiff)) + zoneDiffs
 
 zone2MinMaxLevel = {
     2000: (2, 7,),

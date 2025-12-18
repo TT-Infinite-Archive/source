@@ -1,5 +1,5 @@
 from direct.directnotify import DirectNotifyGlobal
-import CogHQLoader
+from . import CogHQLoader
 from toontown.toonbase import ToontownGlobals
 from direct.gui import DirectGui
 from toontown.toonbase import TTLocalizer

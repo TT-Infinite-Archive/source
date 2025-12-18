@@ -26,7 +26,7 @@ class BossBattleLeaderboard:
         pass
 
     def hasAvatar(self, avId):
-        return avId in self.avId2Names.keys()
+        return avId in list(self.avId2Names.keys())
 
     def addLeaderboardLabel(self):
         self.leaderboardLabel = TextNode('leaderboardLabel')
@@ -99,7 +99,7 @@ class BossBattleLeaderboard:
             for avId in self.avId2Nodes:
                 self.avId2Nodes[avId][0].hide()
 
-            sortedTuples = sorted(self.avId2Damage.items(), key=operator.itemgetter(1), reverse=True)
+            sortedTuples = sorted(list(self.avId2Damage.items()), key=operator.itemgetter(1), reverse=True)
             sortedAvIds = [data[0] for data in sortedTuples]
 
             for avId in self.avId2Nodes:
@@ -122,12 +122,12 @@ class BossBattleLeaderboard:
     def destroy(self):
         taskMgr.remove('checkSort')
 
-        for flashTrack in self.avId2FlashTrack.values():
+        for flashTrack in list(self.avId2FlashTrack.values()):
             flashTrack.finish()
 
         self.avId2FlashTrack = {}
 
-        for avId in self.avId2Nodes.keys():
+        for avId in list(self.avId2Nodes.keys()):
             self.avId2Nodes[avId][1].setText('')
             self.avId2Nodes[avId][0].removeNode()
 

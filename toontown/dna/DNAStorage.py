@@ -1,8 +1,8 @@
 from pandac.PandaModules import *
-from DNAError import DNAError
-from DNASuitPoint import DNASuitPoint
-from DNASuitPath import DNASuitPath
-from DNASuitEdge import DNASuitEdge
+from .DNAError import DNAError
+from .DNASuitPoint import DNASuitPoint
+from .DNASuitPath import DNASuitPath
+from .DNASuitEdge import DNASuitEdge
 
 import gc
 
@@ -119,7 +119,7 @@ class DNAStorage:
     def resetSuitPoints(self):
         # First thing we're going to cleanup is the DNASuitEdges. The DNASuitEdges reference DNASuitPoints so we will
         # clean those up afterwards.
-        for i in self.suitEdges.keys():
+        for i in list(self.suitEdges.keys()):
             for edge in self.suitEdges[i]:
                 edge.destroy()
             del self.suitEdges[i][:]

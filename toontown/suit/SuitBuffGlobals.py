@@ -19,7 +19,7 @@ ForemanBuffs = (SuitBuffHealthy, SuitBuffStable, SuitBuffAvenger)
 
 
 def getRandomSuitBuff():
-    return random.choice(xrange(1, len(SuitBuffs)))
+    return random.choice(range(1, len(SuitBuffs)))
 
 
 def getBuffIndexFromName(buffName):

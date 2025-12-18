@@ -7,8 +7,8 @@ from otp.level import Level
 from otp.level import LevelConstants
 from otp.level import Entity
 from otp.level import EditMgr
-from SpecImports import *
-from InGameEditorElements import *
+from .SpecImports import *
+from .InGameEditorElements import *
 from toontown.cogdominium import CogdoEntityCreator
 import string
 
@@ -18,10 +18,10 @@ class InGameEditorEntityBase(InGameEditorElement):
 
     def attribChanged(self, attrib, value):
         Entity.Entity.attribChanged(self, attrib, value)
-        print 'attribChange: %s %s, %s = %s' % (self.level.getEntityType(self.entId),
+        print('attribChange: %s %s, %s = %s' % (self.level.getEntityType(self.entId),
          self.entId,
          attrib,
-         repr(value))
+         repr(value)))
 
     def getTypeName(self):
         return self.level.getEntityType(self.entId)
@@ -122,7 +122,7 @@ def getInGameEditorEntityCreatorClass(level):
 
         def __init__(self, editor):
             EntCreatorClass.__init__(self, editor)
-            entTypes = self.entType2Ctor.keys()
+            entTypes = list(self.entType2Ctor.keys())
             for type in entTypes:
                 self.entType2Ctor[type] = InGameEditorEntity
 
@@ -205,7 +205,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         self.entTypes = entCreator.getEntityTypes()
         self.selectedEntity = None
         base.startTk()
-        import InGameEditor
+        from . import InGameEditor
         doneEvent = self.uniqueName('editorDone')
         saveAsEvent = self.uniqueName('saveSpec')
         requestSaveEvent = self.uniqueName('requestSpecSave')
@@ -316,7 +316,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
 
     def buildEntityTree(self):
         self.setChildren([])
-        entIds = self.entities.keys()
+        entIds = list(self.entities.keys())
         entIds.sort()
         for entId in entIds:
             ent = self.getEntity(entId)
@@ -487,7 +487,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
     def setEntityCreatorUsername(self, entId, editUsername):
         Level.Level.setEntityCreatorUsername(self, entId, editUsername)
         if editUsername == self.getEditUsername():
-            print 'entity %s about to be created; we requested it' % entId
+            print('entity %s about to be created; we requested it' % entId)
             callback = self.entCreateHandlerQ[0]
             del self.entCreateHandlerQ[:1]
             callback(entId)
@@ -532,12 +532,12 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         oldAttribs = []
         spec = self.levelSpec.getEntitySpecCopy(entId)
         del spec['type']
-        for attrib, value in spec.items():
+        for attrib, value in list(spec.items()):
             oldAttribs.append((attrib, value))
 
         def setNewEntityId(entId, self = self, removeAction = removeAction, oldAttribs = oldAttribs):
             removeAction[2]['entId'] = entId
-            for attrib, value in spec.items():
+            for attrib, value in list(spec.items()):
                 self.privSendAttribEdit(entId, attrib, value)
 
         def setEntCreateHandler(self = self, handler = setNewEntityId):
@@ -575,7 +575,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
                     if oldName[i] != ' ':
                         hasSuffix = False
                     else:
-                        print 'numString: %s' % numString
+                        print('numString: %s' % numString)
                         copyNum = int(numString) + 1
             if hasSuffix:
                 newName = oldName[:i] + suffix % copyNum
@@ -601,13 +601,13 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         copyAttribs['name'] = self.makeCopyOfEntName(copyAttribs['name'])
         typeDesc = self.entTypeReg.getTypeDesc(copyAttribs['type'])
         attribDescs = typeDesc.getAttribDescDict()
-        for attribName, attribDesc in attribDescs.items():
+        for attribName, attribDesc in list(attribDescs.items()):
             if attribDesc.getDatatype() == 'const':
                 del copyAttribs[attribName]
 
         def setNewEntityId(entId, self = self, removeAction = removeAction, copyAttribs = copyAttribs):
             removeAction[2]['entId'] = entId
-            for attribName, value in copyAttribs.items():
+            for attribName, value in list(copyAttribs.items()):
                 self.privSendAttribEdit(entId, attribName, value)
 
         def setEntCreateHandler(self = self, handler = setNewEntityId):
@@ -619,13 +619,13 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         self.setUndoableAttribEdit(old2new, new2old)
 
     def specPrePickle(self, spec):
-        for attribName, value in spec.items():
+        for attribName, value in list(spec.items()):
             spec[attribName] = repr(value)
 
         return spec
 
     def specPostUnpickle(self, spec):
-        for attribName, value in spec.items():
+        for attribName, value in list(spec.items()):
             spec[attribName] = eval(value)
 
         return spec
@@ -637,8 +637,8 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
             self.editor.showWarning('Please select a valid entity first.', 'error')
             return
 
-        import tkFileDialog
-        filename = tkFileDialog.askopenfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
+        import tkinter.filedialog
+        filename = tkinter.filedialog.askopenfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
         if len(filename) == 0:
             return
         try:
@@ -646,7 +646,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
             f = open(filename, 'r')
             eTree = pickle.load(f)
             eGroup = pickle.load(f)
-            for entId, spec in eGroup.items():
+            for entId, spec in list(eGroup.items()):
                 eGroup[entId] = self.specPostUnpickle(spec)
 
         except:
@@ -656,13 +656,13 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
         oldEntId2new = {}
 
         def addEntities(treeEntry, parentEntId, eGroup = eGroup):
-            for entId, children in treeEntry.items():
+            for entId, children in list(treeEntry.items()):
                 spec = eGroup[entId]
                 entType = spec['type']
                 del spec['type']
                 del spec['parentEntId']
                 typeDesc = self.entTypeReg.getTypeDesc(entType)
-                for attribName, attribDesc in typeDesc.getAttribDescDict().items():
+                for attribName, attribDesc in list(typeDesc.getAttribDescDict().items()):
                     if attribDesc.getDatatype() == 'const':
                         if attribName in spec:
                             del spec[attribName]
@@ -689,14 +689,14 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
             self.editor.showWarning('Please select a valid entity first.', 'error')
             return
 
-        import tkFileDialog
-        filename = tkFileDialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
+        import tkinter.filedialog
+        filename = tkinter.filedialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
         if len(filename) == 0:
             return
         eTree = {selectedEntId: {}}
         eGroup = {}
         eGroup[selectedEntId] = self.levelSpec.getEntitySpecCopy(selectedEntId)
-        for entId, spec in eGroup.items():
+        for entId, spec in list(eGroup.items()):
             eGroup[entId] = self.specPrePickle(spec)
 
         try:
@@ -715,8 +715,8 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
             self.editor.showWarning('Please select a valid entity first.', 'error')
             return
 
-        import tkFileDialog
-        filename = tkFileDialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
+        import tkinter.filedialog
+        filename = tkinter.filedialog.asksaveasfilename(parent=self.editor.parent, defaultextension='.egroup', filetypes=[('Entity Group', '.egroup'), ('All Files', '*')])
         if len(filename) == 0:
             return
         eTree = {}
@@ -730,7 +730,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
                 addEntity(child.entId, treeEntry[entId])
 
         addEntity(selectedEntId, eTree)
-        for entId, spec in eGroup.items():
+        for entId, spec in list(eGroup.items()):
             eGroup[entId] = self.specPrePickle(spec)
 
         try:
@@ -766,7 +766,7 @@ class DistributedInGameEditor(DistributedObject.DistributedObject, Level.Level, 
 
     def setAttribChange(self, entId, attrib, valueStr, username):
         if username == self.editUsername:
-            print 'we got our own edit back!'
+            print('we got our own edit back!')
         value = eval(valueStr)
         self.levelSpec.setAttribChange(entId, attrib, value, username)
 

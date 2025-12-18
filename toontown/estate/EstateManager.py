@@ -1,6 +1,6 @@
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
-import Estate
+from . import Estate
 
 class EstateManager(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('EstateManager')

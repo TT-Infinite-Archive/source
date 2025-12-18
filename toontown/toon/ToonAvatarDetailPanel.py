@@ -6,9 +6,9 @@ from direct.showbase import DirectObject
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.directnotify import DirectNotifyGlobal
-import DistributedToon
+from . import DistributedToon
 from toontown.friends import FriendInviter
-import ToonTeleportPanel
+from . import ToonTeleportPanel
 from toontown.toonbase import TTLocalizer
 from toontown.hood import ZoneUtil
 from toontown.toonbase.ToontownBattleGlobals import Tracks, Levels, AvPropsNew
@@ -42,7 +42,7 @@ def unloadAvatarDetail():
 
 invModels = []
 trackLabels = []
-gagButtons = {i: [] for i in xrange(7)}
+gagButtons = {i: [] for i in range(7)}
 gagGuiLoaded = False
 
 
@@ -55,9 +55,9 @@ def preloadGagGui():
     inventoryModels.removeNode()
 
     invModel = loader.loadModel('phase_3.5/models/gui/inventory_icons')
-    for track in xrange(len(AvPropsNew)):
+    for track in range(len(AvPropsNew)):
         itemList = []
-        for item in xrange(len(AvPropsNew[track])):
+        for item in range(len(AvPropsNew[track])):
             itemList.append(invModel.find('**/' + AvPropsNew[track][item]))
 
         invModels.append(itemList)
@@ -65,14 +65,14 @@ def preloadGagGui():
     invModel.removeNode()
     del invModel
 
-    for track in xrange(0, len(Tracks)):
+    for track in range(0, len(Tracks)):
         l = DirectLabel(relief=None,
                 text=TextEncoder.upper(TTLocalizer.BattleGlobalTracks[track]),
                 text_scale=TTLocalizer.TADPtrackLabel, text_align=TextNode.ALeft)
         l.reparentTo(hidden)
         trackLabels.append(l)
 
-        for item in xrange(0, len(Levels[track])):
+        for item in range(0, len(Levels[track])):
             image_color = Vec4(0, 0.6, 1, 1)
             geom_color = None
             gagLabel = DirectLabel(image=buttonModel, image_scale=(0.92, 1, 1),
@@ -163,7 +163,7 @@ class ToonAvatarDetailPanel(DirectFrame):
         return
 
     def cleanup(self):
-        for buttons in gagButtons.values():
+        for buttons in list(gagButtons.values()):
             for b in buttons:
                 b.reparentTo(hidden)
 
@@ -289,11 +289,11 @@ class ToonAvatarDetailPanel(DirectFrame):
         yOffset = 0.1
         ySpacing = -0.115
         inventory = self.avatar.inventory
-        for track in xrange(0, len(Tracks)):
+        for track in range(0, len(Tracks)):
             prepareTrackName(self, track)
             if self.avatar.hasTrackAccess(track):
                 curExp, nextExp = inventory.getCurAndNextExpValues(track)
-                for item in xrange(0, len(Levels[track])):
+                for item in range(0, len(Levels[track])):
                     level = Levels[track][item]
                     if curExp >= level:
                         numItems = inventory.numItem(track, item)

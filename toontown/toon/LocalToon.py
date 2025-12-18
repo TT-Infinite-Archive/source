@@ -13,9 +13,9 @@ import re
 import time
 import zlib
 
-import DistributedToon
-import LaffMeter
-import Toon
+from . import DistributedToon
+from . import LaffMeter
+from . import Toon
 from otp.avatar import DistributedPlayer
 from otp.avatar import LocalAvatar
 from otp.avatar import PositionExaminer
@@ -192,7 +192,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def setDefaultShard(self, shard):
         if shard not in self.cr.activeDistrictMap:
-            shard = random.choice(self.cr.activeDistrictMap.keys())
+            shard = random.choice(list(self.cr.activeDistrictMap.keys()))
 
         timeZone = self.cr.activeDistrictMap[shard].timeZone
         self.cr.shardTimeManager.setTimeZone(timeZone)
@@ -265,7 +265,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             if self.ticker >= 10:
                 self.ticker = 0
         if self.glitchCount >= 7:
-            print 'GLITCH MAXED!!! resetting pos'
+            print('GLITCH MAXED!!! resetting pos')
             self.setX(self.glitchX - 1 * (self.getX() - self.glitchX))
             self.setY(self.glitchY - 1 * (self.getY() - self.glitchY))
             self.glitchCount = 0
@@ -565,7 +565,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.addTouch(base.JUMP)
             messenger.send('touchDoubleTap')
         
-        for controls in self.controlManager.controls.values():
+        for controls in list(self.controlManager.controls.values()):
             controls.avatarControlRotateSpeed = 50 * 1.25
         
         self.lastTouch = time.time()
@@ -573,7 +573,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         taskMgr.add(self.__touchInterfaceTask, self.uniqueName('touchInterface'))
     
     def __stopTouch(self, *args):
-        for controls in self.controlManager.controls.values():
+        for controls in list(self.controlManager.controls.values()):
             controls.avatarControlRotateSpeed = ToontownGlobals.ToonRotateSpeed
 
         self.stopTouchPresses()
@@ -812,7 +812,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         return
 
     def localPresentPie(self, time):
-        import TTEmote
+        from . import TTEmote
         from otp.avatar import Emote
         self.__stopPresentPie()
         if self.tossTrack:
@@ -846,7 +846,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def __stopPresentPie(self):
         if self.__presentingPie:
-            import TTEmote
+            from . import TTEmote
             from otp.avatar import Emote
             Emote.globalEmote.releaseBody(self)
             messenger.send('end-pie')
@@ -898,11 +898,11 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             tossTrack = self.tossTrack
             self.tossTrack = None
             tossTrack.finish()
-        if self.pieTracks.has_key(sequence):
+        if sequence in self.pieTracks:
             pieTrack = self.pieTracks[sequence]
             del self.pieTracks[sequence]
             pieTrack.finish()
-        if self.splatTracks.has_key(sequence):
+        if sequence in self.splatTracks:
             splatTrack = self.splatTracks[sequence]
             del self.splatTracks[sequence]
             splatTrack.finish()
@@ -942,7 +942,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.__piePowerMeter.hide()
 
     def __finishPieTrack(self, sequence):
-        if self.pieTracks.has_key(sequence):
+        if sequence in self.pieTracks:
             pieTrack = self.pieTracks[sequence]
             del self.pieTracks[sequence]
             pieTrack.finish()
@@ -954,7 +954,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             return
         sequence = int(entry.getFromNodePath().getNetTag('pieSequence'))
         self.__finishPieTrack(sequence)
-        if self.splatTracks.has_key(sequence):
+        if sequence in self.splatTracks:
             splatTrack = self.splatTracks[sequence]
             del self.splatTracks[sequence]
             splatTrack.finish()
@@ -1271,7 +1271,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         else:
             zoneId = '?'
         strPos = '(%.3f' % pos[0] + '\n %.3f' % pos[1] + '\n %.3f)' % pos[2] + '\nH: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ',\nVer: %s, ' % serverVersion + '\nDistrict: %s' % districtName
-        print 'Current position=', strPos.replace('\n', ', ')
+        print('Current position=', strPos.replace('\n', ', '))
         self.setChatAbsolute(strPos, CFThought | CFTimeout)
         return
 
@@ -1603,7 +1603,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if place:
             state = place.fsm.getCurrentState()
             if state.getName() != self.lastPlaceState:
-                print 'Place State Change From %s to %s' % (self.lastPlaceState, state.getName())
+                print('Place State Change From %s to %s' % (self.lastPlaceState, state.getName()))
                 self.lastPlaceState = state.getName()
         return Task.cont
 
@@ -1923,17 +1923,17 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def b_setAnimState(self, animName, animMultiplier = 1.0, callback = None, extraArgs = []):
         if self.wantStatePrint:
-            print 'Local Toon Anim State %s' % animName
+            print('Local Toon Anim State %s' % animName)
         DistributedToon.DistributedToon.b_setAnimState(self, animName, animMultiplier, callback, extraArgs)
 
     def sbFriendAdd(self, id, info):
-        print 'sbFriendAdd'
+        print('sbFriendAdd')
 
     def sbFriendUpdate(self, id, info):
-        print 'sbFriendUpdate'
+        print('sbFriendUpdate')
 
     def sbFriendRemove(self, id):
-        print 'sbFriendRemove'
+        print('sbFriendRemove')
 
     def addGolfPage(self):
         if self.hasPlayedGolf():
@@ -2033,7 +2033,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             maze = base.cr.doFind('DistCogdoMazeGame')
             if maze:
                 if kindOfCheat == 0:
-                    for suitNum in maze.game.suitsById.keys():
+                    for suitNum in list(maze.game.suitsById.keys()):
                         suit = maze.game.suitsById[suitNum]
                         maze.sendUpdate('requestSuitHitByGag', [suit.type, suitNum])
 

@@ -4,7 +4,7 @@ from direct.distributed.ClockDelta import *
 from direct.showbase import Audio3DManager
 from toontown.toonbase import ToontownGlobals
 from toontown.dna.DNAParser import DNADoor
-from DistributedToonInterior import DistributedToonInterior
+from .DistributedToonInterior import DistributedToonInterior
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.distributed import DistributedObject
@@ -12,7 +12,7 @@ from direct.fsm import State
 from direct.actor import Actor
 import random
 import time
-import ToonInteriorColors
+from . import ToonInteriorColors
 from toontown.hood import ZoneUtil
 from toontown.toon import ToonDNA
 from toontown.toon import ToonHead

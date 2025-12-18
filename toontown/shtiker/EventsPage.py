@@ -13,7 +13,7 @@ from toontown.parties.CalendarGuiMonth import CalendarGuiMonth
 from toontown.parties.PartyUtils import getPartyActivityIcon
 from toontown.parties.Party import Party
 from toontown.parties.ServerTimeGui import ServerTimeGui
-import ShtikerPage
+from . import ShtikerPage
 EventsPage_Host = 0
 EventsPage_Invited = 1
 EventsPage_Calendar = 2
@@ -689,7 +689,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         def makeButton(itemName, itemNum, *extraArgs):
 
             def buttonCommand():
-                print itemName, itemNum
+                print(itemName, itemNum)
 
             return DirectLabel(text=itemName, relief=None, text_align=TextNode.ALeft, scale=0.06)
 
@@ -784,8 +784,8 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.articleImages = {}
         self.articleText = {}
         try:
-            import urllib
-            urlfile = urllib.urlopen(self.getNewsUrl())
+            import urllib.request, urllib.parse, urllib.error
+            urlfile = urllib.request.urlopen(self.getNewsUrl())
         except IOError:
             self.notify.warning('Could not open %s' % self.getNewsUrl())
             self.newsStatusLabel['text'] = TTLocalizer.EventsPageNewsUnavailable
@@ -794,15 +794,15 @@ class EventsPage(ShtikerPage.ShtikerPage):
         urlStrings = urlfile.read()
         urlfile.close()
         urls = urlStrings.split('\r\n')
-        for index in xrange(len(urls) / 2):
+        for index in range(len(urls) / 2):
             imageUrl = urls[index * 2]
             textUrl = urls[index * 2 + 1]
             img = PNMImage()
             self.articleImages[index] = img
             try:
-                import urllib
+                import urllib.request, urllib.parse, urllib.error
                 self.notify.info('opening %s' % imageUrl)
-                imageFile = urllib.urlopen(imageUrl)
+                imageFile = urllib.request.urlopen(imageUrl)
                 data = imageFile.read()
                 img.read(StringStream(data))
                 imageFile.close()
@@ -813,7 +813,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.articleText[index] = text
             try:
                 self.notify.info('opening %s' % textUrl)
-                textFile = urllib.urlopen(textUrl)
+                textFile = urllib.request.urlopen(textUrl)
                 data = textFile.read()
                 data = data.replace('\\1', '\x01')
                 data = data.replace('\\2', '\x02')
@@ -1023,8 +1023,8 @@ class EventsPage(ShtikerPage.ShtikerPage):
         result = True
         urlStrings = ''
         try:
-            import urllib
-            urlfile = urllib.urlopen(fileUrl)
+            import urllib.request, urllib.parse, urllib.error
+            urlfile = urllib.request.urlopen(fileUrl)
             urlStrings = urlfile.read()
             urlfile.close()
         except IOError:

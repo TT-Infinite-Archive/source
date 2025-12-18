@@ -152,7 +152,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
         curShardTuples.sort(compareShardTuples)
         totalPop = 0
 
-        for i in xrange(len(curShardTuples)):
+        for i in range(len(curShardTuples)):
             shardId, name, pop, WVPop, invasionStatus, timeZone = curShardTuples[i]
 
             # Get the formatted timezone string

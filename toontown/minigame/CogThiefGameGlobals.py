@@ -1,5 +1,5 @@
 from pandac.PandaModules import VBase3, BitMask32
-from itertools import izip
+
 
 GameTime = 60
 NumBarrels = 4
@@ -66,17 +66,17 @@ def getMaxScore():
 Zones = (1000, 2000, 3000, 4000, 5000, 9000)
 
 NumCogsTable = [
-    {zoneId: i + zoneId / 1500 for zoneId in Zones} for i in xrange(5, 13, 2)
+    {zoneId: i + zoneId / 1500 for zoneId in Zones} for i in range(5, 13, 2)
 ]
 
 CogSpeedTable = [
-    {zoneId: speed / 10.0 + zoneId / 20000.0 for zoneId, speed in izip(Zones, xrange(60, 84, 4))} for i in xrange(4)
+    {zoneId: speed / 10.0 + zoneId / 20000.0 for zoneId, speed in zip(Zones, range(60, 84, 4))} for i in range(4)
 ]
 
-ZoneSuitLevels = {zoneId: level for zoneId, level in izip(Zones, xrange(6))}
+ZoneSuitLevels = {zoneId: level for zoneId, level in zip(Zones, range(6))}
 
 ToonSpeed = 9.0
-PerfectBonus = [i for i in xrange(8, 0, -2)]
+PerfectBonus = [i for i in range(8, 0, -2)]
 
 
 def calculateCogs(numPlayers, safezone):

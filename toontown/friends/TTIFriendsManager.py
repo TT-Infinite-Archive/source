@@ -3,7 +3,7 @@ from otp.otpbase import OTPLocalizer
 from toontown.toonbase.TTLocalizerEnglish import WhisperMutedMessage
 from time import time
 import hmac
-import cPickle
+import pickle
 import zlib
 
 
@@ -62,14 +62,14 @@ class TTIFriendsManager(DistributedObjectGlobal):
     def petDetails(self, avId, ownerId, petName, traitSeed, sz, traits, moods, dna, lastSeen):
         fields = list(zip(("setHead", "setEars", "setNose", "setTail", "setBodyTexture", "setColor",
                            "setColorScale", "setEyeColor", "setGender"), dna))
-        fields.extend(zip(("setBoredom", "setRestlessness", "setPlayfulness", "setLoneliness",
+        fields.extend(list(zip(("setBoredom", "setRestlessness", "setPlayfulness", "setLoneliness",
                            "setSadness", "setAffection", "setHunger", "setConfusion", "setExcitement",
-                           "setFatigue", "setAnger", "setSurprise"), moods))
-        fields.extend(zip(("setForgetfulness", "setBoredomThreshold", "setRestlessnessThreshold",
+                           "setFatigue", "setAnger", "setSurprise"), moods)))
+        fields.extend(list(zip(("setForgetfulness", "setBoredomThreshold", "setRestlessnessThreshold",
                            "setPlayfulnessThreshold", "setLonelinessThreshold", "setSadnessThreshold",
                            "setFatigueThreshold", "setHungerThreshold", "setConfusionThreshold",
                            "setExcitementThreshold", "setAngerThreshold", "setSurpriseThreshold",
-                           "setAffectionThreshold"), traits))
+                           "setAffectionThreshold"), traits)))
         fields.append(("setOwnerId", ownerId))
         fields.append(("setPetName", petName))
         fields.append(("setName", petName))
@@ -229,5 +229,5 @@ class TTIFriendsManager(DistributedObjectGlobal):
             base.localAvatar.setSystemMessage(0, WhisperMutedMessage % (abs(time() - timestamp)))
 
     def friendDetailsExtended(self, x, y, z):
-        x = cPickle.loads(base.cr.readFields(zlib.decompress(x)))
-        base.cr.n_handleGetAvatarDetailsResp(z, fields=x.items(), extended=True)
+        x = pickle.loads(base.cr.readFields(zlib.decompress(x)))
+        base.cr.n_handleGetAvatarDetailsResp(z, fields=list(x.items()), extended=True)

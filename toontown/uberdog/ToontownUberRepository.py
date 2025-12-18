@@ -51,7 +51,7 @@ class ToontownUberRepository(ToontownInternalRepository):
             self.notify.info('Creating %s(%d)...' % (dcname, doId))
             self.globalObjects[dcname] = self.generateGlobalObject(doId, dcname)
 
-        for dcname, doId in OtpDoGlobals.dcname2doId.items():
+        for dcname, doId in list(OtpDoGlobals.dcname2doId.items()):
             if dcname not in self.globalObjects:
                 self.remoteGlobalObjects[dcname] = \
                     RemoteGlobalObject(self, dcname, doId)

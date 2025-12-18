@@ -519,7 +519,7 @@ class GetAvatarsFSM(AvatarOperationFSM):
     def enterSendAvatars(self):
         potentialAvs = []
 
-        for avId, fields in self.avatarFields.items():
+        for avId, fields in list(self.avatarFields.items()):
             index = self.avList.index(avId)
             wishNameState = fields.get('WishNameState', [''])[0]
             name = fields['setName'][0]
@@ -1099,7 +1099,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             self.air.send(datagram)
             return
 
-        authToken = ''.join([hex(random.randint(0, 254)) for _ in xrange(25)])
+        authToken = ''.join([hex(random.randint(0, 254)) for _ in range(25)])
 
         lookupTable = generateLookupTable(authToken[::2])
         self.authTokens[sender] = encodeHexString(lookupTable, authToken)

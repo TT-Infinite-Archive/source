@@ -53,7 +53,7 @@ class CogSuitManagerAI:
                                              CogDisguiseGlobals.MaxPartLoss+1)
 
                 partBitmask = parts[suitDeptIndex]
-                partList = range(17)
+                partList = list(range(17))
 
                 while loseCount > 0 and partList:
                     losePart = random.choice(partList)

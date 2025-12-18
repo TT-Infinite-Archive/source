@@ -87,7 +87,7 @@ class DistributedPlantBaseAI(DistributedLawnDecorAI):
             # Get the number of cycles that have elapsed
             cycles = seconds / GardenGlobals.GROWTH_INTERVAL
 
-            for i in xrange(cycles):
+            for i in range(cycles):
                 # Decrement the water level
                 self.waterLevel = max(self.waterLevel - 1, -1)
 

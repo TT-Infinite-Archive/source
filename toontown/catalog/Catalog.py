@@ -48,7 +48,7 @@ class MetaItem():
     def getItems(self, avatar, duplicateItems):
         choosenItems = []
         items = MetaItems[self.metaId][:]
-        for i in xrange(self.count):
+        for i in range(self.count):
             item = self.choose(items, avatar, duplicateItems)
             if not item:
                 continue
@@ -72,13 +72,13 @@ class MetaItem():
             or item in avatar.weeklyCatalog
 
 
-from CatalogClothingItem import getAllClothes
-from CatalogChatItem import getChatRange
-from CatalogWallpaperItem import getWallpapers
-from CatalogFlooringItem import getFloorings
-from CatalogMouldingItem import getAllMouldings
-from CatalogWainscotingItem import getAllWainscotings
-from CatalogPetTrickItem import getAllPetTricks
+from .CatalogClothingItem import getAllClothes
+from .CatalogChatItem import getChatRange
+from .CatalogWallpaperItem import getWallpapers
+from .CatalogFlooringItem import getFloorings
+from .CatalogMouldingItem import getAllMouldings
+from .CatalogWainscotingItem import getAllWainscotings
+from .CatalogPetTrickItem import getAllPetTricks
 
 MetaItems = {
     100: getAllClothes(101, 102, 103, 104, 105, 106, 107, 108, 109, 109, 111, 115, 201, 202, 203, 204, 205,

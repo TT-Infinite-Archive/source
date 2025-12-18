@@ -1,7 +1,7 @@
 from toontown.toonbase.ToontownGlobals import getSuitFont
 from direct.gui.DirectGui import DirectWaitBar, DirectFrame, DGG
 from panda3d.core import TextNode, TransparencyAttrib, Texture, CardMaker, NodePath, Vec4, VBase4
-import SuitTreasureGlobals
+from . import SuitTreasureGlobals
 
 
 class FactoryMeritCounter(DirectFrame):

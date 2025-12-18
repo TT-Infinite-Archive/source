@@ -593,7 +593,7 @@ class GroupTrackerPage(DirectFrame):
                 
     def updateGroups(self, groups=None):
         if groups is None:
-            groups = base.cr.globalGroupTracker.leader2Group.items()
+            groups = list(base.cr.globalGroupTracker.leader2Group.items())
         # Clear our Group Widgets
         for group in self.groupWidgets:
             group.destroy()
@@ -667,7 +667,7 @@ class GroupTrackerPage(DirectFrame):
 
     def toggleWantGroup(self):
         want = not base.localAvatar.wantGroupTracker()
-        if base.localAvatar.doId in base.cr.globalGroupTracker.leader2Group.keys():
+        if base.localAvatar.doId in list(base.cr.globalGroupTracker.leader2Group.keys()):
             base.cr.globalGroupTracker.d_showMe(want)
         # Updates the ai toon so the boarding group AI could know what he wants
         base.localAvatar.setWantGroupTracker(want)
@@ -682,7 +682,7 @@ class GroupTrackerPage(DirectFrame):
             self.warning = None
             base.cr.globalGroupTracker.d_requestCreateSpecialGroup(GroupTrackerGlobals.GROUP_TYPE_JELLYBEAN)
 
-        for leaderId, group in base.cr.globalGroupTracker.leader2Group.items():
+        for leaderId, group in list(base.cr.globalGroupTracker.leader2Group.items()):
             if base.localAvatar.doId == leaderId or base.localAvatar.doId in group[GroupTrackerGlobals.MEMBER_IDS]:
                 if self.warning is None:
                     self.warning = WarningDialog.WarningDialog(parent=self, text=TTLocalizer.GroupTrackerAlreadyInAGroup, command=handleWarningClose)

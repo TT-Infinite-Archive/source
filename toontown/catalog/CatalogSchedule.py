@@ -1,23 +1,23 @@
-from Catalog import WeeklyCatalog, SeasonalCatalog, YearlyCatalog, MetaItem
+from .Catalog import WeeklyCatalog, SeasonalCatalog, YearlyCatalog, MetaItem
 from datetime import datetime
 
 
-from CatalogAccessoryItem import CatalogAccessoryItem as Accessory
-from CatalogClothingItem import CatalogClothingItem as Clothing
-from CatalogFurnitureItem import CatalogFurnitureItem as Furniture
-from CatalogAnimatedFurnitureItem import CatalogAnimatedFurnitureItem as AnimatedFurniture
-from CatalogWallpaperItem import CatalogWallpaperItem as Wallpaper
-from CatalogChatItem import CatalogChatItem as ChatPhrase
-from CatalogNametagItem import CatalogNametagItem as Nametag
-from CatalogWainscotingItem import CatalogWainscotingItem as Wainscoting
-from CatalogMouldingItem import CatalogMouldingItem as Moulding
-from CatalogFlooringItem import CatalogFlooringItem as Flooring
-from CatalogGardenItem import CatalogGardenItem as GardenProp
-from CatalogGardenStarterItem import CatalogGardenStarterItem as GardenStarter
-from CatalogEmoteItem import CatalogEmoteItem as Emote
-from CatalogRentalItem import CatalogRentalItem as Rental
-from CatalogToonStatueItem import CatalogToonStatueItem as ToonStatue
-from CatalogWindowItem import CatalogWindowItem as Window
+from .CatalogAccessoryItem import CatalogAccessoryItem as Accessory
+from .CatalogClothingItem import CatalogClothingItem as Clothing
+from .CatalogFurnitureItem import CatalogFurnitureItem as Furniture
+from .CatalogAnimatedFurnitureItem import CatalogAnimatedFurnitureItem as AnimatedFurniture
+from .CatalogWallpaperItem import CatalogWallpaperItem as Wallpaper
+from .CatalogChatItem import CatalogChatItem as ChatPhrase
+from .CatalogNametagItem import CatalogNametagItem as Nametag
+from .CatalogWainscotingItem import CatalogWainscotingItem as Wainscoting
+from .CatalogMouldingItem import CatalogMouldingItem as Moulding
+from .CatalogFlooringItem import CatalogFlooringItem as Flooring
+from .CatalogGardenItem import CatalogGardenItem as GardenProp
+from .CatalogGardenStarterItem import CatalogGardenStarterItem as GardenStarter
+from .CatalogEmoteItem import CatalogEmoteItem as Emote
+from .CatalogRentalItem import CatalogRentalItem as Rental
+from .CatalogToonStatueItem import CatalogToonStatueItem as ToonStatue
+from .CatalogWindowItem import CatalogWindowItem as Window
 
 
 JANUARY = 1

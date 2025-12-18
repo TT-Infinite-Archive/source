@@ -9,12 +9,12 @@ from plotly import graph_objs
 
 def outputLeakingCount():
     roots = objgraph.get_leaking_objects()
-    print 'Leaking %d objects...' % len(roots)
+    print('Leaking %d objects...' % len(roots))
 
 
 def outputLeaking():
     roots = objgraph.get_leaking_objects()
-    print 'Leaking %d objects...' % len(roots)
+    print('Leaking %d objects...' % len(roots))
     objgraph.show_most_common_types(objects=roots)
 
 
@@ -48,7 +48,7 @@ class LeakGraph(threading.Thread):
         seconds = self.cycles * LeakGraph.CHECK_CYCLE
         outputLeakingCount()
         leakingObjects = objgraph.typestats()
-        for objName, count in leakingObjects.items():
+        for objName, count in list(leakingObjects.items()):
             if count > 100:
                 if objName not in self.stats:
                     self.stats[objName] = {}
@@ -67,12 +67,12 @@ class LeakGraph(threading.Thread):
         for objName in self.stats:
             obj2Val[objName] = max(self.stats[objName].values())
         lines = []
-        for objName in self.stats.keys():
+        for objName in list(self.stats.keys()):
             colorString = self.generateColor()
             try:
                 line = graph_objs.Scatter(
-                        x=self.stats[objName].keys(),
-                        y=self.stats[objName].values(),
+                        x=list(self.stats[objName].keys()),
+                        y=list(self.stats[objName].values()),
                         mode='lines',
                         name=objName,
                         line=graph_objs.Line(
@@ -100,7 +100,7 @@ class LeakGraph(threading.Thread):
             self.graphCycle()
 
     def generateColor(self):
-        rgb = [random.randint(15, 255) for _ in xrange(3)]
+        rgb = [random.randint(15, 255) for _ in range(3)]
         color = 'rgb' + str(tuple(rgb))
         if color not in self.colors:
             self.colors.append(color)
