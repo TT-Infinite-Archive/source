@@ -140,7 +140,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         else:
             self.inEstate = 0
             self.estateZones = []
-        PetObserve.send(list(broadcastZones.keys()), PetObserve.PetActionObserve(PetObserve.Actions.CHANGE_ZONE, self.doId, (oldZoneId, newZoneId)))
+        PetObserve.send(list(broadcastZones.keys()), PetObserve.PetActionObserve(PetObserve.EAction.CHANGE_ZONE, self.doId, (oldZoneId, newZoneId)))
 
     def getOwnerId(self):
         return self.ownerId
@@ -740,18 +740,18 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         return self.mood.getDominantMood() in PetMood.PetMood.ContentedMoods
 
     def call(self, avatar):
-        self.brain.observe(PetObserve.PetPhraseObserve(PetObserve.Phrases.COME, avatar.doId))
+        self.brain.observe(PetObserve.PetPhraseObserve(PetObserve.EPhrase.COME, avatar.doId))
         self.__petMovieStart(avatar.doId)
 
     def feed(self, avatar):
         if avatar.takeMoney(PetConstants.FEED_AMOUNT):
             self.startLockPetMove(avatar.doId)
-            self.brain.observe(PetObserve.PetActionObserve(PetObserve.Actions.FEED, avatar.doId))
+            self.brain.observe(PetObserve.PetActionObserve(PetObserve.EAction.FEED, avatar.doId))
             self.feedLogger.addEvent()
 
     def scratch(self, avatar):
         self.startLockPetMove(avatar.doId)
-        self.brain.observe(PetObserve.PetActionObserve(PetObserve.Actions.SCRATCH, avatar.doId))
+        self.brain.observe(PetObserve.PetActionObserve(PetObserve.EAction.SCRATCH, avatar.doId))
         self.scratchLogger.addEvent()
 
     def lockPet(self):
@@ -773,10 +773,10 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
                 self.startPosHprBroadcast()
 
     def handleStay(self, avatar):
-        self.brain.observe(PetObserve.PetPhraseObserve(PetObserve.Phrases.STAY, avatar.doId))
+        self.brain.observe(PetObserve.PetPhraseObserve(PetObserve.EPhrase.STAY, avatar.doId))
 
     def handleShoo(self, avatar):
-        self.brain.observe(PetObserve.PetPhraseObserve(PetObserve.Phrases.GO_AWAY, avatar.doId))
+        self.brain.observe(PetObserve.PetPhraseObserve(PetObserve.EPhrase.GO_AWAY, avatar.doId))
 
     def gaitEnterOff(self):
         pass
@@ -1054,7 +1054,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
 
     def _handleDidTrick(self, trickId):
         DistributedPetAI.notify.debug('_handleDidTrick: %s' % trickId)
-        if trickId == PetTricks.Tricks.BALK:
+        if trickId == PetTricks.ETrick.BALK:
             return
         aptitude = self.getTrickAptitude(trickId)
         self.setTrickAptitude(trickId, aptitude + PetTricks.AptitudeIncrementDidTrick)
@@ -1063,7 +1063,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         self.trickLogger.addEvent(trickId)
 
     def _handleGotPositiveTrickFeedback(self, trickId, magnitude):
-        if trickId == PetTricks.Tricks.BALK:
+        if trickId == PetTricks.ETrick.BALK:
             return
         self.setTrickAptitude(trickId, self.getTrickAptitude(trickId) + PetTricks.MaxAptitudeIncrementGotPraise * magnitude)
 

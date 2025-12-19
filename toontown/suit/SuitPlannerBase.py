@@ -1,7 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import *
 from toontown.hood import ZoneUtil, HoodUtil
 from toontown.toonbase.ToontownBattleGlobals import PropTypeToTrackBonus
-from toontown.toonbase.ToontownGlobals import AnimPropTypes, dnaMap, streetPhaseMap, SuitWalkSpeed
+from toontown.toonbase.ToontownGlobals import AnimPropType, dnaMap, streetPhaseMap, SuitWalkSpeed
 from toontown.building import SuitBuildingGlobals
 from toontown.dna.DNAParser import DNASuitPoint, DNAStorage, loadDNAFileAI
 from toontown.dna.DNAInteractiveProp import DNAInteractiveProp
@@ -139,7 +139,7 @@ class SuitPlannerBase:
                             self.notify.error('FIXME battle cell at zone %s has two props %s %s linked to it' % (zoneId, self.cellToGagBonusDict[zoneId], childDnaGroup))
                         else:
                             name = childDnaGroup.getName()
-                            propType: AnimPropTypes = HoodUtil.calcPropType(name)
+                            propType: AnimPropType = HoodUtil.calcPropType(name)
                             if propType in PropTypeToTrackBonus:
                                 trackBonus: int = PropTypeToTrackBonus[propType]
                                 self.cellToGagBonusDict[zoneId] = trackBonus

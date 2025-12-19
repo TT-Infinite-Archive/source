@@ -135,7 +135,7 @@ class CogdoMazeSuit(MazeSuit, FSM, CogdoMazeSplattable):
 class CogdoMazeSlowMinionSuit(CogdoMazeSuit):
 
     def __init__(self, serialNum, maze, randomNumGen, difficulty, startTile = None):
-        CogdoMazeSuit.__init__(self, serialNum, maze, randomNumGen, difficulty, startTile, Globals.SuitTypes.SlowMinion)
+        CogdoMazeSuit.__init__(self, serialNum, maze, randomNumGen, difficulty, startTile, Globals.ESuitType.SLOW_MINION)
         self.defaultTransitions = {'Off': ['Normal'],
          'Normal': ['Attack', 'Off'],
          'Attack': ['Normal']}
@@ -169,7 +169,7 @@ class CogdoMazeSlowMinionSuit(CogdoMazeSuit):
 class CogdoMazeFastMinionSuit(CogdoMazeSuit):
 
     def __init__(self, serialNum, maze, randomNumGen, difficulty, startTile = None):
-        CogdoMazeSuit.__init__(self, serialNum, maze, randomNumGen, difficulty, startTile, Globals.SuitTypes.FastMinion)
+        CogdoMazeSuit.__init__(self, serialNum, maze, randomNumGen, difficulty, startTile, Globals.ESuitType.FAST_MINION)
 
 
 class CogdoMazeBossSuit(CogdoMazeSuit):
@@ -179,7 +179,7 @@ class CogdoMazeBossSuit(CogdoMazeSuit):
     ShakeEventName = 'CogdoMazeSuitShake'
 
     def __init__(self, serialNum, maze, randomNumGen, difficulty, startTile = None):
-        CogdoMazeSuit.__init__(self, serialNum, maze, randomNumGen, difficulty, startTile, Globals.SuitTypes.Boss, walkAnimName='stomp')
+        CogdoMazeSuit.__init__(self, serialNum, maze, randomNumGen, difficulty, startTile, Globals.ESuitType.BOSS, walkAnimName='stomp')
         self.dropTimer = 0
         self._walkSpeed = float(self.maze.cellWidth) / self.cellWalkDuration * 0.5
 

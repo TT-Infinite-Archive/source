@@ -19,7 +19,7 @@ from direct.fsm.FSM import FSM
 from direct.showbase import PythonUtil
 from toontown.toonbase.ToontownTimer import ToontownTimer
 from toontown.racing.Kart import Kart
-from toontown.racing.KartShopGlobals import KartGlobals
+from toontown.racing.KartShopGlobals import EKartErrorCode, KartGlobals
 from toontown.racing import RaceGlobals
 from toontown.toontowngui.TTDialog import TTGlobalDialog
 from toontown.toontowngui.TeaserPanel import TeaserPanel
@@ -184,7 +184,7 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
         self.hideGui()
         self.sendUpdate('requestExit', [])
 
-    def rejectEnter(self, errCode):
+    def rejectEnter(self, errCode: EKartErrorCode):
         self.notify.debugStateCall(self)
 
         def handleTicketError(self = self):
@@ -195,41 +195,42 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
             self.cr.playGame.getPlace().setState('walk')
 
         doneEvent = 'errorCode|dialog'
-        if errCode == KartGlobals.ERROR_CODE.eTickets:
-            msg = TTLocalizer.StartingBlock_NotEnoughTickets
-            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-            self.dialog.accept(doneEvent, handleTicketError)
-            self.accept('stoppedAsleep', handleTicketError)
-        elif errCode == KartGlobals.ERROR_CODE.eBoardOver:
-            msg = TTLocalizer.StartingBlock_NoBoard
-            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-            self.dialog.accept(doneEvent, handleTicketError)
-            self.accept('stoppedAsleep', handleTicketError)
-        elif errCode == KartGlobals.ERROR_CODE.eNoKart:
-            msg = TTLocalizer.StartingBlock_NoKart
-            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-            self.dialog.accept(doneEvent, handleTicketError)
-            self.accept('stoppedAsleep', handleTicketError)
-        elif errCode == KartGlobals.ERROR_CODE.eOccupied:
-            msg = TTLocalizer.StartingBlock_Occupied
-            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-            self.dialog.accept(doneEvent, handleTicketError)
-            self.accept('stoppedAsleep', handleTicketError)
-        elif errCode == KartGlobals.ERROR_CODE.eTrackClosed:
-            msg = TTLocalizer.StartingBlock_TrackClosed
-            self.dialog = TTGlobalDialog(msg, doneEvent, 2)
-            self.dialog.accept(doneEvent, handleTicketError)
-            self.accept('stoppedAsleep', handleTicketError)
-        elif errCode == KartGlobals.ERROR_CODE.eUnpaid:
-            self.dialog = TeaserPanel(pageName='karting', doneFunc=handleTicketError)
-        else:
-            self.cr.playGame.getPlace().setState('walk')
+
+        match errCode:
+            case EKartErrorCode.NOT_ENOUGH_TICKETS:
+                msg = TTLocalizer.StartingBlock_NotEnoughTickets
+                self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+                self.dialog.accept(doneEvent, handleTicketError)
+                self.accept('stoppedAsleep', handleTicketError)
+            case EKartErrorCode.BOARD_OVER:
+                msg = TTLocalizer.StartingBlock_NoBoard
+                self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+                self.dialog.accept(doneEvent, handleTicketError)
+                self.accept('stoppedAsleep', handleTicketError)
+            case EKartErrorCode.NO_KART:
+                msg = TTLocalizer.StartingBlock_NoKart
+                self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+                self.dialog.accept(doneEvent, handleTicketError)
+                self.accept('stoppedAsleep', handleTicketError)
+            case EKartErrorCode.OCCUPIED:
+                msg = TTLocalizer.StartingBlock_Occupied
+                self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+                self.dialog.accept(doneEvent, handleTicketError)
+                self.accept('stoppedAsleep', handleTicketError)
+            case EKartErrorCode.TRACK_CLOSED:
+                msg = TTLocalizer.StartingBlock_TrackClosed
+                self.dialog = TTGlobalDialog(msg, doneEvent, 2)
+                self.dialog.accept(doneEvent, handleTicketError)
+                self.accept('stoppedAsleep', handleTicketError)
+            case EKartErrorCode.UNPAID:
+                self.dialog = TeaserPanel(pageName='karting', doneFunc=handleTicketError)
+            case _:
+                self.cr.playGame.getPlace().setState('walk')
 
     def finishMovie(self):
         if self.movieTrack:
             self.movieTrack.finish()
             self.movieTrack = None
-        return
 
     def setOccupied(self, avId):
         self.notify.debug('%d setOccupied: %d' % (self.doId, avId))

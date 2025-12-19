@@ -19,7 +19,7 @@ class Level:
         self.entranceId2entity = {}
         self.entId2createCallbacks = {}
         self.createdEntIds = []
-        self.nonlocalEntIds = {}
+        self.notlocalEntIds = {}
         self.nothingEntIds = {}
         self.entityCreator = self.createEntityCreator()
         self.entType2ids = self.levelSpec.getEntType2ids(self.levelSpec.getAllEntIds())
@@ -49,7 +49,7 @@ class Level:
             del self.levelSpec
         self.initialized = 0
         del self.createdEntIds
-        del self.nonlocalEntIds
+        del self.notlocalEntIds
         del self.nothingEntIds
         if hasattr(self, 'entities'):
             del self.entities
@@ -76,7 +76,7 @@ class Level:
         self.onLevelPostCreate()
 
     def destroyAllEntities(self):
-        self.nonlocalEntIds = {}
+        self.notlocalEntIds = {}
         self.nothingEntIds = {}
         if not uniqueElements(self.createdEntIds):
             Level.notify.warning('%s: self.createdEntIds is not unique: %s' % (getattr(self, 'doId', None), self.createdEntIds))
@@ -101,8 +101,8 @@ class Level:
         Level.notify.debug('creating %s %s' % (spec['type'], entId))
         entity = self.entityCreator.createEntity(entId)
         announce = False
-        if entity is 'nonlocal':
-            self.nonlocalEntIds[entId] = None
+        if entity is 'notlocal':
+            self.notlocalEntIds[entId] = None
         elif entity is 'nothing':
             self.nothingEntIds[entId] = None
             announce = True
@@ -248,6 +248,6 @@ class Level:
                 entity.destroy()
             elif entId in self.nothingEntIds:
                 del self.nothingEntIds[entId]
-            elif entId in self.nonlocalEntIds:
-                del self.nonlocalEntIds[entId]
+            elif entId in self.notlocalEntIds:
+                del self.notlocalEntIds[entId]
             self.entType2ids[self.getEntityType(entId)].remove(entId)

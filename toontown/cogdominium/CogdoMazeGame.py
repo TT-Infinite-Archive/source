@@ -109,14 +109,14 @@ class CogdoMazeGame(DirectObject):
     def addSuit(self, suit):
         id = suit.serialNum
         self.suits.append(suit)
-        if suit.type == Globals.SuitTypes.Boss:
+        if suit.type == Globals.ESuitType.BOSS:
             self.shakers.append(suit)
         self.suitsById[id] = suit
 
     def removeSuit(self, suit):
         id = suit.serialNum
         del self.suitsById[id]
-        if suit.type == Globals.SuitTypes.Boss:
+        if suit.type == Globals.ESuitType.BOSS:
             self.shakers.remove(suit)
             self.guiMgr.showBossCode(id)
             self.guiMgr.mazeMapGui.removeSuit(suit.suit)
@@ -484,7 +484,7 @@ class CogdoMazeGame(DirectObject):
         self.distGame.b_suitHitByGag(suitType, suitNum)
 
     def suitHitByGag(self, toonId, suitType, suitNum, elapsedTime = 0.0):
-        if suitType == Globals.SuitTypes.Boss:
+        if suitType == Globals.ESuitType.BOSS:
             self.guiMgr.showBossHit(suitNum)
         if suitNum in list(self.suitsById.keys()):
             suit = self.suitsById[suitNum]
@@ -557,14 +557,14 @@ class CogdoMazeGame(DirectObject):
     def handleLocalToonEntersDoor(self, door):
         localToonId = self.localPlayer.toon.doId
         if self._exit.isOpen():
-            self.distGame.d_sendRequestAction(Globals.GameActions.EnterDoor, 0)
+            self.distGame.d_sendRequestAction(Globals.EGameAction.ENTER_DOOR, 0)
         else:
             if localToonId not in self.toonsThatRevealedDoor:
                 self.toonsThatRevealedDoor.append(localToonId)
                 self.localPlayer.handleToonRevealsDoor(localToonId, self._exit)
             if not self._exit.revealed:
                 self.toonRevealsDoor(localToonId)
-                self.distGame.d_sendRequestAction(Globals.GameActions.RevealDoor, 0)
+                self.distGame.d_sendRequestAction(Globals.EGameAction.REVEAL_DOOR, 0)
 
     def handleToonWentSad(self, toonId):
         if toonId == self.localPlayer.toon.doId:

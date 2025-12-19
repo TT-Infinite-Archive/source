@@ -1,11 +1,18 @@
-from panda3d.core import CardMaker, NodePath, PNMImage, Texture, VBase4, VBase4F, Vec2
-from direct.showbase.PythonUtil import Enum
+import enum
+
+from panda3d.core import CardMaker, NodePath, PNMImage, Texture, VBase4F, Vec2
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import DirectFrame, DGG
 DEFAULT_MASK_RESOLUTION = 32
 DEFAULT_RADIUS_RATIO = 0.05
 MAP_RESOLUTION = 320
-MazeRevealType = Enum(('SmoothCircle', 'HardCircle', 'Square'))
-MAZE_REVEAL_TYPE = MazeRevealType.SmoothCircle
+
+class EMazeRevealType(enum.Enum):
+    SMOOTH_CIRCLE = 0
+    HARD_CIRCLE = 1
+    SQUARE = 2
+
+MAZE_REVEAL_TYPE = EMazeRevealType.SMOOTH_CIRCLE
 
 class MazeMapGui(DirectFrame):
     notify = directNotify.newCategory('MazeMapGui')
@@ -29,9 +36,9 @@ class MazeMapGui(DirectFrame):
             for u in range(self._mazeWidth):
                 self._revealedCells[y].append(False)
 
-        self._revealFunctions = {MazeRevealType.SmoothCircle: self._revealSmoothCircle,
-         MazeRevealType.HardCircle: self._revealHardCircle,
-         MazeRevealType.Square: self._revealSquare}
+        self._revealFunctions = {EMazeRevealType.SMOOTH_CIRCLE: self._revealSmoothCircle,
+         EMazeRevealType.HARD_CIRCLE: self._revealHardCircle,
+         EMazeRevealType.SQUARE: self._revealSquare}
         self._revealFunction = MAZE_REVEAL_TYPE
         self.map = self._createMapTextureCard()
         self.map.reparentTo(self)
@@ -41,7 +48,6 @@ class MazeMapGui(DirectFrame):
         self.visibleLayer = self.attachNewNode('visibleLayer')
         self._laffMeterModel = loader.loadModel('phase_3/models/gui/laff_o_meter')
         self._toon2marker = {}
-        return
 
     def _createMapTextureCard(self):
         mapImage = PNMImage(MAP_RESOLUTION, MAP_RESOLUTION)

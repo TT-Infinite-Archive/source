@@ -1,7 +1,7 @@
+import enum
+
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase.PythonUtil import list2dict, Enum
 from toontown.pets import PetTricks
-import types
 notify = DirectNotifyGlobal.directNotify.newCategory('PetObserve')
 
 def getEventName(zoneId):
@@ -16,8 +16,42 @@ def send(zoneIds, petObserve):
             messenger.send(getEventName(zoneId), [petObserve])
 
 
-Phrases = Enum('HI, BYE, YES, NO, SOOTHE, PRAISE, CRITICISM, HAPPY,SAD, ANGRY, HURRY, QUESTION, FRIENDLY, LETS_PLAY,COME, FOLLOW_ME, STAY, NEED_LAFF, NEED_GAGS, NEED_JB,GO_AWAY, DO_TRICK,')
-Actions = Enum('FEED, SCRATCH,ATTENDED_START, ATTENDED_STOP,ATTENDING_START, ATTENDING_STOP,CHANGE_ZONE, LOGOUT,GARDEN')
+class EPhrase(enum.IntEnum):
+    HI = 0
+    BYE = 1
+    YES = 2
+    NO = 3
+    SOOTHE = 4
+    PRAISE = 5
+    CRITICISM = 6
+    HAPPY = 7
+    SAD = 8
+    ANGRY = 9
+    HURRY = 10
+    QUESTION = 11
+    FRIENDLY = 12
+    LETS_PLAY = 13
+    COME = 14
+    FOLLOW_ME = 15
+    STAY = 16
+    NEED_LAFF = 17
+    NEED_GAGS = 18
+    NEED_JB = 19
+    GO_AWAY = 20
+    DO_TRICK = 21
+
+
+class EAction(enum.IntEnum):
+    FEED = 0
+    SCRATCH = 1
+    ATTENDED_START = 2
+    ATTENDED_STOP = 3
+    ATTENDING_START = 4
+    ATTENDING_STOP = 5
+    CHANGE_ZONE = 6
+    LOGOUT = 7
+    GARDEN = 8
+
 
 class PetObserve:
 
@@ -54,7 +88,7 @@ class PetActionObserve(PetObserve):
         petBrain._handleActionObserve(self)
 
     def __repr__(self):
-        return '%s(%s,%s)' % (self.__class__.__name__, Actions.getString(self.action), self.avId)
+        return '%s(%s,%s)' % (self.__class__.__name__, EAction(self.action).name, self.avId)
 
 
 class PetPhraseObserve(PetObserve):
@@ -76,7 +110,7 @@ class PetPhraseObserve(PetObserve):
         petBrain._handlePhraseObserve(self)
 
     def __repr__(self):
-        return '%s(%s,%s)' % (self.__class__.__name__, Phrases.getString(self.petPhrase), self.avId)
+        return '%s(%s,%s)' % (self.__class__.__name__, EPhrase(self.petPhrase).name, self.avId)
 
 
 class SCObserve(PetPhraseObserve):
@@ -93,7 +127,7 @@ class TrickRequestObserve(PetPhraseObserve):
 
     def __init__(self, trickId, avId):
         self.trickId = trickId
-        PetPhraseObserve.__init__(self, Phrases.DO_TRICK, avId)
+        PetPhraseObserve.__init__(self, EPhrase.DO_TRICK, avId)
 
     def isForgettable(self):
         return 0
@@ -102,7 +136,7 @@ class TrickRequestObserve(PetPhraseObserve):
         return self.trickId
 
 
-OP = Phrases
+OP = EPhrase
 _scPhrase2petPhrase = {1: OP.YES,
  2: OP.NO,
  3: OP.SOOTHE,
@@ -197,7 +231,7 @@ del OP
 
 def getSCObserve(msgId, speakerDoId):
     phrase = _scPhrase2petPhrase.get(msgId)
-    if phrase == Phrases.DO_TRICK:
+    if phrase == EPhrase.DO_TRICK:
         trickId = PetTricks.ScId2trickId[msgId]
         return TrickRequestObserve(trickId, speakerDoId)
     return SCObserve(msgId, phrase, speakerDoId)

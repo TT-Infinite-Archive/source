@@ -1,6 +1,6 @@
 from datetime import datetime
 from direct.directnotify import DirectNotifyGlobal
-from toontown.parties.PartyGlobals import InviteTheme
+from toontown.parties.PartyGlobals import EInviteTheme
 from toontown.parties.DecorBase import DecorBase
 from toontown.parties.ActivityBase import ActivityBase
 
@@ -39,7 +39,7 @@ class PartyInfoBase:
         string += 'start=%s ' % self.startTime
         string += 'end=%s ' % self.endTime
         string += 'isPrivate=%s ' % self.isPrivate
-        string += 'inviteTheme=%s ' % InviteTheme(self.inviteTheme).name
+        string += 'inviteTheme=%s ' % EInviteTheme(self.inviteTheme).name
         string += 'activityList=%s ' % self.activityList
         string += 'decors=%s ' % self.decors
         string += 'status=%s' % self.status

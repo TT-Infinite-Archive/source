@@ -1,8 +1,21 @@
-from direct.showbase.PythonUtil import Enum, invertDictLossless
-from direct.interval.IntervalGlobal import *
-import types
+import enum
 import random
-Tricks = Enum('JUMP, BEG, PLAYDEAD, ROLLOVER, BACKFLIP, DANCE, SPEAK, BALK,')
+
+from direct.showbase.PythonUtil import invertDictLossless
+from direct.interval.IntervalGlobal import *
+
+
+class ETrick(enum.IntEnum):
+    JUMP = 0
+    BEG = 1
+    PLAYDEAD = 2
+    ROLLOVER = 3
+    BACKFLIP = 4
+    DANCE = 5
+    SPEAK = 6
+    BALK = 7
+
+
 NonHappyMinActualTrickAptitude = 0.1
 NonHappyMaxActualTrickAptitude = 0.6
 MinActualTrickAptitude = 0.5
@@ -11,53 +24,53 @@ AptitudeIncrementDidTrick = 0.001
 MaxAptitudeIncrementGotPraise = 0.001
 MaxTrickFatigue = 0.45
 MinTrickFatigue = 0.05
-ScId2trickId = {21200: Tricks.JUMP,
- 21201: Tricks.BEG,
- 21202: Tricks.PLAYDEAD,
- 21203: Tricks.ROLLOVER,
- 21204: Tricks.BACKFLIP,
- 21205: Tricks.DANCE,
- 21206: Tricks.SPEAK}
+ScId2trickId = {21200: ETrick.JUMP,
+ 21201: ETrick.BEG,
+ 21202: ETrick.PLAYDEAD,
+ 21203: ETrick.ROLLOVER,
+ 21204: ETrick.BACKFLIP,
+ 21205: ETrick.DANCE,
+ 21206: ETrick.SPEAK}
 TrickId2scIds = invertDictLossless(ScId2trickId)
-TrickAnims = {Tricks.JUMP: 'jump',
- Tricks.BEG: ('toBeg', 'beg', 'fromBeg'),
- Tricks.PLAYDEAD: ('playDead', 'fromPlayDead'),
- Tricks.ROLLOVER: 'rollover',
- Tricks.BACKFLIP: 'backflip',
- Tricks.DANCE: 'dance',
- Tricks.SPEAK: 'speak',
- Tricks.BALK: 'neutral'}
-TrickLengths = {Tricks.JUMP: 2.0,
- Tricks.BEG: 5.167,
- Tricks.PLAYDEAD: 15.21,
- Tricks.ROLLOVER: 8.0,
- Tricks.BACKFLIP: 4.88,
- Tricks.DANCE: 7.42,
- Tricks.SPEAK: 0.75,
- Tricks.BALK: 1.0}
-TrickAccuracies = {Tricks.JUMP: 1.0,
- Tricks.BEG: 0.9,
- Tricks.PLAYDEAD: 0.8,
- Tricks.ROLLOVER: 0.7,
- Tricks.BACKFLIP: 0.6,
- Tricks.DANCE: 0.5,
- Tricks.SPEAK: 0.4,
- Tricks.BALK: 1.0}
-TrickHeals = {Tricks.JUMP: (5, 10),
- Tricks.BEG: (6, 12),
- Tricks.PLAYDEAD: (7, 14),
- Tricks.ROLLOVER: (8, 16),
- Tricks.BACKFLIP: (9, 18),
- Tricks.DANCE: (10, 20),
- Tricks.SPEAK: (11, 22),
- Tricks.BALK: (0, 0)}
-TrickSounds = {Tricks.BACKFLIP: 'phase_5/audio/sfx/backflip.ogg',
- Tricks.ROLLOVER: 'phase_5/audio/sfx/rollover.ogg',
- Tricks.PLAYDEAD: 'phase_5/audio/sfx/play_dead.ogg',
- Tricks.BEG: 'phase_5/audio/sfx/beg.ogg',
- Tricks.DANCE: 'phase_5/audio/sfx/heal_dance.ogg',
- Tricks.JUMP: 'phase_5/audio/sfx/jump.ogg',
- Tricks.SPEAK: 'phase_5/audio/sfx/speak_v1.ogg'}
+TrickAnims = {ETrick.JUMP: 'jump',
+ ETrick.BEG: ('toBeg', 'beg', 'fromBeg'),
+ ETrick.PLAYDEAD: ('playDead', 'fromPlayDead'),
+ ETrick.ROLLOVER: 'rollover',
+ ETrick.BACKFLIP: 'backflip',
+ ETrick.DANCE: 'dance',
+ ETrick.SPEAK: 'speak',
+ ETrick.BALK: 'neutral'}
+TrickLengths = {ETrick.JUMP: 2.0,
+ ETrick.BEG: 5.167,
+ ETrick.PLAYDEAD: 15.21,
+ ETrick.ROLLOVER: 8.0,
+ ETrick.BACKFLIP: 4.88,
+ ETrick.DANCE: 7.42,
+ ETrick.SPEAK: 0.75,
+ ETrick.BALK: 1.0}
+TrickAccuracies = {ETrick.JUMP: 1.0,
+ ETrick.BEG: 0.9,
+ ETrick.PLAYDEAD: 0.8,
+ ETrick.ROLLOVER: 0.7,
+ ETrick.BACKFLIP: 0.6,
+ ETrick.DANCE: 0.5,
+ ETrick.SPEAK: 0.4,
+ ETrick.BALK: 1.0}
+TrickHeals = {ETrick.JUMP: (5, 10),
+ ETrick.BEG: (6, 12),
+ ETrick.PLAYDEAD: (7, 14),
+ ETrick.ROLLOVER: (8, 16),
+ ETrick.BACKFLIP: (9, 18),
+ ETrick.DANCE: (10, 20),
+ ETrick.SPEAK: (11, 22),
+ ETrick.BALK: (0, 0)}
+TrickSounds = {ETrick.BACKFLIP: 'phase_5/audio/sfx/backflip.ogg',
+ ETrick.ROLLOVER: 'phase_5/audio/sfx/rollover.ogg',
+ ETrick.PLAYDEAD: 'phase_5/audio/sfx/play_dead.ogg',
+ ETrick.BEG: 'phase_5/audio/sfx/beg.ogg',
+ ETrick.DANCE: 'phase_5/audio/sfx/heal_dance.ogg',
+ ETrick.JUMP: 'phase_5/audio/sfx/jump.ogg',
+ ETrick.SPEAK: 'phase_5/audio/sfx/speak_v1.ogg'}
 
 def getSoundIval(trickId):
     sounds = TrickSounds.get(trickId, None)
@@ -80,15 +93,15 @@ def getTrickIval(pet, trickId):
     animRate = random.uniform(0.9, 1.1)
     waitTime = random.uniform(0.0, 1.0)
     if type(anims) == bytes:
-        if trickId == Tricks.JUMP:
+        if trickId == ETrick.JUMP:
             animIval = Parallel()
             animIval.append(ActorInterval(pet, anims, playRate=animRate))
             animIval.append(Sequence(Wait(0.36), ProjectileInterval(pet, startPos=pet.getPos(), endPos=pet.getPos(), duration=1.0, gravityMult=0.5)))
-        elif trickId == Tricks.ROLLOVER:
+        elif trickId == ETrick.ROLLOVER:
             animIval = Sequence()
             animIval.append(ActorInterval(pet, anims, playRate=animRate))
             animIval.append(ActorInterval(pet, anims, playRate=-1.0 * animRate))
-        elif trickId == Tricks.SPEAK:
+        elif trickId == ETrick.SPEAK:
             animIval = ActorInterval(pet, anims, startFrame=10, playRate=animRate)
         else:
             animIval = ActorInterval(pet, anims, playRate=animRate)

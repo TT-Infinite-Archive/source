@@ -143,28 +143,28 @@ class PetBrain(DirectObject.DirectObject):
             PetBrain.notify.warning('%s: already looking at av %s' % (self.pet.doId, avId))
             return
         self.lookees[avId] = avId
-        self.observe(PetObserve.PetActionObserve(PetObserve.Actions.ATTENDING_START, avId))
+        self.observe(PetObserve.PetActionObserve(PetObserve.EAction.ATTENDING_START, avId))
 
     def _handleLookingAtOtherStop(self, avId):
         if avId not in self.lookees:
             PetBrain.notify.warning('%s: not looking at av %s' % (self.pet.doId, avId))
             return
         del self.lookees[avId]
-        self.observe(PetObserve.PetActionObserve(PetObserve.Actions.ATTENDING_STOP, avId))
+        self.observe(PetObserve.PetActionObserve(PetObserve.EAction.ATTENDING_STOP, avId))
 
     def _handleLookedAtByOtherStart(self, avId):
         if avId in self.lookers:
             PetBrain.notify.warning('%s: av %s already looking at me' % (self.pet.doId, avId))
             return
         self.lookers[avId] = avId
-        self.observe(PetObserve.PetActionObserve(PetObserve.Actions.ATTENDED_START, avId))
+        self.observe(PetObserve.PetActionObserve(PetObserve.EAction.ATTENDED_START, avId))
 
     def _handleLookedAtByOtherStop(self, avId):
         if avId not in self.lookers:
             PetBrain.notify.warning('%s: av %s not looking at me' % (self.pet.doId, avId))
             return
         del self.lookers[avId]
-        self.observe(PetObserve.PetActionObserve(PetObserve.Actions.ATTENDED_STOP, avId))
+        self.observe(PetObserve.PetActionObserve(PetObserve.EAction.ATTENDED_STOP, avId))
 
     def lookedAtBy(self, avId):
         return avId in self.lookers
@@ -271,7 +271,7 @@ class PetBrain(DirectObject.DirectObject):
     def _handleActionObserve(self, observe):
         action = observe.getAction()
         avId = observe.getAvId()
-        OA = PetObserve.Actions
+        OA = PetObserve.EAction
         dbg = PetBrain.notify.debug
         if action == OA.ATTENDED_START:
             dbg('avatar %s is looking at me' % avId)
@@ -408,7 +408,7 @@ class PetBrain(DirectObject.DirectObject):
                     if not self.goalMgr.hasTrickGoal():
                         if not self.pet._willDoTrick(trickId):
                             self.pet.trickFailLogger.addEvent(trickId)
-                            trickId = PetTricks.Tricks.BALK
+                            trickId = PetTricks.ETrick.BALK
                         trickGoal = PetGoal.DoTrick(avatar, trickId)
                         self.goalMgr.addGoal(trickGoal)
 

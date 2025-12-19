@@ -1,4 +1,4 @@
-from enum import Enum
+import enum
 from panda3d.core import TextNode, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *

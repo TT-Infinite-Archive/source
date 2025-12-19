@@ -157,10 +157,10 @@ class CogdoMazeLocalPlayer(CogdoMazePlayer):
             self.hints['throw'] = True
 
     def hitSuit(self, suitType):
-        if suitType == Globals.SuitTypes.Boss and not self.hints['boss']:
+        if suitType == Globals.ESuitType.BOSS and not self.hints['boss']:
             self._guiMgr.setMessageTemporary(TTLocalizer.CogdoMazeBossHint, Globals.HintTimeout)
             self.hints['boss'] = True
-        if suitType != Globals.SuitTypes.Boss and not self.hints['minion']:
+        if suitType != Globals.ESuitType.BOSS and not self.hints['minion']:
             self._guiMgr.setMessageTemporary(TTLocalizer.CogdoMazeMinionHint, Globals.HintTimeout)
             self.hints['minion'] = True
 

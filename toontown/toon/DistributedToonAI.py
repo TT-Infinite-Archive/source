@@ -38,7 +38,6 @@ from toontown.hood import ZoneUtil
 from toontown.minigame import MinigameCreatorAI
 from toontown.parties import PartyGlobals
 from toontown.parties.InviteInfo import InviteInfoBase
-from toontown.parties.PartyGlobals import InviteStatus
 from toontown.parties.PartyInfo import PartyInfoAI
 from toontown.parties.PartyReplyInfo import PartyReplyInfoBase
 from toontown.quest import QuestRewardCounter
@@ -305,7 +304,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             isInEstate = self.isInEstate()
             wasInEstate = self.wasInEstate()
             if isInEstate or wasInEstate:
-                PetObserve.send(self.estateZones, PetObserve.PetActionObserve(PetObserve.Actions.LOGOUT, self.doId))
+                PetObserve.send(self.estateZones, PetObserve.PetActionObserve(PetObserve.EAction.LOGOUT, self.doId))
                 if wasInEstate:
                     self.cleanupEstateData()
 
@@ -422,7 +421,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             broadcastZones = [oldZoneId, newZoneId]
             if self.isInEstate() or self.wasInEstate():
                 broadcastZones = union(broadcastZones, self.estateZones)
-            PetObserve.send(broadcastZones, PetObserve.PetActionObserve(PetObserve.Actions.CHANGE_ZONE, self.doId, (oldZoneId, newZoneId)))
+            PetObserve.send(broadcastZones, PetObserve.PetActionObserve(PetObserve.EAction.CHANGE_ZONE, self.doId, (oldZoneId, newZoneId)))
 
     def checkAccessorySanity(self, accessoryType, idx, textureIdx, colorIdx):
         if idx == 0 and textureIdx == 0 and colorIdx == 0:
@@ -3749,7 +3748,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def sendGardenEvent(self):
         if hasattr(self, 'estateZones') and hasattr(self, 'doId'):
             if simbase.wantPets and self.hatePets:
-                PetObserve.send(self.estateZones, PetObserve.PetActionObserve(PetObserve.Actions.GARDEN, self.doId))
+                PetObserve.send(self.estateZones, PetObserve.PetActionObserve(PetObserve.EAction.GARDEN, self.doId))
 
     def setGardenStarted(self, bStarted):
         self.gardenStarted = bStarted
@@ -3977,7 +3976,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def getNumNonResponseInvites(self):
         count = 0
         for i in range(len(self.invites)):
-            if self.invites[i].status == EInviteStatus.NOT_READ or self.invites[i].status == EInviteStatus.READ_BUT_NOT_REPLIED:
+            if self.invites[i].status == PartyGlobals.EInviteStatus.NOT_READ or self.invites[i].status == PartyGlobals.EInviteStatus.READ_BUT_NOT_REPLIED:
                 count += 1
 
         return count
@@ -3986,7 +3985,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         result = []
         for invite in self.invites:
             appendInvite = True
-            if invite.status == EInviteStatus.ACCEPTED or invite.status == EInviteStatus.REJECTED:
+            if invite.status == PartyGlobals.EInviteStatus.ACCEPTED or invite.status == PartyGlobals.EInviteStatus.REJECTED:
                 appendInvite = False
             if appendInvite:
                 partyInfo = self.getOnePartyInvitedTo(invite.partyId)

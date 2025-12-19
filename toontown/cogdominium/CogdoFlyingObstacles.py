@@ -1,11 +1,11 @@
-from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, LinearVectorForce, SparkleParticleRenderer
-from panda3d.core import BitMask32, CollideMask, CollisionNode, CollisionSphere, CollisionTube, NodePath, Point3, TextureStage, TransformState, Vec3
+import enum
 import random
+from panda3d.physics import BaseParticleEmitter, BaseParticleRenderer, LinearVectorForce, SparkleParticleRenderer
+from panda3d.core import BitMask32, CollisionNode, CollisionSphere, CollisionTube, NodePath, Point3, TransformState, Vec3
 from direct.showbase.DirectObject import DirectObject
 from direct.interval.IntervalGlobal import LerpFunc, ActorInterval, LerpPosInterval
 from direct.interval.MetaInterval import Sequence
 from direct.directutil import Mopath
-from direct.showbase import PythonUtil
 from toontown.toonbase import ToontownGlobals
 from toontown.suit import Suit
 from toontown.suit import SuitDNA
@@ -89,10 +89,14 @@ class CogdoFlyingObstacleFactory:
         return self.f
 
 
+class EMotionType(enum.Enum):
+    BACK_FORTH = 0
+    LOOP = 1
+
+
 class CogdoFlyingObstacle(DirectObject):
     EnterEventName = 'CogdoFlyingObstacle_Enter'
     ExitEventName = 'CogdoFlyingObstacle_Exit'
-    MotionTypes = PythonUtil.Enum(('BackForth', 'Loop'))
 
     def __init__(self, type, index, model, collSolid, motionPath = None, motionPattern = None, blendMotion = True, instanceModel = True):
         self.type = type
@@ -126,7 +130,7 @@ class CogdoFlyingObstacle(DirectObject):
             self.motionSequence = Sequence(name='%s.obstacle-%i-motionSequence' % (self.__class__.__name__, self.index))
             movePart1 = LerpFunc(moveObstacle, fromData=0.0, toData=self.motionPath.getMaxT(), duration=dur, blendType=blendType)
             self.motionSequence.append(movePart1)
-            if self.motionPattern == CogdoFlyingObstacle.MotionTypes.BackForth:
+            if self.motionPattern == CogdoFlyingObstacle.EMotionType.BACK_FORTH:
                 movePart2 = LerpFunc(moveObstacle, fromData=self.motionPath.getMaxT(), toData=0.0, duration=dur, blendType=blendType)
                 self.motionSequence.append(movePart2)
         return
@@ -146,23 +150,19 @@ class CogdoFlyingObstacle(DirectObject):
     def disable(self):
         if self.collNode is not None:
             self.collNode.setIntoCollideMask(BitMask32(0))
-        return
 
     def enable(self):
         if self.collNode is not None:
             self.collNode.setIntoCollideMask(ToontownGlobals.WallBitmask)
-        return
 
     def startMoving(self, elapsedTime = 0.0):
         if self.motionSequence is not None:
             self.motionSequence.loop()
             self.motionSequence.setT(elapsedTime % self.motionSequence.getDuration())
-        return
 
     def stopMoving(self):
         if self.motionSequence is not None:
             self.motionSequence.pause()
-        return
 
     def destroy(self):
         self.ignoreAll()
@@ -176,7 +176,6 @@ class CogdoFlyingObstacle(DirectObject):
         self.model.removeNode()
         del self.model
         del self.motionPath
-        return
 
     def update(self, dt):
         pass
@@ -198,7 +197,7 @@ class CogdoFlyingWhirlwind(CogdoFlyingObstacle):
 
     def __init__(self, index, model, motionPath = None):
         collSolid = CollisionTube(0, 0, 0, 0, 0, Globals.Gameplay.WhirlwindCollisionTubeHeight, Globals.Gameplay.WhirlwindCollisionTubeRadius)
-        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.WHIRLWIND, index, model, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.MotionTypes.BackForth)
+        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.WHIRLWIND, index, model, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.EMotionType.BACK_FORTH)
         self.t = 0.0
         self._initModel()
 
@@ -243,7 +242,7 @@ class CogdoFlyingMinion(CogdoFlyingObstacle):
         swapAvatarShadowPlacer(self.suit, 'minion-%sShadowPlacer' % index)
         self.mopathNodePath = NodePath('mopathNodePath')
         self.suit.reparentTo(self.mopathNodePath)
-        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.MINION, index, self.mopathNodePath, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.MotionTypes.Loop, blendMotion=False, instanceModel=False)
+        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.MINION, index, self.mopathNodePath, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.EMotionType.LOOP, blendMotion=False, instanceModel=False)
         self.lastPos = None
         self.suit.loop('neutral')
         return

@@ -1,27 +1,26 @@
-from panda3d.core import CollisionSolid
-import CutScene
-import EntityCreatorBase
-import BasicEntities
-from direct.directnotify import DirectNotifyGlobal
-import EditMgr
-import EntrancePoint
-import LevelMgr
-import LogicGate
-import ZoneEntity
-import ModelEntity
-import PathEntity
-import VisibilityExtender
-import PropSpinner
-import AmbientSound
-import LocatorEntity
-import CollisionSolidEntity
+from . import CutScene
+from . import EntityCreatorBase
+from . import BasicEntities
+from . import EditMgr
+from . import EntrancePoint
+from . import LevelMgr
+from . import LogicGate
+from . import ZoneEntity
+from . import ModelEntity
+from . import PathEntity
+from . import VisibilityExtender
+
+from . import PropSpinner
+from . import AmbientSound
+from . import LocatorEntity
+from . import CollisionSolidEntity
 
 def nothing(*args):
     return 'nothing'
 
 
-def nonlocal(*args):
-    return 'nonlocal'
+def notlocal(*args):
+    return 'notlocal'
 
 
 class EntityCreator(EntityCreatorBase.EntityCreatorBase):

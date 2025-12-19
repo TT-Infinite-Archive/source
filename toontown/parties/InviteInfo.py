@@ -1,19 +1,20 @@
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
-from toontown.parties.PartyGlobals import InviteStatus
+from toontown.parties.PartyGlobals import EInviteStatus
 from toontown.toonbase import TTLocalizer
 
 class InviteInfoBase:
 
     def __init__(self, inviteKey, partyId, status):
-        self.inviteKey = inviteKey
+        self.inviteKey = inviteK
+        ey
         self.partyId = partyId
         self.status = status
 
     def __str__(self):
         string = 'inviteKey=%d ' % self.inviteKey
         string += 'partyId=%d ' % self.partyId
-        string += 'status=%s' % InviteStatus(self.status).name
+        string += 'status=%s' % EInviteStatus(self.status).name
         return string
 
     def __repr__(self):

@@ -1,3 +1,6 @@
+import enum
+
+
 from toontown.toonbase import ToontownGlobals
 
 

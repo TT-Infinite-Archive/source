@@ -1,11 +1,11 @@
-from panda3d.core import CollideMask, CollisionNode, CollisionTube
+from panda3d.core import CollisionNode, CollisionTube
 from direct.actor.Actor import Actor
 from direct.task.Task import Task
-from otp.otpbase.OTPBase import OTPBase
+
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
-from toontown.parties.PartyGlobals import EActivityId, ActivityTypes, JUKEBOX_TIMEOUT
+from toontown.parties.PartyGlobals import EActivityId, EActivityType, JUKEBOX_TIMEOUT
 from toontown.parties.PartyGlobals import getMusicRepeatTimes, MUSIC_PATH, sanitizePhase
 from toontown.parties.JukeboxGui import JukeboxGui
 

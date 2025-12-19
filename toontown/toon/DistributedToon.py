@@ -49,9 +49,8 @@ from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
 from toontown.nametag import NametagGlobals
 from toontown.nametag.NametagGlobals import *
-from toontown.parties import PartyGlobals
 from toontown.parties.InviteInfo import InviteInfo
-from toontown.parties.PartyGlobals import InviteStatus, PartyStatus
+from toontown.parties.PartyGlobals import EInviteStatus, EPartyStatus
 from toontown.parties.PartyInfo import PartyInfo
 from toontown.parties.PartyReplyInfo import PartyReplyInfoBase
 from toontown.parties.SimpleMailBase import SimpleMailBase
@@ -2513,9 +2512,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         newInvites = 0
         readButNotRepliedInvites = 0
         for invite in invitesInMailbox:
-            if invite.status == PartyGlobals.EInviteStatus.NOT_READ:
+            if invite.status == EInviteStatus.NOT_READ:
                 newInvites += 1
-            elif invite.status == PartyGlobals.EInviteStatus.READ_BUT_NOT_REPLIED:
+            elif invite.status == EInviteStatus.READ_BUT_NOT_REPLIED:
                 readButNotRepliedInvites += 1
             if __dev__:
                 partyInfo = self.getOnePartyInvitedTo(invite.partyId)
@@ -2540,7 +2539,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 if not partyInfo:
                     appendInvite = False
                 if appendInvite:
-                    if partyInfo.status == PartyGlobals.EPartyStatus.CANCELLED:
+                    if partyInfo.status == EPartyStatus.CANCELLED:
                         appendInvite = False
                 if appendInvite:
                     endDate = partyInfo.endTime.date()
@@ -2605,7 +2604,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         DistributedToon.partyNotify.debug('setPartyCanStart called passing in partyId=%s' % partyId)
         for partyInfo in self.hostedParties:
             if partyInfo.partyId == partyId:
-                partyInfo.status = PartyGlobals.EPartyStatus.CAN_START
+                partyInfo.status = EPartyStatus.CAN_START
                 from toontown.shtiker import EventsPage
                 if hasattr(self, 'eventsPage') and base.localAvatar.book.entered and base.localAvatar.book.isOnPage(self.eventsPage) and self.eventsPage.getMode() == EventsPage.EventsPage_Host:
                     base.localAvatar.eventsPage.loadHostedPartyInfo()
@@ -2663,7 +2662,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                                 self.whisperSCTo(5302, toonId, 0)
 
     def updateInvite(self, inviteKey, newStatus):
-        DistributedToon.partyNotify.debug('updateInvite( inviteKey=%d, newStatus=%s )' % (inviteKey, InviteStatus.getString(newStatus)))
+        DistributedToon.partyNotify.debug('updateInvite( inviteKey=%d, newStatus=%s )' % (inviteKey, EInviteStatus(newStatus).name))
         for invite in self.invites:
             if invite.inviteKey == inviteKey:
                 invite.status = newStatus
@@ -2671,7 +2670,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 break
 
     def updateReply(self, partyId, inviteeId, newStatus):
-        DistributedToon.partyNotify.debug('updateReply( partyId=%d, inviteeId=%d, newStatus=%s )' % (partyId, inviteeId, InviteStatus.getString(newStatus)))
+        DistributedToon.partyNotify.debug('updateReply( partyId=%d, inviteeId=%d, newStatus=%s )' % (partyId, inviteeId, EInviteStatus(newStatus).name))
         for partyReplyInfoBase in self.partyReplyInfoBases:
             if partyReplyInfoBase.partyId == partyId:
                 for reply in partyReplyInfoBase.replies:

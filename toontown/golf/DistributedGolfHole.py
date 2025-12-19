@@ -2,7 +2,6 @@ from panda3d.ode import OdeRayGeom
 from panda3d.direct import WaitInterval
 from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionSegment, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, ConfigVariableDouble, Mat3, NodePath, Point3, Quat, TextNode, TransparencyAttrib, VBase4, Vec3, Vec4, deg2Rad
 import math
-    Mat3, NodePath, VBase4, CollisionTraverser, CollisionSegment, CollisionNode, CollisionHandlerQueue
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
@@ -21,7 +20,6 @@ from toontown.golf import GolfHoleBase
 from toontown.distributed import DelayDelete
 import sys
 
-if sys.platform != 'android':
 
 class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, GolfHoleBase.GolfHoleBase):
     defaultTransitions = {'Off': ['Cleanup', 'ChooseTee', 'WatchTee'],

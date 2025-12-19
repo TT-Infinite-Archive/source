@@ -6,7 +6,6 @@ from toontown.minigame import IceGameGlobals
 from toontown.golf import BuildGeometry
 import sys
 
-if sys.platform != 'android':
 
 MetersToFeet = 3.2808399
 FeetToMeters = 1.0 / MetersToFeet

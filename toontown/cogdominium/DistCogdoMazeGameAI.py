@@ -126,7 +126,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
         taskMgr.add(self.__timeWarningTask, self.taskName('time-warning-task'))
 
     def clientCountdown(self, task):
-        self.doAction(CogdoMazeGameGlobals.GameActions.Countdown, 0)
+        self.doAction(CogdoMazeGameGlobals.EGameAction.COUNTDOWN, 0)
         return task.done
 
     def __handleGameOver(self):
@@ -140,7 +140,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
         bossesLeft = self.bosses
         if len(bossesLeft) == 0:
             self.timer.stop()
-            self.doAction(CogdoMazeGameGlobals.GameActions.OpenDoor, 0)
+            self.doAction(CogdoMazeGameGlobals.EGameAction.OPEN_DOOR, 0)
             self.__startTimeout()
             return task.done
 
@@ -159,7 +159,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
 
     def __timeWarningTask(self, task):
         if self.timer.getT() <= CogdoMazeGameGlobals.SecondsForTimeAlert:
-            self.doAction(CogdoMazeGameGlobals.GameActions.TimeAlert, 0)
+            self.doAction(CogdoMazeGameGlobals.EGameAction.TIME_ALERT, 0)
             return task.done
 
         return task.again
@@ -193,7 +193,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
     def requestAction(self, action, data):
         Globals = CogdoMazeGameGlobals
         avId = self.air.getAvatarIdFromSender()
-        if action == Globals.GameActions.RevealDoor:
+        if action == Globals.EGameAction.REVEAL_DOOR:
             if not self.doorRevealed:
                 self.doAction(action, avId)
                 self.doorRevealed = True
@@ -201,7 +201,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
             else:
                 self.notify.warning('Toon tried to reveal door but it\'s already revealed! Ignoring.')
 
-        elif action == Globals.GameActions.EnterDoor:
+        elif action == Globals.EGameAction.ENTER_DOOR:
             if not avId in self.toonsInDoor:
                 self.doAction(action, avId)
                 self.toonsInDoor.append(avId)

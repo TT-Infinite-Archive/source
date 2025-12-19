@@ -1,5 +1,4 @@
 from panda3d.core import GeomNode, NodePath, Plane, PlaneNode, Point3
-from direct.showbase.ShowBase import Plane
 from direct.showbase.RandomNumGen import RandomNumGen
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Func, Wait
@@ -82,7 +81,7 @@ class CogdoMazeGameIntro(CogdoGameMovie):
         audioMgr = base.cogdoGameAudioMgr
         self._cogDialogueSfx = audioMgr.createSfx('cogDialogue')
         self._toonDialogueSfx = audioMgr.createSfx('toonDialogue')
-        suitData = Globals.SuitData[Globals.SuitTypes.Boss]
+        suitData = Globals.SuitData[Globals.ESuitType.BOSS]
         bossSuit = Suit.Suit()
         d = SuitDNA.SuitDNA()
         d.newSuit(suitData['dnaName'])

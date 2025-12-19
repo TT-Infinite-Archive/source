@@ -1,10 +1,16 @@
+import enum
 from panda3d.core import VBase4
 from direct.showbase import PythonUtil
-GameActions = PythonUtil.Enum(('EnterDoor',
- 'RevealDoor',
- 'OpenDoor',
- 'Countdown',
- 'TimeAlert'))
+
+
+class EGameAction(enum.IntEnum):
+    ENTER_DOOR = 0
+    REVEAL_DOOR = 1
+    OPEN_DOOR = 2
+    COUNTDOWN = 3
+    TIME_ALERT = 4
+
+
 SecondsUntilTimeout = 4.0 * 60.0
 SecondsUntilGameEnds = 60.0
 SecondsForTimeAlert = 60.0
@@ -81,21 +87,26 @@ PickupsUntilDoorOpens = int(NumPickups * 0.6)
 SuitCollisionName = 'CogdoMazeSuit_Collision'
 SuitWalkSameDirectionProb = 1
 SuitWalkTurnAroundProb = 100
-SuitTypes = PythonUtil.Enum(('Boss', 'FastMinion', 'SlowMinion'))
+
+class ESuitType(enum.Enum):
+    BOSS = 0
+    FAST_MINION = 1
+    SLOW_MINION = 2
+
 SuitData = {}
-SuitData[SuitTypes.Boss] = {'dnaName': 'ms',
+SuitData[ESuitType.BOSS] = {'dnaName': 'ms',
  'cellWalkPeriod': 192,
  'toonDamage': 3.0,
  'scale': 2.5,
  'hp': 2,
  'memos': 0}
-SuitData[SuitTypes.FastMinion] = {'dnaName': 'nd',
+SuitData[ESuitType.FAST_MINION] = {'dnaName': 'nd',
  'cellWalkPeriod': 64,
  'toonDamage': 1.0,
  'scale': 1.3,
  'hp': 1,
  'memos': 3}
-SuitData[SuitTypes.SlowMinion] = {'dnaName': 'cc',
+SuitData[ESuitType.SLOW_MINION] = {'dnaName': 'cc',
  'cellWalkPeriod': 160,
  'toonDamage': 2.0,
  'scale': 1.33,

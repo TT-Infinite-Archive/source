@@ -190,7 +190,7 @@ class DistributedPet(DistributedSmoothNode.DistributedSmoothNode, Pet.Pet, PetBa
             if self.trickIval is not None and self.trickIval.isPlaying():
                 self.trickIval.finish()
             self.trickIval = PetTricks.getTrickIval(self, trickId)
-            if trickId == PetTricks.Tricks.BALK:
+            if trickId == PetTricks.ETrick.BALK:
                 mood = self.getDominantMood()
                 self.trickIval = Parallel(self.trickIval, Sequence(Func(self.handleMoodChange, 'confusion'), Wait(1.0), Func(self.handleMoodChange, mood)))
             self.trickIval.start(globalClockDelta.localElapsedTime(timestamp))

@@ -4,7 +4,6 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import globalClockDelta
 import sys
 
-if sys.platform != 'android':
 
 class MinigamePhysicsWorldBase:
     notify = DirectNotifyGlobal.directNotify.newCategory('MinigamePhysicsWorldBase')

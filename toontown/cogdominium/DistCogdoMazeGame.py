@@ -208,17 +208,17 @@ class DistCogdoMazeGame(DistCogdoGame, DistCogdoMazeGameBase):
     def doAction(self, action, data, networkTime):
         if not self._gameInProgress():
             return
-        if action == Globals.GameActions.RevealDoor:
+        if action == Globals.EGameAction.REVEAL_DOOR:
             self.game.toonRevealsDoor(data)
-        elif action == Globals.GameActions.EnterDoor:
+        elif action == Globals.EGameAction.ENTER_DOOR:
             self.game.toonEntersDoor(data)
-        elif action == Globals.GameActions.OpenDoor:
+        elif action == Globals.EGameAction.OPEN_DOOR:
             timeLeft = Globals.SecondsUntilGameEnds - globalClockDelta.localElapsedTime(networkTime)
             self.game.openDoor(timeLeft)
-        elif action == Globals.GameActions.Countdown:
+        elif action == Globals.EGameAction.COUNTDOWN:
             countdownTimeLeft = Globals.SecondsUntilTimeout
             self.game.countdown(countdownTimeLeft)
-        elif action == Globals.GameActions.TimeAlert:
+        elif action == Globals.EGameAction.TIME_ALERT:
             self.game.timeAlert()
 
     def setToonSad(self, toonId):

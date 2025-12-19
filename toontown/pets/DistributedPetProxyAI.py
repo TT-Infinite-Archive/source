@@ -431,7 +431,7 @@ class DistributedPetProxyAI(DistributedObjectAI.DistributedObjectAI):
 
     def _handleDidTrick(self, trickId):
         DistributedPetProxyAI.notify.debug('_handleDidTrick: %s' % trickId)
-        if trickId == PetTricks.Tricks.BALK:
+        if trickId == PetTricks.ETrick.BALK:
             return
         aptitude = self.getTrickAptitude(trickId)
         self.setTrickAptitude(trickId, aptitude + PetTricks.AptitudeIncrementDidTrick)

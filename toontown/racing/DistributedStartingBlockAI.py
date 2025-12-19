@@ -1,6 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from toontown.racing.KartShopGlobals import KartGlobals
+from toontown.racing.KartShopGlobals import EKartErrorCode, KartGlobals
 from toontown.racing import RaceGlobals
 
 class DistributedStartingBlockAI(DistributedObjectAI):
@@ -38,18 +38,18 @@ class DistributedStartingBlockAI(DistributedObjectAI):
         if not av:
             return
         if not av.hasKart():
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [KartGlobals.ERROR_CODE.eNoKart])
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.NO_KART])
             return
         if av.getTickets() < RaceGlobals.getEntryFee(self.pad.trackId, self.pad.trackType):
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [KartGlobals.ERROR_CODE.eTickets])
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.NOT_ENOUGH_TICKETS])
             return        
         if self.pad.state == 'AllAboard' or self.pad.state == 'WaitBoarding' :
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [KartGlobals.ERROR_CODE.eBoardOver])
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.BOARD_OVER])
             return
         if self.avId != 0:
             if self.avId == avId:
                 self.air.writeServerEvent('suspicious', avId, 'Toon tried to board the same starting block twice!')
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [KartGlobals.ERROR_CODE.eOccupied])
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.OCCUPIED])
             return
         self.b_setOccupied(avId)
         self.b_setMovie(KartGlobals.ENTER_MOVIE)
@@ -108,12 +108,12 @@ class DistributedViewingBlockAI(DistributedStartingBlockAI):
         avId = self.air.getAvatarIdFromSender()
         av = self.air.doId2do[avId]
         if not av.hasKart():
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [KartGlobals.ERROR_CODE.eNoKart])
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.NO_KART])
             return
         if self.avId != 0:
             if self.avId == avId:
                 self.air.writeServerEvent('suspicious', avId, 'Toon tried to board the same starting block twice!')
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [KartGlobals.ERROR_CODE.eOccupied])
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.OCCUPIED])
             return
         self.b_setOccupied(avId)
         self.b_setMovie(KartGlobals.ENTER_MOVIE)

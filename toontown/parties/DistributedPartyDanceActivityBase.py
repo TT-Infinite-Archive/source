@@ -1,24 +1,30 @@
+import enum
+
 from panda3d.core import NodePath, Point3, Vec3
-import random
 from direct.interval.FunctionInterval import Wait, Func
 from direct.interval.MetaInterval import Sequence, Parallel
-from direct.showbase.PythonUtil import lerp, Enum
+from direct.showbase.PythonUtil import lerp
 from direct.fsm import FSM
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.minigame.OrthoDrive import OrthoDrive
 from toontown.minigame.OrthoWalk import OrthoWalk
 from toontown.parties.activityFSMs import DanceActivityFSM
-from toontown.parties.PartyGlobals import EActivityId, ActivityTypes
+
 from toontown.parties.PartyGlobals import DancePatternToAnims, DanceAnimToName
 from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
 from toontown.parties.PartyDanceActivityToonFSM import PartyDanceActivityToonFSM
-from toontown.parties.PartyDanceActivityToonFSM import ToonDancingStates
+from toontown.parties.PartyDanceActivityToonFSM import EToonDancingState
 from toontown.parties.KeyCodes import KeyCodes
 from toontown.parties.KeyCodesGui import KeyCodesGui
 from toontown.parties import PartyGlobals
 DANCE_FLOOR_COLLISION = 'danceFloor_collision'
-DanceViews = Enum(('Normal', 'Dancing', 'Isometric'))
+
+
+class EDanceView(enum.Enum):
+    NORMAL = 0
+    DANCING = 1
+
 
 class DistributedPartyDanceActivityBase(DistributedPartyActivity):
     notify = directNotify.newCategory('DistributedPartyDanceActivity')
@@ -37,7 +43,6 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
         self.localPatternsMatched = []
         self.dancePatternToAnims = dancePatternToAnims
         self.dancingToonFSMs = {}
-        return
 
     def generateInit(self):
         self.notify.debug('generateInit')
@@ -96,7 +101,6 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
         del self.activityFSM
         del self.gui
         del self.localPatternsMatched
-        return
 
     def handleToonDisabled(self, toonId):
         self.notify.debug('handleToonDisabled avatar ' + str(toonId) + ' disabled')
@@ -187,8 +191,6 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
                 if toonId == base.localAvatar.doId:
                     self._localToonRequestStatus = None
 
-        return
-
     def handleToonJoined(self, toonId, h):
         self.notify.debug('handleToonJoined( toonId=%d, h=%.2f )' % (toonId, h))
         if toonId in base.cr.doId2do:
@@ -204,8 +206,8 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
             if place and hasattr(place, 'fsm'):
                 self.localToonDancing = True
                 place.fsm.request('activity')
-                self.__updateLocalToonState(ToonDancingStates.Run)
-                self.__setViewMode(DanceViews.Dancing)
+                self.__updateLocalToonState(EToonDancingState.Run)
+                self.__setViewMode(EDanceView.DANCING)
                 self.gui.load()
                 self.startRules()
                 self.__localEnableControls()
@@ -245,7 +247,6 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
         self.finishRules()
         self.notify.debug('Toon exits dance floor collision area.')
         self.d_toonExitRequest()
-        return
 
     def exitRequestDenied(self, reason):
         DistributedPartyActivity.exitRequestDenied(self, reason)
@@ -261,8 +262,8 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
         if self.localToonDancing:
             self.__localDisableControls()
             self.gui.unload()
-            self.__setViewMode(DanceViews.Normal)
-            self.__updateLocalToonState(ToonDancingStates.Cleanup)
+            self.__setViewMode(EDanceView.NORMAL)
+            self.__updateLocalToonState(EToonDancingState.Cleanup)
             if base.cr.playGame.getPlace():
                 if hasattr(base.cr.playGame.getPlace(), 'fsm'):
                     base.cr.playGame.getPlace().fsm.request('walk')
@@ -272,7 +273,7 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
         self.notify.debug('Dance move! %s' % pattern)
         anim = self.dancePatternToAnims.get(pattern)
         if anim:
-            self.__updateLocalToonState(ToonDancingStates.DanceMove, anim)
+            self.__updateLocalToonState(EToonDancingState.DanceMove, anim)
             self.gui.setColor(0, 1, 0)
             self.gui.showText(DanceAnimToName.get(anim, anim))
             self.finishRules()
@@ -301,16 +302,16 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
     def __noDanceMoveMatch(self):
         self.gui.setColor(1, 0, 0)
         self.gui.showText('No Match!')
-        self.__updateLocalToonState(ToonDancingStates.DanceMove)
+        self.__updateLocalToonState(EToonDancingState.DanceMove)
         self.localToonDanceSequence = Sequence(Func(self.__localDisableControls), Wait(1.0), Func(self.__localEnableControls))
         self.localToonDanceSequence.start()
 
     def _handleKeyDown(self, key, index):
-        self.__updateLocalToonState(ToonDancingStates.Run)
+        self.__updateLocalToonState(EToonDancingState.Run)
 
     def _handleKeyUp(self, key):
         if not self.keyCodes.isAnyKeyPressed():
-            self.__updateLocalToonState(ToonDancingStates.DanceMove)
+            self.__updateLocalToonState(EToonDancingState.DanceMove)
             self.acceptOnce(KeyCodes.KEY_DOWN_EVENT, self._handleKeyDown)
 
     def __updateLocalToonState(self, state, anim = ''):
@@ -326,31 +327,30 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
 
     def _requestToonState(self, toonId, state, anim):
         if toonId in self.dancingToonFSMs:
-            state = ToonDancingStates.getString(state)
+            state = EToonDancingState(state).name
             curState = self.dancingToonFSMs[toonId].getCurrentOrNextState()
             try:
                 self.dancingToonFSMs[toonId].request(state, anim)
             except FSM.RequestDenied:
                 self.notify.warning('could not go from state=%s to state %s' % (curState, state))
 
-            if state == ToonDancingStates.getString(ToonDancingStates.Cleanup):
+            if state == EToonDancingState(EToonDancingState.Cleanup).name:
                 self.notify.debug('deleting this fsm %s' % self.dancingToonFSMs[toonId])
                 del self.dancingToonFSMs[toonId]
                 if self.localToonDanceSequence:
                     self.notify.debug('forcing a finish of localToonDanceSequence')
                     self.localToonDanceSequence.finish()
                     self.localToonDanceSequence = None
-        return
 
     def __setViewMode(self, mode):
         toon = base.localAvatar
-        if mode == DanceViews.Normal:
+        if mode == EDanceView.NORMAL:
             if self.cameraParallel is not None:
                 self.cameraParallel.pause()
                 self.cameraParallel = None
             base.camera.reparentTo(toon)
             base.localAvatar.startUpdateSmartCamera()
-        elif mode == DanceViews.Dancing:
+        elif mode == EDanceView.DANCING:
             base.localAvatar.stopUpdateSmartCamera()
             base.camera.wrtReparentTo(self.danceFloor)
             node = NodePath('temp')
@@ -366,4 +366,3 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
             self.cameraParallel = Parallel(base.camera.posInterval(0.5, pos, blendType='easeIn'), base.camera.hprInterval(0.5, Point3(0, -27, 0), other=toon.getParent(), blendType='easeIn'))
             self.cameraParallel.start()
         self.currentCameraMode = mode
-        return

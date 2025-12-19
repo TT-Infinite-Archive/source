@@ -589,7 +589,7 @@ class EDenialReasons(enum.IntEnum):
     SILENT_FAIL = 2
 
 
-class FireworkShows(enum.IntEnum):
+class EFireworkShow(enum.IntEnum):
     SUMMER = 200
 
 FireworksGlobalXOffset = 160.0
@@ -824,10 +824,13 @@ DanceReverseLoopAnims = ['left',
  'up',
  'down',
  'good-putt']
-ToonDancingStates = PythonUtil.Enum(('Init',
- 'DanceMove',
- 'Run',
- 'Cleanup'))
+
+class EToonDancingState(enum.Enum):
+    Init = 0
+    DanceMove = 1
+    Run = 2
+    Cleanup = 3
+
 JUKEBOX_TIMEOUT = 30.0
 MUSIC_PATH = 'phase_%s/audio/bgm/'
 MUSIC_MIN_LENGTH_SECONDS = 50.0

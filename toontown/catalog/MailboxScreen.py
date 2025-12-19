@@ -1,10 +1,9 @@
 from panda3d.core import ConfigVariableBool
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.gui.DirectGui import *
-from direct.showbase import DirectObject, PythonUtil
+from direct.showbase import DirectObject
 from toontown.parties import PartyGlobals
 from toontown.parties.InviteInfo import InviteInfoBase
-from toontown.parties.PartyGlobals import InviteStatus
 from toontown.parties.SimpleMailBase import SimpleMailBase
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.toontowngui import TTDialog

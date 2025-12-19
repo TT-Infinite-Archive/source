@@ -1,5 +1,5 @@
-from panda3d.core import AudioSound, CollideMask, CollisionNode, CollisionTube, TextNode
-from direct.actor.Actor import Actor, CollisionNode, CollisionTube
+from panda3d.core import CollisionNode, CollisionTube, TextNode
+from direct.actor.Actor import Actor
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed.DistributedObject import DistributedObject
 # from direct.filter.CommonFilters import CommonFilters

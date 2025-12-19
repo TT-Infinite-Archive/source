@@ -10,7 +10,6 @@ import random
 import math
 import sys
 
-if sys.platform != 'android':
 
 class GolfHoleBase:
 
@@ -21,6 +20,7 @@ class GolfHoleBase:
         self.holePositions = []
         self.grayCount = 0
         self.skyContact = None
+
         self.lastSkyContactPoint = None
         self.doingRecording = 0
         self.backAmount = 270
@@ -29,7 +29,6 @@ class GolfHoleBase:
         self.frame = 0
         self.onSlick = 0
         self.didHoleBreak = 0
-        return
 
     def loadLevel(self):
         tm = self.holeInfo['terrainModel']

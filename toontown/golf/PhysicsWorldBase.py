@@ -14,8 +14,6 @@ from . import BuildGeometry
 from toontown.golf import GolfGlobals
 import random, time, sys
 
-if sys.platform != 'android':
-
 def scalp(vec, scal):
     vec0 = vec[0] * scal
     vec1 = vec[1] * scal
