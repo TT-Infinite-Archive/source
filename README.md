@@ -6,6 +6,9 @@ This is an open-source archive of the offline / mini-server version of Toontown 
 
 While it's open source, it isn't an actively developed project with the intention of continuing the progress and vision of the original project. It is here merely as preservation, though it will recieve some fixes and updating to modern engine versions.
 
+## Contributing
+- AI Generated Code is not allowed*
 
+*\*AI Generated and AI Tool Assisted are different things. Use of AI assist tools such as autocomplete or a line or 2 here and there when it improves your code (such as a math function you might not know) is acceptable as long as the quality is good. Entirely generated methods, classes, modules, or assets are not allowed.*
 
 **Note:** Issues submitted in this repository are designed for *code related* issues and idea discussion _only_. Issues involving starting the game will be ignored. Please view the [dependencies]() (coming soon) page in the wiki for help starting Toontown Infinite.
