@@ -21,41 +21,41 @@ class DistCogdoFlyingGameAI(DistCogdoGameAI):
         if not av:
             return
 
-        if action == Globals.AI.GameActions.LandOnWinPlatform:
+        if action == Globals.EGameAction.LAND_ON_WIN_PLATFORM:
             self.completed.append(avId)
             for toon in self.toons:
                 if toon not in self.completed:
                     return
 
             self.gameDone()
-        elif action == Globals.AI.GameActions.BladeLost:
+        elif action == Globals.EGameAction.BLADE_LOST:
             self.sendUpdate('toonBladeLost', [avId])
-        elif action == Globals.AI.GameActions.SetBlades:
+        elif action == Globals.EGameAction.SET_BLADES:
             self.sendUpdate('toonSetBlades', [avId, data])
-        elif action == Globals.AI.GameActions.Died:
+        elif action == Globals.EGameAction.DIED:
             damage = Globals.AI.SafezoneId2DeathDamage[self.getSafezoneId()]
             self.takeDamage(av, damage)
             self.sendUpdate('toonDied', [avId, globalClockDelta.getRealNetworkTime()])
-        elif action == Globals.AI.GameActions.Spawn:
+        elif action == Globals.EGameAction.SPAWN:
             self.sendUpdate('toonSpawn', [avId, globalClockDelta.getRealNetworkTime()])
-        elif action == Globals.AI.GameActions.RequestEnterEagleInterest:
+        elif action == Globals.EGameAction.REQUEST_ENTER_EAGLE_INTEREST:
             if not self.eagles.get(data):
                 self.eagles[data] = avId
                 self.sendUpdate('toonSetAsEagleTarget', [avId, data, globalClockDelta.getRealNetworkTime()])
-        elif action == Globals.AI.GameActions.RequestExitEagleInterest:
+        elif action == Globals.EGameAction.REQUEST_EXIT_EAGLE_INTEREST:
             if self.eagles.get(data) == avId:
                 self.eagles[data] = 0
                 self.sendUpdate('toonClearAsEagleTarget', [avId, data, globalClockDelta.getRealNetworkTime()])
-        elif action == Globals.AI.GameActions.HitLegalEagle:
+        elif action == Globals.EGameAction.HIT_LEGAL_EAGLE:
             damage = Globals.AI.SafezoneId2LegalEagleDamage[self.getSafezoneId()]
             self.takeDamage(av, damage)
-        elif action == Globals.AI.GameActions.HitMinion:
+        elif action == Globals.EGameAction.HIT_MINION:
             damage = Globals.AI.SafezoneId2MinionDamage[self.getSafezoneId()]
             self.takeDamage(av, damage)
-        elif action == Globals.AI.GameActions.HitWhirlwind:
+        elif action == Globals.EGameAction.HIT_WHIRLWIND:
             damage = Globals.AI.SafezoneId2WhirlwindDamage[self.getSafezoneId()]
             self.takeDamage(av, damage)
-        elif action == Globals.AI.GameActions.RanOutOfTimePenalty:
+        elif action == Globals.EGameAction.RAN_OUT_OF_TIME_PENALTY:
             damage = int(20 * self.getDifficulty())
             self.takeDamage(av, damage)
         else:
@@ -69,9 +69,9 @@ class DistCogdoFlyingGameAI(DistCogdoGameAI):
 
         if pickupType <= len(Globals.Level.GatherableTypes):
             self.sendUpdate('pickUp', [avId, pickupNum, globalClockDelta.getRealNetworkTime()])
-            if pickupType == Globals.Level.GatherableTypes.LaffPowerup:
+            if pickupType == Globals.EGatherableType.LAFF_POWERUP:
                 av.toonUp(int(27 * self.getDifficulty()) + 3)
-            if pickupType == Globals.Level.GatherableTypes.Memo:
+            if pickupType == Globals.EGatherableType.MEMO:
                 self.totalMemos += 1
         else:
             self.notify.warning('Client requested unknown pickup: %s' % pickupType)

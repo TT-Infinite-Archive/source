@@ -21,7 +21,7 @@ class PartyEditorListElement(DirectButton):
              (0.0, 0.0, 1.0, 1.0),
              (0.0, 1.0, 1.0, 1.0),
              (0.5, 0.5, 0.5, 1.0))
-            assetName = PartyGlobals.DecorationIds.getString(self.id)
+            assetName = PartyGlobals.EDecorationId(self.id).name
             if assetName == 'Hydra':
                 assetName = 'StageSummer'
             geom = self.partyEditor.decorationModels.find('**/partyDecoration_%s' % assetName)
@@ -40,7 +40,7 @@ class PartyEditorListElement(DirectButton):
                 geom_pos = (0.0, 0.0, -3.0)
                 geom3_color = (0.5, 0.5, 0.5, 1.0)
                 scale = Vec3(0.06, 0.0001, 0.06)
-                if self.id in [PartyGlobals.DecorationIds.CogStatueVictory, PartyGlobals.DecorationIds.TubeCogVictory, PartyGlobals.DecorationIds.CogIceCreamVictory]:
+                if self.id in [PartyGlobals.EDecorationId.CogStatueVictory, PartyGlobals.EDecorationId.TubeCogVictory, PartyGlobals.EDecorationId.CogIceCreamVictory]:
                     geom_pos = (0.0, 0.0, -3.9)
                     scale = Vec3(0.05, 0.0001, 0.05)
         else:
@@ -49,11 +49,11 @@ class PartyEditorListElement(DirectButton):
              (0.0, 1.0, 0.0, 1.0),
              (1.0, 1.0, 0.0, 1.0),
              (0.5, 0.5, 0.5, 1.0))
-            iconString = PartyGlobals.ActivityIds.getString(self.id)
-            if self.id == PartyGlobals.ActivityIds.PartyJukebox40:
-                iconString = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyJukebox)
-            elif self.id == PartyGlobals.ActivityIds.PartyDance20:
-                iconString = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyDance)
+            iconString = PartyGlobals.EActivityId(self.id).name
+            if self.id == PartyGlobals.EActivityId.PartyJukebox40:
+                iconString = PartyGlobals.EActivityId(PartyGlobals.EActivityId.PartyJukebox).name
+            elif self.id == PartyGlobals.EActivityId.PartyDance20:
+                iconString = PartyGlobals.EActivityId(PartyGlobals.EActivityId.PartyDance).name
             geom = getPartyActivityIcon(self.partyEditor.activityIconsModel, iconString)
             scale = 0.35
             geom3_color = (0.5, 0.5, 0.5, 1.0)
@@ -87,11 +87,11 @@ class PartyEditorListElement(DirectButton):
         if base.cr.partyManager.allowUnreleasedClient():
             self.unreleased = False
         elif self.isDecoration:
-            self.unreleased = id in PartyGlobals.UnreleasedDecorationIds
+            self.unreleased = id in PartyGlobals.UnreleasedEDecorationId
         elif base.wantSinglePlayer:
-            self.unreleased = id in PartyGlobals.UnreleasedActivityIdsSP
+            self.unreleased = id in PartyGlobals.UnreleasedEActivityIdSP
         else:
-            self.unreleased = id in PartyGlobals.UnreleasedActivityIds
+            self.unreleased = id in PartyGlobals.UnreleasedEActivityId
         return self.unreleased
 
     def adjustForUnreleased(self):

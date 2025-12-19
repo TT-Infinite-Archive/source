@@ -6,7 +6,7 @@ class DistributedPartyValentineDance20Activity(DistributedPartyDanceActivityBase
     notify = directNotify.newCategory('DistributedPartyValentineDance20Activity')
 
     def __init__(self, cr):
-        DistributedPartyDanceActivityBase.__init__(self, cr, PartyGlobals.ActivityIds.PartyDance20, PartyGlobals.DancePatternToAnims20, model='phase_13/models/parties/tt_m_ara_pty_danceFloorValentine')
+        DistributedPartyDanceActivityBase.__init__(self, cr, PartyGlobals.EActivityId.PartyDance20, PartyGlobals.DancePatternToAnims20, model='phase_13/models/parties/tt_m_ara_pty_danceFloorValentine')
 
     def getInstructions(self):
         return TTLocalizer.PartyDanceActivity20Instructions

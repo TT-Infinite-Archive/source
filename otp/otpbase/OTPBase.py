@@ -1,4 +1,4 @@
-from panda3d.core import ColorWriteAttrib, ConfigVariable, ConfigVariableBool, ConfigVariableDouble, DisplayRegion, Filename, NodePath, StereoDisplayRegion, TPLow, VBase4, Vec4, getModelPath
+from panda3d.core import ColorWriteAttrib, ConfigVariableBool, ConfigVariableDouble, Filename, NodePath, TPLow, VBase4, Vec4, getModelPath
 import math
 import re
 import time
@@ -10,7 +10,6 @@ from . import OTPGlobals
 from . import OTPRender
 from direct.showbase.ShowBase import ShowBase
 from otp.ai.MagicWordGlobal import *
-    getModelPath, NodePath, Vec4
 
 class OTPBase(ShowBase):
 
@@ -184,7 +183,7 @@ class OTPBase(ShowBase):
         return task.cont
 
     def hasInjector(self):
-        return hasattr(__builtin__, 'injector')
+        return hasattr(builtins, 'injector')
 
     def getShardPopLimits(self):
         return (100, 200, -1)

@@ -49,7 +49,7 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
             self.droppedObjCaught = {}
 
     def __init__(self, cr):
-        DistributedPartyActivity.__init__(self, cr, PartyGlobals.ActivityIds.PartyCatch, PartyGlobals.ActivityTypes.HostInitiated, wantRewardGui=True)
+        DistributedPartyActivity.__init__(self, cr, PartyGlobals.EActivityId.PartyCatch, PartyGlobals.EActivityType.HOST_INITIATED, wantRewardGui=True)
         self.setUsesSmoothing()
         self.setUsesLookAround()
         self._sNumGen = SerialNumGen()

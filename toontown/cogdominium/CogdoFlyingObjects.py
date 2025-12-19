@@ -171,7 +171,7 @@ class CogdoFlyingMemo(CogdoFlyingGatherableBase, CogdoMemo):
 
     def __init__(self, serialNum, model):
         CogdoMemo.__init__(self, serialNum, triggerRadius=Globals.Gameplay.MemoCollisionRadius, spinRate=Globals.Gameplay.MemoSpinRate, model=model)
-        CogdoFlyingGatherableBase.__init__(self, Globals.Level.GatherableTypes.Memo)
+        CogdoFlyingGatherableBase.__init__(self, Globals.EGatherableType.MEMO)
         self.floatTimer = 0.0
         self.floatSpeed = 1.0
         self.floatDuration = 2.0
@@ -270,7 +270,7 @@ class CogdoFlyingPowerup(CogdoFlyingGatherable):
 class CogdoFlyingPropeller(CogdoFlyingGatherable):
 
     def __init__(self, serialNum, model):
-        CogdoFlyingGatherable.__init__(self, Globals.Level.GatherableTypes.Propeller, serialNum, model, Globals.Gameplay.PropellerCollisionRadius, animate=False)
+        CogdoFlyingGatherable.__init__(self, Globals.EGatherableType.PROPELLER, serialNum, model, Globals.Gameplay.PropellerCollisionRadius, animate=False)
         self.activePropellers = []
         self.usedPropellers = []
         propellers = self._model.findAllMatches('**/propeller*')
@@ -377,7 +377,7 @@ class CogdoFlyingPlatform:
     CeilingCollName = 'col_ceiling'
     FloorCollName = 'col_floor'
 
-    def __init__(self, model, type = Globals.Level.PlatformTypes.Platform, parent = None):
+    def __init__(self, model, type = Globals.EPlatformType.PLATFORM, parent = None):
         self._model = model
         self._type = type
         if parent is not None:
@@ -421,10 +421,10 @@ class CogdoFlyingPlatform:
         return self._model
 
     def isStartPlatform(self):
-        return self._type == Globals.Level.PlatformTypes.StartPlatform
+        return self._type == Globals.EPlatformType.START_PLATFORM
 
     def isEndPlatform(self):
-        return self._type == Globals.Level.PlatformTypes.EndPlatform
+        return self._type == Globals.EPlatformType.END_PLATFORM
 
     def isStartOrEndPlatform(self):
         return self.isStartPlatform() or self.isEndPlatform()

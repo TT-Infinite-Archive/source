@@ -57,7 +57,7 @@ class DistCogdoFlyingGame(DistCogdoGame):
 
     def b_toonDied(self, toonId):
         self.game.toonDied(toonId, 0)
-        self.d_sendRequestAction(Globals.AI.GameActions.Died, 0)
+        self.d_sendRequestAction(Globals.EGameAction.DIED, 0)
 
     def toonSpawn(self, toonId, networkTime):
         if toonId != base.localAvatar.doId:
@@ -66,7 +66,7 @@ class DistCogdoFlyingGame(DistCogdoGame):
 
     def b_toonSpawn(self, toonId):
         self.game.toonSpawn(toonId, 0)
-        self.d_sendRequestAction(Globals.AI.GameActions.Spawn, 0)
+        self.d_sendRequestAction(Globals.EGameAction.SPAWN, 0)
 
     def pickUp(self, toonId, pickupNum, networkTime):
         if not self.getToon(base.localAvatar.doId):
@@ -83,7 +83,7 @@ class DistCogdoFlyingGame(DistCogdoGame):
 
     def b_toonSetBlades(self, toonId, fuelState):
         self.game.toonSetBlades(toonId, fuelState)
-        self.d_sendRequestAction(Globals.AI.GameActions.SetBlades, fuelState)
+        self.d_sendRequestAction(Globals.EGameAction.SET_BLADES, fuelState)
 
     def toonBladeLost(self, toonId):
         if toonId != base.localAvatar.doId:
@@ -91,7 +91,7 @@ class DistCogdoFlyingGame(DistCogdoGame):
 
     def b_toonBladeLost(self, toonId):
         self.game.toonBladeLost(toonId)
-        self.d_sendRequestAction(Globals.AI.GameActions.BladeLost, 0)
+        self.d_sendRequestAction(Globals.EGameAction.BLADE_LOST, 0)
 
     def getRemoteActionEventName(self):
         return self._remoteActionEventName

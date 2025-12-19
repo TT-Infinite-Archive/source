@@ -1,8 +1,57 @@
+import enum
 from panda3d.core import Point3, VBase4, Vec3
-from direct.showbase import PythonUtil
 from .CogdoUtil import VariableContainer, DevVariableContainer
+
+class EGameAction(enum.IntEnum):
+    LAND_ON_WIN_PLATFORM = 0
+    WIN_STATE_FINISHED = 1
+    GO_TO_WIN_STATE = 2
+    HIT_WHIRLWIND = 3
+    HIT_LEGAL_EAGLE = 4
+    HIT_MINION = 5
+    REQUEST_ENTER_EAGLE_INTEREST = 6
+    REQUEST_EXIT_EAGLE_INTEREST = 7
+    RAN_OUT_OF_TIME_PENALTY = 8
+    DIED = 9
+    SPAWN = 10
+    SET_BLADES = 11
+    BLADE_LOST = 12
+
+
+class EFuelState(enum.IntEnum):
+    NO_PROPELLER = 0
+    EMPTY = 1
+    VERY_LOW = 2
+    LOW = 3
+    NORMAL = 4
+
+
+class EBackpackState(enum.IntEnum):
+    NORMAL = 0
+    TARGETED = 1
+    ATTACKED = 2
+    REFUEL = 3
+
+
+class EGatherableType(enum.IntEnum):
+    MEMO = 0
+    PROPELLER = 1
+    LAFF_POWERUP = 2
+    INVUL_POWERUP = 3
+
+
+class EObstacleType(enum.IntEnum):
+    WHIRLWIND = 0
+    FAN = 1
+    MINION = 2
+
+class EPlatformType(enum.IntEnum):
+    PLATFORM = 0
+    START_PLATFORM = 1
+    END_PLATFORM = 2
+
+
 AI = VariableContainer()
-AI.GameActions = PythonUtil.Enum(('LandOnWinPlatform', 'WinStateFinished', 'GotoWinState', 'HitWhirlwind', 'HitLegalEagle', 'HitMinion', 'DebuffInvul', 'RequestEnterEagleInterest', 'RequestExitEagleInterest', 'RanOutOfTimePenalty', 'Died', 'Spawn', 'SetBlades', 'BladeLost'))
 AI.BroadcastPeriod = 0.3
 AI.SafezoneId2DeathDamage = {2000: 1,
  1000: 2,
@@ -107,7 +156,6 @@ Gameplay.DepleteFuelStates = ['FlyingUp']
 Gameplay.FuelNormalAmt = 1.0
 Gameplay.FuelLowAmt = 0.66
 Gameplay.FuelVeryLowAmt = 0.33
-Gameplay.FuelStates = PythonUtil.Enum(('FuelNoPropeller', 'FuelEmpty', 'FuelVeryLow', 'FuelLow', 'FuelNormal'))
 Gameplay.RefuelPropSpeed = 5.0
 Gameplay.OverdrivePropSpeed = 2.5
 Gameplay.NormalPropSpeed = 1.5
@@ -117,12 +165,11 @@ Gameplay.TargetedWarningBlinkTime = 3.0
 Gameplay.HitKnockbackDist = 15.0
 Gameplay.HitKnockbackTime = 0.5
 Gameplay.HitCooldownTime = 2.0
-Gameplay.BackpackStates = PythonUtil.Enum(('Normal', 'Targeted', 'Attacked', 'Refuel'))
 Gameplay.BackpackRefuelDuration = 4.0
-Gameplay.BackpackState2TextureName = {Gameplay.BackpackStates.Normal: 'tt_t_ara_cfg_propellerPack',
- Gameplay.BackpackStates.Targeted: 'tt_t_ara_cfg_propellerPack_eagleTarget',
- Gameplay.BackpackStates.Attacked: 'tt_t_ara_cfg_propellerPack_eagleAttack',
- Gameplay.BackpackStates.Refuel: 'tt_t_ara_cfg_propellerPack_flash'}
+Gameplay.BackpackState2TextureName = {EBackpackState.NORMAL: 'tt_t_ara_cfg_propellerPack',
+ EBackpackState.TARGETED: 'tt_t_ara_cfg_propellerPack_eagleTarget',
+ EBackpackState.ATTACKED: 'tt_t_ara_cfg_propellerPack_eagleAttack',
+ EBackpackState.REFUEL: 'tt_t_ara_cfg_propellerPack_flash'}
 Gameplay.MinionDnaName = 'bf'
 Gameplay.MinionScale = 0.8
 Gui = VariableContainer()
@@ -204,12 +251,9 @@ Audio.SfxFiles = {'propeller': 'phase_4/audio/sfx/TB_propeller.ogg',
  'cogDialogue': 'phase_3.5/audio/dial/COG_VO_statement.ogg',
  'toonDialogue': 'phase_3.5/audio/dial/AV_dog_long.ogg'}
 Level = VariableContainer()
-Level.GatherableTypes = PythonUtil.Enum(('Memo', 'Propeller', 'LaffPowerup', 'InvulPowerup'))
-Level.ObstacleTypes = PythonUtil.Enum(('Whirlwind', 'Fan', 'Minion'))
-Level.PlatformTypes = PythonUtil.Enum(('Platform', 'StartPlatform', 'EndPlatform'))
-Level.PlatformType2SpawnOffset = {Level.PlatformTypes.Platform: 2.5,
- Level.PlatformTypes.StartPlatform: 5.0,
- Level.PlatformTypes.EndPlatform: 5.0}
+Level.PlatformType2SpawnOffset = {EPlatformType.PLATFORM: 2.5,
+ EPlatformType.START_PLATFORM: 5.0,
+ EPlatformType.END_PLATFORM: 5.0}
 Level.QuadLengthUnits = 170
 Level.QuadVisibilityAhead = 1
 Level.QuadVisibilityBehind = 0
@@ -244,16 +288,16 @@ Level.PlatformName = '*lightFixture'
 Level.GatherablesPathName = 'gatherables_path*'
 Level.GatherablesRingName = 'gatherables_ring_path*'
 Level.PropellerName = '*propeller_loc*'
-Level.PowerupType2Loc = {Level.GatherableTypes.LaffPowerup: 'laff_powerup_loc*',
- Level.GatherableTypes.InvulPowerup: 'invul_powerup_loc*'}
-Level.PowerupType2Model = {Level.GatherableTypes.LaffPowerup: 'legalEagleFeather',
- Level.GatherableTypes.InvulPowerup: 'redTapePickup'}
-Level.PowerupType2Node = {Level.GatherableTypes.LaffPowerup: 'feather',
- Level.GatherableTypes.InvulPowerup: 'redTape'}
-Level.GatherableType2TextureName = {Level.GatherableTypes.LaffPowerup: 'tt_t_ara_cfg_legalEagleFeather_flash',
- Level.GatherableTypes.InvulPowerup: 'tt_t_ara_cfg_redTapePickup_flash',
- Level.GatherableTypes.Memo: 'tt_t_ara_csa_memo_flash',
- Level.GatherableTypes.Propeller: 'tt_t_ara_cfg_propellers_flash'}
+Level.PowerupType2Loc = {EGatherableType.LAFF_POWERUP: 'laff_powerup_loc*',
+ EGatherableType.INVUL_POWERUP: 'invul_powerup_loc*'}
+Level.PowerupType2Model = {EGatherableType.LAFF_POWERUP: 'legalEagleFeather',
+ EGatherableType.INVUL_POWERUP: 'redTapePickup'}
+Level.PowerupType2Node = {EGatherableType.LAFF_POWERUP: 'feather',
+ EGatherableType.INVUL_POWERUP: 'redTape'}
+Level.GatherableType2TextureName = {EGatherableType.LAFF_POWERUP: 'tt_t_ara_cfg_legalEagleFeather_flash',
+ EGatherableType.INVUL_POWERUP: 'tt_t_ara_cfg_redTapePickup_flash',
+ EGatherableType.MEMO: 'tt_t_ara_csa_memo_flash',
+ EGatherableType.PROPELLER: 'tt_t_ara_cfg_propellers_flash'}
 Level.WhirlwindName = '*whirlwindPlaceholder'
 Level.WhirlwindPathName = '_path*'
 Level.StreamerName = '*streamerPlaceholder'

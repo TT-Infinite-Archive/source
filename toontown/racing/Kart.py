@@ -34,10 +34,10 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         Kart.index += 1
         self.updateFields = []
         self.kartDNA = [-1] * getNumFields()
-        self.kartAccessories = {KartDNA.ebType: None,
-         KartDNA.spType: None,
-         KartDNA.fwwType: (None, None),
-         KartDNA.bwwType: (None, None)}
+        self.kartAccessories = {EKartDNA.EB_TYPE: None,
+         EKartDNA.SP_TYPE: None,
+         EKartDNA.FWW_TYPE: (None, None),
+         EKartDNA.BWW_TYPE: (None, None)}
         self.texCount = 1
         return
 
@@ -112,13 +112,13 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             self.initializeDropShadow()
             self.setActiveShadow()
             self.dropShadow.setScale(1.3, 3, 1)
-        kartType = self.kartDNA[KartDNA.bodyType]
+        kartType = self.kartDNA[EKartDNA.BODY_TYPE]
         self.kartStartSfx = loader.loadSfx(self.SFX_KartStart % kartType)
         self.kartLoopSfx = loader.loadSfx(self.SFX_KartLoop % kartType)
         self.kartLoopSfx.setLoop()
 
     def __createLODKart(self, level):
-        kartBodyPath = getKartModelPath(self.kartDNA[KartDNA.bodyType], level)
+        kartBodyPath = getKartModelPath(self.kartDNA[EKartDNA.BODY_TYPE], level)
         self.geom[level] = loader.loadModel(kartBodyPath)
         self.geom[level].reparentTo(self.LODpath)
         self.geom[level].setH(180)
@@ -139,7 +139,7 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
 
     def __update(self):
         for field in self.updateFields:
-            if field == KartDNA.bodyType:
+            if field == EKartDNA.BODY_TYPE:
                 if hasattr(self, 'geom'):
                     for kart in self.geom:
                         self.geom[kart].removeNode()
@@ -155,54 +155,54 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
                     self.__applyAccessoryColor()
                 else:
                     raise Exception('Kart::__update - Has this method been called before generateKart?')
-            elif field == KartDNA.bodyColor:
+            elif field == EKartDNA.BODY_COLOR:
                 self.__applyBodyColor()
-            elif field == KartDNA.accColor:
+            elif field == EKartDNA.ACC_COLOR:
                 self.__applyAccessoryColor()
-            elif field == KartDNA.ebType:
-                if self.kartAccessories[KartDNA.ebType] != None:
-                    name = self.kartAccessories[KartDNA.ebType].getName()
+            elif field == EKartDNA.EB_TYPE:
+                if self.kartAccessories[EKartDNA.EB_TYPE] != None:
+                    name = self.kartAccessories[EKartDNA.EB_TYPE].getName()
                     for key in list(self.geom.keys()):
                         self.geom[key].find('**/%s' % name).removeNode()
 
-                    self.kartAccessories[KartDNA.ebType].removeNode()
-                    self.kartAccessories[KartDNA.ebType] = None
+                    self.kartAccessories[EKartDNA.EB_TYPE].removeNode()
+                    self.kartAccessories[EKartDNA.EB_TYPE] = None
                 self.__applyEngineBlock()
-            elif field == KartDNA.spType:
-                if self.kartAccessories[KartDNA.spType] != None:
-                    name = self.kartAccessories[KartDNA.spType].getName()
+            elif field == EKartDNA.SP_TYPE:
+                if self.kartAccessories[EKartDNA.SP_TYPE] != None:
+                    name = self.kartAccessories[EKartDNA.SP_TYPE].getName()
                     for key in list(self.geom.keys()):
                         self.geom[key].find('**/%s' % name).removeNode()
 
-                    self.kartAccessories[KartDNA.spType].removeNode()
-                    self.kartAccessories[KartDNA.spType] = None
+                    self.kartAccessories[EKartDNA.SP_TYPE].removeNode()
+                    self.kartAccessories[EKartDNA.SP_TYPE] = None
                 self.__applySpoiler()
-            elif field == KartDNA.fwwType:
-                if self.kartAccessories[KartDNA.fwwType] != (None, None):
-                    left, right = self.kartAccessories[KartDNA.fwwType]
+            elif field == EKartDNA.FWW_TYPE:
+                if self.kartAccessories[EKartDNA.FWW_TYPE] != (None, None):
+                    left, right = self.kartAccessories[EKartDNA.FWW_TYPE]
                     for key in list(self.geom.keys()):
                         self.geom[key].find('**/%s' % left.getName()).removeNode()
                         self.geom[key].find('**/%s' % right.getName()).removeNode()
 
                     left.removeNode()
                     right.removeNode()
-                    self.kartAccessories[KartDNA.fwwType] = (None, None)
+                    self.kartAccessories[EKartDNA.FWW_TYPE] = (None, None)
                 self.__applyFrontWheelWells()
-            elif field == KartDNA.bwwType:
-                if self.kartAccessories[KartDNA.bwwType] != (None, None):
-                    left, right = self.kartAccessories[KartDNA.bwwType]
+            elif field == EKartDNA.BWW_TYPE:
+                if self.kartAccessories[EKartDNA.BWW_TYPE] != (None, None):
+                    left, right = self.kartAccessories[EKartDNA.BWW_TYPE]
                     for key in list(self.geom.keys()):
                         self.geom[key].find('**/%s' % left.getName()).removeNode()
                         self.geom[key].find('**/%s' % right.getName()).removeNode()
 
                     left.removeNode()
                     right.removeNode()
-                    self.kartAccessories[KartDNA.bwwType] = (None, None)
+                    self.kartAccessories[EKartDNA.BWW_TYPE] = (None, None)
                 self.__applyBackWheelWells()
             else:
-                if field == KartDNA.rimsType:
+                if field == EKartDNA.RIMS_TYPE:
                     self.__applyRims()
-                elif field == KartDNA.decalType:
+                elif field == EKartDNA.DECAL_TYPE:
                     self.__applyDecals()
                 self.__applyAccessoryColor()
 
@@ -210,41 +210,41 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         return
 
     def updateDNAField(self, field, fieldValue):
-        if field == KartDNA.bodyType:
+        if field == EKartDNA.BODY_TYPE:
             self.setBodyType(fieldValue)
-        elif field == KartDNA.bodyColor:
+        elif field == EKartDNA.BODY_COLOR:
             self.setBodyColor(fieldValue)
-        elif field == KartDNA.accColor:
+        elif field == EKartDNA.ACC_COLOR:
             self.setAccessoryColor(fieldValue)
-        elif field == KartDNA.ebType:
+        elif field == EKartDNA.EB_TYPE:
             self.setEngineBlockType(fieldValue)
-        elif field == KartDNA.spType:
+        elif field == EKartDNA.SP_TYPE:
             self.setSpoilerType(fieldValue)
-        elif field == KartDNA.fwwType:
+        elif field == EKartDNA.FWW_TYPE:
             self.setFrontWheelWellType(fieldValue)
-        elif field == KartDNA.bwwType:
+        elif field == EKartDNA.BWW_TYPE:
             self.setBackWheelWellType(fieldValue)
-        elif field == KartDNA.rimsType:
+        elif field == EKartDNA.RIMS_TYPE:
             self.setRimType(fieldValue)
-        elif field == KartDNA.decalType:
+        elif field == EKartDNA.DECAL_TYPE:
             self.setDecalType(fieldValue)
         self.updateFields.append(field)
         self.__update()
 
     def __applyBodyColor(self):
-        if self.kartDNA[KartDNA.bodyColor] == InvalidEntry:
+        if self.kartDNA[EKartDNA.BODY_COLOR] == InvalidEntry:
             bodyColor = getDefaultColor()
         else:
-            bodyColor = getAccessory(self.kartDNA[KartDNA.bodyColor])
+            bodyColor = getAccessory(self.kartDNA[EKartDNA.BODY_COLOR])
         for kart in self.geom:
             kartBody = self.geom[kart].find('**/chasse')
             kartBody.setColorScale(bodyColor)
 
     def __applyAccessoryColor(self):
-        if self.kartDNA[KartDNA.accColor] == InvalidEntry:
+        if self.kartDNA[EKartDNA.ACC_COLOR] == InvalidEntry:
             accColor = getDefaultColor()
         else:
-            accColor = getAccessory(self.kartDNA[KartDNA.accColor])
+            accColor = getAccessory(self.kartDNA[EKartDNA.ACC_COLOR])
         for kart in self.geom:
             hoodDecal = self.geom[kart].find('**/hoodDecal')
             rightSideDecal = self.geom[kart].find('**/rightSideDecal')
@@ -253,41 +253,41 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             rightSideDecal.setColorScale(accColor)
             leftSideDecal.setColorScale(accColor)
 
-        for type in [KartDNA.ebType, KartDNA.spType]:
+        for type in [EKartDNA.EB_TYPE, EKartDNA.SP_TYPE]:
             model = self.kartAccessories.get(type, None)
             if model != None and not model.find('**/vertex').isEmpty():
-                if self.kartDNA[KartDNA.accColor] == InvalidEntry:
+                if self.kartDNA[EKartDNA.ACC_COLOR] == InvalidEntry:
                     accColor = getDefaultColor()
                 else:
-                    accColor = getAccessory(self.kartDNA[KartDNA.accColor])
+                    accColor = getAccessory(self.kartDNA[EKartDNA.ACC_COLOR])
                 model.find('**/vertex').setColorScale(accColor)
 
-        for type in [KartDNA.fwwType, KartDNA.bwwType]:
+        for type in [EKartDNA.FWW_TYPE, EKartDNA.BWW_TYPE]:
             lModel, rModel = self.kartAccessories.get(type, (None, None))
             if lModel != None and not lModel.find('**/vertex').isEmpty():
-                if self.kartDNA[KartDNA.accColor] == InvalidEntry:
+                if self.kartDNA[EKartDNA.ACC_COLOR] == InvalidEntry:
                     accColor = getDefaultColor()
                 else:
-                    accColor = getAccessory(self.kartDNA[KartDNA.accColor])
+                    accColor = getAccessory(self.kartDNA[EKartDNA.ACC_COLOR])
                 lModel.find('**/vertex').setColorScale(accColor)
                 rModel.find('**/vertex').setColorScale(accColor)
 
         return
 
     def __applyEngineBlock(self):
-        ebType = self.kartDNA[KartDNA.ebType]
+        ebType = self.kartDNA[EKartDNA.EB_TYPE]
         if ebType == InvalidEntry:
             return
         ebPath = getAccessory(ebType)
         attachNode = getAccessoryAttachNode(ebType)
         model = loader.loadModel(ebPath)
-        self.kartAccessories[KartDNA.ebType] = model
+        self.kartAccessories[EKartDNA.EB_TYPE] = model
         model.setScale(self.accGeomScale)
         if not model.find('**/vertex').isEmpty():
-            if self.kartDNA[KartDNA.accColor] == InvalidEntry:
+            if self.kartDNA[EKartDNA.ACC_COLOR] == InvalidEntry:
                 accColor = getDefaultColor()
             else:
-                accColor = getAccessory(self.kartDNA[KartDNA.accColor])
+                accColor = getAccessory(self.kartDNA[EKartDNA.ACC_COLOR])
             model.find('**/vertex').setColorScale(accColor)
         for kart in self.geom:
             engineBlockNode = self.geom[kart].find('**/%s' % attachNode)
@@ -296,13 +296,13 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             model.instanceTo(self.pitchNode[kart])
 
     def __applySpoiler(self):
-        spType = self.kartDNA[KartDNA.spType]
+        spType = self.kartDNA[EKartDNA.SP_TYPE]
         if spType == InvalidEntry:
             return
         spPath = getAccessory(spType)
         attachNode = getAccessoryAttachNode(spType)
         model = loader.loadModel(spPath)
-        self.kartAccessories[KartDNA.spType] = model
+        self.kartAccessories[EKartDNA.SP_TYPE] = model
         model.setScale(self.accGeomScale)
         for kart in self.geom:
             spoilerNode = self.geom[kart].find('**/%s' % attachNode)
@@ -311,10 +311,10 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             model.instanceTo(self.pitchNode[kart])
 
     def __applyRims(self):
-        if self.kartDNA[KartDNA.rimsType] == InvalidEntry:
+        if self.kartDNA[EKartDNA.RIMS_TYPE] == InvalidEntry:
             rimTexPath = getAccessory(getDefaultRim())
         else:
-            rimTexPath = getAccessory(self.kartDNA[KartDNA.rimsType])
+            rimTexPath = getAccessory(self.kartDNA[EKartDNA.RIMS_TYPE])
         rimTex = loader.loadTexture('%s.jpg' % rimTexPath, '%s_a.rgb' % rimTexPath)
         for kart in self.geom:
             leftFrontWheelRim = self.geom[kart].find('**/leftFrontWheelRim')
@@ -330,7 +330,7 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         self.texCount += 1
 
     def __applyFrontWheelWells(self):
-        fwwType = self.kartDNA[KartDNA.fwwType]
+        fwwType = self.kartDNA[EKartDNA.FWW_TYPE]
         if fwwType == InvalidEntry:
             return
         fwwPath = getAccessory(fwwType)
@@ -339,12 +339,12 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         rightAttachNode = attachNode % 'right'
         leftModel = loader.loadModel(fwwPath)
         rightModel = loader.loadModel(fwwPath)
-        self.kartAccessories[KartDNA.fwwType] = (leftModel, rightModel)
+        self.kartAccessories[EKartDNA.FWW_TYPE] = (leftModel, rightModel)
         if not leftModel.find('**/vertex').isEmpty():
-            if self.kartDNA[KartDNA.accColor] == InvalidEntry:
+            if self.kartDNA[EKartDNA.ACC_COLOR] == InvalidEntry:
                 accColor = getDefaultColor()
             else:
-                accColor = getAccessory(self.kartDNA[KartDNA.accColor])
+                accColor = getAccessory(self.kartDNA[EKartDNA.ACC_COLOR])
             leftModel.find('**/vertex').setColorScale(accColor)
             rightModel.find('**/vertex').setColorScale(accColor)
         for kart in self.geom:
@@ -362,7 +362,7 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             rightNodePath.setScale(self.accGeomScale)
 
     def __applyBackWheelWells(self):
-        bwwType = self.kartDNA[KartDNA.bwwType]
+        bwwType = self.kartDNA[EKartDNA.BWW_TYPE]
         if bwwType == InvalidEntry:
             return
         bwwPath = getAccessory(bwwType)
@@ -371,12 +371,12 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         rightAttachNode = attachNode % 'right'
         leftModel = loader.loadModel(bwwPath)
         rightModel = loader.loadModel(bwwPath)
-        self.kartAccessories[KartDNA.bwwType] = (leftModel, rightModel)
+        self.kartAccessories[EKartDNA.BWW_TYPE] = (leftModel, rightModel)
         if not leftModel.find('**/vertex').isEmpty():
-            if self.kartDNA[KartDNA.accColor] == InvalidEntry:
+            if self.kartDNA[EKartDNA.ACC_COLOR] == InvalidEntry:
                 accColor = getDefaultColor()
             else:
-                accColor = getAccessory(self.kartDNA[KartDNA.accColor])
+                accColor = getAccessory(self.kartDNA[EKartDNA.ACC_COLOR])
             leftModel.find('**/vertex').setColorScale(accColor)
             rightModel.find('**/vertex').setColorScale(accColor)
         for kart in self.geom:
@@ -394,9 +394,9 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
             rightNodePath.setScale(self.accGeomScale)
 
     def __applyDecals(self):
-        if self.kartDNA[KartDNA.decalType] != InvalidEntry:
-            decalId = getAccessory(self.kartDNA[KartDNA.decalType])
-            kartDecal = getDecalId(self.kartDNA[KartDNA.bodyType])
+        if self.kartDNA[EKartDNA.DECAL_TYPE] != InvalidEntry:
+            decalId = getAccessory(self.kartDNA[EKartDNA.DECAL_TYPE])
+            kartDecal = getDecalId(self.kartDNA[EKartDNA.BODY_TYPE])
             hoodDecalTex = loader.loadTexture('phase_6/maps/%s_HoodDecal_%s.jpg' % (kartDecal, decalId), 'phase_6/maps/%s_HoodDecal_%s_a.rgb' % (kartDecal, decalId))
             sideDecalTex = loader.loadTexture('phase_6/maps/%s_SideDecal_%s.jpg' % (kartDecal, decalId), 'phase_6/maps/%s_SideDecal_%s_a.rgb' % (kartDecal, decalId))
             hoodDecalTex.setMinfilter(Texture.FTLinearMipmapLinear)
@@ -444,58 +444,58 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         self.kartDNA = dna
 
     def setBodyType(self, bodyType):
-        self.kartDNA[KartDNA.bodyType] = bodyType
+        self.kartDNA[EKartDNA.BODY_TYPE] = bodyType
 
     def getBodyType(self):
-        return self.kartDNA[KartDNA.bodyType]
+        return self.kartDNA[EKartDNA.BODY_TYPE]
 
     def setBodyColor(self, bodyColor):
-        self.kartDNA[KartDNA.bodyColor] = bodyColor
+        self.kartDNA[EKartDNA.BODY_COLOR] = bodyColor
 
     def getBodyColor(self):
-        return self.kartDNA[KartDNA.bodyColor]
+        return self.kartDNA[EKartDNA.BODY_COLOR]
 
     def setAccessoryColor(self, accColor):
-        self.kartDNA[KartDNA.accColor] = accColor
+        self.kartDNA[EKartDNA.ACC_COLOR] = accColor
 
     def getAccessoryColor(self):
-        return self.kartDNA[KartDNA.accColor]
+        return self.kartDNA[EKartDNA.ACC_COLOR]
 
     def setEngineBlockType(self, ebType):
-        self.kartDNA[KartDNA.ebType] = ebType
+        self.kartDNA[EKartDNA.EB_TYPE] = ebType
 
     def getEngineBlockType(self):
-        return self.kartDNA[KartDNA.ebType]
+        return self.kartDNA[EKartDNA.EB_TYPE]
 
     def setSpoilerType(self, spType):
-        self.kartDNA[KartDNA.spType] = spType
+        self.kartDNA[EKartDNA.SP_TYPE] = spType
 
     def getSpoilerType(self):
-        return self.kartDNA[KartDNA.spType]
+        return self.kartDNA[EKartDNA.SP_TYPE]
 
     def setFrontWheelWellType(self, fwwType):
-        self.kartDNA[KartDNA.fwwType] = fwwType
+        self.kartDNA[EKartDNA.FWW_TYPE] = fwwType
 
     def getFrontWheelWellType(self):
-        return self.kartDNA[KartDNA.fwwType]
+        return self.kartDNA[EKartDNA.FWW_TYPE]
 
     def setBackWheelWellType(self, bwwType):
-        self.kartDNA[KartDNA.bwwType] = bwwType
+        self.kartDNA[EKartDNA.BWW_TYPE] = bwwType
 
     def getBackWheelWellType(self):
-        return self.kartDNA[KartDNA.bwwType]
+        return self.kartDNA[EKartDNA.BWW_TYPE]
 
     def setRimType(self, rimsType):
-        self.kartDNA[KartDNA.rimsType] = rimsType
+        self.kartDNA[EKartDNA.RIMS_TYPE] = rimsType
 
     def getRimType(self):
-        return self.kartDNA[KartDNA.rimsType]
+        return self.kartDNA[EKartDNA.RIMS_TYPE]
 
     def setDecalType(self, decalType):
-        self.kartDNA[KartDNA.decalType] = decalType
+        self.kartDNA[EKartDNA.DECAL_TYPE] = decalType
 
     def getDecalType(self):
-        return self.kartDNA[KartDNA.decalType]
+        return self.kartDNA[EKartDNA.DECAL_TYPE]
 
     def getGeomNode(self):
         return self.geom[0]

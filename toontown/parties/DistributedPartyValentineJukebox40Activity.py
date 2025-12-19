@@ -6,7 +6,7 @@ class DistributedPartyValentineJukebox40Activity(DistributedPartyJukeboxActivity
     notify = directNotify.newCategory('DistributedPartyValentineJukebox40Activity')
 
     def __init__(self, cr):
-        DistributedPartyJukeboxActivityBase.__init__(self, cr, PartyGlobals.ActivityIds.PartyValentineJukebox40, PartyGlobals.PhaseToMusicData40)
+        DistributedPartyJukeboxActivityBase.__init__(self, cr, PartyGlobals.EActivityId.PartyValentineJukebox40, PartyGlobals.PhaseToMusicData40)
 
     def load(self):
         DistributedPartyJukeboxActivityBase.load(self)

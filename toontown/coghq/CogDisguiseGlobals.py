@@ -1,7 +1,6 @@
+import enum
 from toontown.suit import SuitDNA
-import types
 from toontown.toonbase import TTLocalizer
-from direct.showbase import PythonUtil
 from otp.otpbase import OTPGlobals
 from toontown.battle import SuitBattleGlobals
 PartsPerSuit = (10,
@@ -118,7 +117,12 @@ PartsQueryNames = ({1: PartNameStrings[0],
   16384: PartNameStrings[14],
   32768: PartNameStrings[15],
   65536: PartNameStrings[15]})
-suitTypes = PythonUtil.Enum(('NoSuit', 'NoMerits', 'FullSuit'))
+
+
+class EPlayerSuitType(enum.Enum):
+    NO_SUIT = 0
+    NO_MERITS = 1
+    FULL_SUIT = 2
 
 
 def makeMeritHierarchy(baseMerits):
@@ -177,8 +181,9 @@ def isPaidSuitComplete(av, parts, dept):
     return 0
 
 
+
+
 def getTotalMerits(toon, index):
-    from toontown.battle import SuitBattleGlobals
     cogIndex = toon.cogTypes[index] + SuitDNA.suitsPerDept * index
     cogTypeStr = SuitDNA.suitHeadTypes[cogIndex]
     cogBaseLevel = SuitBattleGlobals.SuitAttributes[cogTypeStr]['level']

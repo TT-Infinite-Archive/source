@@ -6,7 +6,6 @@ from direct.distributed.ClockDelta import globalClockDelta
 from direct.fsm.ClassicFSM import *
 from direct.fsm.State import *
 from direct.interval.IntervalGlobal import *
-from direct.showbase import PythonUtil
 from direct.task import Task
 
 from .PetDNA import HeadParts, EarParts, NoseParts, TailParts, BodyTypes, BodyTextures, AllPetColors, getColors, ColorScales, PetEyeColors, EarTextures, TailTextures, getFootTexture, getEarTexture, GiraffeTail, LeopardTail, PetGenders
@@ -32,14 +31,10 @@ Component2IconDict = {'boredom': 'Bored',
  'surprise': 'Surprised',
  'affection': 'Love'}
 
+
 class Pet(Avatar.Avatar):
     notify = DirectNotifyGlobal.directNotify.newCategory('Pet')
     SerialNum = 0
-    Interactions = PythonUtil.Enum('SCRATCH, BEG, EAT, NEUTRAL')
-    InteractAnims = {Interactions.SCRATCH: ('toPet', 'pet', 'fromPet'),
-     Interactions.BEG: ('toBeg', 'beg', 'fromBeg'),
-     Interactions.EAT: ('eat', 'swallow', 'neutral'),
-     Interactions.NEUTRAL: 'neutral'}
 
     def __init__(self, forGui = 0):
         Avatar.Avatar.__init__(self)
@@ -633,18 +628,6 @@ class Pet(Avatar.Avatar):
         if not self.lockedDown:
             self.animFSM.request(self.prevAnimState)
             self.prevAnimState = None
-        return
-
-    def getInteractIval(self, interactId):
-        anims = self.InteractAnims[interactId]
-        if type(anims) == bytes:
-            animIval = ActorInterval(self, anims)
-        else:
-            animIval = Sequence()
-            for anim in anims:
-                animIval.append(ActorInterval(self, anim))
-
-        return animIval
 
 
 def gridPets():

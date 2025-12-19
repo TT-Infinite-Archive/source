@@ -302,7 +302,7 @@ if ACCELERATOR_USED_FROM_SHTIKER_BOOK:
 
 
 def getTreeTrackAndLevel(typeIndex):
-    track = typeIndex / 7
+    track = typeIndex // 7
     level = typeIndex % 7
     return (track, level)
 
@@ -509,7 +509,7 @@ def getShovelPower(shovel, shovelSkill):
                 gardenNotify.warning("this shouldn't happen shovelSkill %d >= skill %d" % (shovelSkill, skill))
                 shovelSkill = skill - 1
             skillPtPerBox = skill / curBoxes
-            numBoxes += 1 + int(shovelSkill) / int(skillPtPerBox)
+            numBoxes += 1 + int(shovelSkill) // int(skillPtPerBox)
         else:
             numBoxes += curBoxes
 

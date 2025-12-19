@@ -78,8 +78,8 @@ class CogdoFlyingLevel(DirectObject):
         self.root.stash()
 
     def _initStartEndPlatforms(self):
-        self.startPlatform = CogdoFlyingPlatform(self._startPlatformModel, Globals.Level.PlatformTypes.StartPlatform)
-        self.endPlatform = CogdoFlyingPlatform(self._endPlatformModel, Globals.Level.PlatformTypes.EndPlatform)
+        self.startPlatform = CogdoFlyingPlatform(self._startPlatformModel, Globals.EPlatformType.START_PLATFORM)
+        self.endPlatform = CogdoFlyingPlatform(self._endPlatformModel, Globals.EPlatformType.END_PLATFORM)
         self._endPlatformModel.setY(self.convertQuadNumToY(self._numQuads))
         self.backLimit = self._startPlatformModel.getY(render) - Globals.Level.StartPlatformLength * 0.7
         self.forwardLimit = self._endPlatformModel.getY(render) + Globals.Level.EndPlatformLength * 0.7

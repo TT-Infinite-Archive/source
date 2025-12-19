@@ -12,7 +12,7 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
     view = None
 
     def __init__(self, cr, arenaModel = 'phase_13/models/parties/cogPieArena_model', texture = None):
-        DistributedPartyTeamActivity.__init__(self, cr, PartyGlobals.ActivityIds.PartyCog, startDelay=PartyGlobals.CogActivityStartDelay, balanceTeams=PartyGlobals.CogActivityBalanceTeams)
+        DistributedPartyTeamActivity.__init__(self, cr, PartyGlobals.EActivityId.PartyCog, startDelay=PartyGlobals.CogActivityStartDelay, balanceTeams=PartyGlobals.CogActivityBalanceTeams)
         self.arenaModel = arenaModel
         self.texture = texture
 
@@ -179,10 +179,10 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
         DistributedPartyTeamActivity.startConclusion(self, data)
         if self.isLocalToonPlaying:
             winner = 2
-            if data[PartyGlobals.TeamActivityTeams.LeftTeam] > data[PartyGlobals.TeamActivityTeams.RightTeam]:
-                winner = PartyGlobals.TeamActivityTeams.LeftTeam
-            elif data[PartyGlobals.TeamActivityTeams.LeftTeam] < data[PartyGlobals.TeamActivityTeams.RightTeam]:
-                winner = PartyGlobals.TeamActivityTeams.RightTeam
+            if data[PartyGlobals.TeamActivityTeam.LEFT] > data[PartyGlobals.TeamActivityTeam.RIGHT]:
+                winner = PartyGlobals.TeamActivityTeam.LEFT
+            elif data[PartyGlobals.TeamActivityTeam.LEFT] < data[PartyGlobals.TeamActivityTeam.RIGHT]:
+                winner = PartyGlobals.TeamActivityTeam.RIGHT
             if winner < 2:
                 if self.getTeam(base.localAvatar.doId) == winner:
                     resultsText = TTLocalizer.PartyTeamActivityLocalAvatarTeamWins

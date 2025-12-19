@@ -1,6 +1,7 @@
 from direct.directnotify.DirectNotifyGlobal import *
 from toontown.hood import ZoneUtil, HoodUtil
-from toontown.toonbase import ToontownGlobals, ToontownBattleGlobals
+from toontown.toonbase.ToontownBattleGlobals import PropTypeToTrackBonus
+from toontown.toonbase.ToontownGlobals import AnimPropTypes, dnaMap, streetPhaseMap, SuitWalkSpeed
 from toontown.building import SuitBuildingGlobals
 from toontown.dna.DNAParser import DNASuitPoint, DNAStorage, loadDNAFileAI
 from toontown.dna.DNAInteractiveProp import DNAInteractiveProp
@@ -44,24 +45,13 @@ class SuitPlannerBase:
     SUIT_HOOD_INFO_LVL = 9
     SUIT_HOOD_INFO_HEIGHTS = 10
     TOTAL_BWEIGHT = 0
-    TOTAL_BWEIGHT_PER_TRACK = [0,
-     0,
-     0,
-     0]
-    TOTAL_BWEIGHT_PER_HEIGHT = [0,
-     0,
-     0,
-     0,
-     0]
+    TOTAL_BWEIGHT_PER_TRACK = [0, 0, 0, 0]
+    TOTAL_BWEIGHT_PER_HEIGHT = [0, 0, 0, 0, 0]
     for currHoodInfo in SuitHoodInfo:
         weight = currHoodInfo[SUIT_HOOD_INFO_BWEIGHT]
         tracks = currHoodInfo[SUIT_HOOD_INFO_TRACK]
         levels = currHoodInfo[SUIT_HOOD_INFO_LVL]
-        heights = [0,
-         0,
-         0,
-         0,
-         0]
+        heights = [0, 0, 0, 0, 0]
         for level in levels:
             minFloors, maxFloors = SuitBuildingGlobals.SuitBuildingInfo[level - 1][0]
             for i in range(minFloors - 1, maxFloors):
@@ -80,10 +70,9 @@ class SuitPlannerBase:
         TOTAL_BWEIGHT_PER_HEIGHT[4] += weight * heights[4]
 
     def __init__(self):
-        self.suitWalkSpeed = ToontownGlobals.SuitWalkSpeed
+        self.suitWalkSpeed = SuitWalkSpeed
         self.dnaStore = None
         self.pointIndexes = {}
-        return
 
     def delete(self):
         self.dnaStore = None
@@ -104,8 +93,8 @@ class SuitPlannerBase:
     def genDNAFileName(self):
         zoneId = ZoneUtil.getCanonicalZoneId(self.getZoneId())
         hoodId = ZoneUtil.getCanonicalHoodId(zoneId)
-        hood = ToontownGlobals.dnaMap[hoodId]
-        phase = ToontownGlobals.streetPhaseMap[hoodId]
+        hood = dnaMap[hoodId]
+        phase = streetPhaseMap[hoodId]
         if hoodId == zoneId:
             zoneId = 'sz'
         return 'phase_%s/dna/%s_%s.pdna' % (phase, hood, zoneId)
@@ -150,9 +139,9 @@ class SuitPlannerBase:
                             self.notify.error('FIXME battle cell at zone %s has two props %s %s linked to it' % (zoneId, self.cellToGagBonusDict[zoneId], childDnaGroup))
                         else:
                             name = childDnaGroup.getName()
-                            propType = HoodUtil.calcPropType(name)
-                            if propType in ToontownBattleGlobals.PropTypeToTrackBonus:
-                                trackBonus = ToontownBattleGlobals.PropTypeToTrackBonus[propType]
+                            propType: AnimPropTypes = HoodUtil.calcPropType(name)
+                            if propType in PropTypeToTrackBonus:
+                                trackBonus: int = PropTypeToTrackBonus[propType]
                                 self.cellToGagBonusDict[zoneId] = trackBonus
 
         self.dnaStore.resetDNAGroups()

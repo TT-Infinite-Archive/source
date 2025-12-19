@@ -1,4 +1,4 @@
-from direct.showbase import PythonUtil
+import enum
 from otp.speedchat.SCMenu import SCMenu
 from otp.speedchat.SCMenuHolder import SCMenuHolder
 from otp.speedchat.SCStaticTextTerminal import SCStaticTextTerminal
@@ -13,17 +13,19 @@ JellybeanJamMenu = [(OTPLocalizer.JellybeanJamMenuSections[0], [30180,
    30188,
    30189,
    30190])]
-JellybeanJamPhases = PythonUtil.Enum('TROLLEY, FISHING, PARTIES')
+
+class EJellybeanJamPhase(enum.Enum):
+    TROLLEY = 0
+    FISHING = 1
+    PARTIES = 2
+
 PhaseSpecifPhrases = [30180, 30181, 30182]
 
 class TTSCJellybeanJamMenu(SCMenu):
 
     def __init__(self, phase):
         SCMenu.__init__(self)
-        if phase in JellybeanJamPhases:
-            self.__messagesChanged(phase)
-        else:
-            print('warning: tried to add Jellybean Jam phase %s which does not seem to exist' % phase)
+        self.__messagesChanged(phase)
 
     def destroy(self):
         SCMenu.destroy(self)

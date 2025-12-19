@@ -1,4 +1,4 @@
-from direct.showbase import PythonUtil
+import enum
 
 speedChatStyles = (
     (
@@ -104,4 +104,7 @@ speedChatStyles = (
         (210 / 255.0, 200 / 255.0, 180 / 255.0)
     )
 )
-PageMode = PythonUtil.Enum('Options, Codes')
+
+class EPageMode(enum.Enum):
+    OPTIONS = 0
+    CODES = 1

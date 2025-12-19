@@ -559,13 +559,13 @@ class MiniInviteVisual(DirectFrame):
             time = myStrftime(self.partyInfo.startTime)
             self.whenTextLabel['text'] = time
         if self.partyStatusLabel['text'] == ' ':
-            if self.partyInfo.status == PartyGlobals.PartyStatus.Cancelled:
+            if self.partyInfo.status == PartyGlobals.EPartyStatus.CANCELLED:
                 self.partyStatusLabel['text'] = TTLocalizer.CalendarPartyCancelled
-            elif self.partyInfo.status == PartyGlobals.PartyStatus.Finished:
+            elif self.partyInfo.status == PartyGlobals.EPartyStatus.FINISHED:
                 self.partyStatusLabel['text'] = TTLocalizer.CalendarPartyFinished
-            elif self.partyInfo.status == PartyGlobals.PartyStatus.Started:
+            elif self.partyInfo.status == PartyGlobals.EPartyStatus.STARTED:
                 self.partyStatusLabel['text'] = TTLocalizer.CalendarPartyGo
-            elif self.partyInfo.status == PartyGlobals.PartyStatus.NeverStarted:
+            elif self.partyInfo.status == PartyGlobals.EPartyStatus.NEVER_STARTED:
                 self.partyStatusLabel['text'] = TTLocalizer.CalendarPartyNeverStarted
             else:
                 self.partyStatusLabel['text'] = TTLocalizer.CalendarPartyGetReady

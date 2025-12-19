@@ -15,8 +15,8 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI, FSM):
         FSM.__init__(self, 'DistributedPartyActivityAI')
         self.state = 'Idle'
         self._parent = parent
-        self.eventId = PartyGlobals.FireworkShows.Summer
-        self.showStyle = random.randint(0, len(FireworkShows.shows[PartyGlobals.FireworkShows.Summer]) - 1)
+        self.eventId = PartyGlobals.EFireworkShow.SUMMER
+        self.showStyle = random.randint(0, len(FireworkShows.shows[PartyGlobals.EFireworkShow.SUMMER]) - 1)
 
     def getEventId(self):
         return self.eventId

@@ -35,7 +35,7 @@ class GenericAnimatedProp(AnimatedProp.AnimatedProp):
 
         self.notify.debug('self.path=%s' % self.path)
         self.calcHoodId(node)
-        self.propType = HoodUtil.calcPropType(node)
+        self.propType = HoodUtil.calcPropType(str(node))
         self.setupActor(node)
         self.code = code
 

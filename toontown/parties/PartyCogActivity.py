@@ -50,10 +50,10 @@ class PartyCogActivity(DirectObject):
         self.rightExitLocator = self.arena.find('**/rightExit_locator')
         self.teamCamPosLocators = (self.arena.find('**/team0CamPos_locator'), self.arena.find('**/team1CamPos_locator'))
         self.teamCamAimLocators = (self.arena.find('**/team0CamAim_locator'), self.arena.find('**/team1CamAim_locator'))
-        leftTeamLocator = NodePath('TeamLocator-%d' % PartyGlobals.TeamActivityTeams.LeftTeam)
+        leftTeamLocator = NodePath('TeamLocator-%d' % PartyGlobals.TeamActivityTeam.LEFT)
         leftTeamLocator.reparentTo(self.root)
         leftTeamLocator.setH(90)
-        rightTeamLocator = NodePath('TeamLocator-%d' % PartyGlobals.TeamActivityTeams.RightTeam)
+        rightTeamLocator = NodePath('TeamLocator-%d' % PartyGlobals.TeamActivityTeam.RIGHT)
         rightTeamLocator.reparentTo(self.root)
         rightTeamLocator.setH(-90)
         self.teamLocators = (leftTeamLocator, rightTeamLocator)
@@ -108,7 +108,7 @@ class PartyCogActivity(DirectObject):
         for i in range(len(arenaDoorLocators)):
             arenaDoorLocators[i].wrtReparentTo(self._arenaDoors[i])
 
-        self._arenaDoorTimers = (self.createDoorTimer(PartyGlobals.TeamActivityTeams.LeftTeam), self.createDoorTimer(PartyGlobals.TeamActivityTeams.RightTeam))
+        self._arenaDoorTimers = (self.createDoorTimer(PartyGlobals.TeamActivityTeam.LEFT), self.createDoorTimer(PartyGlobals.TeamActivityTeam.RIGHT))
         self._arenaDoorIvals = [None, None]
         self._doorStartPos = []
         for i in range(len(self._arenaDoors)):
@@ -308,10 +308,10 @@ class PartyCogActivity(DirectObject):
         self._skyCollisionsCollection.stash()
 
     def handleEnterLeftEntranceTrigger(self, collEntry):
-        self.activity.d_toonJoinRequest(PartyGlobals.TeamActivityTeams.LeftTeam)
+        self.activity.d_toonJoinRequest(PartyGlobals.TeamActivityTeam.LEFT)
 
     def handleEnterRightEntranceTrigger(self, collEntry):
-        self.activity.d_toonJoinRequest(PartyGlobals.TeamActivityTeams.RightTeam)
+        self.activity.d_toonJoinRequest(PartyGlobals.TeamActivityTeam.RIGHT)
 
     def checkOrthoDriveCollision(self, oldPos, newPos):
         x = bound(newPos[0], -16.8, 16.8)
@@ -321,7 +321,7 @@ class PartyCogActivity(DirectObject):
         return newPos
 
     def getPlayerStartPos(self, team, spot):
-        if team == PartyGlobals.TeamActivityTeams.LeftTeam:
+        if team == PartyGlobals.TeamActivityTeam.LEFT:
             node = self.leftExitLocator
         else:
             node = self.rightExitLocator
@@ -534,7 +534,7 @@ class PartyCogActivity(DirectObject):
             point = colEntry.getSurfacePoint(self.cogManager.cogs[cogID].root)
             cog = self.cogManager.cogs[cogID]
             hitHead = point.getZ() > cog.getHeadLocation() and not parts[2].startswith('Arm')
-            if self.activity.getTeam(base.localAvatar.doId) == PartyGlobals.TeamActivityTeams.LeftTeam:
+            if self.activity.getTeam(base.localAvatar.doId) == PartyGlobals.TeamActivityTeam.LEFT:
                 direction = -1.0
             else:
                 direction = 1.0

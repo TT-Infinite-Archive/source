@@ -399,7 +399,7 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         del self.smokeMount
 
     def setupSparkParticles(self):
-        bodyType = self.kartDNA[KartDNA.bodyType]
+        bodyType = self.kartDNA[EKartDNA.BODY_TYPE]
         endPts = KartDict[bodyType][7]
         self.sparkMount = self.geom[0].attachNewNode('Spark Effect')
         left = self.sparkMount.attachNewNode('Left Sparkmount')
@@ -1066,31 +1066,31 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
             self.cameraNode.setP(-newPitch)
 
     def setBodyType(self, bodyType):
-        self.kartDNA[KartDNA.bodyType] = bodyType
+        self.kartDNA[EKartDNA.BODY_TYPE] = bodyType
 
     def setBodyColor(self, bodyColor):
-        self.kartDNA[KartDNA.bodyColor] = bodyColor
+        self.kartDNA[EKartDNA.BODY_COLOR] = bodyColor
 
     def setAccessoryColor(self, accColor):
-        self.kartDNA[KartDNA.accColor] = accColor
+        self.kartDNA[EKartDNA.ACC_COLOR] = accColor
 
     def setEngineBlockType(self, ebType):
-        self.kartDNA[KartDNA.ebType] = ebType
+        self.kartDNA[EKartDNA.EB_TYPE] = ebType
 
     def setSpoilerType(self, spType):
-        self.kartDNA[KartDNA.spType] = spType
+        self.kartDNA[EKartDNA.SP_TYPE] = spType
 
     def setFrontWheelWellType(self, fwwType):
-        self.kartDNA[KartDNA.fwwType] = fwwType
+        self.kartDNA[EKartDNA.FWW_TYPE] = fwwType
 
     def setBackWheelWellType(self, bwwType):
-        self.kartDNA[KartDNA.bwwType] = bwwType
+        self.kartDNA[EKartDNA.BWW_TYPE] = bwwType
 
     def setRimType(self, rimsType):
-        self.kartDNA[KartDNA.rimsType] = rimsType
+        self.kartDNA[EKartDNA.RIMS_TYPE] = rimsType
 
     def setDecalType(self, decalType):
-        self.kartDNA[KartDNA.decalType] = decalType
+        self.kartDNA[EKartDNA.DECAL_TYPE] = decalType
 
     def setOwner(self, avId):
         self.ownerId = avId

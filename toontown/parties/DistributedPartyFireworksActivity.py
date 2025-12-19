@@ -5,9 +5,9 @@ from direct.distributed.ClockDelta import globalClockDelta
 from toontown.effects.FireworkShowMixin import FireworkShowMixin
 from toontown.effects.RocketExplosion import RocketExplosion
 from toontown.toonbase import TTLocalizer
-from .PartyGlobals import FireworkShows
-from .PartyGlobals import ActivityIds
-from .PartyGlobals import ActivityTypes
+from .PartyGlobals import EFireworkShow
+from .PartyGlobals import EActivityId
+from .PartyGlobals import EActivityType
 from .PartyGlobals import FireworksStartedEvent
 from .PartyGlobals import FireworksFinishedEvent
 from .PartyGlobals import FireworksPostLaunchDelay
@@ -22,11 +22,11 @@ class DistributedPartyFireworksActivity(DistributedPartyActivity, FireworkShowMi
 
     def __init__(self, cr):
         DistributedPartyFireworksActivity.notify.debug('__init__')
-        DistributedPartyActivity.__init__(self, cr, ActivityIds.PartyFireworks, ActivityTypes.HostInitiated, wantLever=True)
+        DistributedPartyActivity.__init__(self, cr, EActivityId.PartyFireworks, EActivityType.HOST_INITIATED, wantLever=True)
         FireworkShowMixin.__init__(self, restorePlaygroundMusic=True, startDelay=FireworksPostLaunchDelay)
 
     def setEventId(self, eventId):
-        DistributedPartyFireworksActivity.notify.debug('setEventId( %s )' % FireworkShows.getString(eventId))
+        DistributedPartyFireworksActivity.notify.debug('setEventId( %s )' % EFireworkShow(eventId).name)
         self.eventId = eventId
 
     def setShowStyle(self, showStyle):
@@ -39,7 +39,7 @@ class DistributedPartyFireworksActivity(DistributedPartyActivity, FireworkShowMi
     def load(self):
         DistributedPartyFireworksActivity.notify.debug('load')
         DistributedPartyActivity.load(self)
-        self.eventId = PartyGlobals.FireworkShows.Summer
+        self.eventId = PartyGlobals.EFireworkShow.SUMMER
         self.launchPadModel = loader.loadModel('phase_13/models/parties/launchPad')
         self.launchPadModel.setH(90.0)
         self.launchPadModel.setPos(0.0, -18.0, 0.0)

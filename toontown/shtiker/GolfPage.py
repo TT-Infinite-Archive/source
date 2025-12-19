@@ -1,3 +1,4 @@
+from enum import Enum
 from panda3d.core import TextNode, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
@@ -9,7 +10,10 @@ from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.golf import GolfGlobals
 if (__debug__):
     import pdb
-PageMode = PythonUtil.Enum('Records, Trophy')
+
+class EPageMode(enum.Enum):
+    RECORDS = 0
+    TROPHY = 1
 
 class GolfPage(ShtikerPage):
     notify = DirectNotifyGlobal.directNotify.newCategory('GolfPage')
@@ -17,8 +21,7 @@ class GolfPage(ShtikerPage):
     def __init__(self):
         ShtikerPage.__init__(self)
         self.avatar = None
-        self.mode = PageMode.Trophy
-        return
+        self.mode = EPageMode.TROPHY
 
     def enter(self):
         if not hasattr(self, 'title'):
@@ -51,8 +54,8 @@ class GolfPage(ShtikerPage):
         rolloverColor = (0.15, 0.82, 1.0, 1)
         diabledColor = (1.0, 0.98, 0.15, 1)
         gui = loader.loadModel('phase_3.5/models/gui/fishingBook')
-        self.recordsTab = DirectButton(parent=self, relief=None, text=TTLocalizer.GolfPageRecordsTab, text_scale=TTLocalizer.GPrecordsTab, text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface2'), image_pos=(0.12, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[PageMode.Records], pos=TTLocalizer.GPrecordsTabPos)
-        self.trophyTab = DirectButton(parent=self, relief=None, text=TTLocalizer.GolfPageTrophyTab, text_scale=TTLocalizer.GPtrophyTab, text_pos=TTLocalizer.GPtrophyTabTextPos, text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface3'), image_pos=(-0.28, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[PageMode.Trophy], pos=TTLocalizer.GPtrophyTabPos)
+        self.recordsTab = DirectButton(parent=self, relief=None, text=TTLocalizer.GolfPageRecordsTab, text_scale=TTLocalizer.GPrecordsTab, text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface2'), image_pos=(0.12, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[EPageMode.RECORDS], pos=TTLocalizer.GPrecordsTabPos)
+        self.trophyTab = DirectButton(parent=self, relief=None, text=TTLocalizer.GolfPageTrophyTab, text_scale=TTLocalizer.GPtrophyTab, text_pos=TTLocalizer.GPtrophyTabTextPos, text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface3'), image_pos=(-0.28, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[EPageMode.TROPHY], pos=TTLocalizer.GPtrophyTabPos)
         self.recordsTab.setPos(-0.13, 0, 0.775)
         self.trophyTab.setPos(0.28, 0, 0.775)
         adjust = -0.2
@@ -73,11 +76,11 @@ class GolfPage(ShtikerPage):
                 return
             else:
                 self.mode = mode
-        if mode == PageMode.Records:
+        if mode == EPageMode.RECORDS:
             self.title['text'] = TTLocalizer.GolfPageTitleRecords
             self.recordsTab['state'] = DGG.DISABLED
             self.trophyTab['state'] = DGG.NORMAL
-        elif mode == PageMode.Trophy:
+        elif mode == EPageMode.TROPHY:
             self.title['text'] = TTLocalizer.GolfPageTitleTrophy
             self.recordsTab['state'] = DGG.NORMAL
             self.trophyTab['state'] = DGG.DISABLED
@@ -86,10 +89,10 @@ class GolfPage(ShtikerPage):
         self.updatePage()
 
     def updatePage(self):
-        if self.mode == PageMode.Records:
+        if self.mode == EPageMode.RECORDS:
             self.golfTrophies.hide()
             self.golfRecords.show()
-        elif self.mode == PageMode.Trophy:
+        elif self.mode == EPageMode.TROPHY:
             self.golfTrophies.show()
             self.golfRecords.hide()
         else:

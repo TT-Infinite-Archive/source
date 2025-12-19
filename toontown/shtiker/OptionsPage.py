@@ -36,15 +36,15 @@ class OptionsPage(ShtikerPage.ShtikerPage):
         self.optionsTab = OptionTab(
             parent=self, tabType=1, text=TTLocalizer.OptionsPageTitle, text_scale=TTLocalizer.OPoptionsTab,
             text_pos=(0.01, 0.0, 0.0), image_pos=(0.55, 1, -0.91), pos=(-0.4, 0, 0.77),
-            command=self.setMode, extraArgs=[OptionsPageGlobals.PageMode.Options])
+            command=self.setMode, extraArgs=[OptionsPageGlobals.EPageMode.OPTIONS])
 
         self.codesTab = OptionTab(
             parent=self, text=TTLocalizer.OptionsPageCodesTab, text_scale=TTLocalizer.OPoptionsTab,
             text_pos=(-0.035, 0.0, 0.0), image_pos=(0.12, 1, -0.91), pos=(0.2, 0, 0.77),
-            command=self.setMode, extraArgs=[OptionsPageGlobals.PageMode.Codes])
+            command=self.setMode, extraArgs=[OptionsPageGlobals.EPageMode.CODES])
 
     def enter(self):
-        self.setMode(OptionsPageGlobals.PageMode.Options, updateAnyways=1)
+        self.setMode(OptionsPageGlobals.EPageMode.OPTIONS, updateAnyways=1)
 
         ShtikerPage.ShtikerPage.enter(self)
 
@@ -86,13 +86,13 @@ class OptionsPage(ShtikerPage.ShtikerPage):
 
         self.mode = mode
 
-        if mode == OptionsPageGlobals.PageMode.Options:
+        if mode == OptionsPageGlobals.EPageMode.OPTIONS:
             self.title['text'] = TTLocalizer.OptionsPageTitle
             self.optionsTab['state'] = DGG.DISABLED
             self.optionsTabPage.enter()
             self.codesTab['state'] = DGG.NORMAL
             self.codesTabPage.exit()
-        elif mode == OptionsPageGlobals.PageMode.Codes:
+        elif mode == OptionsPageGlobals.EPageMode.CODES:
             self.title['text'] = TTLocalizer.CdrPageTitle
             self.optionsTab['state'] = DGG.NORMAL
             self.optionsTabPage.exit()

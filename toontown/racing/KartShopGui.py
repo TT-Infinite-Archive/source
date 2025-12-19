@@ -1,3 +1,4 @@
+import enum
 from panda3d.core import CardMaker, NodePath, Texture, Vec4
 if __name__ == '__main__':
     from direct.directbase import DirectStart
@@ -14,15 +15,57 @@ from .KartDNA import *
 from toontown.toontowngui.TeaserPanel import TeaserPanel
 if (__debug__):
     import pdb
-MENUS = PythonUtil.Enum('MainMenu, BuyKart, BuyAccessory, ReturnKart, ConfirmBuyAccessory, ConfirmBuyKart, BoughtKart, BoughtAccessory, TeaserPanel')
-MM_OPTIONS = PythonUtil.Enum('Cancel, BuyAccessory, BuyKart', -1)
-BK_OPTIONS = PythonUtil.Enum('Cancel, BuyKart', -1)
-BA_OPTIONS = PythonUtil.Enum('Cancel, BuyAccessory', -1)
-RK_OPTIONS = PythonUtil.Enum('Cancel, ReturnKart', -1)
-CBK_OPTIONS = PythonUtil.Enum('Cancel, BuyKart', -1)
-CBA_OPTIONS = PythonUtil.Enum('Cancel, BuyAccessory', -1)
-BTK_OPTIONS = PythonUtil.Enum('Ok', -1)
-BTA_OPTIONS = PythonUtil.Enum('Ok', -1)
+
+class EMenu(enum.Enum):
+    MAIN_MENU = 0
+    BUY_KART = 1
+    BUY_ACCESSORY = 2
+    RETURN_KART = 3
+    CONFIRM_BUY_ACCESSORY = 4
+    CONFIRM_BUY_KART = 5
+    BOUGHT_KART = 6
+    BOUGHT_ACCESSORY = 7
+    TEASER_PANEL = 8
+
+
+class EMainMenuOption(enum.Enum):
+    CANCEL = 0
+    BUY_ACCESSORY = 0
+    BUY_KART = 1
+
+
+class EBuyKartOption(enum.Enum):
+    CANCEL = 0
+    BUY = 1
+
+
+class EBuyAccessoryOption(enum.Enum):
+    CANCEL = 0
+    BUY = 1
+
+
+class EReturnKartOption(enum.Enum):
+    CANCEL = 0
+    RETURN = 1
+
+
+class EConfirmBuyKartOption(enum.Enum):
+    CANCEL = 0
+    BUY = 1
+
+
+class EConfirmBuyAccessoryOption(enum.Enum):
+    CANCEL = 0
+    BUY = 1
+
+
+class EBoughtKartOption(enum.Enum):
+    OK = 0
+
+
+class EBoughtAccessoryOption(enum.Enum):
+    OK = 0
+
 KS_TEXT_SIZE_BIG = TTLocalizer.KSGtextSizeBig
 KS_TEXT_SIZE_SMALL = TTLocalizer.KSGtextSizeSmall
 
@@ -44,7 +87,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 image=(model.find('**/CancelButtonUp'), model.find('**/CancelButtonDown'), model.find('**/CancelButtonRollover')),
                 scale=self.modelScale,
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [MM_OPTIONS.Cancel]))
+                command=lambda : messenger.send(doneEvent, [EMainMenuOption.CANCEL]))
             self.buyKartButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -55,7 +98,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 text_scale=KS_TEXT_SIZE_BIG,
                 text_pos=(-0.2, 0.34),
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [MM_OPTIONS.BuyKart]))
+                command=lambda : messenger.send(doneEvent, [EMainMenuOption.BUY_KART]))
             self.buyAccessoryButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -67,9 +110,8 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 text_scale=KS_TEXT_SIZE_BIG,
                 text_pos=(-0.1, 0.036),
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [MM_OPTIONS.BuyAccessory]))
+                command=lambda : messenger.send(doneEvent, [EMainMenuOption.BUY_ACCESSORY]))
             self.updateButtons()
-            return
 
         def updateButtons(self):
             if not base.localAvatar.hasKart():
@@ -132,7 +174,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 geom=model.find('**/CancelIcon'),
                 scale=self.modelScale,
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [BK_OPTIONS.Cancel]))
+                command=lambda : messenger.send(doneEvent, [EBuyKartOption.CANCEL]))
             self.arrowLeftButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -172,8 +214,8 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             self.buyKartButton.configure(text_scale=KS_TEXT_SIZE_BIG)
             if self.numKarts > 0:
                 info = getKartTypeInfo(self.unownedKartList[self.curKart])
-                description = info[KartInfo.name]
-                cost = TTLocalizer.KartShop_Cost % info[KartInfo.cost]
+                description = info[EKartInfo.NAME]
+                cost = TTLocalizer.KartShop_Cost % info[EKartInfo.COST]
                 self.kartDescription = DirectButton(
                     parent=self,
                     relief=None,
@@ -256,7 +298,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 command=lambda : messenger.send(doneEvent, [RK_OPTIONS.ReturnKart]))
             oldDNA = list(base.localAvatar.getKartDNA())
             for d in range(len(oldDNA)):
-                if d == KartDNA.bodyType:
+                if d == EKartDNA.BODY_TYPE:
                     continue
                 else:
                     oldDNA[d] = InvalidEntry
@@ -283,7 +325,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             self.modelScale = 1
             model = loader.loadModel('phase_6/models/gui/BoughtKartPanel')
             kartInfo = getKartTypeInfo(kartID)
-            name = kartInfo[KartInfo.name]
+            name = kartInfo[EKartInfo.NAME]
             DirectFrame.__init__(
                 self,
                 relief=None,
@@ -313,7 +355,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 geom=model.find('**/CheckIcon'),
                 scale=self.modelScale,
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [BTK_OPTIONS.Ok]))
+                command=lambda : messenger.send(doneEvent, [EBoughtKartOption.OK]))
             self.kartView = KartViewer([kartID, -1, -1, -1, -1, -1, -1, -1, -1], parent=self)
             self.kartView.setPos(model.find('**/KartViewerFrame').getPos())
             self.kartView.load(model, 'KartViewerFrame', [], [])
@@ -337,8 +379,8 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             self.modelScale = 1
             model = loader.loadModel('phase_6/models/gui/ConfirmBuyKartPanel')
             kartInfo = getKartTypeInfo(kartNum)
-            name = kartInfo[KartInfo.name]
-            cost = kartInfo[KartInfo.cost]
+            name = kartInfo[EKartInfo.NAME]
+            cost = kartInfo[EKartInfo.COST]
             DirectFrame.__init__(
                 self,
                 relief=None,
@@ -368,7 +410,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 geom=model.find('**/CancelIcon'),
                 scale=self.modelScale,
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [CBK_OPTIONS.Cancel]))
+                command=lambda : messenger.send(doneEvent, [EConfirmBuyKartOption.CANCEL]))
             self.okButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -376,7 +418,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 geom=model.find('**/CheckIcon'),
                 scale=self.modelScale,
                 pressEffect=False,
-                command=lambda : messenger.send(doneEvent, [CBK_OPTIONS.BuyKart]))
+                command=lambda : messenger.send(doneEvent, [EConfirmBuyKartOption.BUY]))
             self.kartView = KartViewer([self.kartNum, -1, -1, -1, -1, -1, -1, -1, -1], parent=self)
             self.kartView.setPos(model.find('**/KartViewerFrame').getPos())
             self.kartView.load(model, 'KartViewerFrame', [], [], None)
@@ -445,7 +487,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 scale=self.modelScale,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.decalType])
+                extraArgs=[EKartDNA.DECAL_TYPE])
             self.spoilerAccButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -453,7 +495,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 scale=self.modelScale,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.spType])
+                extraArgs=[EKartDNA.SP_TYPE])
             self.eBlockAccButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -461,7 +503,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 scale=self.modelScale,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.ebType])
+                extraArgs=[EKartDNA.EB_TYPE])
             self.rearAccButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -469,7 +511,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 scale=self.modelScale,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.bwwType])
+                extraArgs=[EKartDNA.BWW_TYPE])
             self.frontAccButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -479,7 +521,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 text_scale=0.1,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.fwwType])
+                extraArgs=[EKartDNA.FWW_TYPE])
             self.rimAccButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -487,7 +529,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 scale=self.modelScale,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.rimsType])
+                extraArgs=[EKartDNA.RIMS_TYPE])
             self.paintAccButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -495,15 +537,15 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 scale=self.modelScale,
                 pressEffect=False,
                 command=self.__handleAccessoryTypeChange,
-                extraArgs=[KartDNA.bodyColor])
+                extraArgs=[EKartDNA.BODY_COLOR])
             self.accButtonsDict = {
-                KartDNA.ebType: self.eBlockAccButton,
-                KartDNA.spType: self.spoilerAccButton,
-                KartDNA.fwwType: self.frontAccButton,
-                KartDNA.bwwType: self.rearAccButton,
-                KartDNA.rimsType: self.rimAccButton,
-                KartDNA.decalType: self.decalAccButton,
-                KartDNA.bodyColor: self.paintAccButton}
+                EKartDNA.EB_TYPE: self.eBlockAccButton,
+                EKartDNA.SP_TYPE: self.spoilerAccButton,
+                EKartDNA.FWW_TYPE: self.frontAccButton,
+                EKartDNA.BWW_TYPE: self.rearAccButton,
+                EKartDNA.RIMS_TYPE: self.rimAccButton,
+                EKartDNA.DECAL_TYPE: self.decalAccButton,
+                EKartDNA.BODY_COLOR: self.paintAccButton}
             self.buyAccessoryButton = DirectButton(
                 parent=self,
                 relief=None,
@@ -519,7 +561,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 self.ownedAccList.remove(-1)
 
             self.unownedAccDict = getAccessoryDictFromOwned(self.ownedAccList)
-            self.curAccType = KartDNA.ebType
+            self.curAccType = EKartDNA.EB_TYPE
             self.curAccIndex = {}
             for type in self.unownedAccDict:
                 self.curAccIndex[type] = 0
@@ -604,7 +646,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 curDNA = None
                 curDNA = list(base.localAvatar.getKartDNA())
                 for d in range(len(curDNA)):
-                    if d == KartDNA.bodyType or d == KartDNA.accColor or d == KartDNA.bodyColor:
+                    if d == EKartDNA.BODY_TYPE or d == EKartDNA.ACC_COLOR or d == EKartDNA.BODY_COLOR:
                         continue
                     else:
                         curDNA[d] = -1
@@ -612,8 +654,8 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                 curAcc = self.unownedAccDict[self.curAccType][self.curAccIndex[self.curAccType]]
                 curDNA[self.curAccType] = curAcc
                 self.kartView.refresh(curDNA)
-                self.accDescription.configure(text=AccessoryDict[curAcc][KartInfo.name])
-                cost = TTLocalizer.KartShop_Cost % AccessoryDict[curAcc][KartInfo.cost]
+                self.accDescription.configure(text=AccessoryDict[curAcc][EKartInfo.NAME])
+                cost = TTLocalizer.KartShop_Cost % AccessoryDict[curAcc][EKartInfo.COST]
                 self.accCost = DirectButton(
                     parent=self,
                     relief=None,
@@ -624,7 +666,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
                     text_fg=(0, 0, 0.0, 1.0),
                     pressEffect=False,
                     textMayChange=True)
-                if AccessoryDict[curAcc][KartInfo.cost] > base.localAvatar.getTickets():
+                if AccessoryDict[curAcc][EKartInfo.COST] > base.localAvatar.getTickets():
                     self.buyAccessoryButton['state'] = DGG.DISABLED
                     self.buyAccessoryButton.configure(text_scale=KS_TEXT_SIZE_SMALL * 0.75)
                     self.buyAccessoryButton.configure(text=TTLocalizer.KartShop_NotEnoughTickets)
@@ -658,11 +700,11 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             self.modelScale = 1
             model = loader.loadModel('phase_6/models/gui/BoughtAccessoryPanel')
             accInfo = getAccessoryInfo(accID)
-            name = accInfo[AccInfo.name]
+            name = accInfo[EAccInfo.NAME]
             DirectFrame.__init__(self, relief=None, state='normal', geom=model, geom_scale=self.modelScale, frameSize=(-1, 1, -1, 1), pos=(0, 0, -0.01), text=TTLocalizer.KartShop_ConfirmBoughtTitle, text_wordwrap=26, text_scale=KS_TEXT_SIZE_SMALL, text_pos=(0, -0.28))
             self.initialiseoptions(KartShopGuiMgr.BoughtAccessoryDlg)
             self.ticketDisplay = DirectLabel(parent=self, relief=None, text=str(base.localAvatar.getTickets()), text_scale=KS_TEXT_SIZE_SMALL, text_fg=(0.95, 0.95, 0.0, 1.0), text_shadow=(0, 0, 0, 1), text_pos=(0.43, -0.5), text_font=ToontownGlobals.getSignFont())
-            self.okButton = DirectButton(parent=self, relief=None, image=(model.find('**/CheckButtonUp'), model.find('**/CheckButtonDown'), model.find('**/CheckButtonRollover')), geom=model.find('**/CheckIcon'), scale=self.modelScale, pressEffect=False, command=lambda : messenger.send(doneEvent, [BTA_OPTIONS.Ok]))
+            self.okButton = DirectButton(parent=self, relief=None, image=(model.find('**/CheckButtonUp'), model.find('**/CheckButtonDown'), model.find('**/CheckButtonRollover')), geom=model.find('**/CheckIcon'), scale=self.modelScale, pressEffect=False, command=lambda : messenger.send(doneEvent, [EBoughtAccessoryOption.OK]))
             self.kartView = DirectFrame(parent=self, relief=None, geom=model.find('**/KartViewerFrame'), scale=1.0)
             bounds = self.kartView.getBounds()
             radius = (bounds[3] - bounds[2]) / 2
@@ -675,25 +717,25 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             accType = getAccessoryType(accID)
             texNodePath = None
             tex = None
-            if accType in [KartDNA.ebType,
-             KartDNA.spType,
-             KartDNA.fwwType,
-             KartDNA.bwwType]:
+            if accType in [EKartDNA.EB_TYPE,
+             EKartDNA.SP_TYPE,
+             EKartDNA.FWW_TYPE,
+             EKartDNA.BWW_TYPE]:
                 texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            elif accType == KartDNA.rimsType:
+            elif accType == EKartDNA.RIMS_TYPE:
                 if accID == InvalidEntry:
                     texNodePath = getTexCardNode(getDefaultRim())
                 else:
                     texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            elif accType in [KartDNA.bodyColor, KartDNA.accColor]:
+            elif accType in [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]:
                 tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
                 if accID == InvalidEntry:
                     self.kartView.component('geom0').setColorScale(getDefaultColor())
                 else:
                     self.kartView.component('geom0').setColorScale(getAccessory(accID))
-            elif accType == KartDNA.decalType:
+            elif accType == EKartDNA.DECAL_TYPE:
                 kartDecal = getDecalId(base.localAvatar.getKartBodyType())
                 texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
@@ -716,8 +758,8 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             self.modelScale = 1
             model = loader.loadModel('phase_6/models/gui/ConfirmBuyAccessory')
             accInfo = getAccessoryInfo(accID)
-            cost = accInfo[AccInfo.cost]
-            name = accInfo[AccInfo.name]
+            cost = accInfo[EAccInfo.COST]
+            name = accInfo[EAccInfo.NAME]
             DirectFrame.__init__(self, relief=None, state='normal', geom=model, geom_scale=self.modelScale, frameSize=(-1, 1, -1, 1), pos=(0, 0, -0.01), text=TTLocalizer.KartShop_ConfirmBuy % (name, cost), text_wordwrap=14, text_scale=KS_TEXT_SIZE_SMALL, text_pos=(0, -0.25))
             self.initialiseoptions(KartShopGuiMgr.ConfirmBuyAccessoryDlg)
             self.ticketDisplay = DirectLabel(parent=self, relief=None, text=str(base.localAvatar.getTickets()), text_scale=KS_TEXT_SIZE_SMALL, text_fg=(0.95, 0.95, 0.0, 1.0), text_shadow=(0, 0, 0, 1), text_pos=(0.43, -0.5), text_font=ToontownGlobals.getSignFont())
@@ -735,25 +777,25 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
             accType = getAccessoryType(accID)
             texNodePath = None
             tex = None
-            if accType in [KartDNA.ebType,
-             KartDNA.spType,
-             KartDNA.fwwType,
-             KartDNA.bwwType]:
+            if accType in [EKartDNA.EB_TYPE,
+             EKartDNA.SP_TYPE,
+             EKartDNA.FWW_TYPE,
+             EKartDNA.BWW_TYPE]:
                 texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            elif accType == KartDNA.rimsType:
+            elif accType == EKartDNA.RIMS_TYPE:
                 if accID == InvalidEntry:
                     texNodePath = getTexCardNode(getDefaultRim())
                 else:
                     texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            elif accType in [KartDNA.bodyColor, KartDNA.accColor]:
+            elif accType in [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]:
                 tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
                 if accID == InvalidEntry:
                     self.kartView.component('geom0').setColorScale(getDefaultColor())
                 else:
                     self.kartView.component('geom0').setColorScale(getAccessory(accID))
-            elif accType == KartDNA.decalType:
+            elif accType == EKartDNA.DECAL_TYPE:
                 kartDecal = getDecalId(base.localAvatar.getKartBodyType())
                 texNodePath = getTexCardNode(accID)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
@@ -772,15 +814,15 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
         self.dialog = None
         self.dialogStack = []
         self.eventDict = eventDict
-        self.dialogEventDict = {MENUS.MainMenu: ('MainMenuGuiDone', self.__handleMainMenuDlg, self.MainMenuDlg),
-         MENUS.BuyKart: ('BuyKartGuiDone', self.__handleBuyKartDlg, self.BuyKartDlg),
-         MENUS.BuyAccessory: ('BuyAccessoryGuiDone', self.__handleBuyAccessoryDlg, self.BuyAccessoryDlg),
-         MENUS.ReturnKart: ('ReturnKartGuiDone', self.__handleReturnKartDlg, self.ReturnKartDlg),
-         MENUS.ConfirmBuyKart: ('ConfirmBuyKartGuiDone', self.__handleConfirmBuyKartDlg, self.ConfirmBuyKartDlg),
-         MENUS.ConfirmBuyAccessory: ('ConfirmBuyAccessoryGuiDone', self.__handleConfirmBuyAccessoryDlg, self.ConfirmBuyAccessoryDlg),
-         MENUS.BoughtKart: ('BoughtKartGuiDone', self.__handleBoughtKartDlg, self.BoughtKartDlg),
-         MENUS.BoughtAccessory: ('BoughtAccessoryGuiDone', self.__handleBoughtAccessoryDlg, self.BoughtAccessoryDlg),
-         MENUS.TeaserPanel: ('UnpaidPurchaseAttempt', self.__handleTeaserPanelDlg, TeaserPanel)}
+        self.dialogEventDict = {EMenu.MAIN_MENU: ('MainMenuGuiDone', self.__handleMainMenuDlg, self.MainMenuDlg),
+         EMenu.BUY_KART: ('BuyKartGuiDone', self.__handleBuyKartDlg, self.BuyKartDlg),
+         EMenu.BUY_ACCESSORY: ('BuyAccessoryGuiDone', self.__handleBuyAccessoryDlg, self.BuyAccessoryDlg),
+         EMenu.RETURN_KART: ('ReturnKartGuiDone', self.__handleReturnKartDlg, self.ReturnKartDlg),
+         EMenu.CONFIRM_BUY_KART: ('ConfirmBuyKartGuiDone', self.__handleConfirmBuyKartDlg, self.ConfirmBuyKartDlg),
+         EMenu.CONFIRM_BUY_ACCESSORY: ('ConfirmBuyAccessoryGuiDone', self.__handleConfirmBuyAccessoryDlg, self.ConfirmBuyAccessoryDlg),
+         EMenu.BOUGHT_KART: ('BoughtKartGuiDone', self.__handleBoughtKartDlg, self.BoughtKartDlg),
+         EMenu.BOUGHT_ACCESSORY: ('BoughtAccessoryGuiDone', self.__handleBoughtAccessoryDlg, self.BoughtAccessoryDlg),
+         EMenu.TEASER_PANEL: ('UnpaidPurchaseAttempt', self.__handleTeaserPanelDlg, TeaserPanel)}
         self.kartID = -1
         self.accID = -1
         self.timer = ToontownTimer.ToontownTimer()
@@ -788,8 +830,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
         self.timer.posInTopRightCorner()
         self.timer.accept('RESET_KARTSHOP_TIMER', self.__resetTimer)
         self.timer.countdown(KartShopGlobals.KARTCLERK_TIMER, self.__timerExpired)
-        self.__doDialog(MENUS.MainMenu)
-        return
+        self.__doDialog(EMenu.MAIN_MENU)
 
     def __resetTimer(self):
         if hasattr(self, 'timer') and self.timer:
@@ -853,7 +894,7 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
     def __doLastMenu(self):
         self.__doDialog(self.lastMenu)
 
-    def __doDialog(self, dialogType):
+    def __doDialog(self, dialogType: EMenu):
         self.__destroyDialog()
         messenger.send('wakeup')
         event = self.dialogEventDict.get(dialogType)
@@ -861,98 +902,96 @@ class KartShopGuiMgr(object, DirectObject.DirectObject):
         eventHandler = event[1]
         eventDlg = event[2]
         self.acceptOnce(eventType, eventHandler)
-        if dialogType == MENUS.ConfirmBuyKart:
-            self.dialog = eventDlg(eventType, self.kartID)
-        elif dialogType == MENUS.BoughtKart:
-            self.dialog = eventDlg(eventType, self.kartID)
-        elif dialogType == MENUS.ConfirmBuyAccessory:
-            self.dialog = eventDlg(eventType, self.accID)
-        elif dialogType == MENUS.BoughtAccessory:
-            self.dialog = eventDlg(eventType, self.accID)
-        elif dialogType == MENUS.TeaserPanel:
-            self.dialog = eventDlg(pageName='karting', doneFunc=self.__doLastMenu)
-        else:
-            self.dialog = eventDlg(eventType)
-        if not dialogType == MENUS.TeaserPanel:
+        match dialogType:
+            case EMenu.CONFIRM_BUY_KART | EMenu.BOUGHT_KART:
+                self.dialog = eventDlg(eventType, self.kartID)
+            case EMenu.CONFIRM_BUY_ACCESSORY | EMenu.BOUGHT_ACCESSORY:
+                self.dialog = eventDlg(eventType, self.accId)
+            case EMenu.TEASER_PANEL:
+                self.dialog = eventDlg(pageName='karting', doneFunc=self.__doLastMenu)
+            case _:
+                self.dialog = eventDlg(eventType)
+
+        if not dialogType == EMenu.TEASER_PANEL:
             self.lastMenu = dialogType
 
     def __handleMainMenuDlg(self, exitType, args = []):
         self.notify.debug('__handleMainMenuDlg: Handling MainMenu Dialog Selection.')
-        if exitType == MM_OPTIONS.Cancel:
+        if exitType == EMainMenuOption.CANCEL:
             messenger.send(self.eventDict['guiDone'])
-        elif exitType == MM_OPTIONS.BuyKart:
-            self.__doDialog(MENUS.BuyKart)
-        elif exitType == MM_OPTIONS.BuyAccessory:
-            self.__doDialog(MENUS.BuyAccessory)
+        elif exitType == EMainMenuOption.BUY_KART:
+            self.__doDialog(EMenu.BUY_KART)
+        elif exitType == EMainMenuOption.BUY_ACCESSORY:
+            self.__doDialog(EMenu.BUY_ACCESSORY)
 
     def __handleBoughtKartDlg(self, exitType):
         self.notify.debug('__handleBoughtKartDlg: Telling the player their purchase was successful')
         if not hasattr(base.localAvatar, 'kartPage'):
             base.localAvatar.addKartPage()
         self.kartID = -1
-        self.__doDialog(MENUS.MainMenu)
+        self.__doDialog(EMenu.MAIN_MENU)
 
     def __handleBoughtAccessoryDlg(self, exitType):
         self.notify.debug('__handleBoughtAccessoryDlg: Telling the player their purchase was successful')
         self.accID = -1
-        self.__doDialog(MENUS.BuyAccessory)
+        self.__doDialog(EMenu.BUY_ACCESSORY)
 
     def __handleTeaserPanelDlg(self):
-        self.__doDialog(MENUS.TeaserPanel)
+        self.__doDialog(EMenu.TEASER_PANEL)
 
     def __handleBuyKartDlg(self, exitType, args = []):
         self.notify.debug('__handleBuyKartDlg: Handling BuyKart Dialog Selection.')
-        if exitType == BK_OPTIONS.Cancel:
-            self.__doDialog(MENUS.MainMenu)
+        if exitType == EBuyKartOption.CANCEL:
+            self.__doDialog(EMenu.MAIN_MENU)
         else:
             self.kartID = exitType
             if base.localAvatar.hasKart():
-                self.__doDialog(MENUS.ReturnKart)
+                self.__doDialog(EMenu.RETURN_KART)
             else:
-                self.__doDialog(MENUS.ConfirmBuyKart)
+                self.__doDialog(EMenu.CONFIRM_BUY_KART)
 
     def __handleBuyAccessoryDlg(self, exitType, args = []):
         self.notify.debug('__handleBuyKartDlg: Handling BuyKart Dialog Selection.')
         if exitType == BA_OPTIONS.Cancel:
-            self.__doDialog(MENUS.MainMenu)
+            self.__doDialog(EMenu.MAIN_MENU)
         else:
             self.accID = exitType
-            self.__doDialog(MENUS.ConfirmBuyAccessory)
+            self.__doDialog(EMenu.CONFIRM_BUY_ACCESSORY)
 
     def __handleReturnKartDlg(self, exitType, args = []):
         self.notify.debug('__handleReturnKartDlg: Handling ReturnKart Dialog Selection.')
         if exitType == RK_OPTIONS.Cancel:
-            self.__doDialog(MENUS.BuyKart)
+            self.__doDialog(EMenu.BUY_KART)
         elif exitType == RK_OPTIONS.ReturnKart:
-            self.__doDialog(MENUS.ConfirmBuyKart)
+            self.__doDialog(EMenu.CONFIRM_BUY_KART)
 
     def __handleConfirmBuyAccessoryDlg(self, exitType, args = []):
         self.notify.debug('__handleConfirmBuyAccessoryDlg: Handling ConfirmBuyAccessory Dialog Selection.')
         if exitType == CBA_OPTIONS.Cancel:
-            self.__doDialog(MENUS.BuyAccessory)
+            self.__doDialog(EMenu.BUY_ACCESSORY)
             self.accID = -1
         elif exitType == CBA_OPTIONS.BuyAccessory:
             if self.accID != -1:
                 messenger.send(self.eventDict['buyAccessory'], [self.accID])
             oldTickets = base.localAvatar.getTickets()
             accInfo = getAccessoryInfo(self.accID)
-            cost = accInfo[AccInfo.cost]
+            cost = accInfo[EAccInfo.COST]
             base.localAvatar.setTickets(oldTickets - cost)
             accList = base.localAvatar.getKartAccessoriesOwned()
             accList.append(self.accID)
             base.localAvatar.setKartAccessoriesOwned(accList)
             self.accID = -1
-            self.__doDialog(MENUS.BuyAccessory)
+            self.__doDialog(EMenu.BUY_ACCESSORY)
 
     def __handleConfirmBuyKartDlg(self, exitType, args = []):
         self.notify.debug('__handleConfirmBuyKartDlg: Handling ConfirmBuyKart Dialog Selection.')
-        if exitType == CBK_OPTIONS.Cancel:
-            self.__doDialog(MENUS.BuyKart)
+        if exitType == EConfirmBuyKartOption.CANCEL:
+            self.__doDialog(EMenu.BUY_KART)
             self.kartID = -1
-        elif exitType == CBK_OPTIONS.BuyKart:
+        elif exitType == EConfirmBuyKartOption.BUY:
             if self.kartID != -1:
                 messenger.send(self.eventDict['buyKart'], [self.kartID])
-            self.__doDialog(MENUS.BoughtKart)
+            self.__doDialog(EMenu.BOUGHT_KART)
         if __name__ == '__main__':
 
             class Main(DirectObject.DirectObject):

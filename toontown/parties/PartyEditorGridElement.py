@@ -67,7 +67,7 @@ class PartyEditorGridElement(DirectButton):
             r = 270.0
         elif r == 270.0:
             r = 90.0
-        if self.id == PartyGlobals.ActivityIds.PartyCannon:
+        if self.id == PartyGlobals.EActivityId.PartyCannon:
             return PartyUtils.convertDegreesToPartyGrid(r + 180.0)
         return PartyUtils.convertDegreesToPartyGrid(r)
 
@@ -108,7 +108,7 @@ class PartyEditorGridElement(DirectButton):
                     if self.mouseOverTrash:
                         self.setOverTrash(False)
                     return Task.cont
-            if self.id != PartyGlobals.ActivityIds.PartyClock and newPos[0] > PartyGlobals.PartyEditorTrashBounds[0][0] and newPos[0] < PartyGlobals.PartyEditorTrashBounds[1][0] and newPos[2] < PartyGlobals.PartyEditorTrashBounds[0][1] and newPos[2] > PartyGlobals.PartyEditorTrashBounds[1][1]:
+            if self.id != PartyGlobals.EActivityId.PartyClock and newPos[0] > PartyGlobals.PartyEditorTrashBounds[0][0] and newPos[0] < PartyGlobals.PartyEditorTrashBounds[1][0] and newPos[2] < PartyGlobals.PartyEditorTrashBounds[0][1] and newPos[2] > PartyGlobals.PartyEditorTrashBounds[1][1]:
                 if not self.mouseOverTrash:
                     self.setOverTrash(True)
             elif self.mouseOverTrash:
@@ -170,7 +170,7 @@ class PartyEditorGridElement(DirectButton):
             gridPos.setX(gridPos[0] + PartyGlobals.PartyEditorGridSquareSize[0] / 2.0)
         if self.getGridSize()[1] % 2 == 0:
             gridPos.setZ(gridPos[2] + PartyGlobals.PartyEditorGridSquareSize[1] / 2.0)
-        if self.id != PartyGlobals.ActivityIds.PartyFireworks:
+        if self.id != PartyGlobals.EActivityId.PartyFireworks:
             if gridPos[0] > PartyGlobals.PartyEditorGridCenter[0] + PartyGlobals.PartyEditorGridRotateThreshold:
                 self.setR(90.0)
                 self.uprightNodePath.setR(-90.0)

@@ -126,7 +126,7 @@ class DedicatedServer(FSM):
             # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 
-        if hasattr(__builtin__, 'dcData'):
+        if hasattr(builtins, 'dcData'):
             dcFileNames = [StringStream(dcData)]
 
         dcImports = {}

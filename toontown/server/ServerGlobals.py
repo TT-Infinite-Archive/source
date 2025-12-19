@@ -11,7 +11,7 @@ print(str(LogsPath))
 if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
-elif hasattr(__builtin__, '__nirai__'):
+elif hasattr(builtins, '__nirai__'):
     UberdogTarget = [__nirai__.filename, '--uberdog']
     AITarget = [__nirai__.filename, '--ai']
 else:

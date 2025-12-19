@@ -111,7 +111,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         party = self.id2Party.get(partyId)
         if not party:
             return
-        if datetime.now(ToontownTimeZone()) > party['start'] or party['status'] == PartyStatus.Cancelled:
+        if datetime.now(ToontownTimeZone()) > party['start'] or party['status'] == EPartyStatus.CANCELLED:
             hostId = party['hostId']
             if refund:
                 self.hostsToRefund[hostId] = self.calculateRefund(party['activities'], party['decorations'])
@@ -169,20 +169,20 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         for partyId in list(self.id2Party.keys()):
             party = self.id2Party[partyId]
             hostId = party['hostId']
-            if self.canPartyStart(party) and party['status'] == PartyStatus.Pending:
+            if self.canPartyStart(party) and party['status'] == EPartyStatus.PENDING:
                 # Time to start party
-                party['status'] = PartyStatus.CanStart
+                party['status'] = EPartyStatus.CAN_START
                 self.id2Party[partyId] = party
                 self.sendToAv(hostId, 'setHostedParties', [[self._formatParty(party)]])
                 self.sendToAv(hostId, 'setPartyCanStart', [partyId])
             elif self.isTooLate(party) and not self.wantInstantParties:
-                if party['status'] == PartyStatus.Finished:
+                if party['status'] == EPartyStatus.FINISHED:
                     self.checkForDeletion(partyId)
                     continue
-                elif party['status'] == PartyStatus.NeverStarted:
+                elif party['status'] == EPartyStatus.NEVER_STARTED:
                     self.checkForDeletion(partyId, refund=True)
                     continue
-                party['status'] = PartyStatus.NeverStarted
+                party['status'] = EPartyStatus.NEVER_STARTED
                 self.id2Party[partyId] = party
                 self.sendToAv(hostId, 'setHostedParties', [[self._formatParty(party)]])
                 self.checkForDeletion(partyId, refund=True)
@@ -209,7 +209,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
                 partyDict['inviteTheme'],
                 partyDict['activities'],
                 partyDict['decorations'],
-                partyDict.get('status', PartyStatus.Pending)]
+                partyDict.get('status', EPartyStatus.PENDING)]
 
     # Avatar joined the game, invoked by the CSMUD
     def avatarJoined(self, avId):
@@ -292,7 +292,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         if partyId not in self.id2Party:
             self.notify.warning("didn't find details for starting party id %s hosted by %s" % (partyId, hostName))
             return
-        self.id2Party[partyId]['status'] = PartyStatus.Started
+        self.id2Party[partyId]['status'] = EPartyStatus.STARTED
         party = self.id2Party.get(partyId, None)
         self.sendToAv(party['hostId'], 'setHostedParties', [[self._formatParty(party)]])
         self.sendToAv(party['hostId'], 'announcePartyStarted', [partyId])
@@ -303,7 +303,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
 
         party = self.id2Party.get(partyId, None)
         if party is not None:
-            self.id2Party[partyId]['status'] = PartyStatus.Finished
+            self.id2Party[partyId]['status'] = EPartyStatus.FINISHED
             hostId = party['hostId']
             self.sendToAv(hostId, 'setHostedParties', [[self._formatParty(party)]])
             del self.id2Party[partyId]
@@ -360,11 +360,11 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         endTime = datetime.strptime(end.split('-04:00')[0], PARTY_TIME_FORMAT).replace(tzinfo=ToontownTimeZone())
         _party = {'partyId': partyId, 'hostId': hostId, 'start': startTime, 'end': endTime,
                   'isPrivate': isPrivate, 'inviteTheme': inviteTheme, 'activities': activities,
-                  'decorations': decorations, 'inviteeIds': inviteeIds, 'status': PartyStatus.Pending}
+                  'decorations': decorations, 'inviteeIds': inviteeIds, 'status': EPartyStatus.PENDING}
 
         if hostId in self.host2PartyId:
             # Sorry, one party at a time
-            self.sendToAI('addPartyResponseUdToAi', [partyId, AddPartyErrorCode.TooManyHostedParties, self._formatParty(_party)])
+            self.sendToAI('addPartyResponseUdToAi', [partyId, EAddPartyErrorCode.TOO_MANY_HOSTED_PARTIES, self._formatParty(_party)])
             return
 
         self.id2Party[partyId] = _party
@@ -378,7 +378,7 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         for avId in inviteeIds:
             inviteKey = self.inviteKeyAllocator.allocate()
             self.partyId2InviteKeys[partyId].append(inviteKey)
-            invite = [inviteKey, partyId, InviteStatus.NotRead]
+            invite = [inviteKey, partyId, EInviteStatus.NOT_READ]
             self.inviteKey2Invite[inviteKey] = invite
             if avId not in self.inviteeId2Invites:
                 self.inviteeId2Invites[avId] = []
@@ -391,9 +391,9 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
                     partiesInvitedTo.append(self._formatParty(self.id2Party[invite[1]]))
 
             self.sendToAv(avId, 'setPartiesInvitedTo', [partiesInvitedTo])
-            self.hostId2PartyReplies[hostId].append([avId, InviteStatus.NotRead])
+            self.hostId2PartyReplies[hostId].append([avId, EInviteStatus.NOT_READ])
 
-        self.sendToAI('addPartyResponseUdToAi', [partyId, AddPartyErrorCode.AllOk, self._formatParty(self.id2Party[partyId])])
+        self.sendToAI('addPartyResponseUdToAi', [partyId, EAddPartyErrorCode.ALL_OK, self._formatParty(self.id2Party[partyId])])
         self.sendToAv(hostId, 'setPartyReplies', [[[partyId, self.hostId2PartyReplies[hostId]]]])
 
         if self.wantInstantParties:
@@ -416,14 +416,14 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         if partyId not in self.party2PubInfo:
             recipient = self.GetPuppetConnectionChannel(avId)
             sender = simbase.air.getAvatarIdFromSender()
-            dg = self.air.dclassesByName['DistributedPartyGateAI'].getFieldByName('partyRequestDenied').aiFormatUpdate(gateId, recipient, sender, [PartyGateDenialReasons.Unavailable])
+            dg = self.air.dclassesByName['DistributedPartyGateAI'].getFieldByName('partyRequestDenied').aiFormatUpdate(gateId, recipient, sender, [EPartyGateDenialReason.UNAVAILABLE])
             self.air.send(dg)
             return
         party = self.party2PubInfo[partyId]
         if party['numGuests'] >= party['maxGuests']:
             recipient = self.GetPuppetConnectionChannel(avId)
             sender = simbase.air.getAvatarIdFromSender()
-            dg = self.air.dclassesByName['DistributedPartyGateAI'].getFieldByName('partyRequestDenied').aiFormatUpdate(gateId, recipient, sender, [PartyGateDenialReasons.Full])
+            dg = self.air.dclassesByName['DistributedPartyGateAI'].getFieldByName('partyRequestDenied').aiFormatUpdate(gateId, recipient, sender, [EPartyGateDenialReason.FULL])
             self.air.send(dg)
             return
         # get them a slot
@@ -458,19 +458,19 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         party = self.id2Party.get(partyId)
         if party is None:
             self.notify.warning('Avatar %s tried to update a invalid party %s!' % (hostId, partyId))
-            self.sendToAI('changePrivateResponseUdToAi', [hostId, partyId, isPrivate, ChangePartyFieldErrorCode.ValidationError])
+            self.sendToAI('changePrivateResponseUdToAi', [hostId, partyId, isPrivate, EChangePartyFieldErrorCode.ValidationError])
             return
         if party['hostId'] != hostId:
             self.air.writeServerEvent('suspicious', hostId, 'Avatar tried to update a party that is not thiers!')
-            self.sendToAI('changePrivateResponseUdToAi', [hostId, partyId, isPrivate, ChangePartyFieldErrorCode.ValidationError])
+            self.sendToAI('changePrivateResponseUdToAi', [hostId, partyId, isPrivate, EChangePartyFieldErrorCode.ValidationError])
             return
-        if party['status'] not in (PartyStatus.CanStart, PartyStatus.Pending):
+        if party['status'] not in (EPartyStatus.CAN_START, EPartyStatus.PENDING):
             self.sendToAI('changePrivateResponseUdToAi',
-                          [hostId, partyId, isPrivate, ChangePartyFieldErrorCode.AlreadyStarted])
+                          [hostId, partyId, isPrivate, EChangePartyFieldErrorCode.ALREADY_STARTED])
             return
         party['isPrivate'] = isPrivate
         self.sendToAv(hostId, 'setHostedParties', [[self._formatParty(party)]])
-        self.sendToAI('changePrivateResponseUdToAi', [hostId, partyId, isPrivate, ChangePartyFieldErrorCode.AllOk])
+        self.sendToAI('changePrivateResponseUdToAi', [hostId, partyId, isPrivate, EChangePartyFieldErrorCode.ALL_OK])
 
     def changePartyStatusRequest(self, hostId, partyId, newPartyStatus):
         party = self.id2Party.get(partyId)
@@ -478,25 +478,25 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         if party is None:
             self.notify.warning('Avatar %s tried to update a invalid party %s!' % (hostId, partyId))
             self.sendToAI('changePartyStatusResponseUdToAi',
-                          [hostId, partyId, newPartyStatus, ChangePartyFieldErrorCode.ValidationError, refund])
+                          [hostId, partyId, newPartyStatus, EChangePartyFieldErrorCode.ValidationError, refund])
             return
         if party['hostId'] != hostId:
             self.air.writeServerEvent('suspicious', hostId, 'Avatar tried to update a party that is not thiers!')
             self.sendToAI('changePartyStatusResponseUdToAi',
-                          [hostId, partyId, newPartyStatus, ChangePartyFieldErrorCode.ValidationError, refund])
+                          [hostId, partyId, newPartyStatus, EChangePartyFieldErrorCode.ValidationError, refund])
             return
-        if party['status'] not in (PartyStatus.CanStart, PartyStatus.Pending):
+        if party['status'] not in (EPartyStatus.CAN_START, EPartyStatus.PENDING):
             self.sendToAI('changePartyStatusResponseUdToAi',
-                          [hostId, partyId, newPartyStatus, ChangePartyFieldErrorCode.AlreadyStarted, refund])
+                          [hostId, partyId, newPartyStatus, EChangePartyFieldErrorCode.ALREADY_STARTED, refund])
             return
         party['status'] = newPartyStatus
         self.id2Party[partyId] = party
         self.sendToAv(hostId, 'setHostedParties', [[self._formatParty(party)]])
 
-        if newPartyStatus == PartyStatus.Cancelled:
+        if newPartyStatus == EPartyStatus.CANCELLED:
             refund = self.calculateRefund(party['activities'], party['decorations'])
 
-        self.sendToAI('changePartyStatusResponseUdToAi', [hostId, partyId, newPartyStatus, ChangePartyFieldErrorCode.AllOk, refund])
+        self.sendToAI('changePartyStatusResponseUdToAi', [hostId, partyId, newPartyStatus, EChangePartyFieldErrorCode.ALL_OK, refund])
         self.save(dictName='id2Party')
 
     def respondToInvite(self, fromId, mailboxId, context, inviteKey, inviteStatus):
@@ -513,12 +513,12 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
         partyReply = [fromId, inviteStatus]
         pastReplies = self.hostId2PartyReplies.get(hostId)
 
-        if [fromId, InviteStatus.ReadButNotReplied] in pastReplies:
+        if [fromId, EInviteStatus.READ_BUT_NOT_REPLIED] in pastReplies:
             self.sendToAv(hostId, 'updateReply', [invite[1]] + partyReply)
-            self.hostId2PartyReplies[hostId].remove([fromId, InviteStatus.ReadButNotReplied])
-        elif [fromId, InviteStatus.NotRead] in pastReplies:
+            self.hostId2PartyReplies[hostId].remove([fromId, EInviteStatus.READ_BUT_NOT_REPLIED])
+        elif [fromId, EInviteStatus.NOT_READ] in pastReplies:
             self.sendToAv(hostId, 'updateReply', [invite[1]] + partyReply)
-            self.hostId2PartyReplies[hostId].remove([fromId, InviteStatus.NotRead])
+            self.hostId2PartyReplies[hostId].remove([fromId, EInviteStatus.NOT_READ])
         else:
             self.air.writeServerEvent('suspicious', fromId, 'Avatar tried to update a invalid invite!')
             return
@@ -552,23 +552,23 @@ class GlobalPartyManagerUD(DistributedObjectGlobalUD):
 
         hostId = self.id2Party[invite[1]]['hostId']
         pastReplies = self.hostId2PartyReplies.get(hostId)
-        if not [fromId, InviteStatus.NotRead] in pastReplies:
+        if not [fromId, EInviteStatus.NOT_READ] in pastReplies:
             self.air.writeServerEvent('suspicious', fromId, 'Avatar tried to respond to a party they aren\'t invited to!')
             return
 
         for reply in pastReplies:
-            if reply[0] == fromId and reply[1] != InviteStatus.NotRead:
+            if reply[0] == fromId and reply[1] != EInviteStatus.NOT_READ:
                 self.air.writeServerEvent('suspicious', fromId, 'Avatar tried to update a already responded invite!')
                 return
 
-        newReply = [fromId, InviteStatus.ReadButNotReplied]
-        newInvite = [inviteKey, invite[1], InviteStatus.ReadButNotReplied]
+        newReply = [fromId, EInviteStatus.READ_BUT_NOT_REPLIED]
+        newInvite = [inviteKey, invite[1], EInviteStatus.READ_BUT_NOT_REPLIED]
         if fromId in self.inviteeId2Invites:
             if invite in self.inviteeId2Invites[fromId]:
                 self.inviteeId2Invites[fromId].remove(invite)
         self.inviteeId2Invites[fromId].append(newInvite)
         self.inviteKey2Invite[inviteKey] = newInvite
-        self.hostId2PartyReplies[hostId].remove([fromId, InviteStatus.NotRead])
+        self.hostId2PartyReplies[hostId].remove([fromId, EInviteStatus.NOT_READ])
         self.hostId2PartyReplies[hostId].append(newReply)
         self.sendToAv(hostId, 'updateReply', [invite[1]] + newReply)
         self.save(dictName=('inviteKey2Invite', 'inviteeId2Invites', 'hostId2PartyReplies'))

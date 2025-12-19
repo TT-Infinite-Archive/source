@@ -1089,7 +1089,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         else:
             foundCanStart = False
             for partyInfo in self.hostedParties:
-                if partyInfo.status == PartyGlobals.PartyStatus.CanStart:
+                if partyInfo.status == PartyGlobals.EPartyStatus.CAN_START:
                     foundCanStart = True
                     break
 

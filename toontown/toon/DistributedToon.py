@@ -1847,7 +1847,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
     if base.wantKarts:
 
         def hasKart(self):
-            return self.kartDNA[KartDNA.bodyType] != -1
+            return self.kartDNA[EKartDNA.BODY_TYPE] != -1
 
         def getKartDNA(self):
             return self.kartDNA
@@ -1869,58 +1869,58 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             return
 
         def setKartBodyType(self, bodyType):
-            self.kartDNA[KartDNA.bodyType] = bodyType
+            self.kartDNA[EKartDNA.BODY_TYPE] = bodyType
 
         def getKartBodyType(self):
-            return self.kartDNA[KartDNA.bodyType]
+            return self.kartDNA[EKartDNA.BODY_TYPE]
 
         def setKartBodyColor(self, bodyColor):
-            self.kartDNA[KartDNA.bodyColor] = bodyColor
+            self.kartDNA[EKartDNA.BODY_COLOR] = bodyColor
 
         def getKartBodyColor(self):
-            return self.kartDNA[KartDNA.bodyColor]
+            return self.kartDNA[EKartDNA.BODY_COLOR]
 
         def setKartAccessoryColor(self, accColor):
-            self.kartDNA[KartDNA.accColor] = accColor
+            self.kartDNA[EKartDNA.ACC_COLOR] = accColor
 
         def getKartAccessoryColor(self):
-            return self.kartDNA[KartDNA.accColor]
+            return self.kartDNA[EKartDNA.ACC_COLOR]
 
         def setKartEngineBlockType(self, ebType):
-            self.kartDNA[KartDNA.ebType] = ebType
+            self.kartDNA[EKartDNA.EB_TYPE] = ebType
 
         def getKartEngineBlockType(self):
-            return self.kartDNA[KartDNA.ebType]
+            return self.kartDNA[EKartDNA.EB_TYPE]
 
         def setKartSpoilerType(self, spType):
-            self.kartDNA[KartDNA.spType] = spType
+            self.kartDNA[EKartDNA.SP_TYPE] = spType
 
         def getKartSpoilerType(self):
-            return self.kartDNA[KartDNA.spType]
+            return self.kartDNA[EKartDNA.SP_TYPE]
 
         def setKartFrontWheelWellType(self, fwwType):
-            self.kartDNA[KartDNA.fwwType] = fwwType
+            self.kartDNA[EKartDNA.FWW_TYPE] = fwwType
 
         def getKartFrontWheelWellType(self):
-            return self.kartDNA[KartDNA.fwwType]
+            return self.kartDNA[EKartDNA.FWW_TYPE]
 
         def setKartBackWheelWellType(self, bwwType):
-            self.kartDNA[KartDNA.bwwType] = bwwType
+            self.kartDNA[EKartDNA.BWW_TYPE] = bwwType
 
         def getKartBackWheelWellType(self):
-            return self.kartDNA[KartDNA.bwwType]
+            return self.kartDNA[EKartDNA.BWW_TYPE]
 
         def setKartRimType(self, rimsType):
-            self.kartDNA[KartDNA.rimsType] = rimsType
+            self.kartDNA[EKartDNA.RIMS_TYPE] = rimsType
 
         def setKartDecalType(self, decalType):
-            self.kartDNA[KartDNA.decalType] = decalType
+            self.kartDNA[EKartDNA.DECAL_TYPE] = decalType
 
         def getKartDecalType(self):
-            return self.kartDNA[KartDNA.decalType]
+            return self.kartDNA[EKartDNA.DECAL_TYPE]
 
         def getKartRimType(self):
-            return self.kartDNA[KartDNA.rimsType]
+            return self.kartDNA[EKartDNA.RIMS_TYPE]
 
         def setKartAccessoriesOwned(self, accessories):
             while len(accessories) < 16:
@@ -2513,9 +2513,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         newInvites = 0
         readButNotRepliedInvites = 0
         for invite in invitesInMailbox:
-            if invite.status == PartyGlobals.InviteStatus.NotRead:
+            if invite.status == PartyGlobals.EInviteStatus.NOT_READ:
                 newInvites += 1
-            elif invite.status == PartyGlobals.InviteStatus.ReadButNotReplied:
+            elif invite.status == PartyGlobals.EInviteStatus.READ_BUT_NOT_REPLIED:
                 readButNotRepliedInvites += 1
             if __dev__:
                 partyInfo = self.getOnePartyInvitedTo(invite.partyId)
@@ -2533,14 +2533,14 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         result = []
         for invite in self.invites:
             appendInvite = True
-            if invite.status == InviteStatus.Accepted or invite.status == InviteStatus.Rejected:
+            if invite.status == EInviteStatus.ACCEPTED or invite.status == EInviteStatus.REJECTED:
                 appendInvite = False
             if appendInvite:
                 partyInfo = self.getOnePartyInvitedTo(invite.partyId)
                 if not partyInfo:
                     appendInvite = False
                 if appendInvite:
-                    if partyInfo.status == PartyGlobals.PartyStatus.Cancelled:
+                    if partyInfo.status == PartyGlobals.EPartyStatus.CANCELLED:
                         appendInvite = False
                 if appendInvite:
                     endDate = partyInfo.endTime.date()
@@ -2605,7 +2605,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         DistributedToon.partyNotify.debug('setPartyCanStart called passing in partyId=%s' % partyId)
         for partyInfo in self.hostedParties:
             if partyInfo.partyId == partyId:
-                partyInfo.status = PartyGlobals.PartyStatus.CanStart
+                partyInfo.status = PartyGlobals.EPartyStatus.CAN_START
                 from toontown.shtiker import EventsPage
                 if hasattr(self, 'eventsPage') and base.localAvatar.book.entered and base.localAvatar.book.isOnPage(self.eventsPage) and self.eventsPage.getMode() == EventsPage.EventsPage_Host:
                     base.localAvatar.eventsPage.loadHostedPartyInfo()
@@ -2630,14 +2630,14 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 from toontown.shtiker import EventsPage
                 if hasattr(self, 'eventsPage') and base.localAvatar.book.entered and base.localAvatar.book.isOnPage(self.eventsPage) and self.eventsPage.getMode() == EventsPage.EventsPage_Invited:
                     base.localAvatar.eventsPage.loadInvitations()
-                if newStatus == PartyStatus.Started and hasattr(self, 'displaySystemClickableWhisper'):
+                if newStatus == EPartyStatus.STARTED and hasattr(self, 'displaySystemClickableWhisper'):
                     invite = self.getInviteForPartyId(partyId)
                     if invite:
                         name = ' '
                         host = base.cr.identifyAvatar(partyInfo.hostId)
                         if host:
                             name = host.getName()
-                        if invite.status == InviteStatus.Accepted:
+                        if invite.status == EInviteStatus.ACCEPTED:
                             displayStr = TTLocalizer.PartyHasStartedAcceptedInvite % TTLocalizer.GetPossesive(name)
                             self.displaySystemClickableWhisper(-1, displayStr, whisperType=WTSystem)
                         else:
@@ -2657,7 +2657,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                     toonId = singleReply.inviteeId
                     if base.cr.isFriend(toonId):
                         if base.cr.isFriendOnline(toonId):
-                            if singleReply.status == InviteStatus.Accepted:
+                            if singleReply.status == EInviteStatus.ACCEPTED:
                                 self.whisperSCTo(5302, toonId, 0)
                             else:
                                 self.whisperSCTo(5302, toonId, 0)

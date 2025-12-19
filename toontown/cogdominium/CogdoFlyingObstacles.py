@@ -198,7 +198,7 @@ class CogdoFlyingWhirlwind(CogdoFlyingObstacle):
 
     def __init__(self, index, model, motionPath = None):
         collSolid = CollisionTube(0, 0, 0, 0, 0, Globals.Gameplay.WhirlwindCollisionTubeHeight, Globals.Gameplay.WhirlwindCollisionTubeRadius)
-        CogdoFlyingObstacle.__init__(self, Globals.Level.ObstacleTypes.Whirlwind, index, model, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.MotionTypes.BackForth)
+        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.WHIRLWIND, index, model, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.MotionTypes.BackForth)
         self.t = 0.0
         self._initModel()
 
@@ -243,7 +243,7 @@ class CogdoFlyingMinion(CogdoFlyingObstacle):
         swapAvatarShadowPlacer(self.suit, 'minion-%sShadowPlacer' % index)
         self.mopathNodePath = NodePath('mopathNodePath')
         self.suit.reparentTo(self.mopathNodePath)
-        CogdoFlyingObstacle.__init__(self, Globals.Level.ObstacleTypes.Minion, index, self.mopathNodePath, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.MotionTypes.Loop, blendMotion=False, instanceModel=False)
+        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.MINION, index, self.mopathNodePath, collSolid, motionPath=motionPath, motionPattern=CogdoFlyingObstacle.MotionTypes.Loop, blendMotion=False, instanceModel=False)
         self.lastPos = None
         self.suit.loop('neutral')
         return
@@ -343,7 +343,7 @@ class CogdoFlyingFan(CogdoFlyingObstacle):
 
     def __init__(self, index, model, motionPath = None):
         collSolid = CollisionTube(0, 0, 0, 0, 0, Globals.Gameplay.FanCollisionTubeHeight, Globals.Gameplay.FanCollisionTubeRadius)
-        CogdoFlyingObstacle.__init__(self, Globals.Level.ObstacleTypes.Fan, index, model, collSolid)
+        CogdoFlyingObstacle.__init__(self, Globals.EObstacleType.FAN, index, model, collSolid)
         self.streamers = self.model.findAllMatches('**/streamer*')
         self._initIntervals()
 

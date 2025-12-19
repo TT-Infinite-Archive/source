@@ -154,14 +154,14 @@ class PartyPlanner(DirectFrame, FSM):
     def enterInvitation(self, *args):
         self.prevButton['state'] = DirectGuiGlobals.NORMAL
         self.nextButton.hide()
-        defaultInviteTheme = PartyGlobals.InviteTheme.GenericMale
+        defaultInviteTheme = PartyGlobals.EInviteTheme.GENERIC_MALE
         if hasattr(base.cr, 'newsManager') and base.cr.newsManager:
             if ToontownGlobals.VICTORY_PARTY_HOLIDAY in base.cr.newsManager.getHolidayIdList():
-                defaultInviteTheme = PartyGlobals.InviteTheme.VictoryParty
+                defaultInviteTheme = PartyGlobals.EInviteTheme.VICTORY_PARTY
             elif ToontownGlobals.KARTING_TICKETS_HOLIDAY in base.cr.newsManager.getHolidayIdList() or ToontownGlobals.CIRCUIT_RACING_EVENT in base.cr.newsManager.getHolidayIdList():
-                defaultInviteTheme = PartyGlobals.InviteTheme.Racing
+                defaultInviteTheme = PartyGlobals.EInviteTheme.RACING
             elif ToontownGlobals.VALENTINES_DAY in base.cr.newsManager.getHolidayIdList():
-                defaultInviteTheme = PartyGlobals.InviteTheme.Valentoons
+                defaultInviteTheme = PartyGlobals.EInviteTheme.VALENTOONS
         if self.partyInfo is not None:
             del self.partyInfo
         activityList = self.partyEditor.partyEditorGrid.getActivitiesOnGrid()
@@ -591,11 +591,11 @@ class PartyPlanner(DirectFrame, FSM):
         if hasattr(base.cr, 'newsManager') and base.cr.newsManager:
             holidayIds = base.cr.newsManager.getHolidayIdList()
             if ToontownGlobals.VALENTINES_DAY not in holidayIds:
-                self.inviteThemes.remove(PartyGlobals.InviteTheme.Valentoons)
+                self.inviteThemes.remove(PartyGlobals.EInviteTheme.VALENTOONS)
             if ToontownGlobals.VICTORY_PARTY_HOLIDAY not in holidayIds:
-                self.inviteThemes.remove(PartyGlobals.InviteTheme.VictoryParty)
+                self.inviteThemes.remove(PartyGlobals.EInviteTheme.VICTORY_PARTY)
             if ToontownGlobals.WINTER_DECORATIONS not in holidayIds and ToontownGlobals.WACKY_WINTER_DECORATIONS not in holidayIds:
-                self.inviteThemes.remove(PartyGlobals.InviteTheme.Winter)
+                self.inviteThemes.remove(PartyGlobals.EInviteTheme.WINTER)
 
     def _createFarewellPage(self):
         page = DirectFrame(self.frame)
@@ -667,20 +667,20 @@ class PartyPlanner(DirectFrame, FSM):
     def processAddPartyResponse(self, hostId, errorCode):
         PartyPlanner.notify.debug('processAddPartyResponse : hostId=%d errorCode=%s' % (hostId, PartyGlobals.AddPartyErrorCode.getString(errorCode)))
         goingBackAllowed = False
-        if errorCode == PartyGlobals.AddPartyErrorCode.AllOk:
+        if errorCode == PartyGlobals.EAddPartyErrorCode.ALL_OK:
             goingBackAllowed = False
             self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationAllOkTitle
             if self.noFriends or len(self.getInvitees()) == 0:
                 confirmRecapText = TTLocalizer.PartyPlannerConfirmationAllOkTextNoFriends
             else:
                 confirmRecapText = TTLocalizer.PartyPlannerConfirmationAllOkText
-        elif errorCode == PartyGlobals.AddPartyErrorCode.ValidationError:
+        elif errorCode == PartyGlobals.EAddPartyErrorCode.VALIDATION_ERROR:
             self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
             confirmRecapText = TTLocalizer.PartyPlannerConfirmationValidationErrorText
         elif errorCode == PartyGlobals.AddPartyErrorCode.DatabaseError:
             self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
             confirmRecapText = TTLocalizer.PartyPlannerConfirmationDatabaseErrorText
-        elif errorCode == PartyGlobals.AddPartyErrorCode.TooManyHostedParties:
+        elif errorCode == PartyGlobals.EAddPartyErrorCode.TOO_MANY_HOSTED_PARTIES:
             goingBackAllowed = False
             self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
             confirmRecapText = TTLocalizer.PartyPlannerConfirmationTooManyText

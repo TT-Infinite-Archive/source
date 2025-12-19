@@ -31,6 +31,6 @@ class DistributedPartyGateAI(DistributedObjectAI):
                 pid = partyId
                 break
         if not party:
-            self.sendUpdateToAvatarId(self.air.getAvatarIdFromSender(), 'partyRequestDenied', [PartyGlobals.PartyGateDenialReasons.Unavailable])
+            self.sendUpdateToAvatarId(self.air.getAvatarIdFromSender(), 'partyRequestDenied', [PartyGlobals.EPartyGateDenialReason.UNAVAILABLE])
             return #dafuq
         self.air.globalPartyMgr.d_requestPartySlot(pid, self.air.getAvatarIdFromSender(), self.doId)

@@ -1,11 +1,17 @@
+import enum
 from panda3d.core import NodePath
 from direct.interval.IntervalGlobal import *
-from direct.showbase import PythonUtil
 from toontown.battle.BattleProps import globalPropPool
 from direct.directnotify import DirectNotifyGlobal
-SFX = PythonUtil.Enum('poof, magic')
-SFXPATHS = {SFX.poof: 'phase_4/audio/sfx/firework_distance_02.ogg',
- SFX.magic: 'phase_4/audio/sfx/SZ_DD_treasure.ogg'}
+
+class EDustSfx(enum.Enum):
+    POOF = 0
+    MAGIC = 1
+
+SFX_PATHS = {
+    EDustSfx.POOF: 'phase_4/audio/sfx/firework_distance_2.ogg',
+    EDustSfx.MAGIC: 'phase_4/audio/sfx/SZ_DD_treasure.ogg'
+}
 
 class DustCloud(NodePath):
     dustCloudCount = 0
@@ -22,13 +28,12 @@ class DustCloud(NodePath):
         self.seqNode.setFrameRate(0)
         self.wantSound = wantSound
         if self.wantSound and not DustCloud.sounds:
-            DustCloud.sounds[SFX.poof] = loader.loadSfx(SFXPATHS[SFX.poof])
+            DustCloud.sounds[EDustSfx.POOF] = loader.loadSfx(SFX_PATHS[EDustSfx.POOF])
         self.track = None
         self.trackId = DustCloud.dustCloudCount
         DustCloud.dustCloudCount += 1
         self.setBin('fixed', 100, 1)
         self.hide()
-        return
 
     def createTrack(self, rate = 24):
 
@@ -44,7 +49,7 @@ class DustCloud(NodePath):
                 return dummy
 
         tflipDuration = self.seqNode.getNumChildren() / float(rate)
-        self.track = Sequence(Func(self.show), Func(self.messaging), Func(self.seqNode.play, 0, self.seqNode.getNumFrames() - 1), Func(self.seqNode.setFrameRate, rate), Func(getSoundFuncIfAble(SFX.poof)), Wait(tflipDuration), Func(self._resetTrack), name='dustCloud-track-%d' % self.trackId)
+        self.track = Sequence(Func(self.show), Func(self.messaging), Func(self.seqNode.play, 0, self.seqNode.getNumFrames() - 1), Func(self.seqNode.setFrameRate, rate), Func(getSoundFuncIfAble(EDustSfx.POOF)), Wait(tflipDuration), Func(self._resetTrack), name='dustCloud-track-%d' % self.trackId)
 
     def _resetTrack(self):
         self.seqNode.setFrameRate(0)
@@ -60,7 +65,6 @@ class DustCloud(NodePath):
             return True
         else:
             return False
-        return
 
     def play(self, rate = 24):
         self.stop()

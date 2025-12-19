@@ -5,7 +5,7 @@ from otp.otpbase.OTPBase import OTPBase
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
-from toontown.parties.PartyGlobals import ActivityIds, ActivityTypes, JUKEBOX_TIMEOUT
+from toontown.parties.PartyGlobals import EActivityId, ActivityTypes, JUKEBOX_TIMEOUT
 from toontown.parties.PartyGlobals import getMusicRepeatTimes, MUSIC_PATH, sanitizePhase
 from toontown.parties.JukeboxGui import JukeboxGui
 
@@ -13,7 +13,7 @@ class DistributedPartyJukeboxActivityBase(DistributedPartyActivity):
     notify = directNotify.newCategory('DistributedPartyJukeboxActivityBase')
 
     def __init__(self, cr, actId, phaseToMusicData):
-        DistributedPartyActivity.__init__(self, cr, actId, ActivityTypes.Continuous)
+        DistributedPartyActivity.__init__(self, cr, actId, EActivityType.CONTINUOUS)
         self.phaseToMusicData = phaseToMusicData
         self.jukebox = None
         self.gui = None

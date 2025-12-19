@@ -1,3 +1,4 @@
+import enum
 from panda3d.core import CardMaker, DisplayRegion, NodePath, Plane, TextNode, Texture, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
@@ -11,7 +12,11 @@ from toontown.shtiker.ShtikerPage import ShtikerPage
 from toontown.toonbase import ToontownGlobals, TTLocalizer
 if (__debug__):
     import pdb
-PageMode = PythonUtil.Enum('Customize, Records, Trophy')
+
+class EPageMode(enum.Enum):
+    CUSTOMIZE = 0
+    RECORDS = 1
+    TROPHY = 2
 
 class KartPage(ShtikerPage):
     notify = DirectNotifyGlobal.directNotify.newCategory('KartPage')
@@ -19,8 +24,7 @@ class KartPage(ShtikerPage):
     def __init__(self):
         ShtikerPage.__init__(self)
         self.avatar = None
-        self.mode = PageMode.Customize
-        return
+        self.mode = EPageMode.CUSTOMIZE
 
     def enter(self):
         if not hasattr(self, 'title'):
@@ -57,9 +61,9 @@ class KartPage(ShtikerPage):
         rolloverColor = (0.15, 0.82, 1.0, 1)
         diabledColor = (1.0, 0.98, 0.15, 1)
         gui = loader.loadModel('phase_3.5/models/gui/fishingBook')
-        self.customizeTab = DirectButton(parent=self, relief=None, text=TTLocalizer.KartPageCustomizeTab, text_scale=TTLocalizer.KPkartTab, text_align=TextNode.ALeft, text_pos=(-0.025, 0.0, 0.0), image=gui.find('**/tabs/polySurface1'), image_pos=(0.55, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[PageMode.Customize], pos=(0.92, 0, 0.55))
-        self.recordsTab = DirectButton(parent=self, relief=None, text=TTLocalizer.KartPageRecordsTab, text_scale=TTLocalizer.KPkartTab, text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface2'), image_pos=(0.12, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[PageMode.Records], pos=(0.92, 0, 0.1))
-        self.trophyTab = DirectButton(parent=self, relief=None, text=TTLocalizer.KartPageTrophyTab, text_scale=TTLocalizer.KPkartTab, text_pos=(0.03, 0.0, 0.0), text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface3'), image_pos=(-0.28, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[PageMode.Trophy], pos=(0.92, 0, -0.3))
+        self.customizeTab = DirectButton(parent=self, relief=None, text=TTLocalizer.KartPageCustomizeTab, text_scale=TTLocalizer.KPkartTab, text_align=TextNode.ALeft, text_pos=(-0.025, 0.0, 0.0), image=gui.find('**/tabs/polySurface1'), image_pos=(0.55, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[EPageMode.CUSTOMIZE], pos=(0.92, 0, 0.55))
+        self.recordsTab = DirectButton(parent=self, relief=None, text=TTLocalizer.KartPageRecordsTab, text_scale=TTLocalizer.KPkartTab, text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface2'), image_pos=(0.12, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[EPageMode.RECORDS], pos=(0.92, 0, 0.1))
+        self.trophyTab = DirectButton(parent=self, relief=None, text=TTLocalizer.KartPageTrophyTab, text_scale=TTLocalizer.KPkartTab, text_pos=(0.03, 0.0, 0.0), text_align=TextNode.ALeft, image=gui.find('**/tabs/polySurface3'), image_pos=(-0.28, 1, -0.91), image_hpr=(0, 0, -90), image_scale=(0.033, 0.033, 0.035), image_color=normalColor, image1_color=clickColor, image2_color=rolloverColor, image3_color=diabledColor, text_fg=Vec4(0.2, 0.1, 0, 1), command=self.setMode, extraArgs=[EPageMode.TROPHY], pos=(0.92, 0, -0.3))
         self.customizeTab.setPos(-0.55, 0, 0.775)
         self.recordsTab.setPos(-0.13, 0, 0.775)
         self.trophyTab.setPos(0.28, 0, 0.775)
@@ -76,17 +80,17 @@ class KartPage(ShtikerPage):
                 return
             else:
                 self.mode = mode
-        if mode == PageMode.Customize:
+        if mode == EPageMode.CUSTOMIZE:
             self.title['text'] = TTLocalizer.KartPageTitleCustomize
             self.customizeTab['state'] = DGG.DISABLED
             self.recordsTab['state'] = DGG.NORMAL
             self.trophyTab['state'] = DGG.NORMAL
-        elif mode == PageMode.Records:
+        elif mode == EPageMode.RECORDS:
             self.title['text'] = TTLocalizer.KartPageTitleRecords
             self.customizeTab['state'] = DGG.NORMAL
             self.recordsTab['state'] = DGG.DISABLED
             self.trophyTab['state'] = DGG.NORMAL
-        elif mode == PageMode.Trophy:
+        elif mode == EPageMode.TROPHY:
             self.title['text'] = TTLocalizer.KartPageTitleTrophy
             self.customizeTab['state'] = DGG.NORMAL
             self.recordsTab['state'] = DGG.NORMAL
@@ -96,15 +100,15 @@ class KartPage(ShtikerPage):
         self.updatePage()
 
     def updatePage(self):
-        if self.mode == PageMode.Customize:
+        if self.mode == EPageMode.CUSTOMIZE:
             self.kartCustomizer.show()
             self.racingTrophies.hide()
             self.racingRecords.hide()
-        elif self.mode == PageMode.Records:
+        elif self.mode == EPageMode.RECORDS:
             self.kartCustomizer.hide()
             self.racingTrophies.hide()
             self.racingRecords.show()
-        elif self.mode == PageMode.Trophy:
+        elif self.mode == EPageMode.TROPHY:
             self.kartCustomizer.hide()
             self.racingTrophies.show()
             self.racingRecords.hide()
@@ -393,7 +397,7 @@ class ItemSelector(DirectFrame):
             self.rightArrowButton['state'] = DGG.DISABLED
 
         def setupViewer(self, category):
-            colorTypeList = [KartDNA.bodyColor, KartDNA.accColor]
+            colorTypeList = [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]
             if category == InvalidEntry:
                 self.__handleHideItem()
                 self.__updateDeleteButton(DGG.DISABLED)
@@ -402,21 +406,21 @@ class ItemSelector(DirectFrame):
                 accessDict = getAccessDictByType(self.avatar.getKartAccessoriesOwned())
                 self.currAccessoryType = category
                 if category in colorTypeList:
-                    self.itemList = list(accessDict.get(KartDNA.bodyColor, []))
+                    self.itemList = list(accessDict.get(EKartDNA.BODY_COLOR, []))
                     self.itemList.append(InvalidEntry)
-                elif category == KartDNA.rimsType:
-                    self.itemList = list(accessDict.get(KartDNA.rimsType, []))
+                elif category == EKartDNA.RIMS_TYPE:
+                    self.itemList = list(accessDict.get(EKartDNA.RIMS_TYPE, []))
                     self.itemList.append(InvalidEntry)
                 else:
                     self.itemList = list(accessDict.get(category, []))
                 self.currItem = self.updatedDNA[category]
                 if category in colorTypeList:
-                    if self.currItem == InvalidEntry or self.currItem not in accessDict.get(KartDNA.bodyColor):
+                    if self.currItem == InvalidEntry or self.currItem not in accessDict.get(EKartDNA.BODY_COLOR):
                         self.__updateDeleteButton(DGG.DISABLED)
                     else:
                         self.__updateDeleteButton(DGG.NORMAL, TTLocalizer.KartShtikerDelete)
                     self.__handleShowItem()
-                elif category == KartDNA.rimsType:
+                elif category == EKartDNA.RIMS_TYPE:
                     if self.currItem == InvalidEntry:
                         self.__updateDeleteButton(DGG.DISABLED)
                     else:
@@ -430,7 +434,7 @@ class ItemSelector(DirectFrame):
                     self.__handleHideItem()
                     self.__updateDeleteButton(DGG.DISABLED)
                 if len(self.itemList) == 1:
-                    if self.currAccessoryType == KartDNA.rimsType:
+                    if self.currAccessoryType == EKartDNA.RIMS_TYPE:
                         self.disable()
                         self.setViewerText(TTLocalizer.KartShtikerDefault % getattr(TTLocalizer, AccessoryTypeNameDict[self.currAccessoryType]))
                     elif self.currAccessoryType in colorTypeList:
@@ -442,7 +446,7 @@ class ItemSelector(DirectFrame):
                     self.disable()
                     self.setViewerText(TTLocalizer.KartShtikerNo % getattr(TTLocalizer, AccessoryTypeNameDict[self.currAccessoryType]))
                 else:
-                    if self.currAccessoryType == KartDNA.rimsType:
+                    if self.currAccessoryType == EKartDNA.RIMS_TYPE:
                         self.setViewerText(TTLocalizer.KartShtikerDefault % getattr(TTLocalizer, AccessoryTypeNameDict[self.currAccessoryType]))
                     elif self.currAccessoryType in colorTypeList:
                         self.setViewerText(TTLocalizer.KartShtikerDefault % getattr(TTLocalizer, AccessoryTypeNameDict[self.currAccessoryType]))
@@ -470,7 +474,7 @@ class ItemSelector(DirectFrame):
             self.uiTextBox['text'] = text
 
         def __updateViewerUI(self):
-            accList = [KartDNA.bodyColor, KartDNA.accColor, KartDNA.rimsType]
+            accList = [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR, EKartDNA.RIMS_TYPE]
             if self.currItem != InvalidEntry:
                 self.__handleShowItem()
                 if self.currItem not in self.avatar.accessories and self.currAccessoryType in accList:
@@ -494,7 +498,7 @@ class ItemSelector(DirectFrame):
                     index = self.itemList.index(self.currItem)
                     index += direction
                     if index < 0 or index >= len(self.itemList):
-                        invalidList = [KartDNA.bodyColor, KartDNA.accColor, KartDNA.rimsType]
+                        invalidList = [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR, EKartDNA.RIMS_TYPE]
                         if self.currAccessoryType not in invalidList:
                             self.currItem = InvalidEntry
                         elif direction > 0:
@@ -520,34 +524,34 @@ class ItemSelector(DirectFrame):
 
         def __handleShowItem(self):
             self.uiImagePlane.component('geom0').setColorScale(1.0, 1.0, 1.0, 1.0)
-            if self.currAccessoryType in [KartDNA.ebType,
-             KartDNA.spType,
-             KartDNA.fwwType,
-             KartDNA.bwwType]:
+            if self.currAccessoryType in [EKartDNA.EB_TYPE,
+             EKartDNA.SP_TYPE,
+             EKartDNA.FWW_TYPE,
+             EKartDNA.BWW_TYPE]:
                 texNodePath = getTexCardNode(self.currItem)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            elif self.currAccessoryType == KartDNA.rimsType:
+            elif self.currAccessoryType == EKartDNA.RIMS_TYPE:
                 if self.currItem == InvalidEntry:
                     texNodePath = getTexCardNode(getDefaultRim())
                 else:
                     texNodePath = getTexCardNode(self.currItem)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath, 'phase_6/maps/%s_a.rgb' % texNodePath)
-            elif self.currAccessoryType in [KartDNA.bodyColor, KartDNA.accColor]:
+            elif self.currAccessoryType in [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]:
                 tex = loader.loadTexture('phase_6/maps/Kartmenu_paintbucket.jpg', 'phase_6/maps/Kartmenu_paintbucket_a.rgb')
                 if self.currItem == InvalidEntry:
                     self.uiImagePlane.component('geom0').setColorScale(getDefaultColor())
                 else:
                     self.uiImagePlane.component('geom0').setColorScale(getAccessory(self.currItem))
-            elif self.currAccessoryType == KartDNA.decalType:
+            elif self.currAccessoryType == EKartDNA.DECAL_TYPE:
                 kart = self._parent._parent.getKartViewer().getKart()
-                kartDecal = getDecalId(kart.kartDNA[KartDNA.bodyType])
+                kartDecal = getDecalId(kart.kartDNA[EKartDNA.BODY_TYPE])
                 texNodePath = getTexCardNode(self.currItem)
                 tex = loader.loadTexture('phase_6/maps/%s.jpg' % texNodePath % kartDecal, 'phase_6/maps/%s_a.rgb' % texNodePath % kartDecal)
             else:
                 tex = loader.loadTexture('phase_6/maps/NoAccessoryIcon3.jpg', 'phase_6/maps/NoAccessoryIcon3_a.rgb')
-            colorTypeList = [KartDNA.bodyColor, KartDNA.accColor]
+            colorTypeList = [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]
             if self.currItem == InvalidEntry:
-                if self.currAccessoryType == KartDNA.rimsType:
+                if self.currAccessoryType == EKartDNA.RIMS_TYPE:
                     self.setViewerText(TTLocalizer.KartShtikerDefault % getattr(TTLocalizer, AccessoryTypeNameDict[self.currAccessoryType]))
                 elif self.currAccessoryType in colorTypeList:
                     self.setViewerText(TTLocalizer.KartShtikerDefault % getattr(TTLocalizer, AccessoryTypeNameDict[self.currAccessoryType]))
@@ -578,18 +582,18 @@ class ItemSelector(DirectFrame):
         def __handleItemDelete(self):
 
             def handleColorDelete(self = self):
-                if self.currAccessoryType == KartDNA.bodyColor:
-                    if self.updatedDNA[KartDNA.accColor] == deletedItem:
-                        self.avatar.requestKartDNAFieldUpdate(KartDNA.accColor, self.currItem)
-                        self.updatedDNA[KartDNA.accColor] = self.currItem
+                if self.currAccessoryType == EKartDNA.BODY_COLOR:
+                    if self.updatedDNA[EKartDNA.ACC_COLOR] == deletedItem:
+                        self.avatar.requestKartDNAFieldUpdate(EKartDNA.ACC_COLOR, self.currItem)
+                        self.updatedDNA[EKartDNA.ACC_COLOR] = self.currItem
                         kart = self._parent._parent.getKartViewer().getKart()
-                        kart.updateDNAField(KartDNA.accColor, self.currItem)
-                elif self.currAccessoryType == KartDNA.accColor:
-                    if self.updatedDNA[KartDNA.bodyColor] == deletedItem:
-                        self.avatar.requestKartDNAFieldUpdate(KartDNA.bodyColor, self.currItem)
-                        self.updatedDNA[KartDNA.bodyColor] = self.currItem
+                        kart.updateDNAField(EKartDNA.ACC_COLOR, self.currItem)
+                elif self.currAccessoryType == EKartDNA.ACC_COLOR:
+                    if self.updatedDNA[EKartDNA.BODY_COLOR] == deletedItem:
+                        self.avatar.requestKartDNAFieldUpdate(EKartDNA.BODY_COLOR, self.currItem)
+                        self.updatedDNA[EKartDNA.BODY_COLOR] = self.currItem
                         kart = self._parent._parent.getKartViewer().getKart()
-                        kart.updateDNAField(KartDNA.bodyColor, self.currItem)
+                        kart.updateDNAField(EKartDNA.BODY_COLOR, self.currItem)
 
             self.notify.debug('__handleItemDelete: Delete request on accessory %s' % self.currItem)
             self.confirmDlg.hide()
@@ -605,7 +609,7 @@ class ItemSelector(DirectFrame):
             kart.updateDNAField(self.currAccessoryType, self.currItem)
             if self.avatar.getAccessoryByType(self.currAccessoryType) == deletedItem:
                 self.avatar.requestKartDNAFieldUpdate(self.currAccessoryType, self.currItem)
-            if self.currAccessoryType in [KartDNA.bodyColor, KartDNA.accColor]:
+            if self.currAccessoryType in [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]:
                 handleColorDelete()
             if self.itemList == [] or self.itemList[0] == InvalidEntry:
                 self.disable()
@@ -648,43 +652,43 @@ class ItemSelector(DirectFrame):
         self.ebButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/eBlockButton_up'),
          uiRootNode.find('**/eBlockButton_rollover'),
          uiRootNode.find('**/eBlockButton_rollover'),
-         uiRootNode.find('**/eBlockButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.ebType))
-        self.buttonDict[KartDNA.ebType] = self.ebButton
+         uiRootNode.find('**/eBlockButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.EB_TYPE))
+        self.buttonDict[EKartDNA.EB_TYPE] = self.ebButton
         self.spButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/spoilerButton_up'),
          uiRootNode.find('**/spoilerButton_rollover'),
          uiRootNode.find('**/spoilerButton_rollover'),
-         uiRootNode.find('**/spoilerButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.spType))
-        self.buttonDict[KartDNA.spType] = self.spButton
+         uiRootNode.find('**/spoilerButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.SP_TYPE))
+        self.buttonDict[EKartDNA.SP_TYPE] = self.spButton
         self.fwwButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/frontButton_up'),
          uiRootNode.find('**/frontButton_rollover'),
          uiRootNode.find('**/frontButton_rollover'),
-         uiRootNode.find('**/frontButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.fwwType))
-        self.buttonDict[KartDNA.fwwType] = self.fwwButton
+         uiRootNode.find('**/frontButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.FWW_TYPE))
+        self.buttonDict[EKartDNA.FWW_TYPE] = self.fwwButton
         self.bwwButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/rearButton_up'),
          uiRootNode.find('**/rearButton_rollover'),
          uiRootNode.find('**/rearButton_rollover'),
-         uiRootNode.find('**/rearButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.bwwType))
-        self.buttonDict[KartDNA.bwwType] = self.bwwButton
+         uiRootNode.find('**/rearButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.BWW_TYPE))
+        self.buttonDict[EKartDNA.BWW_TYPE] = self.bwwButton
         self.rimButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/rimButton_up'),
          uiRootNode.find('**/rimButton_rollover'),
          uiRootNode.find('**/rimButton_rollover'),
-         uiRootNode.find('**/rimButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.rimsType))
-        self.buttonDict[KartDNA.rimsType] = self.rimButton
+         uiRootNode.find('**/rimButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.RIMS_TYPE))
+        self.buttonDict[EKartDNA.RIMS_TYPE] = self.rimButton
         self.decalButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/decalButton_up'),
          uiRootNode.find('**/decalButton_rollover'),
          uiRootNode.find('**/decalButton_rollover'),
-         uiRootNode.find('**/decalButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.decalType))
-        self.buttonDict[KartDNA.decalType] = self.decalButton
+         uiRootNode.find('**/decalButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.DECAL_TYPE))
+        self.buttonDict[EKartDNA.DECAL_TYPE] = self.decalButton
         self.paintKartButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/paintKartButton_up'),
          uiRootNode.find('**/paintKartButton_rollover'),
          uiRootNode.find('**/paintKartButton_rollover'),
-         uiRootNode.find('**/paintKartButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.bodyColor))
-        self.buttonDict[KartDNA.bodyColor] = self.paintKartButton
+         uiRootNode.find('**/paintKartButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.BODY_COLOR))
+        self.buttonDict[EKartDNA.BODY_COLOR] = self.paintKartButton
         self.paintAccessoryButton = DirectButton(parent=self, relief=None, geom=(uiRootNode.find('**/paintAccessoryButton_up'),
          uiRootNode.find('**/paintAccessoryButton_rollover'),
          uiRootNode.find('**/paintAccessoryButton_rollover'),
-         uiRootNode.find('**/paintAccessoryButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(KartDNA.accColor))
-        self.buttonDict[KartDNA.accColor] = self.paintAccessoryButton
+         uiRootNode.find('**/paintAccessoryButton_inactive')), scale=1.0, pressEffect=False, command=lambda : self.__changeItemCategory(EKartDNA.ACC_COLOR))
+        self.buttonDict[EKartDNA.ACC_COLOR] = self.paintAccessoryButton
         return
 
     def setupAccessoryIcons(self):
@@ -705,38 +709,38 @@ class ItemSelector(DirectFrame):
         self.itemViewers['main'].resetViewer()
 
     def __changeItemCategory(self, buttonType):
-        if buttonType == KartDNA.ebType:
+        if buttonType == EKartDNA.EB_TYPE:
             self.ebButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerEngineBlocks)
-            self.itemViewers['main'].setupViewer(KartDNA.ebType)
-        elif buttonType == KartDNA.spType:
+            self.itemViewers['main'].setupViewer(EKartDNA.EB_TYPE)
+        elif buttonType == EKartDNA.SP_TYPE:
             self.spButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerSpoilers)
-            self.itemViewers['main'].setupViewer(KartDNA.spType)
-        elif buttonType == KartDNA.fwwType:
+            self.itemViewers['main'].setupViewer(EKartDNA.SP_TYPE)
+        elif buttonType == EKartDNA.FWW_TYPE:
             self.fwwButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerFrontWheelWells)
-            self.itemViewers['main'].setupViewer(KartDNA.fwwType)
-        elif buttonType == KartDNA.bwwType:
+            self.itemViewers['main'].setupViewer(EKartDNA.FWW_TYPE)
+        elif buttonType == EKartDNA.BWW_TYPE:
             self.bwwButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerBackWheelWells)
-            self.itemViewers['main'].setupViewer(KartDNA.bwwType)
-        elif buttonType == KartDNA.rimsType:
+            self.itemViewers['main'].setupViewer(EKartDNA.BWW_TYPE)
+        elif buttonType == EKartDNA.RIMS_TYPE:
             self.rimButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerRims)
-            self.itemViewers['main'].setupViewer(KartDNA.rimsType)
-        elif buttonType == KartDNA.decalType:
+            self.itemViewers['main'].setupViewer(EKartDNA.RIMS_TYPE)
+        elif buttonType == EKartDNA.DECAL_TYPE:
             self.decalButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerDecals)
-            self.itemViewers['main'].setupViewer(KartDNA.decalType)
-        elif buttonType == KartDNA.bodyColor:
+            self.itemViewers['main'].setupViewer(EKartDNA.DECAL_TYPE)
+        elif buttonType == EKartDNA.BODY_COLOR:
             self.paintKartButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerBodyColors)
-            self.itemViewers['main'].setupViewer(KartDNA.bodyColor)
-        elif buttonType == KartDNA.accColor:
+            self.itemViewers['main'].setupViewer(EKartDNA.BODY_COLOR)
+        elif buttonType == EKartDNA.ACC_COLOR:
             self.paintAccessoryButton['state'] = DGG.DISABLED
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerAccColors)
-            self.itemViewers['main'].setupViewer(KartDNA.accColor)
+            self.itemViewers['main'].setupViewer(EKartDNA.ACC_COLOR)
         elif buttonType == InvalidEntry:
             self.itemViewers['main'].setViewerText(TTLocalizer.KartShtikerSelect)
             self.itemViewers['main'].setupViewer(buttonType)

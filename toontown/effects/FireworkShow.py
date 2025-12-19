@@ -16,7 +16,7 @@ colors = [Vec4(1, 1, 1, 1),
  Vec4(0.1, 1, 1, 1),
  Vec4(0.1, 0.5, 1, 1)]
 fireworkShowTypes = [ToontownGlobals.JULY4_FIREWORKS,
- PartyGlobals.FireworkShows.Summer,
+ PartyGlobals.EFireworkShow.SUMMER,
  ToontownGlobals.NEWYEARS_FIREWORKS,
  ToontownGlobals.COMBO_FIREWORKS]
 
@@ -395,7 +395,7 @@ class FireworkShow(NodePath):
                                         rC(),
                                         2.0,
                                         10.0]],
-     PartyGlobals.FireworkShows.Summer: [[FireworkType.DiademPeony,
+     PartyGlobals.EFireworkShow.SUMMER: [[FireworkType.DiademPeony,
                                           Vec3(90, 0, 120),
                                           rP(),
                                           rS(),
@@ -1077,9 +1077,9 @@ class FireworkShow(NodePath):
                                            10.0]]}
     showData[ToontownGlobals.COMBO_FIREWORKS] = showData[ToontownGlobals.NEWYEARS_FIREWORKS]
     sectionData = {ToontownGlobals.JULY4_FIREWORKS: [(0, 24), (24, len(showData[ToontownGlobals.JULY4_FIREWORKS]))],
-     PartyGlobals.FireworkShows.Summer: [(0, 24), (24, len(showData[PartyGlobals.FireworkShows.Summer]))],
-     ToontownGlobals.NEWYEARS_FIREWORKS: [(0, len(showData[PartyGlobals.FireworkShows.Summer]))],
-     ToontownGlobals.COMBO_FIREWORKS: [(0, len(showData[PartyGlobals.FireworkShows.Summer]))]}
+     PartyGlobals.EFireworkShow.SUMMER: [(0, 24), (24, len(showData[PartyGlobals.EFireworkShow.SUMMER]))],
+     ToontownGlobals.NEWYEARS_FIREWORKS: [(0, len(showData[PartyGlobals.EFireworkShow.SUMMER]))],
+     ToontownGlobals.COMBO_FIREWORKS: [(0, len(showData[PartyGlobals.EFireworkShow.SUMMER]))]}
     showMusic = {}
 
     @classmethod

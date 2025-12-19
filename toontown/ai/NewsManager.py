@@ -254,10 +254,10 @@ class NewsManager(DistributedObject.DistributedObject):
                     base.localAvatar.chatMgr.chatInputSpeedChat.addSellbotNerfMenu()
             elif holidayId == ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY or holidayId == ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY_MONTH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
-                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.JellybeanJamPhases.TROLLEY)
+                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.EJellybeanJamPhase.TROLLEY)
             elif holidayId == ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY or holidayId == ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY_MONTH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
-                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.JellybeanJamPhases.FISHING)
+                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.EJellybeanJamPhase.FISHING)
             elif holidayId == ToontownGlobals.JELLYBEAN_PARTIES_HOLIDAY:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     self.setJellybeanPartiesHolidayStart()

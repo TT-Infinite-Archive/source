@@ -35,7 +35,7 @@ PRESHOW_DICT = {
         TTLocalizer.FireworksNewYearsEveEnding,
         ['new_years_fireworks_music', 'tt_s_ara_gen_fireworks_auldLangSyne']
     ],
-    PartyGlobals.FireworkShows.Summer: [
+    PartyGlobals.EFireworkShow.SUMMER: [
         TTLocalizer.FireworksActivityInstructions,
         TTLocalizer.FireworksActivityBeginning,
         TTLocalizer.FireworksActivityEnding,
@@ -52,7 +52,7 @@ PRESHOW_DICT = {
 POSTSHOW_DICT = {
     JULY4_FIREWORKS: TTLocalizer.FireworksJuly4Ending,
     NEWYEARS_FIREWORKS: TTLocalizer.FireworksNewYearsEveEnding,
-    PartyGlobals.FireworkShows.Summer: TTLocalizer.FireworksActivityEnding,
+    PartyGlobals.EFireworkShow.SUMMER: TTLocalizer.FireworksActivityEnding,
     COMBO_FIREWORKS: TTLocalizer.FireworksComboEnding
 }
 

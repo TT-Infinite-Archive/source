@@ -1,4 +1,5 @@
-from panda3d.core import AudioLoadRequest, NodePath
+from panda3d.core import AudioLoadRequest, Loader, NodePath
+
 
 from direct.showbase.DirectObject import DirectObject
 from direct.directnotify.DirectNotifyGlobal import directNotify

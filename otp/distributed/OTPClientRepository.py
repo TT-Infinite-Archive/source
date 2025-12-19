@@ -1,5 +1,4 @@
-from panda3d.direct import CConnectionRepository
-from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, Filename, HTTPClient, HashVal, MemoryUsage, NodePath, Notify, StringStream, hashPrcVariables, ostream
+import enum
 import gc
 import os
 import sys
@@ -7,6 +6,8 @@ import time
 import types
 import hashlib
 import yaml
+from panda3d.direct import CConnectionRepository
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, Filename, HTTPClient, HashVal, MemoryUsage, NodePath, Notify, StringStream, hashPrcVariables, ostream
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed import DistributedSmoothNode
@@ -42,14 +43,15 @@ from toontown.servermenu.ServerMenu import ServerMenu
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
 from toontown.toonbase import TTLocalizer
 
+class EWishNameResult(enum.IntEnum):
+    FAILURE = 0
+    PENDING_APPROVAL = 1
+    APPROVED = 2
+    REJECTED = 3
 
 class OTPClientRepository(ClientRepositoryBase):
     notify = directNotify.newCategory('OTPClientRepository')
     avatarLimit = 6
-    WishNameResult = Enum(['Failure',
-     'PendingApproval',
-     'Approved',
-     'Rejected'])
     whiteListChatEnabled = 1 # TODO: Have server set this on localAvatar on login.
 
     def __init__(self, serverVersion, launcher = None, playGame = None):
@@ -351,7 +353,7 @@ class OTPClientRepository(ClientRepositoryBase):
             # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 
-        if hasattr(__builtin__, 'dcData'):
+        if hasattr(builtins, 'dcData'):
             dcFileNames = [StringStream(dcData)]
 
         dcImports = {}
@@ -1795,15 +1797,14 @@ class OTPClientRepository(ClientRepositoryBase):
             name = rejectedName
         else:
             name = ''
-        WNR = self.WishNameResult
         if returnCode:
-            result = WNR.Failure
+            result = EWishNameResult.FAILURE
         elif rejectedName:
-            result = WNR.Rejected
+            result = EWishNameResult.REJECTED
         elif pendingName:
-            result = WNR.PendingApproval
+            result = EWishNameResult.PENDING_APPROVAL
         elif approvedName:
-            result = WNR.Approved
+            result = EWishNameResult.APPROVED
         messenger.send(self.getWishNameResultMsg(), [result, avId, name])
 
     def replayDeferredGenerate(self, msgType, extra):

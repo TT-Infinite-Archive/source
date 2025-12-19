@@ -47,7 +47,7 @@ def fireworks(showName='july4'):
     elif showName == 'newyears':
         showType = ToontownGlobals.NEWYEARS_FIREWORKS
     elif showName == 'summer':
-        showType = PartyGlobals.FireworkShows.Summer
+        showType = PartyGlobals.EFireworkShow.SUMMER
     else:
         return 'Invalid fireworks show name!'
     numShows = len(FireworkShows.shows.get(showType, []))

@@ -24,7 +24,7 @@ from toontown.hood import ZoneUtil
 from toontown.hood import EstateHood
 from toontown.hood import PartyHood
 from toontown.toonbase import TTLocalizer
-from toontown.parties.PartyGlobals import GoToPartyStatus
+from toontown.parties.PartyGlobals import EGoToPartyStatus
 from toontown.dna.DNAParser import *
 
 class PlayGame(StateData.StateData):

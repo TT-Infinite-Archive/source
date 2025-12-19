@@ -5,8 +5,8 @@ from toontown.parties import PartyGlobals
 
 import random
 
-LEFT_TEAM = PartyGlobals.TeamActivityTeams.LeftTeam
-RIGHT_TEAM = PartyGlobals.TeamActivityTeams.RightTeam
+LEFT_TEAM = PartyGlobals.TeamActivityTeam.LEFT
+RIGHT_TEAM = PartyGlobals.TeamActivityTeam.RIGHT
 
 
 class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
@@ -54,7 +54,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
             return
 
         if self.isTeamFull(team):
-            self.joinRequestDenied(avId, PartyGlobals.DenialReasons.Full)
+            self.joinRequestDenied(avId, PartyGlobals.EDenialReasons.Full)
             return
 
         if team == LEFT_TEAM:
@@ -123,14 +123,14 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
 
         if avId in self.leftTeam:
             if self.isTeamFull(self.rightTeam):
-                self.switchTeamRequestDenied(avId, PartyGlobals.DenialReasons.Full)
+                self.switchTeamRequestDenied(avId, PartyGlobals.EDenialReasons.Full)
                 return
 
             self.leftTeam.remove(avId)
             self.rightTeam.append(avId)
         elif avId in self.rightTeam:
             if self.isTeamFull(self.leftTeam):
-                self.switchTeamRequestDenied(avId, PartyGlobals.DenialReasons.Full)
+                self.switchTeamRequestDenied(avId, PartyGlobals.EDenialReasons.Full)
                 return
 
             self.rightTeam.remove(avId)
@@ -214,4 +214,4 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
 
     @staticmethod
     def isValidTeam(team):
-        return (team == PartyGlobals.TeamActivityTeams.LeftTeam) or (team == PartyGlobals.TeamActivityTeams.RightTeam)
+        return (team == PartyGlobals.TeamActivityTeam.LEFT) or (team == PartyGlobals.TeamActivityTeam.RIGHT)

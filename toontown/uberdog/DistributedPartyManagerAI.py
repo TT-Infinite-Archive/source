@@ -180,7 +180,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         self.air.globalPartyMgr.d_partyDone(partyId)
         for av in partyAI.participants:
             self.sendUpdateToAvatarId(av, 'sendAvToPlayground', [av, 0])
-        partyAI.setPartyState(PartyStatus.Finished)
+        partyAI.setPartyState(EPartyStatus.FINISHED)
         taskMgr.doMethodLater(10, self.__deleteParty, 'closeParty%d' % partyId, extraArgs=[partyId])
 
     def __deleteParty(self, partyId):

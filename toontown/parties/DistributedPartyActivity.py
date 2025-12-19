@@ -18,7 +18,7 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
     def __init__(self, cr, activityId, activityType, wantLever = False, wantRewardGui = False):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.activityId = activityId
-        self.activityName = PartyGlobals.ActivityIds.getString(self.activityId)
+        self.activityName = PartyGlobals.EActivityId(self.activityId).name
         self.activityType = activityType
         self.wantLever = wantLever
         self.wantRewardGui = wantRewardGui
@@ -42,10 +42,10 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
         self._localToonRequestStatus = None
 
     def localToonExiting(self):
-        self._localToonRequestStatus = PartyGlobals.ActivityRequestStatus.Exiting
+        self._localToonRequestStatus = PartyGlobals.EActivityRequestStatus.EXITING
 
     def localToonJoining(self):
-        self._localToonRequestStatus = PartyGlobals.ActivityRequestStatus.Joining
+        self._localToonRequestStatus = PartyGlobals.EActivityRequestStatus.JOINING
 
     def d_toonJoinRequest(self):
         if self._localToonRequestStatus is None:
@@ -88,7 +88,7 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
 
     def _processExitedToons(self, exitedToons):
         for toonId in exitedToons:
-            if toonId != base.localAvatar.doId or toonId == base.localAvatar.doId and self.isLocalToonRequestStatus(PartyGlobals.ActivityRequestStatus.Exiting):
+            if toonId != base.localAvatar.doId or toonId == base.localAvatar.doId and self.isLocalToonRequestStatus(PartyGlobals.EActivityRequestStatus.EXITING):
                 toon = self.getAvatar(toonId)
                 if toon is not None:
                     self.ignore(toon.uniqueName('disable'))
@@ -103,7 +103,7 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
 
     def _processJoinedToons(self, joinedToons):
         for toonId in joinedToons:
-            if toonId != base.localAvatar.doId or toonId == base.localAvatar.doId and self.isLocalToonRequestStatus(PartyGlobals.ActivityRequestStatus.Joining):
+            if toonId != base.localAvatar.doId or toonId == base.localAvatar.doId and self.isLocalToonRequestStatus(PartyGlobals.EActivityRequestStatus.JOINING):
                 if toonId not in self._toonId2ror:
                     request = self.cr.relatedObjectMgr.requestObjects([toonId], allCallback=self._handlePlayerPresent)
                     if toonId in self._toonId2ror:
@@ -230,10 +230,10 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
 
     def loadSign(self):
         actNameForSign = self.activityName
-        if self.activityId == PartyGlobals.ActivityIds.PartyJukebox40:
-            actNameForSign = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyJukebox)
-        elif self.activityId == PartyGlobals.ActivityIds.PartyDance20:
-            actNameForSign = PartyGlobals.ActivityIds.getString(PartyGlobals.ActivityIds.PartyDance)
+        if self.activityId == PartyGlobals.EActivityId.PartyJukebox40:
+            actNameForSign = PartyGlobals.EActivityId.getString(PartyGlobals.EActivityId.PartyJukebox)
+        elif self.activityId == PartyGlobals.EActivityId.PartyDance20:
+            actNameForSign = PartyGlobals.EActivityId.getString(PartyGlobals.EActivityId.PartyDance)
         self.sign = self.root.attachNewNode('%sSign' % self.activityName)
         self.signModel = self.party.defaultSignModel.copyTo(self.sign)
         self.signFlat = self.signModel.find('**/sign_flat')
@@ -336,7 +336,7 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
 
     def _leverPulled(self, collEntry):
         self.notify.debug('_leverPulled : Someone pulled the lever!!! ')
-        if self.activityType == PartyGlobals.ActivityTypes.HostInitiated and base.localAvatar.doId != self.party.partyInfo.hostId:
+        if self.activityType == PartyGlobals.EActivityType.HOST_INITIATED and base.localAvatar.doId != self.party.partyInfo.hostId:
             return False
         return True
 

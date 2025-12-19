@@ -470,7 +470,7 @@ class DistributedPet(DistributedSmoothNode.DistributedSmoothNode, Pet.Pet, PetBa
             self.movieTrack.start()
 
         if mode == PetConstants.PET_MOVIE_SCRATCH:
-            self.movieTrack = Sequence(Func(self._petMovieStart, av), Func(self.holdPetDownForMovie), Parallel(self.getInteractIval(self.Interactions.SCRATCH), av.getScratchPetIval(), SoundInterval(self.petSfx)), Func(self.releasePetFromHoldDown), self._getPetMovieCompleteIval(av))
+            self.movieTrack = Sequence(Func(self._petMovieStart, av), Func(self.holdPetDownForMovie), Parallel(Sequence(ActorInterval(self, 'toPet'), ActorInterval(self, 'pet'), ActorInterval(self, 'fromPet')), av.getScratchPetIval(), SoundInterval(self.petSfx)), Func(self.releasePetFromHoldDown), self._getPetMovieCompleteIval(av))
             self.movieTrack.start()
 
         if mode == PetConstants.PET_MOVIE_FEED:

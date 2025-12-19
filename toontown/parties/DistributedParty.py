@@ -49,7 +49,7 @@ class DistributedParty(DistributedObject.DistributedObject):
         self.partyInfo = PartyInfo(*partyInfoTuple)
         self.loadDecorations()
         allActIds = [ x.activityId for x in self.partyInfo.activityList ]
-        base.partyHasJukebox = PartyGlobals.ActivityIds.PartyJukebox in allActIds or PartyGlobals.ActivityIds.PartyJukebox40 in allActIds
+        base.partyHasJukebox = PartyGlobals.EActivityId.PartyJukebox in allActIds or PartyGlobals.EActivityId.PartyJukebox40 in allActIds
         self.grid = [
          [False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, False, False],
          [False, False, False, False, True, True, True, True, True, True, True, True, True, True, True, False, False, False],
@@ -126,7 +126,7 @@ class DistributedParty(DistributedObject.DistributedObject):
     def loadDecorations(self):
         self.decorationsList = []
         for decorBase in self.partyInfo.decors:
-            self.decorationsList.append(Decoration(PartyGlobals.DecorationIds.getString(decorBase.decorId), PartyUtils.convertDistanceFromPartyGrid(decorBase.x, 0), PartyUtils.convertDistanceFromPartyGrid(decorBase.y, 1), PartyUtils.convertDegreesFromPartyGrid(decorBase.h)))
+            self.decorationsList.append(Decoration(PartyGlobals.EDecorationId.getString(decorBase.decorId), PartyUtils.convertDistanceFromPartyGrid(decorBase.x, 0), PartyUtils.convertDistanceFromPartyGrid(decorBase.y, 1), PartyUtils.convertDegreesFromPartyGrid(decorBase.h)))
 
     def unload(self):
         if hasattr(self, 'decorationsList') and self.decorationsList:

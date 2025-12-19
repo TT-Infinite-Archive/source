@@ -92,8 +92,8 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             taskMgr.doMethodLater(self.DURATION, self.enterConclusion, self.uniqueName('duration'))
             
     def enterConclusion(self, task):
-        self.setState('Conclusion', [self.getTeamDistance(PartyGlobals.TeamActivityTeams.LeftTeam),
-            self.getTeamDistance(PartyGlobals.TeamActivityTeams.RightTeam)])
+        self.setState('Conclusion', [self.getTeamDistance(PartyGlobals.TeamActivityTeam.LEFT),
+            self.getTeamDistance(PartyGlobals.TeamActivityTeam.RIGHT)])
         if self.scores:
             avId, topScore = self.getHighScore()
             av = simbase.air.doId2do.get(avId)
@@ -105,11 +105,11 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
 
     def getTeamScore(self, team):
         score = 0
-        if team == PartyGlobals.TeamActivityTeams.LeftTeam:
+        if team == PartyGlobals.TeamActivityTeam.LEFT:
             for d in self.cogDistances:
                 if d > 0:
                     score += self.convertScoreToFeet(d)
-        elif team == PartyGlobals.TeamActivityTeams.RightTeam:
+        elif team == PartyGlobals.TeamActivityTeam.RIGHT:
             for d in self.cogDistances:
                 if d < 0:
                     score += self.convertScoreToFeet(d)
@@ -117,7 +117,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
 
     def getTeamDistance(self, team):
         dist = 0
-        if team == PartyGlobals.TeamActivityTeams.LeftTeam:
+        if team == PartyGlobals.TeamActivityTeam.LEFT:
             for d in self.cogDistances:
                 if d == 0:
                     dist += MID_DISTANCE
@@ -126,7 +126,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
                 else:
                     dist += (MID_DISTANCE * 2) - self.convertScoreToFeet(d)
 
-        elif team == PartyGlobals.TeamActivityTeams.RightTeam:
+        elif team == PartyGlobals.TeamActivityTeam.RIGHT:
             for d in self.cogDistances:
                 if d == 0:
                     dist += MID_DISTANCE
@@ -140,12 +140,12 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
         return round(abs(score) * DIST_MULITPLIER + MID_DISTANCE)
 
     def getWinningTeam(self):
-        leftTeam = self.getTeamDistance(PartyGlobals.TeamActivityTeams.LeftTeam)
-        rightTeam = self.getTeamDistance(PartyGlobals.TeamActivityTeams.RightTeam)
+        leftTeam = self.getTeamDistance(PartyGlobals.TeamActivityTeam.LEFT)
+        rightTeam = self.getTeamDistance(PartyGlobals.TeamActivityTeam.RIGHT)
         if leftTeam > rightTeam:
-            return PartyGlobals.TeamActivityTeams.LeftTeam
+            return PartyGlobals.TeamActivityTeam.LEFT
         elif rightTeam > leftTeam:
-            return PartyGlobals.TeamActivityTeams.RightTeam
+            return PartyGlobals.TeamActivityTeam.RIGHT
         return GAME_TIED
 
     def getBeansToAward(self, avId):
@@ -159,7 +159,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             elif self.getTotalDistances() == PERFECT_WIN:
                 self.notify.debug('Left side got rekt.')
                 beansToAward = PartyGlobals.CogActivityPerfectLossBeans
-            elif self.getWinningTeam() == PartyGlobals.TeamActivityTeams.LeftTeam:
+            elif self.getWinningTeam() == PartyGlobals.TeamActivityTeam.LEFT:
                 self.notify.debug('Left side won!')
                 beansToAward = PartyGlobals.CogActivityWinBeans
             else:
@@ -172,7 +172,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             elif self.getTotalDistances() == -PERFECT_WIN:
                 self.notify.debug('Right side got rekt.')
                 beansToAward = PartyGlobals.CogActivityPerfectLossBeans
-            elif self.getWinningTeam() == PartyGlobals.TeamActivityTeams.RightTeam:
+            elif self.getWinningTeam() == PartyGlobals.TeamActivityTeam.RIGHT:
                 self.notify.debug('Right side won!')
                 beansToAward = PartyGlobals.CogActivityWinBeans
             else:
@@ -188,8 +188,8 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             av = simbase.air.doId2do.get(avId)
             reward = self.getBeansToAward(avId)
             self.notify.debug('Avatar is in leftTeam')
-            message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeams.LeftTeam)
-            if self.getWinningTeam() == PartyGlobals.TeamActivityTeams.LeftTeam:
+            message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeam.LEFT)
+            if self.getWinningTeam() == PartyGlobals.TeamActivityTeam.LEFT:
                 bonus = PartyGlobals.CogActivityWinBeans
                 message += TTLocalizer.PartyCogRewardBonus % (bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))
             self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])
@@ -198,8 +198,8 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             av = simbase.air.doId2do.get(avId)
             reward = self.getBeansToAward(avId)
             self.notify.debug('Avatar is in rightTeam')
-            message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeams.RightTeam)
-            if self.getWinningTeam() == PartyGlobals.TeamActivityTeams.RightTeam:
+            message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeam.RIGHT)
+            if self.getWinningTeam() == PartyGlobals.TeamActivityTeam.RIGHT:
                 bonus = PartyGlobals.CogActivityWinBeans
                 message += TTLocalizer.PartyCogRewardBonus % (bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))            
             self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])

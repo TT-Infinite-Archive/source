@@ -190,9 +190,9 @@ class EventsPage(ShtikerPage.ShtikerPage):
     def getGuestItem(self, name, inviteStatus):
         label = DirectLabel(relief=None, text=name, text_scale=0.045, text_align=TextNode.ALeft, textMayChange=True)
         dot = DirectFrame(relief=None, geom=self.hostingGui.find('**/questionMark'), pos=(0.5, 0.0, 0.01))
-        if inviteStatus == PartyGlobals.InviteStatus.Accepted:
+        if inviteStatus == PartyGlobals.EInviteStatus.ACCEPTED:
             dot['geom'] = (self.hostingGui.find('**/checkmark'),)
-        elif inviteStatus == PartyGlobals.InviteStatus.Rejected:
+        elif inviteStatus == PartyGlobals.EInviteStatus.REJECTED:
             dot['geom'] = (self.hostingGui.find('**/x'),)
         PartyUtils.truncateTextOfLabelBasedOnWidth(label, name, PartyGlobals.EventsPageGuestNameMaxWidth)
         dot.reparentTo(label)
@@ -204,7 +204,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             textForActivity = activityName
         else:
             textForActivity = '%s x %d' % (activityName, count)
-        iconString = PartyGlobals.ActivityIds.getString(activityBase.activityId)
+        iconString = PartyGlobals.EActivityId.getString(activityBase.activityId)
         geom = getPartyActivityIcon(self.activityIconsModel, iconString)
         label = DirectLabel(relief=None, geom=geom, geom_scale=0.38, geom_pos=Vec3(0.0, 0.0, -0.17), text=textForActivity, text_scale=TTLocalizer.EPactivityItemLabel, text_align=TextNode.ACenter, text_pos=(-0.01, -0.43), text_wordwrap=7.0)
         return label
@@ -215,7 +215,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             textForDecoration = decorationName
         else:
             textForDecoration = decorationName + ' x ' + str(count)
-        assetName = PartyGlobals.DecorationIds.getString(decorBase.decorId)
+        assetName = PartyGlobals.EDecorationId.getString(decorBase.decorId)
         if assetName == 'Hydra':
             assetName = 'StageSummer'
         label = DirectLabel(relief=None, geom=self.decorationModels.find('**/partyDecoration_%s' % assetName), text=textForDecoration, text_scale=TTLocalizer.EPdecorationItemLabel, text_align=TextNode.ACenter, text_pos=(-0.01, -0.43), text_wordwrap=7.0)
@@ -237,7 +237,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.invitationActivityList.removeAndDestroyAllItems()
         self.invitePartyGoButton['state'] = DirectGuiGlobals.DISABLED
         for partyInfo in base.localAvatar.partiesInvitedTo:
-            if partyInfo.status == PartyGlobals.PartyStatus.Cancelled or partyInfo.status == PartyGlobals.PartyStatus.Finished:
+            if partyInfo.status == PartyGlobals.EPartyStatus.CANCELLED or partyInfo.status == PartyGlobals.EPartyStatus.FINISHED:
                 continue
             inviteInfo = None
             for inviteInfo in base.localAvatar.invites:
@@ -247,13 +247,13 @@ class EventsPage(ShtikerPage.ShtikerPage):
             if inviteInfo is None:
                 EventsPage.notify.error('No invitation info for party id %d' % partyInfo.partyId)
                 return
-            if inviteInfo.status == PartyGlobals.InviteStatus.NotRead:
+            if inviteInfo.status == PartyGlobals.EInviteStatus.NOT_READ:
                 continue
             hostName = self.getToonNameFromAvId(partyInfo.hostId)
             item = DirectButton(relief=None, text=hostName, text_align=TextNode.ALeft, text_bg=Vec4(0.0, 0.0, 0.0, 0.0), text_scale=0.045, textMayChange=True, command=self.invitePartyClicked)
             PartyUtils.truncateTextOfLabelBasedOnWidth(item, hostName, PartyGlobals.EventsPageHostNameMaxWidth)
             item['extraArgs'] = [item]
-            item.setPythonTag('activityIds', partyInfo.getActivityIds())
+            item.setPythonTag('activityIds', partyInfo.getEActivityId())
             item.setPythonTag('partyStatus', partyInfo.status)
             item.setPythonTag('hostId', partyInfo.hostId)
             item.setPythonTag('startTime', partyInfo.startTime)
@@ -262,7 +262,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         return
 
     def invitePartyClicked(self, item):
-        if item.getPythonTag('partyStatus') == PartyGlobals.PartyStatus.Started:
+        if item.getPythonTag('partyStatus') == PartyGlobals.EPartyStatus.STARTED:
             self.invitePartyGoButton['state'] = DirectGuiGlobals.NORMAL
         else:
             self.invitePartyGoButton['state'] = DirectGuiGlobals.DISABLED
@@ -291,7 +291,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
                 textOfActivity = TTLocalizer.PartyActivityNameDict[activityId]['generic']
             else:
                 textOfActivity = TTLocalizer.PartyActivityNameDict[activityId]['generic'] + ' x ' + str(countDict[activityId])
-            geom = getPartyActivityIcon(self.activityIconsModel, PartyGlobals.ActivityIds.getString(activityId))
+            geom = getPartyActivityIcon(self.activityIconsModel, PartyGlobals.EActivityId.getString(activityId))
             item = DirectLabel(relief=None, text=textOfActivity, text_align=TextNode.ACenter, text_scale=0.05, text_pos=(0.0, -0.15), geom_scale=0.3, geom_pos=Vec3(0.0, 0.0, 0.07), geom=geom)
             self.invitationActivityList.addItem(item)
 
@@ -318,7 +318,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.cancelPartyResultGui.hide()
         if base.localAvatar.hostedParties is not None and len(base.localAvatar.hostedParties) > 0:
             for partyInfo in base.localAvatar.hostedParties:
-                if partyInfo.status == PartyGlobals.PartyStatus.Pending or partyInfo.status == PartyGlobals.PartyStatus.CanStart or partyInfo.status == PartyGlobals.PartyStatus.NeverStarted or partyInfo.status == PartyGlobals.PartyStatus.Started:
+                if partyInfo.status == PartyGlobals.EPartyStatus.PENDING or partyInfo.status == PartyGlobals.EPartyStatus.CAN_START or partyInfo.status == PartyGlobals.EPartyStatus.NEVER_STARTED or partyInfo.status == PartyGlobals.EPartyStatus.STARTED:
                     self.hostedPartyInfo = partyInfo
                     self.loadGuests()
                     self.loadActivities()
@@ -326,10 +326,10 @@ class EventsPage(ShtikerPage.ShtikerPage):
                     self.hostingDateLabel['text'] = TTLocalizer.EventsPageHostTabDateTimeLabel % (PartyUtils.formatDate(partyInfo.startTime.year, partyInfo.startTime.month, partyInfo.startTime.day), PartyUtils.formatTime(partyInfo.startTime.hour, partyInfo.startTime.minute))
                     self.isPrivate = partyInfo.isPrivate
                     self.__setPublicPrivateButton()
-                    if partyInfo.status == PartyGlobals.PartyStatus.CanStart:
+                    if partyInfo.status == PartyGlobals.EPartyStatus.CAN_START:
                         self.partyGoButton['state'] = DirectGuiGlobals.NORMAL
                         self.partyGoButton['text'] = (TTLocalizer.EventsPageGoButton,)
-                    elif partyInfo.status == PartyGlobals.PartyStatus.Started:
+                    elif partyInfo.status == PartyGlobals.EPartyStatus.STARTED:
                         place = base.cr.playGame.getPlace()
                         if isinstance(place, Party):
                             if hasattr(base, 'distributedParty'):
@@ -346,7 +346,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
                     else:
                         self.partyGoButton['text'] = (TTLocalizer.EventsPageGoButton,)
                         self.partyGoButton['state'] = DirectGuiGlobals.DISABLED
-                    if partyInfo.status not in (PartyGlobals.PartyStatus.Pending, PartyGlobals.PartyStatus.CanStart):
+                    if partyInfo.status not in (PartyGlobals.EPartyStatus.PENDING, PartyGlobals.EPartyStatus.CAN_START):
                         self.hostingCancelButton['state'] = DirectGuiGlobals.DISABLED
                     else:
                         self.hostingCancelButton['state'] = DirectGuiGlobals.NORMAL
@@ -364,7 +364,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def checkCanStartHostedParty(self):
         result = True
-        if self.hostedPartyInfo.endTime < base.cr.toontownTimeManager.getCurServerDateTime() and self.hostedPartyInfo.status == PartyGlobals.PartyStatus.CanStart:
+        if self.hostedPartyInfo.endTime < base.cr.toontownTimeManager.getCurServerDateTime() and self.hostedPartyInfo.status == PartyGlobals.EPartyStatus.CAN_START:
             result = False
             self.confirmTooLatePartyGui.show()
         return result
@@ -380,7 +380,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
     def _startParty(self):
         if not self.checkCanStartHostedParty():
             return
-        if self.hostedPartyInfo.status == PartyGlobals.PartyStatus.CanStart:
+        if self.hostedPartyInfo.status == PartyGlobals.EPartyStatus.CAN_START:
             firstStart = True
         else:
             firstStart = False
@@ -618,18 +618,18 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.confirmPublicPrivateGui.show()
         base.cr.partyManager.sendChangePrivateRequest(self.hostedPartyInfo.partyId, not self.isPrivate)
         self.accept('changePartyPrivateResponseReceived', self.changePartyPrivateResponseReceived)
-        taskMgr.doMethodLater(5.0, self.changePartyPrivateResponseReceived, 'changePartyPrivateResponseReceivedTimeOut', [0, 0, PartyGlobals.ChangePartyFieldErrorCode.DatabaseError])
+        taskMgr.doMethodLater(5.0, self.changePartyPrivateResponseReceived, 'changePartyPrivateResponseReceivedTimeOut', [0, 0, PartyGlobals.EChangePartyFieldErrorCode.DATABASE_ERROR])
 
     def changePartyPrivateResponseReceived(self, partyId, newPrivateStatus, errorCode):
         EventsPage.notify.debug('changePartyPrivateResponseReceived called with partyId = %d, newPrivateStatus = %d, errorCode = %d' % (partyId, newPrivateStatus, errorCode))
         taskMgr.remove('changePartyPrivateResponseReceivedTimeOut')
         self.ignore('changePartyPrivateResponseReceived')
-        if errorCode == PartyGlobals.ChangePartyFieldErrorCode.AllOk:
+        if errorCode == PartyGlobals.EChangePartyFieldErrorCode.ALL_OK:
             self.isPrivate = newPrivateStatus
             self.confirmPublicPrivateGui.hide()
         else:
             self.confirmPublicPrivateGui.buttonList[0].show()
-            if errorCode == PartyGlobals.ChangePartyFieldErrorCode.AlreadyStarted:
+            if errorCode == PartyGlobals.EChangePartyFieldErrorCode.ALREADY_STARTED:
                 self.confirmPublicPrivateGui['text'] = TTLocalizer.EventsPagePublicPrivateAlreadyStarted
             else:
                 self.confirmPublicPrivateGui['text'] = TTLocalizer.EventsPagePublicPrivateNoGo
@@ -637,26 +637,26 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def __doCancelParty(self):
         if self.hostedPartyInfo:
-            if self.hostedPartyInfo.status == PartyGlobals.PartyStatus.Pending or self.hostedPartyInfo.status == PartyGlobals.PartyStatus.CanStart or self.hostedPartyInfo.status == PartyGlobals.PartyStatus.NeverStarted:
+            if self.hostedPartyInfo.status == PartyGlobals.EPartyStatus.PENDING or self.hostedPartyInfo.status == PartyGlobals.EPartyStatus.CAN_START or self.hostedPartyInfo.status == PartyGlobals.EPartyStatus.NEVER_STARTED:
                 self.hostingCancelButton['state'] = DirectGuiGlobals.DISABLED
                 self.confirmCancelPartyGui.show()
 
     def confirmCancelOfParty(self):
         self.confirmCancelPartyGui.hide()
         if self.confirmCancelPartyGui.doneStatus == 'ok':
-            base.cr.partyManager.sendChangePartyStatusRequest(self.hostedPartyInfo.partyId, PartyGlobals.PartyStatus.Cancelled)
+            base.cr.partyManager.sendChangePartyStatusRequest(self.hostedPartyInfo.partyId, PartyGlobals.EPartyStatus.CANCELLED)
             self.accept('changePartyStatusResponseReceived', self.changePartyStatusResponseReceived)
         else:
             self.hostingCancelButton['state'] = DirectGuiGlobals.NORMAL
 
     def changePartyStatusResponseReceived(self, partyId, newPartyStatus, errorCode, beansRefunded):
         EventsPage.notify.debug('changePartyStatusResponseReceived called with partyId = %d, newPartyStatus = %d, errorCode = %d' % (partyId, newPartyStatus, errorCode))
-        if errorCode == PartyGlobals.ChangePartyFieldErrorCode.AllOk:
-            if newPartyStatus == PartyGlobals.PartyStatus.Cancelled:
+        if errorCode == PartyGlobals.EChangePartyFieldErrorCode.ALL_OK:
+            if newPartyStatus == PartyGlobals.EPartyStatus.CANCELLED:
                 self.loadHostedPartyInfo()
                 self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyResultOk % beansRefunded
                 self.cancelPartyResultGui.show()
-        elif errorCode == PartyGlobals.ChangePartyFieldErrorCode.AlreadyRefunded and newPartyStatus == PartyGlobals.PartyStatus.NeverStarted:
+        elif errorCode == PartyGlobals.EChangePartyFieldErrorCode.ALREADY_REFUNDED and newPartyStatus == PartyGlobals.EPartyStatus.NEVER_STARTED:
             self.loadHostedPartyInfo()
             self.cancelPartyResultGui['text'] = TTLocalizer.EventsPageCancelPartyAlreadyRefunded
             self.cancelPartyResultGui.show()

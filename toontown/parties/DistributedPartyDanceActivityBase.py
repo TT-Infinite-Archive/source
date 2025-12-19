@@ -9,7 +9,7 @@ from toontown.toonbase import ToontownGlobals
 from toontown.minigame.OrthoDrive import OrthoDrive
 from toontown.minigame.OrthoWalk import OrthoWalk
 from toontown.parties.activityFSMs import DanceActivityFSM
-from toontown.parties.PartyGlobals import ActivityIds, ActivityTypes
+from toontown.parties.PartyGlobals import EActivityId, ActivityTypes
 from toontown.parties.PartyGlobals import DancePatternToAnims, DanceAnimToName
 from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
 from toontown.parties.PartyDanceActivityToonFSM import PartyDanceActivityToonFSM
@@ -24,7 +24,7 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
     notify = directNotify.newCategory('DistributedPartyDanceActivity')
 
     def __init__(self, cr, actId, dancePatternToAnims, model = 'phase_13/models/parties/danceFloor'):
-        DistributedPartyActivity.__init__(self, cr, actId, ActivityTypes.Continuous)
+        DistributedPartyActivity.__init__(self, cr, actId, EActivityType.CONTINUOUS)
         self.model = model
         self.danceFloor = None
         self.localToonDancing = False
@@ -181,7 +181,7 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
         self.setToonIds(toonIds)
         self._processExitedToons(exitedToons)
         for toonId in joinedToons:
-            if toonId != base.localAvatar.doId or toonId == base.localAvatar.doId and self.isLocalToonRequestStatus(PartyGlobals.ActivityRequestStatus.Joining):
+            if toonId != base.localAvatar.doId or toonId == base.localAvatar.doId and self.isLocalToonRequestStatus(PartyGlobals.EActivityRequestStatus.JOINING):
                 self._enableHandleToonDisabled(toonId)
                 self.handleToonJoined(toonId, toonHeadings[toonIds.index(toonId)])
                 if toonId == base.localAvatar.doId:
@@ -249,7 +249,7 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
 
     def exitRequestDenied(self, reason):
         DistributedPartyActivity.exitRequestDenied(self, reason)
-        if reason != PartyGlobals.DenialReasons.SilentFail:
+        if reason != PartyGlobals.EDenialReasons.SilentFail:
             self.showMessage(TTLocalizer.PartyActivityDefaultExitDeny)
 
     def handleToonExited(self, toonId):

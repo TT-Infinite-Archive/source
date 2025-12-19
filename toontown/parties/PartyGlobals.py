@@ -1,3 +1,4 @@
+import enum
 from panda3d.core import BitMask32, Point3, VBase4
 from direct.showbase import PythonUtil
 from toontown.toonbase import TTLocalizer
@@ -40,190 +41,229 @@ AvailableGridSquares = 202
 TrashCanPosition = (-0.24, 0.0, -0.65)
 TrashCanScale = 0.7
 PartyEditorTrashBounds = ((-0.16, -0.38), (-0.05, -0.56))
-ActivityRequestStatus = PythonUtil.Enum(('Joining', 'Exiting'))
-InviteStatus = PythonUtil.Enum(('NotRead',
- 'ReadButNotReplied',
- 'Accepted',
- 'Rejected'))
-InviteTheme = PythonUtil.Enum(('Birthday',
- 'GenericMale',
- 'GenericFemale',
- 'Racing',
- 'Valentoons',
- 'VictoryParty',
- 'Winter'))
-PartyStatus = PythonUtil.Enum(('Pending',
- 'Cancelled',
- 'Finished',
- 'CanStart',
- 'Started',
- 'NeverStarted'))
-AddPartyErrorCode = PythonUtil.Enum(('AllOk',
- 'ValidationError',
- 'DatabaseError',
- 'TooManyHostedParties'))
-ChangePartyFieldErrorCode = PythonUtil.Enum(('AllOk',
- 'ValidationError',
- 'DatabaseError',
- 'AlreadyStarted',
- 'AlreadyRefunded'))
-ActivityTypes = PythonUtil.Enum(('HostInitiated', 'GuestInitiated', 'Continuous'))
-PartyGateDenialReasons = PythonUtil.Enum(('Unavailable', 'Full'))
-ActivityIds = PythonUtil.Enum(('PartyJukebox',
- 'PartyCannon',
- 'PartyTrampoline',
- 'PartyCatch',
- 'PartyDance',
- 'PartyTugOfWar',
- 'PartyFireworks',
- 'PartyClock',
- 'PartyJukebox40',
- 'PartyDance20',
- 'PartyCog',
- 'PartyVictoryTrampoline',
- 'PartyWinterCatch',
- 'PartyWinterTrampoline',
- 'PartyWinterCog',
- 'PartyValentineDance',
- 'PartyValentineDance20',
- 'PartyValentineJukebox',
- 'PartyValentineJukebox40',
- 'PartyValentineTrampoline'))
-PartyEditorActivityOrder = [ ActivityIds.PartyClock,
- ActivityIds.PartyJukebox,
- ActivityIds.PartyJukebox40,
- ActivityIds.PartyValentineJukebox,
- ActivityIds.PartyValentineJukebox40,
- ActivityIds.PartyCannon,
- ActivityIds.PartyTrampoline,
- ActivityIds.PartyValentineTrampoline,
- ActivityIds.PartyVictoryTrampoline,
- ActivityIds.PartyWinterTrampoline,
- ActivityIds.PartyDance,
- ActivityIds.PartyDance20,
- ActivityIds.PartyValentineDance,
- ActivityIds.PartyValentineDance20,
- ActivityIds.PartyCatch,
- ActivityIds.PartyWinterCatch,
- ActivityIds.PartyWinterCog,
- ActivityIds.PartyTugOfWar,
- ActivityIds.PartyCog,
- ActivityIds.PartyFireworks]
-UnreleasedActivityIds = (
- # These AIs need to be written before they can be used:
- ActivityIds.PartyJukebox,
- ActivityIds.PartyJukebox40,
- # --------------------
- ActivityIds.PartyWinterCog,
- ActivityIds.PartyValentineJukebox,
- ActivityIds.PartyValentineJukebox40,
- ActivityIds.PartyValentineTrampoline,
- ActivityIds.PartyWinterTrampoline,
- ActivityIds.PartyWinterCatch,
- ActivityIds.PartyValentineDance,
- ActivityIds.PartyValentineDance20)
-UnreleasedActivityIdsSP = (
- # These AIs need to be written before they can be used:
- ActivityIds.PartyJukebox,
- ActivityIds.PartyJukebox40,
- ActivityIds.PartyTugOfWar,
- ActivityIds.PartyCog,
- # --------------------
- ActivityIds.PartyWinterCog,
- ActivityIds.PartyValentineJukebox,
- ActivityIds.PartyValentineJukebox40,
- ActivityIds.PartyValentineTrampoline,
- ActivityIds.PartyWinterTrampoline,
- ActivityIds.PartyWinterCatch,
- ActivityIds.PartyValentineDance,
- ActivityIds.PartyValentineDance20)
 
-MutuallyExclusiveActivities = ((ActivityIds.PartyJukebox, ActivityIds.PartyJukebox40),
- (ActivityIds.PartyValentineJukebox, ActivityIds.PartyValentineJukebox40),
- (ActivityIds.PartyDance, ActivityIds.PartyDance20),
- (ActivityIds.PartyValentineDance, ActivityIds.PartyValentineDance20))
-VictoryPartyActivityIds = frozenset([ActivityIds.PartyVictoryTrampoline])
-VictoryPartyReplacementActivityIds = frozenset([ActivityIds.PartyTrampoline])
-WinterPartyActivityIds = frozenset([ActivityIds.PartyWinterCatch, ActivityIds.PartyWinterTrampoline, ActivityIds.PartyWinterCog])
-WinterPartyReplacementActivityIds = frozenset([ActivityIds.PartyCatch, ActivityIds.PartyTrampoline, ActivityIds.PartyCog])
-ValentinePartyActivityIds = frozenset([ActivityIds.PartyValentineDance,
- ActivityIds.PartyValentineDance20,
- ActivityIds.PartyValentineJukebox,
- ActivityIds.PartyValentineJukebox40,
- ActivityIds.PartyValentineTrampoline])
-ValentinePartyReplacementActivityIds = frozenset([ActivityIds.PartyDance,
- ActivityIds.PartyDance20,
- ActivityIds.PartyJukebox,
- ActivityIds.PartyJukebox40,
- ActivityIds.PartyTrampoline])
-DecorationIds = PythonUtil.Enum(('BalloonAnvil',
- 'BalloonStage',
- 'Bow',
- 'Cake',
- 'Castle',
- 'GiftPile',
- 'Horn',
- 'MardiGras',
- 'NoiseMakers',
- 'Pinwheel',
- 'GagGlobe',
- 'BannerJellyBean',
- 'CakeTower',
- 'HeartTarget',
- 'HeartBanner',
- 'FlyingHeart',
- 'Hydra',
- 'BannerVictory',
- 'CannonVictory',
- 'CogStatueVictory',
- 'TubeCogVictory',
- 'CogIceCreamVictory',
- 'cogIceCreamWinter',
- 'StageWinter',
- 'CogStatueWinter',
- 'snowman',
- 'snowDoodle',
- 'BalloonAnvilValentine'))
-TTIUnreleasedDecor = [DecorationIds.HeartTarget,
- DecorationIds.HeartBanner,
- DecorationIds.FlyingHeart,
- DecorationIds.Hydra,
- DecorationIds.BannerVictory,
- DecorationIds.CannonVictory,
- DecorationIds.CogStatueVictory,
- DecorationIds.TubeCogVictory,
- DecorationIds.CogIceCreamVictory,
- DecorationIds.cogIceCreamWinter,
- DecorationIds.StageWinter,
- DecorationIds.CogStatueWinter,
- DecorationIds.snowman,
- DecorationIds.snowDoodle,
- DecorationIds.BalloonAnvilValentine]
+
+class EActivityRequestStatus(enum.IntEnum):
+    JOINING = 0
+    EXITING = 1
+
+
+class EInviteStatus(enum.IntEnum):
+    NOT_READ = 0
+    READ_BUT_NOT_REPLIED = 1
+    ACCEPTED = 2
+    REJECTED = 3
+
+
+class EInviteTheme(enum.IntEnum):
+    BIRTHDAY = 0
+    GENERIC_MALE = 1
+    GENERIC_FEMALE = 2
+    RACING = 3
+    VALENTOONS = 4
+    VICTORY_PARTY = 5
+    WINTER = 6
+
+
+class EPartyStatus(enum.IntEnum):
+    PENDING = 0
+    CANCELLED = 1
+    FINISHED = 2
+    CAN_START = 3
+    STARTED = 4
+    NEVER_STARTED = 5
+
+
+class EAddPartyErrorCode(enum.IntEnum):
+    ALL_OK = 0
+    VALIDATION_ERROR = 1
+    DATABASE_ERROR = 2
+    TOO_MANY_HOSTED_PARTIES = 3
+
+
+class EChangePartyFieldErrorCode(enum.IntEnum):
+    ALL_OK = 0
+    VALIDATION_ERROR = 1
+    DATABASE_ERROR = 2
+    ALREADY_STARTED = 3
+    ALREADY_REFUNDED = 4
+
+
+class EActivityType(enum.IntEnum):
+    HOST_INITIATED = 0
+    GUEST_INITIATED = 1
+    CONTINUOUS = 2
+
+
+class EPartyGateDenialReason(enum.IntEnum):
+    UNAVAILABLE = 0
+    FULL = 1
+
+
+class EActivityId(enum.IntEnum):
+    PartyJukebox = 0
+    PartyCannon = 1
+    PartyTrampoline = 2
+    PartyCatch = 3
+    PartyDance = 4
+    PartyTugOfWar = 5
+    PartyFireworks = 6
+    PartyClock = 7
+    PartyJukebox40 = 8
+    PartyDance20 = 9
+    PartyCog = 10
+    PartyVictoryTrampoline = 11
+    PartyWinterCatch = 12
+    PartyWinterTrampoline = 13
+    PartyWinterCog = 14
+    PartyValentineDance = 15
+    PartyValentineDance20 = 16
+    PartyValentineJukebox = 17
+    PartyValentineJukebox40 = 18
+    PartyValentineTrampoline = 19
+
+
+PartyEditorActivityOrder = [EActivityId.PartyClock,
+ EActivityId.PartyJukebox,
+ EActivityId.PartyJukebox40,
+ EActivityId.PartyValentineJukebox,
+ EActivityId.PartyValentineJukebox40,
+ EActivityId.PartyCannon,
+ EActivityId.PartyTrampoline,
+ EActivityId.PartyValentineTrampoline,
+ EActivityId.PartyVictoryTrampoline,
+ EActivityId.PartyWinterTrampoline,
+ EActivityId.PartyDance,
+ EActivityId.PartyDance20,
+ EActivityId.PartyValentineDance,
+ EActivityId.PartyValentineDance20,
+ EActivityId.PartyCatch,
+ EActivityId.PartyWinterCatch,
+ EActivityId.PartyWinterCog,
+ EActivityId.PartyTugOfWar,
+ EActivityId.PartyCog,
+ EActivityId.PartyFireworks]
+UnreleasedEActivityId = (
+ # These AIs need to be written before they can be used:
+ EActivityId.PartyJukebox,
+ EActivityId.PartyJukebox40,
+ # --------------------
+ EActivityId.PartyWinterCog,
+ EActivityId.PartyValentineJukebox,
+ EActivityId.PartyValentineJukebox40,
+ EActivityId.PartyValentineTrampoline,
+ EActivityId.PartyWinterTrampoline,
+ EActivityId.PartyWinterCatch,
+ EActivityId.PartyValentineDance,
+ EActivityId.PartyValentineDance20)
+UnreleasedEActivityIdSP = (
+ # These AIs need to be written before they can be used:
+ EActivityId.PartyJukebox,
+ EActivityId.PartyJukebox40,
+ EActivityId.PartyTugOfWar,
+ EActivityId.PartyCog,
+ # --------------------
+ EActivityId.PartyWinterCog,
+ EActivityId.PartyValentineJukebox,
+ EActivityId.PartyValentineJukebox40,
+ EActivityId.PartyValentineTrampoline,
+ EActivityId.PartyWinterTrampoline,
+ EActivityId.PartyWinterCatch,
+ EActivityId.PartyValentineDance,
+ EActivityId.PartyValentineDance20)
+
+MutuallyExclusiveActivities = ((EActivityId.PartyJukebox, EActivityId.PartyJukebox40),
+ (EActivityId.PartyValentineJukebox, EActivityId.PartyValentineJukebox40),
+ (EActivityId.PartyDance, EActivityId.PartyDance20),
+ (EActivityId.PartyValentineDance, EActivityId.PartyValentineDance20))
+VictoryPartyEActivityId = frozenset([EActivityId.PartyVictoryTrampoline])
+VictoryPartyReplacementEActivityId = frozenset([EActivityId.PartyTrampoline])
+WinterPartyEActivityId = frozenset([EActivityId.PartyWinterCatch, EActivityId.PartyWinterTrampoline, EActivityId.PartyWinterCog])
+WinterPartyReplacementEActivityId = frozenset([EActivityId.PartyCatch, EActivityId.PartyTrampoline, EActivityId.PartyCog])
+ValentinePartyEActivityId = frozenset([EActivityId.PartyValentineDance,
+ EActivityId.PartyValentineDance20,
+ EActivityId.PartyValentineJukebox,
+ EActivityId.PartyValentineJukebox40,
+ EActivityId.PartyValentineTrampoline])
+ValentinePartyReplacementEActivityId = frozenset([EActivityId.PartyDance,
+ EActivityId.PartyDance20,
+ EActivityId.PartyJukebox,
+ EActivityId.PartyJukebox40,
+ EActivityId.PartyTrampoline])
+
+class EDecorationId(enum.IntEnum):
+    BalloonAnvil = 0
+    BalloonStage = 1
+    Bow = 2
+    Cake = 3
+    Castle = 4
+    GiftPile = 5
+    Horn = 6
+    MardiGras = 7
+    NoiseMakers = 8
+    Pinwheel = 9
+    GagGlobe = 10
+    BannerJellyBean = 11
+    CakeTower = 12
+    HeartTarget = 13
+    HeartBanner = 14
+    FlyingHeart = 15
+    Hydra = 16
+    BannerVictory = 17
+    CannonVictory = 18
+    CogStatueVictory = 19
+    TubeCogVictory = 20
+    CogIceCreamVictory = 21
+    cogIceCreamWinter = 22
+    StageWinter = 23
+    CogStatueWinter = 24
+    snowman = 25
+    snowDoodle = 26
+    BalloonAnvilValentine = 27
+
+TTIUnreleasedDecor = [EDecorationId.HeartTarget,
+ EDecorationId.HeartBanner,
+ EDecorationId.FlyingHeart,
+ EDecorationId.Hydra,
+ EDecorationId.BannerVictory,
+ EDecorationId.CannonVictory,
+ EDecorationId.CogStatueVictory,
+ EDecorationId.TubeCogVictory,
+ EDecorationId.CogIceCreamVictory,
+ EDecorationId.cogIceCreamWinter,
+ EDecorationId.StageWinter,
+ EDecorationId.CogStatueWinter,
+ EDecorationId.snowman,
+ EDecorationId.snowDoodle,
+ EDecorationId.BalloonAnvilValentine]
 DECORATION_VOLUME = 1.0
 DECORATION_CUTOFF = 45
-VictoryPartyDecorationIds = frozenset([DecorationIds.Hydra,
- DecorationIds.BannerVictory,
- DecorationIds.CannonVictory,
- DecorationIds.CogStatueVictory,
- DecorationIds.TubeCogVictory,
- DecorationIds.CogIceCreamVictory])
-WinterPartyDecorationIds = frozenset([DecorationIds.cogIceCreamWinter,
- DecorationIds.StageWinter,
- DecorationIds.CogStatueWinter,
- DecorationIds.snowman,
- DecorationIds.snowDoodle])
-VictoryPartyReplacementDecorationIds = frozenset([DecorationIds.BannerJellyBean])
-ValentinePartyDecorationIds = frozenset([DecorationIds.BalloonAnvilValentine,
- DecorationIds.HeartBanner,
- DecorationIds.HeartTarget,
- DecorationIds.FlyingHeart])
-ValentinePartyReplacementDecorationIds = frozenset([DecorationIds.BalloonAnvil, DecorationIds.BannerJellyBean])
-UnreleasedDecorationIds = ()
-GoToPartyStatus = PythonUtil.Enum(('AllowedToGo',
- 'PartyFull',
- 'PrivateParty',
- 'PartyOver',
- 'PartyNotActive'))
+VictoryPartyEDecorationId = frozenset([EDecorationId.Hydra,
+ EDecorationId.BannerVictory,
+ EDecorationId.CannonVictory,
+ EDecorationId.CogStatueVictory,
+ EDecorationId.TubeCogVictory,
+ EDecorationId.CogIceCreamVictory])
+WinterPartyEDecorationId = frozenset([EDecorationId.cogIceCreamWinter,
+ EDecorationId.StageWinter,
+ EDecorationId.CogStatueWinter,
+ EDecorationId.snowman,
+ EDecorationId.snowDoodle])
+VictoryPartyReplacementEDecorationId = frozenset([EDecorationId.BannerJellyBean])
+ValentinePartyEDecorationId = frozenset([EDecorationId.BalloonAnvilValentine,
+ EDecorationId.HeartBanner,
+ EDecorationId.HeartTarget,
+ EDecorationId.FlyingHeart])
+ValentinePartyReplacementEDecorationId = frozenset([EDecorationId.BalloonAnvil, EDecorationId.BannerJellyBean])
+UnreleasedEDecorationId = ()
+
+class EGoToPartyStatus(enum.IntEnum):
+    ALLOWED_TO_GO = 0
+    PARTY_FULL = 1
+    PRIVATE_PARTY = 2
+    PARTY_OVER = 3
+    PARTY_NOT_ACTIVE = 4
+
 PlayGroundToPartyClockColors = {'the_burrrgh': (53.0 / 255.0,
                  116.0 / 255.0,
                  148.0 / 255.0,
@@ -253,297 +293,305 @@ PartyGridHeadingConverter = 15.0
 PartyGridToPandaOffset = (-PartyGridUnitLength[0] * PartyEditorGridSize[0] / 2.0, -PartyGridUnitLength[1] * PartyEditorGridSize[1] / 2.0)
 PartyCostMultiplier = 0 # ALPHA ONLY - remove after parties are legit
 MinimumPartyCost = 100 * PartyCostMultiplier
-ActivityInformationDict = {ActivityIds.PartyJukebox: {'cost': int(50 * PartyCostMultiplier),
+ActivityInformationDict = {EActivityId.PartyJukebox: {'cost': int(50 * PartyCostMultiplier),
                             'gridsize': (1, 1),
                             'numberPerPurchase': 1,
                             'limitPerParty': 1,
                             'paidOnly': False,
                             'gridAsset': 'PartyJukebox_activity_1x1'},
- ActivityIds.PartyJukebox40: {'cost': int(100 * PartyCostMultiplier),
+ EActivityId.PartyJukebox40: {'cost': int(100 * PartyCostMultiplier),
                               'gridsize': (1, 1),
                               'numberPerPurchase': 1,
                               'limitPerParty': 1,
                               'paidOnly': False,
                               'gridAsset': 'PartyJukebox_activity_1x1'},
- ActivityIds.PartyValentineJukebox: {'cost': int(50 * PartyCostMultiplier),
+ EActivityId.PartyValentineJukebox: {'cost': int(50 * PartyCostMultiplier),
                                      'gridsize': (1, 1),
                                      'numberPerPurchase': 1,
                                      'limitPerParty': 1,
                                      'paidOnly': False,
                                      'gridAsset': 'PartyJukebox_activity_1x1'},
- ActivityIds.PartyValentineJukebox40: {'cost': int(100 * PartyCostMultiplier),
+ EActivityId.PartyValentineJukebox40: {'cost': int(100 * PartyCostMultiplier),
                                        'gridsize': (1, 1),
                                        'numberPerPurchase': 1,
                                        'limitPerParty': 1,
                                        'paidOnly': False,
                                        'gridAsset': 'PartyJukebox_activity_1x1'},
- ActivityIds.PartyCannon: {'cost': int(50 * PartyCostMultiplier),
+ EActivityId.PartyCannon: {'cost': int(50 * PartyCostMultiplier),
                            'gridsize': (1, 1),
                            'numberPerPurchase': 5,
                            'limitPerParty': 10,
                            'paidOnly': False,
                            'gridAsset': 'PartyCannon_activity_1x1'},
- ActivityIds.PartyTrampoline: {'cost': int(50 * PartyCostMultiplier),
+ EActivityId.PartyTrampoline: {'cost': int(50 * PartyCostMultiplier),
                                'gridsize': (2, 2),
                                'numberPerPurchase': 1,
                                'limitPerParty': 8,
                                'paidOnly': False,
                                'gridAsset': 'PartyTrampoline_activity_2x2'},
- ActivityIds.PartyValentineTrampoline: {'cost': int(50 * PartyCostMultiplier),
+ EActivityId.PartyValentineTrampoline: {'cost': int(50 * PartyCostMultiplier),
                                         'gridsize': (2, 2),
                                         'numberPerPurchase': 1,
                                         'limitPerParty': 8,
                                         'paidOnly': False,
                                         'gridAsset': 'PartyTrampoline_activity_2x2'},
- ActivityIds.PartyVictoryTrampoline: {'cost': int(50 * PartyCostMultiplier),
+ EActivityId.PartyVictoryTrampoline: {'cost': int(50 * PartyCostMultiplier),
                                       'gridsize': (2, 2),
                                       'numberPerPurchase': 1,
                                       'limitPerParty': 8,
                                       'paidOnly': False,
                                       'gridAsset': 'PartyTrampoline_activity_2x2'},
- ActivityIds.PartyWinterTrampoline: {'cost': int(50 * PartyCostMultiplier),
+ EActivityId.PartyWinterTrampoline: {'cost': int(50 * PartyCostMultiplier),
                                      'gridsize': (2, 2),
                                      'numberPerPurchase': 1,
                                      'limitPerParty': 8,
                                      'paidOnly': False,
                                      'gridAsset': 'PartyTrampoline_activity_2x2'},
- ActivityIds.PartyCatch: {'cost': int(300 * PartyCostMultiplier),
+ EActivityId.PartyCatch: {'cost': int(300 * PartyCostMultiplier),
                           'gridsize': (5, 5),
                           'numberPerPurchase': 1,
                           'limitPerParty': 1,
                           'paidOnly': True,
                           'gridAsset': 'PartyCatch_activity_5x5'},
- ActivityIds.PartyWinterCatch: {'cost': int(300 * PartyCostMultiplier),
+ EActivityId.PartyWinterCatch: {'cost': int(300 * PartyCostMultiplier),
                                 'gridsize': (5, 5),
                                 'numberPerPurchase': 1,
                                 'limitPerParty': 1,
                                 'paidOnly': True,
                                 'gridAsset': 'PartyCatch_activity_5x5'},
- ActivityIds.PartyCog: {'cost': int(300 * PartyCostMultiplier),
+ EActivityId.PartyCog: {'cost': int(300 * PartyCostMultiplier),
                         'gridsize': (5, 5),
                         'numberPerPurchase': 1,
                         'limitPerParty': 1,
                         'paidOnly': True,
                         'gridAsset': 'PartyCog_activity_5x5'},
- ActivityIds.PartyWinterCog: {'cost': int(300 * PartyCostMultiplier),
+ EActivityId.PartyWinterCog: {'cost': int(300 * PartyCostMultiplier),
                               'gridsize': (5, 5),
                               'numberPerPurchase': 1,
                               'limitPerParty': 1,
                               'paidOnly': True,
                               'gridAsset': 'PartyCog_activity_5x5'},
- ActivityIds.PartyDance: {'cost': int(100 * PartyCostMultiplier),
+ EActivityId.PartyDance: {'cost': int(100 * PartyCostMultiplier),
                           'gridsize': (3, 3),
                           'numberPerPurchase': 1,
                           'limitPerParty': 1,
                           'paidOnly': True,
                           'gridAsset': 'PartyDance_activity_3x3'},
- ActivityIds.PartyDance20: {'cost': int(200 * PartyCostMultiplier),
+ EActivityId.PartyDance20: {'cost': int(200 * PartyCostMultiplier),
                             'gridsize': (3, 3),
                             'numberPerPurchase': 1,
                             'limitPerParty': 1,
                             'paidOnly': True,
                             'gridAsset': 'PartyDance_activity_3x3'},
- ActivityIds.PartyValentineDance: {'cost': int(100 * PartyCostMultiplier),
+ EActivityId.PartyValentineDance: {'cost': int(100 * PartyCostMultiplier),
                                    'gridsize': (3, 3),
                                    'numberPerPurchase': 1,
                                    'limitPerParty': 1,
                                    'paidOnly': True,
                                    'gridAsset': 'PartyDance_activity_3x3'},
- ActivityIds.PartyValentineDance20: {'cost': int(200 * PartyCostMultiplier),
+ EActivityId.PartyValentineDance20: {'cost': int(200 * PartyCostMultiplier),
                                      'gridsize': (3, 3),
                                      'numberPerPurchase': 1,
                                      'limitPerParty': 1,
                                      'paidOnly': True,
                                      'gridAsset': 'PartyDance_activity_3x3'},
- ActivityIds.PartyTugOfWar: {'cost': int(200 * PartyCostMultiplier),
+ EActivityId.PartyTugOfWar: {'cost': int(200 * PartyCostMultiplier),
                              'gridsize': (4, 4),
                              'numberPerPurchase': 1,
                              'limitPerParty': 1,
                              'paidOnly': False,
                              'gridAsset': 'PartyTufOfWar_activity_4x4'},
- ActivityIds.PartyFireworks: {'cost': int(200 * PartyCostMultiplier),
+ EActivityId.PartyFireworks: {'cost': int(200 * PartyCostMultiplier),
                               'gridsize': (4, 2),
                               'numberPerPurchase': 1,
                               'limitPerParty': 1,
                               'paidOnly': False,
                               'gridAsset': 'PartyFireworks_activity_2x4'},
- ActivityIds.PartyClock: {'cost': MinimumPartyCost,
+ EActivityId.PartyClock: {'cost': MinimumPartyCost,
                           'gridsize': (1, 1),
                           'numberPerPurchase': 1,
                           'limitPerParty': 1,
                           'paidOnly': False,
                           'gridAsset': 'PartyClock_activity_1x1'}}
-DecorationInformationDict = {DecorationIds.BalloonAnvil: {'cost': int(10 * PartyCostMultiplier),
+DecorationInformationDict = {EDecorationId.BalloonAnvil: {'cost': int(10 * PartyCostMultiplier),
                               'gridsize': (1, 1),
                               'numberPerPurchase': 1,
                               'limitPerParty': 5,
                               'paidOnly': False,
                               'gridAsset': 'decoration_1x1'},
- DecorationIds.BalloonAnvilValentine: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.BalloonAnvilValentine: {'cost': int(10 * PartyCostMultiplier),
                                        'gridsize': (1, 1),
                                        'numberPerPurchase': 1,
                                        'limitPerParty': 5,
                                        'paidOnly': False,
                                        'gridAsset': 'decoration_1x1'},
- DecorationIds.BalloonStage: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.BalloonStage: {'cost': int(25 * PartyCostMultiplier),
                               'gridsize': (1, 1),
                               'numberPerPurchase': 1,
                               'limitPerParty': 5,
                               'paidOnly': False,
                               'gridAsset': 'decoration_1x1'},
- DecorationIds.Bow: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.Bow: {'cost': int(10 * PartyCostMultiplier),
                      'gridsize': (1, 1),
                      'numberPerPurchase': 1,
                      'limitPerParty': 5,
                      'paidOnly': False,
                      'gridAsset': 'decoration_1x1'},
- DecorationIds.Cake: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.Cake: {'cost': int(10 * PartyCostMultiplier),
                       'gridsize': (1, 1),
                       'numberPerPurchase': 1,
                       'limitPerParty': 5,
                       'paidOnly': False,
                       'gridAsset': 'decoration_1x1'},
- DecorationIds.Castle: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.Castle: {'cost': int(25 * PartyCostMultiplier),
                         'gridsize': (1, 1),
                         'numberPerPurchase': 1,
                         'limitPerParty': 5,
                         'paidOnly': False,
                         'gridAsset': 'decoration_1x1'},
- DecorationIds.GiftPile: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.GiftPile: {'cost': int(10 * PartyCostMultiplier),
                           'gridsize': (1, 1),
                           'numberPerPurchase': 1,
                           'limitPerParty': 5,
                           'paidOnly': False,
                           'gridAsset': 'decoration_1x1'},
- DecorationIds.Horn: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.Horn: {'cost': int(10 * PartyCostMultiplier),
                       'gridsize': (1, 1),
                       'numberPerPurchase': 1,
                       'limitPerParty': 5,
                       'paidOnly': False,
                       'gridAsset': 'decoration_1x1'},
- DecorationIds.MardiGras: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.MardiGras: {'cost': int(25 * PartyCostMultiplier),
                            'gridsize': (1, 1),
                            'numberPerPurchase': 1,
                            'limitPerParty': 5,
                            'paidOnly': False,
                            'gridAsset': 'decoration_1x1'},
- DecorationIds.NoiseMakers: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.NoiseMakers: {'cost': int(10 * PartyCostMultiplier),
                              'gridsize': (1, 1),
                              'numberPerPurchase': 1,
                              'limitPerParty': 5,
                              'paidOnly': False,
                              'gridAsset': 'decoration_1x1'},
- DecorationIds.Pinwheel: {'cost': int(10 * PartyCostMultiplier),
+ EDecorationId.Pinwheel: {'cost': int(10 * PartyCostMultiplier),
                           'gridsize': (1, 1),
                           'numberPerPurchase': 1,
                           'limitPerParty': 5,
                           'paidOnly': False,
                           'gridAsset': 'decoration_1x1'},
- DecorationIds.GagGlobe: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.GagGlobe: {'cost': int(25 * PartyCostMultiplier),
                           'gridsize': (1, 1),
                           'numberPerPurchase': 1,
                           'limitPerParty': 5,
                           'paidOnly': False,
                           'gridAsset': 'decoration_1x1'},
- DecorationIds.BannerJellyBean: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.BannerJellyBean: {'cost': int(25 * PartyCostMultiplier),
                                  'gridsize': (1, 1),
                                  'numberPerPurchase': 1,
                                  'limitPerParty': 5,
                                  'paidOnly': False,
                                  'gridAsset': 'decoration_1x1'},
- DecorationIds.CakeTower: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.CakeTower: {'cost': int(25 * PartyCostMultiplier),
                            'gridsize': (1, 1),
                            'numberPerPurchase': 1,
                            'limitPerParty': 5,
                            'paidOnly': False,
                            'gridAsset': 'decoration_1x1'},
- DecorationIds.HeartTarget: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.HeartTarget: {'cost': int(25 * PartyCostMultiplier),
                              'gridsize': (1, 1),
                              'numberPerPurchase': 1,
                              'limitPerParty': 5,
                              'paidOnly': False,
                              'gridAsset': 'decoration_1x1'},
- DecorationIds.HeartBanner: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.HeartBanner: {'cost': int(25 * PartyCostMultiplier),
                              'gridsize': (1, 1),
                              'numberPerPurchase': 1,
                              'limitPerParty': 5,
                              'paidOnly': False,
                              'gridAsset': 'decoration_1x1'},
- DecorationIds.FlyingHeart: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.FlyingHeart: {'cost': int(25 * PartyCostMultiplier),
                              'gridsize': (1, 1),
                              'numberPerPurchase': 1,
                              'limitPerParty': 5,
                              'paidOnly': False,
                              'gridAsset': 'decoration_1x1'},
- DecorationIds.Hydra: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.Hydra: {'cost': int(25 * PartyCostMultiplier),
                        'gridsize': (2, 2),
                        'numberPerPurchase': 1,
                        'limitPerParty': 5,
                        'paidOnly': False,
                        'gridAsset': 'decoration_propStage_2x2'},
- DecorationIds.BannerVictory: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.BannerVictory: {'cost': int(25 * PartyCostMultiplier),
                                'gridsize': (1, 1),
                                'numberPerPurchase': 1,
                                'limitPerParty': 5,
                                'paidOnly': False,
                                'gridAsset': 'decoration_1x1'},
- DecorationIds.CannonVictory: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.CannonVictory: {'cost': int(25 * PartyCostMultiplier),
                                'gridsize': (1, 1),
                                'numberPerPurchase': 1,
                                'limitPerParty': 5,
                                'paidOnly': False,
                                'gridAsset': 'decoration_1x1'},
- DecorationIds.CogStatueVictory: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.CogStatueVictory: {'cost': int(25 * PartyCostMultiplier),
                                   'gridsize': (1, 1),
                                   'numberPerPurchase': 1,
                                   'limitPerParty': 5,
                                   'paidOnly': False,
                                   'gridAsset': 'decoration_1x1'},
- DecorationIds.TubeCogVictory: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.TubeCogVictory: {'cost': int(25 * PartyCostMultiplier),
                                 'gridsize': (1, 1),
                                 'numberPerPurchase': 1,
                                 'limitPerParty': 5,
                                 'paidOnly': False,
                                 'gridAsset': 'decoration_1x1'},
- DecorationIds.CogIceCreamVictory: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.CogIceCreamVictory: {'cost': int(25 * PartyCostMultiplier),
                                     'gridsize': (1, 1),
                                     'numberPerPurchase': 1,
                                     'limitPerParty': 5,
                                     'paidOnly': False,
                                     'gridAsset': 'decoration_1x1'},
- DecorationIds.cogIceCreamWinter: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.cogIceCreamWinter: {'cost': int(25 * PartyCostMultiplier),
                                    'gridsize': (1, 1),
                                    'numberPerPurchase': 1,
                                    'limitPerParty': 5,
                                    'paidOnly': False,
                                    'gridAsset': 'decoration_1x1'},
- DecorationIds.StageWinter: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.StageWinter: {'cost': int(25 * PartyCostMultiplier),
                              'gridsize': (2, 2),
                              'numberPerPurchase': 1,
                              'limitPerParty': 5,
                              'paidOnly': False,
                              'gridAsset': 'decoration_propStage_2x2'},
- DecorationIds.CogStatueWinter: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.CogStatueWinter: {'cost': int(25 * PartyCostMultiplier),
                                  'gridsize': (1, 1),
                                  'numberPerPurchase': 1,
                                  'limitPerParty': 5,
                                  'paidOnly': False,
                                  'gridAsset': 'decoration_1x1'},
- DecorationIds.snowman: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.snowman: {'cost': int(25 * PartyCostMultiplier),
                          'gridsize': (1, 1),
                          'numberPerPurchase': 1,
                          'limitPerParty': 5,
                          'paidOnly': False,
                          'gridAsset': 'decoration_1x1'},
- DecorationIds.snowDoodle: {'cost': int(25 * PartyCostMultiplier),
+ EDecorationId.snowDoodle: {'cost': int(25 * PartyCostMultiplier),
                             'gridsize': (1, 1),
                             'numberPerPurchase': 1,
                             'limitPerParty': 5,
                             'paidOnly': False,
                             'gridAsset': 'decoration_1x1'}}
 DefaultRulesTimeout = 10.0
-DenialReasons = PythonUtil.Enum(('Default', 'Full', 'SilentFail'), start=0)
-FireworkShows = PythonUtil.Enum(('Summer',), start=200)
+
+class EDenialReasons(enum.IntEnum):
+    DEFAULT = 0
+    FULL = 1
+    SILENT_FAIL = 2
+
+
+class FireworkShows(enum.IntEnum):
+    SUMMER = 200
+
 FireworksGlobalXOffset = 160.0
 FireworksGlobalYOffset = -20.0
 FireworksPostLaunchDelay = 5.0
@@ -552,7 +600,11 @@ RocketDirectionDelay = 2.0
 FireworksStartedEvent = 'PartyFireworksStarted'
 FireworksFinishedEvent = 'PartyFireworksFinished'
 FireworksTransitionToDisabledDelay = 3.0
-TeamActivityTeams = PythonUtil.Enum(('LeftTeam', 'RightTeam'), start=0)
+
+class TeamActivityTeam(enum.IntEnum):
+    LEFT = 0
+    RIGHT = 1
+
 TeamActivityNeitherTeam = 3
 TeamActivityTextScale = 0.135
 TeamActivityStartDelay = 8.0

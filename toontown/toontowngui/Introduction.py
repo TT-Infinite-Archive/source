@@ -9,12 +9,12 @@ from toontown.toontowngui.ToontownUnlockTimer import ToontownUnlockTimer
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 
 
-class Introduction(DirectObject, FSM):
+class Introduction(FSM, DirectObject):
     notify = directNotify.newCategory('Introduction')
 
     def __init__(self):
-        DirectObject.__init__(self)
         FSM.__init__(self, self.__class__.__name__)
+        DirectObject.__init__(self)
 
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             font = ToontownGlobals.getNametagFont(10)

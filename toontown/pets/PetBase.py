@@ -1,4 +1,4 @@
-from toontown.pets.PetConstants import AnimMoods
+from toontown.pets.PetConstants import EAnimMood
 from toontown.pets import PetMood
 
 class PetBase:
@@ -8,14 +8,14 @@ class PetBase:
 
     def getAnimMood(self):
         if self.mood.getDominantMood() in PetMood.PetMood.ExcitedMoods:
-            return AnimMoods.EXCITED
+            return EAnimMood.EXCITED
         elif self.mood.getDominantMood() in PetMood.PetMood.UnhappyMoods:
-            return AnimMoods.SAD
+            return EAnimMood.SAD
         else:
-            return AnimMoods.NEUTRAL
+            return EAnimMood.NEUTRAL
 
     def isExcited(self):
-        return self.getAnimMood() == AnimMoods.EXCITED
+        return self.getAnimMood() == EAnimMood.EXCITED
 
     def isSad(self):
-        return self.getAnimMood() == AnimMoods.SAD
+        return self.getAnimMood() == EAnimMood.SAD

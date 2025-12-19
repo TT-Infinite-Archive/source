@@ -29,10 +29,10 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
 
         self.toonsPlaying[avId] = True
 
-        if avId in self.teamDict[PartyGlobals.TeamActivityTeams.LeftTeam]:
-            self.forceDict[PartyGlobals.TeamActivityTeams.LeftTeam][avId] = 0
+        if avId in self.teamDict[PartyGlobals.TeamActivityTeam.LEFT]:
+            self.forceDict[PartyGlobals.TeamActivityTeam.LEFT][avId] = 0
         else:
-            self.forceDict[PartyGlobals.TeamActivityTeams.RightTeam][avId] = 0
+            self.forceDict[PartyGlobals.TeamActivityTeam.RIGHT][avId] = 0
 
         if self.allToonsReady():
             self.cancelCountdown()
@@ -52,10 +52,10 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
     def reportKeyRateForce(self, keyRate, force):
         avId = self.air.getAvatarIdFromSender()
         self.keyRateDict[avId] = keyRate
-        if avId in self.teamDict[PartyGlobals.TeamActivityTeams.LeftTeam]:
-            self.forceDict[PartyGlobals.TeamActivityTeams.LeftTeam][avId] = force
-        elif avId in self.teamDict[PartyGlobals.TeamActivityTeams.RightTeam]:
-            self.forceDict[PartyGlobals.TeamActivityTeams.RightTeam][avId] = force
+        if avId in self.teamDict[PartyGlobals.TeamActivityTeam.LEFT]:
+            self.forceDict[PartyGlobals.TeamActivityTeam.LEFT][avId] = force
+        elif avId in self.teamDict[PartyGlobals.TeamActivityTeam.RIGHT]:
+            self.forceDict[PartyGlobals.TeamActivityTeam.RIGHT][avId] = force
         self.updateToonKeyRate(avId, keyRate)
         self.calculateOffset()
         self.updateToonPositions(self.offset)
@@ -94,9 +94,9 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
         elif self.offset in (-0.01, 0, 0.01):
             self.setState('Conclusion', [GAME_TIED])
         elif self.offset > 0:
-            self.setState('Conclusion', [PartyGlobals.TeamActivityTeams.LeftTeam])
+            self.setState('Conclusion', [PartyGlobals.TeamActivityTeam.LEFT])
         else:
-            self.setState('Conclusion', [PartyGlobals.TeamActivityTeams.RightTeam])
+            self.setState('Conclusion', [PartyGlobals.TeamActivityTeam.RIGHT])
 
         taskMgr.doMethodLater(3, self.processResults, self.uniqueName('awardBeans'))
         if task:

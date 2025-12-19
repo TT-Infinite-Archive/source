@@ -1,16 +1,44 @@
+import enum
 from panda3d.core import Point3, VBase4
 from direct.directnotify import DirectNotifyGlobal
-from direct.showbase import PythonUtil
 from toontown.toonbase import TTLocalizer
 from .KartShopGlobals import *
-import types
 if (__debug__):
     import pdb
 import copy
-KartDNA = PythonUtil.Enum('bodyType, bodyColor, accColor,                             ebType, spType, fwwType,                             bwwType, rimsType, decalType')
+
+
+class EKartDNA(enum.IntEnum):
+    BODY_TYPE = 0
+    BODY_COLOR = 1
+    ACC_COLOR = 2
+    EB_TYPE = 3
+    SP_TYPE = 4
+    FWW_TYPE = 5
+    BWW_TYPE = 6
+    RIMS_TYPE = 7
+    DECAL_TYPE = 8
+
+
+class EKartInfo(enum.IntEnum):
+    NAME = 0
+    MODEL = 1
+    COST = 2
+    VIEW_DIST = 3
+    DECAL_ID = 4
+    LOD_MODEL_1 = 5
+    LOD_MODEL_2 = 6
+
+
+class EAccInfo(enum.IntEnum):
+    NAME = 0
+    MODEL = 1
+    COST = 2
+    TEX_CARD = 3
+    ATTACH = 4
+
+
 InvalidEntry = -1
-KartInfo = PythonUtil.Enum('name, model, cost, viewDist, decalId, LODmodel1, LODmodel2')
-AccInfo = PythonUtil.Enum('name, model, cost, texCard, attach')
 kNames = TTLocalizer.KartDNA_KartNames
 KartDict = {0: (kNames[0],
      'phase_6/models/karting/Kart1_Final',
@@ -364,7 +392,7 @@ AccessoryDict = {0: (aNames[1000],
  89: (aNames[7024], VBase4(0.898438, 0.617188, 0.90625, 1.0), 1600),
  90: (aNames[7025], VBase4(0.7, 0.7, 0.8, 1.0), 2500),
  91: (aNames[7026], VBase4(0.3, 0.3, 0.35, 1.0), 10000)}
-AccessoryTypeDict = {KartDNA.ebType: [0,
+AccessoryTypeDict = {EKartDNA.EB_TYPE: [0,
                   1,
                   2,
                   3,
@@ -375,7 +403,7 @@ AccessoryTypeDict = {KartDNA.ebType: [0,
                   8,
                   9,
                   10],
- KartDNA.spType: [11,
+ EKartDNA.SP_TYPE: [11,
                   12,
                   13,
                   14,
@@ -383,7 +411,7 @@ AccessoryTypeDict = {KartDNA.ebType: [0,
                   16,
                   17,
                   18],
- KartDNA.fwwType: [19,
+ EKartDNA.FWW_TYPE: [19,
                    20,
                    21,
                    22,
@@ -391,7 +419,7 @@ AccessoryTypeDict = {KartDNA.ebType: [0,
                    24,
                    25,
                    26],
- KartDNA.bwwType: [27,
+ EKartDNA.BWW_TYPE: [27,
                    28,
                    29,
                    30,
@@ -404,7 +432,7 @@ AccessoryTypeDict = {KartDNA.ebType: [0,
                    37,
                    38,
                    39],
- KartDNA.rimsType: [40,
+ EKartDNA.RIMS_TYPE: [40,
                     41,
                     42,
                     43,
@@ -419,7 +447,7 @@ AccessoryTypeDict = {KartDNA.ebType: [0,
                     52,
                     53,
                     54],
- KartDNA.decalType: [55,
+ EKartDNA.DECAL_TYPE: [55,
                      56,
                      57,
                      58,
@@ -429,7 +457,7 @@ AccessoryTypeDict = {KartDNA.ebType: [0,
                      62,
                      63,
                      64],
- KartDNA.bodyColor: [65,
+ EKartDNA.BODY_COLOR: [65,
                      66,
                      67,
                      68,
@@ -467,37 +495,37 @@ AccessoryTypeNameDict = [None,
  'KartShtikerDecal']
 
 def checkNumFieldsValidity(numFields):
-    return KartDNA.decalType == numFields - 1
+    return EKartDNA.DECAL_TYPE == numFields - 1
 
 
 def checkKartFieldValidity(field):
-    if field < KartDNA.bodyType or field > KartDNA.decalType:
+    if field < EKartDNA.BODY_TYPE or field > EKartDNA.DECAL_TYPE:
         return 0
     return 1
 
 
 def getNumFields():
-    return KartDNA.decalType + 1
+    return EKartDNA.DECAL_TYPE + 1
 
 
 def getKartModelPath(kartType, lodLevel = 0):
     if lodLevel == 1:
-        return KartDict.get(kartType)[KartInfo.LODmodel1]
+        return KartDict.get(kartType)[EKartInfo.LOD_MODEL_1]
     if lodLevel == 2:
-        return KartDict.get(kartType)[KartInfo.LODmodel2]
-    return KartDict.get(kartType)[KartInfo.model]
+        return KartDict.get(kartType)[EKartInfo.LOD_MODEL_2]
+    return KartDict.get(kartType)[EKartInfo.MODEL]
 
 
 def getKartViewDist(kartType):
-    return KartDict.get(kartType)[KartInfo.viewDist]
+    return KartDict.get(kartType)[EKartInfo.VIEW_DIST]
 
 
 def getDecalId(kartType):
-    return KartDict.get(kartType)[KartInfo.decalId]
+    return KartDict.get(kartType)[EKartInfo.DECAL_ID]
 
 
 def getAccessory(accId):
-    return AccessoryDict.get(accId)[KartInfo.model]
+    return AccessoryDict.get(accId)[EKartInfo.MODEL]
 
 
 def getAccessoryAttachNode(accId):
@@ -518,11 +546,11 @@ def checkKartDNAValidity(dna):
     if not checkNumFieldsValidity(len(dna)):
         return 0
     for field in range(len(dna)):
-        if field == KartDNA.bodyType:
+        if field == EKartDNA.BODY_TYPE:
             if dna[field] not in list(KartDict.keys()):
                 return 0
-        elif field == KartDNA.bodyColor or field == KartDNA.accColor:
-            accList = [InvalidEntry] + AccessoryTypeDict.get(KartDNA.bodyColor)
+        elif field == EKartDNA.BODY_COLOR or field == EKartDNA.ACC_COLOR:
+            accList = [InvalidEntry] + AccessoryTypeDict.get(EKartDNA.BODY_COLOR)
             if dna[field] not in accList:
                 return 0
         else:
@@ -538,13 +566,13 @@ def getDefaultColor():
 
 
 def getDefaultRim():
-    return AccessoryTypeDict[KartDNA.rimsType][0]
+    return AccessoryTypeDict[EKartDNA.RIMS_TYPE][0]
 
 
 def getDefaultAccessory(category):
-    if category in [KartDNA.bodyColor, KartDNA.accColor]:
+    if category in [EKartDNA.BODY_COLOR, EKartDNA.ACC_COLOR]:
         return getDefaultColor()
-    elif category == KartDNA.rimsType:
+    elif category == EKartDNA.RIMS_TYPE:
         return getDefaultRim()
     else:
         return InvalidEntry
@@ -576,7 +604,7 @@ def getAccessoryType(accessoryId):
 
 def getAccessoryDictFromOwned(accessoryOwnedList, pType = -1):
     accessDict = copy.deepcopy(AccessoryTypeDict)
-    accessDict[KartDNA.rimsType].remove(getDefaultRim())
+    accessDict[EKartDNA.RIMS_TYPE].remove(getDefaultRim())
     for accOwnedId in accessoryOwnedList:
         type = getAccessoryType(accOwnedId)
         if type != InvalidEntry and accOwnedId in accessDict[type]:
@@ -605,17 +633,17 @@ def getAccessDictByType(accessoryOwnedList):
 
 def getKartCost(kartID):
     if kartID in KartDict:
-        return KartDict[kartID][KartInfo.cost]
+        return KartDict[kartID][EKartInfo.COST]
     else:
         return 'key error'
 
 
 def getAccCost(accID):
-    return AccessoryDict[accID][AccInfo.cost]
+    return AccessoryDict[accID][EAccInfo.COST]
 
 
 def getAccName(accID):
     try:
-        return AccessoryDict[accID][AccInfo.name]
+        return AccessoryDict[accID][EAccInfo.NAME]
     except:
         return TTLocalizer.KartShtikerDefault

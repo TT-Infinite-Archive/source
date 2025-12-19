@@ -66,7 +66,7 @@ class DistributedPartyManager(DistributedObject):
         if hasattr(base.localAvatar, 'creatingNewPartyWithMagicWord'):
             if base.localAvatar.creatingNewPartyWithMagicWord:
                 base.localAvatar.creatingNewPartyWithMagicWord = False
-                if errorCode == PartyGlobals.AddPartyErrorCode.AllOk:
+                if errorCode == PartyGlobals.EAddPartyErrorCode.ALL_OK:
                     base.localAvatar.setChatAbsolute('New party entered into database successfully.', CFSpeech | CFTimeout)
                 else:
                     base.localAvatar.setChatAbsolute('New party creation failed : %s' % PartyGlobals.AddPartyErrorCode.getString(errorCode), CFSpeech | CFTimeout)
@@ -86,7 +86,7 @@ class DistributedPartyManager(DistributedObject):
             if base.localAvatar.doId == hostId:
                 for partyInfo in base.localAvatar.hostedParties:
                     if partyInfo.partyId == partyId:
-                        partyInfo.status = PartyGlobals.PartyStatus.Started
+                        partyInfo.status = PartyGlobals.EPartyStatus.STARTED
 
         messenger.send('requestPartyZoneComplete', [hostId, partyId, zoneId])
 
@@ -94,7 +94,7 @@ class DistributedPartyManager(DistributedObject):
         self.sendUpdate('changePrivateRequest', [partyId, newPrivateStatus])
 
     def changePrivateResponse(self, partyId, newPrivateStatus, errorCode):
-        if errorCode == PartyGlobals.ChangePartyFieldErrorCode.AllOk:
+        if errorCode == PartyGlobals.EChangePartyFieldErrorCode.ALL_OK:
             self.notify.info('succesfully changed private field for the party')
             for partyInfo in localAvatar.hostedParties:
                 if partyInfo.partyId == partyId:
@@ -149,7 +149,7 @@ class DistributedPartyManager(DistributedObject):
         self.sendUpdate('removeGuest', [ownerId, avId])
 
     def isToonAllowedAtParty(self, avId, partyId):
-        return PartyGlobals.GoToPartyStatus.AllowedToGo
+        return PartyGlobals.EGoToPartyStatus.ALLOWED_TO_GO
 
     def getGoToPartyFailedMessage(self, reason):
         return ''

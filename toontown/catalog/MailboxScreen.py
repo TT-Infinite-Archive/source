@@ -420,7 +420,7 @@ class MailboxScreen(DirectObject.DirectObject):
                 MailboxScreen.notify.error('Unable to find party with id %d to match invitation %s' % (item.partyId, item))
 
             if self.mailbox:
-                if item.status == PartyGlobals.InviteStatus.NotRead:
+                if item.status == PartyGlobals.EInviteStatus.NOT_READ:
                     self.mailbox.sendInviteReadButNotReplied(item.inviteKey)
             senderId = partyInfo.hostId
             nameOfSender = self.getSenderName(senderId)

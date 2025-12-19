@@ -11,8 +11,8 @@ from toontown.effects import Splash, DustCloud, Wake
 from toontown.minigame import Trajectory
 from toontown.minigame import CannonGameGlobals
 from toontown.parties import PartyGlobals
-from toontown.parties.PartyGlobals import ActivityIds
-from toontown.parties.PartyGlobals import ActivityTypes
+from toontown.parties.PartyGlobals import EActivityId
+from toontown.parties.PartyGlobals import EActivityType
 from toontown.parties.PartyGlobals import FireworksStartedEvent
 from toontown.parties.PartyGlobals import FireworksFinishedEvent
 from toontown.parties.PartyGlobals import PartyCannonCollisions
@@ -40,7 +40,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
     BroadcastPeriod = 0.2
 
     def __init__(self, cr):
-        DistributedPartyActivity.__init__(self, cr, ActivityIds.PartyCannon, ActivityTypes.Continuous, wantRewardGui=True)
+        DistributedPartyActivity.__init__(self, cr, EActivityId.PartyCannon, EActivityType.CONTINUOUS, wantRewardGui=True)
         self.gui = None
         self.firingCannon = None
         self.shadowNode = None

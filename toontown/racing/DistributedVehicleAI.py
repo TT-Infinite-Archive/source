@@ -34,15 +34,15 @@ class DistributedVehicleAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, FSM.
     def __initDNA(self):
         owner = self.air.doId2do.get(self.ownerId)
         if owner:
-            self.kartDNA[KartDNA.bodyType] = owner.getKartBodyType()
-            self.kartDNA[KartDNA.bodyColor] = owner.getKartBodyColor()
-            self.kartDNA[KartDNA.accColor] = owner.getKartAccessoryColor()
-            self.kartDNA[KartDNA.ebType] = owner.getKartEngineBlockType()
-            self.kartDNA[KartDNA.spType] = owner.getKartSpoilerType()
-            self.kartDNA[KartDNA.fwwType] = owner.getKartFrontWheelWellType()
-            self.kartDNA[KartDNA.bwwType] = owner.getKartBackWheelWellType()
-            self.kartDNA[KartDNA.rimsType] = owner.getKartRimType()
-            self.kartDNA[KartDNA.decalType] = owner.getKartDecalType()
+            self.kartDNA[EKartDNA.BODY_TYPE] = owner.getKartBodyType()
+            self.kartDNA[EKartDNA.BODY_COLOR] = owner.getKartBodyColor()
+            self.kartDNA[EKartDNA.ACC_COLOR] = owner.getKartAccessoryColor()
+            self.kartDNA[EKartDNA.EB_TYPE] = owner.getKartEngineBlockType()
+            self.kartDNA[EKartDNA.SP_TYPE] = owner.getKartSpoilerType()
+            self.kartDNA[EKartDNA.FWW_TYPE] = owner.getKartFrontWheelWellType()
+            self.kartDNA[EKartDNA.BWW_TYPE] = owner.getKartBackWheelWellType()
+            self.kartDNA[EKartDNA.RIMS_TYPE] = owner.getKartRimType()
+            self.kartDNA[EKartDNA.DECAL_TYPE] = owner.getKartDecalType()
         else:
             self.notify.warning('__initDNA - OWNER %s OF KART NOT FOUND!' % self.ownerId)
 
@@ -119,31 +119,31 @@ class DistributedVehicleAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, FSM.
         self.requestDelete()
 
     def getBodyType(self):
-        return self.kartDNA[KartDNA.bodyType]
+        return self.kartDNA[EKartDNA.BODY_TYPE]
 
     def getBodyColor(self):
-        return self.kartDNA[KartDNA.bodyColor]
+        return self.kartDNA[EKartDNA.BODY_COLOR]
 
     def getAccessoryColor(self):
-        return self.kartDNA[KartDNA.accColor]
+        return self.kartDNA[EKartDNA.ACC_COLOR]
 
     def getEngineBlockType(self):
-        return self.kartDNA[KartDNA.ebType]
+        return self.kartDNA[EKartDNA.EB_TYPE]
 
     def getSpoilerType(self):
-        return self.kartDNA[KartDNA.spType]
+        return self.kartDNA[EKartDNA.SP_TYPE]
 
     def getFrontWheelWellType(self):
-        return self.kartDNA[KartDNA.fwwType]
+        return self.kartDNA[EKartDNA.FWW_TYPE]
 
     def getBackWheelWellType(self):
-        return self.kartDNA[KartDNA.bwwType]
+        return self.kartDNA[EKartDNA.BWW_TYPE]
 
     def getRimType(self):
-        return self.kartDNA[KartDNA.rimsType]
+        return self.kartDNA[EKartDNA.RIMS_TYPE]
 
     def getDecalType(self):
-        return self.kartDNA[KartDNA.decalType]
+        return self.kartDNA[EKartDNA.DECAL_TYPE]
 
     def getOwner(self):
         return self.ownerId

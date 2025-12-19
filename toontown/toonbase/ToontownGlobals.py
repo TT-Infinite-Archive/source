@@ -1,8 +1,11 @@
-from panda3d.core import BitMask32, Vec4, pixel
+import enum
+import os
+import random
+import sys
+from panda3d.core import BitMask32, Vec4
 from . import TTLocalizer
 from otp.otpbase.OTPGlobals import *
-from direct.showbase.PythonUtil import Enum, invertDict
-import sys, os, random
+from direct.showbase.PythonUtil import invertDict
 
 from toontown.toonbase.HolidayGlobals import *
 
@@ -1649,11 +1652,17 @@ gmMagicWordList = ['restock',
  'who',
  'who all']
 NewsPageScaleAdjust = 0.85
-AnimPropTypes = Enum(('Unknown',
- 'Hydrant',
- 'Mailbox',
- 'Trashcan'), start=-1)
-EmblemTypes = Enum(('Silver', 'Gold'))
+
+class AnimPropType(enum.IntEnum):
+    UNKNOWN = -1
+    HYDRANT = 0
+    MAILBOX = 1
+    TRASHCAN = 2
+
+class EmblemType(enum.IntEnum):
+    SILVER = 0
+    GOLD = 1
+
 NumEmblemTypes = 2
 MaxBankMoney = 50000
 DefaultBankItemId = 1350

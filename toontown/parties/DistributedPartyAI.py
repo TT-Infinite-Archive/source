@@ -17,23 +17,23 @@ from toontown.parties import PartyUtils
 from toontown.parties.ToontownTimeZone import ToontownTimeZone
 
 from datetime import datetime
-from toontown.parties.PartyGlobals import ActivityIds, PartyGridHeadingConverter
+from toontown.parties.PartyGlobals import EActivityId, PartyGridHeadingConverter
 
 
 class DistributedPartyAI(DistributedObjectAI):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPartyAI')
 
     ACTIVITIES = {
-        PartyGlobals.ActivityIds.PartyCog: DistributedPartyCogActivityAI,
-        PartyGlobals.ActivityIds.PartyTugOfWar: DistributedPartyTugOfWarActivityAI,
-        PartyGlobals.ActivityIds.PartyCannon: DistributedPartyCannonAI,
-        PartyGlobals.ActivityIds.PartyTrampoline: DistributedPartyTrampolineActivityAI,
-        PartyGlobals.ActivityIds.PartyJukebox: DistributedPartyJukeboxActivityAI,
-        PartyGlobals.ActivityIds.PartyJukebox40: DistributedPartyJukebox40ActivityAI,
-        PartyGlobals.ActivityIds.PartyDance: DistributedPartyDanceActivityAI,
-        PartyGlobals.ActivityIds.PartyDance20: DistributedPartyDance20ActivityAI,
-        PartyGlobals.ActivityIds.PartyCatch: DistributedPartyCatchActivityAI,
-        PartyGlobals.ActivityIds.PartyFireworks: DistributedPartyFireworksActivityAI     
+        PartyGlobals.EActivityId.PartyCog: DistributedPartyCogActivityAI,
+        PartyGlobals.EActivityId.PartyTugOfWar: DistributedPartyTugOfWarActivityAI,
+        PartyGlobals.EActivityId.PartyCannon: DistributedPartyCannonAI,
+        PartyGlobals.EActivityId.PartyTrampoline: DistributedPartyTrampolineActivityAI,
+        PartyGlobals.EActivityId.PartyJukebox: DistributedPartyJukeboxActivityAI,
+        PartyGlobals.EActivityId.PartyJukebox40: DistributedPartyJukebox40ActivityAI,
+        PartyGlobals.EActivityId.PartyDance: DistributedPartyDanceActivityAI,
+        PartyGlobals.EActivityId.PartyDance20: DistributedPartyDance20ActivityAI,
+        PartyGlobals.EActivityId.PartyCatch: DistributedPartyCatchActivityAI,
+        PartyGlobals.EActivityId.PartyFireworks: DistributedPartyFireworksActivityAI     
     }
 
     def __init__(self, air, hostId, zoneId, partyInfo):
@@ -44,11 +44,11 @@ class DistributedPartyAI(DistributedObjectAI):
         self.partyInfo = partyInfo
 
         self.startTime = datetime.strftime(datetime.now(ToontownTimeZone()), '%Y-%m-%d %H:%M:%S')
-        self.partyState = PartyGlobals.PartyStatus.Pending
+        self.partyState = PartyGlobals.EPartyStatus.PENDING
         self.participants = []
 
         for activity in self.partyInfo['activities']:
-            if activity[0] == PartyGlobals.ActivityIds.PartyClock:
+            if activity[0] == PartyGlobals.EActivityId.PartyClock:
                 self.partyClockInfo = (activity[1], activity[2], activity[3])
 
         self.hostName = ''
@@ -78,7 +78,7 @@ class DistributedPartyAI(DistributedObjectAI):
                 self.notify.warning('Tried to generate invalid activity %s' % activityInfo[0])
                 continue
 
-            if activityInfo[0] == PartyGlobals.ActivityIds.PartyCannon:
+            if activityInfo[0] == PartyGlobals.EActivityId.PartyCannon:
                 if not self.cannonActivityGenerated:
                     self.cannonActivity = DistributedPartyCannonActivityAI(self.air, self, activityInfo)
                     self.cannonActivity.generateWithRequired(self.zoneId)
@@ -159,7 +159,7 @@ class DistributedPartyAI(DistributedObjectAI):
         self.participants.remove(avId)
 
     @staticmethod
-    def formatPartyInfo(partyInfo, status=PartyGlobals.PartyStatus.Started):
+    def formatPartyInfo(partyInfo, status=PartyGlobals.EPartyStatus.STARTED):
         start = partyInfo['start']
         end = partyInfo['end']
         return [partyInfo['partyId'], partyInfo['hostId'], start.year, start.month, start.day, start.hour, start.minute,

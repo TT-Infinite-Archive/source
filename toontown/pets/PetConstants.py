@@ -1,5 +1,3 @@
-from direct.showbase.PythonUtil import Enum
-
 from toontown.toonbase import ToontownGlobals
 
 
@@ -26,7 +24,12 @@ HungerChaseToonScale = 1.2
 FleeFromOwnerScale = 0.5
 GettingAttentionGoalScale = 1.2
 GettingAttentionGoalScaleDur = 7.0
-AnimMoods = Enum('EXCITED, SAD, NEUTRAL')
+
+class EAnimMood(enum.IntEnum):
+    EXCITED = 0
+    SAD = 1
+    NEUTRAL = 2
+
 FwdSpeed = 8.0
 RotSpeed = 360.0
 _HappyMult = 1.0

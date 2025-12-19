@@ -27,7 +27,7 @@ class DistributedPartyTrampolineActivity(DistributedPartyActivity):
 
     def __init__(self, cr, doJellyBeans = True, doTricks = False, texture = None):
         DistributedPartyTrampolineActivity.notify.debug('__init__')
-        DistributedPartyActivity.__init__(self, cr, PartyGlobals.ActivityIds.PartyTrampoline, PartyGlobals.ActivityTypes.GuestInitiated, wantLever=False, wantRewardGui=True)
+        DistributedPartyActivity.__init__(self, cr, PartyGlobals.EActivityId.PartyTrampoline, PartyGlobals.EActivityType.GUEST_INITIATED, wantLever=False, wantRewardGui=True)
         self.doJellyBeans = doJellyBeans
         self.doTricks = doTricks
         self.texture = texture
