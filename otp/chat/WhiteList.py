@@ -1,5 +1,4 @@
 from bisect import bisect_left
-import string
 import sys
 import os
 
@@ -8,7 +7,7 @@ class WhiteList:
     def __init__(self, wordlist):
         self.words = []
         for line in wordlist:
-            self.words.append(line.strip('\n\r').lower())
+            self.words.append(line.strip(b'\n\r').lower())
 
         self.words.sort()
         self.numWords = len(self.words)

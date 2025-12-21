@@ -4,7 +4,7 @@ daemon:
 general:
     eventlogger: 127.0.0.1:7020
     dc_files:
-        - dclass/vanilla.dc
+        - ../dclass/vanilla.dc
 
 uberdogs:
     - class: CentralLogger
@@ -93,4 +93,4 @@ roles:
 
     - type: eventlogger
       bind: 127.0.0.1:7020
-      output: logs/events-%y%m%d_%H%M%S.log
+      output: ../logs/events-%y%m%d_%H%M%S.log

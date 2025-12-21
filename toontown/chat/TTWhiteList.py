@@ -30,7 +30,7 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
         if not found:
             self.notify.info("Couldn't find whitelist data file!")
         data = vfs.readFile(filename, 1)
-        lines = data.split('\n')
+        lines = data.split(b'\n')
         WhiteList.__init__(self, lines)
         if self.WhitelistOverHttp:
             self.redownloadWhitelist()

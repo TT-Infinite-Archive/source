@@ -1,6 +1,5 @@
 from panda3d.core import DSearchPath, Filename, StreamReader, TextNode
 import random
-import string
 import copy
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
@@ -48,6 +47,7 @@ class NameGenerator:
         input = StreamReader(vfs.openReadFile(filename, 1), 1)
         currentLine = input.readline().strip()
         while currentLine:
+            currentLine = currentLine.decode('utf-8')
             if currentLine.lstrip()[0:1] != '#':
                 a1 = currentLine.find('*')
                 a2 = currentLine.find('*', a1 + 1)

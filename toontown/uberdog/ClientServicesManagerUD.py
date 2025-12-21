@@ -1,5 +1,4 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableInt, ConfigVariableString, Connection, Datagram
-import semidbm
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
 from direct.fsm.FSM import FSM

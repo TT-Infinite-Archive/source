@@ -2,7 +2,7 @@ from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobal
 from direct.distributed.PyDatagram import *
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.task import Task
-from .PartyGlobals import AddPartyErrorCode
+from .PartyGlobals import EAddPartyErrorCode
 
 
 class GlobalPartyManagerAI(DistributedObjectGlobalAI):
@@ -40,7 +40,7 @@ class GlobalPartyManagerAI(DistributedObjectGlobalAI):
 
     def sendAddParty(self, avId, partyId, start, end, isPrivate, inviteTheme, activities, decorations, inviteeIds):
         if not self.uberdogUp:
-            self.sendUpdateToAvatarId(avId, 'addPartyResponse', [avId, AddPartyErrorCode.DatabaseError])
+            self.sendUpdateToAvatarId(avId, 'addPartyResponse', [avId, EAddPartyErrorCode.DATABASE_ERROR])
             return
         self.sendUpdate('addParty',
                         [avId, partyId, start, end, isPrivate, inviteTheme, activities, decorations, inviteeIds])

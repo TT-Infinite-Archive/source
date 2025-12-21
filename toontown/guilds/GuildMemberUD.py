@@ -1,4 +1,3 @@
-from panda3d.core import Datagram
 from direct.distributed.PyDatagram import *
 from direct.showbase.DirectObject import DirectObject
 

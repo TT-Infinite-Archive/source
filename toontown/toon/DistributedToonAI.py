@@ -96,7 +96,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     DbCheckPeriodUnpaid = ConfigVariableInt('toon-db-check-period-unpaid', 1 * 60).getValue()
     BanOnDbCheckFail = ConfigVariableBool('want-ban-dbcheck', False).getValue()
     DbCheckAccountDateEnable = ConfigVariableBool('account-blackout-enable', True).getValue()
-    DbCheckAccountDateBegin = ConfigVairableString('account-blackout-start', '2013-08-20 12:30:00').getValue()
+    DbCheckAccountDateBegin = ConfigVariableString('account-blackout-start', '2013-08-20 12:30:00').getValue()
     DbCheckAccountDateDisconnect = ConfigVariableBool('account-blackout-disconnect', False)
     WantOldGMNameBan = ConfigVariableBool('want-old-gm-name-ban', True).getValue()
     petId = None

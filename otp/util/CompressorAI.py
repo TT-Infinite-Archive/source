@@ -1,0 +1,2 @@
+import zstd
+Compressor = zstd

@@ -13,8 +13,7 @@ class BingoCardBase:
         self.cardSize = cardSize
         self.cellList = []
         self.gameType = None
-        self.gameState = 1 << self.cardSize / 2
-        return
+        self.gameState = 1 << self.cardSize // 2
 
     def destroy(self):
         del self.cellList
@@ -35,13 +34,11 @@ class BingoCardBase:
                 rodId = 0
 
         for index in range(self.cardSize):
-            if index != self.cardSize / 2:
+            if index != self.cardSize // 2:
                 choice = rng.randrange(0, len(fishList))
                 self.cellList.append(fishList.pop(choice))
             else:
                 self.cellList.append((None, None))
-
-        return None
 
     def getGameType(self):
         return self.gameType

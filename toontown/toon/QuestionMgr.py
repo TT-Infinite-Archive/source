@@ -1,5 +1,5 @@
 # Embedded file name: /Users/pierredavidbelanger/Dev/chatter-bot-api/python/chatterbotapi.py
-import md5
+import hashlib
 import uuid
 import xml.dom.minidom
 
@@ -72,7 +72,7 @@ class _CleverbotSession(ChatterBotSession):
         self.vars['stimulus'] = thought.text
         data = urllib.parse.urlencode(self.vars)
         data_to_digest = data[9:self.bot.endIndex]
-        data_digest = md5.new(data_to_digest).hexdigest()
+        data_digest = hashlib.md5(data_to_digest).hexdigest()
         data = data + '&icognocheck=' + data_digest
         url_response = urllib.request.urlopen(self.bot.url, data)
         response = url_response.read()
