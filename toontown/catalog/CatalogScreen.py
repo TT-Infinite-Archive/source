@@ -509,9 +509,9 @@ class CatalogScreen(DirectFrame):
         emblemIcon = loader.loadModel('phase_3.5/models/gui/tt_m_gui_gen_emblemIcons')
         silverModel = emblemIcon.find('**/tt_t_gui_gen_emblemSilver')
         goldModel = emblemIcon.find('**/tt_t_gui_gen_emblemGold')
-        self.silverLabel = DirectLabel(parent=self, relief=None, pos=(1.05, 0, -0.6), scale=priceScale, image=silverModel, image_pos=(-0.4, 0, 0.4), text=str(localAvatar.emblems[ToontownGlobals.EmblemType.Silver]), text_fg=(0.95, 0.95, 0, 1), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getSignFont(), text_align=TextNode.ALeft)
+        self.silverLabel = DirectLabel(parent=self, relief=None, pos=(1.05, 0, -0.6), scale=priceScale, image=silverModel, image_pos=(-0.4, 0, 0.4), text=str(localAvatar.emblems[ToontownGlobals.EmblemType.SILVER]), text_fg=(0.95, 0.95, 0, 1), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getSignFont(), text_align=TextNode.ALeft)
         base.silverLabel = self.silverLabel
-        self.goldLabel = DirectLabel(parent=self, relief=None, pos=(1.05, 0, -0.8), scale=priceScale, image=goldModel, image_pos=(-0.4, 0, 0.4), text=str(localAvatar.emblems[ToontownGlobals.EmblemType.Gold]), text_fg=(0.95, 0.95, 0, 1), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getSignFont(), text_align=TextNode.ALeft)
+        self.goldLabel = DirectLabel(parent=self, relief=None, pos=(1.05, 0, -0.8), scale=priceScale, image=goldModel, image_pos=(-0.4, 0, 0.4), text=str(localAvatar.emblems[ToontownGlobals.EmblemType.GOLD]), text_fg=(0.95, 0.95, 0, 1), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getSignFont(), text_align=TextNode.ALeft)
         base.goldLabel = self.goldLabel
         if not base.cr.wantEmblems:
             self.hideEmblems()

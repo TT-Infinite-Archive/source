@@ -15,15 +15,6 @@ POP_COLORS = (
 )
 
 
-def compareShardTuples(a, b):
-    if a[1] < b[1]:
-        return -1
-    elif b[1] < a[1]:
-        return 1
-    else:
-        return 0
-
-
 class ShardPage(ShtikerPage.ShtikerPage):
     notify = DirectNotifyGlobal.directNotify.newCategory('ShardPage')
 
@@ -149,7 +140,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
             self.shardList.removeAllItems()
 
         curShardTuples = base.cr.listActiveShards()
-        curShardTuples.sort(compareShardTuples)
+        curShardTuples.sort(key=lambda shard: shard[1])
         totalPop = 0
 
         for i in range(len(curShardTuples)):

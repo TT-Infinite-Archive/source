@@ -47,7 +47,7 @@ class TrackFrame(DirectFrame):
         if self.toon:
             numFrames = self.toon.getNumFrames(anim) - 1
             fromFrame = 0
-            toFrame = (self.toon.getNumFrames(anim) - 1) / MAX_FRAMES * self.index
+            toFrame = (self.toon.getNumFrames(anim) - 1) // MAX_FRAMES * self.index
             self.toon.play(anim, None, fromFrame, toFrame - 1)
         return
 
@@ -56,7 +56,7 @@ class TrackFrame(DirectFrame):
             self.makeToon()
         if not base.launcher or base.launcher and base.launcher.getPhaseComplete(5):
             anim = Track2Anim[trackId]
-            frame = (self.toon.getNumFrames(anim) - 1) / MAX_FRAMES * self.index
+            frame = (self.toon.getNumFrames(anim) - 1) // MAX_FRAMES * self.index
         else:
             anim = 'neutral'
             frame = 0
@@ -66,7 +66,6 @@ class TrackFrame(DirectFrame):
         trackColorR, trackColorG, trackColorB = ToontownBattleGlobals.TrackColors[trackId]
         self.frame['image_color'] = Vec4(trackColorR, trackColorG, trackColorB, 1)
         self.frame['text_fg'] = Vec4(trackColorR * 0.3, trackColorG * 0.3, trackColorB * 0.3, 1)
-        return
 
     def setUntrained(self, trackId):
         if self.toon:
@@ -82,7 +81,6 @@ class TrackFrame(DirectFrame):
             self.frame['image_color'] = Vec4(trackColorR * 0.7, trackColorG * 0.7, trackColorB * 0.7, 1)
             self.frame['text_fg'] = Vec4(trackColorR * 0.3, trackColorG * 0.3, trackColorB * 0.3, 1)
             self.question['text_fg'] = Vec4(trackColorR * 0.6, trackColorG * 0.6, trackColorB * 0.6, 1)
-        return
 
 
 class TrackPage(ShtikerPage.ShtikerPage):
@@ -109,7 +107,7 @@ class TrackPage(ShtikerPage.ShtikerPage):
         for index in range(1, MAX_FRAMES + 1):
             frame = self.trackFrames[index - 1]
             col = (index - 1) % 6
-            row = (index - 1) / 6
+            row = (index - 1) // 6
             frame.setPos(colPos[col], 0, rowPos[row])
             frame.setScale(0.39)
 
@@ -137,7 +135,6 @@ class TrackPage(ShtikerPage.ShtikerPage):
         self.endFrame.frame['text_fg'] = (1, 1, 1, 1)
         self.endFrame.frame['text_pos'] = (0, 0)
         self.endFrame.question.hide()
-        return
 
     def unload(self):
         del self.title

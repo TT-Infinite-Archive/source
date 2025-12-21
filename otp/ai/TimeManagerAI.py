@@ -1,9 +1,8 @@
-from panda3d.core import decompressString
-
+import time
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.distributed.ClockDelta import globalClockDelta
 
-import time
+from otp.util.Compressor import Compressor
 
 
 class TimeManagerAI(DistributedObjectAI):
@@ -24,7 +23,7 @@ class TimeManagerAI(DistributedObjectAI):
         avId = self.air.getAvatarIdFromSender()
 
         # Notify the CrashLogManagerAI.
-        self.air.crashLogManager.log(avId, decompressString(exception))
+        self.air.crashLogManager.log(avId, Compressor.decompress(exception).decode())
 
     def setSignature(self, todo0, todo1, todo2):
         pass

@@ -3843,7 +3843,7 @@ dclass GlobalPartyManager : DistributedObjectGlobal {
 struct PotentialToon {
   uint32 avNum;
   string avName;
-  string avDNA;
+  blob avDNA;
   uint8 avPosition;
   uint8 aname;
   uint32 guildId;

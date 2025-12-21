@@ -1,4 +1,3 @@
-from panda3d.core import ConfigVariableDouble, ConfigVariableInt, DisplayInformation, compressString
 import base64
 import os
 import re
@@ -6,6 +5,9 @@ import sys
 import time
 import traceback
 
+from panda3d.core import ConfigVariableDouble, ConfigVariableInt, DisplayInformation
+
+from otp.util.Compressor import Compressor
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed import DistributedObject
@@ -157,7 +159,7 @@ class TimeManager(DistributedObject.DistributedObject):
     def setExceptionInfo(self):
         info = traceback.format_exc()
         self.notify.info(f'Client exception: {info}')
-        self.sendUpdate('setExceptionInfo', [compressString(info, 3)])
+        self.sendUpdate('setExceptionInfo', [Compressor.compress(info.encode())])
         self.cr.flush()
 
     def setStackDump(self, dump):

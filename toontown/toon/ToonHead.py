@@ -1,4 +1,4 @@
-from panda3d.core import CSDefault, ConfigVariable, ConfigVariableBool, GeomNode, Mat3, Mat4, NodePath, NodePathCollection, Point3, Texture, VBase3, Vec3, composeMatrix, decomposeMatrix
+from panda3d.core import CSDefault, ConfigVariable, ConfigVariableBool, GeomNode, lookAt, Mat3, Mat4, NodePath, NodePathCollection, Point3, Texture, VBase3, Vec3, composeMatrix, decomposeMatrix
 import random
 
 from direct.actor import Actor

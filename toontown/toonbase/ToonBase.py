@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, TrueClock, URLSpec, VBase4, VirtualFileSystem, WindowProperties, loadPrcFileData
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, URLSpec, VBase4, VirtualFileSystem, WindowProperties, loadPrcFileData
 import fractions
 import os
 import random
@@ -542,11 +542,6 @@ class ToonBase(OTPBase.OTPBase):
         self.ttAccess = ToontownAccess.ToontownAccess()
         self.ttAccess.initModuleInfo()
 
-        # Start detecting speed hacks:
-        self.lastSpeedHackCheck = time.time()
-        self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
-        taskMgr.add(self.__speedHackCheckTick, 'speedHackCheck-tick')
-
     def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
         clientagents = ConfigVariableInt('client-agents', 1).getValue() - 1
@@ -561,22 +556,6 @@ class ToonBase(OTPBase.OTPBase):
             gameserver.setPort(port)
 
         base.cr.loginFSM.request('connect', [[gameserver]])
-
-    def __speedHackCheckTick(self, task):
-        elapsed = time.time() - self.lastSpeedHackCheck
-        tcElapsed = TrueClock.getGlobalPtr().getLongTime() - self.lastTrueClockTime
-
-        if tcElapsed > (elapsed + 0.05):
-            # The TrueClock is running faster than it should. This means the
-            # player may have sped up the process. Disconnect them:
-            self.cr.stopReaderPollTask()
-            self.cr.lostConnection()
-            return task.done
-
-        self.lastSpeedHackCheck = time.time()
-        self.lastTrueClockTime = TrueClock.getGlobalPtr().getLongTime()
-
-        return task.cont
 
     def removeGlitchMessage(self):
         self.ignore('InputState-forward')

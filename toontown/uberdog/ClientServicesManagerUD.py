@@ -446,7 +446,7 @@ class CreateAvatarFSM(OperationFSM):
             return
 
         # Otherwise, we're done!
-        self.csm.air.writeServerEvent('avatarCreated', self.avId, self.target, self.dna.encode('hex'), self.index)
+        self.csm.air.writeServerEvent('avatarCreated', self.avId, self.target, self.dna.hex(), self.index)
         self.csm.sendUpdateToAccountId(self.target, 'createAvatarResp', [self.avId])
         self.demand('Off')
 
@@ -895,7 +895,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
             channel,
             self.csm.air.ourChannel,
             CLIENTAGENT_ADD_POST_REMOVE)
-        datagram.addString(datagramCleanup.getMessage())
+        datagram.addBlob(datagramCleanup.getMessage())
         self.csm.air.send(datagram)
 
         # Activate the avatar on the DBSS:
