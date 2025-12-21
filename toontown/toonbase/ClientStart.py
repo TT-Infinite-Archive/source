@@ -13,9 +13,6 @@ import os, sys
 
 builtins.process = 'client'
 
-
-builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
-
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
 builtins.directNotify = directNotify
@@ -38,8 +35,7 @@ if __debug__:
         builtins.injector = Injector()
 
 
-for dtool in ('children', 'parent', 'name'):
-    del NodePath.DtoolClassDict[dtool]
+builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
 
 
 from otp.settings.Settings import Settings
