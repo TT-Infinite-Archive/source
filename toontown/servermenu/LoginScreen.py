@@ -84,7 +84,7 @@ class LoginScreen(DirectFrame):
             base.cr.sendSetAvatarIdMsg(0)
             self.acceptOnce(EventGlobals.LoginError, self.__handleLoginError)
             self.acceptOnce(EventGlobals.LoginDone, self.__handleLoginSuccess)
-            password = hashlib.sha512(self.passwordInput.get()).hexdigest()
+            password = hashlib.sha512(self.passwordInput.get().encode('utf-8')).hexdigest()
             base.cr.csm.performLogin(EventGlobals.LoginDone, self.usernameInput.get(), password)
             base.cr.waitForDatabaseTimeout(requestName='WaitOnCSMLoginResponse')
             self.showLoginDialog()

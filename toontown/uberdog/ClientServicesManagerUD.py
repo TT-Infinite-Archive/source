@@ -1,5 +1,8 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableInt, ConfigVariableString, Connection, Datagram
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
+from direct.distributed.MsgTypes import CLIENTAGENT_EJECT, CLIENTAGENT_OPEN_CHANNEL, CLIENTAGENT_SET_CLIENT_ID, CLIENTAGENT_SET_STATE, \
+    STATESERVER_OBJECT_DELETE_RAM, CLIENTAGENT_ADD_POST_REMOVE, STATESERVER_OBJECT_SET_OWNER, CLIENTAGENT_CLEAR_POST_REMOVES, CLIENTAGENT_CLOSE_CHANNEL, \
+    CLIENTAGENT_REMOVE_SESSION_OBJECT
 from direct.distributed.PyDatagram import *
 from direct.fsm.FSM import FSM
 from datetime import datetime
@@ -49,7 +52,8 @@ class AccountDB:
         pass  # Inheritors should override this.
 
     def hashedPassword(self, password, salt, pepper):
-        return hashlib.sha512(password + salt + pepper).hexdigest()
+        combinedPassword = password + salt + pepper
+        return hashlib.sha512(combinedPassword.encode('utf-8')).hexdigest()
 
 
 class DeveloperAccountDB(AccountDB):
@@ -349,7 +353,8 @@ class LoginAccountFSM(OperationFSM):
         self.demand('Off')
 
     def __hashedPassword(self, salt):
-        return hashlib.sha512(self.password + salt + self.pepper).hexdigest()
+        combinedPassword = self.password + salt + self.pepper
+        return hashlib.sha512(combinedPassword.encode('utf-8')).hexdigest()
 
 class CreateAvatarFSM(OperationFSM):
     notify = directNotify.newCategory('CreateAvatarFSM')
@@ -980,6 +985,15 @@ class UnloadAvatarFSM(OperationFSM):
         datagram.addChannel(self.target<<32)
         self.csm.air.send(datagram)
 
+        # Reset session object:
+        datagram = PyDatagram()
+        datagram.addServerHeader(
+        channel,
+        self.csm.air.ourChannel,
+        CLIENTAGENT_REMOVE_SESSION_OBJECT)
+        datagram.addUint32(self.avId)
+        self.csm.air.send(datagram)
+
         # Unload avatar object:
         datagram = PyDatagram()
         datagram.addServerHeader(
@@ -1083,7 +1097,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
 
-        self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
+        self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr])
         self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
 
     def handleResponse(self, sender, isBanned, banLength):
