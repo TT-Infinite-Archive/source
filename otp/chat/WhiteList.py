@@ -1,6 +1,4 @@
 from bisect import bisect_left
-import sys
-import os
 
 class WhiteList:
 
@@ -14,19 +12,15 @@ class WhiteList:
 
     def cleanText(self, text):
         text = text.strip('.,?!')
-        text = text.lower()
+        text = text.lower().encode('utf-8')
         return text
 
     def isWord(self, text):
-        try:
-            text = self.cleanText(text)
-            i = bisect_left(self.words, text)
-            if i == self.numWords:
-                return False
-            return self.words[i] == text
-        except UnicodeDecodeError:
-            return False  # Lets not open ourselves up to obscure keyboards...
-      
+        text = self.cleanText(text)
+        i = bisect_left(self.words, text)
+        if i == self.numWords:
+            return False
+        return self.words[i] == text
 
     def isPrefix(self, text):
         text = self.cleanText(text)
