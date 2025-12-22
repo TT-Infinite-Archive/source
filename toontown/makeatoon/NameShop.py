@@ -9,7 +9,6 @@ from otp.avatar import Avatar
 from otp.chat import ChatManager
 from direct.fsm import StateData
 from direct.fsm import ClassicFSM, State
-from direct.fsm import State
 from toontown.toontowngui import TTDialog
 import re
 from toontown.toonbase import TTLocalizer
@@ -561,7 +560,7 @@ class NameShop(StateData.StateData):
         if self.fsm.getCurrentState().getName() == 'TypeAName':
             self.__typedAName()
         else:
-            self.__isFirstTime()
+            self.promptTutorial()
 
     def __handleSkipTutorial(self):
         self.__createAvatar(skipTutorial=True)
@@ -786,7 +785,7 @@ class NameShop(StateData.StateData):
         if value:
             self.nameAction = 2
             if not self.makeAToon.warp:
-                self.__isFirstTime()
+                self.promptTutorial()
             else:
                 self.serverCreateAvatar()
         else:
@@ -997,12 +996,6 @@ class NameShop(StateData.StateData):
             base.cr.skipTutorialRequest = True
         else:
             base.cr.skipTutorialRequest = self.requestingSkipTutorial
-
-    def __isFirstTime(self):
-        if not self.makeAToon.nameList or self.makeAToon.warp:
-            self.__createAvatar()
-        else:
-            self.promptTutorial()
 
     def promptTutorial(self):
         self.promptTutorialDialog = TTDialog.TTDialog(parent=aspect2dp, text=TTLocalizer.PromptTutorial, text_scale=0.06, text_align=TextNode.ACenter, text_wordwrap=22, command=self.__openTutorialDialog, fadeScreen=0.5, style=TTDialog.TwoChoice, buttonTextList=[TTLocalizer.MakeAToonEnterTutorial, TTLocalizer.MakeAToonSkipTutorial], button_text_scale=0.06, buttonPadSF=5.5, sortOrder=NO_FADE_SORT_INDEX)
