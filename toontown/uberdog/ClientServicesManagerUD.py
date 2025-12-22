@@ -895,7 +895,7 @@ class LoadAvatarFSM(AvatarOperationFSM):
             channel,
             self.csm.air.ourChannel,
             CLIENTAGENT_ADD_POST_REMOVE)
-        datagram.addBlob(datagramCleanup.getMessage())
+        datagram.addBlob(bytes(datagramCleanup))
         self.csm.air.send(datagram)
 
         # Activate the avatar on the DBSS:
@@ -925,6 +925,9 @@ class LoadAvatarFSM(AvatarOperationFSM):
             CLIENTAGENT_OPEN_CHANNEL)
         datagram.addChannel(self.csm.GetPuppetConnectionChannel(self.avId))
         self.csm.air.send(datagram)
+
+        # Now set the avatar as the client's session object
+        self.csm.air.clientAddSessionObject(channel, self.avId)
 
         # Now set their sender channel to represent their account affiliation:
         datagram = PyDatagram()
