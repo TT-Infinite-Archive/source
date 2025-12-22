@@ -53,7 +53,6 @@ class DirectNewsFrame(DirectObject.DirectObject):
             self.redownloadNews()
         self.accept('newIssueOut', self.handleNewIssueOut)
         self.accept('clientCleanup', self.handleClientCleanup)
-        return
 
     def parseNewsContent(self):
         if not self.needsParseNews:
@@ -118,11 +117,8 @@ class DirectNewsFrame(DirectObject.DirectObject):
             self.setErrorMessage(TTLocalizer.NewsPageNoIssues)
             return []
 
-        def fileCmp(fileA, fileB):
-            return fileA.getFilename().compareTo(fileB.getFilename())
-
         homeFileNames = list(homeFileNames)
-        homeFileNames.sort(cmp=fileCmp)
+        homeFileNames.sort(key=lambda file: file.getFilename())
         self.notify.debug('returned homeFileNames=%s' % homeFileNames)
         return homeFileNames
 

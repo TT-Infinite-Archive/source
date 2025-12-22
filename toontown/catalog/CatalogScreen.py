@@ -617,14 +617,8 @@ class CatalogScreen(DirectFrame):
                 label = DirectLabel(self.base, image=square, relief=None, state='normal')
                 self.squares[i].append(label)
 
-        def priceSort(a, b, type):
-            priceA = a.getPrice(type)
-            priceB = b.getPrice(type)
-            return priceB - priceA
-
         itemList = base.localAvatar.monthlyCatalog + base.localAvatar.weeklyCatalog
-        itemList.sort(lambda a, b: priceSort(a, b, CatalogItem.CatalogTypeWeekly))
-        itemList.reverse()
+        itemList.sort(key=lambda x: x.getPrice(CatalogItem.CatalogTypeWeekly))
         allClosetItems = CatalogFurnitureItem.getAllClosets()
         isMaxClosetOfferred = False
         for item in itemList:
@@ -646,8 +640,7 @@ class CatalogScreen(DirectFrame):
                 self.panelList.append(CatalogItemPanel.CatalogItemPanel(parent=hidden, item=item, type=CatalogItem.CatalogTypeWeekly, parentCatalogScreen=self))
 
         itemList = base.localAvatar.backCatalog
-        itemList.sort(lambda a, b: priceSort(a, b, CatalogItem.CatalogTypeBackorder))
-        itemList.reverse()
+        itemList.sort(key=lambda x: x.getPrice(CatalogItem.CatalogTypeBackorder))
         for item in itemList:
             if isinstance(item, CatalogInvalidItem.CatalogInvalidItem):
                 self.notify.warning('skipping catalog invalid item %s' % item)

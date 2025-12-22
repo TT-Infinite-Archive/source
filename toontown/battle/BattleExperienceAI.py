@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, Notify
+from panda3d.core import ConfigVariableBool
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.suit import SuitDNA
@@ -180,7 +180,7 @@ def assignRewards(activeToons, toonSkillPtsGained, suitsKilled, zoneId, helpfulT
         toon.d_setInventory(toon.inventory.makeNetString())
         toon.b_setAnimState('victory', 1)
 
-        if simbase.air.ConfigVariableBool('battle-passing-no-credit', True).getValue():
+        if ConfigVariableBool('battle-passing-no-credit', True).getValue():
             # Check if the toon was a helpful toon
             if helpfulToons and toon.doId in helpfulToons:
                 # Notify the AI that the toon killed cogs

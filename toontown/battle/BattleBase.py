@@ -150,14 +150,7 @@ def findToonAttack(toons, attacks, track):
                 else:
                     foundAttacks.append(attack)
 
-    def compFunc(a, b):
-        if a[TOON_LVL_COL] > b[TOON_LVL_COL]:
-            return 1
-        elif a[TOON_LVL_COL] < b[TOON_LVL_COL]:
-            return -1
-        return 0
-
-    foundAttacks.sort(compFunc)
+    foundAttacks.sort(key=lambda x: x[TOON_LVL_COL])
     return foundAttacks
 
 

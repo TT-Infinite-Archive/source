@@ -1039,7 +1039,7 @@ class DistributedMazeGame(DistributedMinigame):
             updateTics = self.suits[i].getThinkTimestampTics(curTic)
             suitUpdates.extend(list(zip(updateTics, [i] * len(updateTics))))
 
-        suitUpdates.sort(lambda a, b: a[0] - b[0])
+        suitUpdates.sort(key=lambda x: x[0])
         if len(suitUpdates) > 0:
             curTic = 0
             for i in range(len(suitUpdates)):

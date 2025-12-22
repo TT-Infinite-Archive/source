@@ -778,17 +778,7 @@ class Movie(DirectObject.DirectObject):
                 else:
                     self.notify.warning('genToonAttackDicts() - target gone!')
 
-        def compFunc(a, b):
-            alevel = a['level']
-            blevel = b['level']
-            if alevel > blevel:
-                return 1
-            elif alevel < blevel:
-                return -1
-            return 0
-
-        self.toonAttackDicts.sort(compFunc)
-        return
+        self.toonAttackDicts.sort(key=lambda x: x['level'])
 
     def __findToonAttack(self, track):
         setCapture = 0

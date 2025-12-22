@@ -41,28 +41,6 @@ def determineFriendName(friendTuple):
     return friendName
 
 
-def compareFriends(f1, f2):
-    name1 = determineFriendName(f1)
-    name2 = determineFriendName(f2)
-    if name1 > name2:
-        return 1
-    elif name1 == name2:
-        return 0
-    else:
-        return -1
-        
-
-def compareGuildies(g1, g2):
-    name1 = g1[1]
-    name2 = g2[1]
-    if name1 > name2:
-        return 1
-    elif name1 == name2:
-        return 0
-    else:
-        return -1
-
-
 def showFriendsList():
     global globalFriendsList
     if not globalFriendsList:
@@ -527,17 +505,17 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             friendButton.destroy()
             del self.friends[friendPair]
 
-        newFriends.sort(compareFriends)
-        petFriends.sort(compareFriends)
-        freeChatOneRef.sort(compareFriends)
-        speedChatOneRef.sort(compareFriends)
-        freeChatDouble.sort(compareFriends)
-        speedChatDouble.sort(compareFriends)
-        offlineFriends.sort(compareFriends)
+        newFriends.sort(key=lambda f: determineFriendName(f))
+        petFriends.sort(key=lambda f: determineFriendName(f))
+        freeChatOneRef.sort(key=lambda f: determineFriendName(f))
+        speedChatOneRef.sort(key=lambda f: determineFriendName(f))
+        freeChatDouble.sort(key=lambda f: determineFriendName(f))
+        speedChatDouble.sort(key=lambda f: determineFriendName(f))
+        offlineFriends.sort(key=lambda f: determineFriendName(f))
         if len(guildMembers) > 1:
-            guildMembers.sort(compareGuildies)
+            guildMembers.sort(key=lambda g: g[1])
         if len(guildMembersOnline) > 1:
-            guildMembersOnline.sort(compareGuildies)
+            guildMembersOnline.sort(key=lambda g: g[1])
         for friendPair in newFriends:
             if friendPair not in self.friends:
                 friendButton = self.makeFriendButton(friendPair)
