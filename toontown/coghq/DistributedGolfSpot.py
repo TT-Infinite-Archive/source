@@ -36,8 +36,6 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         self.golfSpotSmoother.setSmoothMode(SmoothMover.SMOn)
         self.smoothStarted = 0
         self.__broadcastPeriod = 0.2
-        if self.index > len(self.positions):
-            self.notify.error('Invalid index %d' % index)
         self.fadeTrack = None
         self.setupPowerBar()
         self.aimStart = None
@@ -57,7 +55,6 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         self.releaseTrack = None
         self.grabTrack = None
         self.restoreScaleTrack = None
-        return
 
     def setBossCogId(self, bossCogId):
         self.bossCogId = bossCogId
@@ -75,7 +72,6 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         DistributedObject.DistributedObject.delete(self)
         self.ignoreAll()
         self.boss = None
-        return
 
     def announceGenerate(self):
         DistributedObject.DistributedObject.announceGenerate(self)
