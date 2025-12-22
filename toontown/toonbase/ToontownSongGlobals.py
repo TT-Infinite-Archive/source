@@ -151,7 +151,7 @@ Songs = {
     CFO_ROUND_2: ToontownSong(CFO_ROUND_2, TTLocalizer.MusicCfoBattle2, 'phase_9/audio/bgm/CFO_round_2.ogg', 30),
     CFO_BOSS: ToontownSong(CFO_BOSS, TTLocalizer.MusicCfoBattle3, 'phase_9/audio/bgm/encntr_cfo_boss.ogg', 66),
     LAWBOT_HQ: ToontownSong(LAWBOT_HQ, TTLocalizer.MusicLbCourtyard, 'phase_11/audio/bgm/LB_courtyard.ogg', 32),
-    BATTLE_LAWBOT_HQ: ToontownSong(BATTLE_LAWBOT_HQ, TTLocalizer.MusicLbCourtyardEncounter, 'phase_11/audio/bgm/LB_encntr.ogg', 54),
+    BATTLE_LAWBOT_HQ: ToontownSong(BATTLE_LAWBOT_HQ, TTLocalizer.MusicLbCourtyardEncounter, 'phase_11/audio/bgm/LB_courtyard_encntr.ogg', 54),
     LAWBOT_JURY: ToontownSong(LAWBOT_JURY, TTLocalizer.MusicLbJurybg, 'phase_11/audio/bgm/LB_juryBG.ogg', 29),
     CJ_BOSS: ToontownSong(CJ_BOSS, TTLocalizer.MusicLbCjFinale, 'phase_11/audio/bgm/encntr_cj_boss.ogg', 35),
     BOSSBOT_ENTRY_1: ToontownSong(BOSSBOT_ENTRY_1, TTLocalizer.MusicBossbotEntryV1, 'phase_12/audio/bgm/Bossbot_Entry_v1.ogg', 30),
