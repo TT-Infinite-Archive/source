@@ -1,5 +1,5 @@
 from panda3d.core import BitMask32, BoundingSphere, CSDefault, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionHandlerPusher, \
-    CollisionHandlerQueue, CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, CollisionTube, headsUp, Mat3, Mat4, NodePath, \
+    CollisionHandlerQueue, CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, CollisionTube, headsUp, lookAt, Mat3, Mat4, NodePath, \
     Point3, VBase3, VBase4, Vec2, Vec3, decomposeMatrix
 
 from direct.controls.ControlManager import CollisionHandlerRayStart

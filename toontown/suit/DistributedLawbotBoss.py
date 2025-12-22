@@ -1,4 +1,6 @@
-from panda3d.core import BitMask32, CSDefault, CollideMask, CollisionNode, CollisionPlane, CollisionPolygon, CollisionTube, ConfigVariable, ConfigVariableBool, Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, GeomVertexWriter, Mat3, NodePath, Plane, Point3, RigidBodyCombiner, TextNode, VBase3, VBase4, Vec3, composeMatrix, decomposeMatrix
+from panda3d.core import BitMask32, CSDefault, CollideMask, CollisionNode, CollisionPlane, CollisionPolygon, CollisionTube, ConfigVariable, ConfigVariableBool, \
+    Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, GeomVertexWriter, headsUp, Mat3, NodePath, Plane, Point3, RigidBodyCombiner, \
+    TextNode, VBase3, VBase4, Vec3, composeMatrix, decomposeMatrix
 import math
 import random
 from direct.directnotify import DirectNotifyGlobal
@@ -7,7 +9,6 @@ from direct.distributed.ClockDelta import *
 from direct.fsm import FSM
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from direct.showbase.PythonUtil import Functor
 from direct.showbase.PythonUtil import StackTrace
 from direct.showbase.ShowBase import *
 from direct.task import Task
@@ -27,7 +28,7 @@ from toontown.distributed import DelayDelete
 from toontown.nametag import NametagGlobals
 from toontown.nametag import NametagGroup
 from toontown.nametag.NametagGlobals import *
-from toontown.toon import Toon
+from toontown.toon import Toon, ToonDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
@@ -734,7 +735,6 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         DistributedBossCog.DistributedBossCog.exitIntroduction(self)
         self.__hideWitnessToon()
         self.promotionMusic.stop()
-        aspect2d.show()
         if not self.mainDoor.isEmpty():
             pass
         if not self.reflectedMainDoor.isEmpty():
@@ -1430,7 +1430,6 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             Wait(1),
             Parallel(
                 Func(base.playMusic, self.promotionMusic, looping=0),
-                Func(aspect2d.hide),
                 camTrack,
                 Func(introRollTrack.start),
                 Func(titleTextTrack.start),
@@ -1726,9 +1725,10 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         return bossTrack
 
     def __makeWitnessToon(self):
-        dnaNetString = 't\x1b\x00\x01\x01\x00\x03\x00\x03\x01\x10\x13\x00\x13\x13'
+        dna = ToonDNA.ToonDNA()
+        dna.newToonFromProperties('bss', 'ss', 'm', 'm', 19, 0, 19, 19, 0, 17, 0, 17, 1, 16)
         npc = Toon.Toon()
-        npc.setDNAString(dnaNetString)
+        npc.setDNA(dna)
         npc.setName(TTLocalizer.WitnessToonName)
         npc.setPickable(0)
         npc.setPlayerType(NametagGlobals.CCNonPlayer)
@@ -1742,7 +1742,6 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.witnessToon.removeActive()
             self.witnessToon.delete()
             self.witnessToon = None
-        return
 
     def __showWitnessToon(self):
         if not self.witnessToonOnstage:
