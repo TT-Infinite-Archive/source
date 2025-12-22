@@ -325,8 +325,6 @@ from toontown.uberdog.DistributedSecurityMgr/AI/UD import DistributedSecurityMgr
 from toontown.uberdog.DistributedInGameNewsMgr/AI/UD import DistributedInGameNewsMgr/AI/UD
 from toontown.uberdog.DistributedWhitelistMgr/AI/UD import DistributedWhitelistMgr/AI/UD
 from toontown.coderedemption.TTCodeRedemptionMgr/AI/UD import TTCodeRedemptionMgr/AI/UD
-from toontown.distributed.NonRepeatableRandomSourceAI import NonRepeatableRandomSourceAI
-from toontown.distributed.NonRepeatableRandomSourceUD import NonRepeatableRandomSourceUD
 from toontown.ai.DistributedPhaseEventMgr/AI import DistributedPhaseEventMgr/AI
 from toontown.ai import DistributedSillyMeterMgr/AI
 from toontown.cogdominium import DistributedCogdoInterior/AI
@@ -3891,22 +3889,12 @@ dclass DistributedSecurityMgr : DistributedObjectGlobal {
   requestAccountIdResponse(uint32, uint32) airecv;
 };
 
-dclass NonRepeatableRandomSourceClient {
-  getRandomSamplesReply(uint32, uint32 []) airecv;
-};
-
-dclass TTCodeRedemptionMgr : DistributedObject, NonRepeatableRandomSourceClient {
+dclass TTCodeRedemptionMgr : DistributedObject {
   giveAwardToToonResult(uint32, uint32);
   redeemCode(uint32, char [0-256]) airecv clsend;
   redeemCodeAiToUd(uint32, DoId, uint32, string, uint32);
   redeemCodeResultUdToAi(uint32, uint32, uint32, uint32, uint32) airecv;
   redeemCodeResult(uint32, uint32, uint32);
-};
-
-dclass NonRepeatableRandomSource : DistributedObject, NonRepeatableRandomSourceClient {
-  getRandomSamples(DoId, string, uint32, uint32);
-  randomSample(DoId, uint32);
-  randomSampleAck() airecv;
 };
 
 dclass DistributedInGameNewsMgr : DistributedObjectGlobal {
