@@ -4742,7 +4742,7 @@ def unites(value=32767):
     return 'Restocked %d unites!' % value
 
 @magicWord(category=CATEGORY_USER, types=[int])
-def fires(count):
+def fires(count=255):
     """
     Modifies the invoker's pink slip count.
     """
@@ -4753,7 +4753,7 @@ def fires(count):
     return 'You were given %d fires.' % count
 
 @magicWord(category=CATEGORY_USER, types=[int])
-def money(money):
+def money(money=10000):
     """
     Modifies the target's current money value.
     """

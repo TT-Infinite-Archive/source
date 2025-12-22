@@ -36,7 +36,7 @@ class Spellbook:
         try:
             return self.doWord(word, args)
         except MagicError as e:
-            return e.message
+            return ' '.join(e.args)
         except Exception:
             return traceback.format_exc()
         finally:
