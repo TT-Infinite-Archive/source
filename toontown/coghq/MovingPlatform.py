@@ -3,7 +3,6 @@ from direct.interval.IntervalGlobal import *
 from direct.showbase import DirectObject
 from toontown.toonbase import ToontownGlobals
 from direct.directnotify import DirectNotifyGlobal
-import types
 
 class MovingPlatform(DirectObject.DirectObject, NodePath):
     notify = DirectNotifyGlobal.directNotify.newCategory('MovingPlatform')
@@ -19,24 +18,23 @@ class MovingPlatform(DirectObject.DirectObject, NodePath):
         if type(parentToken) == int:
             parentToken = ToontownGlobals.SPDynamic + parentToken
         self.parentToken = parentToken
-        self.name = 'MovingPlatform-%s' % parentToken
-        self.assign(hidden.attachNewNode(self.name))
+        self._name = f'MovingPlatform-{parentToken}'
+        self.assign(hidden.attachNewNode(self._name))
         self.model = model.copyTo(self)
         self.ownsModel = 1
-        floorList = self.model.findAllMatches('**/%s' % floorNodeName)
+        floorList = self.model.findAllMatches(f'**/{floorNodeName}')
         if len(floorList) == 0:
-            MovingPlatform.notify.warning('no floors in model')
+            self.notify.warning('no floors in model')
             return
         for floor in floorList:
-            floor.setName(self.name)
+            floor.setName(self._name)
 
         if parentingNode == None:
             parentingNode = self
         base.cr.parentMgr.registerParent(self.parentToken, parentingNode)
         self.parentingNode = parentingNode
-        self.accept('enter%s' % self.name, self.__handleEnter)
-        self.accept('exit%s' % self.name, self.__handleExit)
-        return
+        self.accept(f'enter{self._name}', self.__handleEnter)
+        self.accept(f'exit{self._name}', self.__handleExit)
 
     def destroy(self):
         base.cr.parentMgr.unregisterParent(self.parentToken)
@@ -50,31 +48,31 @@ class MovingPlatform(DirectObject.DirectObject, NodePath):
             del self.parentingNode
 
     def getEnterEvent(self):
-        return '%s-enter' % self.name
+        return f'{self._name}-enter'
 
     def getExitEvent(self):
-        return '%s-exit' % self.name
+        return f'{self._name}-exit'
 
     def releaseLocalToon(self):
         if self.hasLt:
             self.__releaseLt()
 
     def __handleEnter(self, collEntry):
-        self.notify.debug('on movingPlatform %s' % self.name)
+        self.notify.debug(f'on movingPlatform {self._name}')
         self.__grabLt()
         messenger.send(self.getEnterEvent())
 
     def __handleExit(self, collEntry):
-        self.notify.debug('off movingPlatform %s' % self.name)
+        self.notify.debug(f'off movingPlatform {self._name}')
         self.__releaseLt()
         messenger.send(self.getExitEvent())
 
     def __handleOnFloor(self, collEntry):
-        if collEntry.getIntoNode().getName() == self.name:
+        if collEntry.getIntoNode().getName() == self._name:
             self.__handleEnter(collEntry)
 
     def __handleOffFloor(self, collEntry):
-        if collEntry.getIntoNode().getName() == self.name:
+        if collEntry.getIntoNode().getName() == self._name:
             self.__handleExit(collEntry)
 
     def __grabLt(self):
