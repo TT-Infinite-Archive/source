@@ -1,4 +1,4 @@
-from panda3d.core import CardMaker, DisplayRegion, NodePath, PerspectiveLens
+from panda3d.core import Camera, CardMaker, DisplayRegion, NodePath, PerspectiveLens
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from . import FishGlobals
@@ -80,7 +80,6 @@ class FishPhoto(NodePath):
         self.soundTrack = None
         self.track = None
         self.fishFrame = None
-        return
 
     def destroy(self):
         self.hide()
@@ -89,7 +88,6 @@ class FishPhoto(NodePath):
         self.fish = None
         del self.soundTrack
         del self.track
-        return
 
     def update(self, fish):
         self.fish = fish
@@ -164,7 +162,6 @@ class FishPhoto(NodePath):
                 track.append(soundTrack)
         self.track = track
         self.track.start()
-        return
 
     def hide(self):
         if hasattr(self, 'fishDisplayRegion'):
@@ -180,4 +177,3 @@ class FishPhoto(NodePath):
         if self.track:
             self.track.pause()
             self.track = None
-        return
