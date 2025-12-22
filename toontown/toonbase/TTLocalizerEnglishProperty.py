@@ -1,7 +1,7 @@
 PBPTonscreenText = 0.2
 RPdirectFrame = (1.75, 1, 0.75)
 RPtrackLabels = 0.05
-RPmeritBarLabels = 0.165
+RPmeritBarLabels = 0.175
 RPskipScale = 0.2
 RPskipPos = (0, -.28)
 RPmeritLabelPosX = 0.55

@@ -17,13 +17,6 @@ ICON_NODES = [
     '**/SalesIcon'
 ]
 
-ICON_COLORS = [
-    Vec4(0.863, 0.776, 0.769, 1.0),
-    Vec4(0.749, 0.776, 0.824, 1.0),
-    Vec4(0.749, 0.769, 0.749, 1.0),
-    Vec4(0.843, 0.745, 0.745, 1.0)
-]
-
 
 class CogMenuBar(NodePath):
     def __init__(self, cogMenu, dept):
@@ -34,7 +27,6 @@ class CogMenuBar(NodePath):
 
         icons = loader.loadModel('phase_3/models/gui/cog_icons')
         self.icon = icons.find(ICON_NODES[self.deptIndex]).copyTo(self)
-        self.icon.setColor(ICON_COLORS[self.deptIndex])
         self.icon.setScale(0.07)
         self.icon.setX(-0.25)
         icons.removeNode()

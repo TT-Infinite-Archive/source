@@ -14,7 +14,6 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         self.currentTrackInfo = None
         self.onscreen = 0
         self.lastInventoryTime = globalClock.getRealTime()
-        return
 
     def load(self):
         ShtikerPage.ShtikerPage.load(self)
