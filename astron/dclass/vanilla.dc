@@ -427,8 +427,6 @@ dclass TimeManager : DistributedObject {
   serverTime(uint8 context, int32 timestap, uint32 timeOfDay);
   setDisconnectReason(uint8) airecv clsend;
   setExceptionInfo(blob) airecv clsend;
-  setSignature(string(0-1024) signature, char prcHash[16],
-               char pycHash[16]) airecv clsend;
   setFrameRate(uint16/10 fps, uint16/1000 deviation, uint16 numAvatars,
                string(0-256) locationCode, uint32/10 timeInLocation,
                uint32/10 timeInGame, string(0-256) gameOptionsCode,
@@ -3949,7 +3947,7 @@ dclass TTIFriendsManager : DistributedObjectGlobal {
   friendDetails(uint32, blob, uint16[], uint16, int16, int16, uint32, uint32, blob, blob, int8[], string);
 
   getAvatarDetailsExtended(uint32) clsend;
-  friendDetailsExtended(string, string, uint32);
+  friendDetailsExtended(blob, string, uint32);
 
   getPetDetails(uint32) clsend;
   petDetails(uint32, uint32, string, uint32, uint32, uint16/1000[], PetTrait[], int8[], uint32);

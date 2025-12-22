@@ -50,14 +50,7 @@ def doSquirts(squirts):
                 suitSquirtsDict[suitId] = [squirt]
 
     suitSquirts = list(suitSquirtsDict.values())
-
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        elif len(a) < len(b):
-            return -1
-        return 0
-    suitSquirts.sort(compFunc)
+    suitSquirts.sort(key=lambda x: len(x))
 
     delay = 0.0
 

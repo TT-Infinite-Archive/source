@@ -26,12 +26,11 @@ class SuitPlannerInteriorAI:
             self.dbg_defaultSuitType = None
         else:
             self.dbg_defaultSuitType = SuitDNA.getSuitType(dbg_defaultSuitName)
-        if isinstance(bldgLevel, bytes):
+        if isinstance(bldgLevel, str):
             self.notify.warning('bldgLevel is a string!')
             bldgLevel = int(bldgLevel)
         self.lvlPool = 0
         self._genSuitInfos(numFloors, bldgLevel, bldgTrack)
-        return
 
     def __genJoinChances(self, num):
         joinChances = []

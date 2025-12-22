@@ -16,7 +16,7 @@ class SuitPlannerCogdoInteriorAI:
         difficulty = min(difficulty + 4, len(SuitBuildingGlobals.SuitBuildingInfo) - 1)
         self.respectInvasions = 1
 
-        if isinstance(difficulty, bytes):
+        if isinstance(difficulty, str):
             self.notify.warning('difficulty is a string!')
             difficulty = int(difficulty)
 

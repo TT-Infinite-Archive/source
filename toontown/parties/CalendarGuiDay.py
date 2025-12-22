@@ -287,7 +287,7 @@ class CalendarGuiDay(DirectFrame):
             else:
                 return 1
 
-        self.timedEvents.sort(cmp=timedEventCompare)
+        self.timedEvents.sort(key=lambda te: te[0])
         for timedEvent in self.timedEvents:
             if isinstance(timedEvent[1], PartyInfo):
                 self.addPartyToScrollList(timedEvent[1])

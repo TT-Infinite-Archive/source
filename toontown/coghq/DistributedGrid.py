@@ -10,7 +10,6 @@ class DistributedGrid(BasicEntities.DistributedNodePathEntity):
     def __init__(self, cr):
         BasicEntities.DistributedNodePathEntity.__init__(self, cr)
         self.model = None
-        return
 
     def generateInit(self):
         self.notify.debug('generateInit')
@@ -37,7 +36,7 @@ class DistributedGrid(BasicEntities.DistributedNodePathEntity):
     def loadModel(self):
         self.notify.debug('loadModel')
         texSize = 6.0
-        scale = self.cellSize / texSize
+        scale = self.cellSize // texSize
         self.model = loader.loadModel('phase_9/models/cogHQ/FloorWear.bam')
         self.model.reparentTo(self)
         long = self.numCol
@@ -47,7 +46,7 @@ class DistributedGrid(BasicEntities.DistributedNodePathEntity):
             long = self.numRow
             short = self.numCol
             h = 90
-        self.model.setScale(scale * int, scale * short, 1)
+        self.model.setScale(scale * long, scale * short, 1)
         self.model.setHpr(h, 180, 0)
         self.model.setPos(self.cellSize * self.numCol / 2.0, self.cellSize * self.numRow / 2.0, 0.025)
         self.model.setColor(0.588, 0.588, 0.459, 0.4)

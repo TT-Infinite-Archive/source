@@ -25,9 +25,6 @@ class TimeManagerAI(DistributedObjectAI):
         # Notify the CrashLogManagerAI.
         self.air.crashLogManager.log(avId, Compressor.decompress(exception).decode())
 
-    def setSignature(self, todo0, todo1, todo2):
-        pass
-
     def setFrameRate(self, todo0, todo1, todo2, todo3, todo4, todo5, todo6, todo7, todo8, todo9, todo10, todo11, todo12, todo13, todo14, todo15, todo16, todo17):
         pass
 

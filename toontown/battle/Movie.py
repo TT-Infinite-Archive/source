@@ -794,7 +794,7 @@ class Movie(DirectObject.DirectObject):
         setCapture = 0
         tp = []
         for ta in self.toonAttackDicts:
-            if ta['track'] == track or track == NPCSOS and 'sepcial' in ta:
+            if ta['track'] == track or track == NPCSOS and 'special' in ta:
                 tp.append(ta)
                 if track == SQUIRT:
                     setCapture = 1
@@ -810,8 +810,6 @@ class Movie(DirectObject.DirectObject):
                     sortedTraps.append(attack)
 
             tp = sortedTraps
-        if setCapture:
-            pass
         return tp
 
     def __genSuitAttackDicts(self, toons, suits, suitAttacks):

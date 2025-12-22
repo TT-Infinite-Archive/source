@@ -5,9 +5,6 @@ import builtins
 builtins.process = 'uberdog'
 
 
-from direct.extensions_native import HTTPChannel_extensions
-
-
 from direct.showbase import PythonUtil
 
 import argparse

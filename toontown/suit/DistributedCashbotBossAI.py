@@ -226,10 +226,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
             suit = activeSuits.pop()
             reserveSuits.append((suit, 100))
 
-        def compareJoinChance(a, b):
-            return cmp(a[1], b[1])
-
-        reserveSuits.sort(compareJoinChance)
+        reserveSuits.sort(key=lambda joinChance: joinChance[1])
         return {'activeSuits': activeSuits,
          'reserveSuits': reserveSuits}
 

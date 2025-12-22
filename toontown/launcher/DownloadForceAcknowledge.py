@@ -11,32 +11,31 @@ class DownloadForceAcknowledge(DirectObject):
     def __init__(self, doneEvent):
         self.doneEvent = doneEvent
         self.dialog = None
-        return
 
     def enter(self, zone):
         doneStatus = {}
-        if zone not in list(ToontownGlobals.HoodHierarchy.keys()):
-            zone = ZoneUtil.getBranchZone(zone)
+        #if zone not in list(ToontownGlobals.HoodHierarchy.keys()):
+        #    zone = ZoneUtil.getBranchZone(zone)
 
-        if base.cr.zoneManager.getZoneComplete(zone):
-            doneStatus['mode'] = 'complete'
-            messenger.send(self.doneEvent, [doneStatus])
-        else:
-            try:
-                base.localAvatar.b_setAnimState('neutral', 1)
-            except:
-                pass
+        #if base.cr.zoneManager.getZoneComplete(zone):
+        doneStatus['mode'] = 'complete'
+        messenger.send(self.doneEvent, [doneStatus])
+        #else:
+        #    try:
+        #        base.localAvatar.b_setAnimState('neutral', 1)
+        #    except:
+        #        pass
 
-            doneStatus['mode'] = 'incomplete'
-            self.doneStatus = doneStatus
+        #    doneStatus['mode'] = 'incomplete'
+        #    self.doneStatus = doneStatus
 
-            if base.cr.zoneManager.currentRequestedZone != zone:
-                base.transitions.fadeScreen(0.5)
-                self.dialog = TTDialog.TTDialog(text='Communicating with zone server...', style=TTDialog.NoButtons)
-                self.acceptOnce('zoneResponse', self.zoneResponse)
-                taskMgr.doMethodLater(1.25, self.sendRequest, 'sendZoneRequest', extraArgs=[zone])
-            else:
-                self.zoneResponse(False)
+        #    if base.cr.zoneManager.currentRequestedZone != zone:
+        #        base.transitions.fadeScreen(0.5)
+        #        self.dialog = TTDialog.TTDialog(text='Communicating with zone server...', style=TTDialog.NoButtons)
+        #        self.acceptOnce('zoneResponse', self.zoneResponse)
+        #        taskMgr.doMethodLater(1.25, self.sendRequest, 'sendZoneRequest', extraArgs=[zone])
+        #    else:
+        #        self.zoneResponse(False)
 
     def zoneResponse(self, response):
         base.transitions.noFade()
@@ -66,10 +65,9 @@ class DownloadForceAcknowledge(DirectObject):
             self.dialog.hide()
             self.dialog.cleanup()
             self.dialog = None
-        return
 
     def exit(self):
-        taskMgr.remove('sendZoneRequest')
+        #taskMgr.remove('sendZoneRequest')
         self.ignoreAll()
         self.cleanupDialog()
 

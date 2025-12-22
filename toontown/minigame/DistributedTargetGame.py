@@ -4,7 +4,6 @@ from direct.interval.IntervalGlobal import *
 from .DistributedMinigame import *
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM, State
-from direct.fsm import State
 from direct.task import Task
 from . import ArrowKeys
 from . import TargetGameGlobals
@@ -1158,7 +1157,7 @@ class DistributedTargetGame(DistributedMinigame):
                 self.ticker = 0.0
                 powerDiv = 0.05
                 self.power -= 1.0 + 0.2 * (self.power * powerDiv * (self.power * powerDiv))
-            if timeDiff > 0.5:
+            if timeDiff is not None and timeDiff > 0.5:
                 self.power = self.powerBar['value']
                 self.signalLaunch = 0
                 if self.power > 120:

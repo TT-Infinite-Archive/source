@@ -30,7 +30,6 @@ class ChatAgentUD(DistributedObjectGlobalUD):
             self.whiteList = TTWhiteList()
 
         self.mutedDict = {}
-        self.accept('nameCheck', self.checkBadNames)
 
     def checkBadNames(self, toonName, nameCheck=False):
         isBadName = self.detectBadWords(toonName)

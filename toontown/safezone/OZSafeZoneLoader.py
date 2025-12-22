@@ -39,8 +39,8 @@ class OZSafeZoneLoader(SafeZoneLoader):
     def load(self):
         self.done = 0
         self.geyserTrack = None
-        if ToontownGlobals.OutdoorZone in base.cr.zoneManager.modifiedZones:
-            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.OutdoorZone)
+        #if ToontownGlobals.OutdoorZone in base.cr.zoneManager.modifiedZones:
+        #    self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.OutdoorZone)
         SafeZoneLoader.load(self)
         self.birdSound = list(map(loader.loadSfx, ['phase_4/audio/sfx/SZ_TC_bird1.ogg', 'phase_4/audio/sfx/SZ_TC_bird2.ogg', 'phase_4/audio/sfx/SZ_TC_bird3.ogg']))
         self.underwaterSound = loader.loadSfx('phase_4/audio/sfx/AV_ambient_water.ogg')

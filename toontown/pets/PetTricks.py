@@ -75,7 +75,7 @@ TrickSounds = {ETrick.BACKFLIP: 'phase_5/audio/sfx/backflip.ogg',
 def getSoundIval(trickId):
     sounds = TrickSounds.get(trickId, None)
     if sounds:
-        if type(sounds) == bytes:
+        if type(sounds) == str:
             sound = loader.loadSfx(sounds)
             return SoundInterval(sound)
         else:
@@ -85,14 +85,13 @@ def getSoundIval(trickId):
                 soundIval.append(SoundInterval(sound))
 
             return soundIval
-    return
 
 
 def getTrickIval(pet, trickId):
     anims = TrickAnims[trickId]
     animRate = random.uniform(0.9, 1.1)
     waitTime = random.uniform(0.0, 1.0)
-    if type(anims) == bytes:
+    if type(anims) == str:
         if trickId == ETrick.JUMP:
             animIval = Parallel()
             animIval.append(ActorInterval(pet, anims, playRate=animRate))

@@ -247,36 +247,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             self.b_setPatchVersion(patchVersion)
 
             messenger.send('avatarEntered', [self])
-            self.checkForBadName()
 
         from toontown.toon.DistributedNPCToonBaseAI import DistributedNPCToonBaseAI
         if not isinstance(self, DistributedNPCToonBaseAI):
             self.sendUpdate('setDefaultShard', [self.air.districtId])
-
-    def checkForBadName(self, requestName=False, name=None):
-        if name is None:
-            name = self.getName()
-
-        simbase.air.sendNetEvent('nameCheck', [name], channels=[OtpDoGlobals.MESSENGER_CHANNEL_UD])
-
-        def resetName(responseStatus):
-            if responseStatus and (not requestName):
-                self.resetName(responseStatus)
-            elif not responseStatus and requestName:
-                self.b_setName(name)
-                return
-
-        self.acceptOnce('badNameResponse', resetName)
-
-    def resetName(self, responseStatus):
-        if responseStatus:
-            dna = self.dna
-            colorString = TTLocalizer.NumToColor[dna.headColor]
-            animalType = TTLocalizer.AnimalToSpecies[dna.getAnimal()]
-            self.b_setName(colorString + ' ' + animalType)
-            self.sendUpdate('WishNameState', ['REJECTED'])
-
-        self.ignore('badNameResponse')
 
     def setLocation(self, parentId, zoneId):
         DistributedPlayerAI.DistributedPlayerAI.setLocation(self, parentId, zoneId)
@@ -2391,11 +2365,13 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.setBothSchedules(onOrder, onGiftOrder, doUpdateLater)
         self.d_setDeliverySchedule(onOrder)
 
-    def setBothSchedules(self, onOrder, onGiftOrder, doUpdateLater = True):
+    def setBothSchedules(self, onOrder, onGiftOrder, doUpdateLater=True):
         if onOrder != None:
-            self.onOrder = CatalogItemList.CatalogItemList(onOrder, store=CatalogItem.Customization | CatalogItem.DeliveryDate)
+            self.onOrder = CatalogItemList.CatalogItemList(onOrder,
+                                                           store=CatalogItem.Customization | CatalogItem.DeliveryDate)
         if onGiftOrder != None:
-            self.onGiftOrder = CatalogItemList.CatalogItemList(onGiftOrder, store=CatalogItem.Customization | CatalogItem.DeliveryDate)
+            self.onGiftOrder = CatalogItemList.CatalogItemList(onGiftOrder,
+                                                               store=CatalogItem.Customization | CatalogItem.DeliveryDate)
         if not hasattr(self, 'air') or self.air == None:
             return
         if doUpdateLater and self.air.doLiveUpdates and hasattr(self, 'name'):
@@ -2410,11 +2386,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             if self.onGiftOrder:
                 nextGiftTime = self.onGiftOrder.getNextDeliveryDate()
                 nextGiftItem = self.onGiftOrder.getNextDeliveryItem()
-            if nextTime == None:
-                nextTime = nextGiftTime
-            if nextGiftTime == None:
-                nextGiftTime = nextTime
-            if nextGiftTime < nextTime:
+            if nextTime == None or (nextGiftTime and nextGiftTime < nextTime):
                 nextTime = nextGiftTime
             existingDuration = None
             checkTaskList = taskMgr.getTasksNamed(taskName)
@@ -2431,7 +2403,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                     pass
                 else:
                     taskMgr.doMethodLater(newDuration, self.__deliverBothPurchases, taskName)
-        return
 
     def __deliverBothPurchases(self, task):
         now = int(time.time() / 60 + 0.5)
@@ -3270,14 +3241,14 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             returnCode = self.doSummonSingleCog(suitIndex)
         elif type == 'building':
             if random.random() < 0.25:
-                suitDeptIndex = suitIndex / SuitDNA.suitsPerDept
+                suitDeptIndex = suitIndex // SuitDNA.suitsPerDept
                 department = SuitDNA.suitDepts[suitDeptIndex]
                 difficulty = random.randint(1, 9)
                 returnCode = self.doCogdoTakeOver(department, difficulty)
             else:
                 returnCode = self.doBuildingTakeover(suitIndex)
         elif type == 'invasion':
-            suitDeptIndex = suitIndex / SuitDNA.suitsPerDept
+            suitDeptIndex = suitIndex // SuitDNA.suitsPerDept
             suitTypeIndex = suitIndex % SuitDNA.suitsPerDept
             returnCode = self.doCogInvasion(suitDeptIndex, suitTypeIndex)
         if returnCode:

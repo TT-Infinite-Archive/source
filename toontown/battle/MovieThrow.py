@@ -41,15 +41,8 @@ def doThrows(throws):
                 suitThrowsDict[suitId] = [throw]
 
     suitThrows = list(suitThrowsDict.values())
+    suitThrows.sort(key=lambda x: len(x))
 
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        elif len(a) < len(b):
-            return -1
-        return 0
-
-    suitThrows.sort(compFunc)
     totalHitDict = {}
     singleHitDict = {}
     groupHitDict = {}

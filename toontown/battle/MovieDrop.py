@@ -61,15 +61,8 @@ def doDrops(drops):
                     suitDropsDict[suitId] = [(drop, target)]
 
     suitDrops = list(suitDropsDict.values())
+    suitDrops.sort(key=lambda x: len(x))
 
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        elif len(a) < len(b):
-            return -1
-        return 0
-
-    suitDrops.sort(compFunc)
     delay = 0.0
     mtrack = Parallel(name='toplevel-drop')
     npcDrops = {}

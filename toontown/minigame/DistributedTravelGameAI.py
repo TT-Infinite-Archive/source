@@ -100,15 +100,7 @@ class DistributedTravelGameAI(DistributedMinigameAI):
             direction = choice[1]
             self.directionVotes[direction][1] += numVotes
 
-        def voteCompare(directionVoteA, directionVoteB):
-            if directionVoteA[1] < directionVoteB[1]:
-                return -1
-            elif directionVoteA[1] == directionVoteB[1]:
-                return 0
-            else:
-                return 1
-
-        self.directionVotes.sort(voteCompare, reverse=True)
+        self.directionVotes.sort(key=lambda directionVote: directionVote[1], reverse=True)
         winningVotes = self.directionVotes[0][1]
         self.winningDirections = []
         self.notify.debug('self.directionVotes = %s' % self.directionVotes)

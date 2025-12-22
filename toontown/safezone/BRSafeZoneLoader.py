@@ -14,8 +14,8 @@ class BRSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_8/dna/storage_BR_sz.pdna'
 
     def load(self):
-        if ToontownGlobals.TheBrrrgh in base.cr.zoneManager.modifiedZones:
-            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.TheBrrrgh)
+        #if ToontownGlobals.TheBrrrgh in base.cr.zoneManager.modifiedZones:
+        #    self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.TheBrrrgh)
         SafeZoneLoader.SafeZoneLoader.load(self)
         self.windSound = list(map(loader.loadSfx, ['phase_8/audio/sfx/SZ_TB_wind_1.ogg',
                                             'phase_8/audio/sfx/SZ_TB_wind_2.ogg',

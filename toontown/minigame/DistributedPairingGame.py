@@ -3,7 +3,6 @@ from panda3d.core import NodePath, Point2, TextNode, VBase4, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *
 from direct.fsm import ClassicFSM, State
-from direct.fsm import State
 from toontown.toonbase import TTLocalizer, ToontownTimer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.minigame import PlayingCardGlobals
@@ -455,7 +454,7 @@ class DistributedPairingGame(DistributedMinigame):
             perfectText = hidden.attachNewNode('perfectText')
             perfectTextSubnode.reparentTo(perfectText)
             frame = self.__textGen.getCardActual()
-            offsetY = -abs(frame[2] + frame[3]) / 2.0
+            offsetY = -abs(frame[2] + frame[3]) // 2.0
             perfectTextSubnode.setPos(0, 0, offsetY)
             perfectText.setColor(1, 0.1, 0.1, 1)
 
@@ -507,7 +506,7 @@ class DistributedPairingGame(DistributedMinigame):
 
     def getCardPos(self, deckOrderIndex):
         col = deckOrderIndex % self.cardsPerRow
-        row = deckOrderIndex / self.cardsPerRow
+        row = deckOrderIndex // self.cardsPerRow
         x = col * self.xCardInc
         y = row * self.yCardInc
         return (x, y)

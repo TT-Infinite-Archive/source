@@ -39,13 +39,7 @@ def doFires(fires):
             suitFiresDict[suitId] = [fire]
 
     suitFires = list(suitFiresDict.values())
-    def compFunc(a, b):
-        if len(a) > len(b):
-            return 1
-        elif len(a) < len(b):
-            return -1
-        return 0
-    suitFires.sort(compFunc)
+    suitFires.sort(key=lambda x: len(x))
 
     totalHitDict = {}
     singleHitDict = {}

@@ -8,7 +8,7 @@ import types
 import hashlib
 import yaml
 from panda3d.direct import CConnectionRepository
-from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, Filename, HTTPClient, HashVal, MemoryUsage, NodePath, Notify, StringStream, hashPrcVariables, ostream
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, HTTPClient, MemoryUsage, NodePath, Notify, StringStream, hashPrcVariables, ostream
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed import DistributedSmoothNode
@@ -1277,7 +1277,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def uberZoneInterestComplete(self):
         self.__gotTimeSync = 0
         self.cleanupWaitingForDatabase()
-        self.zoneManager.requestModifiedZones()
+        #self.zoneManager.requestModifiedZones()
 
         if self.timeManager == None:
             self.notify.info('TimeManager is not present.')
@@ -1285,12 +1285,6 @@ class OTPClientRepository(ClientRepositoryBase):
             self.gotTimeSync()
         else:
             DistributedSmoothNode.globalActivateSmoothing(1, 0)
-            h = HashVal()
-            hashPrcVariables(h)
-            pyc = HashVal()
-            if not __dev__:
-                self.hashFiles(pyc)
-            self.timeManager.d_setSignature(self.userSignature, h.asBin(), pyc.asBin())
             self.timeManager.sendCpuInfo()
             if self.timeManager.synchronize('startup'):
                 self.accept('gotTimeSync', self.gotTimeSync)
@@ -1298,14 +1292,12 @@ class OTPClientRepository(ClientRepositoryBase):
             else:
                 self.notify.info('No sync from TimeManager.')
                 self.gotTimeSync()
-        return
 
     def exitWaitOnEnterResponses(self):
         self.ignore('uberZoneInterestComplete')
         self.cleanupWaitingForDatabase()
         self.handler = None
         self.handlerArgs = None
-        return
 
     def enterCloseShard(self, loginState = None):
         self.notify.info('Exiting shard')
@@ -1313,7 +1305,7 @@ class OTPClientRepository(ClientRepositoryBase):
             loginState = 'waitForAvatarList'
         self._closeShardLoginState = loginState
         base.cr.setNoNewInterests(True)
-        return
+ 
 
     def _removeLocalAvFromStateServer(self):
         self.sendSetAvatarIdMsg(0)
@@ -1343,7 +1335,6 @@ class OTPClientRepository(ClientRepositoryBase):
             taskMgr.doMethodLater(base.slowCloseShardDelay * 0.5, Functor(self._callRemoveShardInterestCallback, callback), 'slowCloseShardCallback')
         else:
             self._callRemoveShardInterestCallback(callback, None)
-        return
 
     def _callRemoveShardInterestCallback(self, callback, task):
         callback()
@@ -1400,14 +1391,13 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def exitPlayGame(self):
         taskMgr.remove('globalScaleCheck')
-        base.cr.zoneManager.reset()
+        #base.cr.zoneManager.reset()
         self.handler = None
         self.playGame.exit()
         self.playGame.unload()
         self.ignore(self.gameDoneEvent)
         self.garbageLeakLogger.destroy()
         del self.garbageLeakLogger
-        return
 
     def gotTimeSync(self):
         self.notify.info('gotTimeSync')
@@ -1598,13 +1588,13 @@ class OTPClientRepository(ClientRepositoryBase):
             return 0
 
     def listActiveShards(self):
-        list = []
+        _list = []
         for s in list(self.activeDistrictMap.values()):
             if s.available:
-                list.append((s.doId, s.name, s.avatarCount, s.newAvatarCount,
-                             s.invasionStatus, s.timeZone))
+                _list.append((s.doId, s.name, s.avatarCount, s.newAvatarCount,
+                              s.invasionStatus, s.timeZone))
 
-        return list
+        return _list
 
     def getPlayerAvatars(self):
         return [i for i in list(self.doId2do.values()) if isinstance(i, DistributedPlayer)]
@@ -1614,7 +1604,6 @@ class OTPClientRepository(ClientRepositoryBase):
         if dclass is not None:
             fieldId = dclass.getFieldByName(fieldName).getNumber()
             self.queryObjectFieldId(doId, fieldId, context)
-        return
 
     def lostConnection(self):
         ClientRepositoryBase.lostConnection(self)
@@ -1836,18 +1825,6 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def askAvatarKnown(self, avId):
         return 0
-
-    def hashFiles(self, pyc):
-        for dir in sys.path:
-            if dir == '':
-                dir = '.'
-            if os.path.isdir(dir):
-                for filename in os.listdir(dir):
-                    if filename.endswith('.pyo') or filename.endswith('.pyc') or filename.endswith('.py') or filename == 'library.zip':
-                        pathname = Filename.fromOsSpecific(os.path.join(dir, filename))
-                        hv = HashVal()
-                        hv.hashFile(pathname)
-                        pyc.mergeWith(hv)
 
     def queueRequestAvatarInfo(self, avId):
         pass

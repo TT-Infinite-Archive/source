@@ -1,5 +1,6 @@
 from panda3d.core import ConfigVariableBool, Datagram
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
+from direct.distributed.MsgTypes import CLIENTAGENT_ADD_POST_REMOVE
 from direct.distributed.PyDatagram import *
 from direct.task import Task
 from direct.directnotify.DirectNotifyGlobal import directNotify
@@ -420,7 +421,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
         dgcleanup = self.dclass.aiFormatUpdate('goingOffline', self.doId, self.doId, self.air.ourChannel, [doId])
         dg = PyDatagram()
         dg.addServerHeader(channel, self.air.ourChannel, CLIENTAGENT_ADD_POST_REMOVE)
-        dg.addString(dgcleanup.getMessage())
+        dg.addBlob(bytes(dgcleanup))
         self.air.send(dg)
 
         chatMode = 0
@@ -554,7 +555,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
     # -- Secret Friends --
     def requestSecret(self):
         avId = self.air.getAvatarIdFromSender()
-        allowed = string.lowercase + string.digits
+        allowed = string.ascii_lowercase + string.digits
         secret = ''
         for i in range(6):
             secret += random.choice(allowed)

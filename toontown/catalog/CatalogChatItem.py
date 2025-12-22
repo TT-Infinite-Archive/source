@@ -1,4 +1,3 @@
-from panda3d.core import Datagram
 from . import CatalogItem
 from toontown.toonbase import ToontownGlobals
 from otp.otpbase import OTPLocalizer
@@ -108,7 +107,6 @@ class CatalogChatItem(CatalogItem.CatalogItem):
         del self.messagePicker
         del self.callback
         del self.mailbox
-        return
 
     def __handlePickerDone(self, status, pickedMessage = None):
         if status == 'pick':
@@ -132,7 +130,7 @@ class CatalogChatItem(CatalogItem.CatalogItem):
 
 
 def getChatRange(fromIndex, toIndex, *otherRanges):
-    list = []
+    items = []
     froms = [fromIndex]
     tos = [toIndex]
     i = 0
@@ -144,6 +142,6 @@ def getChatRange(fromIndex, toIndex, *otherRanges):
     for chatId in OTPLocalizer.CustomSCStrings.keys():
         for fromIndex, toIndex in zip(froms, tos):
             if chatId >= fromIndex and chatId <= toIndex:
-                list.append(CatalogChatItem(chatId))
+                items.append(CatalogChatItem(chatId))
 
-    return list
+    return items

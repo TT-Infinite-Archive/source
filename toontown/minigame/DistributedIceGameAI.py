@@ -166,15 +166,7 @@ class DistributedIceGameAI(DistributedMinigameAI.DistributedMinigameAI):
             pos.setZ(0)
             sortedByDistance.append((avId, pos.length()))
 
-        def compareDistance(x, y):
-            if x[1] - y[1] > 0:
-                return 1
-            elif x[1] - y[1] < 0:
-                return -1
-            else:
-                return 0
-
-        sortedByDistance.sort(cmp=compareDistance)
+        sortedByDistance.sort(key=lambda x: x[1])
         self.scoresAsList = []
         totalPointsAdded = 0
         for index in range(len(self.avIdList)):

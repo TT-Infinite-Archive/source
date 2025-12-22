@@ -400,7 +400,7 @@ class CategoryItemsDisplay(DirectFrame):
                 itemDialog.update()
 
     def getMaxPages(self, category):
-        return len(category.items)/self.maxPerPage
+        return len(category.items) // self.maxPerPage
 
 
 class CollectibleCategoryItemsDisplay(CategoryItemsDisplay):

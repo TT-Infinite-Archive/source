@@ -1,4 +1,3 @@
-from panda3d.core import Datagram
 from . import CatalogItem
 from toontown.pets import PetTricks
 from toontown.toonbase import ToontownGlobals
@@ -71,7 +70,6 @@ class CatalogPetTrickItem(CatalogItem.CatalogItem):
         CatalogItem.CatalogItem.cleanupPicture(self)
         self.petPicture.delete()
         self.petPicture = None
-        return
 
     def output(self, store = -1):
         return 'CatalogPetTrickItem(%s%s)' % (self.trickId, self.formatOptionalData(store))

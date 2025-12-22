@@ -1,4 +1,3 @@
-from panda3d.core import Datagram
 from otp.ai.AIBase import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.racing.KartDNA import *
@@ -7,6 +6,7 @@ from direct.distributed import DistributedSmoothNodeAI
 from direct.fsm import FSM
 from direct.task import Task
 
+from direct.distributed.MsgTypes import STATESERVER_OBJECT_SET_OWNER
 from direct.distributed.PyDatagram import *
 
 

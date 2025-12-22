@@ -14,8 +14,8 @@ class DDSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_6/dna/storage_DD_sz.pdna'
 
     def load(self):
-        if ToontownGlobals.DonaldsDock in base.cr.zoneManager.modifiedZones:
-            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DonaldsDock)
+        #if ToontownGlobals.DonaldsDock in base.cr.zoneManager.modifiedZones:
+        #    self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DonaldsDock)
 
         SafeZoneLoader.SafeZoneLoader.load(self)
         self.seagullSound = loader.loadSfx('phase_6/audio/sfx/SZ_DD_Seagull.ogg')

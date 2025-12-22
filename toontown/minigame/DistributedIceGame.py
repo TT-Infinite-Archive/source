@@ -425,15 +425,7 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
             pos.setZ(0)
             sortedByDistance.append((avId, pos.length()))
 
-        def compareDistance(x, y):
-            if x[1] - y[1] > 0:
-                return 1
-            elif x[1] - y[1] < 0:
-                return -1
-            else:
-                return 0
-
-        sortedByDistance.sort(cmp=compareDistance)
+        sortedByDistance.sort(key=lambda x: x[1])
         self.scoreMovie = Sequence()
         curScale = 0.01
         curTime = 0

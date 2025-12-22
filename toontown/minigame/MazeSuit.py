@@ -17,18 +17,12 @@ class MazeSuit(DirectObject):
     DIR_DOWN = 1
     DIR_LEFT = 2
     DIR_RIGHT = 3
-    oppositeDirections = [DIR_DOWN,
-     DIR_UP,
-     DIR_RIGHT,
-     DIR_LEFT]
-    directionHs = [0,
-     180,
-     90,
-     270]
+    oppositeDirections = [DIR_DOWN, DIR_UP, DIR_RIGHT, DIR_LEFT]
+    directionHs = [0, 180, 90, 270]
     DEFAULT_SPEED = 4.0
     SUIT_Z = 0.1
 
-    def __init__(self, serialNum, maze, randomNumGen, cellWalkPeriod, difficulty, suitDnaName = 'f', startTile = None, ticFreq = MazeGameGlobals.SUIT_TIC_FREQ, walkSameDirectionProb = MazeGameGlobals.WALK_SAME_DIRECTION_PROB, walkTurnAroundProb = MazeGameGlobals.WALK_TURN_AROUND_PROB, uniqueRandomNumGen = True, walkAnimName = None):
+    def __init__(self, serialNum, maze, randomNumGen, cellWalkPeriod, difficulty, suitDnaName = 'f', startTile = None, ticFreq = MazeGameGlobals.SUIT_TIC_FREQ,walkSameDirectionProb = MazeGameGlobals.WALK_SAME_DIRECTION_PROB, walkTurnAroundProb = MazeGameGlobals.WALK_TURN_AROUND_PROB, uniqueRandomNumGen = True, walkAnimName = None):
         self.serialNum = serialNum
         self.maze = maze
         if uniqueRandomNumGen:
@@ -54,7 +48,6 @@ class MazeSuit(DirectObject):
         self.ticPeriod = int(cellWalkPeriod)
         self.cellWalkDuration = float(self.ticPeriod) / float(self.ticFreq)
         self.turnDuration = 0.6 * self.cellWalkDuration
-        return
 
     def destroy(self):
         self.suit.delete()
@@ -68,7 +61,7 @@ class MazeSuit(DirectObject):
         self.startWalkAnim()
         self.occupiedTiles = [(self.nextTX, self.nextTY)]
         n = 20
-        self.nextThinkTic = self.serialNum * self.ticFreq / n
+        self.nextThinkTic = self.serialNum * self.ticFreq // n
         self.fromPos = Point3(0, 0, 0)
         self.toPos = Point3(0, 0, 0)
         self.fromHpr = Point3(0, 0, 0)
@@ -235,7 +228,7 @@ class MazeSuit(DirectObject):
             updateTics = suitList[i].getThinkTimestampTics(curTic)
             suitUpdates.extend(list(zip(updateTics, [i] * len(updateTics))))
 
-        suitUpdates.sort(lambda a, b: a[0] - b[0])
+        suitUpdates.sort(key=lambda x: x[0])
         if len(suitUpdates) > 0:
             curTic = 0
             for i in range(len(suitUpdates)):

@@ -14,7 +14,7 @@ class IconSelectionDialog(DirectFrame):
         self.iconButtonList = []
         self.page = 1
         maxPerPage = 20
-        maxPages = float(len(iconList) / maxPerPage)
+        maxPages = float(len(iconList) // maxPerPage)
         self.maxPages = int(maxPages + 1)
 
         DirectFrame.__init__(self, parent=self._parent, relief=None)

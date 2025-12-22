@@ -13,7 +13,7 @@ class DLSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_8/dna/storage_DL_sz.pdna'
 
     def load(self):
-        if ToontownGlobals.DonaldsDreamland in base.cr.zoneManager.modifiedZones:
-            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DonaldsDreamland)
+        #if ToontownGlobals.DonaldsDreamland in base.cr.zoneManager.modifiedZones:
+        #    self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.DonaldsDreamland)
 
         SafeZoneLoader.SafeZoneLoader.load(self)

@@ -13,6 +13,6 @@ class MMSafeZoneLoader(SafeZoneLoader.SafeZoneLoader):
         self.safeZoneStorageDNAFile = 'phase_6/dna/storage_MM_sz.pdna'
 
     def load(self):
-        if ToontownGlobals.MinniesMelodyland in base.cr.zoneManager.modifiedZones:
-            self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.MinniesMelodyland)
+        #if ToontownGlobals.MinniesMelodyland in base.cr.zoneManager.modifiedZones:
+        #    self.dnaFile, self.safeZoneStorageDNAFile = base.cr.zoneManager.getDNAFiles(ToontownGlobals.MinniesMelodyland)
         SafeZoneLoader.SafeZoneLoader.load(self)

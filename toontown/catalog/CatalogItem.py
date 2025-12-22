@@ -253,11 +253,11 @@ class CatalogItem:
     def getHashContents(self):
         return None
 
-    def __cmp__(self, other):
-        c = cmp(self.__class__, other.__class__)
-        if c != 0:
-            return c
-        return self.compareTo(other)
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.compareTo(other) == 0
+
+    def __lt__(self, other):
+        return self.__class__ == other.__class__ and self.compareTo(other) < 0
 
     def __hash__(self):
         return hash((self.__class__, self.getHashContents()))
@@ -340,7 +340,7 @@ class CatalogItem:
             matches = model.findAllMatches(partName)
             if color == None:
                 matches.hide()
-            elif isinstance(color, bytes):
+            elif isinstance(color, str):
                 tex = loader.loadTexture(color)
                 tex.setMinfilter(Texture.FTLinearMipmapLinear)
                 tex.setMagfilter(Texture.FTLinear)
@@ -354,8 +354,6 @@ class CatalogItem:
                     matches.getPath(i).setColorScale(color, 1)
                     if needsAlpha:
                         matches.getPath(i).setTransparency(1)
-
-        return
 
     def makeFrame(self):
         from direct.gui.DirectGui import DirectFrame

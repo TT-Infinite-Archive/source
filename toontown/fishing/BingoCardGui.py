@@ -35,7 +35,6 @@ class BingoCardGui(DirectFrame):
         self.load()
         self.hide()
         self.taskNameFlashFish = 'flashMatchingFishTask'
-        return
 
     def show(self):
         DirectFrame.show(self)
@@ -103,7 +102,6 @@ class BingoCardGui(DirectFrame):
         self.nextGameTimer.setProp('text_font', ToontownGlobals.getSignFont())
         self.nextGameTimer.setProp('text_scale', 0.2 * BG.CardImageScale[2])
         self.nextGameTimer.setFontColor(Vec4(1.0, 1.0, 1.0, 1))
-        return
 
     def setGameOver(self, text):
         self.gameOver['text'] = text
@@ -129,7 +127,6 @@ class BingoCardGui(DirectFrame):
         self.makeJackpotLights(self.jpSign)
         self.hideJackpot()
         self.makeTutorial()
-        return
 
     def destroy(self):
         self.cleanTutorial()
@@ -150,7 +147,7 @@ class BingoCardGui(DirectFrame):
         cardSize = self.game.getCardSize()
         for index in range(cardSize):
             self.cellGuiList[index].generateLogo()
-            if index == cardSize / 2:
+            if index == cardSize // 2:
                 self.cellGuiList[index].generateMarkedLogo()
             elif self.game.getGameState() & 1 << index:
                 self.cellGuiList[index].disable()
