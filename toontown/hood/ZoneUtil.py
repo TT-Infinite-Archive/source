@@ -13,6 +13,10 @@ def isCogHQZone(zoneId):
     return zoneId >= 10000 and zoneId < 15000
 
 
+def isCountryClubInteriorZone(zoneId):
+    return zoneId in (BossbotCountryClubIntA, BossbotCountryClubIntB, BossbotCountryClubIntC)
+
+
 def isMintInteriorZone(zoneId):
     return zoneId in (CashbotMintIntA, CashbotMintIntB, CashbotMintIntC)
 

@@ -28,8 +28,8 @@ class BossbotHQ(CogHood):
         self.setFog()
 
     def spawnTitleText(self, zoneId, floorNum=None):
-        if ZoneUtil.isMintInteriorZone(zoneId):
-            text = '%s\n%s' % (ToontownGlobals.StreetNames[zoneId][-1], TTLocalizer.MintFloorTitle % (floorNum + 1))
+        if ZoneUtil.isCountryClubInteriorZone(zoneId):
+            text = '%s\n%s' % (ToontownGlobals.StreetNames[zoneId][-1], TTLocalizer.CountryClubFloorTitle % (floorNum + 1))
             self.doSpawnTitleText(text)
         else:
             CogHood.spawnTitleText(self, zoneId)

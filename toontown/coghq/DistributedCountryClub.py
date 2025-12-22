@@ -345,7 +345,6 @@ class DistributedCountryClub(DistributedObject.DistributedObject):
                                                                  colorScale=Vec4(1, 1, 1, 0.0)),
                                           Func(self.hideTitleText))
             self.titleSequence.start()
-        return
 
     def showTitleText(self):
         if self.titleText:
