@@ -325,16 +325,12 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         if credit != None:
             if self.toon.earnedExperience:
                 maxCredit = ExperienceCap - self.toon.earnedExperience[track]
-                credit = min(credit, maxCredit)
-            credit = int(credit * 10 + 0.5)
-            if credit % 10 == 0:
-                credit /= 10
-            else:
-                credit /= 10.0
+                if credit > maxCredit:
+                    credit = maxCredit
         if self.detailCredit == credit:
             return
         if credit != None:
-            self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCredit % credit
+            self.detailCreditLabel['text'] = TTLocalizer.InventorySkillCredit % ('%g' % credit)
             if self.detailCredit == None:
                 self.detailCreditLabel['text_fg'] = (0.05, 0.14, 0.4, 1)
         else:
