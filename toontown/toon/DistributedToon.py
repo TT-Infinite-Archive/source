@@ -2761,7 +2761,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         if hpGained > 0:
             self.showHpText(hpGained, hasInteractivePropBonus=hasInteractivePropBonus)
             self.hpChange(quietly=0)
-        return
 
     def showHpText(self, number, bonus = 0, scale = 1, hasInteractivePropBonus = False):
         if self.HpTextEnabled and not self.ghostMode:
@@ -2805,7 +2804,12 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.hpText.setBillboardPointEye()
                 self.hpText.setBin('fixed', 100)
                 self.hpText.setPos(0, 0, self.height / 2)
-                seq = Sequence(self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'), Wait(0.85), self.hpText.colorInterval(0.1, Vec4(r, g, b, 0)), Func(self.hideHpText))
+                seq = Sequence(
+                    self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'),
+                    Wait(0.85),
+                    self.hpText.colorScaleInterval(0.1, Vec4(r, g, b, 0)),
+                    Func(self.hideHpText)
+                )
                 seq.start()
 
     def setName(self, name='unknownDistributedAvatar'):

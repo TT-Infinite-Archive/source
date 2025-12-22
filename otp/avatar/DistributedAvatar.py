@@ -28,7 +28,6 @@ class DistributedAvatar(DistributedActor, Avatar):
         self.hpText = None
         self.hp = None
         self.maxHp = None
-        return
 
     def disable(self):
         try:
@@ -44,7 +43,6 @@ class DistributedAvatar(DistributedActor, Avatar):
         self.ignore('nameTagShowAvId')
         self.ignore('nameTagShowName')
         DistributedActor.disable(self)
-        return
 
     def delete(self):
         try:
@@ -105,7 +103,6 @@ class DistributedAvatar(DistributedActor, Avatar):
         if hpGained > 0:
             self.showHpText(hpGained)
             self.hpChange(quietly=0)
-        return
 
     def takeDamage(self, hpLost, bonus = 0):
         if self.hp == None or hpLost < 0:
@@ -118,7 +115,6 @@ class DistributedAvatar(DistributedActor, Avatar):
             self.hpChange(quietly=0)
             if self.hp <= 0 and oldHp > 0:
                 self.died()
-        return
 
     def setHp(self, hitPoints):
         justRanOutOfHp = (hitPoints is not None and self.hp is not None and self.hp - hitPoints > 0) and (hitPoints <= 0)
@@ -126,7 +122,6 @@ class DistributedAvatar(DistributedActor, Avatar):
         self.hpChange(quietly=1)
         if justRanOutOfHp:
             self.died()
-        return
 
     def hpChange(self, quietly = 0):
         if hasattr(self, 'doId'):
@@ -134,7 +129,6 @@ class DistributedAvatar(DistributedActor, Avatar):
                 messenger.send(self.uniqueName('hpChange'), [self.hp, self.maxHp, quietly])
             if self.hp != None and self.hp > 0:
                 messenger.send(self.uniqueName('positiveHP'))
-        return
 
     def died(self):
         pass
@@ -200,7 +194,12 @@ class DistributedAvatar(DistributedActor, Avatar):
                 self.hpText.setBillboardPointEye()
                 self.hpText.setBin('fixed', 100)
                 self.hpText.setPos(0, 0, self.height / 2)
-                seq = Sequence(self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'), Wait(0.85), self.hpText.colorInterval(0.1, Vec4(r, g, b, 0)), Func(self.hideHpText))
+                seq = Sequence(
+                    self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'),
+                    Wait(0.85),
+                    self.hpText.colorScaleInterval(0.1, Vec4(r, g, b, 0)),
+                    Func(self.hideHpText)
+                )
                 seq.start()
 
     def showHpString(self, text, duration=0.85, scale=0.7, r=1.0, g=0.0, b=0.0):
@@ -218,7 +217,12 @@ class DistributedAvatar(DistributedActor, Avatar):
                 self.hpText.setScale(scale)
                 self.hpText.setBillboardAxis()
                 self.hpText.setPos(0, 0, self.height / 2)
-                seq = Sequence(self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'), Wait(duration), self.hpText.colorInterval(0.1, Vec4(r, g, b, 0)), Func(self.hideHpText))
+                seq = Sequence(
+                    self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType='easeOut'),
+                    Wait(duration),
+                    self.hpText.colorScaleInterval(0.1, Vec4(r, g, b, 0)),
+                    Func(self.hideHpText)
+                )
                 seq.start()
 
     def hideHpText(self):
