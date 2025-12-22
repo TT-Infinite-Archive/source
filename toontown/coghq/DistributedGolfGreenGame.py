@@ -292,7 +292,21 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         gui2 = loader.loadModel('phase_3/models/gui/quit_button')
         self.quitButton = DirectButton(parent=self.frame2D, relief=None, image=(gui2.find('**/QuitBtn_UP'), gui2.find('**/QuitBtn_DN'), gui2.find('**/QuitBtn_RLVR')), pos=(0.95, 1.3, -0.69), image_scale=(0.9, 1.0, 1.0), text=TTLocalizer.BustACogExit, text_font=ToontownGlobals.getSignFont(), text0_fg=(1, 1, 1, 1), text0_shadow=(0, 0, 0, 1), text1_fg=(1, 1, 1, 1), text2_fg=(1, 1, 1, 1), text_scale=TTLocalizer.DGGGquitButton, text_pos=(0, -0.01), command=self.__leaveGame)
         self.quitButton.hide()
-        self.instructions = DirectFrame(parent=self.frame2D, relief=None, image=DGG.getDefaultDialogGeom(), image_color=ToontownGlobals.GlobalDialogColor, image_scale=(1.2, 1.0, 1.0), text=TTLocalizer.GolfGreenGameDirections, text_font=ToontownGlobals.getSignFont(), text_align=TextNode.ALeft, text_wordwrap=16, text_scale=0.06, text_pos=(-0.5, 0.3), pos=(0.0, 0, -0.0))
+        self.instructions = DirectFrame(
+            parent=self.frame2D,
+            relief=None,
+            image=DGG.getDefaultDialogGeom(),
+            image_color=ToontownGlobals.GlobalDialogColor,
+            image_scale=(1.2, 1.0, 1.0),
+            text=TTLocalizer.GolfGreenGameDirections,
+            text_font=ToontownGlobals.getSignFont(),
+            text_fg=Vec4(0.3, 0.3, 0.3, 1),
+            text_align=TextNode.ALeft,
+            text_wordwrap=16,
+            text_scale=0.06,
+            text_pos=(-0.5, 0.4),
+            pos=(0.0, 0, -0.0)
+        )
         self.instructions.hide()
         imageCogBall = loader.loadModel('phase_12/models/bossbotHQ/bust_a_cog_ball_cog')
         imageCogBall.setHpr(0, 90, 0)
@@ -1086,7 +1100,7 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             self.standbySprite.face()
             self.attackCounter += 1
 
-        self.standbySprite.runColor()
+        self.standbySprite.runColor(timeDelta)
         for sprite in self.sprites:
             if sprite.deleteFlag:
                 self.sprites.remove(sprite)
@@ -1100,8 +1114,6 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
                     sprite.reflectX()
                 if sprite.getZ() > self.wallMaxZ:
                     self.stickInGrid(sprite, 1)
-                if sprite.getZ() < self.wallMinZ:
-                    pass
 
         self.__colTest()
         if self.hasChanged and self.running:
@@ -1181,7 +1193,6 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             return None
         else:
             return self.sprites[spriteIndex]
-        return None
 
     def testDistance(self, nodeA, nodeB):
         if nodeA.isEmpty() or nodeB.isEmpty():
@@ -1380,14 +1391,12 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
             self.timer.posBelowTopRightCorner()
             self.timer.setTime(timeleft)
             self.timer.countdown(timeleft, self.timerExpired)
-        return
 
     def cleanupTimer(self):
         if self.timer:
             self.timer.stop()
             self.timer.destroy()
             self.timer = None
-        return
 
     def timerExpired(self):
         self.cleanupTimer()
@@ -1400,7 +1409,6 @@ class DistributedGolfGreenGame(BattleBlocker.BattleBlocker):
         if time != None and time > 0.0 and self.isActive:
             self.timerTask = taskMgr.doMethodLater(1.0, self.gameCountDown, self.timerTaskName)
         self.scoreLabel['text'] = TTLocalizer.GolfGreenGameScoreString % (self.boardsLeft, int(self.timeLeft))
-        return
 
     def gameCountDown(self, task):
         self.timeLeft = self.timeTotal - globalClockDelta.localElapsedTime(self.timeStart)

@@ -89,7 +89,6 @@ class GameSprite:
         self.markedForDeath = 0
         self.gridPosX = None
         self.gridPosZ = None
-        return
 
     def setBallType(self, type, solidOverride = 0):
         if not self.nodeObj or self.nodeObj.isEmpty():
@@ -170,7 +169,7 @@ class GameSprite:
             self.multiColorIndex = 0
             self.multiColorNext = 1
             self.multiColorLevel = 0.0
-            self.multiColorStep = 0.15
+            self.multiColorStep = 1.5
         elif colorType == 8:
             myColor = GameSprite.colorAqua
             self.multiColor = 1
@@ -181,7 +180,7 @@ class GameSprite:
             self.multiColorIndex = 0
             self.multiColorNext = 1
             self.multiColorLevel = 0.0
-            self.multiColorStep = 0.1
+            self.multiColorStep = 1.0
         elif colorType == 9:
             myModel = 'phase_12/models/bossbotHQ/bust_a_cog_ball_steel'
             if not myModel:
@@ -200,7 +199,6 @@ class GameSprite:
         self.nodeObj.setScale(self.inputSize)
         self.nodeObj.reparentTo(self.spriteBase)
         self.setColor(myColor)
-        return
 
     def removeDelay(self):
         self.delayRemove = 0
@@ -215,14 +213,14 @@ class GameSprite:
         tilt = -95.0 + (self.getZ() + frameZ) * 2.0
         self.nodeObj.setP(-tilt)
 
-    def runColor(self):
+    def runColor(self, timeDelta: float):
         if self.multiColor:
             c1 = GameSprite.colorList[self.multiColorList[self.multiColorIndex]]
             c2 = GameSprite.colorList[self.multiColorList[self.multiColorNext]]
             iLevel = 1.0 - self.multiColorLevel
             mixColor = c1 * iLevel + c2 * self.multiColorLevel
             self.nodeObj.setColorScale(mixColor)
-            self.multiColorLevel += self.multiColorStep
+            self.multiColorLevel += self.multiColorStep * timeDelta
             if self.multiColorLevel > 1.0:
                 self.multiColorLevel = 0.0
                 self.multiColorIndex += 1
@@ -232,10 +230,10 @@ class GameSprite:
                 if self.multiColorNext >= len(self.multiColorList):
                     self.multiColorNext = 0
 
-    def run(self, timeDelta):
+    def run(self, timeDelta: float):
         if self.facing:
             self.face()
-        self.runColor()
+        self.runColor(timeDelta)
         if self.isActive and not self.isQue:
             self.prevX = self.spriteBase.getX()
             self.prevZ = self.spriteBase.getZ()
@@ -248,19 +246,16 @@ class GameSprite:
                 self.velZ = self.accZ
         if self.nodeObj.isEmpty():
             self.markedForDeath = 1
-        return
 
     def reflectX(self):
         self.velX = -self.velX
         if self.accX != None:
             self.accX = -self.accX
-        return
 
     def reflectZ(self):
         self.velZ = -self.velZ
         if self.accZ != None:
             self.accZ = -self.accZ
-        return
 
     def warningBump(self):
         num1 = random.random() * 2.0
@@ -315,7 +310,6 @@ class GameSprite:
             self.velZ = 0
             self.accX = None
             self.accZ = None
-        return
 
     def getX(self):
         if self.nodeObj.isEmpty():
@@ -332,14 +326,12 @@ class GameSprite:
             return None
         self.prevX = self.spriteBase.getX()
         self.spriteBase.setX(x)
-        return None
 
     def setZ(self, z):
         if self.nodeObj.isEmpty():
             return None
         self.prevZ = self.spriteBase.getZ()
         self.spriteBase.setZ(z)
-        return None
 
     def addForce(self, force, direction):
         if self.isActive:
