@@ -1,4 +1,6 @@
-from panda3d.core import BitMask32, BoundingSphere, CSDefault, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionHandlerPusher, CollisionHandlerQueue, CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, CollisionTube, Mat3, Mat4, NodePath, Point3, VBase3, VBase4, Vec2, Vec3, decomposeMatrix
+from panda3d.core import BitMask32, BoundingSphere, CSDefault, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionHandlerPusher, \
+    CollisionHandlerQueue, CollisionNode, CollisionPolygon, CollisionRay, CollisionSphere, CollisionTube, headsUp, Mat3, Mat4, NodePath, \
+    Point3, VBase3, VBase4, Vec2, Vec3, decomposeMatrix
 
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal
@@ -551,7 +553,6 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         self.e3 = None
         self.rotateNode.clearTransform()
         self.cqueue = None
-        return
 
     def rollBossToPoint(self, fromPos, fromHpr, toPos, toHpr, reverse):
         vector = Vec3(toPos - fromPos)
