@@ -3,6 +3,8 @@ from direct.distributed.PyDatagramIterator import PyDatagramIterator
 from direct.distributed.PyDatagram import PyDatagram
 from direct.stdpy.file import *
 
+from otp.util.Compressor import Compressor
+
 from . import DNAUtil
 from . import DNAError
 from . import DNAAnimBuilding
@@ -27,7 +29,6 @@ from . import DNAWindows
 from . import DNABattleCell
 from . import DNASuitPoint
 
-import zlib
 import sys
 sys.setrecursionlimit(10000)
 
@@ -205,7 +206,7 @@ class DNALoader:
         dgi.skipBytes(1)
         if compressed:
             data = dgi.getRemainingBytes()
-            data = zlib.decompress(data)
+            data = Compressor.decompress(data)
             dg = PyDatagram(data)
             dgi = PyDatagramIterator(dg)
         self.handleStorageData(dgi)

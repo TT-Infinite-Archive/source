@@ -18,26 +18,26 @@ ToonFont = 'phase_3/models/fonts/ImpressBT.ttf'
 SuitFont = 'phase_3/models/fonts/vtRemingtonPortable.ttf'
 FontAwesome = 'phase_3/models/fonts/FontAwesome.otf'
 SignFont = 'phase_3/models/fonts/MickeyFont'
-MinnieFont = 'phase_3/models/fonts/MinnieFont'
-FancyFont = 'phase_3/models/fonts/Comedy'
+MinnieFont = 'phase_3/models/fonts/MinnieFont.ttf'
+FancyFont = 'phase_3/models/fonts/Comedy.ttf'
 BuildingNametagFont = 'phase_3/models/fonts/MickeyFont'
 BuildingNametagShadow = None
 NametagFonts = (
     'phase_3/models/fonts/ImpressBT.ttf',
-    'phase_3/models/fonts/AnimGothic.bam',
-    'phase_3/models/fonts/Aftershock.bam',
-    'phase_3/models/fonts/JiggeryPokery.bam',
-    'phase_3/models/fonts/Ironwork.bam',
-    'phase_3/models/fonts/HastyPudding.bam',
-    'phase_3/models/fonts/Comedy.bam',
-    'phase_3/models/fonts/Humanist.bam',
-    'phase_3/models/fonts/Portago.bam',
-    'phase_3/models/fonts/Musicals.bam',
-    'phase_3/models/fonts/Scurlock.bam',
-    'phase_3/models/fonts/Danger.bam',
-    'phase_3/models/fonts/Alie.bam',
-    'phase_3/models/fonts/OysterBar.bam',
-    'phase_3/models/fonts/RedDogSaloon.bam'
+    'phase_3/models/fonts/AnimGothic.ttf',
+    'phase_3/models/fonts/Aftershock.ttf',
+    'phase_3/models/fonts/JiggeryPokery.ttf',
+    'phase_3/models/fonts/Ironwork.ttf',
+    'phase_3/models/fonts/HastyPudding.ttf',
+    'phase_3/models/fonts/Comedy.ttf',
+    'phase_3/models/fonts/Humanist.ttf',
+    'phase_3/models/fonts/Portago.ttf',
+    'phase_3/models/fonts/Musicals.ttf',
+    'phase_3/models/fonts/Scurlock.ttf',
+    'phase_3/models/fonts/Danger.ttf',
+    'phase_3/models/fonts/Alie.ttf',
+    'phase_3/models/fonts/OysterBar.ttf',
+    'phase_3/models/fonts/RedDogSaloon.ttf'
 )
 NametagFontNames = (
     'Default',

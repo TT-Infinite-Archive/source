@@ -177,7 +177,7 @@ def getMinnieFont():
 def getSuitFont():
     global SuitFont
     if SuitFont == None:
-        SuitFont = loader.loadFont(TTLocalizer.SuitFont, pixelsPerUnit=40, spaceAdvance=0.25, lineHeight=1.0)
+        SuitFont = loader.loadFont(TTLocalizer.SuitFont, spaceAdvance=0.25, lineHeight=1.0)
     return SuitFont
 
 

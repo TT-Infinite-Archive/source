@@ -1,4 +1,3 @@
-import zlib
 from panda3d.core import BamFile, NodePath, StringStream, compressString
 from . import DNANode
 
@@ -11,9 +10,7 @@ class DNASignBaseline(DNANode.DNANode):
 
     def makeFromDGI(self, dgi):
         DNANode.DNANode.makeFromDGI(self, dgi)
-        self.data = dgi.getBlob()
-        if len(self.data):
-            self.data = zlib.decompress(self.data)
+        self.data = dgi.extractBytes(dgi.getUint32())
 
     def traverse(self, nodePath, dnaStorage):
         node = nodePath.attachNewNode('baseline', 0)
