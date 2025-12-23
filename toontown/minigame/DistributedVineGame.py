@@ -1,5 +1,5 @@
 from panda3d.physics import ActorNode, ForceNode, LinearForce, LinearVectorForce, PhysicalNode, PhysicsObject
-from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, DisplayRegion, NodePath, PerspectiveLens, Point2, Point3, Vec3, Vec4
+from panda3d.core import Camera, BitMask32, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionSphere, DisplayRegion, NodePath, PerspectiveLens, Point2, Point3, Vec3, Vec4
 from direct.interval.IntervalGlobal import Sequence, Parallel, Func, Wait, LerpPosInterval, ActorInterval, LerpScaleInterval, ProjectileInterval, SoundInterval
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectFrame import DirectFrame
@@ -347,27 +347,27 @@ class DistributedVineGame(DistributedMinigame):
                 newVelZ = oldInfo[7]
             if fallingInfo == None:
                 newFallingInfo = oldInfo[8]
-        if newVineIndex < -1 or newVineIndex >= len(self.vines):
+        if newVineIndex is not None and (newVineIndex < -1 or newVineIndex >= len(self.vines)):
             self.notify.warning('invalid vineIndex for %d, forcing 0' % avId)
             newVineIndex = 0
-        if newVineT < 0 or newVineT > 1:
+        if newVineT is not None and (newVineT < 0 or newVineT > 1):
             self.notify.warning('invalid vineT for %d, setting to 0' % avId)
-        if not (newFacingRight == 0 or newFacingRight == 1):
+        if newFacingRight is not None and not (newFacingRight == 0 or newFacingRight == 1):
             self.notify.warning('invalid facingRight for %d, forcing to 1' % avId)
             newFacingRight = 1
-        if newPosX < -1000 or newPosX > 2000:
+        if newPosX is not None and (newPosX < -1000 or newPosX > 2000):
             self.notify.warning('invalid posX for %d, forcing to 0' % avId)
             newPosX = 0
-        if newPosZ < -100 or newPosZ > 1000:
+        if newPosZ is not None and (newPosZ < -100 or newPosZ > 1000):
             self.notify.warning('invalid posZ for %d, forcing to 0' % avId)
             newPosZ = 0
-        if newVelX < -1000 or newVelX > 1000:
+        if newVelX is not None and (newVelX < -1000 or newVelX > 1000):
             self.notify.warning('invalid velX %s for %d, forcing to 0' % (newVelX, avId))
             newVelX = 0
-        if newVelZ < -1000 or newVelZ > 1000:
+        if newVelZ is not None and (newVelZ < -1000 or newVelZ > 1000):
             self.notify.warning('invalid velZ %s for %d, forcing to 0' % (newVelZ, avId))
             newVelZ = 0
-        if newFallingInfo < self.FallingNot or newFallingInfo > self.FallingBat:
+        if newFallingInfo is not None and (newFallingInfo < self.FallingNot or newFallingInfo > self.FallingBat):
             self.notify.warning('invalid fallingInfo for %d, forcing to 0' % avId)
             newFallingInfo = 0
         newInfo = [newVineIndex,
@@ -383,7 +383,6 @@ class DistributedVineGame(DistributedMinigame):
         if oldInfo:
             self.applyToonInfoChange(avId, newInfo, oldInfo)
         self.sanityCheck()
-        return
 
     def applyToonInfoChange(self, avId, newInfo, oldInfo):
         if not self.isInPlayState():
