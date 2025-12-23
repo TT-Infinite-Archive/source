@@ -34,7 +34,6 @@ resistanceDict = {
         'itemText': TTLocalizer.ResistanceToonupItem,
         'chatText': TTLocalizer.ResistanceToonupChat,
         'values': [10, 15, 20, 30, 40, 50, 80],
-        'npcs': [2122, 9232, 9212, 9209, 9201, 3210, 9203, 11237],
         'items': [0, 1, 2, 3, 4, 5, 6]
     },
     RESISTANCE_MONEY: {
@@ -42,7 +41,6 @@ resistanceDict = {
         'itemText': TTLocalizer.ResistanceMoneyItem,
         'chatText': TTLocalizer.ResistanceMoneyChat,
         'values': [100, 200, 350, 600, 1200, 1800, 2400],
-        'npcs': [4223, 2127, 1102, 3318, 9226, 4325, 2002],
         'items': [0, 1, 2, 3, 4, 5]
     },
     RESISTANCE_RESTOCK: {
@@ -58,7 +56,6 @@ resistanceDict = {
             ToontownBattleGlobals.SQUIRT_TRACK,
             ToontownBattleGlobals.DROP_TRACK,
         ],
-        'npcs': [2133, 2006, 1216, 4114, 9225, 2215, 9128, 9105],
         'extra': [
             TTLocalizer.MovieNPCSOSHeal,
             TTLocalizer.MovieNPCSOSTrap,
@@ -75,7 +72,6 @@ resistanceDict = {
         'itemText': TTLocalizer.ResistanceDanceItem,
         'chatText': TTLocalizer.ResistanceDanceChat,
         'values': ['Dance'],
-        'npcs': [9116],
         'items': [0]
     }
 }
