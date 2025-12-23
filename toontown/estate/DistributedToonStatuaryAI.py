@@ -1,28 +1,15 @@
+from toontown.estate import DistributedStatuaryAI
 from direct.directnotify import DirectNotifyGlobal
-from toontown.estate.DistributedStatuaryAI import DistributedStatuaryAI
-from toontown.estate import GardenGlobals
 
-class DistributedToonStatuaryAI(DistributedStatuaryAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedToonStatuaryAI")
+class DistributedToonStatuaryAI(DistributedStatuaryAI.DistributedStatuaryAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedToonStatuaryAI')
 
-    def __init__(self, air, gardenManager, ownerIndex):
-        DistributedStatuaryAI.__init__(self, air, gardenManager, ownerIndex)
+    def __init__(self, typeIndex = 205, waterLevel = 0, growthLevel = 0, optional = None, ownerIndex = 0, plot = 0):
+        DistributedStatuaryAI.DistributedStatuaryAI.__init__(self, typeIndex, waterLevel, growthLevel, optional, ownerIndex, plot)
+        self.notify.debug('constructing DistributedToonStatuaryAI')
 
-        self.dnaCode = None
-        self.occupier = GardenGlobals.ToonStatuaryPlot
-
-    def d_setOptional(self, dnaCode):
-        self.sendUpdate('setOptional', [dnaCode])
+    def setOptional(self, optional):
+        self.optional = optional
 
     def getOptional(self):
-        return self.dnaCode
-
-    def construct(self, gardenData):
-        DistributedStatuaryAI.construct(self, gardenData)
-
-        self.dnaCode = gardenData.getUint16()
-
-    def pack(self, gardenData):
-        DistributedStatuaryAI.pack(self, gardenData)
-
-        gardenData.addUint16(self.dnaCode)
+        return self.optional

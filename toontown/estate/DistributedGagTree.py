@@ -13,6 +13,7 @@ from otp.otpbase import OTPGlobals
 from toontown.estate import DistributedLawnDecor
 DIRT_AS_WATER_INDICATOR = True
 
+
 class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedGagTree')
 
@@ -28,8 +29,8 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         self.needToLoad = 0
         self.backupFruits = []
         self.signHasBeenStuck2Ground = False
+        self.fruiting = 0
         self.setName('DistributedGagTree')
-        return
 
     def delete(self):
         DistributedPlantBase.DistributedPlantBase.delete(self)
@@ -39,7 +40,6 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         del self.sandMound
         self.signModel.removeNode()
         self.signModel = None
-        return
 
     def setTypeIndex(self, typeIndex):
         DistributedPlantBase.DistributedPlantBase.setTypeIndex(self, typeIndex)
@@ -117,6 +117,10 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         DistributedPlantBase.DistributedPlantBase.setupShadow(self)
         self.adjustGrowth()
 
+    def isFruiting(self):
+        retval = self.growthLevel >= self.growthThresholds[2] and self.fruiting
+        return retval
+
     def makeMovieNode(self):
         self.movieNode = self.rotateNode.attachNewNode('moviePos')
         self.movieNode.setPos(0, -5, 0)
@@ -135,7 +139,6 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         self.confirmDialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=text, command=self.confirmCallback)
         self.confirmDialog.show()
         self.startInteraction()
-        return
 
     def confirmCallback(self, value):
         self.confirmDialog.destroy()
@@ -349,7 +352,7 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         myTrack, myLevel = GardenGlobals.getTreeTrackAndLevel(self.typeIndex)
         levelsInTrack = []
         levelTreeDict = {}
-        allGagTrees = base.cr.doFindAll('DistributedGagTree')
+        allGagTrees = base.cr.doFindAllInstances(DistributedGagTree)
         for gagTree in allGagTrees:
             if gagTree.getOwnerId() == localAvatar.doId:
                 curTrack, curLevel = GardenGlobals.getTreeTrackAndLevel(gagTree.typeIndex)
@@ -393,6 +396,10 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         self.finishInteraction()
         return
 
+    def allowedToPick(self):
+        retval = True
+        return retval
+
     def unlockPick(self):
         retval = True
         toon = base.localAvatar
@@ -404,3 +411,11 @@ class DistributedGagTree(DistributedPlantBase.DistributedPlantBase):
         if inventory.numItem(self.gagTrack, self.gagLevel) >= inventory.getMax(self.gagTrack, self.gagLevel):
             retval = False
         return retval
+
+    def setFruiting(self, fruiting):
+        self.fruiting = fruiting
+        if self.model:
+            self.model.removeNode()
+            self.loadModel()
+            self.adjustWaterIndicator()
+            self.stick2Ground()

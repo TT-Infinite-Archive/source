@@ -1,5 +1,6 @@
 from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, CollisionTube, NodePath, Point3, Vec3
 from direct.interval.IntervalGlobal import *
+from direct.actor import Actor
 from direct.distributed import ClockDelta
 from direct.showbase.PythonUtil import lerp
 import math
@@ -46,7 +47,8 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
         self.shadowScale = 1
         self.expectingReplacement = 0
         self.movie = None
-        return
+        self.box = 0
+        self.index = 0
 
     def setHeading(self, h):
         self.notify.debug('setting h')
@@ -97,7 +99,6 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
             self.model = loader.loadModel(self.defaultModel)
             self.model.setScale(0.4, 0.4, 0.1)
             self.model.reparentTo(self.rotateNode)
-        return
 
     def setupShadow(self):
         self.shadowJoint = self.rotateNode.attachNewNode('shadow')
@@ -139,14 +140,19 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
 
     def unloadModel(self):
         if self.model:
-            self.model.removeNode()
+            if isinstance(self.model, Actor.Actor):
+                self.model.delete()
+            else:
+                self.model.removeNode()
             del self.model
             self.model = None
         if hasattr(self, 'nodePath') and self.nodePath:
-            self.nodePath.removeNode()
+            if isinstance(self.nodePath, Actor.Actor):
+                self.nodePath.delete()
+            else:
+                self.nodePath.removeNode()
             self.nodePath = None
         taskMgr.remove(self.uniqueName('adjust tree'))
-        return
 
     def setPos(self, x, y, z):
         DistributedNode.DistributedNode.setPos(self, x, y, z)
@@ -229,6 +235,9 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
             retval = False
         return retval
 
+    def allowedToPick(self):
+        return True
+
     def unlockPick(self):
         return True
 
@@ -260,6 +269,9 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
         node.removeNode()
         toonTrack = Sequence(Parallel(ActorInterval(toon, 'walk', loop=True, duration=1), Parallel(LerpPosInterval(toon, 1.0, Point3(finalX, finalY, toon.getZ(render)), fluid=True, bakeInStart=False)), LerpHprInterval(toon, 1.0, hpr=hpr)), Func(toon.loop, 'neutral'))
         return toonTrack
+
+    def unprint(self, string):
+        print(string)
 
     def startInteraction(self):
         place = base.cr.playGame.getPlace()
@@ -320,14 +332,13 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
         if not toon:
             return
         self.finishMovies()
-        toon.clearGoofyEffect(0.5)
         self.model.setTransparency(1)
         self.model.setAlphaScale(1)
         shovel = toon.attachShovel()
         shovel.hide()
         moveTrack = self.generateToonMoveTrack(toon)
         digupTrack = self.generateDigupTrack(toon)
-        self.movie = Sequence(self.startCamIval(avId), moveTrack, Func(shovel.show), digupTrack, Func(toon.restoreGoofyEffect, 0.5))
+        self.movie = Sequence(self.startCamIval(avId), moveTrack, Func(shovel.show), digupTrack)
         if avId == localAvatar.doId:
             self.expectingReplacement = 1
             self.movie.append(Func(self.movieDone))
@@ -367,3 +378,15 @@ class DistributedLawnDecor(DistributedNode.DistributedNode, NodePath, ShadowCast
     def interactionDenied(self, avId):
         if avId == localAvatar.doId:
             self.finishInteraction()
+
+    def setBox(self, box):
+        self.box = box
+
+    def getBox(self):
+        return self.box
+
+    def setIndex(self, index):
+        self.index = index
+
+    def getIndex(self):
+        return self.index

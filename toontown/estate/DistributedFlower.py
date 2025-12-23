@@ -70,6 +70,11 @@ class DistributedFlower(DistributedPlantBase.DistributedPlantBase, FlowerBase.Fl
         flowerScale = 2.0
         invFlowerScale = 1.0 / flowerScale
         self.model.setScale(flowerScale)
+        box = base.cr.doId2do.get(self.getBox())
+        if not box:
+            self.acceptOnce('boxGenerated_%s' % self.getBox(), self.linkBox)
+        else:
+            self.linkBox()
         if DIRT_AS_WATER_INDICATOR:
             dirtMoundScale = invFlowerScale * 0.73
             self.dirtMound = loader.loadModel('phase_5.5/models/estate/dirt_mound')
@@ -81,6 +86,15 @@ class DistributedFlower(DistributedPlantBase.DistributedPlantBase, FlowerBase.Fl
             self.sandMound.setScale(dirtMoundScale)
             self.sandMound.setZ(self.sandMound.getZ() - DIRT_MOUND_HEIGHT / 2.0)
             self.adjustWaterIndicator()
+
+    def linkBox(self):
+        box = base.cr.doId2do.get(self.getBox())
+        x = GardenGlobals.FLOWER_X_OFFSETS[box.typeIndex][self.getIndex()]
+        self.setPos(0, 0, 0)
+        self.reparentTo(box)
+        self.setZ(1.5)
+        self.setX(x)
+        self.wrtReparentTo(render)
 
     def handlePicking(self):
         messenger.send('wakeup')

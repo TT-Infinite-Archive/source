@@ -1,4 +1,4 @@
-from panda3d.core import Texture, Vec4
+from panda3d.core import Vec4
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.interval.IntervalGlobal import *
@@ -108,7 +108,7 @@ class DistributedHouseInterior(DistributedObject.DistributedObject):
 
             return
         numSurfaceTypes = CatalogSurfaceItem.NUM_ST_TYPES
-        numRooms = min(len(self.wallpaper) / numSurfaceTypes, len(RoomNames))
+        numRooms = min(len(self.wallpaper) // numSurfaceTypes, len(RoomNames))
         for room in range(numRooms):
             roomName = RoomNames[room]
             roomNode = self.interior.find(roomName)

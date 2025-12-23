@@ -1,7 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.ShowBase import *
 from toontown.toonbase import TTLocalizer
-import string
 from direct.fsm import StateData
 
 
@@ -15,14 +14,12 @@ class PlantTreeGUI(StateData.StateData):
         base.localAvatar.inventory.show()
         self.accept('inventory-selection', self.__handleInventory)
         self.accept('inventory-pass', self.__handleCancel)
-        return
 
     def destroy(self):
         self.ignore('inventory-selection')
         self.ignore('inventory-pass')
         base.localAvatar.inventory.setActivateMode(self.oldActivateMode)
         base.localAvatar.inventory.hide()
-        return
 
     def __handleInventory(self, track, level):
         if base.localAvatar.inventory.numItem(track, level) > 0:
@@ -32,4 +29,3 @@ class PlantTreeGUI(StateData.StateData):
 
     def __handleCancel(self):
         messenger.send(self.doneEvent, [False, None, None])
-        return

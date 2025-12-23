@@ -1,111 +1,214 @@
-from toontown.estate.DistributedLawnDecorAI import DistributedLawnDecorAI
-from toontown.estate import GardenGlobals
+from otp.ai.AIBase import *
+from . import DistributedLawnDecorAI
+from direct.directnotify import DirectNotifyGlobal
+from . import GardenGlobals
 
+from direct.showbase.ShowBase import *
 
-class DistributedPlantBaseAI(DistributedLawnDecorAI):
-    notify = directNotify.newCategory("DistributedPlantBaseAI")
+class DistributedPlantBaseAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPlantBaseAI')
 
-    def __init__(self, air, gardenManager, ownerIndex):
-        DistributedLawnDecorAI.__init__(self, air, gardenManager, ownerIndex)
+    def __init__(self, typeIndex = 0, waterLevel = 0, growthLevel = 0, optional = None, ownerIndex = 0, plot = 0):
+        DistributedLawnDecorAI.DistributedLawnDecorAI.__init__(self, simbase.air, ownerIndex, plot)
+        self.typeIndex = typeIndex
+        self.waterLevel = waterLevel
+        self.growthLevel = growthLevel
+        self.optional = optional
+        self.name = GardenGlobals.PlantAttributes[typeIndex]['name']
+        self.plantType = GardenGlobals.PlantAttributes[typeIndex]['plantType']
+        self.growthThresholds = GardenGlobals.PlantAttributes[typeIndex]['growthThresholds']
+        self.maxWaterLevel = GardenGlobals.PlantAttributes[typeIndex]['maxWaterLevel']
+        self.minWaterLevel = GardenGlobals.PlantAttributes[typeIndex]['minWaterLevel']
+        self.seedlingModel = GardenGlobals.PlantAttributes[typeIndex]['seedlingModel']
+        self.establishedModel = GardenGlobals.PlantAttributes[typeIndex]['establishedModel']
+        self.fullGrownModel = GardenGlobals.PlantAttributes[typeIndex]['fullGrownModel']
 
-        self.typeIndex = None
-        self.waterLevel = None
-        self.growthLevel = None
-        self.timestamp = None
-
-    def d_setTypeIndex(self, index):
-        self.sendUpdate('setTypeIndex', [index])
+    def setTypeIndex(self, typeIndex):
+        self.typeIndex = typeIndex
 
     def getTypeIndex(self):
         return self.typeIndex
 
-    def d_setWaterLevel(self, waterLevel):
-        self.sendUpdate('setWaterLevel', [waterLevel])
+    def setWaterLevel(self, waterLevel, finalize):
+        self.waterLevel = waterLevel
+        self.updateEstate(waterLevel=waterLevel, finalize=finalize)
+
+    def d_setWaterLevel(self,waterLevel):
+        self.sendUpdate('setWaterLevel' , [waterLevel])
+
+    def b_setWaterLevel(self,waterLevel, finalize=True):
+        self.setWaterLevel(waterLevel, finalize)
+        self.d_setWaterLevel(waterLevel)
 
     def getWaterLevel(self):
         return self.waterLevel
 
-    def d_setGrowthLevel(self, growthLevel):
-        self.sendUpdate('setGrowthLevel', [growthLevel])
+    def setGrowthLevel(self, growthLevel, finalize):
+        self.growthLevel = growthLevel
+        self.updateEstate(growthLevel=growthLevel, finalize=finalize)
+
+    def d_setGrowthLevel(self,growthLevel):
+        self.sendUpdate('setGrowthLevel' , [growthLevel])
+
+    def b_setGrowthLevel(self,growthLevel, finalize=True):
+        if growthLevel > 127:
+            growthLevel = 127 #range clamping
+        self.setGrowthLevel(growthLevel, finalize)
+        self.d_setGrowthLevel(growthLevel)
 
     def getGrowthLevel(self):
         return self.growthLevel
 
-    def getGrowthThresholds(self):
-        return GardenGlobals.PlantAttributes[self.typeIndex]['growthThresholds']
-
-    def getGrowthState(self):
-        state = 0
-        for v in self.getGrowthThresholds():
-            if self.growthLevel >= v:
-                state += 1
-        return state
-
     def waterPlant(self):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if not av:
+        senderId = self.air.getAvatarIdFromSender()
+        toon = simbase.air.doId2do.get(senderId)
+        if not toon:
+            self.sendInteractionDenied(senderId)
             return
 
-        if self.waterLevel < GardenGlobals.getMaxWateringCanPower():
-            self.waterLevel += GardenGlobals.getWateringCanPower(av.wateringCan, av.wateringCanSkill)
-            self.d_setWaterLevel(self.waterLevel)
+        if not self.requestInteractingToon(senderId):
+            self.sendInteractionDenied(senderId)
+            return
 
-            self.gardenManager.updateGardenData()
 
-        self.setMovie(GardenGlobals.MOVIE_WATER, self.air.getAvatarIdFromSender())
+        waterPower = GardenGlobals.getWateringCanPower(toon.wateringCan, toon.wateringCanSkill)
+
+        self.skillUp = 0
+        curLevel = self.getWaterLevel()
+        if curLevel < self.maxWaterLevel:
+            self.skillUp = 1
+
+        level = curLevel + waterPower
+        if level > self.maxWaterLevel:
+            level = self.maxWaterLevel
+        if level < 1:
+            level = 1
+        self.b_setWaterLevel(level)
+        self.setMovie(GardenGlobals.MOVIE_WATER, senderId)
 
     def waterPlantDone(self):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if not av:
+        # delay sending the toon skillup until after the water movie is finished
+        senderId = self.air.getAvatarIdFromSender()
+        toon = simbase.air.doId2do.get(senderId)
+        if not toon:
             return
+        if hasattr(self, 'skillUp') and self.skillUp:
+            #print ("!!!watering skill up!!!!!!!!")
+            toon.b_setWateringCanSkill(toon.wateringCanSkill+1)
+        else:
+            # this non-update is used to free the avatar
+            toon.b_setWateringCanSkill(toon.wateringCanSkill)
 
-        currSkill = av.getWateringCanSkill()
-        if self.waterLevel < GardenGlobals.getMaxWateringCanPower():
-            av.b_setWateringCanSkill(currSkill + 1 + self.getGrowthState())
+        #Just to be safe clear the movie, fixes an infinite loop teleport bug
+        self.notify.debug('waterPlantDone: clearing the movie')
+        self.setMovie(GardenGlobals.MOVIE_CLEAR, senderId)
 
-        self.setMovie(GardenGlobals.MOVIE_CLEAR, self.air.getAvatarIdFromSender())
+    def doEpoch(self, numEpochs):
+        growthLevel = 0
+        waterLevel = 0
+        for i in range(numEpochs):
+            waterLevel = self.getWaterLevel()
+            growthLevel = self.getGrowthLevel()
 
-    def construct(self, gardenData):
-        DistributedLawnDecorAI.construct(self, gardenData)
+            if waterLevel > 0:
+                print("growing plant")
+                # grow the plant
+                growthLevel += 1
+                waterLevel -= 1
+            else:
+                waterLevel -= 1
+                waterLevel = max (waterLevel, self.minWaterLevel)
 
-        self.typeIndex = gardenData.getUint8()
-        self.waterLevel = gardenData.getInt8()
-        self.growthLevel = gardenData.getInt8()
+            self.b_setWaterLevel(waterLevel, False)
+            self.b_setGrowthLevel(growthLevel, False)
 
-        self.timestamp = gardenData.getUint32()
+        return (growthLevel, waterLevel)
 
-        self.updateFromTimestamp()
+    # Note the isFruiting, isGTEFruiting ... is seedling is also defined in
+    # DistributedPlantBase.py, if any changes are done, make sure they're in sync
 
-    def updateFromTimestamp(self):
-        now = self.gardenManager.getTimestamp()
-        if now > self.timestamp:
-            # Calculate the seconds past from the last growth time
-            seconds = now - self.timestamp
+    def isFruiting(self):
+        retval = self.growthLevel >= self.growthThresholds[2]
+        return retval
 
-            # Get the number of cycles that have elapsed
-            cycles = seconds / GardenGlobals.GROWTH_INTERVAL
+    def isGTEFruiting(self):
+        """
+        is greater than or equal to Fruiting
+        """
+        retval = self.growthLevel >= self.growthThresholds[2]
+        return retval
 
-            for i in range(cycles):
-                # Decrement the water level
-                self.waterLevel = max(self.waterLevel - 1, -1)
+    def isFullGrown(self):
+        """
+        returns true only if it's exactly full grown
+        """
+        if self.growthLevel >= self.growthThresholds[2]:
+            #the plant is fruiting
+            return False
+        elif self.growthLevel >= self.growthThresholds[1]:
+            #the plant is full grown
+            return True
 
-                if self.waterLevel < 0:
-                    # This tree is wilted, don't grow it.
-                    break
+        return False
 
-                # Increment the growth level
-                self.growthLevel = min(self.growthLevel + 1, GardenGlobals.MAX_GROWTH_LEVEL)
+    def isGTEFullGrown(self):
+        """
+        is greater than or equal to full grown
+        """
+        retval = self.growthLevel >= self.growthThresholds[1]
+        return retval
 
-            if cycles > 0:
-                # Calculate next cycle
-                self.timestamp = now + GardenGlobals.GROWTH_INTERVAL
+    def isEstablished(self):
+        if self.growthLevel >= self.growthThresholds[2]:
+            #the plant is fruiting
+            return False
+        elif self.growthLevel >= self.growthThresholds[1]:
+            #the plant is full grown
+            return False
+        elif self.growthLevel >= self.growthThresholds[0]:
+            #the plant is established
+            return True
+        return False
 
-    def pack(self, gardenData):
-        DistributedLawnDecorAI.pack(self, gardenData)
+    def isGTEEstablished(self):
+        if self.growthLevel >= self.growthThresholds[0]:
+            #the plant is >= established
+            return True
+        return False
 
-        gardenData.addUint8(self.typeIndex)
-        gardenData.addInt8(self.waterLevel)
-        gardenData.addInt8(self.growthLevel)
-        gardenData.addUint32(self.timestamp)
+    def isSeedling(self):
+        if self.growthLevel >= self.growthThresholds[2]:
+            #the plant is fruiting
+            return False
+        elif self.growthLevel >= self.growthThresholds[1]:
+            #the plant is full grown
+            return False
+        elif self.growthLevel >= self.growthThresholds[0]:
+            #the plant is established
+            return False
+        elif self.growthLevel < self.growthThresholds[0]:
+            #the plant is a seedling
+            return True
+
+        return False
+
+    def isGTESeedling(self):
+        #duh everything >= seedling
+        return True
+
+    def isWilted(self):
+        return self.waterLevel < 0
+
+    def updateEstate(self, waterLevel=None, growthLevel=-1, variety=-1, finalize=True):
+        if self.estateId:
+            estate = simbase.air.doId2do.get(self.estateId)
+            if estate:
+                if finalize:
+                    func = estate.b_setOneItem
+                else:
+                    func = estate.setOneItem
+
+                func(self.ownerIndex, self.plot,
+                     waterLevel=waterLevel,
+                     growthLevel=growthLevel,
+                     variety=variety)

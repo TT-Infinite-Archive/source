@@ -1,366 +1,1577 @@
 from panda3d.core import ConfigVariableBool
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-
-from toontown.fishing.DistributedFishingPondAI import DistributedFishingPondAI
-from toontown.fishing.DistributedFishingTargetAI import DistributedFishingTargetAI
-from toontown.fishing.DistributedPondBingoManagerAI import DistributedPondBingoManagerAI
-from toontown.fishing import FishingTargetGlobals
-from toontown.safezone.DistributedFishingSpotAI import DistributedFishingSpotAI
+from otp.ai.AIBase import *
+from direct.distributed.ClockDelta import *
+from toontown.toonbase.ToontownGlobals import *
+from otp.otpbase import OTPGlobals
+from otp.ai.AIZoneData import AIZoneData
+from direct.distributed import DistributedObjectAI
+from . import DistributedHouseAI
+from direct.fsm import ClassicFSM
+from direct.fsm import State
+from direct.task import Task
+import random
+from . import HouseGlobals
+from toontown.dna.DNAParser import DNAStorage
 from toontown.safezone.SZTreasurePlannerAI import SZTreasurePlannerAI
 from toontown.safezone import TreasureGlobals
+from toontown.safezone import DistributedPicnicTableAI
+from toontown.safezone import DistributedChineseCheckersAI
+from . import DistributedTargetAI
+from . import GardenGlobals
+from toontown.estate import DistributedFlowerAI
+from toontown.estate import DistributedGagTreeAI
+from toontown.estate import DistributedStatuaryAI
+from toontown.estate import DistributedGardenPlotAI
+from toontown.estate import DistributedGardenBoxAI
 from toontown.toonbase import ToontownGlobals
-from toontown.estate import HouseGlobals
+from toontown.toonbase import ToontownBattleGlobals
+from toontown.estate import DistributedChangingStatuaryAI
+from toontown.estate import DistributedToonStatuaryAI
+from toontown.estate import DistributedAnimatedStatuaryAI
 
-import time
+class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
 
-from toontown.toon import NPCToons
+    """
+    This is the class that handles the creation of an estate and all
+    things contained in an estate, including:  houses, ponds, gardens,
+    mailboxes, etc.
+    """
 
-
-class DistributedEstateAI(DistributedObjectAI):
     notify = directNotify.newCategory("DistributedEstateAI")
 
-    def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
+    printedLs = 0
 
-        self.toons = [0, 0, 0, 0, 0, 0]
+    EstateModel = None
+
+    timeToEpoch = GardenGlobals.TIME_OF_DAY_FOR_EPOCH
+    epochHourInSeconds = timeToEpoch * 60 * 60
+    dayInSeconds = 6 * 60 * 60
+
+    def __init__(self, air, avId, zoneId, ts, dawn, valDict = None):
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+
+        # the avatar currently in charge of the estate
+        self.notify.debug("created with avId = %d and zoneId = %d" % (avId, zoneId))
+        self.avId = avId
+        self.zoneId = zoneId
+
+        #simbase.air.lastEstate = self inable to check the estate.
+
         self.estateType = 0
-        self.cloudType = 0
-        self.dawnTime = 0
-        self.lastEpochTimestamp = 0
-        self.rentalTimestamp = 0
+        self.fishingSpots = None
+        self.fishingPonds = None
+        self.goons = None
+        self.estateTreasurePlanner = None
+        self.estateFlyingTreasurePlanner = None
+        self.estateFireworks = None
+        self.target = None
+        self.picnicTable = None
+        self.gardenList = [[],[],[],[],[],[]]
+        self.gardenBoxList = [[],[],[],[],[],[]]
+        self.houseList = []
 
-        self.houses = [None] * 6
-        self.houseNodes = [None] * 6
-        self.pond = None
-        self.spots = []
-        self.terrain = None
+        #if not hasattr(self, "decorData"):
+        #    self.decorData = []
 
-        self.AIrender = None
+        self.cannonsEnabled = 0
+        self.fireworksEnabled = ConfigVariableBool('estate-fireworks', False).getValue()
+        self.goonEnabled = ConfigVariableBool('estate-goon', False).getValue()
+        self.goons = None
+        self.gagBarrels = None
+        self.crate = None
 
-        self.targets = []
+        self.cannonFlag = 0
+        self.gameTableFlag = False
 
-        self.owner = None
-        
+        # for day/night
+        self.serverTime = ts
+        self.dawnTime = dawn
+
+        #here we load in all the database fields
+        if valDict:
+            for key in valDict:
+                if hasattr(self, key):
+                    self.dclass.directUpdate(self, key, valDict[key])
+
+        # keep track of generation/deletion from stateserver
+        self.Estate_generated = 0
+
+        #testFlower = DistributedFlowerAI.DistributedFlowerAI()
+        #testGagTree = DistributedGagTreeAI.DistributedGagTreeAI()
+        #testStatuary = DistributedStatuaryAI.DistributedStatuaryAI()
+
+        if not hasattr(self, "lastEpochTimeStamp") or not self.lastEpochTimeStamp:
+            self.lastEpochTimeStamp = time.time()
+
+        # self.accept('gardenTest', self.placeTestGarden)
+        # self.accept('gardenClear', self.clearMyGarden)
+        # self.accept('gardenNuke', self.nukeMyGarden)
+        # self.accept('gardenPlant', self.plantFlower)
+        # self.accept('wiltGarden', self.wiltMyGarden)
+        # self.accept('unwiltGarden', self.unwiltMyGarden)
+        # self.accept('waterGarden', self.setWaterLevelMyGarden)
+        # self.accept('growthGarden', self.setGrowthLevelMyGarden)
+        # self.accept('epochGarden', self.doEpochMagicWord)
+
+        self.maxSlots = 32
+        self.toonsPerAccount = 6
+        #self.timePerEpoch = 300 #five minutes
+        #self.timePerEpoch = 30000 #5000 minutes #NO LONGER A VALID CONCEPT AS EPOCHS HAPPEN ONCE A DAY
+        self.gardenTable = []
+        for count in range(self.toonsPerAccount):
+
+            self.gardenTable.append([0] * self.maxSlots) #ACCOUNT HAS 6 TOONS
+
     def generate(self):
-        DistributedObjectAI.generate(self)
-
-        self.pond = DistributedFishingPondAI(self.air)
-        self.pond.setArea(ToontownGlobals.MyEstate)
-        self.pond.generateWithRequired(self.zoneId)
-
-        self.pond.bingoMgr = DistributedPondBingoManagerAI(self.air)
-        self.pond.bingoMgr.setPondDoId(self.pond.doId)
-        self.pond.bingoMgr.generateWithRequired(self.zoneId)
-
-        if self.air.holidayManager.isHolidayRunning(ToontownGlobals.FISH_BINGO_NIGHT):
-            self.pond.bingoMgr.enableBingo()
-
-        for i in range(FishingTargetGlobals.getNumTargets(ToontownGlobals.MyEstate)):
-            target = DistributedFishingTargetAI(self.air)
-            target.setPondDoId(self.pond.getDoId())
-            target.generateWithRequired(self.zoneId)
-            self.targets.append(target)
-
-        if ConfigVariableBool('want-estate-fisherman', False).getValue():
-            self.fisherman = NPCToons.createNPC(self.air, 91919,
-                                NPCToons.NPCToonDict[91919], self.zoneId)
-            self.fisherman.setPosHpr(75.476, -127.599, 0, 36, 0, 0)
+        DistributedEstateAI.notify.debug("DistEstate generate: %s" % self.doId)
+        self.Estate_generated = 1
+        DistributedObjectAI.DistributedObjectAI.generate(self)
 
 
-        spot = DistributedFishingSpotAI(self.air)
-        spot.setPondDoId(self.pond.getDoId())
-        spot.setPosHpr(49.1029, -124.805, 0.344704, 90, 0, 0)
-        spot.generateWithRequired(self.zoneId)
-        self.spots.append(spot)
-
-        spot = DistributedFishingSpotAI(self.air)
-        spot.setPondDoId(self.pond.getDoId())
-        spot.setPosHpr(46.5222, -134.739, 0.390713, 75, 0, 0)
-        spot.generateWithRequired(self.zoneId)
-        self.spots.append(spot)
-
-        spot = DistributedFishingSpotAI(self.air)
-        spot.setPondDoId(self.pond.getDoId())
-        spot.setPosHpr(41.31, -144.559, 0.375978, 45, 0, 0)
-        spot.generateWithRequired(self.zoneId)
-        self.spots.append(spot)
-
-        spot = DistributedFishingSpotAI(self.air)
-        spot.setPondDoId(self.pond.getDoId())
-        spot.setPosHpr(46.8254, -113.682, 0.46015, 135, 0, 0)
-        spot.generateWithRequired(self.zoneId)
-        self.spots.append(spot)
-
-        self.createTreasurePlanner()
-
-        self.AIrender = self.getRender()
-        self.terrain = loader.loadModel('phase_5.5/models/estate/terrain.bam')
-        self.terrain.reparentTo(self.AIrender)
-
-        for i in range(HouseGlobals.NUM_HOUSE_TYPES):
-            house = loader.loadModel(HouseGlobals.houseModels[i])
-            posHpr = HouseGlobals.houseDrops[i]
-            house.setPosHpr(*posHpr)
-            house.reparentTo(self.AIrender)
-            self.houseNodes.append(house)
-
-    def destroy(self):
-        for house in self.houses:
-            if house is not None:
-                house.requestDelete()
-
-        del self.houses[:]
-
-        for house in self.houseNodes:
-            if house is not None:
-                house.removeNode()
-
-        del self.houseNodes[:]
-
-        if self.pond is not None:
-            self.pond.requestDelete()
-            self.pond = None
-
-            for spot in self.spots:
-                spot.requestDelete()
-
-            del self.spots[:]
-
-            for target in self.targets:
-                target.requestDelete()
-
-            del self.targets[:]
-
-        if self.terrain is not None:
-            self.terrain.removeNode()
-            self.terrain = None
-
-        if self.treasurePlanner is not None:
-            self.treasurePlanner.stop()
-        
-        if ConfigVariableBool('want-estate-fisherman', False).getValue():
-            self.fisherman.requestDelete()
-
-        for child in self.getRender().getChildren():
-            child.removeNode()
-        
-        self.AIrender = None
-
-        self.requestDelete()
+    def generateWithRequiredAndId(self, doId, air, zoneId):
+        self.notify.debug("DistributedEstateAI generateWithRequiredAndId")
 
 
-    def setEstateReady(self):
-        pass
+        DistributedObjectAI.DistributedObjectAI.generateWithRequiredAndId(self, doId, air, zoneId)
 
-    def setClientReady(self):
-        self.sendUpdate('setEstateReady', [])
+#    def requestDelete(self):
+#        taskMgr.remove(self.uniqueName("GardenEpoch"))
+#        taskMgr.remove(self.uniqueName("endCannons"))
+#        taskMgr.remove(self.uniqueName("endCannonsNotify"))
+#        DistributedObjectAI.DistributedObjectAI.requestDelete(self)
 
-    def setEstateType(self, type):
-        self.estateType = type
-        
-    def d_setEstateType(self, type):
-        self.sendUpdate('setEstateType', [type])
-        
-    def b_setEstateType(self, type):
-        self.setEstateType(type)
-        self.d_setEstateType(type)
+    def delete(self):
+        DistributedEstateAI.notify.debug("DistEstate delete: %s" % self.doId)
+        self.ignoreAll()
+        taskMgr.remove(self.uniqueName("GardenEpoch"))
+        taskMgr.remove(self.uniqueName("endCannons"))
+        taskMgr.remove(self.uniqueName("endCannonsNotify"))
+        taskMgr.remove(self.uniqueName("endGameTable"))
+        #print("Trying Delete Estate")
+        try:
+            #print("checking already deleted")
+            self.Estate_deleted
+            DistributedEstateAI.notify.debug("estate already deleted: %s" % self.Estate_deleted)
+        except:
+            #print("deleting Estate")
+            DistributedEstateAI.notify.debug("completing estate delete: %s" % self.__dict__.get("zoneId"))
+            self.Estate_deleted = self.zoneId
+
+            if self.estateTreasurePlanner:
+                self.estateTreasurePlanner.stop()
+                self.estateTreasurePlanner.deleteAllTreasuresNow()
+                self.estateTreasurePlanner = None
+
+            if self.estateFlyingTreasurePlanner:
+                self.estateFlyingTreasurePlanner.stop()
+                self.estateFlyingTreasurePlanner.deleteAllTreasuresNow()
+                self.estateFlyingTreasurePlanner = None
+
+            if self.fishingSpots:
+                for spot in self.fishingSpots:
+                    spot.requestDelete()
+                self.fishingSpots = None
+
+            if self.fishingPonds:
+                for pond in self.fishingPonds:
+                    # Remove PondBingoManager
+                    if simbase.wantBingo:
+                        if pond.hasPondBingoManager():
+                            pond.getPondBingoManager().requestDelete()
+                    pond.requestDelete()
+                self.fishingPonds = None
+
+            if self.estateFireworks:
+                self.estateFireworks.requestDelete()
+                del self.estateFireworks
+
+            if hasattr(self, "target"):
+                if self.target:
+                    self.target.requestDelete()
+                    del self.target
+
+            if self.goons:
+                for goon in self.goons:
+                    goon.requestDelete()
+                    del goon
+                self.goons = None
+
+            if self.gagBarrels:
+                for barrel in self.gagBarrels:
+                    barrel.requestDelete()
+                    del barrel
+                self.gagBarrels = None
+
+            if self.crate:
+                del self.crate
+                self.crate = None
+
+            if self.picnicTable:
+                self.picnicTable.requestDelete()
+                del self.picnicTable
+                self.picnicTable = None
+
+            del self.houseList
+
+            self.deleteGarden()
+
+            if hasattr(self,'gardenBoxList'):
+                for index in range(len(self.gardenBoxList)):
+                    for box in self.gardenBoxList[index]:
+                        if box:
+                            box.requestDelete()
+
+            del self.gardenBoxList
+            del self.gardenTable
+            del self.gardenList
+
+            DistributedObjectAI.DistributedObjectAI.delete(self)
+
+    def unload(self):
+        self.notify.debug("unload")
+
+    def deleteGarden(self):
+        if not hasattr(self,'gardenTable'):
+            return
+
+        self.notify.debug("calling delete garden")
+
+        for index in range(len(self.gardenTable)):
+            for distLawnDecor in self.gardenTable[index]:
+                if distLawnDecor: # and distLawnDecor.occupied:
+                    distLawnDecor.requestDelete()
+
+        self.gardenTable = []
+
+
+    def initEstateData(self, estateVal=None, numHouses=0, houseId=None, houseVal=None):
+        # these parameters have just been read from the database..
+        # now we have to do something with them.
+        self.numHouses = numHouses
+        self.houseType = [None] * self.numHouses
+        self.housePos = [None] * self.numHouses
+        self.houseId = houseId
+        self.houseVal = houseVal
+        self.estateVal = estateVal
+
+        # start treasure planner
+        #self.estateTreasurePlanner = ETreasurePlannerAI.ETreasurePlannerAI(self.zoneId)
+        #self.estateTreasurePlanner.start()
+
+        # Create fishing docks
+        dnaStore = DNAStorage()
+        dnaData = simbase.air.loadDNAFileAI(dnaStore,
+                  'phase_5.5/dna/estate_1.pdna')
+        self.fishingSpots = []
+        self.fishingPonds = []
+        """
+        if (isinstance(dnaData, DNAData)):
+            fishingPonds, fishingPondGroups = self.air.findFishingPonds(dnaData, self.zoneId, MyEstate, overrideDNAZone = 1)
+            self.fishingPonds += fishingPonds
+            for dnaGroup, distPond in zip(fishingPondGroups, fishingPonds):
+                self.fishingSpots += self.air.findFishingSpots(dnaGroup, distPond)
+        else:
+            self.notify.warning("loadDNAFileAI failed for 'estate_1.dna'")
+        """
+
+        if simbase.wantPets:
+            if 0:#__dev__:
+                from panda3d.core import ProfileTimer
+                pt = ProfileTimer()
+                pt.init('estate model load')
+                pt.on()
+
+            if not DistributedEstateAI.EstateModel:
+                # load up the estate model for the pets
+                self.dnaStore = DNAStorage()
+                simbase.air.loadDNAFile(
+                    self.dnaStore,
+                    'phase_5.5/dna/storage_estate.pdna')
+                node = simbase.air.loadDNAFile(
+                    self.dnaStore,
+                    'phase_5.5/dna/estate_1.pdna')
+                DistributedEstateAI.EstateModel = hidden.attachNewNode(node)
+            render = self.getRender()
+            self.geom = DistributedEstateAI.EstateModel.copyTo(render)
+            # for debugging, show what's in the model
+            if not DistributedEstateAI.printedLs:
+                DistributedEstateAI.printedLs = 1
+                #self.geom.ls()
+
+            if 0:#__dev__:
+                pt.mark('loaded estate model')
+                pt.off()
+                pt.printTo()
+
+
+
+        if self.fireworksEnabled:
+            pos = (29.7, -1.77, 10.93)
+            import DistributedFireworksCannonAI
+            self.estateFireworks = DistributedFireworksCannonAI.DistributedFireworksCannonAI(self.air, *pos)
+            self.estateFireworks.generateWithRequired(self.zoneId)
+
+        if self.goonEnabled:
+            from toontown.suit import DistributedGoonAI
+            self.goons = [None]*3
+            for i in range(3):
+                self.goons[i] = DistributedGoonAI.DistributedGoonAI(self.air,None,i)
+                self.goons[i].setupSuitDNA(1, 1, "c")
+                self.goons[i].generateWithRequired(self.zoneId)
+
+            from toontown.coghq import DistributedGagBarrelAI
+            self.gagBarrels = [None]*4
+            for i in range(4):
+                self.gagBarrels[i] = DistributedGagBarrelAI.DistributedGagBarrelAI(self.air, None,
+                                                                                   -100-10*i, 30-10*i, 0.2,i,i)
+                self.gagBarrels[i].generateWithRequired(self.zoneId)
+            from toontown.coghq import DistributedBeanBarrelAI
+            jelly = DistributedBeanBarrelAI.DistributedBeanBarrelAI(self.air, None,-150, -20, 0.2)
+            jelly.generateWithRequired(self.zoneId)
+            self.gagBarrels.append(jelly)
+
+            from toontown.coghq import DistributedCrateAI
+            self.crate = DistributedCrateAI.DistributedCrateAI(self.air, -142, 0, 0.0)
+            self.crate.generateWithRequired(self.zoneId)
+
+    def postHouseInit(self):
+        currentTime = time.time()
+        if self.rentalTimeStamp >= currentTime:
+            if self.rentalType == ToontownGlobals.RentalCannon:
+                self.makeCannonsUntil(self.rentalTimeStamp)
+            elif self.rentalType == ToontownGlobals.RentalGameTable:
+                self.makeGameTableUntil(self.rentalTimeStamp)
+        else:
+            self.b_setRentalTimeStamp(0)
+
+
+    def startCannons(self, fool = 0):
+        return
+        if self.cannonFlag:
+            return
+        from toontown.safezone import EFlyingTreasurePlannerAI
+        from . import DistributedCannonAI
+
+        # create flying treasures
+        if not self.estateFlyingTreasurePlanner:
+            self.estateFlyingTreasurePlanner = EFlyingTreasurePlannerAI.EFlyingTreasurePlannerAI(self, self.zoneId)
+        self.estateFlyingTreasurePlanner.preSpawnTreasures()
+        self.estateFlyingTreasurePlanner.start()
+
+        # tell client about flying treasures
+        self.updateFlyingTreasureList()
+
+        # create the target
+        if not hasattr(self, "target") or not self.target:
+            self.target = DistributedTargetAI.DistributedTargetAI(self.air, -5.6, -24, 50)
+            self.target.generateWithRequired(self.zoneId)
+        self.target.start()
+
+        for house in self.houseList:
+            house.setCannonEnabled(1)
+
+        self.b_setClouds(1)
+        self.cannonFlag = 1
+
+    def endCannons(self, fool = 0):
+        if not self.cannonFlag:
+            return
+        for house in self.houseList:
+            house.setCannonEnabled(0)
+        self.b_setClouds(0)
+
+        if self.estateFlyingTreasurePlanner:
+            self.estateFlyingTreasurePlanner.stop()
+            self.estateFlyingTreasurePlanner.deleteAllTreasuresNow()
+
+        if hasattr(self, "target"):
+            if self.target:
+                self.target.requestDelete()
+                del self.target
+
+        self.b_setRentalTimeStamp(0)
+        self.cannonFlag = 0
+
+    def notifyCannonsEnd(self, arg=None):
+        self.sendUpdate("cannonsOver", [])
+
+    def bootStrapEpochs(self):
+        #first update the graden data based on how much time has based
+        #print ("last time %s" % (self.lastEpochTimeStamp))
+        currentTime = time.time()
+        #print ("current time %s" % (currentTime))
+        timeDiff = currentTime - self.lastEpochTimeStamp
+        #print ("time diff %s" % (timeDiff))
+
+        #self.lastEpochTimeStamp = time.mktime((2006, 8, 24, 10, 50, 31, 4, 237, 1))
+
+        tupleNewTime = time.localtime(currentTime - self.epochHourInSeconds)
+        tupleOldTime = time.localtime(self.lastEpochTimeStamp)
+
+        #tupleOldTime = (2006, 6, 18, 0, 36, 45, 0, 170, 1)
+        #tupleNewTime = (2006, 6, 19, 3, 36, 45, 0, 170, 1)
+
+        listLastDay = list(tupleOldTime)
+        listLastDay[3] = 0 #set hour to epoch time
+        listLastDay[4] = 0 #set minute to epoch time
+        listLastDay[5] = 0 #set second to epoch time
+        tupleLastDay = tuple(listLastDay)
+
+        randomDelay = random.random() * 5 * 60 # random five minute range
+
+        secondsNextEpoch = (time.mktime(tupleLastDay) + self.epochHourInSeconds + self.dayInSeconds + randomDelay) - currentTime
+
+
+        #should we do the epoch for the current day?
+        #beforeEpoch = 1
+        #if  tupleNewTime[3] >= self.timeToEpoch:
+        #    beforeEpoch = 0
+
+        epochsToDo =  int((time.time() - time.mktime(tupleLastDay)) / self.dayInSeconds)
+        #epochsToDo -= beforeEpoch
+        if epochsToDo < 0:
+            epochsToDo = 0
+
+        self.notify.debug("epochsToDo %s" % (epochsToDo))
+
+        #print("tuple times")
+        #print tupleNewTime
+        #print tupleOldTime
+
+
+        if epochsToDo:
+            pass
+            self.notify.debug("doingEpochData")
+            self.doEpochData(0, epochsToDo)
+        else:
+            pass
+            self.notify.debug("schedualing next Epoch")
+            #print("Delaying inital epoch")
+            self.scheduleNextEpoch()
+            self.sendUpdate("setLastEpochTimeStamp", [self.lastEpochTimeStamp])
+            #time2Epoch = self.timePerEpoch - timeDiff
+
+
+    def scheduleNextEpoch(self):
+        currentTime = time.time()
+        tupleNewTime = time.localtime()
+        tupleOldTime = time.localtime(self.lastEpochTimeStamp)
+
+        listLastDay = list(tupleOldTime)
+        listLastDay[3] = 0 #set hour to epoch time
+        listLastDay[4] = 0 #set minute to epoch time
+        listLastDay[5] = 0 #set second to epoch time
+        tupleLastDay = tuple(listLastDay)
+
+        randomDelay = random.random() * 5 * 60 # random five minute range
+        gardeningDay = self.dayInSeconds
+        whenNextEpoch = (time.mktime(tupleLastDay) + self.epochHourInSeconds + gardeningDay + randomDelay)
+        secondsNextEpoch = whenNextEpoch - currentTime
+        if secondsNextEpoch >= 0:
+            secondsNextEpoch += self.dayInSeconds
+        taskMgr.doMethodLater((secondsNextEpoch), self.doEpochNow, self.uniqueName("GardenEpoch"))
+
+        tupleNextEpoch = time.localtime(whenNextEpoch)
+
+        self.notify.info(f"Next epoch to happen at {tupleNextEpoch}")
+
+
+
+
+    def gardenInit(self, avIdList, gardensStarted):
+        self.sendUpdate('setIdList', [avIdList])
+        #self.bootStrapEpochs()
+
+
+        self.avIdList = avIdList
+        #check to see if the av field tags match the house owners
+        for index in range(len(avIdList)):
+            if self.getToonId(index) != avIdList[index]:
+                self.notify.debug("Mismatching Estate Tag index %s id %s list %s" % (index, self.getToonId(index) , avIdList[index]))
+            if self.getItems(index) == None:
+                self.notify.debug("Items is None index %s items %s" % (index, self.getItems(index)))
+            if self.getToonId(index) != avIdList[index] or self.getItems(index) == None:
+                self.notify.debug("Resetting items index %s" % (index))
+                self.b_setToonId(index, avIdList[index])
+                #resetting the item database
+                #self.b_setItems(index, [])
+                self.b_setItems(index, [(255,0,-1,-1,0)]) #empty garden tag
+            if self.getItems(index) != [(255,0,-1,-1,0)] and not gardensStarted[index]:
+                # Case where items exists and their gardens haven't started.
+                self.b_setItems(index, [(255,0,-1,-1,0)]) #empty garden tag
+            if self.getItems(index) == [(255,0,-1,-1,0)] and gardensStarted[index]:
+                #case where the garden has been tagged as empty while their garden has "started"
+                self.placeStarterGarden(avIdList[index])
+            if self.getItems(index) == [(255,0,-1,-1,0)]:
+                #case where the garden has been tagged as empty
+                pass
+            elif self.getItems(index) or self.getItems(index) == []:
+                self.placeLawnDecor(index, self.getItems(index))
+                #print "Item Check"
+                #print self.getItems(index)
+                pass
+            self.updateToonBonusLevels(index)
+        self.bootStrapEpochs()
+        #self.b_setItems(1,[[49,0,16,16,0]])#get some data up for testing
+
+    def doEpochMagicWord(self, avId, numEpoch):
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                self.doEpochNow(numEpoch = numEpoch)
+                return
+
+
+    def doEpochNow(self, taskFooler = 0, onlyForThisToonIndex = None, numEpoch = 1):
+        taskMgr.remove(self.uniqueName("GardenEpoch"))
+        #used when a zone is active. So the garden data will be cleared and reinited
+        currentTime = time.time()
+        timeDiff = currentTime - self.lastEpochTimeStamp
+        self.notify.info("Epoch Now! %s" % (timeDiff))
+        #self.scheduleNextEpoch()
+        self.doEpochData(self.dayInSeconds, numEpoch, onlyForThisToonIndex = onlyForThisToonIndex ) #make sure the epoch always happens
+
+        #RAU the DistrbutedFlower, DistributedGardenPlot, etc, suddenly
+        #disappearing on the client side is causing problems
+        #We need to do some smart growing and update only the necessary
+        #values, (e.g. waterLevel and growthLevel)
+        #for index in range(len(self.avIdList)):
+        #    if self.getToonId(index) == self.avIdList[index]:
+        #        if self.getItems(index):
+        #            self.clearGarden(index)
+        #            self.placeLawnDecor(index, self.getItems(index))
+
+
+
+    def doEpochData(self, time, numEpochs = 0, onlyForThisToonIndex = None):
+        #this function just updates the data buit doesn't effect anything within the zone
+        self.saveTime()
+
+        # Tell the distributedLawnDecors to update themselves... and update our 'itemLists'
+        #numEpochs = int(time / self.timePerEpoch)
+        #print ("Epochs passed %d" % (numEpochs))
+        #do the epoch based stuff here like growing, consuming water, etc....
+
+
+        for index in range(len(self.gardenTable)):
+            anyUpdates = False
+            numWilted = 0
+            numHealthy = 0
+            for distLawnDecor in self.gardenTable[index]:
+                if distLawnDecor and distLawnDecor.occupied:
+                    if onlyForThisToonIndex and \
+                       not distLawnDecor.getOwnerIndex() == onlyForThisToonIndex:
+                        #print("passing for this toon")
+                        continue
+                    anyUpdates = True
+                    #print("doing epoch %s" % (numEpochs))
+                    distLawnDecor.doEpoch(numEpochs)
+
+                    if hasattr(distLawnDecor, 'isWilted'):
+                        if distLawnDecor.isWilted():
+                            numWilted += 1
+                        else:
+                            numHealthy += 1
+                else:
+                    pass
+                    #print("PROBLEM %s %s" % (distLawnDecor, distLawnDecor.occupied))
+
+
+            if numHealthy or numWilted:
+                #log how many healthy and wilted plants he has after these epochs have been run
+                self.air.writeServerEvent('garden_epoch_run', self.getToonId(index),
+                                          '%d|%d|%d' % (numEpochs, numHealthy, numWilted))
+
+
+            if anyUpdates:
+                self.b_setItems(index, self.getItems(index))
+                self.updateToonBonusLevels(index)
+
+        self.scheduleNextEpoch()
+        #taskMgr.doMethodLater(self.timePerEpoch, self.doEpochNow, self.uniqueName("GardenEpoch"))
+
+
+    def updateToonBonusLevels(self, index):
+        # find the trees with fruit
+        numTracks = len(ToontownBattleGlobals.Tracks)
+        hasBonus = [[] for n in range(numTracks)]
+        for distLawnDecor in self.gardenTable[index]:
+            # keep track of which trees are blooming
+            if distLawnDecor and distLawnDecor.hasGagBonus():
+                hasBonus[distLawnDecor.gagTrack].append(distLawnDecor.gagLevel)
+
+        # find the lowest gaglevel for each track that immediately preceeds a non-fruited tree
+        # EG.  [0, 1, 2, 4, 5, 6] should find 2
+        bonusLevels = [-1] * len(ToontownBattleGlobals.Tracks)
+        for track in range(len(hasBonus)):
+            hasBonus[track].sort()
+            for gagLevel in hasBonus[track]:
+                if gagLevel == (bonusLevels[track] + 1):
+                    bonusLevels[track] = gagLevel
+                else:
+                    break
+
+        # tell the toon
+        toonId = self.getToonId(index)
+        toon = simbase.air.doId2do.get(toonId)
+        if toon:
+            toon.b_setTrackBonusLevel(bonusLevels)
+
+    def hasGagTree(self, ownerIndex, gagTrack, gagLevel):
+        """Return true if a gag tree is already planted on the estate that matches paremeters."""
+        for distLawnDecor in self.gardenTable[ownerIndex]:
+            if hasattr(distLawnDecor, 'gagTrack') and hasattr(distLawnDecor, 'gagLevel'):
+                if distLawnDecor.gagTrack == gagTrack and \
+                   distLawnDecor.gagLevel == gagLevel:
+                    return True
+        return False
+
+    def findLowestGagTreePlot(self, ownerIndex, gagTrack, gagLevel):
+        """Returns the lowest plot index of a gag tree that matches paremeters.
+        Returns -1 if not found"""
+        for plotIndex in range(len(self.gardenTable[ownerIndex])):
+            distLawnDecor = self.gardenTable[ownerIndex][plotIndex]
+            if hasattr(distLawnDecor, 'gagTrack') and hasattr(distLawnDecor, 'gagLevel'):
+                if distLawnDecor.gagTrack == gagTrack and \
+                   distLawnDecor.gagLevel == gagLevel:
+                    return plotIndex
+        return -1
+
+    def placeTestGarden(self, avId = 0):
+        #print("placing test Items %s" % (avId))
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                self.clearGarden(index)
+                self.b_setItems(index,[])
+                self.placeLawnDecor(index, self.getItems(index))
+
+                #mark the toon as 'garden started'
+                toon = simbase.air.doId2do.get(avId)
+                if toon:
+                    toon.b_setGardenStarted(True)
+                    #log that they are starting the garden
+                    self.air.writeServerEvent("garden_started", self.doId, '')
+
+
+    def placeStarterGarden(self, avId = 0):
+        #print("placing test Items %s" % (avId))
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                #mark the toon as 'garden started'
+                toon = simbase.air.doId2do.get(avId)
+                if toon:
+                    if not toon.getGardenStarted():
+                        toon.b_setGardenStarted(True)
+                        #log that they are starting the garden
+                        self.air.writeServerEvent("garden_started", self.doId, '')
+
+                if self.getItems(index) == [(255,0,-1,-1,0)]:
+                    #case where the garden has been tagged as empty
+                    self.clearGarden(index)
+                    self.b_setItems(index,[])
+                    self.placeLawnDecor(index, self.getItems(index))
+
+
+    def clearGarden(self, slot):
+        for entry in self.gardenTable[slot]:
+            if entry and entry != 0:
+                entry.requestDelete()
+            entry = 0
+        #self.gardenList[slot] = []
+
+    def clearMyGarden(self, avId = 0):
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                for hardPoint in range(len(GardenGlobals.estatePlots[index])):
+                    self.removePlantAndPlaceGardenPlot(index, hardPoint)
+                #self.clearGarden(index)
+                #self.b_setItems(index,[])
+
+    def nukeMyGarden(self, avId = 0):
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                for hardPoint in range(len(GardenGlobals.estatePlots[index])):
+                    self.removePlant(index, hardPoint)
+                    self.removeGardenPlot(index,hardPoint)
+                for box in self.gardenBoxList[index]:
+                    box.requestDelete()
+                self.gardenBoxList[index] = []
+
+                self.b_setItems(index, [(255,0,-1,-1,0)]) #empty garden tag
+
+
+
+    def setWaterLevelMyGarden(self, avId, waterLevel, specificHardPoint = -1):
+        """
+        sets the water level for all the plants in my garden
+        """
+        assert self.notify.debugStateCall(self)
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                items = self.getItems(index)
+                if specificHardPoint == -1:
+                    for plot in range(len(self.gardenTable[index])):
+                        someLawnDecor = self.gardenTable[index][plot]
+                        if someLawnDecor and hasattr(someLawnDecor,'b_setWaterLevel'):
+                            someLawnDecor.b_setWaterLevel(waterLevel, False)
+
+                    itemList = self.getItems(index)
+                    self.d_setItems(index, itemList)
+                else:
+                    someLawnDecor = self.gardenTable[index][specificHardPoint]
+                    if someLawnDecor and hasattr(someLawnDecor,'b_setWaterLevel'):
+                        someLawnDecor.b_setWaterLevel(waterLevel)
+
+    def setGrowthLevelMyGarden(self, avId, growthLevel, specificHardPoint = -1):
+        """
+        sets the growth level for all the plants in my garden
+        """
+        assert self.notify.debugStateCall(self)
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                items = self.getItems(index)
+                if specificHardPoint == -1:
+                    for plot in range(len(self.gardenTable[index])):
+                        someLawnDecor = self.gardenTable[index][plot]
+                        if someLawnDecor and hasattr(someLawnDecor,'b_setGrowthLevel'):
+                            someLawnDecor.b_setGrowthLevel(growthLevel, False)
+
+                    itemList = self.getItems(index)
+                    self.d_setItems(index, itemList)
+                else:
+                    someLawnDecor = self.gardenTable[index][specificHardPoint]
+                    if someLawnDecor and hasattr(someLawnDecor,'b_setGrowthLevel'):
+                        someLawnDecor.b_setGrowthLevel(growthLevel)
+
+    def wiltMyGarden(self, avId, specificHardPoint = -1):
+        self.notify.debug("wilting my garden %s" % (avId))
+        self.setWaterLevelMyGarden( avId, -1, specificHardPoint)
+
+    def unwiltMyGarden(self, avId, specificHardPoint = -1):
+        self.notify.debug("unwilting my garden %s" % (avId))
+        self.setWaterLevelMyGarden( avId, 0, specificHardPoint)
+
+    def plantFlower(self, avId, type, plot, water, growth, optional = 0, box = None):
+            for index in range(self.toonsPerAccount):
+                if self.getToonId(index) == avId:
+                    self.removePlant(index, plot)
+                    itemId = self.addLawnDecorItem(index, type, plot, water, growth, optional, box)
+                    itemList = self.getItems(index)
+                    itemList.append((type, plot, water, growth, optional))
+                    self.b_setItems(index, itemList)
+            return itemId
+
+    def plantTree(self, avId, type, plot, water, growth, optional = 0):
+            for index in range(self.toonsPerAccount):
+                if self.getToonId(index) == avId:
+                    self.removePlant(index, plot)
+                    itemDoId = self.addLawnDecorItem(index, type, plot, water, growth,optional)
+                    itemList = self.getItems(index)
+                    itemList.append((type, plot, water, growth, optional))
+                    self.b_setItems(index, itemList)
+            return itemDoId
+
+    def removePlant(self, slot, plot):
+        itemList = self.getItems(slot)
+        for item in self.getItems(slot):
+            if item[1] == plot:
+                if self.gardenTable[slot][plot]:
+                    if self.gardenTable[slot][plot].box:
+                        self.gardenTable[slot][plot].box.objects = [None if plant is self.gardenTable[slot][plot] else plant for plant in self.gardenTable[slot][plot].box.objects]
+                    self.gardenTable[slot][plot].requestDelete()
+                    self.gardenTable[slot][plot] = None
+                itemList.remove(item)
+                #we need to do a b_setItems to save the change in database
+                self.b_setItems(slot, itemList)
+                self.updateToonBonusLevels(slot)
+
+    def addLawnDecorItem(self, slot, type, hardPoint, waterLevel, growthLevel, optional = 0, box = None):
+            #Hard coding MickeyStatue1 to be my toon statue
+            plantClass = DistributedFlowerAI.DistributedFlowerAI
+            plantType = GardenGlobals.PlantAttributes[type]['plantType']
+            if plantType == GardenGlobals.GAG_TREE_TYPE:
+                #print("print")
+                plantClass = DistributedGagTreeAI.DistributedGagTreeAI
+                testPlant = DistributedGagTreeAI.DistributedGagTreeAI(type, waterLevel, growthLevel, optional, slot, hardPoint)
+                postion = GardenGlobals.estatePlots[slot][hardPoint]
+                testPlant.setPosition(postion[0], postion[1], 0)
+                testPlant.setH(postion[2])
+                testPlant.stick2Ground(self)
+            elif plantType == GardenGlobals.FLOWER_TYPE:
+                #print("FLOWER")
+                plantClass =  DistributedFlowerAI.DistributedFlowerAI
+                testPlant = DistributedFlowerAI.DistributedFlowerAI(type, waterLevel, growthLevel, optional, slot, hardPoint)
+                plot = GardenGlobals.estatePlots[slot][hardPoint]
+                #postion = GardenGlobals.estateBoxes[slot][plot[0]]
+                if box:
+                    box.objects = [testPlant if plant is None else plant for plant in box.objects]
+                else:
+                    box = self.gardenBoxList[slot][plot[0]]
+                    box.objects.append(testPlant)
+                testPlant.setBox(box)
+                # postion = self.gardenBoxList[slot][plot[0]].getBoxPos(plot[1])
+                # heading = self.gardenBoxList[slot][plot[0]].getH()
+                # testPlant.setPosition(postion[0], postion[1], postion[2])
+                # testPlant.setH(heading)
+            elif plantType == GardenGlobals.STATUARY_TYPE:
+                #print("STATUARY")
+                plantClass = DistributedStatuaryAI.DistributedStatuaryAI
+                if type in GardenGlobals.ToonStatuaryTypeIndices:
+                    # Some hardcoded optional values for testing
+                    # optional = 2325 #Pig = 3861 #Bear = 3349 #Monkey = 2837 #Duck = 2325 #Rabbit = 1813 #Mouse = 1557 #Horse = 1045 #Cat = 533 #Dog = 21
+                    testPlant = DistributedToonStatuaryAI.DistributedToonStatuaryAI(type, waterLevel, growthLevel, optional, slot, hardPoint)
+                elif type in GardenGlobals.ChangingStatuaryTypeIndices:
+                    testPlant = DistributedChangingStatuaryAI.DistributedChangingStatuaryAI(type, waterLevel, growthLevel, optional, slot, hardPoint)
+                elif type in GardenGlobals.AnimatedStatuaryTypeIndices:
+                    testPlant = DistributedAnimatedStatuaryAI.DistributedAnimatedStatuaryAI(type, waterLevel, growthLevel, optional, slot, hardPoint)
+                else:
+                    testPlant = DistributedStatuaryAI.DistributedStatuaryAI(type, waterLevel, growthLevel, optional, slot, hardPoint)
+                postion = GardenGlobals.estatePlots[slot][hardPoint]
+                testPlant.setPosition(postion[0], postion[1], 0)
+                testPlant.setH(postion[2])
+                testPlant.stick2Ground(self)
+
+            testPlant.generateWithRequired(self.zoneId)
+            testPlant.setEstateId(self.doId)
+            if plantType in (GardenGlobals.GAG_TREE_TYPE, GardenGlobals.STATUARY_TYPE):
+                # This should belong up there, but it needs the estate id
+                # set up.
+                testPlant.setupPetCollision()
+
+
+            #print ("Placing at Position %s %s %s" % (postion[0], postion[1], postion[2]))
+            #self.placeOnGround(testPlant.doId)
+            self.gardenTable[slot][hardPoint] = testPlant
+            self.notify.debug('testPlant.doId : %s' %testPlant.doId)
+            return testPlant.doId
+
+    def placeLawnDecor(self, toonIndex, itemList):
+        house = self.houseList[toonIndex]
+        boxList = GardenGlobals.estateBoxes[house.houseType]
+        for boxPlace in boxList:
+            newBox = DistributedGardenBoxAI.DistributedGardenBoxAI(boxPlace[3], toonIndex)
+            newBox.setPosition(boxPlace[0], boxPlace[1], 16)
+            newBox.setH(boxPlace[2])
+            newBox.generateWithRequired(self.zoneId)
+            newBox.setEstateId(self.doId)
+            newBox.setupPetCollision()
+            self.gardenBoxList[toonIndex].append(newBox)
+        plotList = GardenGlobals.estatePlots[toonIndex]
+        for plotPointIndex in (range(len(plotList))):
+            item = self.findItemAtHardPoint(itemList, plotPointIndex)
+            if not item or not GardenGlobals.PlantAttributes.get(item[0]):
+                item = None
+            if item:
+                type = item[0]
+                if type not in GardenGlobals.PlantAttributes.keys():
+                    self.notify.warning('type %d not found in PlantAttributes, forcing it to 48' % type)
+                    type = 48
+                hardPoint = item[1]
+                waterLevel = item[2]
+                growthLevel = item[3]
+                optional = item[4] #all fields are 8bit except optional which is 16bits
+                itemdoId = self.addLawnDecorItem(toonIndex, type, hardPoint, waterLevel, growthLevel, optional)
+            else:
+                #pass
+                self.addGardenPlot(toonIndex, plotPointIndex)
+
+    def moveGardenBoxes(self, toonIndex):
+        """
+        This moves the garden boxes when the house type gets changed.
+        Usually through SetHouse Magic Word
+        """
+        house = self.houseList[toonIndex]
+        boxList = GardenGlobals.estateBoxes[house.houseType]
+        for index, boxPlace in enumerate(boxList):
+            box = self.gardenBoxList[toonIndex][index]
+            box.b_setPosition(boxPlace[0], boxPlace[1], 16)
+
+            # TODO: Adjust pet collisions
+
+    def removePlantAndPlaceGardenPlot(self, slot, hardPoint, box = None):
+        """
+        This removes it on the AI side, places a gardenPlot, then updates the client
+        """
+        self.removePlant(slot, hardPoint)
+        itemId = self.addGardenPlot(slot, hardPoint, box)
+        return itemId
+
+    def addGardenPlot(self, slot, hardPoint, box = None):
+
+            #print("HARDPOINT")
+            plot = GardenGlobals.estatePlots[slot][hardPoint]
+            #print(plot)
+            plantClass = DistributedGardenPlotAI.DistributedGardenPlotAI
+            testPlant = DistributedGardenPlotAI.DistributedGardenPlotAI(plot[2], slot, hardPoint)
+            if plot[3] == GardenGlobals.FLOWER_TYPE:
+                #print("flower type")
+                if box:
+                    box.objects = [testPlant if plant is None else plant for plant in box.objects]
+                else:
+                    box = self.gardenBoxList[slot][plot[0]]
+                    box.objects.append(testPlant)
+                testPlant.setBox(box)
+            else:
+                #print("not flower type")
+                postion = plot
+                heading = postion[2]
+                testPlant.setPosition(postion[0], postion[1], 16)
+                testPlant.setH(heading)
+                testPlant.stick2Ground(self)
+                testPlant.setEstateId(self.doId)
+                testPlant.setupPetCollision()
+            testPlant.generateWithRequired(self.zoneId)
+
+            #print ("Placing at Position %s %s" % (postion[0], postion[1]))
+            self.placeOnGround(testPlant.doId)
+            self.gardenTable[slot][hardPoint] = testPlant
+            return testPlant.doId
+
+    def removeGardenPlot(self, slot, plot):
+        if self.gardenTable[slot][plot]:
+            if self.gardenTable[slot][plot].box:
+                self.gardenTable[slot][plot].box.objects = [None if plant is self.gardenTable[slot][plot] else plant for plant in self.gardenTable[slot][plot].box.objects]
+            self.gardenTable[slot][plot].requestDelete()
+            self.gardenTable[slot][plot] = None
+
+    def findItemAtHardPoint(self, itemList, hardPoint):
+        for item in itemList:
+            if hardPoint == item[1]:
+                return item
+        return None
+
+    def findItemPositionInItemList(self, itemList, hardPointIndex):
+        for itemListIndex in range(len(itemList)):
+            if hardPointIndex == itemList[itemListIndex][1]:
+                return itemListIndex
+        return -1
+
+    def placeOnGround(self, doId):
+        self.sendUpdate('placeOnGround', [doId])
+
+    def setPetIds(self, petIds):
+        self.petIds = petIds
+
+    if simbase.wantPets:
+        def createPetCollisions(self):
+            # call this after the world geom is all set up or updated
+            render=self.getRender()
+            if self.geom.isStashed():
+                self.geom.unstash()
+            # find the collisions and make copies of them, centered at Z=0
+            if hasattr(self, 'petColls'):
+                self.petColls.removeNode()
+            self.petColls = render.attachNewNode('petColls')
+            colls = self.geom.findAllMatches('**/+CollisionNode')
+            for coll in colls:
+                bitmask = coll.node().getIntoCollideMask()
+                if not (bitmask & BitMask32(OTPGlobals.WallBitmask)).isZero():
+                    newColl = coll.copyTo(self.petColls)
+                    # make sure it's still in the correct position relative
+                    # to the world
+                    newColl.setTransform(coll.getTransform(self.geom))
+                    """
+                    bounds = coll.getBounds()
+                    height = abs(bounds.getMax()[2] - bounds.getMin()[2])
+                    """
+                    # move down two feet to account for collisions that are
+                    # not at Z=0
+                    newColl.setZ(render, -2)
+            self.geom.stash()
+            # set up the collision traverser for this zone
+            self.getZoneData().startCollTrav()
+
+    def destroyEstateData(self):
+        if hasattr(self, "Estate_deleted"):
+            DistributedEstateAI.notify.debug("destroyEstateData: estate already deleted: %s" % self.Estate_deleted)
+            return
+
+        DistributedEstateAI.notify.debug("destroyEstateData: %s" % self.__dict__.get("zoneId"))
+
+        #if hasattr(self, 'zoneId'):
+        #    DistributedEstateAI.notify.debug('destroyEstateData: %s' % self.zoneId)
+        #else:
+        #    DistributedEstateAI.notify.debug('destroyEstateData: zoneID reference deleted')
+
+        if hasattr(self, 'geom'):
+            self.petColls.removeNode()
+            del self.petColls
+            self.geom.removeNode()
+            del self.geom
+            self.releaseZoneData()
+        else:
+            DistributedEstateAI.notify.debug('estateAI has no geom...')
+
+    def updateFlyingTreasureList(self):
+        treasures = self.estateFlyingTreasurePlanner.treasures
+
+        doIdList = []
+        for t in treasures:
+            if t != None:
+                doIdList.append(t.doId)
+        self.sendUpdate("setTreasureIds", [doIdList])
 
     def getEstateType(self):
+        assert(self.notify.debug("getEstateType"))
         return self.estateType
-        
-    def setClosestHouse(self, todo0):
-        pass
 
-    def setTreasureIds(self, todo0):
-        pass
-        
-    def createTreasurePlanner(self):
-        self.treasurePlanner = SZTreasurePlannerAI(self.zoneId, *TreasureGlobals.SafeZoneTreasureSpawns[ToontownGlobals.MyEstate])
-        self.treasurePlanner.start()
-
-    def requestServerTime(self):
-        avId = self.air.getAvatarIdFromSender()
-        self.sendUpdateToAvatarId(avId, 'setServerTime', [time.time() % HouseGlobals.DAY_NIGHT_PERIOD])
-
-    def setServerTime(self, todo0):
-        pass
-
-    def setDawnTime(self, dawnTime):
-        self.dawnTime = dawnTime
-        
-    def d_setDawnTime(self, dawnTime):
-        self.sendUpdate('setDawnTime', [dawnTime])
-        
-    def b_setDawnTime(self, dawnTime):
-        self.setDawnTime(dawnTime)
-        self.d_setDawnTime(dawnTime)
-        
     def getDawnTime(self):
         return self.dawnTime
 
-    def placeOnGround(self, todo0):
-        pass
+    def requestServerTime(self):
+        #print ("requestServerTime")
+        requesterId = self.air.getAvatarIdFromSender()
+        self.serverTime = time.time() % HouseGlobals.DAY_NIGHT_PERIOD
+        self.sendUpdateToAvatarId(requesterId, "setServerTime", [self.serverTime])
 
-    def setLastEpochTimeStamp(self, last):
-        self.lastEpochTimestamp = last
-        
-    def d_setLastEpochTimeStamp(self, last):
-        self.sendUpdate('setLastEpochTimeStamp', [last])
-        
-    def b_setLastEpochTimeStamp(self, last):
-        self.setLastEpochTimeStamp(last)
-        self.d_setLastEpochTimeStamp(last)
-        
-    def getLastEpochTimeStamp(self):
-        return self.lastEpochTimestamp
+    def b_setDecorData(self, decorData):
+        self.setDecorData(decorData)
+        self.d_setDecorData(decorData)
 
-    def setRentalTimeStamp(self, rental):
-        self.rentalTimestamp = rental
-        
-    def d_setRentalTimeStamp(self, rental):
-        self.sendUpdate('setRentalTimeStamp', [rental])
-        
-    def b_setRentalTimeStamp(self, rental):
-        self.setRentalTimeStamp(self, rental)
-        self.b_setRentalTimeStamp(self, rental)
-        
-    def getRentalTimeStamp(self):
-        return self.rentalTimestamp
+    def setDecorData(self, decorData):
+        self.decorData = decorData
+        #print ("setDecorData %s" % (self.doId))
 
-    def setRentalType(self, todo0):
-        pass
-        
-    def getRentalType(self):
-        return 0
+    def d_setDecorData(self, decorData):
+        print("FIXME when correct toon.dc is checked in")
+        #self.sendUpdate("setDecorData", [decorData])
 
-    def setSlot0ToonId(self, id):
-        self.toons[0] = id
-        
-    def d_setSlot0ToonId(self, id):
-        self.sendUpdate('setSlot0ToonId', [id])
-        
-    def b_setSlot0ToonId(self, id):
-        self.setSlot0ToonId(id)
-        self.d_setSlot0ToonId(id)
-        
+    def getDecorData(self):
+        if hasattr(self, "decorData"):
+            return self.decorData
+        else:
+            return []
+
+# lots of get and set functions, not really the prettiest way to do this but it works
+
+    def getToonId(self, slot):
+        if slot == 0:
+            if hasattr(self, "slot0ToonId"):
+                return self.slot0ToonId
+        elif slot == 1:
+            if hasattr(self, "slot1ToonId"):
+                return self.slot1ToonId
+        elif slot == 2:
+            if hasattr(self, "slot2ToonId"):
+                return self.slot2ToonId
+        elif slot == 3:
+            if hasattr(self, "slot3ToonId"):
+                return self.slot3ToonId
+        elif slot == 4:
+            if hasattr(self, "slot4ToonId"):
+                return self.slot4ToonId
+        elif slot == 5:
+            if hasattr(self, "slot5ToonId"):
+                return self.slot5ToonId
+        else:
+            return None
+
+    def setToonId(self, slot, tag):
+        if slot == 0:
+            self.slot0ToonId = tag
+        elif slot == 1:
+            self.slot1ToonId = tag
+        elif slot == 2:
+            self.slot2ToonId = tag
+        elif slot == 3:
+            self.slot3ToonId = tag
+        elif slot == 4:
+            self.slot4ToonId = tag
+        elif slot == 5:
+            self.slot5ToonId = tag
+
+    def d_setToonId(self, slot, avId):
+        if avId:
+            if slot == 0:
+                self.sendUpdate("setSlot0ToonId", [avId])
+            elif slot == 1:
+                self.sendUpdate("setSlot1ToonId", [avId])
+            elif slot == 2:
+                self.sendUpdate("setSlot2ToonId", [avId])
+            elif slot == 3:
+                self.sendUpdate("setSlot3ToonId", [avId])
+            elif slot == 4:
+                self.sendUpdate("setSlot4ToonId", [avId])
+            elif slot == 5:
+                self.sendUpdate("setSlot5ToonId", [avId])
+
+    def b_setToonId(self, slot, avId):
+        self.setToonId(slot, avId)
+        self.d_setToonId(slot, avId)
+
+    def getItems(self, slot):
+        if slot == 0:
+            if hasattr(self, "slot0Items"):
+                return self.slot0Items
+        elif slot == 1:
+            if hasattr(self, "slot1Items"):
+                return self.slot1Items
+        elif slot == 2:
+            if hasattr(self, "slot2Items"):
+                return self.slot2Items
+        elif slot == 3:
+            if hasattr(self, "slot3Items"):
+                return self.slot3Items
+        elif slot == 4:
+            if hasattr(self, "slot4Items"):
+                return self.slot4Items
+        elif slot == 5:
+            if hasattr(self, "slot5Items"):
+                return self.slot5Items
+        else:
+            return None
+
+    def setOneItem(self, ownerIndex, hardPointIndex, gardenItemType=-1, waterLevel=None, growthLevel=-1, variety=-1):
+        assert ownerIndex >= 0 and ownerIndex < 6
+        itemList = self.getItems(ownerIndex)
+        itemsIndex = self.findItemPositionInItemList(itemList, hardPointIndex)
+        if itemsIndex != -1 and gardenItemType == -1:
+            gardenItemType = itemList[itemsIndex][0]
+        if itemsIndex != -1  and waterLevel == None:
+            waterLevel = itemList[itemsIndex][2]
+        if itemsIndex != -1  and growthLevel == -1:
+            growthLevel = itemList[itemsIndex][3]
+        if itemsIndex != -1  and variety == -1:
+            variety = itemList[itemsIndex][4]
+        newInfo = (gardenItemType, hardPointIndex, waterLevel, growthLevel, variety)
+        #since itemList is a reference, just update it
+        if itemsIndex != -1 :
+            itemList[itemsIndex] = newInfo
+        else:
+            itemList.append(newInfo)
+
+    # Note there is no d_setOneItem, since the whole itemList gets updated
+
+    def b_setOneItem(self, ownerIndex, hardPointIndex, gardenItemType=-1,
+                    waterLevel=-1, growthLevel=-1, variety=-1):
+       """
+       If you're changing multiple items, it's better to call b_setItems than
+       multiple calls to b_setOneItem
+       """
+       self.setOneItem(ownerIndex, hardPointIndex, gardenItemType,
+                       waterLevel, growthLevel, variety)
+       self.d_setItems(ownerIndex, self.getItems(ownerIndex))
+
+
+
+
+    def setItems(self, slot, items):
+        if slot == 0:
+            self.slot0Items = items
+        elif slot == 1:
+            self.slot1Items = items
+        elif slot == 2:
+            self.slot2Items = items
+        elif slot == 3:
+            self.slot3Items = items
+        elif slot == 4:
+            self.slot4Items = items
+        elif slot == 5:
+            self.slot5Items = items
+
+    def d_setItems(self, slot, items):
+        items = self.checkItems(items)
+        if slot == 0:
+            self.sendUpdate("setSlot0Items", [items])
+        elif slot == 1:
+            self.sendUpdate("setSlot1Items", [items])
+        elif slot == 2:
+            self.sendUpdate("setSlot2Items", [items])
+        elif slot == 3:
+            self.sendUpdate("setSlot3Items", [items])
+        elif slot == 4:
+            self.sendUpdate("setSlot4Items", [items])
+        elif slot == 5:
+            self.sendUpdate("setSlot5Items", [items])
+
+    def checkItems(self, items, slot = 0):
+        toonId = self.getToonId(slot)
+        for item in items:
+            if (item[0] < 0) or (item[1] < 0) or (item[4] < 0):
+                self.air.writeServerEvent("Removing_Invalid_Garden_Item_on_Toon ", toonId, " item %s" % str(item))
+                items.remove(item)
+        return items
+
+
+    def b_setItems(self, slot, items):
+        items = self.checkItems(items)
+        self.setItems(slot, items)
+        self.d_setItems(slot, items)
+
+    def setSlot0ToonId(self, avId):
+        self.slot0ToonId = avId
+
+    def setSlot1ToonId(self, avId):
+        self.slot1ToonId = avId
+
+    def setSlot2ToonId(self, avId):
+        self.slot2ToonId = avId
+
+    def setSlot3ToonId(self, avId):
+        self.slot3ToonId = avId
+
+    def setSlot4ToonId(self, avId):
+        self.slot4ToonId = avId
+
+    def setSlot5ToonId(self, avId):
+        self.slot5ToonId = avId
+
+    def setSlot0Items(self, items):
+        self.slot0Items = items
+
+    def setSlot1Items(self, items):
+        self.slot1Items = items
+
+    def setSlot2Items(self, items):
+        self.slot2Items = items
+
+    def setSlot3Items(self, items):
+        self.slot3Items = items
+
+    def setSlot4Items(self, items):
+        self.slot4Items = items
+
+    def setSlot5Items(self, items):
+        self.slot5Items = items
+
+
     def getSlot0ToonId(self):
-        return self.toons[0]
-        
-    def setSlot1ToonId(self, id):
-        self.toons[1] = id
+        if hasattr(self, "slot0ToonId"):
+            return self.slot0ToonId
+        else:
+            return 0
 
-    def d_setSlot1ToonId(self, id):
-        self.sendUpdate('setSlot1ToonId', [id])
-        
-    def b_setSlot1ToonId(self, id):
-        self.setSlot1ToonId(id)
-        self.d_setSlot1ToonId(id)
-        
     def getSlot1ToonId(self):
-        return self.toons[1]
+        if hasattr(self, "slot1ToonId"):
+            return self.slot1ToonId
+        else:
+            return 0
 
-    def setSlot2ToonId(self, id):
-        self.toons[2] = id
-
-    def d_setSlot2ToonId(self, id):
-        self.sendUpdate('setSlot2ToonId', [id])
-        
-    def b_setSlot2ToonId(self, id):
-        self.setSlot2ToonId(id)
-        self.d_setSlot2ToonId(id)
-        
     def getSlot2ToonId(self):
-        return self.toons[2]
+        if hasattr(self, "slot2ToonId"):
+            return self.slot2ToonId
+        else:
+            return 0
 
-    def setSlot3ToonId(self, id):
-        self.toons[3] = id
-        
-    def d_setSlot3ToonId(self, id):
-        self.sendUpdate('setSlot3ToonId', [id])
-        
-    def b_setSlot3ToonId(self, id):
-        self.setSlot3ToonId(id)
-        self.d_setSlot3ToonId(id)
-        
     def getSlot3ToonId(self):
-        return self.toons[3]
+        if hasattr(self, "slot3ToonId"):
+            return self.slot3ToonId
+        else:
+            return 0
 
-    def setSlot4ToonId(self, id):
-        self.toons[4] = id
-        
-    def d_setSlot4ToonId(self, id):
-        self.sendUpdate('setSlot4ToonId', [id])
-        
-    def b_setSlot5ToonId(self, id):
-        self.setSlot4ToonId(id)
-        self.d_setSlot4ToonId(id)
-        
     def getSlot4ToonId(self):
-        return self.toons[4]
+        if hasattr(self, "slot4ToonId"):
+            return self.slot4ToonId
+        else:
+            return 0
 
-    def setSlot5ToonId(self, id):
-        self.toons[5] = id
-        
-    def d_setSlot5ToonId(self, id):
-        self.sendUpdate('setSlot5ToonId', [id])
-        
-    def b_setSlot5ToonId(self, id):
-        self.setSlot5ToonId(id)
-        self.d_setSlot5ToonId(id)
-        
     def getSlot5ToonId(self):
-        return self.toons[5]
+        if hasattr(self, "slot5ToonId"):
+            return self.slot5ToonId
+        else:
+            return 0
 
-    def setIdList(self, idList):
-        for i in range(len(idList)):
-            if i >= 6:
-                return
-            self.toons[i] = idList[i]
-        
-    def d_setIdList(self, idList):
-        self.sendUpdate('setIdList', [idList])
-    
-    def b_setIdList(self, idList):
-        self.setIdList(idList)
-        self.d_setIdList(idList)
+    def getSlot0Items(self):
+        if hasattr(self, "slot0Items"):
+            return self.slot0Items
+        else:
+            return []
+
+    def getSlot1Items(self):
+        if hasattr(self, "slot1Items"):
+            return self.slot1Items
+        else:
+            return []
+
+    def getSlot2Items(self):
+        if hasattr(self, "slot2Items"):
+            return self.slot2Items
+        else:
+            return []
+
+    def getSlot3Items(self):
+        if hasattr(self, "slot3Items"):
+            return self.slot3Items
+        else:
+            return []
+
+    def getSlot4Items(self):
+        if hasattr(self, "slot4Items"):
+            return self.slot4Items
+        else:
+            return []
+
+    def getSlot5Items(self):
+        if hasattr(self, "slot5Items"):
+            return self.slot5Items
+        else:
+            return []
+
+    def getLastEpochTimeStamp(self):
+        return self.lastEpochTimeStamp
+
+    def setLastEpochTimeStamp(self, ts):
+        self.lastEpochTimeStamp = ts
+
+    def saveTime(self):
+        currentTime = time.time()
+        self.setLastEpochTimeStamp(currentTime)
+        self.sendUpdate("setLastEpochTimeStamp", [currentTime])
+
+    def completeFlowerSale(self,sell):
+        assert self.notify.debug('completeFlowerSale()')
+        avId = self.air.getAvatarIdFromSender()
+
+        if sell:
+            av = simbase.air.doId2do.get(avId)
+            if av:
+                # this function sells the fish, clears the tank, and
+                # updates the collection, trophies, and maxhp. One stop shopping!
+                trophyResult = self.creditFlowerBasket(av)
+
+                #if trophyResult:
+                #    movieType = NPCToons.SELL_MOVIE_TROPHY
+                #    extraArgs = [len(av.fishCollection), FishGlobals.getTotalNumFish()]
+                #else:
+                #    movieType = NPCToons.SELL_MOVIE_COMPLETE
+                #    extraArgs = []
+
+                # Send a movie to reward the avatar
+                #self.d_setMovie(avId, movieType, extraArgs)
+            else:
+                # perhaps the avatar got disconnected, just leave the fish
+                # in his tank and let him resell them next time
+                pass
+        else:
+            av = simbase.air.doId2do.get(avId)
+            if av:
+                # Send a movie to say goodbye
+                #self.d_setMovie(avId, NPCToons.SELL_MOVIE_NOFISH)
+                pass
+        #self.sendClearMovie(None)
+        return
+
+
+    def creditFlowerBasket(self, av):
+        """
+        Do all the work of selling the basket and updating the collection.
+        Also updates your trophy status and maxHP if needed.
+        Returns 1 if you earned a trophy, 0 if you did not.
+        """
+        assert(self.notify.debug("creditFlowerBasket av: %s is selling all flower" % (av.getDoId())))
+        oldBonus = int(len(av.flowerCollection)/GardenGlobals.FLOWERS_PER_BONUS)
+
+        # give the avatar jellybeans in exchange for his flower
+        value = av.flowerBasket.getTotalValue()
+        av.addMoney(value)
+
+        #log selling flowers, how many and for how much
+        self.air.writeServerEvent("garden_flower_sell", av.getDoId(), '%d|%d' % (value, len(av.flowerBasket.flowerList)))
+
+        # update the avatar collection for each flower
+        for flower in av.flowerBasket.flowerList:
+            retval = av.flowerCollection.collectFlower(flower)
+            if retval == GardenGlobals.COLLECT_NEW_ENTRY:
+                #log we are adding a new flower to our collection
+                self.air.writeServerEvent("garden_collection_add", av.getDoId(),
+                                          '%d|%d' % (flower.species,flower.variety))
+
+        # clear out the flowerBasket
+        av.b_setFlowerBasket([],[])
+
+        # update the collection in the database
+        av.d_setFlowerCollection(*av.flowerCollection.getNetLists())
+
+        newBonus = int(len(av.flowerCollection)/GardenGlobals.FLOWERS_PER_BONUS)
+        if newBonus > oldBonus:
+            self.notify.info("avatar %s gets a bonus: old: %s, new: %s" % (av.doId, oldBonus, newBonus))
+            oldMaxHp = av.getMaxHp()
+            newMaxHp = min(ToontownGlobals.MaxHpLimit, oldMaxHp + newBonus - oldBonus)
+            av.b_setMaxHp(newMaxHp)
+            # Also, give them a full heal
+            av.toonUp(newMaxHp)
+            # update the av's trophy list
+
+            newTrophies = av.getGardenTrophies()
+            trophyId = len(newTrophies)
+            newTrophies.append(trophyId)
+            av.b_setGardenTrophies(newTrophies)
+
+            #log garden trophy
+            self.air.writeServerEvent("garden_trophy", av.doId, "%s" % (trophyId))
+
+            self.sendUpdate('awardedTrophy',[av.doId])
+
+            return 1
+        else:
+            assert(self.notify.debug("avatar %s no bonus: old: %s, new: %s" % (av.doId, oldBonus, newBonus)))
+            return 0
 
     def setClouds(self, clouds):
-        self.cloudType = clouds
-        
+        self.clouds = clouds
+
+    def getClouds(self):
+        if hasattr(self, "clouds"):
+            return self.clouds
+        else:
+            return 0
+
     def d_setClouds(self, clouds):
-        self.sendUpdate('setClouds', [clouds])
-        
+        self.sendUpdate("setClouds", [clouds])
+
     def b_setClouds(self, clouds):
         self.setClouds(clouds)
         self.d_setClouds(clouds)
-        
-    def getClouds(self):
-        return self.cloudType
 
-    def cannonsOver(self):
-        pass
+    def setRentalTimeStamp(self, rentalTimeStamp):
+        self.rentalTimeStamp = rentalTimeStamp
 
-    def gameTableOver(self):
-        pass
+    def getRentalTimeStamp(self):
+        if hasattr(self, "rentalTimeStamp"):
+            return self.rentalTimeStamp
+        else:
+            self.rentalTimeStamp = 0
+            return 0
 
-    def placeStarterGarden(self, av):
-        if av is None:
+    def d_setRentalTimeStamp(self, rentalTimeStamp):
+        self.sendUpdate("setRentalTimeStamp", [rentalTimeStamp])
+
+    def b_setRentalTimeStamp(self, rentalTimeStamp):
+        self.setRentalTimeStamp(rentalTimeStamp)
+        self.d_setRentalTimeStamp(rentalTimeStamp)
+
+
+    def setRentalType(self, rentalType):
+        self.rentalType = rentalType
+
+    def getRentalType(self):
+        if hasattr(self, "rentalType"):
+            return self.rentalType
+        else:
+            self.rentalType = 0
+            return 0
+
+    def d_setRentalType(self, rentalType):
+        self.sendUpdate("setRentalType", [rentalType])
+
+    def b_setRentalType(self, rentalType):
+        self.setRentalType(rentalType)
+        self.d_setRentalType(rentalType)
+
+    def giveCannonTime(self, seconds):
+        timeleft = 0
+        if self.rentalType == ToontownGlobals.RentalCannon:
+            timeleft = self.rentalTimeStamp - currentTime
+            if timeleft < 0:
+                timeleft = 0
+        currentTime = time.time()
+        newTime = currentTime + seconds + timeleft
+        self.b_setRentalTimeStamp(newTime)
+        self.makeCannonsUntil(newTime)
+
+
+    def makeCannonsUntil(self, endTime):
+        #print("makeing cannons until")
+        self.startCannons()
+        currentTime = time.time()
+        secondsUntil = endTime - currentTime
+        taskMgr.remove(self.uniqueName("endCannons"))
+        taskMgr.doMethodLater(secondsUntil, self.endCannons, self.uniqueName("endCannons"))
+        taskMgr.remove(self.uniqueName("endCannonsNotify"))
+        taskMgr.doMethodLater(secondsUntil, self.notifyCannonsEnd, self.uniqueName("endCannonsNotify"))
+
+    def makeGameTableUntil(self, endTime):
+        self.notify.debug('making game table until')
+        self.startGameTable()
+        currentTime = time.time()
+        secondsUntil = endTime - currentTime
+        taskMgr.remove(self.uniqueName("endGameTable"))
+        taskMgr.doMethodLater(secondsUntil, self.endGameTable, self.uniqueName("endGameTable"))
+
+    def startGameTable(self, avatar = 0):
+        if self.gameTableFlag:
             return
+        if not self.picnicTable:
+            self.notify.debug('creating game table')
+            # Create the game table
+            pos = Point3(55, -20, 8.8)
+            hpr = Point3(0, 0, 0)
+            self.picnicTable = DistributedPicnicTableAI.DistributedPicnicTableAI(self.air, self.zoneId, 'gameTable',
+                                                                                 pos[0], pos[1], pos[2],
+                                                                                 hpr[0], hpr[1], hpr[2])
+        self.gameTableFlag = True
 
-        for house in self.houses:
-            if house is not None:
-                if house.getAvatarId() == av.doId:
-                    house.placeStarterGarden()
-                    return
+    def endGameTable(self, avatar = 0):
+        self.notify.debug('endGameTable')
+        if not self.gameTableFlag:
+            return
+        if self.picnicTable:
+            # delete the game table
+            self.picnicTable.requestDelete()
+            del self.picnicTable
+            self.picnicTable = None
 
-        self.notify.warning('Avatar %s tried to place a starter garden when he didnt own a house!' % av.doId)
+        # Tell the client that the game table rental is over
+        self.sendUpdate("gameTableOver", [])
 
-    def updateToons(self):
-        self.d_setSlot0ToonId(self.toons[0])
-        self.d_setSlot1ToonId(self.toons[1])
-        self.d_setSlot2ToonId(self.toons[2])
-        self.d_setSlot3ToonId(self.toons[3])
-        self.d_setSlot4ToonId(self.toons[4])
-        self.d_setSlot5ToonId(self.toons[5])
+        self.gameTableFlag = False
 
-        self.sendUpdate('setIdList', [self.toons])
+    def rentItem(self, type, duration):
+        timeleft = 0
+        currentTime = time.time()
+        if self.rentalType == type:
+            timeleft = self.rentalTimeStamp - currentTime
+            if timeleft < 0:
+                timeleft = 0
+        newTime = currentTime + (duration * 60) + timeleft
+        self.air.writeServerEvent('rental', self.doId, "New rental end time %s." % (newTime))
+
+        self.b_setRentalTimeStamp(newTime)
+        self.b_setRentalType(type)
+        if type == ToontownGlobals.RentalCannon:
+            self.makeCannonsUntil(newTime)
+        elif type == ToontownGlobals.RentalGameTable:
+            self.makeGameTableUntil(newTime)
+
+    def movePlanter(self, slot, index, x, y, heading):
+        box = self.gardenBoxList[slot][index]
+
+        if box != None:
+            box.b_setPosition(x,y,0)
+            box.b_setH(heading)
+
+    def printPlanterPos(self, slot, index):
+        box = self.gardenBoxLispdb; t[slot][index]
+        print ("X %s Y%s Heading %s" % (box.getX(), box.getY, box.getH()))
+
+    def getFlowers(self, avId):
+        flowers = []
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                for plot in range(len(self.gardenTable[index])):
+                    someLawnDecor = self.gardenTable[index][plot]
+                    if isinstance(someLawnDecor, DistributedFlowerAI.DistributedFlowerAI):
+                        flowers.append(someLawnDecor)
+                break
+        return flowers
+
+    def getTrees(self, avId, gagTrack = -1, gagLevel = -1):
+        trees = []
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                for plot in range(len(self.gardenTable[index])):
+                    someLawnDecor = self.gardenTable[index][plot]
+                    if isinstance(someLawnDecor, DistributedGagTreeAI.DistributedGagTreeAI):
+                        if (gagTrack == -1 or someLawnDecor.gagTrack == gagTrack) and (gagLevel == -1 or someLawnDecor.gagLevel == gagLevel):
+                            trees.append(someLawnDecor)
+        return trees
+
+    def getPlots(self, avId, withBox = False):
+        plots = []
+        for index in range(self.toonsPerAccount):
+            if self.getToonId(index) == avId:
+                for plot in range(len(self.gardenTable[index])):
+                    someLawnDecor = self.gardenTable[index][plot]
+                    if isinstance(someLawnDecor, DistributedGardenPlotAI.DistributedGardenPlotAI) \
+                    and (not withBox or someLawnDecor.box):
+                        plots.append(someLawnDecor)
+        return plots

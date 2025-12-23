@@ -639,7 +639,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         if HouseGlobals.WANT_TELEPORT_TIMEOUT:
             taskMgr.doMethodLater(HouseGlobals.TELEPORT_TIMEOUT, self.goHomeFailed, 'goHomeFailed')
 
-    def goHome(self, ownerId, zoneId, shardId):
+    def goHome(self, ownerId, zoneId):
         self.notify.debug('goHome ownerId = %s' % ownerId)
         taskMgr.remove('goHomeFailed')
         if ownerId > 0 and ownerId != base.localAvatar.doId and not base.cr.isFriend(ownerId):
@@ -665,14 +665,10 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
         elif self.doneStatus['zoneId'] != zoneId:
             self.doneStatus['where'] = 'house'
 
-        if shardId != 0:
-            self.doneStatus['shardId'] = shardId
-
         self.doneStatus['ownerId'] = ownerId
 
         messenger.send(self.doneEvent)
         messenger.send('localToonLeft')
-        return
 
     def goHomeFailed(self, task):
         self.notify.debug('goHomeFailed')

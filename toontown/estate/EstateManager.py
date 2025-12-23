@@ -10,7 +10,6 @@ class EstateManager(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.availableZones = 0
         self.popupInfo = None
-        return
 
     def disable(self):
         self.notify.debug("i'm disabling EstateManager rightnow.")
@@ -20,7 +19,6 @@ class EstateManager(DistributedObject.DistributedObject):
             self.popupInfo.destroy()
             self.popupInfo = None
         DistributedObject.DistributedObject.disable(self)
-        return
 
     def allocateMyEstateZone(self):
         self.getLocalEstateZone(base.localAvatar.getDoId())
@@ -28,14 +26,9 @@ class EstateManager(DistributedObject.DistributedObject):
     def getLocalEstateZone(self, avId):
         self.sendUpdate('getEstateZone', [avId])
 
-    def setEstateZone(self, ownerId, zoneId, shardId):
-        self.notify.debug('setEstateZone(%s, %s, %s)' % (ownerId, zoneId, shardId))
-        if shardId > 0:
-            base.localAvatar.switchingShards = True
-        messenger.send('setLocalEstateZone', [ownerId, zoneId, shardId])
-
-    def mapAvatar(self, ownerId):
-        self.sendUpdate('mapAvatar', [ownerId])
+    def setEstateZone(self, ownerId, zoneId):
+        self.notify.debug('setEstateZone(%s, %s)' % (ownerId, zoneId))
+        messenger.send('setLocalEstateZone', [ownerId, zoneId])
 
     def generate(self):
         self.notify.debug('BASE: generate')
@@ -43,10 +36,6 @@ class EstateManager(DistributedObject.DistributedObject):
         base.cr.estateManager = self
         self.accept('getLocalEstateZone', self.getLocalEstateZone)
         self.announceGenerateName = self.uniqueName('generate')
-
-        if base.localAvatar.switchingShards:
-            self.mapAvatar(base.localAvatar.switchingShards)
-            base.localAvatar.switchingShards = False
 
     def setAvHouseId(self, avId, houseIds):
         self.notify.debug('setAvHouseId %d' % base.localAvatar.doId)

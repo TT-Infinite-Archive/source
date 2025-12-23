@@ -26,7 +26,7 @@ class DistributedHouse(DistributedObject.DistributedObject):
 
     def __init__(self, cr):
         DistributedObject.DistributedObject.__init__(self, cr)
-        self.houseType = 0
+        self.houseType = None
         self.avId = -1
         self.ownerId = 0
         self.colorIndex = 0
@@ -40,7 +40,6 @@ class DistributedHouse(DistributedObject.DistributedObject):
         self.randomGenerator = None
         self.housePosInd = 0
         self.house_loaded = 0
-        return
 
     def disable(self):
         DistributedObject.DistributedObject.disable(self)
@@ -63,7 +62,6 @@ class DistributedHouse(DistributedObject.DistributedObject):
         self.house_loaded = 0
         del self.randomGenerator
         DistributedObject.DistributedObject.delete(self)
-        return
 
     def clearNametag(self):
         if self.nametag != None:
@@ -71,7 +69,6 @@ class DistributedHouse(DistributedObject.DistributedObject):
             self.nametag.setAvatar(NodePath())
             self.nametag.destroy()
             self.nametag = None
-        return
 
     def load(self):
         self.notify.debug('load')
@@ -103,7 +100,6 @@ class DistributedHouse(DistributedObject.DistributedObject):
         else:
             doorModelName = doorModelName[:-1] + 'r'
         door = self.dnaStore.findNode(doorModelName)
-        door.setDepthOffset(5)
         door_origin = self.house.find('**/door_origin')
         door_origin.setHpr(90, 0, 0)
         door_origin.setScale(0.6, 0.6, 0.8)
@@ -123,7 +119,6 @@ class DistributedHouse(DistributedObject.DistributedObject):
         self.randomGenerator = random.Random()
         self.randomGenerator.seed(self.doId)
         self.notify.debug('setupDoorCustom')
-        self.dnaStore = self.cr.playGame.dnaStore
         door = self.house.find('**/door_0')
         door_origin = self.house.find('**/door_origin')
         door_origin.setHpr(90, 0, 0)
@@ -139,6 +134,8 @@ class DistributedHouse(DistributedObject.DistributedObject):
         doorTrigger = doorNP.find('**/door_*_trigger')
         doorTrigger.wrtReparentTo(door_origin)
         doorTrigger.node().setName('door_trigger_' + str(self.doId))
+        if self.houseType in list(HouseGlobals.houseDoorOffsets.keys()):
+            doorTrigger.setY(HouseGlobals.houseDoorOffsets.get(self.houseType))
         self.__setupFloorMat(changeColor=False)
         self.__setupNametag()
         self.__setupNamePlateCustom()
@@ -178,7 +175,7 @@ class DistributedHouse(DistributedObject.DistributedObject):
         pos = sign_origin.getPos()
         sign_origin.setPosHpr(pos[0], pos[1], pos[2] + 0.15 * textHeight, 90, 0, 0)
         self.namePlate = sign_origin.attachNewNode(self.nameText)
-        self.namePlate.setDepthOffset(5)
+        self.namePlate.setDepthWrite(0)
         self.namePlate.setPos(0, -0.05, 0)
         self.namePlate.setScale(xScale)
         return nameText
@@ -221,7 +218,6 @@ class DistributedHouse(DistributedObject.DistributedObject):
         self.floorMat.setDepthWrite(0)
         self.floorMat.setPos(0, -.025, 0)
         self.floorMat.setScale(0.45 * xScale)
-        return
 
     def __setupNametag(self):
         if self.nametag:

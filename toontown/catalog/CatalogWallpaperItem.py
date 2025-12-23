@@ -736,7 +736,7 @@ def getWallpaperRange(fromIndex, toIndex, *otherRanges):
         froms.append(otherRanges[i])
         tos.append(otherRanges[i + 1])
         i += 2
-    for patternIndex in list(WallpaperTypes.keys()):
+    for patternIndex in WallpaperTypes.keys():
         for fromIndex, toIndex in zip(froms, tos):
             if patternIndex >= fromIndex and patternIndex <= toIndex:
                 borderKeys = WallpaperTypes[patternIndex][WTBorderList]

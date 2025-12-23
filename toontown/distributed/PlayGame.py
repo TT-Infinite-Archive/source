@@ -127,7 +127,6 @@ class PlayGame(StateData.StateData):
           'zoneId': zoneId,
           'shardId': None,
           'avId': avId}])
-        return
 
     def exit(self):
         if base.placeBeforeObjects and self.quietZoneStateData:
@@ -433,9 +432,8 @@ class PlayGame(StateData.StateData):
             base.cr.estateManager.getLocalEstateZone(avId)
         else:
             base.cr.estateManager.getLocalEstateZone(base.localAvatar.getDoId())
-        return
 
-    def goHome(self, ownerId, zoneId, shardId):
+    def goHome(self, ownerId, zoneId):
         self.notify.debug('goHome ownerId = %s' % ownerId)
         if ownerId > 0 and ownerId != base.localAvatar.doId and not base.cr.isFriend(ownerId):
             self.doneStatus['failed'] = 1
@@ -452,13 +450,7 @@ class PlayGame(StateData.StateData):
             self.doneStatus['where'] = 'estate'
         self.doneStatus['ownerId'] = ownerId
 
-        if shardId != 0:
-            self.doneStatus['shardId'] = shardId
-        else:
-            self.doneStatus['shardId'] = None
-
         self.fsm.request('quietZone', [self.doneStatus])
-        return
 
     def goHomeFailed(self, task):
         self.notify.debug('goHomeFailed')

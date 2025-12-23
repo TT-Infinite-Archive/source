@@ -1,38 +1,57 @@
+from otp.ai.AIBase import *
+from . import DistributedLawnDecorAI
 from direct.directnotify import DirectNotifyGlobal
-from toontown.estate.DistributedLawnDecorAI import DistributedLawnDecorAI
-from toontown.estate import GardenGlobals
+from . import GardenGlobals
 
+class DistributedStatuaryAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedStatuaryAI')
 
-class DistributedStatuaryAI(DistributedLawnDecorAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedStatuaryAI")
+    def __init__(self, typeIndex = 201, waterLevel = 0, growthLevel = 0, optional = None, ownerIndex = 0, plot = 0):
+        DistributedLawnDecorAI.DistributedLawnDecorAI.__init__(self, simbase.air, ownerIndex, plot)
+        self.typeIndex = typeIndex
+        self.waterLevel = waterLevel
+        self.growthLevel = growthLevel
+        self.optional = optional
+        self.name = GardenGlobals.PlantAttributes[typeIndex]['name']
+        self.plantType = GardenGlobals.PlantAttributes[typeIndex]['plantType']
+        self.modelPath = GardenGlobals.PlantAttributes[typeIndex]['model']
 
-    def __init__(self, air, gardenManager, ownerIndex):
-        DistributedLawnDecorAI.__init__(self, air, gardenManager, ownerIndex)
+        #testStatue = DistributedToonStatuaryAI.DistributedToonStatuaryAI()
+        #testStatue.copyToon()
+        #testStatue.removeTextures()
 
-        self.typeIndex = None
-        self.occupier = GardenGlobals.StatuaryPlot
-
-    def d_setTypeIndex(self, index):
-        self.sendUpdate('setTypeIndex', [index])
+    def setTypeIndex(self, typeIndex):
+        self.typeIndex = typeIndex
+        self.name = GardenGlobals.PlantAttributes[typeIndex]['name']
+        self.plantType = GardenGlobals.PlantAttributes[typeIndex]['plantType']
+        self.modelPath = GardenGlobals.PlantAttributes[typeIndex]['model']
+        self.pinballScore = None
+        if 'pinballScore' in GardenGlobals.PlantAttributes[typeIndex]:
+            self.pinballScore = GardenGlobals.PlantAttributes[typeIndex]['pinballScore']
+        self.worldScale = 1.0
+        if 'worldScale' in GardenGlobals.PlantAttributes[typeIndex]:
+            self.worldScale = GardenGlobals.PlantAttributes[typeIndex]['worldScale']
 
     def getTypeIndex(self):
         return self.typeIndex
 
-    def construct(self, gardenData):
-        DistributedLawnDecorAI.construct(self, gardenData)
+    def setWaterLevel(self, waterLevel):
+        self.waterLevel = waterLevel
 
-        self.typeIndex = gardenData.getUint8()
+    def getWaterLevel(self):
+        return self.waterLevel
 
-    def pack(self, gardenData):
-        gardenData.addUint8(self.occupier)
+    def setGrowthLevel(self, growthLevel):
+        self.growthLevel = growthLevel
 
-        DistributedLawnDecorAI.pack(self, gardenData)
+    def getGrowthLevel(self):
+        return self.growthLevel
 
-        gardenData.addUint8(self.typeIndex)
-
-    def movieDone(self):
-        if self.movie == GardenGlobals.MOVIE_REMOVE:
-            self.gardenManager.removeFinished(self.plotIndex)
-            self.requestDelete()
-
-        DistributedLawnDecorAI.movieDone(self)
+    def setupPetCollision(self):
+        if simbase.wantPets:
+            estate = self.air.doId2do[self.estateId]
+            model = loader.loadModel(self.modelPath)
+            self.colNode = model.find('**/+CollisionNode')
+            self.colNode.reparentTo(self)
+            self.colNode.wrtReparentTo(estate.petColls)
+            model.removeNode()

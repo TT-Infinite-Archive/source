@@ -1,591 +1,635 @@
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from toontown.catalog.CatalogItemList import CatalogItemList
+from direct.distributed import DistributedObjectAI
+from . import DistributedFurnitureItemAI
+from . import DistributedBankAI
+from . import DistributedClosetAI
+from . import DistributedPhoneAI
+from . import DistributedTrunkAI
+from toontown.catalog import CatalogFurnitureItem
+from toontown.catalog import CatalogSurfaceItem
+from toontown.catalog import CatalogWindowItem
 from toontown.catalog import CatalogItem
-from toontown.catalog.CatalogFurnitureItem import CatalogFurnitureItem, FLTrunk, FLCloset, FLBank, FLPhone
-from toontown.catalog.CatalogWallpaperItem import CatalogWallpaperItem
-from toontown.catalog.CatalogMouldingItem import CatalogMouldingItem
-from toontown.catalog.CatalogFlooringItem import CatalogFlooringItem
-from toontown.catalog.CatalogWainscotingItem import CatalogWainscotingItem
 from toontown.toonbase import ToontownGlobals
-from .DistributedFurnitureItemAI import DistributedFurnitureItemAI
-from .DistributedPhoneAI import DistributedPhoneAI
-from .DistributedClosetAI import DistributedClosetAI
-from .DistributedTrunkAI import DistributedTrunkAI
-from otp.ai.MagicWordGlobal import *
+from direct.directnotify.DirectNotifyGlobal import *
 
-class FurnitureError(Exception):
-    def __init__(self, code):
-        Exception.__init__(self)
-        self.code = code
+class DistributedFurnitureManagerAI(DistributedObjectAI.DistributedObjectAI):
 
+    notify = directNotify.newCategory('DistributedFurnitureManagerAI')
 
-class DistributedFurnitureManagerAI(DistributedObjectAI):
-    notify = directNotify.newCategory("DistributedFurnitureManagerAI")
-
-    def __init__(self, air, house, interior):
-        DistributedObjectAI.__init__(self, air)
-
+    def __init__(self, air, house, isInterior):
         self.house = house
-        self.interior = interior
-
-        self.director = None
-
-        self.ownerId = house.avatarId
-        self.ownerName = house.name
-
-        self.atticItems = None
-        self.atticWallpaper = None
-        self.wallpaper = None
-        self.atticWindows = None
-        self.windows = None
-        self.deletedItems = None
-
-        self.items = []
-
-        # Initialize the above variables:
-        self.loadFromHouse()
-
-    def announceGenerate(self):
-        DistributedObjectAI.announceGenerate(self)
-
-        for item in self.items:
-            item.generateWithRequired(self.zoneId)
+        self.isInterior = isInterior
+        self.director = 0
+        self.dfitems = []
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
 
     def delete(self):
-        for item in self.items:
-            item.destroy()
+        for dfitem in self.dfitems:
+            dfitem.requestDelete()
+        self.dfitems = None
+        self.director = None
 
-        DistributedObjectAI.delete(self)
-
-    def loadFromHouse(self):
-        self.b_setAtticItems(self.house.getAtticItems())
-        self.b_setAtticWallpaper(self.house.getAtticWallpaper())
-        self.b_setAtticWindows(self.house.getAtticWindows())
-        self.b_setDeletedItems(self.house.getDeletedItems())
-
-        self.wallpaper = CatalogItemList(self.house.getInteriorWallpaper(),
-                                         store=CatalogItem.Customization)
-        self.applyWallpaper()
-        self.windows = CatalogItemList(self.house.getInteriorWindows(),
-                                       store=CatalogItem.Customization |
-                                             CatalogItem.WindowPlacement)
-        self.applyWindows()
-
-        self.setItems(self.house.getInteriorItems())
-
-    def saveToHouse(self):
-        self.house.b_setAtticItems(self.getAtticItems())
-        self.house.b_setAtticWallpaper(self.getAtticWallpaper())
-        self.house.b_setAtticWindows(self.getAtticWindows())
-        self.house.b_setDeletedItems(self.getDeletedItems())
-
-        self.house.b_setInteriorWallpaper(self.wallpaper.getBlob())
-        self.house.b_setInteriorWindows(self.windows.getBlob())
-
-        self.house.b_setInteriorItems(self.getItems())
-
-    def applyWallpaper(self):
-        self.interior.b_setWallpaper(self.wallpaper.getBlob())
-
-    def applyWindows(self):
-        self.interior.b_setWindows(self.windows.getBlob())
-
-    def setItems(self, items):
-        # Decode the blob:
-        items = CatalogItemList(items, store=CatalogItem.Customization|CatalogItem.Location)
-
-        # Throw out our old items:
-        for item in self.items:
-            item.destroy()
-        self.items = []
-
-        items.removeDuplicates(FLCloset)
-
-        # Due to a bug, some people are missing their closets...
-        hasCloset = False
-        for item in items:
-            if item.getFlags() & FLCloset:
-                hasCloset = True
-                break
-
-        if not hasCloset and self.ownerId != 0:
-            item = CatalogFurnitureItem(500)  # the basic closet...
-            item.posHpr = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-            items.append(item)
-            # Since we have modified the items list, should we save it back to the house?
-
-        for item in items:
-            if item.getFlags() & FLTrunk:
-                if self.house.gender is 0:
-                    if item.furnitureType - 4000 < 10:
-                        item.furnitureType += 10
-                elif item.furnitureType - 4000 > 10:
-                    item.furnitureType -= 10
-                do = DistributedTrunkAI(self.air, self, item)
-            elif item.getFlags() & FLCloset:
-                if self.house.gender is 0:
-                    if item.furnitureType - 500 < 10:
-                        item.furnitureType += 10
-                elif item.furnitureType - 500 > 10:
-                    item.furnitureType -= 10
-                do = DistributedClosetAI(self.air, self, item)
-            elif item.getFlags() & FLBank:
-                continue # We dont want banks in the estates.
-            elif item.getFlags() & FLPhone:
-                do = DistributedPhoneAI(self.air, self, item)
-            else:
-                do = DistributedFurnitureItemAI(self.air, self, item)
-            if self.isGenerated():
-                do.generateWithRequired(self.zoneId)
-            self.items.append(do)
-
-    def getItems(self):
-        items = CatalogItemList(store=CatalogItem.Customization|CatalogItem.Location)
-
-        for item in self.items:
-            items.append(item.catalogItem)
-
-        return items.getBlob()
-
-    def setOwnerId(self, ownerId):
-        self.ownerId = ownerId
-
-    def d_setOwnerId(self, ownerId):
-        self.sendUpdate('setOwnerId', [ownerId])
-
-    def b_setOwnerId(self, ownerId):
-        self.setOwnerId(ownerId)
-        self.d_setOwnerId(ownerId)
+        self.notify.debug("delete()")
+        self.ignoreAll()
+        DistributedObjectAI.DistributedObjectAI.delete(self)
 
     def getOwnerId(self):
-        return self.ownerId
-
-    def setOwnerName(self, ownerName):
-        self.ownerName = ownerName
-
-    def d_setOwnerName(self, ownerName):
-        self.sendUpdate('setOwnerName', [ownerName])
-
-    def b_setOwnerName(self, ownerName):
-        self.setOwnerName(ownerName)
-        self.d_setOwnerName(ownerName)
+        return self.house.ownerId
 
     def getOwnerName(self):
-        return self.ownerName
+        return self.house.name
 
     def getInteriorId(self):
-        return self.interior.doId
-
-    def setAtticItems(self, items):
-        self.atticItems = CatalogItemList(items, store=CatalogItem.Customization)
-
-    def d_setAtticItems(self, items):
-        self.sendUpdate('setAtticItems', [items])
-
-    def b_setAtticItems(self, items):
-        self.setAtticItems(items)
-        if self.isGenerated():
-            self.d_setAtticItems(items)
+        return self.house.interior.doId
 
     def getAtticItems(self):
-        return self.atticItems.getBlob()
+        return self.house.getAtticItems()
 
-    def setAtticWallpaper(self, items):
-        self.atticWallpaper = CatalogItemList(items, store=CatalogItem.Customization)
+    def d_setAtticItems(self, items):
+        self.sendUpdate("setAtticItems", [items.getBlob(store = CatalogItem.Customization)])
 
     def d_setAtticWallpaper(self, items):
-        self.sendUpdate('setAtticWallpaper', [items])
-
-    def b_setAtticWallpaper(self, items):
-        self.setAtticWallpaper(items)
-        if self.isGenerated():
-            self.d_setAtticWallpaper(items)
+        self.sendUpdate("setAtticWallpaper", [items.getBlob(store = CatalogItem.Customization)])
 
     def getAtticWallpaper(self):
-        return self.atticWallpaper.getBlob()
-
-    def setAtticWindows(self, items):
-        self.atticWindows = CatalogItemList(items, store=CatalogItem.Customization)
+        return self.house.getAtticWallpaper()
 
     def d_setAtticWindows(self, items):
-        self.sendUpdate('setAtticWindows', [items])
-
-    def b_setAtticWindows(self, items):
-        self.setAtticWindows(items)
-        if self.isGenerated():
-            self.d_setAtticWindows(items)
+        self.sendUpdate("setAtticWindows", [items.getBlob(store = CatalogItem.Customization)])
 
     def getAtticWindows(self):
-        return self.atticWindows.getBlob()
-
-    def setDeletedItems(self, items):
-        self.deletedItems = CatalogItemList(items, store=CatalogItem.Customization)
-
-    def d_setDeletedItems(self, items):
-        self.sendUpdate('setDeletedItems', [items])
-
-    def b_setDeletedItems(self, items):
-        self.setDeletedItems(items)
-        if self.isGenerated():
-            self.d_setDeletedItems(items)
+        return self.house.getAtticWindows()
 
     def getDeletedItems(self):
-        return self.deletedItems.getBlob()
+        deleted = self.house.reconsiderDeletedItems()
+        if deleted:
+            self.house.d_setDeletedItems(self.house.deletedItems)
 
-    def suggestDirector(self, directorId):
+        return self.house.deletedItems.getBlob(store = CatalogItem.Customization)
+
+    def d_setDeletedItems(self, items):
+        self.sendUpdate("setDeletedItems", [items.getBlob(store = CatalogItem.Customization)])
+
+    def suggestDirector(self, avId):
+        # This method is sent by the client to request the right to
+        # manipulate the controls, for the requestor or for another.
+        # The AI decides whether to honor the request or ignore it.
+
+        if self.dfitems == None:
+            return
+
+        # validate the avId
+        avatar = simbase.air.doId2do.get(avId)
+        if (avId != 0) and (not avatar):
+            # Note: avId == 0 OK since that signals end of furniture arranging
+            self.air.writeServerEvent('suspicious', avId, 'FurnitureManager.suggestDirector invalid avId')
+            return
+
+        # The request is honored if the sender is the owner or is the
+        # current director
         senderId = self.air.getAvatarIdFromSender()
+        if senderId == self.house.ownerId or senderId == self.director:
+            self.b_setDirector(avId)
 
-        if self.ownerId != senderId:
-            self.air.writeServerEvent('suspicious', avId=senderId, issue='Tried to move furniture, but not the house owner!')
-            return
+    def b_setDirector(self, avId):
+        self.setDirector(avId)
+        self.d_setDirector(avId)
 
-        if senderId != directorId and directorId != 0:
-            self.air.writeServerEvent('suspicious', avId=senderId, issue='Tried to make someone else (%d) move their furniture!' % directorId)
-            return
+    def d_setDirector(self, avId):
+        self.sendUpdate("setDirector", [avId])
 
-        director = self.air.doId2do.get(directorId)
-        if directorId and not director:
-            self.air.writeServerEvent('suspicious', avId=directorId, issue='Tried to move furniture without being on the shard!')
-            return
+    def setDirector(self, avId):
+        if self.director != avId:
+            # Go through the dfitems list and stop accepting
+            # messages from the current director, if any.
+            for dfitem in self.dfitems:
+                dfitem.removeDirector()
 
-        if self.director:
-            self.director.b_setGhostMode(0)
-        if director:
-            if director.zoneId != self.zoneId:
-                self.air.writeServerEvent('suspicious', avId=directorId, issue='Tried to become director from another zone!')
-                return
-            director.b_setGhostMode(2)
-
-        self.director = director
-        self.sendUpdate('setDirector', [directorId])
-
-        # Let's also save the furniture to the house (and thus to the DB) while
-        # we're at it...
-        self.saveToHouse()
+            self.director = avId
 
     def avatarEnter(self):
-        pass
+        # Sent from the client when he enters furniture moving mode.
+        avId = self.air.getAvatarIdFromSender()
+        self.notify.debug("avatarEnter: %s, %s" % (self.doId, avId))
+        avatar = simbase.air.doId2do.get(avId)
+        if avatar:
+            avatar.b_setGhostMode(1)
+        else:
+            self.notify.warning("%s got avatarEnter for unknown avatar %s" % (self.doId, avId))
+
 
     def avatarExit(self):
-        pass
-
-    # Furniture-manipulation:
-    def moveItemToAttic(self, doId):
-        item = self.getItemObject(doId)
-
-        self.atticItems.append(item.catalogItem)
-        self.d_setAtticItems(self.getAtticItems())
-
-        item.destroy()
-        self.items.remove(item)
-
-        return ToontownGlobals.FM_MovedItem
-
-    def moveItemFromAttic(self, index, x, y, z, h, p, r):
-        item = self.getAtticFurniture(self.atticItems, index)
-
-        self.atticItems.remove(item)
-        self.d_setAtticItems(self.getAtticItems())
-
-        item.posHpr = (x, y, z, h, p, r)
-
-        if item.getFlags() & FLTrunk:
-            if self.house.gender is 0:
-                if item.furnitureType - 4000 < 10:
-                    item.furnitureType += 10
-            elif item.furnitureType - 4000 > 10:
-                item.furnitureType -= 10
-            do = DistributedTrunkAI(self.air, self, item)
-        elif item.getFlags() & FLCloset:
-            if self.house.gender is 0:
-                if item.furnitureType - 500 < 10:
-                    item.furnitureType += 10
-            elif item.furnitureType - 500 > 10:
-                item.furnitureType -= 10
-            do = DistributedClosetAI(self.air, self, item)
-        elif item.getFlags() & FLBank:
-            pass # We don't want banks in the estates
-        elif item.getFlags() & FLPhone:
-            do = DistributedPhoneAI(self.air, self, item)
+        # Sent from the client when he enters furniture moving mode.
+        avId = self.air.getAvatarIdFromSender()
+        self.notify.debug("avatarExit: %s, %s" % (self.doId, avId))
+        avatar = simbase.air.doId2do.get(avId)
+        if avatar:
+            avatar.b_setGhostMode(0)
         else:
-            do = DistributedFurnitureItemAI(self.air, self, item)
-
-        do.generateWithRequired(self.zoneId)
-        self.items.append(do)
-
-        return (ToontownGlobals.FM_MovedItem, do.doId)
-
-    def deleteItemFromAttic(self, blob, index):
-        item = self.getAtticFurniture(self.atticItems, index)
-        if item is None:
-            self.air.writeServerEvent('suspicious', avId=self.air.getAvatarIdFromSender(), issue='Tried to delete an invalid item at index %s' % index)
-            return ToontownGlobals.FM_InvalidIndex
-
-        self.atticItems.remove(item)
-        self.d_setAtticItems(self.getAtticItems())
-
-        return ToontownGlobals.FM_DeletedItem
-
-    def deleteItemFromRoom(self, blob, doId):
-        pass
-
-    def moveWallpaperFromAttic(self, index, room):
-        retcode = ToontownGlobals.FM_SwappedItem
-        wallpaper = self.getAtticFurniture(self.atticWallpaper, index)
-        if wallpaper is None:
-            self.air.writeServerEvent('suspicious', avId=self.air.getAvatarIdFromSender(), issue='Invalid wallpaper at index %s' % index)
-            return ToontownGlobals.FM_InvalidIndex
-
-        if room > 1:
-            self.air.writeServerEvent('suspicious', avId=self.air.getAvatarIdFromSender(), issue='Tried to apply a wallpaper in an invalid room %d!' % room)
-            return ToontownGlobals.FM_InvalidItem
-        interiorIndex = room*4
-        if isinstance(wallpaper, CatalogMouldingItem):
-            interiorIndex += 1
-        elif isinstance(wallpaper, CatalogFlooringItem):
-            interiorIndex += 2
-        elif isinstance(wallpaper, CatalogWainscotingItem):
-            interiorIndex += 3
-        atticIndex = self.atticWallpaper.index(wallpaper)
-        self.atticWallpaper[atticIndex] = self.wallpaper[interiorIndex]
-        self.d_setAtticWallpaper(self.getAtticWallpaper())
-        self.wallpaper[interiorIndex] = wallpaper
-        self.applyWallpaper()
-
-        return retcode
-
-    def deleteWallpaperFromAttic(self, blob, index):
-        wallpaper = self.getAtticFurniture(blob, index)
-        if wallpaper in self.atticWallpaper:
-            self.atticWallpaper.remove(wallpaper)
-        self.b_setAtticWallpaper(self.getAtticWallpaper())
-
-    def moveWindowToAttic(self, slot):
-        window = self.getWindow(slot)
-        if window is None:
-            return ToontownGlobals.FM_InvalidIndex
-        self.windows.remove(window)
-        self.applyWindows()
-        self.atticWindows.append(window)
-        self.d_setAtticWindows(self.getAtticWindows())
-        return ToontownGlobals.FM_MovedItem
-
-    def moveWindowFromAttic(self, index, slot):
-        retcode = ToontownGlobals.FM_MovedItem
-        window = self.getAtticFurniture(self.atticWindows, index)
-        if slot > 5:
-            self.air.writeServerEvent('suspicious', avId=self.air.getAvatarIdFromSender(),
-                                      issue='Tried to move window to invalid slot %d!' % slot)
-            return ToontownGlobals.FM_HouseFull
-        if self.getWindow(slot):
-            self.moveWindowToAttic(slot)
-            retcode = ToontownGlobals.FM_SwappedItem
-        self.atticWindows.remove(window)
-        self.d_setAtticWindows(self.getAtticWindows())
-        window.placement = slot
-        self.windows.append(window)
-        self.applyWindows()
-        return retcode
-
-    def moveWindow(self, fromSlot, toSlot):
-        retcode = ToontownGlobals.FM_MovedItem
-        window = self.getWindow(fromSlot)
-        if window is None:
-            return ToontownGlobals.FM_InvalidIndex
-        if toSlot > 5:
-            self.air.writeServerEvent('suspicious', avId=self.air.getAvatarIdFromSender(),
-                                      issue='DistributedfTried to move window to invalid slot %d!' % toSlot)
-            return ToontownGlobals.FM_HouseFull
-        if self.getWindow(toSlot):
-            self.moveWindowToAttic(toSlot)
-            retcode = ToontownGlobals.FM_SwappedItem
-        window.placement = toSlot
-        self.applyWindows()
-        return retcode
-
-    def deleteWindowFromAttic(self, blob, index):
-        window = self.getAtticFurniture(self.atticWindows, index)
-        if window is None:
-            self.air.writeServerEvent('suspicious', avId=self.air.getAvatarIdFromSender(), issue='Tried to delete an invalid window at index %s' % index)
-            return ToontownGlobals.FM_InvalidIndex
-        self.atticWindows.remove(window)
-        self.d_setAtticWindows(self.getAtticWindows())
-        return ToontownGlobals.FM_DeletedItem
-
-    def recoverDeletedItem(self, blob, index):
-        pass
-
-
-    def handleMessage(self, func, response, *args):
-        context = args[-1]
-        args = args[:-1]
-        senderId = self.air.getAvatarIdFromSender()
-        if not self.director or senderId != self.director.doId:
-            self.air.writeServerEvent('suspicious', avId=senderId,
-                                      issue='Sent furniture management request without'
-                                      ' being the director.')
-            retval = ToontownGlobals.FM_NotDirector
-        else:
-            try:
-                retval = func(*args) or 0
-            except FurnitureError as e:
-                retval = e.code
-        if response == 'moveItemFromAtticResponse':
-            if type(retval) == tuple:
-                retval, doId = retval
-            else:
-                doId = 0
-            taskMgr.doMethodLater(1, self.sendUpdateToAvatarId,
-                                  self.uniqueName('send-attic-response'),
-                                  extraArgs=[senderId, response, [retval, doId, context]])
-        else:
-            self.sendUpdateToAvatarId(senderId, response, [retval, context])
+            self.notify.warning("%s got avatarEnter for unknown avatar %s" % (self.doId, avId))
 
     def moveItemToAtticMessage(self, doId, context):
-        self.handleMessage(self.moveItemToAttic, 'moveItemToAtticResponse', doId, context)
+        avId = self.air.getAvatarIdFromSender()
+        retcode = self.__doMoveItemToAttic(avId, doId)
+        self.sendUpdateToAvatarId(avId, "moveItemToAtticResponse",
+                                  [retcode, context])
+
+    def isHouseFull(self):
+        numAtticItems = len(self.house.atticItems) + len(self.house.atticWallpaper) + len(self.house.atticWindows)
+        numHouseItems = numAtticItems + len(self.house.interiorItems)
+        return numHouseItems >= ToontownGlobals.MaxHouseItems
+
+    def __doMoveItemToAttic(self, avId, doId):
+        # A request by the client to move the indicated
+        # DistributedFurnitureItem into the attic.
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        dfitem = simbase.air.doId2do.get(doId)
+        if dfitem == None or dfitem not in self.dfitems:
+            self.notify.warning("Ignoring request for unknown dfitem %s." % (doId))
+            return ToontownGlobals.FM_InvalidIndex
+
+        item = dfitem.item
+        self.house.atticItems.append(item)
+
+        # Find the item in self.house.interiorItems.  We have to check for
+        # exact equivalence.
+        for i in range(len(self.house.interiorItems)):
+            if self.house.interiorItems[i] is item:
+                del self.house.interiorItems[i]
+                break
+
+        # Also remove it from self.dfitems.
+        self.dfitems.remove(dfitem)
+        item.dfitem = None
+
+        self.house.d_setAtticItems(self.house.atticItems)
+        self.house.d_setInteriorItems(self.house.interiorItems)
+        dfitem.requestDelete()
+
+        # Tell the client our new list of attic items.
+        self.d_setAtticItems(self.house.atticItems)
+        return ToontownGlobals.FM_MovedItem
+
 
     def moveItemFromAtticMessage(self, index, x, y, z, h, p, r, context):
-        self.handleMessage(self.moveItemFromAttic, 'moveItemFromAtticResponse', index, x, y, z, h, p, r, context)
+        # A request by the client to move the indicated
+        # item out of the attic and to the given position.
+        avId = self.air.getAvatarIdFromSender()
+        retcode, objectId = self.__doMoveItemFromAttic(avId, index, (x, y, z, h, p, r))
+        self.sendUpdateToAvatarId(avId, "moveItemFromAtticResponse", [retcode, objectId, context])
+
+    def __doMoveItemFromAttic(self, avId, index, posHpr):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return (ToontownGlobals.FM_NotDirector, 0)
+
+        if index < 0 or index >= len(self.house.atticItems):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return (ToontownGlobals.FM_InvalidIndex, 0)
+
+        item = self.house.atticItems[index]
+        del self.house.atticItems[index]
+        item.posHpr = posHpr
+        self.house.interiorItems.append(item)
+        self.house.d_setInteriorItems(self.house.interiorItems)
+        self.house.d_setAtticItems(self.house.atticItems)
+        dfitem = self.manifestInteriorItem(item)
+        if not dfitem:
+            return (ToontownGlobals.FM_InvalidItem, 0)
+
+        self.d_setAtticItems(self.house.atticItems)
+        return (ToontownGlobals.FM_MovedItem, dfitem.doId)
 
     def deleteItemFromAtticMessage(self, blob, index, context):
-        self.handleMessage(self.deleteItemFromAttic, 'deleteItemFromAtticResponse', blob, index, context)
+        # A request by the client to delete the indicated
+        # item from the attic altogether.
+        avId = self.air.getAvatarIdFromSender()
+        item = CatalogItem.getItem(blob, store = CatalogItem.Customization)
+        retcode = self.__doDeleteItemFromAttic(avId, item, index)
+        self.sendUpdateToAvatarId(avId, "deleteItemFromAtticResponse", [retcode, context])
+
+    def __doDeleteItemFromAttic(self, avId, item, index):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        # You must be the owner in order to delete objects.
+        if avId != self.house.ownerId:
+            self.notify.warning("Ignoring request to delete from non-owner %s." % (avId))
+            return ToontownGlobals.FM_NotOwner
+
+        if index < 0 or index >= len(self.house.atticItems):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if self.house.atticItems[index] != item:
+            self.notify.warning("Request to delete item %s does not match %s." % (index, item))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if not item.isDeletable():
+            self.notify.warning("Ignoring request to delete special item %s." % (item))
+            return ToontownGlobals.FM_NondeletableItem
+
+        # Not really necessary, but there may be some subtle differences.
+        item = self.house.atticItems[index]
+
+        self.house.addToDeleted(item)
+
+        del self.house.atticItems[index]
+        self.house.d_setAtticItems(self.house.atticItems)
+        self.d_setAtticItems(self.house.atticItems)
+        self.d_setDeletedItems(self.house.deletedItems)
+        return ToontownGlobals.FM_DeletedItem
+
 
     def deleteItemFromRoomMessage(self, blob, doId, context):
-        self.handleMessage(self.deleteItemFromRoom, 'deleteItemFromRoomResponse', blob, doId, context)
+        # A request by the client to delete the indicated
+        # item directly from the room.
+        avId = self.air.getAvatarIdFromSender()
+        item = CatalogItem.getItem(blob, store = CatalogItem.Customization)
+        retcode = self.__doDeleteItemFromRoom(avId, item, doId)
+        self.sendUpdateToAvatarId(avId, "deleteItemFromRoomResponse", [retcode, context])
+
+    def __doDeleteItemFromRoom(self, avId, item, doId):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        # You must be the owner in order to delete objects.
+        if avId != self.house.ownerId:
+            self.notify.warning("Ignoring request to delete from non-owner %s." % (avId))
+            return ToontownGlobals.FM_NotOwner
+
+        dfitem = simbase.air.doId2do.get(doId)
+        if dfitem == None or dfitem not in self.dfitems:
+            self.notify.warning("Ignoring request for unknown dfitem %s." % (doId))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if dfitem.item != item:
+            self.notify.warning("Request to delete item %s does not match %s." % (doId, item))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if not item.isDeletable():
+            self.notify.warning("Ignoring request to delete special item %s." % (item))
+            return ToontownGlobals.FM_NondeletableItem
+
+        item = dfitem.item
+        # Find the item in self.house.interiorItems.  We have to check for
+        # exact equivalence.
+        for i in range(len(self.house.interiorItems)):
+            if self.house.interiorItems[i] is item:
+                del self.house.interiorItems[i]
+                break
+
+        # Also remove it from self.dfitems.
+        self.dfitems.remove(dfitem)
+        item.dfitem = None
+
+        self.house.addToDeleted(item)
+        self.house.d_setInteriorItems(self.house.interiorItems)
+        dfitem.requestDelete()
+
+        # Tell the client our new list of deleted items.
+        self.d_setDeletedItems(self.house.deletedItems)
+        return ToontownGlobals.FM_DeletedItem
+
 
     def moveWallpaperFromAtticMessage(self, index, room, context):
-        return  # TODO: Fix me
+        # A request by the client to swap the given wallpaper from the
+        # attic with the interior wallpaper for the indicated room.
+        avId = self.air.getAvatarIdFromSender()
+        retcode = self.__doMoveWallpaperFromAttic(avId, index, room)
+        self.sendUpdateToAvatarId(avId, "moveWallpaperFromAtticResponse", [retcode, context])
 
-        self.handleMessage(self.moveWallpaperFromAttic, 'moveWallpaperFromAtticResponse', index, room, context)
+    def __doMoveWallpaperFromAttic(self, avId, index, room):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        if index < 0 or index >= len(self.house.atticWallpaper):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return ToontownGlobals.FM_InvalidIndex
+
+        item = self.house.atticWallpaper[index]
+        surface = item.getSurfaceType()
+        slot = room * CatalogSurfaceItem.NUM_ST_TYPES + surface
+
+        if slot < 0 or slot >= len(self.house.interiorWallpaper):
+            self.notify.warning("Ignoring request for invalid wallpaper room %s, surface %s." % (room, surface))
+            return ToontownGlobals.FM_InvalidIndex
+
+        repl = self.house.interiorWallpaper[slot]
+
+        self.house.interiorWallpaper[slot] = item
+        self.house.atticWallpaper[index] = repl
+        self.house.d_setAtticWallpaper(self.house.atticWallpaper)
+        self.house.d_setInteriorWallpaper(self.house.interiorWallpaper)
+        return ToontownGlobals.FM_SwappedItem
 
     def deleteWallpaperFromAtticMessage(self, blob, index, context):
-        self.handleMessage(self.deleteWallpaperFromAttic, 'deleteWallpaperFromAtticResponse', blob, index, context)
+        # A request by the client to delete the indicated
+        # wallpaper from the attic altogether.
+        avId = self.air.getAvatarIdFromSender()
+        item = CatalogItem.getItem(blob, store = CatalogItem.Customization)
+        retcode = self.__doDeleteWallpaperFromAttic(avId, item, index)
+        self.sendUpdateToAvatarId(avId, "deleteWallpaperFromAtticResponse", [retcode, context])
+
+    def __doDeleteWallpaperFromAttic(self, avId, item, index):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        # You must be the owner in order to delete objects.
+        if avId != self.house.ownerId:
+            self.notify.warning("Ignoring request to delete from non-owner %s." % (avId))
+            return ToontownGlobals.FM_NotOwner
+
+        if index < 0 or index >= len(self.house.atticWallpaper):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if self.house.atticWallpaper[index] != item:
+            self.notify.warning("Request to delete wallpaper %s does not match %s." % (index, item))
+            return ToontownGlobals.FM_InvalidIndex
+
+        # Not really necessary, but there may be some subtle differences.
+        item = self.house.atticWallpaper[index]
+
+        self.house.addToDeleted(item)
+
+        del self.house.atticWallpaper[index]
+        self.house.d_setAtticWallpaper(self.house.atticWallpaper)
+        self.d_setAtticWallpaper(self.house.atticWallpaper)
+        self.d_setDeletedItems(self.house.deletedItems)
+        return ToontownGlobals.FM_DeletedItem
 
     def moveWindowToAtticMessage(self, slot, context):
-        self.handleMessage(self.moveWindowToAttic, 'moveWindowToAtticResponse', slot, context)
+        # A request by the client to move the interior window
+        # occupying the indicated placement slot into the attic.
+        avId = self.air.getAvatarIdFromSender()
+        retcode = self.__doMoveWindowToAttic(avId, slot)
+        self.sendUpdateToAvatarId(avId, "moveWindowToAtticResponse", [retcode, context])
+    def __doMoveWindowToAttic(self, avId, slot):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        index = self.__findWindow(slot)
+        if index == None:
+            self.notify.warning("Ignoring request for invalid placement slot %s." % (slot))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if self.isHouseFull():
+            return ToontownGlobals.FM_HouseFull
+
+        self.house.makeRoomFor(1)
+
+        self.house.atticWindows.append(self.house.interiorWindows[index])
+        del self.house.interiorWindows[index]
+
+        self.house.d_setAtticWindows(self.house.atticWindows)
+        self.house.d_setInteriorWindows(self.house.interiorWindows)
+        return ToontownGlobals.FM_MovedItem
 
     def moveWindowFromAtticMessage(self, index, slot, context):
-        self.handleMessage(self.moveWindowFromAttic, 'moveWindowFromAtticResponse', index, slot, context)
+        # A request by the client to swap the given window from the
+        # attic with the interior window at the indicated slot.
+        avId = self.air.getAvatarIdFromSender()
+        retcode = self.__doMoveWindowFromAttic(avId, index, slot)
+        self.sendUpdateToAvatarId(avId, "moveWindowFromAtticResponse", [retcode, context])
+
+
+    def __doMoveWindowFromAttic(self, avId, index, slot):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        if index < 0 or index >= len(self.house.atticWindows):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return ToontownGlobals.FM_InvalidIndex
+
+        item = self.house.atticWindows[index]
+        item.placement = slot
+
+        # Is there already a window placed at the indicated slot?
+        windowIndex = self.__findWindow(slot)
+
+        if windowIndex == None:
+            # Create a new window.
+            self.house.interiorWindows.append(item)
+            del self.house.atticWindows[index]
+            retcode = ToontownGlobals.FM_MovedItem
+
+        else:
+            # We have a window already; it moves into the attic.
+            self.house.atticWindows[index] = self.house.interiorWindows[windowIndex]
+            self.house.interiorWindows[windowIndex] = item
+            retcode = ToontownGlobals.FM_SwappedItem
+
+        self.house.d_setAtticWindows(self.house.atticWindows)
+        self.house.d_setInteriorWindows(self.house.interiorWindows)
+        return retcode
 
     def moveWindowMessage(self, fromSlot, toSlot, context):
-        self.handleMessage(self.moveWindow, 'moveWindowResponse', fromSlot, toSlot, context)
+        # A request by the client to move the interior window
+        # occupying the indicated placement slot to another location
+        # within the interior.
 
-    def deleteWindowFromAtticMessage(self, blob, index, context):
-        self.handleMessage(self.deleteWindowFromAttic, 'deleteWindowFromAtticResponse', blob, index, context)
+        avId = self.air.getAvatarIdFromSender()
+        retcode = self.__doMoveWindow(avId, fromSlot, toSlot)
+        self.sendUpdateToAvatarId(avId, "moveWindowResponse", [retcode, context])
+    def __doMoveWindow(self, avId, fromSlot, toSlot):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
 
-    def recoverDeletedItemMessage(self, blob, index, context):
-        self.handleMessage(self.recoverDeletedItem, 'recoverDeletedItemResponse', blob, index, context)
+        fromIndex = self.__findWindow(fromSlot)
+        if fromIndex == None:
+            self.notify.warning("Ignoring request for invalid placement slot %s." % (fromSlot))
+            return ToontownGlobals.FM_InvalidIndex
 
-    def getItemObject(self, doId):
-        item = self.air.doId2do.get(doId)
-        if item is None:
-            raise FurnitureError(ToontownGlobals.FM_InvalidItem)
-        if item not in self.items:
-            raise FurnitureError(ToontownGlobals.FM_InvalidItem)
-        return item
+        item = self.house.interiorWindows[fromIndex]
 
-    def getAtticFurniture(self, attic, index):
-        if index >= len(attic):
-            raise FurnitureError(ToontownGlobals.FM_InvalidIndex)
-        return attic[index]
+        # Is there already a window placed at the destination slot?
+        toIndex = self.__findWindow(toSlot)
 
-    def getWindow(self, slot):
-        for window in self.windows:
-            if window.placement == slot:
-                return window
+        if toIndex == None:
+            # Nope, just move the window.
+            item.placement = toSlot
+
+            # This is necessary because we have changed an element
+            # without changing any other properties of the list, so we
+            # have to explicitly tell the list to update its cache.
+            self.house.interiorWindows.markDirty()
+
+            retcode = ToontownGlobals.FM_MovedItem
+
+        else:
+            # We have a window there already; it moves into the attic.
+            if self.isHouseFull():
+                return ToontownGlobals.FM_HouseFull
+
+            self.house.makeRoomFor(1)
+
+            item.placement = toSlot
+            self.house.atticWindows.append(self.house.interiorWindows[toIndex])
+            del self.house.interiorWindows[toIndex]
+            retcode = ToontownGlobals.FM_SwappedItem
+
+            self.house.d_setAtticWindows(self.house.atticWindows)
+
+        self.house.d_setInteriorWindows(self.house.interiorWindows)
+        return retcode
+
+    def __findWindow(self, placement):
+        # Searches for the window with the indicated slot placement
+        # and returns its index within the self.house.interiorWindows
+        # list if it is found, or None if there is no such window.
+        windows = self.house.interiorWindows
+        for i in range(len(windows)):
+            if windows[i].placement == placement:
+                return i
         return None
 
-@magicWord(category=CATEGORY_USER, types=[])
-def findCloset():
-    """
-    find the closet
-    """
-    target = spellbook.getTarget()
-    if not target:
-        target = spellbook.getInvoker()
-    if not target:
-        return "Strange.. who are we talking about?"
+    def deleteWindowFromAtticMessage(self, blob, index, context):
+        # A request by the client to delete the indicated
+        # window from the attic altogether.
+        avId = self.air.getAvatarIdFromSender()
+        item = CatalogItem.getItem(blob, store = CatalogItem.Customization)
+        retcode = self.__doDeleteWindowFromAttic(avId, item, index)
+        self.sendUpdateToAvatarId(avId, "deleteWindowFromAtticResponse", [retcode, context])
 
-    if not hasattr(target, "estate") or not hasattr(target.estate, "houses"):
-        return "no houses in the state"
+    def __doDeleteWindowFromAttic(self, avId, item, index):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
 
-    for house in target.estate.houses:
-        if house.doId == target.houseId:
-            fm = house.interior.furnitureManager
-            for item in fm.items:
-                if item.catalogItem.getFlags() & FLCloset:
-                    return 'items: %s'%(str(item.catalogItem))
-            for item in fm.atticItems:
-                if item.getFlags() & FLCloset:
-                    return 'atticItems: %s'%(str(item))
-    return "I cannot find your closet"
+        # You must be the owner in order to delete objects.
+        if avId != self.house.ownerId:
+            self.notify.warning("Ignoring request to delete from non-owner %s." % (avId))
+            return ToontownGlobals.FM_NotOwner
 
-@magicWord(category=CATEGORY_USER, types=[])
-def recoverCloset():
-    """
-    recover the closet
-    """
-    target = spellbook.getTarget()
-    if not target:
-        target = spellbook.getInvoker()
-    if not target:
-        return "Strange.. who are we talking about?"
+        if index < 0 or index >= len(self.house.atticWindows):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return ToontownGlobals.FM_InvalidIndex
 
-    if not hasattr(target, "estate") or not hasattr(target.estate, "houses"):
-        return "no houses in the state"
+        if self.house.atticWindows[index] != item:
+            self.notify.warning("Request to delete window %s does not match %s." % (index, item))
+            return ToontownGlobals.FM_InvalidIndex
 
-    for house in target.estate.houses:
-        if house.doId == target.houseId:
-            fm = house.interior.furnitureManager
-            for item in reversed(fm.items):
-                if item.catalogItem.getFlags() & FLCloset:
-                    fm.moveItemToAttic(item.doId)
-                    return "Moved the closet"
-            fm.saveToHouse()
-    return "I cannot find your closet"
+        # Not really necessary, but there may be some subtle differences.
+        item = self.house.atticWindows[index]
 
-@magicWord(category=CATEGORY_USER, types=[])
-def fillAttic():
-    """
-    move everything to the attic
-    """
-    target = spellbook.getTarget()
-    if not target:
-        target = spellbook.getInvoker()
-    if not target:
-        return "Strange.. who are we talking about?"
+        self.house.addToDeleted(item)
 
-    if not hasattr(target, "estate") or not hasattr(target.estate, "houses"):
-        return "no houses in the state"
+        del self.house.atticWindows[index]
+        self.house.d_setAtticWindows(self.house.atticWindows)
+        self.d_setAtticWindows(self.house.atticWindows)
+        self.d_setDeletedItems(self.house.deletedItems)
+        return ToontownGlobals.FM_DeletedItem
 
-    for house in target.estate.houses:
-        if house.doId == target.houseId:
-            fm = house.interior.furnitureManager
-            for item in reversed(fm.items):
-                fm.moveItemToAttic(item.doId)
-            fm.saveToHouse()
-    return "everything has been moved to the attic"
+    def recoverDeletedItemMessage(self, blob, index, context):
+        # A request by the client to recover the indicated item from
+        # the deleted-item list.
+        avId = self.air.getAvatarIdFromSender()
+        item = CatalogItem.getItem(blob, store = CatalogItem.Customization)
+        retcode = self.__doRecoverDeletedItem(avId, item, index)
+        self.sendUpdateToAvatarId(avId, "recoverDeletedItemResponse", [retcode, context])
+
+    def __doRecoverDeletedItem(self, avId, item, index):
+        if avId != self.director:
+            self.notify.warning("Ignoring request from non-director %s." % (avId))
+            return ToontownGlobals.FM_NotDirector
+
+        # You must be the owner in order to delete (or recover) objects.
+        if avId != self.house.ownerId:
+            self.notify.warning("Ignoring request to recover from non-owner %s." % (avId))
+            return ToontownGlobals.FM_NotOwner
+
+        if index < 0 or index >= len(self.house.deletedItems):
+            self.notify.warning("Ignoring request for invalid index %s." % (index))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if self.house.deletedItems[index] != item:
+            self.notify.warning("Request to recover item %s does not match %s." % (index, item))
+            return ToontownGlobals.FM_InvalidIndex
+
+        if self.isHouseFull():
+            return ToontownGlobals.FM_HouseFull
+
+        # Not really necessary, but there may be some subtle differences.
+        item = self.house.deletedItems[index]
+
+        if isinstance(item, CatalogFurnitureItem.CatalogFurnitureItem):
+            self.house.atticItems.append(item)
+            self.house.d_setAtticItems(self.house.atticItems)
+            self.d_setAtticItems(self.house.atticItems)
+
+        elif isinstance(item, CatalogSurfaceItem.CatalogSurfaceItem):
+            self.house.atticWallpaper.append(item)
+            self.house.d_setAtticWallpaper(self.house.atticWallpaper)
+            self.d_setAtticWallpaper(self.house.atticWallpaper)
+
+        elif item.__class__ == CatalogWindowItem.CatalogWindowItem:
+            self.house.atticWindows.append(item)
+            self.house.d_setAtticWindows(self.house.atticWindows)
+            self.d_setAtticWindows(self.house.atticWindows)
+
+        else:
+            self.notify.warning("Ignoring request to recover invalid item type %s." % (item.__class__.__name__))
+            return ToontownGlobals.FM_InvalidIndex
+
+        del self.house.deletedItems[index]
+        self.house.d_setDeletedItems(self.house.deletedItems)
+        self.d_setDeletedItems(self.house.deletedItems)
+
+        return ToontownGlobals.FM_RecoveredItem
 
 
-@magicWord(category=CATEGORY_USER, types=[])
-def emptyHouse():
-    """
-    delete everything in the house
-    """
-    target = spellbook.getTarget()
-    if not target:
-        target = spellbook.getInvoker()
-    if not target:
-        return "Strange.. who are we talking about?"
+    def saveItemPosition(self, dfitem):
+        # Saves the position of the DistributedFurnitureItem in the
+        # interior.
+        assert(dfitem in self.dfitems)
+        dfitem.item.posHpr = dfitem.posHpr
+        self.house.interiorItems.markDirty()
+        self.house.d_setInteriorItems(self.house.interiorItems)
 
-    if not hasattr(target, "estate") or not hasattr(target.estate, "houses"):
-        return "no houses in the state"
+    def requestControl(self, dfitem, directorAvId):
+        # Returns true if the indicated director is allowed to move
+        # the item, false otherwise.
+        if self.dfitems == None or dfitem not in self.dfitems:
+            return 0
+        return directorAvId == self.director
 
-    for house in target.estate.houses:
-        if house.doId == target.houseId:
-            fm = house.interior.furnitureManager
-            for item in reversed(fm.items):
-                item.destroy()
-                fm.items.remove(item)
-            fm.saveToHouse()
-    return "The house is empty"
+    def manifestInteriorItem(self, item):
+        # Creates and returns a DistributedFurnitureItem for the
+        # indicated furniture item.
+
+        if not hasattr(item, "getFlags"):
+            self.notify.warning("Ignoring attempt to manifest %s as a furniture item." % (item))
+            return None
+
+        # Choose the appropriate kind of object to create.  Usually it
+        # is just a DistributedFurnitureItemAI, but sometimes we have
+        # to be more specific.
+        if item.getFlags() & CatalogFurnitureItem.FLBank:
+            cl = DistributedBankAI.DistributedBankAI
+        elif item.getFlags() & CatalogFurnitureItem.FLCloset:
+            cl = DistributedClosetAI.DistributedClosetAI
+        elif item.getFlags() & CatalogFurnitureItem.FLPhone:
+            cl = DistributedPhoneAI.DistributedPhoneAI
+        elif item.getFlags() & CatalogFurnitureItem.FLTrunk:
+            cl = DistributedTrunkAI.DistributedTrunkAI
+        else:
+            cl = DistributedFurnitureItemAI.DistributedFurnitureItemAI
+
+        dfitem = cl(self.air, self, item)
+        dfitem.generateWithRequired(self.house.interiorZoneId)
+        item.dfitem = dfitem
+        self.dfitems.append(dfitem)
+
+        # Send the initial position.
+        dfitem.d_setPosHpr(*item.posHpr)
+        return dfitem

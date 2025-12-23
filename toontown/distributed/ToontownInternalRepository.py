@@ -3,6 +3,7 @@ import urllib.parse
 from direct.distributed.AstronInternalRepository import AstronInternalRepository
 from direct.distributed.PyDatagram import PyDatagram
 from panda3d.core import loadPrcFile
+from panda3d.direct import DCPacker
 
 from toontown.toonbase import EventGlobals
 from otp.distributed.OtpDoGlobals import *
@@ -112,3 +113,28 @@ class ToontownInternalRepository(AstronInternalRepository):
                 loadPrcFile(prc)
 
             messenger.send(EventGlobals.ConfigReloaded)
+
+    def packDclassValueDict(self, dclass, fieldDict):
+        '''
+        Converts {fieldName: fieldValue} dictionaries to
+        {fieldName: packedFieldValue} dictionary.
+
+        Useful for converting values returned from from Astron's Database
+        interface to something more OTP compatible (for dObj.directUpdate or
+        dObj.initFromServerResponse calls).
+        '''
+
+        valueDict = {}
+        packer = DCPacker()
+
+        for fieldName in fieldDict:
+            field = dclass.getFieldByName(fieldName)
+
+            packer.beginPack(field)
+            field.packArgs(packer, fieldDict[fieldName])
+            packer.endPack()
+
+            valueDict[fieldName] = packer.getBytes()
+            packer.clearData()
+
+        return valueDict

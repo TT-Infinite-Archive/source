@@ -1,7 +1,8 @@
 from panda3d.core import CollideMask, CollisionBox, CollisionEntry, CollisionNode, CollisionPolygon, CollisionSphere, ConfigVariable, ConfigVariableBool, NodePath, Point3, TextNode, Vec3, Vec4
 from direct.directtools.DirectSelection import *
-from direct.directtools.DirectUtil import ROUND_TO
+from direct.directtools.DirectUtil import CLAMP, ROUND_TO
 from direct.directtools.DirectGeometry import LineNodePath
+from direct.directtools.DirectGlobals import SKIP_ALL, SKIP_BACKFACE, SKIP_CAMERA, SKIP_UNPICKABLE
 from direct.gui.DirectGui import *
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase import ToontownGlobals

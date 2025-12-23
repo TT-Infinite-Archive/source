@@ -31,7 +31,7 @@ from toontown.collectibles.CollectibleInventoryManagerAI import CollectibleInven
 from toontown.distributed.ToontownDistrictAI import ToontownDistrictAI
 from toontown.distributed.ToontownDistrictStatsAI import ToontownDistrictStatsAI
 from toontown.distributed.ToontownInternalRepository import ToontownInternalRepository
-from toontown.dna.DNAParser import loadDNAFileAI
+from toontown.dna.DNAParser import loadDNAFile, loadDNAFileAI
 from toontown.estate.EstateManagerAI import EstateManagerAI
 from toontown.hood import BRHoodAI
 from toontown.hood import BossbotHQAI
@@ -313,6 +313,9 @@ class ToontownAIRepository(ToontownInternalRepository):
             phaseNum = ToontownGlobals.streetPhaseMap[hoodId]
         return f'phase_{phaseNum}/dna/{hood}_{zoneId}.pdna'
 
+    def loadDNAFile(self, dnastore, filename):
+        return loadDNAFile(dnastore, filename)
+
     def loadDNAFileAI(self, dnastore, filename):
         return loadDNAFileAI(dnastore, filename)
 
@@ -349,3 +352,167 @@ class ToontownAIRepository(ToontownInternalRepository):
         if int(avId) in self.disconnectedToons:
             reason = self.disconnectedToons[int(avId)]
             return reason
+
+    def getEstate(self, avId, accId, zoneId, callback):
+        self.notify.debug(f'getEstate avId={avId}, accId={accId}, zoneId={zoneId}, callback={callback}')
+        estateId = 0
+        estateVal = {} # {estateFieldName: packedValues}
+        avIds = []
+
+        avatars = {} # {avId: {fieldName: [fieldValue]}}
+
+        def __handleGetEstate(dclass, fields):
+            if dclass != self.dclassesByName['DistributedEstateAI']:
+                self.notify.warning(
+                    f'Account {accId} has non-estate dclass {dclass}!'
+                )
+                return
+
+            nonlocal estateVal
+            # Convert Astron response to OTP
+            estateVal = self.packDclassValueDict(dclass, fields)
+
+            # Now to do the houses:
+            self.getHouses(avId, accId, zoneId, estateId, estateVal, avIds, avatars, callback)
+
+        def __gotAllAvatars():
+            self.notify.debug(f'__gotAllAvatars: {estateId, avIds, len(avatars)}')
+
+            if estateId:
+                self.dbInterface.queryObject(self.dbId, estateId, __handleGetEstate)
+            else:
+                def __handleEstateCreated(newEstateId):
+                    nonlocal estateId
+                    estateId = newEstateId
+                    # Update Account object with the new estate id
+                    self.dbInterface.updateObject(self.dbId, accId, self.dclassesByName['AccountAI'],
+                                                          {'ESTATE_ID': estateId})
+
+                    self.dbInterface.queryObject(self.dbId, estateId, __handleGetEstate)
+
+                self.dbInterface.createObject(self.dbId, self.dclassesByName['DistributedEstateAI'], {},
+                                                  __handleEstateCreated)
+
+
+        def __handleGetAvatar(dclass, fields, index):
+            if dclass != self.dclassesByName['DistributedToonAI']:
+                self.notify.warning(
+                    f'Account {accId} has avatar {avIds[index]} with non-Toon dclass {dclass}!')
+                return
+
+
+            fields['avId'] = avIds[index]
+            avatars[index] = fields
+            if len(avatars) == 6:
+                __gotAllAvatars()
+
+        def __handleGetAccount(dclass, fields):
+            if dclass != self.dclassesByName['AccountAI']:
+                self.notify.warning(f'Account {accId} has non-account dclass {dclass}!')
+                return
+
+            nonlocal estateId, avIds, avatars
+            estateId = fields.get('ESTATE_ID', 0)
+            avIds = fields.get('ACCOUNT_AV_SET', [0] * 6)
+            # Sanitize the avIds list in case its too long/short
+            avIds = avIds[:6]
+            avIds += [0] * (6 - len(avIds))
+            for index, avId in enumerate(avIds):
+                if avId == 0:
+                    avatars[index] = None
+                    continue
+
+                # Get the avatar object for each avId.
+                self.dbInterface.queryObject(self.dbId, avId,
+                                             lambda dclass, fields, idx=index: __handleGetAvatar(dclass, fields, idx))
+
+        # Get the account object.
+        self.dbInterface.queryObject(self.dbId, accId, __handleGetAccount)
+
+    def getHouses(self, avId, accId, zoneId, estateId, estateVal, avIds, avatars, callback):
+        '''
+        Continuation of getEstate
+        '''
+        self.notify.debug(f'getHouses avId={avId}, accId={accId}, zoneId={zoneId}, estateId={estateId}, avIds={avIds}, callback={callback}')
+
+        # numHouses = 0
+        houseIds = [0] * len(avIds)
+        houseVal = [None] * len(avIds) # [packedHouseValues]
+
+        def __gotAllHouses():
+            # Get pet ids
+            petIds = [0] * len(avIds)
+            for index in avatars:
+                if avatars[index] != None:
+                    petId = avatars[index].get('setPetId', [0])[0]
+                    if petId != 0:
+                        petIds[index] = petId
+
+            # Get Gardens started.
+            gardensStarted = [False] * len(avIds)
+            for index in avatars:
+                if avatars[index] != None:
+                    gardenStarted = avatars[index].get('setGardenStarted', [0])[0]
+                    if gardenStarted:
+                        gardensStarted[index] = True
+
+            self.notify.debug(f'__gotAllHouses {estateId, estateVal, len(houseIds), houseIds, houseVal, petIds, gardensStarted, estateVal}')
+
+            # That's a lot of work, time to finally call our callback.  Whew!
+            callback(estateId, estateVal, len(houseIds), houseIds, houseVal,
+                     petIds, gardensStarted, estateVal)
+
+        def __handleGetHouse(dclass, fields, index):
+            nonlocal houseVal
+            if dclass != self.dclassesByName['DistributedHouseAI']:
+                self.notify.warning(f'Avatar {avIds[index]} has non-house object {houseId} with dclass {dclass}!')
+                return
+
+            # Set the most important fields here.
+            fields['setAvatarId'] = [avIds[index]]
+            fields['setName'] = avatars[index]['setName']
+
+            # Convert Astron response to OTP
+            houseVal[index] = self.packDclassValueDict(dclass, fields)
+
+            if None not in houseVal:
+                __gotAllHouses()
+
+        def __handleHouseCreated(houseId, index):
+            nonlocal houseIds, houseVal
+
+            houseIds[index] = houseId
+            av = self.doId2do.get(avIds[index])
+            if av:
+                # Update house id
+                av.b_setHouseId(houseId)
+            else:
+                self.dbInterface.updateObject(self.dbId, avIds[index],
+                                                      self.dclassesByName['DistributedToonAI'],
+                                                      {'setHouseId': [houseId]})
+
+            __handleGetHouse(self.dclassesByName['DistributedHouseAI'], {}, index)
+
+
+        for index in avatars:
+            if avatars[index] == None:
+                # No avatar, no house. Allocate an ID in it's place
+                # (it'll be generated into an empty house)
+                houseId = self.allocateChannel()
+                houseIds[index] = houseId
+                houseVal[index] = {}
+                if None not in houseVal:
+                    __gotAllHouses()
+                    return
+                else:
+                    continue
+            houseId = avatars[index].get('setHouseId', [0])[0]
+            if houseId == 0:
+                # No house
+                self.dbInterface.createObject(self.dbId, self.dclassesByName['DistributedHouseAI'],
+                                              {},
+                                              lambda houseId, idx=index: __handleHouseCreated(houseId, idx))
+            else:
+                houseIds[index] = houseId
+                self.dbInterface.queryObject(self.dbId, houseId,
+                                             lambda dclass, fields, idx=index: __handleGetHouse(dclass, fields, idx))

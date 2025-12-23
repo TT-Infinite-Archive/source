@@ -1,196 +1,364 @@
-from panda3d.core import Datagram, DatagramIterator
-from direct.distributed.PyDatagramIterator import PyDatagramIterator
-from direct.distributed.PyDatagram import PyDatagram
+import json
+import os
+
+from direct.directnotify import DirectNotifyGlobal
 
 from toontown.estate import GardenGlobals
 from toontown.estate.DistributedAnimatedStatuaryAI import DistributedAnimatedStatuaryAI
 from toontown.estate.DistributedChangingStatuaryAI import DistributedChangingStatuaryAI
+from toontown.estate.DistributedFlowerAI import DistributedFlowerAI
 from toontown.estate.DistributedGagTreeAI import DistributedGagTreeAI
+from toontown.estate.DistributedGardenBoxAI import DistributedGardenBoxAI
 from toontown.estate.DistributedGardenPlotAI import DistributedGardenPlotAI
 from toontown.estate.DistributedStatuaryAI import DistributedStatuaryAI
 from toontown.estate.DistributedToonStatuaryAI import DistributedToonStatuaryAI
-from toontown.toonbase.ToontownBattleGlobals import NUM_GAG_TRACKS
 
-import time
+# Structure for NULL_PLANT:
+# [planted, waterLevel, lastCheck, growthLevel, optional]
+NULL_PLANT = [-1, -1, 0, 0, 0]
+NULL_TREES = [NULL_PLANT] * 8
+NULL_FLOWERS = [NULL_PLANT] * 10
+NULL_STATUARY = 0
 
-occupier2Class = {
-    GardenGlobals.EmptyPlot: DistributedGardenPlotAI,
-    GardenGlobals.TreePlot: DistributedGagTreeAI,
-    GardenGlobals.StatuaryPlot: DistributedStatuaryAI,
-    GardenGlobals.ToonStatuaryPlot: DistributedToonStatuaryAI,
-    GardenGlobals.ChangingStatuaryPlot: DistributedChangingStatuaryAI,
-    GardenGlobals.AnimatedStatuaryPlot: DistributedAnimatedStatuaryAI
-}
+# NULL_DATA is just a dictionary containing all the null values that are
+# defined above; this makes up a default garden with nothing in it.
+NULL_DATA = {'flowers': NULL_FLOWERS, 'trees': NULL_TREES, 'statuary': NULL_STATUARY}
+
+
+class GardenAI:
+    notify = DirectNotifyGlobal.directNotify.newCategory('GardenAI')
+    WANT_FLOWERS = True
+    WANT_TREES = True
+    WANT_STATUARY = True
+
+    def __init__(self, air, gardenMgr, avId):
+        self.air = air
+        self.gardenMgr = gardenMgr
+        self.avId = avId
+        self.estate = None
+        self._estateBoxes = None
+        self.trees = set()
+        self.flowers = set()
+        self.objects = set()
+        self.fileName = 'garden_%s.json' % avId
+        self.filePath = 'backups/gardens/'
+        try:
+            with open(self.filePath + self.fileName, 'r') as f:
+                self.data = json.load(f)
+
+            self.dbExists = True
+        except:
+            self.data = NULL_DATA.copy()
+            self.dbExists = False
+
+        if not self.dbExists:
+            # Use self.update() to setup initial db:
+            self.update()
+
+        self.data.pop('_id', None)
+
+    def destroy(self):
+        messenger.send('garden-%d-%d-going-down' % (id(self.gardenMgr), self.avId))
+        for tree in self.trees:
+            tree.requestDelete()
+
+        for flower in self.flowers:
+            flower.requestDelete()
+
+        for obj in self.objects:
+            obj.requestDelete()
+
+        self.air = None
+        self.estate = None
+
+    def load(self, estate):
+        self.estate = estate
+        if self.avId not in estate.activeToons:
+            self.notify.warning('Garden associated with unknown avatar %d, deleting...' % self.avId)
+            return False
+
+        houseIndex = estate.activeToons.index(self.avId)
+        houseType = estate.houses[houseIndex].houseType
+        if self.WANT_FLOWERS:
+            estateBoxIndex = 0
+            estateBoxes = []
+            estateBoxData = GardenGlobals.estateBoxes[houseType]
+            for x, y, h, estateBoxType in estateBoxData:
+                gardenBox = DistributedGardenBoxAI(self)
+                gardenBox.setTypeIndex(estateBoxType)
+                gardenBox.setPos(x, y, 0)
+                gardenBox.setH(h)
+                gardenBox.setOwnerIndex(houseIndex)
+                gardenBox.generateWithRequired(estate.zoneId)
+                self.objects.add(gardenBox)
+                estateBoxes.append(gardenBox)
+                estateBoxIndex += 1
+
+            self._estateBoxes = estateBoxes
+
+        estatePlots = GardenGlobals.estatePlots[houseIndex]
+        treeIndex = 0
+        flowerIndex = 0
+        for estatePlot, (x, y, h, estatePlotType) in enumerate(estatePlots):
+            if estatePlotType == GardenGlobals.GAG_TREE_TYPE and self.WANT_TREES:
+                data = self.data['trees'][treeIndex]
+                planted, waterLevel, lastCheck, growthLevel, lastHarvested = data
+                if planted != -1:
+                    obj = self.plantTree(treeIndex, planted, waterLevel=waterLevel, lastCheck=lastCheck,
+                                         growthLevel=growthLevel, lastHarvested=lastHarvested, generate=False)
+                    self.trees.add(obj)
+                else:
+                    obj = self.placePlot(treeIndex)
+
+                obj.setPos(x, y, 0)
+                obj.setH(h)
+                obj.setPlot(estatePlot)
+                obj.setOwnerIndex(houseIndex)
+                obj.generateWithRequired(estate.zoneId)
+                treeIndex += 1
+            elif estatePlotType == GardenGlobals.FLOWER_TYPE and self.WANT_FLOWERS:
+                data = self.data['flowers'][flowerIndex]
+                planted, waterLevel, lastCheck, growthLevel, variety = data
+                if planted != -1:
+                    obj = self.plantFlower(flowerIndex, planted, variety, waterLevel=waterLevel, lastCheck=lastCheck,
+                                           growthLevel=growthLevel, generate=False)
+                else:
+                    obj = self.placePlot(flowerIndex)
+                    obj.setFlowerIndex(flowerIndex)
+
+                boxIndex = (0, 1, 2, 2, 2, 3, 3, 3, 4, 4)[flowerIndex]
+                index = (0, 0, 0, 1, 2, 0, 1, 2, 0, 1)[flowerIndex]
+
+                obj.setPlot(estatePlot)
+                obj.setOwnerIndex(houseIndex)
+                obj.setBox(estateBoxes[boxIndex].doId)
+                obj.setIndex(index)
+                obj.setPos(x, y, 0)
+                obj.setH(h)
+                obj.generateWithRequired(estate.zoneId)
+
+                flowerIndex += 1
+            elif estatePlotType == GardenGlobals.STATUARY_TYPE and self.WANT_STATUARY:
+                data = self.data['statuary']
+                if data == 0:
+                    obj = self.placePlot(-1)
+                else:
+                    obj = self.placeStatuary(data, generate=False)
+
+                obj.setPos(x, y, 0)
+                obj.setH(h)
+                obj.setPlot(estatePlot)
+                obj.setOwnerIndex(houseIndex)
+                obj.generateWithRequired(estate.zoneId)
+
+        for tree in self.trees:
+            tree.calcDependencies()
+
+        self.reconsiderAvatarOrganicBonus()
+        return True
+
+    def placePlot(self, treeIndex):
+        obj = DistributedGardenPlotAI(self)
+        obj.setTreeIndex(treeIndex)
+        self.objects.add(obj)
+        return obj
+
+    def getNullPlant(self):
+        return NULL_PLANT
+
+    def reconsiderAvatarOrganicBonus(self):
+        av = self.air.doId2do.get(self.avId)
+        if not av:
+            return
+
+        bonus = [-1] * 7
+        for track in range(7):
+            for level in range(8):
+                if not self.hasTree(track, level):
+                    break
+
+                tree = self.getTree(track, level)
+                if tree.getGrowthLevel() < tree.growthThresholds[1] or tree.getWilted():
+                    break
+
+            bonus[track] = level - 1
+
+        av.b_setTrackBonusLevel(bonus)
+
+    def hasTree(self, track, index):
+        treeTypeIndex = GardenGlobals.getTreeTypeIndex(track, index)
+        for tree in self.data['trees']:
+            if tree[0] == treeTypeIndex:
+                return True
+
+        return False
+
+    def getTree(self, track, index):
+        for tree in self.trees:
+            if tree.getTypeIndex() == GardenGlobals.getTreeTypeIndex(track, index):
+                return tree
+
+    def plantTree(self, treeIndex, value, plot=None, waterLevel=-1, lastCheck=0, growthLevel=0, lastHarvested=0,
+                  ownerIndex=-1, plotId=-1, pos=None, generate=True):
+        if not self.air:
+            return
+
+        if plot:
+            if plot not in self.objects:
+                return
+
+            plot.requestDelete()
+            self.objects.remove(plot)
+
+        tree = DistributedGagTreeAI(self)
+        tree.setTypeIndex(value)
+        tree.setWaterLevel(waterLevel)
+        tree.setGrowthLevel(growthLevel)
+        if ownerIndex != -1:
+            tree.setOwnerIndex(ownerIndex)
+
+        if plotId != -1:
+            tree.setPlot(plotId)
+
+        if pos is not None:
+            pos, h = pos
+            tree.setPos(pos)
+            tree.setH(h)
+
+        tree.setTreeIndex(treeIndex)
+        self.trees.add(tree)
+        if generate:
+            tree.generateWithRequired(self.estate.zoneId)
+            tree.calculate(lastHarvested, lastCheck)
+
+        return tree
+
+    def placeStatuary(self, data, plot=None, plotId=-1, ownerIndex=-1, pos=None, generate=True):
+        if not self.air:
+            return
+
+        if plot:
+            if plot not in self.objects:
+                return
+
+            plot.requestDelete()
+            self.objects.remove(plot)
+
+        data, lastCheck, index, growthLevel = self.S_unpack(data)
+        dclass = DistributedStatuaryAI
+        if index in GardenGlobals.ToonStatuaryTypeIndices:
+            dclass = DistributedToonStatuaryAI
+        elif index in GardenGlobals.ChangingStatuaryTypeIndices:
+            dclass = DistributedChangingStatuaryAI
+        elif index in GardenGlobals.AnimatedStatuaryTypeIndices:
+            dclass = DistributedAnimatedStatuaryAI
+
+        obj = dclass(self)
+        obj.setGrowthLevel(growthLevel)
+        obj.setTypeIndex(index)
+        obj.setOptional(data)
+        if ownerIndex != -1:
+            obj.setOwnerIndex(ownerIndex)
+
+        if plotId != -1:
+            obj.setPlot(plotId)
+
+        if pos is not None:
+            pos, h = pos
+            obj.setPos(pos)
+            obj.setH(h)
+
+        obj.calculate(lastCheck)
+        self.objects.add(obj)
+        if generate:
+            obj.announceGenerate()
+
+        return obj
+
+    def plantFlower(self, flowerIndex, species, variety, plot=None, waterLevel=-1, lastCheck=0, growthLevel=0,
+                    ownerIndex=-1, plotId=-1, generate=True):
+        if not self.air:
+            return
+
+        if plot:
+            if plot not in self.objects:
+                return
+
+            plot.requestDelete()
+            self.objects.remove(plot)
+
+        flower = DistributedFlowerAI(self)
+        flower.setTypeIndex(species)
+        flower.setVariety(variety)
+        flower.setWaterLevel(waterLevel)
+        flower.setGrowthLevel(growthLevel)
+        if ownerIndex != -1:
+            flower.setOwnerIndex(ownerIndex)
+
+        if plotId != -1:
+            flower.setPlot(plotId)
+
+        flower.setFlowerIndex(flowerIndex)
+        flower.calculate(lastCheck)
+        self.flowers.add(flower)
+        if generate:
+            flower.generateWithRequired(self.estate.zoneId)
+
+        return flower
+
+    def growFlowers(self):
+        for flower in self.flowers:
+            flower.b_setGrowthLevel(2)
+            flower.update()
+
+    # Data structure
+    # VERY HIGH (vh) (64-bit)
+    #    high high (H) = data (32-bit)
+    #    high low (L) = lastCheck (32-bit)
+    # VERY LOW (vl) (16-bit)
+    #    low high (h) = index (8-bit)
+    #    low low (l) = growthLevel (8-bit)
+
+    @staticmethod
+    def S_pack(data, lastCheck, index, growthLevel):
+        vh = data << 32 | lastCheck
+        vl = index << 8 | growthLevel
+        return vh << 16 | vl
+
+    @staticmethod
+    def S_unpack(x):
+        vh = x >> 16
+        vl = x & 0xFFFF
+        data = vh >> 32
+        lastCheck = vh & 0xFFFFFFFF
+        index = vl >> 8
+        growthLevel = vl & 0xFF
+        return data, lastCheck, index, growthLevel
+
+    def update(self):
+        if not os.path.exists(self.filePath):
+            os.makedirs(self.filePath)
+
+        with open(self.filePath + self.fileName, 'w+') as f:
+            json.dump(self.data, f)
 
 
 class GardenManagerAI:
-    notify = directNotify.newCategory('GardenManagerAI')
+    notify = DirectNotifyGlobal.directNotify.newCategory('GardenManagerAI')
 
-    def __init__(self, air, house):
+    def __init__(self, air, estate):
         self.air = air
-        self.house = house
+        self.estate = estate
+        self.gardens = {}
 
-        self.plots = []
+    def loadGarden(self, avId):
+        garden = GardenAI(self.air, self, avId)
+        result = garden.load(self.estate)
+        if result:
+            self.gardens[avId] = garden
 
-    def loadGarden(self):
-        if not self.house.hasGardenData():
-            self.createBlankGarden()
-            return
+    def destroy(self):
+        for garden in list(self.gardens.values()):
+            garden.destroy()
 
-        self.createGardenFromData(self.house.getGardenData())
-        self.giveOrganicBonus()
-
-    def createBlankGarden(self):
-        gardenData = PyDatagram()
-
-        plots = GardenGlobals.getGardenPlots(self.house.housePos)
-        gardenData.addUint8(len(plots))
-
-        for i, plotData in enumerate(plots):
-            gardenData.addUint8(GardenGlobals.EmptyPlot)
-            gardenData.addUint8(i)
-
-        self.house.b_setGardenData(gardenData.getMessage())
-        self.loadGarden()
-
-    def createGardenFromData(self, gardenData):
-        dg = PyDatagram(gardenData)
-        gardenData = PyDatagramIterator(dg)
-        plotCount = gardenData.getUint8()
-        for _ in range(plotCount):
-            occupier = gardenData.getUint8()
-            if occupier not in occupier2Class:
-                continue
-            plot = occupier2Class[occupier](self.air, self, self.house.housePos)
-            plot.construct(gardenData)
-            plot.generateWithRequired(self.house.zoneId)
-
-            self.plots.append(plot)
-
-    def updateGardenData(self):
-        gardenData = PyDatagram()
-
-        gardenData.addUint8(len(self.plots))
-        for plot in self.plots:
-            plot.pack(gardenData)
-
-        self.house.b_setGardenData(gardenData.getMessage())
-
-    def delete(self):
-        for plot in self.plots:
-            if hasattr(plot, 'doId') and plot.isGenerated():
-                plot.requestDelete()
-
-    def getTimestamp(self):
-        return int(time.time())
-
-    def constructTree(self, plotIndex, gagTrack, gagLevel):
-        dg = PyDatagram()
-        dg.addUint8(plotIndex)
-        dg.addUint8(GardenGlobals.getTreeTypeIndex(gagTrack, gagLevel))  # Type Index
-        dg.addInt8(0)  # Water Level
-        dg.addInt8(0)  # Growth Level
-        dg.addUint32(self.getTimestamp() + GardenGlobals.GROWTH_INTERVAL)   # Next growth cycle time
-        dg.addUint8(0)  # Wilted State (False)
-        gardenData = PyDatagramIterator(dg)
-
-        plot = occupier2Class[GardenGlobals.TreePlot](self.air, self, self.house.housePos)
-        plot.construct(gardenData)
-        self.plots[plotIndex] = plot
-
-        self.updateGardenData()
-
-    def plantingFinished(self, plotIndex):
-        plot = self.plots[plotIndex]
-        plot.generateWithRequired(self.house.zoneId)
-        plot.setMovie(GardenGlobals.MOVIE_FINISHPLANTING, self.air.getAvatarIdFromSender())
-        if isinstance(plot, DistributedGagTreeAI):
-            self.givePlantingSkill(self.air.getAvatarIdFromSender(), plot.gagLevel)
-
-    def constructStatuary(self, plotIndex, typeIndex):
-        dg = PyDatagram()
-        dg.addUint8(plotIndex)
-        dg.addUint8(typeIndex)
-        gardenData = PyDatagramIterator(dg)
-
-        occupier = GardenGlobals.StatuaryPlot
-        if typeIndex in GardenGlobals.ChangingStatuaryTypeIndices:
-            occupier = GardenGlobals.ChangingStatuaryPlot
-        elif typeIndex in GardenGlobals.AnimatedStatuaryTypeIndices:
-            occupier = GardenGlobals.AnimatedStatuaryPlot
-
-        plot = occupier2Class[occupier](self.air, self, self.house.housePos)
-        plot.construct(gardenData)
-
-        self.plots[plotIndex] = plot
-
-        self.updateGardenData()
-
-    def constructToonStatuary(self, plotIndex, typeIndex, dnaCode):
-        dg = PyDatagram()
-        dg.addUint8(plotIndex)
-        dg.addUint8(typeIndex)
-        dg.addUint16(dnaCode)
-        gardenData = PyDatagramIterator(dg)
-        plot = occupier2Class[GardenGlobals.ToonStatuaryPlot](self.air, self, self.house.housePos)
-        plot.construct(gardenData)
-
-        self.plots[plotIndex] = plot
-
-        self.updateGardenData()
-
-    def revertToPlot(self, plotIndex):
-        dg = PyDatagram()
-        dg.addUint8(plotIndex)
-        gardenData = PyDatagramIterator(dg)
-
-        plot = occupier2Class[GardenGlobals.EmptyPlot](self.air, self, self.house.housePos)
-        plot.construct(gardenData)
-        self.plots[plotIndex] = plot
-
-        self.updateGardenData()
-
-    def removeFinished(self, plotIndex):
-        plot = self.plots[plotIndex]
-        plot.generateWithRequired(self.house.zoneId)
-        plot.setMovie(GardenGlobals.MOVIE_PLANT_REJECTED, self.air.getAvatarIdFromSender())
-
-    def givePlantingSkill(self, avId, gagLevel):
-        av = self.air.doId2do.get(avId)
-        if not av:
-            return
-        currSkill = av.getShovelSkill()
-        av.b_setShovelSkill(currSkill + 1 + gagLevel)
-
-    def giveOrganicBonus(self):
-        av = self.air.doId2do.get(self.house.avatarId)
-        if not av:
-            return
-        trackBonus = [-1] * NUM_GAG_TRACKS
-        treesGrown = {i: [] for i in range(NUM_GAG_TRACKS)}
-
-        # Get all the trees that can give organic bonus.
-        for plot in self.plots:
-            if isinstance(plot, DistributedGagTreeAI):
-                if plot.canGiveOrganic():
-                    treesGrown[plot.gagTrack].append(plot.gagLevel)
-
-        # Check if we have all previous trees for that track to give the bonus.
-        def verify(l):
-            if not max(l) == len(l) - 1:
-                l.remove(max(l))
-                if not l:
-                    return
-                verify(l)
-
-        for level in treesGrown:
-            if not treesGrown[level]:
-                continue
-
-            verify(treesGrown[level])
-
-            if not treesGrown[level]:
-                continue
-            trackBonus[level] = max(treesGrown[level])
-
-        av.b_setTrackBonusLevel(trackBonus)
+        del self.gardens
