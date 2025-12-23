@@ -4,12 +4,13 @@ import types
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
 
-class CatalogItemList:
+class CatalogItemList(object):
 
     def __init__(self, source = None, store = 0):
         self.store = store
         self.__blob = None
         self.__list = None
+
         if isinstance(source, bytes):
             self.__blob = source
         elif isinstance(source, list):
@@ -21,24 +22,26 @@ class CatalogItemList:
                 self.__blob = source.__blob
             else:
                 self.__list = source[:]
-        return
 
     def markDirty(self):
         if self.__list:
             self.__blob = None
-        return
 
     def getBlob(self, store = None):
         if store == None or store == self.store:
             if self.__blob == None:
                 self.__encodeList()
+
             return self.__blob
+
         return self.__makeBlob(store)
 
     def getNextDeliveryDate(self):
         if len(self) == 0:
             return
+
         nextDeliveryDate = None
+
         for item in self:
             if item:
                 if nextDeliveryDate == None or item.deliveryDate < nextDeliveryDate:
@@ -49,8 +52,10 @@ class CatalogItemList:
     def getNextDeliveryItem(self):
         if len(self) == 0:
             return
+
         nextDeliveryDate = None
         nextDeliveryItem = None
+
         for item in self:
             if item:
                 if nextDeliveryDate == None or item.deliveryDate < nextDeliveryDate:
@@ -62,6 +67,7 @@ class CatalogItemList:
     def extractDeliveryItems(self, cutoffTime):
         beforeTime = []
         afterTime = []
+
         for item in self:
             if item.deliveryDate <= cutoffTime:
                 beforeTime.append(item)
@@ -78,6 +84,7 @@ class CatalogItemList:
 
     def __makeBlob(self, store):
         dg = PyDatagram()
+
         if self.__list:
             dg.addUint8(CatalogItem.CatalogItemVersion)
             for item in self.__list:
@@ -88,6 +95,7 @@ class CatalogItemList:
     def generateList(self):
         if self.__list:
             return self.__list
+
         self.__list = self.__makeList(self.store)
         return self.__list
 
@@ -95,23 +103,29 @@ class CatalogItemList:
         self.__list = self.__makeList(self.store)
 
     def __makeList(self, store):
-        list = []
+        itemList = []
+
         if self.__blob:
             dg = PyDatagram(self.__blob)
             di = PyDatagramIterator(dg)
             versionNumber = di.getUint8()
+
             while di.getRemainingSize() > 0:
                 item = CatalogItem.decodeCatalogItem(di, versionNumber, store)
-                list.append(item)
+                itemList.append(item)
 
-        return list
+        return itemList
+    
+    def setList(self, itemList):
+        self.__list = itemList
+        self.__blob = None
 
     def append(self, item):
         if self.__list == None:
             self.__decodeList()
+
         self.__list.append(item)
         self.__blob = None
-        return
 
     def extend(self, items):
         self += items
@@ -119,11 +133,13 @@ class CatalogItemList:
     def count(self, item):
         if self.__list == None:
             self.__decodeList()
+
         return self.__list.count(item)
 
     def index(self, item):
         if self.__list == None:
             self.__decodeList()
+
         return self.__list.index(item)
 
     def insert(self, index, item):
@@ -131,69 +147,69 @@ class CatalogItemList:
             self.__decodeList()
         self.__list.insert(index, item)
         self.__blob = None
-        return
 
     def pop(self, index = None):
         if self.__list == None:
             self.__decodeList()
+
         self.__blob = None
+
         if index == None:
             return self.__list.pop()
         else:
             return self.__list.pop(index)
-        return
 
     def remove(self, item):
         if self.__list == None:
             self.__decodeList()
+
         self.__list.remove(item)
         self.__blob = None
-        return
 
     def reverse(self):
         if self.__list == None:
             self.__decodeList()
+
         self.__list.reverse()
         self.__blob = None
-        return
 
-    def sort(self, cmpfunc = None):
+    def sort(self, key = None, reverse = False):
         if self.__list == None:
             self.__decodeList()
-        if cmpfunc == None:
-            self.__list.sort()
-        else:
-            self.__list.sort(cmpfunc)
+
+        self.__list.sort(key=key, reverse=reverse)
         self.__blob = None
-        return
 
     def __len__(self):
         if self.__list == None:
             self.__decodeList()
+
         return len(self.__list)
 
     def __getitem__(self, index):
         if self.__list == None:
             self.__decodeList()
+
         return self.__list[index]
 
     def __setitem__(self, index, item):
         if self.__list == None:
             self.__decodeList()
+
         self.__list[index] = item
         self.__blob = None
-        return
 
     def __delitem__(self, index):
         if self.__list == None:
             self.__decodeList()
+
         del self.__list[index]
         self.__blob = None
-        return
 
     def __getslice__(self, i, j):
         if self.__list == None:
             self.__decodeList()
+
         return CatalogItemList(self.__list[i:j], store=self.store)
 
     def __setslice__(self, i, j, s):
@@ -204,14 +220,12 @@ class CatalogItemList:
         else:
             self.__list[i:j] = s
         self.__blob = None
-        return
 
     def __delslice__(self, i, j):
         if self.__list == None:
             self.__decodeList()
         del self.__list[i:j]
         self.__blob = None
-        return
 
     def __iadd__(self, other):
         if self.__list == None:
@@ -237,20 +251,36 @@ class CatalogItemList:
     def output(self, store = -1):
         if self.__list == None:
             self.__decodeList()
+
         inner = ''
+
         for item in self.__list:
             inner += ', %s' % item.output(store)
 
         return 'CatalogItemList([%s])' % inner[2:]
+    
+    def niceOutput(self, indentLevel):
+        if self.__list == None:
+            self.__decodeList()
+        
+        inner = ''
+        
+        for item in self.__list:
+            inner += '    ' * (indentLevel + 1)
+            inner += '%s,\n' % item.output(-1)
+        
+        return '    ' * indentLevel + ('[\n%s\n' % inner[:-2]) + '    ' * indentLevel + ']'
 
     def removeDuplicates(self, flags):
         if not self.__list:
             self.generateList()
 
         found = False
+
         for item in self.__list:
             if item.getFlags() == flags:
                 if found:
                     self.__list.remove(item)
                     continue
+
                 found = True

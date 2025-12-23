@@ -1153,19 +1153,11 @@ def get50ItemCloset(avatar, duplicateItems):
 
 
 def getMaxClosets():
-    list = []
-    for closetId in MaxClosetIds:
-        list.append(CatalogFurnitureItem(closetId))
-
-    return list
+    return [CatalogFurnitureItem(closetId) for closetId in MaxClosetIds]
 
 
 def getAllClosets():
-    list = []
-    for closetId in list(ClosetToClothes.keys()):
-        list.append(CatalogFurnitureItem(closetId))
-
-    return list
+    return [CatalogFurnitureItem(closetId) for closetId in ClosetToClothes.keys()]
 
 
 def get50ItemTrunk(avatar, duplicateItems):

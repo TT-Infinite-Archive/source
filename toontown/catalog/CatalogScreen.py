@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, DisplayRegion, NodePath, PerspectiveLens, Plane, PlaneNode, Point3, TextNode, Vec3, Vec4
+from panda3d.core import Camera, ConfigVariableBool, DisplayRegion, NodePath, PerspectiveLens, Plane, PlaneNode, Point3, TextNode, Vec3, Vec4
 from direct.actor import Actor
 from direct.gui.DirectGui import *
 from direct.gui.DirectScrolledList import *
