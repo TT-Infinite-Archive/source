@@ -621,10 +621,8 @@ class CatalogWallpaperItem(CatalogSurfaceItem):
 
     def compareTo(self, other):
         if self.patternIndex != other.patternIndex:
-            century = self.patternIndex - self.patternIndex % 100
-            otherCentury = other.patternIndex - other.patternIndex % 100
-            return century - otherCentury
-        return 0
+            return self.patternIndex == other.patternIndex
+        return self.colorIndex == other.colorIndex
 
     def getHashContents(self):
         return self.patternIndex - self.patternIndex % 100

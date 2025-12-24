@@ -56,7 +56,7 @@ class CatalogGardenStarterItem(CatalogItem.CatalogItem):
         return 'CatalogGardenStarterItem(%s)' % self.formatOptionalData(store)
 
     def compareTo(self, other):
-        return 0
+        return True
 
     def getHashContents(self):
         return 0

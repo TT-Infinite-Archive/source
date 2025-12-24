@@ -1,14 +1,12 @@
 from panda3d.direct import STInt16, STInt8
 from panda3d.core import Datagram, DatagramIterator, Filename, Notify, Texture, VBase3, VBase4, Vec3, oldToNewHpr
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from direct.interval.IntervalGlobal import *
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
-import types
 import sys
-
-
 CatalogReverseType = None
 CatalogItemVersion = 8
 CatalogBackorderMarkup = 1.2
@@ -23,7 +21,6 @@ CatalogTypeWeekly = 1
 CatalogTypeBackorder = 2
 CatalogTypeMonthly = 3
 CatalogTypeLoyalty = 4
-
 
 class CatalogItem:
     notify = directNotify.newCategory('CatalogItem')
@@ -41,11 +38,9 @@ class CatalogItem:
             self.decodeDatagram(*args, **kw)
         else:
             self.makeNewItem(*args, **kw)
-        return
 
     def isAward(self):
-        result = self.specialEventId != 0
-        return result
+        return self.specialEventId != 0
 
     def makeNewItem(self):
         pass
@@ -248,16 +243,28 @@ class CatalogItem:
         return self.output()
 
     def compareTo(self, other):
-        return 0
+        # All CatalogItem type objects are equivalent.
+        # Specializations of this class will redefine this method
+        # appropriately.  Must return True if both comparisons
+        # are the same; False otherwise.
+        return False
 
     def getHashContents(self):
         return None
 
     def __eq__(self, other):
-        return self.__class__ == other.__class__ and self.compareTo(other) == 0
+        self.notify.debug(f'Comparing {self.output()} == {other}')
+        # If the classes are different, they must be different objects.
+        if not self.__class__.__name__ == other.__class__.__name__:
+            return False
 
-    def __lt__(self, other):
-        return self.__class__ == other.__class__ and self.compareTo(other) < 0
+        # Otherwise, they are the same class; use compareTo.
+        self.notify.debug('same class, calling compareTo')
+        return self.compareTo(other)
+
+    def __ne__(self, other):
+        self.notify.debug(f'{self.output()} != {other}')
+        return not (self == other)
 
     def __hash__(self):
         return hash((self.__class__, self.getHashContents()))
@@ -278,28 +285,10 @@ class CatalogItem:
             x = di.getArg(STInt16, 10)
             y = di.getArg(STInt16, 10)
             z = di.getArg(STInt16, 100)
-            if versionNumber < 2:
-                h = di.getArg(STInt16, 10)
-                p = 0.0
-                r = 0.0
-            elif versionNumber < 5:
-                h = di.getArg(STInt8, 256.0 / 360.0)
-                p = di.getArg(STInt8, 256.0 / 360.0)
-                r = di.getArg(STInt8, 256.0 / 360.0)
-                hpr = oldToNewHpr(VBase3(h, p, r))
-                h = hpr[0]
-                p = hpr[1]
-                r = hpr[2]
-            else:
-                h = di.getArg(STInt8, 256.0 / 360.0)
-                p = di.getArg(STInt8, 256.0 / 360.0)
-                r = di.getArg(STInt8, 256.0 / 360.0)
-            self.posHpr = (x,
-             y,
-             z,
-             h,
-             p,
-             r)
+            h = di.getArg(STInt16, 256.0 / 360.0)
+            p = di.getArg(STInt16, 256.0 / 360.0)
+            r = di.getArg(STInt16, 256.0 / 360.0)
+            self.posHpr = (x, y, z, h, p, r)
         if store & GiftTag:
             self.giftTag = di.getString()
         if versionNumber >= 8:
@@ -311,20 +300,12 @@ class CatalogItem:
         if store & DeliveryDate:
             dg.addUint32(self.deliveryDate)
         if store & Location:
-            h = self.posHpr[3]
-
-            if h > 127:
-                h = 127
-
-            if h > 127.0:
-                h = 127.0
-
             dg.putArg(self.posHpr[0], STInt16, 10)
             dg.putArg(self.posHpr[1], STInt16, 10)
             dg.putArg(self.posHpr[2], STInt16, 100)
-            dg.putArg(h, STInt8, 256.0 / 360.0)
-            dg.putArg(self.posHpr[4], STInt8, 256.0 / 360.0)
-            dg.putArg(self.posHpr[5], STInt8, 256.0 / 360.0)
+            dg.putArg(self.posHpr[3], STInt16, 256.0 / 360.0)
+            dg.putArg(self.posHpr[4], STInt16, 256.0 / 360.0)
+            dg.putArg(self.posHpr[5], STInt16, 256.0 / 360.0)
         if store & GiftTag:
             dg.addString(self.giftTag)
         dg.addUint8(self.specialEventId)
@@ -422,7 +403,6 @@ def encodeCatalogItem(dg, item, store):
             item.giftCode = 0
         dg.addUint8(item.giftCode)
     item.encodeDatagram(dg, store)
-    return
 
 
 def decodeCatalogItem(di, versionNumber, store):

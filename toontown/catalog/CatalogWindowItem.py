@@ -88,7 +88,7 @@ class CatalogWindowItem(CatalogAtticItem.CatalogAtticItem):
         return result
 
     def compareTo(self, other):
-        return self.windowType - other.windowType
+        return self.windowType == other.windowType
 
     def getHashContents(self):
         return self.windowType

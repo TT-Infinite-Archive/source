@@ -541,9 +541,7 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
             return ToonDNA.ClothesColors[botTexColor]
 
     def compareTo(self, other):
-        if self.clothingType != other.clothingType:
-            return self.clothingType - other.clothingType
-        return self.colorIndex - other.colorIndex
+        return self.colorIndex == other.colorIndex
 
     def getHashContents(self):
         return (self.clothingType, self.colorIndex)

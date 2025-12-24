@@ -75,7 +75,7 @@ class CatalogPetTrickItem(CatalogItem.CatalogItem):
         return 'CatalogPetTrickItem(%s%s)' % (self.trickId, self.formatOptionalData(store))
 
     def compareTo(self, other):
-        return self.trickId - other.trickId
+        return self.trickId == other.trickId
 
     def getHashContents(self):
         return self.trickId

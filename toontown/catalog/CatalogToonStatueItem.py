@@ -46,8 +46,8 @@ class CatalogToonStatueItem(CatalogGardenItem.CatalogGardenItem):
 
     def compareTo(self, other):
         if self.gardenIndex >= self.startPoseIndex and self.gardenIndex <= self.endPoseIndex:
-            return 0
-        return 1
+            return True
+        return False
 
     def getAllToonStatues(self):
         self.statueList = []

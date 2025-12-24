@@ -33,6 +33,7 @@ from toontown.distributed.ToontownDistrictStatsAI import ToontownDistrictStatsAI
 from toontown.distributed.ToontownInternalRepository import ToontownInternalRepository
 from toontown.dna.DNAParser import loadDNAFile, loadDNAFileAI
 from toontown.estate.EstateManagerAI import EstateManagerAI
+from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
 from toontown.hood import BRHoodAI
 from toontown.hood import BossbotHQAI
 from toontown.hood import CashbotHQAI
@@ -163,6 +164,8 @@ class ToontownAIRepository(ToontownInternalRepository):
         if self.wantHousing:
             self.estateManager = EstateManagerAI(self)
             self.estateManager.generateWithRequired(2)
+            self.bankMgr = DistributedBankMgrAI(self)
+            self.bankMgr.generateWithRequired(2)
             self.catalogManager = CatalogManagerAI(self)
             self.catalogManager.generateWithRequired(2)
             self.popularItemManager = PopularItemManagerAI(self)

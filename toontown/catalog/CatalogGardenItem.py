@@ -86,9 +86,6 @@ class CatalogGardenItem(CatalogItem.CatalogItem):
     def output(self, store = -1):
         return 'CatalogGardenItem(%s%s)' % (self.gardenIndex, self.formatOptionalData(store))
 
-    def compareTo(self, other):
-        return 0
-
     def getHashContents(self):
         return self.gardenIndex
 
@@ -130,9 +127,7 @@ class CatalogGardenItem(CatalogItem.CatalogItem):
             return 0
 
     def compareTo(self, other):
-        if self.gardenIndex != other.gardenIndex:
-            return self.gardenIndex - other.gardenIndex
-        return self.gardenIndex - other.gardenIndex
+        return self.gardenIndex == other.gardenIndex
 
     def reachedPurchaseLimit(self, avatar):
         if avatar.onOrder.count(self) != 0:

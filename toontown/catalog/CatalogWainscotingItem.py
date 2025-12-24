@@ -50,8 +50,8 @@ class CatalogWainscotingItem(CatalogSurfaceItem):
 
     def compareTo(self, other):
         if self.patternIndex != other.patternIndex:
-            return self.patternIndex - other.patternIndex
-        return self.colorIndex - other.colorIndex
+            return self.patternIndex == other.patternIndex
+        return self.colorIndex == other.colorIndex
 
     def getHashContents(self):
         return (self.patternIndex, self.colorIndex)

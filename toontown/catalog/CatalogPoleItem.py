@@ -74,7 +74,7 @@ class CatalogPoleItem(CatalogItem.CatalogItem):
         return FishGlobals.RodFileDict.get(self.rodId)
 
     def compareTo(self, other):
-        return self.rodId - other.rodId
+        return self.rodId == other.rodId
 
     def getHashContents(self):
         return self.rodId

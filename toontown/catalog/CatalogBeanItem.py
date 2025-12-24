@@ -59,7 +59,7 @@ class CatalogBeanItem(CatalogItem.CatalogItem):
         return 'CatalogBeanItem(%s%s)' % (self.beanAmount, self.formatOptionalData(store))
 
     def compareTo(self, other):
-        return self.beanAmount - other.beanAmount
+        return self.beanAmount == other.beanAmount
 
     def getHashContents(self):
         return self.beanAmount

@@ -79,7 +79,7 @@ class CatalogRentalItem(CatalogItem.CatalogItem):
         return 'CatalogRentalItem(%s%s)' % (self.typeIndex, self.formatOptionalData(store))
 
     def compareTo(self, other):
-        return self.typeIndex - other.typeIndex
+        return self.typeIndex == other.typeIndex
 
     def getHashContents(self):
         return self.typeIndex

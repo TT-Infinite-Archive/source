@@ -1,5 +1,6 @@
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
+from toontown.toonbase import ToontownGlobals
 
 class DistributedBankMgrAI(DistributedObjectAI.DistributedObjectAI):
 
@@ -22,7 +23,7 @@ class DistributedBankMgrAI(DistributedObjectAI.DistributedObjectAI):
         walletBalance = av.getMoney()
         maxWalletBalance = av.getMaxMoney()
         bankBalance = av.getBankMoney()
-        maxBankBalance = av.getMaxBankMoney()
+        maxBankBalance = ToontownGlobals.MaxBankMoney
 
         # Deposit
         if amount > 0:

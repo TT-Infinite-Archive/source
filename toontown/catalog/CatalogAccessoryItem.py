@@ -348,7 +348,7 @@ class CatalogAccessoryItem(CatalogItem.CatalogItem):
         return None
 
     def compareTo(self, other):
-        return self.accessoryType - other.accessoryType
+        return self.accessoryType == other.accessoryType
 
     def getHashContents(self):
         return self.accessoryType

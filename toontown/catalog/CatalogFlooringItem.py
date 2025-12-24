@@ -73,9 +73,7 @@ class CatalogFlooringItem(CatalogSurfaceItem):
         return FlooringTypes[self.patternIndex][FTTextureName]
 
     def compareTo(self, other):
-        if self.patternIndex != other.patternIndex:
-            return self.patternIndex - other.patternIndex
-        return 0
+        return self.patternIndex == other.patternIndex
 
     def getHashContents(self):
         return self.patternIndex

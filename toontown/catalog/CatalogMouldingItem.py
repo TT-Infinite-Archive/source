@@ -58,9 +58,7 @@ class CatalogMouldingItem(CatalogSurfaceItem):
         return MouldingTypes[self.patternIndex][MTTextureName]
 
     def compareTo(self, other):
-        if self.patternIndex != other.patternIndex:
-            return self.patternIndex - other.patternIndex
-        return self.colorIndex - other.colorIndex
+        return self.colorIndex == other.colorIndex
 
     def getHashContents(self):
         return (self.patternIndex, self.colorIndex)

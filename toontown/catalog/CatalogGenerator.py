@@ -15,12 +15,12 @@ class CatalogGenerator:
         self.__releasedItemLists = {}
 
     def getReleasedCatalogList(self, weekStart):
-        dayNumber = int(weekStart / (24 * 60))
+        dayNumber = weekStart // (24 * 60)
         itemLists = self.__getReleasedItemLists(dayNumber, weekStart)
         return itemLists
 
     def generateMonthlyCatalog(self, avatar, weekStart):
-        dayNumber = int(weekStart / (24 * 60))
+        dayNumber = weekStart // (24 * 60)
         itemLists = self.__getMonthlyItemLists(dayNumber)
         monthlyCatalog = CatalogItemList.CatalogItemList()
 

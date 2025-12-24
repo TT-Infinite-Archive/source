@@ -50,7 +50,7 @@ class CatalogChatItem(CatalogItem.CatalogItem):
         return 'CatalogChatItem(%s%s)' % (self.customIndex, self.formatOptionalData(store))
 
     def compareTo(self, other):
-        return self.customIndex - other.customIndex
+        return self.customIndex == other.customIndex
 
     def getHashContents(self):
         return self.customIndex

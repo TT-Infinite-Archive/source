@@ -1058,7 +1058,7 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
         return type[FTModelName]
 
     def compareTo(self, other):
-        return self.furnitureType - other.furnitureType
+        return self.furnitureType == other.furnitureType
 
     def getHashContents(self):
         return self.furnitureType

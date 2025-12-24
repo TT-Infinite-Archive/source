@@ -61,7 +61,7 @@ class CatalogNametagItem(CatalogItem.CatalogItem):
         return 'CatalogNametagItem(%s%s)' % (self.nametagStyle, self.formatOptionalData(store))
 
     def compareTo(self, other):
-        return self.nametagStyle - other.nametagStyle
+        return self.nametagStyle == other.nametagStyle
 
     def getHashContents(self):
         return self.nametagStyle
