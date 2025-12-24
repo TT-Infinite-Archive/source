@@ -236,7 +236,6 @@ class GolfTrophiesUI(DirectFrame):
         self.currentHistory = DirectLabel(parent=self, relief=None, text='', text_scale=0.06, text_fg=(0, 0, 0.95, 1.0), text_pos=(0, -0.45))
         self.trophyTextDisplay = DirectLabel(parent=self, relief=None, text='', text_scale=0.07, text_fg=(1, 0, 0, 1), text_shadow=(0, 0, 0, 0), text_pos=(0.0, 0.45), text_font=ToontownGlobals.getInterfaceFont())
         self.updateTrophies()
-        return
 
     def grow(self, index, pos):
         self.trophyPanels[index]['image_color'] = Vec4(1.0, 1.0, 0.8, 1.0)
