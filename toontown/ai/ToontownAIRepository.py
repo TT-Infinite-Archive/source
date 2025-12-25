@@ -8,24 +8,24 @@ from otp.ai import BanManagerAI
 from otp.distributed.OtpDoGlobals import *
 from otp.friends.FriendManagerAI import FriendManagerAI
 from otp.ai.CrashLogManagerAI import CrashLogManagerAI
-from toontown.ai import CogPageManagerAI
-from toontown.ai import CogSuitManagerAI
-from toontown.ai import PromotionManagerAI
 from toontown.ai.AchievementsManagerAI import AchievementsManagerAI
-from toontown.ai.FishManagerAI import FishManagerAI
+from toontown.fishing.FishManagerAI import FishManagerAI
 from toontown.ai.HolidayManagerAI import HolidayManagerAI
 from toontown.ai.NewsManagerAI import NewsManagerAI
-from toontown.ai.QuestManagerAI import QuestManagerAI
+from toontown.quest.QuestManagerAI import QuestManagerAI
 from toontown.ai import BankManagerAI
 from toontown.battle.BehaviorManagerAI import BehaviorManagerAI
 from toontown.building.DistributedTrophyMgrAI import DistributedTrophyMgrAI
 from toontown.catalog.CatalogManagerAI import CatalogManagerAI
 from toontown.catalog.PopularItemManagerAI import PopularItemManagerAI
 from toontown.coderedemption.TTCodeRedemptionMgrAI import TTCodeRedemptionMgrAI
+from toontown.coghq import CogSuitManagerAI
+from toontown.shtiker import CogPageManagerAI
 from toontown.coghq import CountryClubManagerAI
 from toontown.coghq import FactoryManagerAI
 from toontown.coghq import LawOfficeManagerAI
 from toontown.coghq import MintManagerAI
+from toontown.coghq import PromotionManagerAI
 from toontown.collectibles.StatManagerAI import StatManagerAI
 from toontown.collectibles.CollectibleInventoryManagerAI import CollectibleInventoryManagerAI
 from toontown.distributed.ToontownDistrictAI import ToontownDistrictAI
@@ -91,6 +91,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.zoneDataStore = AIZoneDataStore()
 
         self.wantFishing = ConfigVariableBool('want-fishing', True).getValue()
+        self.wantBingo = ConfigVariableBool('want-bingo', False).getValue()
         self.wantHousing = ConfigVariableBool('want-housing', True).getValue()
         self.wantPets = ConfigVariableBool('want-pets', True).getValue()
         self.wantParties = ConfigVariableBool('want-parties', True).getValue()
@@ -146,7 +147,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.trophyMgr.generateWithRequired(2)
         self.cogSuitMgr = CogSuitManagerAI.CogSuitManagerAI(self)
         self.promotionMgr = PromotionManagerAI.PromotionManagerAI(self)
-        self.cogPageManager = CogPageManagerAI.CogPageManagerAI()
+        self.cogPageManager = CogPageManagerAI.CogPageManagerAI(self)
         self.bankManager = BankManagerAI.BankManagerAI(self)
         self.behaviorManager = BehaviorManagerAI(self)
         if self.wantToonStats:
@@ -519,3 +520,25 @@ class ToontownAIRepository(ToontownInternalRepository):
                 houseIds[index] = houseId
                 self.dbInterface.queryObject(self.dbId, houseId,
                                              lambda dclass, fields, idx=index: __handleGetHouse(dclass, fields, idx))
+
+    def handleAvCatch(self, avId, zoneId, catch):
+        """
+        avId - ID of avatar to update
+        zoneId - zoneId of the pond the catch was made in.
+                This is used by the BingoManagerAI to
+                determine which PBMgrAI needs to update
+                the catch.
+        catch - a fish tuple of (genus, species)
+        returns: None
+
+        This method instructs the BingoManagerAI to
+        tell the appropriate PBMgrAI to update the
+        catch of an avatar at the particular pond. This
+        method is called in the FishManagerAI's
+        RecordCatch method.
+        """
+        # Guard for publish
+        pass
+        #if simbase.wantBingo:
+        #    if self.bingoMgr:
+        #        self.bingoMgr.setAvCatchForPondMgr(avId, zoneId, catch)

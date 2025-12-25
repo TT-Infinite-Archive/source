@@ -21,9 +21,8 @@ FishItemNewEntry = 9
 FishItemNewRecord = 10
 BingoBoot = (BootItem, 99)
 ProbabilityDict = {
-    94: FishItem,
-    92: QuestItem,
-    95: JellybeanItem,
+    93: FishItem,
+    94: JellybeanItem,
     100: BootItem
 }
 SortedProbabilityCutoffs = list(ProbabilityDict.keys())

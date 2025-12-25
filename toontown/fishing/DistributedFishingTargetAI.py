@@ -1,57 +1,71 @@
-from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.DistributedNodeAI import DistributedNodeAI
-from direct.distributed.ClockDelta import *
-from toontown.fishing import FishingTargetGlobals
-from direct.task import Task
-import random
 import math
+import random
+from direct.distributed import DistributedNodeAI
+from . import FishingTargetGlobals
+from direct.directnotify import DirectNotifyGlobal
+from direct.distributed.ClockDelta import globalClockDelta
 
-class DistributedFishingTargetAI(DistributedNodeAI):
+
+class DistributedFishingTargetAI(DistributedNodeAI.DistributedNodeAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedFishingTargetAI")
 
-    def __init__(self, air):
-        DistributedNodeAI.__init__(self, air)
-        self.pondId = 0
-        self.angle = 0
-        self.targetRadius = 0
-        self.time = 0
-        self.centerPoint = [0, 0, 0]
+    def __init__(self, air, pond, hunger):
+        DistributedNodeAI.DistributedNodeAI.__init__(self, air)
+        self.notify.debug("init")
+        self.pond = pond
+        self.area = self.pond.getArea()
+        self.hunger = hunger
+        # For now we are always moving
+        self.stateIndex = FishingTargetGlobals.MOVING
+        self.centerPoint = FishingTargetGlobals.getTargetCenter(self.area)
+        self.maxRadius = FishingTargetGlobals.getTargetRadius(self.area)
+        self.currentAngle = 0.0
+        self.currentRadius = 0.0
+        self.time = 0.0
 
     def generate(self):
-        DistributedNodeAI.generate(self)
-        self.updateState()
-        if not self.pondId:
-            #We dont have a pond ID for some reason...
-            return
-        pond = self.air.doId2do[self.pondId]
-        pond.addTarget(self)
-        self.centerPoint = FishingTargetGlobals.getTargetCenter(pond.getArea())
+        DistributedNodeAI.DistributedNodeAI.generate(self)
+        self.moveToNextPos()
 
     def delete(self):
-        taskMgr.remove('updateFishingTarget%d' % self.doId)
-
-        DistributedNodeAI.delete(self)
-
-    def setPondDoId(self, pondId):
-        self.pondId = pondId
+        taskMgr.remove(self.taskName('moveFishingTarget'))
+        del self.pond
+        DistributedNodeAI.DistributedNodeAI.delete(self)
 
     def getPondDoId(self):
-        return self.pondId
+        return self.pond.getDoId()
 
-    def setState(self, stateIndex, angle, radius, time, timeStamp):
-        self.angle = angle
-        self.targetRadius = radius
-        self.time = time
+    def getHunger(self):
+        return self.hunger
+
+    def isHungry(self):
+        # See if we are hungry at this instant
+        return (random.random() <= self.hunger)
+
+    def getCurrentPos(self):
+        x = (self.currentRadius * math.cos(self.currentAngle)) + self.centerPoint[0]
+        y = (self.currentRadius * math.sin(self.currentAngle)) + self.centerPoint[1]
+        z = self.centerPoint[2]
+        return (x, y, z)
 
     def getState(self):
-        return [0, self.angle, self.targetRadius, self.time, globalClockDelta.getRealNetworkTime()]
+        return [self.stateIndex, self.currentAngle, self.currentRadius,
+                self.time, globalClockDelta.getRealNetworkTime()]
 
-    def updateState(self):
-        if not self.pondId in self.air.doId2do:
-            return
-        self.b_setPosHpr(self.targetRadius * math.cos(self.angle) + self.centerPoint[0], self.targetRadius * math.sin(self.angle) + self.centerPoint[1], self.centerPoint[2], 0, 0, 0)
-        self.angle = random.randrange(359)
-        self.targetRadius = random.uniform(FishingTargetGlobals.getTargetRadius(self.air.doId2do[self.pondId].getArea()), 0)
-        self.time = random.uniform(10.0, 5.0)
-        self.sendUpdate('setState', [0, self.angle, self.targetRadius, self.time, globalClockDelta.getRealNetworkTime()])
-        taskMgr.doMethodLater(self.time + random.uniform(5, 2.5), DistributedFishingTargetAI.updateState, 'updateFishingTarget%d' % self.doId, [self])
+    def d_setState(self, stateIndex, angle, radius, time):
+        self.sendUpdate('setState', [stateIndex, angle, radius, time,
+                                     globalClockDelta.getRealNetworkTime()])
+
+    def moveToNextPos(self, task=None):
+        # Send out our current position before moving
+        self.d_setPos(*self.getCurrentPos())
+        # Now grab a new angle and radius (polar coords)
+        self.currentAngle = random.random() * 360.0
+        self.currentRadius = random.random() * self.maxRadius
+        # Pick a travel duration
+        self.time = 6.0 + (6.0 * random.random())
+        self.d_setState(self.stateIndex, self.currentAngle, self.currentRadius, self.time)
+        waitTime = 1.0 + random.random() * 4.0
+        taskMgr.doMethodLater(self.time + waitTime,
+                              self.moveToNextPos,
+                              self.taskName('moveFishingTarget'))

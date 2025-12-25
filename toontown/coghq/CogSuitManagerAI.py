@@ -9,23 +9,23 @@ class CogSuitManagerAI:
     def __init__(self, air):
         self.air = air
 
-    def recoverPart(self, toon, factoryType, suitTrack, zoneId, toons):
-        recoveredParts = [0, 0, 0, 0]
-        parts = toon.getCogParts()
+    def recoverPart(self, av, factoryType, suitTrack, zoneId, avList):
+        partsRecovered = [0, 0, 0, 0]
+        parts = av.getCogParts()
         suitIndex = ToontownGlobals.cogDept2index[suitTrack]
 
         if CogDisguiseGlobals.isSuitComplete(parts, suitIndex):
             zoneId = ToontownGlobals.dept2cogHQ(suitTrack)
-            toon.addTeleportAccess(zoneId)
-            return recoveredParts
+            av.addTeleportAccess(zoneId)
+            return partsRecovered
 
-        recoveredParts[suitIndex] = toon.giveGenericCogPart(factoryType, suitIndex)
+        partsRecovered[suitIndex] = av.giveGenericCogPart(factoryType, suitIndex)
 
-        if CogDisguiseGlobals.isSuitComplete(toon.getCogParts(), suitIndex):
+        if CogDisguiseGlobals.isSuitComplete(av.getCogParts(), suitIndex):
             zoneId = ToontownGlobals.dept2cogHQ(suitTrack)
             toon.addTeleportAccess(zoneId)
 
-        return recoveredParts
+        return partsRecovered
 
     def removeParts(self, toonId, suitDeptIndex):
         toon = self.air.doId2do.get(toonId)

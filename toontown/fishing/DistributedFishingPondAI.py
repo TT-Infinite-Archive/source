@@ -1,69 +1,158 @@
-from direct.directnotify.DirectNotifyGlobal import *
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from toontown.fishing import FishingTargetGlobals
-from toontown.fishing.DistributedFishingTargetAI import DistributedFishingTargetAI
+import random
+from direct.distributed import DistributedObjectAI
+from direct.directnotify import DirectNotifyGlobal
+from . import DistributedFishingTargetAI
+from . import FishingTargetGlobals
 
 
-class DistributedFishingPondAI(DistributedObjectAI):
-    notify = directNotify.newCategory("DistributedFishingPondAI")
+class DistributedFishingPondAI(DistributedObjectAI.DistributedObjectAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedFishingPondAI")
 
-    def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-
-        self.area = None
-        self.targets = {}
-        self.spots = {}
-        self.bingoMgr = None
-
-    def start(self):
-        for _ in range(FishingTargetGlobals.getNumTargets(self.area)):
-            fishingTarget = DistributedFishingTargetAI(simbase.air)
-            fishingTarget.setPondDoId(self.doId)
-            fishingTarget.generateWithRequired(self.zoneId)
-
-    def hitTarget(self, target):
-        avId = self.air.getAvatarIdFromSender()
-        if self.targets.get(target) is None:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to hit nonexistent fishing target!')
-            return
-        spot = self.hasToon(avId)
-        if spot:
-            spot.rewardIfValid(target)
-            return
-        self.air.writeServerEvent('suspicious', avId, 'Toon tried to catch fish while not fishing!')
-
-    def addTarget(self, target):
-        self.targets[target.doId] = target
-
-    def addSpot(self, spot):
-        self.spots[spot.doId] = spot
-
-    def setArea(self, area):
+    def __init__(self, air, area):
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+        self.notify.debug("init")
+        self.avId2SpotDict = {}
         self.area = area
+        self.pondBingoMgr = None
+
+    def generate(self):
+        DistributedObjectAI.DistributedObjectAI.generate(self)
+        self.notify.debug("generate: zoneId: %s, area: %s" % (self.zoneId, self.area))
+        # Fishing Targets
+        self.targets = {}
+        for i in range(FishingTargetGlobals.getNumTargets(self.area)):
+            hunger = (FishingTargetGlobals.MinimumHunger +
+                      (random.random() * (1 - FishingTargetGlobals.MinimumHunger)))
+            target = DistributedFishingTargetAI.DistributedFishingTargetAI(self.air, self, hunger)
+            target.generateWithRequired(self.zoneId)
+            self.targets[target.getDoId()] = target
+
+    def delete(self):
+        self.notify.debug("delete")
+        # Delete all the targets
+        for target in self.targets.values():
+            target.requestDelete()
+        del self.targets
+        DistributedObjectAI.DistributedObjectAI.delete(self)
 
     def getArea(self):
         return self.area
 
-    def hasToon(self, avId):
-        for spot in self.spots:
-            if self.spots[spot].avId == avId:
-                return self.spots[spot]
+    def addAvSpot(self, avId, spot) -> bool:
+        self.notify.debug("addAvSpot: adding avId: %s to spot" % (avId))
+        currentSpot = self.avId2SpotDict.get(avId)
+        if currentSpot:
+            self.notify.warning("addAvSpot: avId: %s already in a spot" % (avId))
+        self.avId2SpotDict[avId] = spot
+        if simbase.wantBingo:
+            self.__addAvToGame(avId)
+        return True
 
-    def delete(self):
-        if self.bingoMgr:
-            self.bingoMgr.requestDelete()
-            self.bingoMgr = None
+    def removeAvSpot(self, avId, spot) -> bool:
+        currentSpot = self.avId2SpotDict.get(avId)
+        if currentSpot:
+            if currentSpot == spot:
+                self.notify.debug("removeAvSpot: removing avId: %s from spot" % (avId))
+                del self.avId2SpotDict[avId]
+                if simbase.wantBingo:
+                    self.__removeAvFromGame(avId)
+                return True
+            else:
+                self.notify.warning("removeAvSpot: spots do not match, removing av anyways")
+                del self.avId2SpotDict[avId]
+                if simbase.wantBingo:
+                    self.__removeAvFromGame(avId)
+                return True
+        else:
+            self.notify.warning("removeAvSpot: avId: %s not found" % (avId))
+            # Really, if the avId is not in the avId2Spot Dict, then it should
+            # not be in the pondBingoMgr either. However, for precaution, check
+            # for it anyway.
+            if simbase.wantBingo:
+                self.__removeAvFromGame(avId)
+        return False
 
-        for target in self.targets:
-            target = self.air.doId2do.get(target)
-            if target:
-                target.requestDelete()
-        self.targets.clear()
+    def hitTarget(self, targetId):
+        avId = self.air.getAvatarIdFromSender()
+        av = self.air.doId2do.get(avId)
+        if not av:
+            return
 
-        for spot in self.spots:
-            spot = self.air.doId2do.get(spot)
-            if spot:
-                spot.requestDelete()
-        self.spots.clear()
+        self.notify.debug("hitTarget: targetId: %s avId: %s" % (targetId, avId))
+        # You must be fishing at a spot to hit a target
+        spot = self.avId2SpotDict.get(avId)
+        if not spot:
+            self.notify.warning("hitTarget: spot not found for avId: %s" % (avId))
+            return
+        target = self.targets.get(targetId)
+        # See if the target bites
+        if (not target):
+            self.air.writeServerEvent('suspicious', targetId, 'FishingPondAI.hitTarget unknown target')
+        elif target.isHungry():
+            self.notify.debug("hitTarget: targetId: %s is hungry" % (targetId))
+            code, item = self.air.fishManager.recordCatch(avId, self.area, self.zoneId)
+            # make sure we didn't trip an error condition and return None
+            if code:
+                # Tell the fishing spot so it can send a movie to the client
+                spot.hitTarget(code, item)
+        else:
+            self.notify.debug("hitTarget: targetId: %s not hungry" % (targetId))
 
-        DistributedObjectAI.delete(self)
+    ############################################################
+    # Method:  setPondBingoManager
+    # Purpose: This method sets the reference to a
+    #          PondBingoManagerAI instance.
+    # Input: pondBingoMgr - The pondBingoManagerAI object that
+    #                       is associated with the pond instance.
+    # Output: None
+    ############################################################
+    def setPondBingoManager(self, pondBingoMgr):
+        self.pondBingoMgr = pondBingoMgr
+
+    ############################################################
+    # Method:  getPondBingoManager
+    # Purpose: This method sets the reference to a
+    #          PondBingoManagerAI instance.
+    # Input: None
+    # Output: pondBingoMgr - The pondBingoManagerAI object that
+    #                        is associated with the pond
+    #                        instance.
+    ############################################################
+    def getPondBingoManager(self):
+        return self.pondBingoMgr
+
+    ############################################################
+    # Method:  hasPondBingoManager
+    # Purpose: This method determines if the pond has a PBMgrAI
+    #          and returns the result.
+    # Input: None
+    # Output: result 1 if there is a PBMgrAI or 0
+    ############################################################
+    def hasPondBingoManager(self):
+        return ((self.pondBingoMgr) and [1] or [0])[0]
+
+    ############################################################
+    # Method:  __addAvToGame
+    # Purpose: This method tells to PondBingoManagerAI to add
+    #          an avatar ID to the game because a client has
+    #          entered a FishingSpot.
+    # Input: avId - Avatar ID of the client who entered the
+    #               Fishing Spot.
+    # Output: None
+    ############################################################
+    def __addAvToGame(self, avId):
+        if self.pondBingoMgr:
+            self.pondBingoMgr.addAvToGame(avId)
+
+    ############################################################
+    # Method:  __addAvToGame
+    # Purpose: This method tells to PondBingoManagerAI to
+    #          remove an avatar ID to the game because a client
+    #          has exited a FishingSpot.
+    # Input: avId - Avatar ID of the client who exited the
+    #               Fishing Spot.
+    # Output: None
+    ############################################################
+    def __removeAvFromGame(self, avId):
+        if self.pondBingoMgr:
+            self.pondBingoMgr.removeAvFromGame(avId)

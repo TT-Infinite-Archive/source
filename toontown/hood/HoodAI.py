@@ -134,10 +134,8 @@ class HoodAI:
         if isinstance(dnaGroup, DNAGroup) and ('fishing_pond' in dnaGroup.getName()):
             fishingPondGroups.append(dnaGroup)
 
-            fishingPond = DistributedFishingPondAI(simbase.air)
-            fishingPond.setArea(area)
+            fishingPond = DistributedFishingPondAI(simbase.air, area)
             fishingPond.generateWithRequired(zoneId)
-            fishingPond.start()
 
             fishingPonds.append(fishingPond)
         elif isinstance(dnaGroup, DNAVisGroup):
@@ -151,11 +149,9 @@ class HoodAI:
     def findFishingSpots(self, dnaGroup, fishingPond):
         fishingSpots = []
         if isinstance(dnaGroup, DNAGroup) and ('fishing_spot' in dnaGroup.getName()):
-            fishingSpot = DistributedFishingSpotAI(simbase.air)
-            fishingSpot.setPondDoId(fishingPond.doId)
             x, y, z = dnaGroup.getPos()
             h, p, r = dnaGroup.getHpr()
-            fishingSpot.setPosHpr(x, y, z, h, p, r)
+            fishingSpot = DistributedFishingSpotAI(simbase.air, fishingPond, x, y, z, h, p, r)
             fishingSpot.generateWithRequired(fishingPond.zoneId)
 
             fishingSpots.append(fishingSpot)
@@ -180,10 +176,10 @@ class HoodAI:
         fishingSpots = []
         for (dnaGroup, fishingPond) in zip(fishingPondGroups, self.fishingPonds):
             fishingSpots.extend(self.findFishingSpots(dnaGroup, fishingPond))
-        for fishingPond in self.fishingPonds:
-            fishingPond.bingoMgr = DistributedPondBingoManagerAI(self.air)
-            fishingPond.bingoMgr.setPondDoId(fishingPond.doId)
-            fishingPond.bingoMgr.generateWithRequired(fishingPond.zoneId)
+        #for fishingPond in self.fishingPonds:
+        #    fishingPond.bingoMgr = DistributedPondBingoManagerAI(self.air)
+        #    fishingPond.bingoMgr.setPondDoId(fishingPond.doId)
+        #    fishingPond.bingoMgr.generateWithRequired(fishingPond.zoneId)
 
     def findPartyGates(self, dnaGroup, zoneId):
         partyGates = []
