@@ -1,5 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from . import ZoneUtil
+from toontown.dna.DNAParser import DNAGroup
 from toontown.building import DistributedBuildingMgrAI
 from toontown.safezone.SZTreasureGlobals import SZTreasureSpawnPoints
 from toontown.safezone.SZTreasurePlannerAI import SZTreasurePlannerAI
@@ -78,7 +79,7 @@ class HoodDataAI:
         for zone in self.air.zoneTable[self.canonicalHoodId]:
             zoneId = ZoneUtil.getTrueZoneId(zone[0], self.zoneId)
             dnaData = self.air.dnaDataMap.get(zone[0], None)
-            if dnaData:
+            if isinstance(dnaData, DNAGroup):
                 foundPartyHats = self.air.findPartyHats(dnaData, zoneId)
                 partyHats += foundPartyHats
 
@@ -110,7 +111,7 @@ class HoodDataAI:
         for zone in self.air.zoneTable[self.canonicalHoodId]:
             zoneId = ZoneUtil.getTrueZoneId(zone[0], self.zoneId)
             dnaData = self.air.dnaDataMap.get(zone[0], None)
-            if dnaData:
+            if isinstance(dnaData, DNAGroup):
                 area = ZoneUtil.getCanonicalZoneId(zoneId)
                 foundFishingPonds, foundFishingPondGroups = self.air.findFishingPonds(dnaData, zoneId, area)
                 self.fishingPonds += foundFishingPonds

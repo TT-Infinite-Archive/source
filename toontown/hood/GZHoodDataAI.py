@@ -73,7 +73,7 @@ class GZHoodDataAI(HoodDataAI.HoodDataAI):
             zoneId = ZoneUtil.getTrueZoneId(zone[0], self.zoneId)
             dnaData = self.air.dnaDataMap.get(zone[0], None)
 
-            if dnaData:
+            if isinstance(dnaData, DNAGroup):
                 area = ZoneUtil.getCanonicalZoneId(zoneId)
                 foundKarts, foundKartGroups = self.findAndCreateGolfKarts(dnaData, zoneId, area, overrideDNAZone=True)
                 self.golfKarts += foundKarts

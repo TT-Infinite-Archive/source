@@ -11,7 +11,7 @@ from direct.fsm import State
 from direct.task import Task
 import random
 from . import HouseGlobals
-from toontown.dna.DNAParser import DNAStorage
+from toontown.dna.DNAParser import DNAStorage, DNAGroup
 from toontown.safezone.SZTreasurePlannerAI import SZTreasurePlannerAI
 from toontown.safezone import SZTreasureGlobals
 from toontown.safezone import DistributedPicnicTableAI
@@ -23,6 +23,7 @@ from toontown.estate import DistributedGagTreeAI
 from toontown.estate import DistributedStatuaryAI
 from toontown.estate import DistributedGardenPlotAI
 from toontown.estate import DistributedGardenBoxAI
+from toontown.toon import NPCToons
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.estate import DistributedChangingStatuaryAI
@@ -167,6 +168,10 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
                 self.estateFlyingTreasurePlanner.deleteAllTreasuresNow()
                 self.estateFlyingTreasurePlanner = None
 
+            if ConfigVariableBool('want-estate-fisherman', True).getValue():
+                self.fisherman.requestDelete()
+                self.fisherman = None
+
             if self.fishingSpots:
                 for spot in self.fishingSpots:
                     spot.requestDelete()
@@ -255,8 +260,17 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
         self.estateVal = estateVal
 
         # start treasure planner
-        #self.estateTreasurePlanner = ETreasurePlannerAI.ETreasurePlannerAI(self.zoneId)
-        #self.estateTreasurePlanner.start()
+        treasureAttribs = SZTreasureGlobals.SZTreasureSpawnPoints[MyEstate]
+        self.estateTreasurePlanner = SZTreasurePlannerAI(
+            self.zoneId,
+            treasureAttribs.treasureType,
+            treasureAttribs.healAmount,
+            treasureAttribs.spawnPoints,
+            f"EstateTreasures-{self.zoneId}",
+            treasureAttribs.spawnInterval,
+            treasureAttribs.maxTreasures
+        )
+        self.estateTreasurePlanner.start()
 
         # Create fishing docks
         dnaStore = DNAStorage()
@@ -264,22 +278,21 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
                   'phase_5.5/dna/estate_1.pdna')
         self.fishingSpots = []
         self.fishingPonds = []
-        """
-        if (isinstance(dnaData, DNAData)):
+        if (isinstance(dnaData, DNAGroup)):
             fishingPonds, fishingPondGroups = self.air.findFishingPonds(dnaData, self.zoneId, MyEstate, overrideDNAZone = 1)
             self.fishingPonds += fishingPonds
             for dnaGroup, distPond in zip(fishingPondGroups, fishingPonds):
                 self.fishingSpots += self.air.findFishingSpots(dnaGroup, distPond)
         else:
             self.notify.warning("loadDNAFileAI failed for 'estate_1.dna'")
-        """
+
+        # Create fisherman
+        if ConfigVariableBool('want-estate-fisherman', True).getValue():
+            self.fisherman = NPCToons.createNPC(self.air, 91919,
+                                                NPCToons.NPCToonDict[91919], self.zoneId)
+            self.fisherman.setPosHpr(75.476, -127.599, 0, 36, 0, 0)
 
         if simbase.wantPets:
-            if 0:#__dev__:
-                from panda3d.core import ProfileTimer
-                pt = ProfileTimer()
-                pt.init('estate model load')
-                pt.on()
 
             if not DistributedEstateAI.EstateModel:
                 # load up the estate model for the pets
@@ -297,11 +310,6 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
             if not DistributedEstateAI.printedLs:
                 DistributedEstateAI.printedLs = 1
                 #self.geom.ls()
-
-            if 0:#__dev__:
-                pt.mark('loaded estate model')
-                pt.off()
-                pt.printTo()
 
 
 

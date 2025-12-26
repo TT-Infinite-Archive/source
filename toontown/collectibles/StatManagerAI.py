@@ -158,8 +158,6 @@ class StatManagerAI:
         #    self.handleObjectiveCompleted(av, category, StatGlobals.TreasurePatrickDay)
         av.stats.saveStat(category)
 
-
-
     # Utilities
 
     def handleObjectiveCompleted(self, av, category, objective, amount=1, static=0):
