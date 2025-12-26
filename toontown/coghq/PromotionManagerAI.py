@@ -36,7 +36,6 @@ class PromotionManagerAI:
     def recoverMerits(self, av, cogList, zoneId, extraMerits=None, hardValue=0, multiplier=1):
         avId = av.getDoId()
         meritsRecovered = [0, 0, 0, 0]
-        multiplier *= self.air.holidayManager.meritMultiplier
         if extraMerits is None:
             extraMerits = [0, 0, 0, 0]
         for i in range(len(extraMerits)):

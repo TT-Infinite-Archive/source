@@ -15,7 +15,7 @@ from toontown.nametag import NametagGlobals
 from toontown.pets import PetDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase.HolidayGlobals import APRIL_FOOLS_DAY
+from toontown.toonbase.HolidayGlobals import APRIL_FOOLS_COSTUMES
 
 
 Component2IconDict = {'boredom': 'Bored',
@@ -292,7 +292,7 @@ class Pet(Avatar.Avatar):
 
     def showMood(self, mood):
         if hasattr(base.cr, 'newsManager') and base.cr.newsManager:
-            if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_DAY) and not mood == 'confusion':
+            if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES) and not mood == 'confusion':
                 self.speakMood(mood)
                 return
             else:

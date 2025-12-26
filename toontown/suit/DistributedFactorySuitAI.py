@@ -6,7 +6,6 @@ from toontown.suit import SuitDialog
 from toontown.toonbase.ToontownGlobals import cogDept2index, SellbotFactoryInt
 from toontown.toonbase import TTLocalizer
 from toontown.suit import SuitBuffGlobals
-from toontown.ai import NewsManagerGlobals
 import random
 
 

@@ -1,25 +1,26 @@
 from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from direct.distributed.ClockDelta import *
-from direct.fsm.FSM import FSM
-from otp.otpbase.OTPLocalizerEnglish import EmoteFuncDict
+from direct.distributed import DistributedObjectAI
 
-class DistributedResistanceEmoteMgrAI(DistributedObjectAI, FSM):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedResistanceEmoteMgrAI")
+class DistributedResistanceEmoteMgrAI(DistributedObjectAI.DistributedObjectAI):
+    """Resistance emote ai implementation. This object sits in zone 9720 ('Talking in Your Sleep
+    Voiceover Training' interior) and will activate the resistance emote for anyone who says
+    'Do you need help?' to Whispering Willow during the promotion for Cashbot HQ."""
 
+    notify = DirectNotifyGlobal.directNotify.newCategory(
+        'DistributedResistanceEmoteMgrAI')
+    
     def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        FSM.__init__(self, 'ResistanceFSM')
-        self.air = air
-        
-    def enterOff(self):
-        self.requestDelete()
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
 
+    # do the event
     def addResistanceEmote(self):
         avId = self.air.getAvatarIdFromSender()
         av = self.air.doId2do.get(avId)
-        if not av: return
-        RESIST_INDEX = EmoteFuncDict['Resistance Salute']
-        av.emoteAccess[RESIST_INDEX] = 1
-        av.d_setEmoteAccess(av.emoteAccess)
-
+        if not av:
+            DistributedResistanceEmoteMgrAI.notify.warning(
+                'Tried to add resistance emote to av %s, but they left' % avId)
+        else:
+            DistributedResistanceEmoteMgrAI.notify.warning(
+                'Activating resistance emote for av %s' % avId)
+            av.setEmoteAccessId(15, 1)
+            

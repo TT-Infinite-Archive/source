@@ -21,7 +21,7 @@ class DataStore:
         return newTypes
 
     notify = DirectNotifyGlobal.directNotify.newCategory('DataStore')
-    wantAnyDbm = ConfigVariableBool('want-ds-anydbm', True).getValue()
+    wantAnyDbm = ConfigVariableBool('want-ds-anydbm', False).getValue()
 
     def __init__(self, filepath, writePeriod = 300, writeCountTrigger = 100):
         self.filepath = filepath
@@ -34,7 +34,6 @@ class DataStore:
             self.filepath += '-anydbm'
             self.notify.debug('anydbm default module used: %s ' % dbm._defaultmod.__name__)
         self.open()
-        return
 
     def readDataFromFile(self):
         if self.wantAnyDbm:
@@ -68,7 +67,6 @@ class DataStore:
                 self.data = data
             else:
                 self.data = {}
-        return
 
     def writeDataToFile(self):
         if self.data is not None:
@@ -90,7 +88,6 @@ class DataStore:
 
         else:
             self.notify.warning('No data to write. Aborting sync.')
-        return
 
     def syncTask(self, task):
         task.timeElapsed += globalClock.getDt()

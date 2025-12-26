@@ -21,7 +21,7 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
     numPies = ToontownGlobals.FullPies
 
     def __init__(self, air):
-        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 'c')
         else:
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 's')
@@ -351,7 +351,7 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         for toonId in self.involvedToons:
             toon = self.air.doId2do.get(toonId)
             if toon:
-                amount = 1 * self.air.holidayManager.rewardMultiplier
+                amount = 1
                 if not toon.attemptAddNPCFriend(self.cagedToonNpcId, numCalls=amount):
                     self.notify.info('%s.unable to add NPCFriend %s to %s.' % (self.doId, self.cagedToonNpcId, toonId))
                 toon.b_promote(self.deptIndex)

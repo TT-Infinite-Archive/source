@@ -2,7 +2,7 @@ from panda3d.core import ConfigVariableBool, Fog, TransparencyAttrib, Vec4
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
-from toontown.toonbase.HolidayGlobals import APRIL_FOOLS_DAY
+from toontown.toonbase.HolidayGlobals import APRIL_FOOLS_COSTUMES
 from direct.gui.DirectGui import *
 from direct.distributed.ClockDelta import *
 from toontown.hood import Place
@@ -136,7 +136,7 @@ class Estate(Place.Place):
             self.loader.enterAnimatedProps(i)
 
         self.loader.geom.reparentTo(render)
-        if newsManager and newsManager.isHolidayRunning(APRIL_FOOLS_DAY):
+        if newsManager and newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
             self.startAprilFoolsControls()
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)
@@ -154,7 +154,7 @@ class Estate(Place.Place):
         if self.cameraSubmerged:
             self.__emergeCamera()
         base.localAvatar.stopChat()
-        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_DAY):
+        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
             self.stopAprilFoolsControls()
         self._telemLimiter.destroy()
         del self._telemLimiter
@@ -379,7 +379,7 @@ class Estate(Place.Place):
         if hasattr(self, 'walkStateData'):
             self.walkStateData.fsm.request('walking')
         self.toonSubmerged = 0
-        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_DAY):
+        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
             self.startAprilFoolsControls()
 
     def __setUnderwaterFog(self):

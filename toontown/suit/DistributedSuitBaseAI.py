@@ -1,10 +1,9 @@
 from otp.ai.AIBaseGlobal import *
 from otp.avatar import DistributedAvatarAI
-from . import SuitPlannerBase
 from . import SuitBase
 from . import SuitDNA
 from direct.directnotify import DirectNotifyGlobal
-from toontown.ai import NewsManagerGlobals
+from toontown.toonbase import HolidayGlobals
 from toontown.battle import SuitBattleGlobals
 from toontown.suit import SuitBuffGlobals
 import random
@@ -231,7 +230,7 @@ class DistributedSuitBaseAI(DistributedAvatarAI.DistributedAvatarAI, SuitBase.Su
     def initializeBuffs(self):
         if self.isForeman() and self.inSellbotFactory():
             self.b_setBuff(random.choice(SuitBuffGlobals.ForemanBuffs))
-        elif self.air.holidayManager.isHolidayRunning(NewsManagerGlobals.VALENTINES_DAY) and random.randint(0, 9) == 0:
+        elif self.air.holidayManager.isHolidayRunning(HolidayGlobals.VALENTINES_DAY) and random.randint(0, 9) == 0:
             self.b_setBuff(SuitBuffGlobals.SuitBuffLoveStruck)
 
     def b_setBuff(self, buffIndex):

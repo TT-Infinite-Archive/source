@@ -1,6 +1,8 @@
 from panda3d.core import ConfigVariableBool, NodePath
 from .BattleBase import *
-from .DistributedBattleAI import *
+
+
+
 from toontown.toonbase.ToontownBattleGlobals import *
 import random
 from toontown.suit import DistributedSuitBaseAI

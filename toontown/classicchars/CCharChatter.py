@@ -24,7 +24,7 @@ def getExtendedChat(chatset, extendedChat):
 
 def getChatter(charName, chatterType):
     if charName == TTLocalizer.Mickey:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFMickeyChatter
         elif chatterType == ToontownGlobals.WINTER_CAROLING:
             return TTLocalizer.WinterMickeyCChatter
@@ -56,7 +56,7 @@ def getChatter(charName, chatterType):
     elif charName == TTLocalizer.VampireMickey:
         return VampireMickeyChatter
     elif charName == TTLocalizer.Minnie:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFMinnieChatter
         elif chatterType == ToontownGlobals.WINTER_CAROLING:
             return TTLocalizer.WinterMinnieCChatter
@@ -88,7 +88,7 @@ def getChatter(charName, chatterType):
     elif charName == TTLocalizer.WitchMinnie:
         return TTLocalizer.WitchMinnieChatter
     elif charName == TTLocalizer.Daisy or charName == TTLocalizer.SockHopDaisy:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFDaisyChatter
         elif chatterType == ToontownGlobals.HALLOWEEN_COSTUMES:
             return TTLocalizer.HalloweenDaisyChatter
@@ -122,7 +122,7 @@ def getChatter(charName, chatterType):
         else:
             return DaisyChatter
     elif charName == TTLocalizer.Goofy:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFGoofySpeedwayChatter
         elif chatterType == ToontownGlobals.CRASHED_LEADERBOARD:
             return TTLocalizer.CLGoofySpeedwayChatter
@@ -149,7 +149,7 @@ def getChatter(charName, chatterType):
     elif charName == TTLocalizer.SuperGoofy:
         return TTLocalizer.SuperGoofyChatter
     elif charName == TTLocalizer.Donald or charName == TTLocalizer.FrankenDonald:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFDonaldChatter
         elif chatterType == ToontownGlobals.HALLOWEEN_COSTUMES:
             return TTLocalizer.HalloweenDreamlandChatter
@@ -171,7 +171,7 @@ def getChatter(charName, chatterType):
         else:
             return DonaldChatter
     elif charName == TTLocalizer.DonaldDock:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFDonaldDockChatter
         elif chatterType == ToontownGlobals.HALLOWEEN_COSTUMES:
             return TTLocalizer.HalloweenDonaldChatter
@@ -190,7 +190,7 @@ def getChatter(charName, chatterType):
         else:
             return None
     elif charName == TTLocalizer.Pluto:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFPlutoChatter
         elif chatterType == ToontownGlobals.HALLOWEEN_COSTUMES:
             return TTLocalizer.WesternPlutoChatter
@@ -214,7 +214,7 @@ def getChatter(charName, chatterType):
         else:
             return None
     elif charName == TTLocalizer.Chip or charName == TTLocalizer.PoliceChip:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFChipChatter
         elif chatterType == ToontownGlobals.HALLOWEEN_COSTUMES:
             return TTLocalizer.HalloweenChipChatter
@@ -239,7 +239,7 @@ def getChatter(charName, chatterType):
         else:
             return ChipChatter
     elif charName == TTLocalizer.Dale or TTLocalizer.JailbirdDale:
-        if chatterType == ToontownGlobals.APRIL_FOOLS_DAY:
+        if chatterType == ToontownGlobals.APRIL_FOOLS_COSTUMES:
             return TTLocalizer.AFDaleChatter
         elif chatterType == ToontownGlobals.HALLOWEEN_COSTUMES:
             return TTLocalizer.HalloweenDaleChatter

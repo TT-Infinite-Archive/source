@@ -1,5 +1,4 @@
 from panda3d.core import Vec3
-from pandac import PandaModules as PM
 from direct.distributed.ClockDelta import globalClockDelta
 from direct.distributed.DistributedObject import DistributedObject
 from direct.interval import IntervalGlobal as IG
@@ -48,7 +47,6 @@ class DistCogdoCraneCog(Suit, DistributedObject):
         if self._moveIval:
             self._moveIval.finish()
             self._moveIval = None
-        return
 
     def disable(self):
         self._stopMoveIval()

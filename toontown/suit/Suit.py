@@ -395,7 +395,7 @@ class Suit(Avatar.Avatar):
         self.isSkeleton = 0
 
         if dna.name in SuitGlobals.suitProperties:
-            if base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+            if base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
                 self.generateAprilFoolsDNA()
                 return
 

@@ -43,6 +43,10 @@ uberdogs:
       id: 4683
       anonymous: false
 
+    - class: DistributedDataStoreManager
+      id: 4684
+      anonymous: false
+
     - class: TTCodeRedemptionMgr
       id: 4695
       anonymous: false

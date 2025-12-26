@@ -32,7 +32,7 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
     maxToonLevels = 77
 
     def __init__(self, air):
-        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 's')
         else:
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 'l')
@@ -659,7 +659,7 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         for toonId in self.involvedToons:
             toon = self.air.doId2do.get(toonId)
             if toon is not None:
-                amount = 1 * self.air.holidayManager.rewardMultiplier
+                amount = 1
                 for i in range(0, amount):
                     self.giveCogSummonReward(toon, preferredDept, preferredSummonType)
                 toon.b_promote(self.deptIndex)

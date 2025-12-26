@@ -20,34 +20,36 @@ def getDustCloudIval(toon):
 
 class DistributedBlackCatMgr(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBlackCatMgr')
+    ActivateEvent = 'DistributedBlackCatMgr-activate'
 
     def __init__(self, cr):
         DistributedObject.DistributedObject.__init__(self, cr)
 
+    def setAvId(self, avId):
+        self.avId = avId
+
     def announceGenerate(self):
-        DistributedObject.DistributedObject.announceGenerate(self)
         DistributedBlackCatMgr.notify.debug('announceGenerate')
-        self.acceptOnce('DistributedBlackCatMgr-activate', self.d_requestBlackCatTransformation)
+        DistributedObject.DistributedObject.announceGenerate(self)
+        self.acceptOnce(DistributedBlackCatMgr.ActivateEvent, self.doBlackCatTransformation)
         self.dustCloudIval = None
 
     def delete(self):
         if self.dustCloudIval:
             self.dustCloudIval.finish()
         del self.dustCloudIval
-        self.ignore('DistributedBlackCatMgr-activate')
+        self.ignore(DistributedBlackCatMgr.ActivateEvent)
         DistributedObject.DistributedObject.delete(self)
 
-    def d_requestBlackCatTransformation(self):
-        self.sendUpdate('requestBlackCatTransformation', [])
-
-    def doBlackCatTransformation(self, avId):
+    def doBlackCatTransformation(self):
         DistributedBlackCatMgr.notify.debug('doBlackCatTransformation')
-        toon = self.cr.doId2do.get(avId)
+        toon = base.cr.doId2do.get(self.avId)
         if not toon:
             DistributedBlackCatMgr.notify.warning("couldn't find Toon %s" % self.avId)
             return
         if toon.style.getAnimal() != 'cat':
             DistributedBlackCatMgr.notify.warning('not a cat: %s' % self.avId)
             return
+        self.sendUpdate('doBlackCatTransformation', [])
         self.dustCloudIval = getDustCloudIval(toon)
         self.dustCloudIval.start()

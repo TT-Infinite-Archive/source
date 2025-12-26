@@ -1,229 +1,158 @@
-from panda3d.core import ConfigVariableInt
-import time
-
-from direct.showbase.DirectObject import DirectObject
-
+from direct.directnotify import DirectNotifyGlobal
 from toontown.battle import SuitBattleGlobals
-from toontown.suit import SuitDNA
-from toontown.suit.SuitInvasionGlobals import *
-from toontown.toonbase import ToontownGlobals
+import random
+from direct.task import Task
 
+class SuitInvasionManagerAI:
+    """
+    Manages invasions of Suits
+    """
 
-class SuitInvasionManagerAI(DirectObject):
+    notify = DirectNotifyGlobal.directNotify.newCategory('SuitInvasionManagerAI')
+
     def __init__(self, air):
         self.air = air
+        self.invading = 0
+        self.cogType = None
+        self.cogName = ""
+        self.skeleton = 0
+        self.totalNumCogs = 0
+        self.numCogsRemaining = 0
 
-        self.invading = False
-        self.start = 0
-        self.remaining = 0
-        self.total = 0
-        self.suitDeptIndex = None
-        self.suitTypeIndex = None
-        self.flags = 0
-        self.type = None
+        # Set of cog types to choose from See
+        # SuitBattleGlobals.SuitAttributes.keys() for all choices I did not
+        # put the highest level Cogs from each track in here to keep them
+        # special and only found in buildings. I threw in the Flunky just
+        # for fun.
+        self.invadingCogTypes = (
+            # Corporate
+            'f', # Flunky
+            'hh', # Head Hunter
+            'cr', # Corporate Raider
+            # Sales
+            'tf', # Two-faced
+            'm', # Mingler
+            # Money
+            'mb', # Money Bags
+            'ls', # Loan shark
+            # Legal
+            'sd', # Spin Doctor
+            'le', # Legal Eagle
+            )
 
-        self.accept('startInvasion', self.handleStartInvasion)
-        self.accept('stopInvasion', self.handleStopInvasion)
+        # Picked from randomly how many cogs will invade
+        # This might need to be adjusted based on population(?)
+        self.invadingNumList = (1000, 2000, 3000, 4000)
 
-        # We want to handle shard status queries so that a ShardStatusReceiver
-        # being created after we're created will know where we're at:
-        self.accept('queryShardStatus', self.sendInvasionStatus)
+        # Minimum time between invasions on this shard (in seconds)
+        # No more than 1 per 2 days
+        self.invasionMinDelay = 2 * 24 * 60 * 60
+        # Maximum time between invasions on this shard (in seconds)
+        # At least once every 7 days
+        self.invasionMaxDelay = 7 * 24 * 60 * 60
 
-        self.sendInvasionStatus()
+        # Kick off the first invasion
+        self.waitForNextInvasion()
+
+    def getCogName(self, cogType):
+        return SuitBattleGlobals.SuitAttributes.get(cogType)["name"]
+
+    def delete(self):
+        taskMgr.remove(self.taskName("cogInvasionMgr"))
+
+    def computeInvasionDelay(self):
+        # Compute the delay until the next invasion
+        return ((self.invasionMaxDelay - self.invasionMinDelay) * random.random()
+                + self.invasionMinDelay)
+
+    def tryInvasionAndWaitForNext(self, task):
+        # Start the invasion if there is not one already
+        if self.getInvading():
+            self.notify.warning("invasionTask: tried to start random invasion, but one is in progress")
+        else:
+            self.notify.info("invasionTask: starting random invasion")
+            cogType = random.choice(self.invadingCogTypes)
+            totalNumCogs = random.choice(self.invadingNumList)
+            self.startInvasion(cogType, totalNumCogs)
+        # In either case, fire off the next invasion
+        self.waitForNextInvasion()
+        return Task.done
+
+    def waitForNextInvasion(self):
+        taskMgr.remove(self.taskName("cogInvasionMgr"))
+        delay = self.computeInvasionDelay()
+        self.notify.info("invasionTask: waiting %s seconds until next invasion" % delay)
+        taskMgr.doMethodLater(delay, self.tryInvasionAndWaitForNext,
+                              self.taskName("cogInvasionMgr"))
 
     def getInvading(self):
         return self.invading
 
-    def getInvadingCog(self):
-        return (self.suitDeptIndex, self.suitTypeIndex, self.flags)
+    def getCogType(self):
+        return self.cogType, self.isSkeleton
 
-    def startInvasion(self, suitDeptIndex=None, suitTypeIndex=None, flags=0,
-                      invasionType=INVASION_TYPE_NORMAL, amount=None):
+    def getNumCogsRemaining(self):
+        return self.numCogsRemaining
+
+    def getTotalNumCogs(self):
+        return self.totalNumCogs
+
+    def startInvasion(self, cogType, totalNumCogs, skeleton=0):
         if self.invading:
-            # An invasion is currently in progress; ignore this request.
-            return False
+            self.notify.warning("startInvasion: already invading cogType: %s numCogsRemaining: %s" %
+                                (cogType, self.numCogsRemaining))
+            return 0
+        if not SuitBattleGlobals.SuitAttributes.get(cogType):
+            self.notify.warning("startInvasion: unknown cogType: %s" % cogType)
+            return 0
 
-        if (suitDeptIndex is None) and (suitTypeIndex is None) and (not flags):
-            # This invasion is no-op.
-            return False
+        self.notify.info("startInvasion: cogType: %s totalNumCogs: %s skeleton: %s" %
+                          (cogType, totalNumCogs, skeleton))
+        self.invading = 1
+        self.cogType = cogType
+        self.isSkeleton = skeleton
+        self.totalNumCogs = totalNumCogs
+        self.numCogsRemaining = self.totalNumCogs
+        self.cogName = self.getCogName(cogType)
 
-        if (suitDeptIndex is None) and (suitTypeIndex is not None):
-            # It's impossible to determine the invading Cog.
-            return False
+        # Tell the news manager that an invasion is beginning
+        self.air.newsManager.invasionBegin(self.cogType, self.totalNumCogs, self.isSkeleton)
 
-        if flags not in (0, IFV2, IFSkelecog, IFWaiter):
-            # The provided flag combination is not possible.
-            return False
-
-        if (suitDeptIndex is not None) and (suitDeptIndex >= len(SuitDNA.suitDepts)):
-            # Invalid suit department.
-            return False
-
-        if (suitTypeIndex is not None) and (suitTypeIndex >= SuitDNA.suitsPerDept):
-            # Invalid suit type.
-            return False
-
-        if invasionType not in (INVASION_TYPE_NORMAL, INVASION_TYPE_MEGA):
-            # Invalid invasion type.
-            return False
-
-        # Looks like we're all good. Begin the invasion:
-        self.invading = True
-        self.start = int(time.time())
-        self.suitDeptIndex = suitDeptIndex
-        self.suitTypeIndex = suitTypeIndex
-        self.flags = flags
-        self.type = invasionType
-
-        # How many suits do we want?
-        if invasionType == INVASION_TYPE_NORMAL:
-            self.total = 1000
-        elif invasionType == INVASION_TYPE_MEGA:
-            self.total = 0xFFFFFFFF
-
-        if amount is not None:
-            self.total = amount
-
-        self.remaining = self.total
-
-        self.flySuits()
-        self.notifyInvasionStarted()
-
-        # Update the invasion tracker on the districts page in the Shticker Book:
-        if self.suitDeptIndex is not None:
-            self.air.districtStats.b_setInvasionStatus([suitDeptIndex, suitTypeIndex])
-        else:
-            self.air.districtStats.b_setInvasionStatus([])
-
-        # If this is a normal invasion, and the players take too long to defeat
-        # all of the Cogs, we'll want the invasion to timeout:
-        if invasionType == INVASION_TYPE_NORMAL:
-            timeout = ConfigVariableInt('invasion-timeout', 1800).getValue()
-            taskMgr.doMethodLater(timeout, self.stopInvasion, 'invasionTimeout')
-
-        self.sendInvasionStatus()
-        return True
-
-    def stopInvasion(self, task=None):
-        if not self.invading:
-            # We are not currently invading.
-            return False
-
-        # Stop the invasion timeout task:
-        taskMgr.remove('invasionTimeout')
-
-        # Update the invasion tracker on the districts page in the Shticker Book:
-        self.air.districtStats.b_setInvasionStatus([])
-
-        # Revert what was done when the invasion started:
-        self.notifyInvasionEnded()
-        self.invading = False
-        self.start = 0
-        self.suitDeptIndex = None
-        self.suitTypeIndex = None
-        self.flags = 0
-        self.total = 0
-        self.remaining = 0
-        self.type = None
-        self.flySuits()
-
-        self.sendInvasionStatus()
-        return True
-
-    def getSuitName(self):
-        if self.suitDeptIndex is not None:
-            if self.suitTypeIndex is not None:
-                return SuitDNA.getSuitName(self.suitDeptIndex, self.suitTypeIndex)
-            else:
-                return SuitDNA.suitDepts[self.suitDeptIndex]
-        else:
-            return SuitDNA.suitHeadTypes[0]
-
-    def notifyInvasionStarted(self):
-        msgType = ToontownGlobals.SuitInvasionBegin
-        if self.type == INVASION_TYPE_MEGA:
-            msgType = ToontownGlobals.MegaInvasionBegin
-        elif self.flags & IFSkelecog:
-            msgType = ToontownGlobals.SkelecogInvasionBegin
-        elif self.flags & IFWaiter:
-            msgType = ToontownGlobals.WaiterInvasionBegin
-        elif self.flags & IFV2:
-            msgType = ToontownGlobals.V2InvasionBegin
-        self.air.newsManager.sendUpdate(
-            'setInvasionStatus',
-            [msgType, self.getSuitName(), self.total, self.flags])
-
-    def notifyInvasionEnded(self):
-        msgType = ToontownGlobals.SuitInvasionEnd
-        if self.type == INVASION_TYPE_MEGA:
-            msgType = ToontownGlobals.MegaInvasionEnd
-        elif self.flags & IFSkelecog:
-            msgType = ToontownGlobals.SkelecogInvasionEnd
-        elif self.flags & IFWaiter:
-            msgType = ToontownGlobals.WaiterInvasionEnd
-        elif self.flags & IFV2:
-            msgType = ToontownGlobals.V2InvasionEnd
-        self.air.newsManager.sendUpdate(
-            'setInvasionStatus', [msgType, self.getSuitName(), 0, self.flags])
-
-    def notifyInvasionUpdate(self):
-        self.air.newsManager.sendUpdate(
-            'setInvasionStatus',
-            [ToontownGlobals.SuitInvasionUpdate, self.getSuitName(),
-             self.remaining, self.flags])
-
-    def notifyInvasionBulletin(self, avId):
-        msgType = ToontownGlobals.SuitInvasionBulletin
-        if self.type == INVASION_TYPE_MEGA:
-            msgType = ToontownGlobals.MegaInvasionBulletin
-        elif self.flags & IFSkelecog:
-            msgType = ToontownGlobals.SkelecogInvasionBulletin
-        elif self.flags & IFWaiter:
-            msgType = ToontownGlobals.WaiterInvasionBulletin
-        elif self.flags & IFV2:
-            msgType = ToontownGlobals.V2InvasionBulletin
-        self.air.newsManager.sendUpdateToAvatarId(
-            avId, 'setInvasionStatus',
-            [msgType, self.getSuitName(), self.remaining, self.flags])
-
-    def flySuits(self):
-        for suitPlanner in list(self.air.suitPlanners.values()):
+        # Get rid of all the current cogs on the streets
+        # (except those already in battle, they can stay)
+        for suitPlanner in self.air.suitPlanners.values():
             suitPlanner.flySuits()
 
-    def handleSuitDefeated(self):
-        self.remaining -= 1
-        if self.remaining == 0:
-            self.stopInvasion()
-        elif self.remaining == (self.total/2):
-            self.notifyInvasionUpdate()
-        self.sendInvasionStatus()
+        # Success!
+        return 1
 
-    def handleStartInvasion(self, shardId, *args):
-        if shardId == self.air.ourChannel:
-            self.startInvasion(*args)
-
-    def handleStopInvasion(self, shardId):
-        if shardId == self.air.ourChannel:
-            self.stopInvasion()
-
-    def sendInvasionStatus(self):
+    def getInvadingCog(self):
         if self.invading:
-            if self.suitDeptIndex is not None:
-                if self.suitTypeIndex is not None:
-                    type = SuitBattleGlobals.SuitAttributes[self.getSuitName()]['name']
-                else:
-                    type = SuitDNA.getDeptFullname(self.getSuitName())
-            else:
-                type = None
-            status = {
-                'invasion': {
-                    'type': type,
-                    'flags': self.flags,
-                    'remaining': self.remaining,
-                    'total': self.total,
-                    'start': self.start
-                }
-            }
+            self.numCogsRemaining -= 1
+            if self.numCogsRemaining <= 0:
+                self.stopInvasion()
+            self.notify.debug("getInvadingCog: returned cog: %s, num remaining: %s" %
+                              (self.cogType, self.numCogsRemaining))
+            return self.cogType, self.isSkeleton
         else:
-            status = {'invasion': None}
-        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
+            self.notify.debug("getInvadingCog: not currently invading")
+            return None, None
+
+    def stopInvasion(self):
+        self.notify.info("stopInvasion: invasion is over now")
+        # Tell the news manager that an invasion is ending
+        self.air.newsManager.invasionEnd(self.cogType, 0, self.isSkeleton)
+        self.invading = 0
+        self.cogType = None
+        self.isSkeleton = 0
+        self.totalNumCogs = 0
+        self.numCogsRemaining = 0
+        self.cogName = ""
+        # Get rid of all the current invasion cogs on the streets
+        # (except those already in battle, they can stay)
+        for suitPlanner in self.air.suitPlanners.values():
+            suitPlanner.flySuits()
+
+    # Need this here since this is not a distributed object
+    def taskName(self, taskString):
+        return (taskString + "-" + str(hash(self)))

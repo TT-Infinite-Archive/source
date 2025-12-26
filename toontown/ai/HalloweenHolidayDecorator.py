@@ -1,8 +1,9 @@
-from panda3d.core import CSDefault, Vec4
+from panda3d.core import Vec4, CSDefault
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from . import HolidayDecorator
+from toontown.dna.DNAParser import loadDNAFile
 from toontown.toonbase import ToontownGlobals
 from toontown.safezone import Playground
 from toontown.town import Street
@@ -81,7 +82,7 @@ class HalloweenHolidayDecorator(HolidayDecorator.HolidayDecorator):
                     light.setColorScaleOff(0)
 
         holidayIds = base.cr.newsManager.getDecorationHolidayId()
-        if ToontownGlobals.HALLOWEEN_PROPS not in holidayIds and ToontownGlobals.SPOOKY_PROPS not in holidayIds:
+        if ToontownGlobals.HALLOWEEN_COSTUMES not in holidayIds and ToontownGlobals.SPOOKY_COSTUMES not in holidayIds:
             return
         if (self.__checkHoodValidity() or self.__checkStreetValidity()) and hasattr(base.cr.playGame, 'hood') and base.cr.playGame.hood and hasattr(base.cr.playGame.hood, 'sky') and base.cr.playGame.hood.sky:
             preShow = Sequence(Parallel(LerpColorScaleInterval(base.cr.playGame.hood.sky, 1.5, Vec4(1, 1, 1, 0.25)), LerpColorScaleInterval(base.cr.playGame.hood.loader.geom, 2.5, Vec4(0.55, 0.55, 0.65, 1)), Func(__lightDecorationOn__)), Func(self.__startSpookySky))

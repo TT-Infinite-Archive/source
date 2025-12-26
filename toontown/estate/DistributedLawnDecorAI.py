@@ -1,11 +1,7 @@
+from panda3d.core import ConfigVariableBool
 from otp.ai.AIBase import *
 from otp.otpbase import OTPGlobals
-from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
-from direct.distributed import ClockDelta
-from direct.task import Task
-from direct.directnotify import DirectNotifyGlobal
-from direct.distributed import DistributedObjectAI
 from direct.distributed import DistributedNodeAI
 from toontown.estate import GardenGlobals
 
@@ -188,11 +184,11 @@ class DistributedLawnDecorAI(DistributedNodeAI.DistributedNodeAI):
         and note which toon is now interacting with it
         """
         #debug only, will cause all actions to be denied
-        if simbase.config.GetBool('garden-approve-all-actions', 0):
+        if ConfigVariableBool('garden-approve-all-actions', False):
             return True
 
         #debug only, will cause all actions to be denied
-        if simbase.config.GetBool('garden-deny-all-actions', 0):
+        if ConfigVariableBool('garden-deny-all-actions', False):
             return False
 
         retval = False

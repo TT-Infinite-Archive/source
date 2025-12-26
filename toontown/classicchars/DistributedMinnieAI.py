@@ -79,8 +79,8 @@ class DistributedMinnieAI(DistributedCCharBaseAI.DistributedCCharBaseAI):
                 if ToontownGlobals.HALLOWEEN_COSTUMES in simbase.air.holidayManager.currentHolidays and simbase.air.holidayManager.currentHolidays[ToontownGlobals.HALLOWEEN_COSTUMES]:
                     simbase.air.holidayManager.currentHolidays[ToontownGlobals.HALLOWEEN_COSTUMES].triggerSwitch(curWalkNode, self)
                     self.fsm.request('TransitionToCostume')
-                elif ToontownGlobals.APRIL_FOOLS_DAY in simbase.air.holidayManager.currentHolidays and simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_DAY]:
-                    simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_DAY].triggerSwitch(curWalkNode, self)
+                elif ToontownGlobals.APRIL_FOOLS_COSTUMES in simbase.air.holidayManager.currentHolidays and simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_COSTUMES]:
+                    simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_COSTUMES].triggerSwitch(curWalkNode, self)
                     self.fsm.request('TransitionToCostume')
                 else:
                     self.notify.warning('transitionToCostume == 1 but no costume holiday')
@@ -165,7 +165,7 @@ class DistributedMinnieAI(DistributedCCharBaseAI.DistributedCCharBaseAI):
     def handleHolidays(self):
         DistributedCCharBaseAI.DistributedCCharBaseAI.handleHolidays(self)
         if hasattr(simbase.air, 'holidayManager'):
-            if ToontownGlobals.APRIL_FOOLS_DAY in simbase.air.holidayManager.currentHolidays and simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_DAY] != None and simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_DAY].getRunningState():
+            if ToontownGlobals.APRIL_FOOLS_COSTUMES in simbase.air.holidayManager.currentHolidays and simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_COSTUMES] != None and simbase.air.holidayManager.currentHolidays[ToontownGlobals.APRIL_FOOLS_COSTUMES].getRunningState():
                 self.diffPath = TTLocalizer.Pluto
             
         

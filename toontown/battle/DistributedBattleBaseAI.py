@@ -2,13 +2,12 @@ from panda3d.core import ConfigVariableBool, Point3
 from otp.ai.AIBase import *
 from direct.distributed.ClockDelta import *
 from .BattleBase import *
-from .BattleCalculatorAI import *
+from .BattleCalculatorAI import BattleCalculatorAI
 from toontown.toonbase.ToontownBattleGlobals import *
 from .SuitBattleGlobals import *
 from . import BattleExperienceAI
 from direct.distributed import DistributedObjectAI
 from direct.fsm import ClassicFSM, State
-from direct.fsm import State
 from direct.task import Task
 from direct.directnotify import DirectNotifyGlobal
 from toontown.ai import DatabaseObject
@@ -54,7 +53,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         mult = 1.0
         if self.air.suitInvasionManager.getInvading():
             mult *= getInvasionMultiplier()
-        mult *= self.air.holidayManager.xpMultiplier
         self.battleCalc.setSkillCreditMultiplier(mult)
         self.fsm = None
         self.clearAttacks()
@@ -1556,7 +1554,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                 }
                 self.suitsKilled.append(encounter)
                 self.suitsKilledThisBattle.append(encounter)
-                self.air.suitInvasionManager.handleSuitDefeated()
             self.__removeSuit(suit)
             needUpdate = 1
             suit.resume()

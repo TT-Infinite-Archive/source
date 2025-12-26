@@ -193,7 +193,7 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
                 chatFlags = CFThought | CFTimeout
                 if hasattr(base.cr, 'newsManager') and base.cr.newsManager:
                     holidayIds = base.cr.newsManager.getHolidayIdList()
-                    if ToontownGlobals.APRIL_FOOLS_DAY in holidayIds:
+                    if ToontownGlobals.APRIL_FOOLS_COSTUMES in holidayIds:
                         if self.getName() == Pluto:
                             chatFlags = CFTimeout | CFSpeech
             elif self.getName() == DonaldDock:
@@ -250,8 +250,8 @@ class DistributedCCharBase(DistributedChar.DistributedChar):
                 self.CCChatter = ToontownGlobals.WACKY_WINTER_DECORATIONS
             elif ToontownGlobals.VALENTINES_DAY in holidayIds:
                 self.CCChatter = ToontownGlobals.VALENTINES_DAY
-            elif ToontownGlobals.APRIL_FOOLS_DAY in holidayIds:
-                self.CCChatter = ToontownGlobals.APRIL_FOOLS_DAY
+            elif ToontownGlobals.APRIL_FOOLS_COSTUMES in holidayIds:
+                self.CCChatter = ToontownGlobals.APRIL_FOOLS_COSTUMES
             elif ToontownGlobals.SILLY_CHATTER_ONE in holidayIds:
                 self.CCChatter = ToontownGlobals.SILLY_CHATTER_ONE
             elif ToontownGlobals.SILLY_CHATTER_TWO in holidayIds:

@@ -162,8 +162,8 @@ class DistributedCCharBaseAI(DistributedAvatarAI.DistributedAvatarAI):
                 self.CCChatter = ToontownGlobals.WINTER_DECORATIONS
             elif ToontownGlobals.VALENTINES_DAY in simbase.air.holidayManager.currentHolidays:
                 self.CCChatter = ToontownGlobals.VALENTINES_DAY
-            elif ToontownGlobals.APRIL_FOOLS_DAY in simbase.air.holidayManager.currentHolidays:
-                self.CCChatter = ToontownGlobals.APRIL_FOOLS_DAY
+            elif ToontownGlobals.APRIL_FOOLS_COSTUMES in simbase.air.holidayManager.currentHolidays:
+                self.CCChatter = ToontownGlobals.APRIL_FOOLS_COSTUMES
             elif ToontownGlobals.SILLY_CHATTER_ONE in simbase.air.holidayManager.currentHolidays:
                 self.CCChatter = ToontownGlobals.SILLY_CHATTER_ONE
             elif ToontownGlobals.SILLY_CHATTER_TWO in simbase.air.holidayManager.currentHolidays:

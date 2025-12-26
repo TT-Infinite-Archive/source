@@ -201,7 +201,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.crashLogManager = CrashLogManagerAI(self)
         self.newsManager = NewsManagerAI(self)
         self.newsManager.generateWithRequired(2)
-        self.holidayManager = HolidayManagerAI(self)
         self.safeZoneManager = SafeZoneManagerAI(self)
         self.safeZoneManager.generateWithRequired(2)
         self.tutorialManager = TutorialManagerAI(self)
@@ -256,9 +255,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.chatAgent = self.generateGlobalObject(OTP_DO_ID_CHAT_MANAGER,
                                                    'ChatAgent')
         self.holidayManager = HolidayManagerAI(self)
-
-        self.megaInvasionManager = simbase.air.generateGlobalObject(
-            OTP_DO_ID_MEGA_INVASION_MANAGER, 'MegaInvasionManager')
 
     def createSafeZones(self):
         NPCToons.generateZone2NpcDict()
@@ -335,6 +331,14 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.notify.info(f'Created ToontownDistrictStats({self.districtStats.doId})')
 
         self.toontownTimeManager = ToontownTimeManager()
+
+
+
+        if ConfigVariableBool('want-ddsm', True).getValue():
+            self.dataStoreManager = self.generateGlobalObject(
+                OTP_DO_ID_TOONTOWN_TEMP_STORE_MANAGER,
+                "DistributedDataStoreManager")
+
         self.shardTimeManager = ShardTimeManagerAI(self)
         self.shardTimeManager.setTimeZone(self.districtStats.timeZone)
         self.notify.info('Created ShardTimeManagerAI [%s]' %
@@ -360,7 +364,7 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.createCogHeadquarters()
 
         self.notify.info('Starting Holiday Manager...')
-        self.holidayManager.start()
+        self.holidayManager = HolidayManagerAI(self)
 
         self.notify.info('Making district available...')
         self.distributedDistrict.b_setAvailable(1)

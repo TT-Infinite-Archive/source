@@ -26,7 +26,7 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
     toonUpLevels = [1, 2, 3, 4]
 
     def __init__(self, air):
-        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 'm')
         else:
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 'c')
@@ -596,7 +596,7 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
                 toon.b_promote(self.deptIndex)
 
     def givePinkSlipReward(self, toon):
-        amount = (self.battleDifficulty + 1) * self.air.holidayManager.rewardMultiplier
+        amount = self.battleDifficulty + 1
         toon.addPinkSlips(amount)
 
     def getThreat(self, toonId):

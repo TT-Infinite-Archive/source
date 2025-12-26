@@ -1,63 +1,49 @@
+from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-
-from direct.distributed.ClockDelta import *
+from direct.distributed import ClockDelta
+from .FireworkShow import FireworkShow
+from .FireworkShows import getShowDuration
 from direct.task import Task
 
-from otp.ai.MagicWordGlobal import *
+class DistributedFireworkShowAI(DistributedObjectAI.DistributedObjectAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedFireworkShowAI')
 
-from toontown.toonbase import ToontownGlobals
-from toontown.parties import PartyGlobals
+    def __init__(self, air, fireworkMgr = None):
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+        self.fireworkMgr = fireworkMgr
+        self.eventId = None
+        self.style = None
+        self.timestamp = None
+        self.throwAwayShow = FireworkShow()
 
-from . import FireworkShows
-import random
+    def delete(self):
+        del self.throwAwayShow
+        taskMgr.remove(self.taskName('waitForShowDone'))
+        DistributedObjectAI.DistributedObjectAI.delete(self)
 
-class DistributedFireworkShowAI(DistributedObjectAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedFireworkShowAI")
+    def d_startShow(self, eventId, style):
+        timestamp = ClockDelta.globalClockDelta.getRealNetworkTime()
+        self.eventId = eventId
+        self.style = style
+        self.timestamp = timestamp
+        self.sendUpdate('startShow', (self.eventId, self.style, self.timestamp))
+        duration = self.throwAwayShow.getShowDuration(self.eventId) + 20.0
+        taskMgr.doMethodLater(duration, self.fireworkShowDone, self.taskName('waitForShowDone'))
 
-    def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        self.air = air
+    def fireworkShowDone(self, task):
+        self.notify.debug('fireworkShowDone')
+        if self.fireworkMgr:
+            self.fireworkMgr.stopShow(self.zoneId)
+        return Task.done
 
-    def startShow(self, eventId, style, timeStamp):
-        taskMgr.doMethodLater(FireworkShows.getShowDuration(eventId, style), self.requestDelete, 'delete%i' % self.doId, [])
+    def requestFirework(self, x, y, z, style, color1, color2):
+        avId = self.air.getAvatarIdFromSender()
+        self.notify.debug('requestFirework: avId: %s, style: %s' % (avId, style))
+        if self.fireworkMgr:
+            if self.fireworkMgr.isShowRunning(self.zoneId):
+                self.d_shootFirework(x, y, z, style, color1, color2)
+        else:
+            self.d_shootFirework(x, y, z, style, color1, color2)
 
-    def d_startShow(self, eventId, style, timeStamp):
-        self.sendUpdate('startShow', [eventId, style, random.randint(0,1), timeStamp])
-
-    def b_startShow(self, eventId, style, timeStamp):
-        self.startShow(eventId, style, timeStamp)
-        self.d_startShow(eventId, style, timeStamp)
-
-    def requestFirework(self, todo0, todo1, todo2, todo3, todo4, todo5):
-        pass
-
-    def shootFirework(self, todo0, todo1, todo2, todo3, todo4, todo5):
-        pass
-
-
-@magicWord(category=CATEGORY_HOST, types=[str])
-def fireworks(showName='july4'):
-    """
-    Starts a fireworks show on the AI server.
-    """
-    showName = showName.lower()
-    if showName == 'july4':
-        showType = ToontownGlobals.JULY4_FIREWORKS
-    elif showName == 'newyears':
-        showType = ToontownGlobals.NEWYEARS_FIREWORKS
-    elif showName == 'summer':
-        showType = PartyGlobals.EFireworkShow.SUMMER
-    else:
-        return 'Invalid fireworks show name!'
-    numShows = len(FireworkShows.shows.get(showType, []))
-    showIndex = random.randint(0, numShows - 1)
-    # TODO: Start the fireworks show in all districts.
-    for hood in simbase.air.hoods:
-        if hood.safezone == ToontownGlobals.GolfZone:
-            continue
-        fireworkShow = DistributedFireworkShowAI(simbase.air)
-        fireworkShow.generateWithRequired(hood.zoneId)
-        fireworkShow.b_startShow(showType, showIndex,
-                                 globalClockDelta.getRealNetworkTime())
-    return 'A %s fireworks show was started!' % showName
+    def d_shootFirework(self, x, y, z, style, color1, color2):
+        self.sendUpdate('shootFirework', (x, y, z, style, color1, color2))

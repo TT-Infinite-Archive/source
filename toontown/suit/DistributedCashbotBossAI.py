@@ -25,7 +25,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
     stunBuildupKnockout = [30, 120]
 
     def __init__(self, air):
-        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_DAY):
+        if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 'l')
         else:
             DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, 'm')
@@ -788,7 +788,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         for toonId in self.involvedToons:
             toon = self.air.doId2do.get(toonId)
             if toon is not None:
-                amount = self.battleDifficulty * self.air.holidayManager.rewardMultiplier
+                amount = self.battleDifficulty
                 for i in range(0, amount):
                     if i >= len(self.rewardIds):
                         # We haven't predefined a reward here, so get a random one

@@ -1,109 +1,165 @@
-from panda3d.core import ConfigVariableBool, Notify
+from otp.ai.AIBaseGlobal import *
+from direct.distributed import DistributedObjectAI
+from direct.directnotify import DirectNotifyGlobal
+from toontown.toonbase import ToontownGlobals
 
-from direct.directnotify.DirectNotifyGlobal import directNotify
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-
-from toontown.ai.NewsManagerGlobals import DEFAULT_WEEKLY_HOLIDAYS, DEFAULT_YEARLY_HOLIDAYS
-from toontown.toonbase.ToontownGlobals import FISH_BINGO_NIGHT, TROLLEY_HOLIDAY
-
-
-class NewsManagerAI(DistributedObjectAI):
-    notify = directNotify.newCategory('NewsManagerAI')
+class NewsManagerAI(DistributedObjectAI.DistributedObjectAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory("NewsManagerAI")
 
     def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        self.weeklyHolidays = DEFAULT_WEEKLY_HOLIDAYS
-        self.yearlyHolidays = DEFAULT_YEARLY_HOLIDAYS
-        self.OncelyHolidays = []
-        self.stormEnabled = ConfigVariableBool('want-storm-event', False).getValue()
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+        self.weeklyCalendarHolidays = []
+        self.yearlyCalendarHolidays = []
+        self.oncelyCalendarHolidays = []
+        self.relativelyCalendarHolidays = []
+        self.multipleStartHolidays = []
 
-    def announceGenerate(self):
-        DistributedObjectAI.announceGenerate(self)
-
-        self.accept('avatarEntered', self.__handleAvatarEntered)
+    def generate(self):
+        DistributedObjectAI.DistributedObjectAI.generate(self)
+        self.accept("avatarEntered", self.__handleAvatarEntered)
+        self.accept("avatarExited", self.__handleAvatarExited)
 
     def __handleAvatarEntered(self, avatar):
         if self.air.suitInvasionManager.getInvading():
-            self.air.suitInvasionManager.notifyInvasionBulletin(avatar.getDoId())
-        self.sendUpdateToAvatarId(avatar.getDoId(), 'holidayNotify', [])
+            # Let this poor avatar who just came in the game know that there
+            # is a Cog Invasion taking place
+            cogType, skeleton = self.air.suitInvasionManager.getCogType()
+            numRemaining = self.air.suitInvasionManager.getNumCogsRemaining()
+            self.sendAvatarInvasionStatus(avatar.getDoId(), cogType, numRemaining, skeleton)
 
-    def setPopulation(self, todo0):
+
+        # let them know about all holidays actually...
+        self.sendUpdateToAvatarId(avatar.getDoId(), "holidayNotify", [])
+
+    def __handleAvatarExited(self, avatar = None):
         pass
 
-    def setBingoWin(self, todo0):
-        pass
+    def invasionBegin(self, cogType, numRemaining, skeleton):
+        self.sendUpdate("setInvasionStatus",
+                        [ToontownGlobals.SuitInvasionBegin, cogType, numRemaining, skeleton])
 
-    def setBingoStart(self):
-        self.sendUpdate('setBingoStart', [])
+    def invasionEnd(self, cogType, numRemaining, skeleton):
+        self.sendUpdate("setInvasionStatus",
+                        [ToontownGlobals.SuitInvasionEnd, cogType, numRemaining, skeleton])
 
-    def setBingoEnd(self):
-        self.sendUpdate('setBingoEnd', [])
+    def invasionUpdate(self, cogType, numRemaining, skeleton):
+        # Broadcast an invasion update to all players
+        self.sendUpdate("setInvasionStatus",
+                        [ToontownGlobals.SuitInvasionUpdate, cogType, numRemaining, skeleton])
 
-    def setCircuitRaceStart(self):
-        pass
+    def sendAvatarInvasionStatus(self, avId, cogType, numRemaining, skeleton):
+        # Send an invasion update to only one avatar
+        self.sendUpdateToAvatarId(avId, "setInvasionStatus",
+                                  [ToontownGlobals.SuitInvasionBulletin, cogType, numRemaining, skeleton])
 
-    def setCircuitRaceEnd(self):
-        pass
+    def sendSystemMessage(self, message, style = 0):
+        # Use news manager to broadcast a system message to all the clients
+        self.sendUpdate("sendSystemMessage", [message, style])
 
-    def setTrolleyHolidayStart(self):
-        self.sendUpdate('setTrolleyHolidayStart', [])
+    def d_setHolidayIdList(self, holidayIdList):
+        self.sendUpdate("setHolidayIdList", [holidayIdList])
 
-    def setTrolleyHolidayEnd(self):
-        self.sendUpdate('setTrolleyHolidayEnd', [])
+    def bingoWin(self, zoneId):
+        self.sendUpdate("setBingoWin", [0])
 
-    def setTrolleyWeekendStart(self):
-        pass
+    def bingoStart(self):
+        self.sendUpdate("setBingoStart", [])
 
-    def setTrolleyWeekendEnd(self):
-        pass
+    def bingoEnd(self):
+        self.sendUpdate("setBingoEnd", [])
 
-    def setRoamingTrialerWeekendStart(self):
-        pass
+    def circuitRaceStart(self):
+        self.sendUpdate("setCircuitRaceStart", [])
 
-    def setRoamingTrialerWeekendEnd(self):
-        pass
+    def circuitRaceEnd(self):
+        self.sendUpdate("setCircuitRaceEnd", [])
 
-    def setInvasionStatus(self, msgType, cogType, numRemaining, skeleton):
-        self.sendUpdate('setInvasionStatus', args=[msgType, cogType, numRemaining, skeleton])
+    def trolleyHolidayStart(self):
+        self.sendUpdate("setTrolleyHolidayStart", [])
 
-    def d_setHolidayIdList(self, holidays):
-        self.sendUpdate('setHolidayIdList', holidays)
+    def trolleyHolidayEnd(self):
+        self.sendUpdate("setTrolleyHolidayEnd", [])
 
-    def holidayNotify(self):
-        pass
+    def trolleyWeekendStart(self):
+        self.sendUpdate("setTrolleyWeekendStart", [])
 
-    def d_setWeeklyCalendarHolidays(self, weeklyHolidays):
-        self.sendUpdate('setWeeklyCalendarHolidays', [weeklyHolidays])
+    def trolleyWeekendEnd(self):
+        self.sendUpdate("setTrolleyWeekendEnd", [])
+
+    def roamingTrialerWeekendStart(self):
+        self.sendUpdate("setRoamingTrialerWeekendStart", [])
+
+    def roamingTrialerWeekendEnd(self):
+        self.sendUpdate("setRoamingTrialerWeekendEnd", [])
+
+    def addWeeklyCalendarHoliday(self, holidayId, dayOfTheWeek):
+        """Add a new weekly holiday displayed in the calendar."""
+        self.weeklyCalendarHolidays.append((holidayId, dayOfTheWeek))
 
     def getWeeklyCalendarHolidays(self):
-        return self.weeklyHolidays
+        """Return our list of weekly calendar holidays."""
+        return self.weeklyCalendarHolidays
 
-    def d_setYearlyCalendarHolidays(self, yearlyHolidays):
-        self.sendUpdate('setYearlyCalendarHolidays', [yearlyHolidays])
+    def sendWeeklyCalendarHolidays(self):
+        """Force a send of the weekly calendar holidays."""
+        self.sendUpdate("setWeeklyCalendarHolidays", [self.weeklyCalendarHolidays])
+
+    def addYearlyCalendarHoliday(self, holidayId, firstStartTime, lastEndTime):
+        """Add a new yearly holiday."""
+        # Note the holiday can have breaks in it.  e.g. no bloodsucker invasion
+        # happens between 3 and 6 pm on halloween, however for simplicity
+        # we just note the first time it will happen, and the last end time for it
+        self.yearlyCalendarHolidays.append((holidayId, firstStartTime, lastEndTime))
 
     def getYearlyCalendarHolidays(self):
-        return self.yearlyHolidays
+        """Return our list of yearly calendar holidays."""
+        return self.yearlyCalendarHolidays
 
-    def setOncelyCalendarHolidays(self, todo0):
-        pass
+    def sendYearlyCalendarHolidays(self):
+        """Force a send of the yearly calendar holidays."""
+        self.sendUpdate("setYearlyCalendarHolidays", [self.yearlyCalendarHolidays])
+
+    def addOncelyCalendarHoliday(self, holidayId, firstStartTime, lastEndTime):
+        """Add a new oncely holiday."""
+        # Note the holiday can have breaks in it.  e.g. no bloodsucker invasion
+        # happens between 3 and 6 pm on halloween, however for simplicity
+        # we just note the first time it will happen, and the last end time for it
+        self.oncelyCalendarHolidays.append((holidayId, firstStartTime, lastEndTime))
 
     def getOncelyCalendarHolidays(self):
-        return []
+        """Return our list of oncely calendar holidays."""
+        return self.oncelyCalendarHolidays
 
-    def setRelativelyCalendarHolidays(self, todo0):
-        pass
-
-    def getRelativelyCalendarHolidays(self):
-        return []
-
-    def setMultipleStartHolidays(self, todo0):
-        pass
+    def addMultipleStartHoliday(self, holidayId, startAndEndList):
+        """A a new multiple start holiday."""
+        # For a oncely holiday where we want to use only one holiday id
+        # but it becomes useful to expose the multiple start times
+        self.multipleStartHolidays.append((holidayId, startAndEndList))
 
     def getMultipleStartHolidays(self):
-        return []
-    
-    def getStormEnabled(self):
-        return self.stormEnabled
+        """Return our list of multiple start holidays."""
+        return self.multipleStartHolidays
 
-    def sendSystemMessage(self, todo0, todo1):
-        pass
+    def sendMultipleStartHolidays(self):
+        """Force a send of the oncely calendar holidays."""
+        self.sendUpdate("setMultipleStartHolidays", [self.multipleStartHolidays])
+
+    def sendOncelyCalendarHolidays(self):
+        """Force a send of the oncely calendar holidays."""
+        self.sendUpdate("setOncelyCalendarHolidays", [self.oncelyCalendarHolidays])
+
+    def addRelativelyCalendarHoliday(self, holidayId, firstStartTime, lastEndTime):
+        """Add a new oncely holiday."""
+        # Note the holiday can have breaks in it.  e.g. no bloodsucker invasion
+        # happens between 3 and 6 pm on halloween, however for simplicity
+        # we just note the first time it will happen, and the last end time for it
+        self.relativelyCalendarHolidays.append((holidayId, firstStartTime, lastEndTime))
+
+    def getRelativelyCalendarHolidays(self):
+        """Return our list of Relatively calendar holidays."""
+        return self.relativelyCalendarHolidays
+
+    def sendRelativelyCalendarHolidays(self):
+        """Force a send of the Relatively calendar holidays."""
+        self.sendUpdate("setRelativelyCalendarHolidays", [self.relativelyCalendarHolidays])
+

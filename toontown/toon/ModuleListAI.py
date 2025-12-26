@@ -2,7 +2,7 @@ from panda3d.core import ConfigVariableString, Filename
 import os
 
 class ModuleList:
-    serverDataFolder = ConfigVariableString('server-data-folder', '').getValue()
+    serverDataFolder = ConfigVariableString('server-data-folder', '.').getValue()
 
     def __init__(self):
         self.moduleWhitelistFilename = self.getWhitelistFilename()

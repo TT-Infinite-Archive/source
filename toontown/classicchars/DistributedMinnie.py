@@ -88,5 +88,5 @@ class DistributedMinnie(DistributedCCharBase.DistributedCCharBase):
         DistributedCCharBase.DistributedCCharBase.handleHolidays(self)
         if hasattr(base.cr, 'newsManager') and base.cr.newsManager:
             holidayIds = base.cr.newsManager.getHolidayIdList()
-            if ToontownGlobals.APRIL_FOOLS_DAY in holidayIds and isinstance(self.cr.playGame.hood, BRHood.BRHood):
+            if ToontownGlobals.APRIL_FOOLS_COSTUMES in holidayIds and isinstance(self.cr.playGame.hood, BRHood.BRHood):
                 self.diffPath = TTLocalizer.Pluto

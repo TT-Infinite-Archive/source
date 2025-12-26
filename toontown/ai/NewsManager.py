@@ -1,31 +1,24 @@
-from panda3d.core import ConfigVariableString, Notify
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.battle import SuitBattleGlobals
-from toontown.speedchat import TTSCJellybeanJamMenu
-from toontown.toonbase import TTLocalizer, EventGlobals
+from toontown.toonbase import TTLocalizer
 from . import HolidayDecorator
 from . import HalloweenHolidayDecorator
 from . import CrashedLeaderBoardDecorator
 from direct.interval.IntervalGlobal import *
 import calendar
 from copy import deepcopy
-from toontown.suit import SuitDNA
-
-
-decorationHolidays = [
-    ToontownGlobals.WINTER_DECORATIONS,
-    ToontownGlobals.WACKY_WINTER_DECORATIONS,
-    ToontownGlobals.HALLOWEEN_PROPS,
-    ToontownGlobals.SPOOKY_PROPS,
-    ToontownGlobals.HALLOWEEN_COSTUMES,
-    ToontownGlobals.SPOOKY_COSTUMES,
-    ToontownGlobals.CRASHED_LEADERBOARD
-]
-promotionalSpeedChatHolidays = []
-
+from toontown.speedchat import TTSCJellybeanJamMenu
+decorationHolidays = [ToontownGlobals.WINTER_DECORATIONS,
+ ToontownGlobals.WACKY_WINTER_DECORATIONS,
+ ToontownGlobals.HALLOWEEN_PROPS,
+ ToontownGlobals.SPOOKY_PROPS,
+ ToontownGlobals.HALLOWEEN_COSTUMES,
+ ToontownGlobals.SPOOKY_COSTUMES,
+ ToontownGlobals.CRASHED_LEADERBOARD]
+promotionalSpeedChatHolidays = [ToontownGlobals.ELECTION_PROMOTION]
 
 class NewsManager(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('NewsManager')
@@ -39,141 +32,69 @@ class NewsManager(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.population = 0
         self.invading = 0
-        self.invadingSuit = None
-
         self.decorationHolidayIds = []
-
-        forcedHolidayDecorations = ConfigVariableString('force-holiday-decorations', '').getValue()
-        if forcedHolidayDecorations != '':
-            forcedHolidayDecorations = forcedHolidayDecorations.split(',')
-            for HID in forcedHolidayDecorations:
-                try:
-                    self.decorationHolidayIds.append(decorationHolidays[int(HID)])
-                except:
-                    self.notify.warning(f'holidayId value error: "{HID}"... skipping')
-
         self.holidayDecorator = None
         self.holidayIdList = []
         base.cr.newsManager = self
-        if hasattr(base, 'localAvatar') and base.localAvatar is not None:
-            base.localAvatar.inventory.setInvasionCreditMultiplier(1)
+        base.localAvatar.inventory.setInvasionCreditMultiplier(1)
         self.weeklyCalendarHolidays = []
+        return
 
     def delete(self):
         self.cr.newsManager = None
         if self.holidayDecorator:
             self.holidayDecorator.exit()
         DistributedObject.DistributedObject.delete(self)
+        return
 
     def setPopulation(self, population):
         self.population = population
         messenger.send('newPopulation', [population])
 
     def getPopulation(self):
-        return self.population
+        return population
 
     def sendSystemMessage(self, message, style):
         base.localAvatar.setSystemMessage(style, message)
 
-    def setInvasionStatus(self, msgType, suitType, remaining, flags):
-        if suitType in SuitDNA.suitHeadTypes:
-            suitName = SuitBattleGlobals.SuitAttributes[suitType]['name']
-            suitNamePlural = SuitBattleGlobals.SuitAttributes[suitType]['pluralname']
-        elif suitType in SuitDNA.suitDepts:
-            suitName = SuitDNA.getDeptFullname(suitType)
-            suitNamePlural = SuitDNA.getDeptFullnameP(suitType)
-
-        messages = []
-
+    def setInvasionStatus(self, msgType, cogType, numRemaining, skeleton):
+        self.notify.info('setInvasionStatus: msgType: %s cogType: %s, numRemaining: %s, skeleton: %s' % (msgType,
+         cogType,
+         numRemaining,
+         skeleton))
+        cogName = SuitBattleGlobals.SuitAttributes[cogType]['name']
+        cogNameP = SuitBattleGlobals.SuitAttributes[cogType]['pluralname']
+        if skeleton:
+            cogName = TTLocalizer.Skeleton
+            cogNameP = TTLocalizer.SkeletonP
         if msgType == ToontownGlobals.SuitInvasionBegin:
-            messages.append(TTLocalizer.SuitInvasionBegin1)
-            messages.append(TTLocalizer.SuitInvasionBegin2 % suitNamePlural)
+            msg1 = TTLocalizer.SuitInvasionBegin1
+            msg2 = TTLocalizer.SuitInvasionBegin2 % cogNameP
+            self.invading = 1
+        elif msgType == ToontownGlobals.SuitInvasionUpdate:
+            msg1 = TTLocalizer.SuitInvasionUpdate1 % numRemaining
+            msg2 = TTLocalizer.SuitInvasionUpdate2 % cogNameP
             self.invading = 1
         elif msgType == ToontownGlobals.SuitInvasionEnd:
-            messages.append(TTLocalizer.SuitInvasionEnd1 % suitName)
-            messages.append(TTLocalizer.SuitInvasionEnd2)
+            msg1 = TTLocalizer.SuitInvasionEnd1 % cogName
+            msg2 = TTLocalizer.SuitInvasionEnd2
             self.invading = 0
-        elif msgType == ToontownGlobals.SuitInvasionUpdate:
-            messages.append(TTLocalizer.SuitInvasionUpdate1)
-            messages.append(TTLocalizer.SuitInvasionUpdate2)
-            self.invading = 1
         elif msgType == ToontownGlobals.SuitInvasionBulletin:
-            messages.append(TTLocalizer.SuitInvasionBulletin1)
-            messages.append(TTLocalizer.SuitInvasionBulletin2 % suitNamePlural)
+            msg1 = TTLocalizer.SuitInvasionBulletin1
+            msg2 = TTLocalizer.SuitInvasionBulletin2 % cogNameP
             self.invading = 1
-        elif msgType == ToontownGlobals.SkelecogInvasionBegin:
-            messages.append(TTLocalizer.SkelecogInvasionBegin1)
-            messages.append(TTLocalizer.SkelecogInvasionBegin2)
-            messages.append(TTLocalizer.SkelecogInvasionBegin3)
-            self.invading = 1
-        elif msgType == ToontownGlobals.SkelecogInvasionEnd:
-            messages.append(TTLocalizer.SkelecogInvasionEnd1)
-            messages.append(TTLocalizer.SkelecogInvasionEnd2)
-            self.invading = 0
-        elif msgType == ToontownGlobals.SkelecogInvasionBulletin:
-            messages.append(TTLocalizer.SkelecogInvasionBulletin1)
-            messages.append(TTLocalizer.SkelecogInvasionBulletin2)
-            messages.append(TTLocalizer.SkelecogInvasionBulletin3)
-            self.invading = 1
-        elif msgType == ToontownGlobals.WaiterInvasionBegin:
-            messages.append(TTLocalizer.WaiterInvasionBegin1)
-            messages.append(TTLocalizer.WaiterInvasionBegin2)
-            self.invading = 1
-        elif msgType == ToontownGlobals.WaiterInvasionEnd:
-            messages.append(TTLocalizer.WaiterInvasionEnd1)
-            messages.append(TTLocalizer.WaiterInvasionEnd2)
-            self.invading = 0
-        elif msgType == ToontownGlobals.WaiterInvasionBulletin:
-            messages.append(TTLocalizer.WaiterInvasionBulletin1)
-            messages.append(TTLocalizer.WaiterInvasionBulletin2)
-            messages.append(TTLocalizer.WaiterInvasionBulletin3)
-            self.invading = 1
-        elif msgType == ToontownGlobals.V2InvasionBegin:
-            messages.append(TTLocalizer.V2InvasionBegin1)
-            messages.append(TTLocalizer.V2InvasionBegin2)
-            messages.append(TTLocalizer.V2InvasionBegin3)
-            self.invading = 1
-        elif msgType == ToontownGlobals.V2InvasionEnd:
-            messages.append(TTLocalizer.V2InvasionEnd1)
-            messages.append(TTLocalizer.V2InvasionEnd2)
-            self.invading = 0
-        elif msgType == ToontownGlobals.V2InvasionBulletin:
-            messages.append(TTLocalizer.V2InvasionBulletin1)
-            messages.append(TTLocalizer.V2InvasionBulletin2)
-            messages.append(TTLocalizer.V2InvasionBulletin3)
-            self.invading = 1
-        elif msgType == ToontownGlobals.MegaInvasionBegin:
-            messages.append(TTLocalizer.MegaInvasionBegin1)
-            messages.append(TTLocalizer.MegaInvasionBegin2 % suitNamePlural)
-        elif msgType == ToontownGlobals.MegaInvasionEnd:
-            messages.append(TTLocalizer.MegaInvasionEnd1 % suitName)
-            messages.append(TTLocalizer.MegaInvasionEnd2)
-        elif msgType == ToontownGlobals.MegaInvasionBulletin:
-            messages.append(TTLocalizer.MegaInvasionBulletin1)
-            messages.append(TTLocalizer.MegaInvasionBulletin2 % suitNamePlural)
         else:
             self.notify.warning('setInvasionStatus: invalid msgType: %s' % msgType)
             return
-
-        multiplier = 1
         if self.invading:
-            multiplier = ToontownBattleGlobals.getInvasionMultiplier()
-        base.localAvatar.inventory.setInvasionCreditMultiplier(multiplier)
-
-        track = Sequence(name='newsManagerWait', autoPause=1)
-        for i, message in enumerate(messages):
-            if i == 0:
-                track.append(Wait(1))
-            else:
-                track.append(Wait(5))
-            track.append(Func(base.localAvatar.setSystemMessage, 0, message))
-        track.start()
+            mult = ToontownBattleGlobals.getInvasionMultiplier()
+        else:
+            mult = 1
+        base.localAvatar.inventory.setInvasionCreditMultiplier(mult)
+        Sequence(Wait(1.0), Func(base.localAvatar.setSystemMessage, 0, msg1), Wait(5.0), Func(base.localAvatar.setSystemMessage, 0, msg2), name='newsManagerWait', autoPause=1).start()
 
     def getInvading(self):
         return self.invading
-
-    def getInvadingSuit(self):
-        return self.invadingSuit
 
     def startHoliday(self, holidayId):
         if holidayId not in self.holidayIdList:
@@ -198,7 +119,7 @@ class NewsManager(DistributedObject.DistributedObject):
                         base.localAvatar.chatMgr.chatInputSpeedChat.addWinterMenu()
                         self.setWackyWinterDecorationsStart()
                 if hasattr(base.cr.playGame, 'dnaStore') and hasattr(base.cr.playGame, 'hood') and hasattr(base.cr.playGame.hood, 'loader'):
-                    if holidayId == ToontownGlobals.HALLOWEEN_PROPS or holidayId == ToontownGlobals.SPOOKY_PROPS:
+                    if holidayId == ToontownGlobals.HALLOWEEN_COSTUMES or holidayId == ToontownGlobals.SPOOKY_COSTUMES:
                         self.holidayDecorator = HalloweenHolidayDecorator.HalloweenHolidayDecorator()
                     elif holidayId == ToontownGlobals.CRASHED_LEADERBOARD:
                         self.holidayDecorator = CrashedLeaderBoardDecorator.CrashedLeaderBoardDecorator()
@@ -211,13 +132,13 @@ class NewsManager(DistributedObject.DistributedObject):
                     base.TTSCPromotionalMenu.startHoliday(holidayId)
             elif holidayId == ToontownGlobals.MORE_XP_HOLIDAY:
                 self.setMoreXpHolidayStart()
-            elif holidayId == ToontownGlobals.DOUBLE_PROGRESSION_HOLIDAY:
-                self.setDoubleProgressionHolidayStart()
             elif holidayId == ToontownGlobals.JELLYBEAN_DAY:
                 pass
             elif holidayId == ToontownGlobals.CIRCUIT_RACING_EVENT:
                 self.setGrandPrixWeekendStart()
-            elif holidayId == ToontownGlobals.APRIL_FOOLS_DAY:
+            elif holidayId == ToontownGlobals.HYDRANT_ZERO_HOLIDAY:
+                self.setHydrantZeroHolidayStart()
+            elif holidayId == ToontownGlobals.APRIL_FOOLS_COSTUMES:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.addAprilToonsMenu()
             elif holidayId == ToontownGlobals.WINTER_CAROLING:
@@ -228,7 +149,7 @@ class NewsManager(DistributedObject.DistributedObject):
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.addCarolMenu()
             elif holidayId == ToontownGlobals.VALENTINES_DAY:
-                messenger.send(EventGlobals.ValentinesDayStart)
+                messenger.send('ValentinesDayStart')
                 base.localAvatar.setSystemMessage(0, TTLocalizer.ValentinesDayStart)
             elif holidayId == ToontownGlobals.SILLY_CHATTER_ONE:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
@@ -254,10 +175,10 @@ class NewsManager(DistributedObject.DistributedObject):
                     base.localAvatar.chatMgr.chatInputSpeedChat.addSellbotNerfMenu()
             elif holidayId == ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY or holidayId == ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY_MONTH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
-                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.EJellybeanJamPhase.TROLLEY)
+                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.JellybeanJamPhases.TROLLEY)
             elif holidayId == ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY or holidayId == ToontownGlobals.JELLYBEAN_FISHING_HOLIDAY_MONTH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
-                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.EJellybeanJamPhase.FISHING)
+                    base.localAvatar.chatMgr.chatInputSpeedChat.addJellybeanJamMenu(TTSCJellybeanJamMenu.JellybeanJamPhases.FISHING)
             elif holidayId == ToontownGlobals.JELLYBEAN_PARTIES_HOLIDAY:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     self.setJellybeanPartiesHolidayStart()
@@ -282,9 +203,9 @@ class NewsManager(DistributedObject.DistributedObject):
             elif holidayId == ToontownGlobals.SELLBOT_FIELD_OFFICE:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.addSellbotFieldOfficeMenu()
-            elif holidayId == ToontownGlobals.SAINT_PATRICKS_DAY:
+            elif holidayId == ToontownGlobals.IDES_OF_MARCH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
-                    self.setSaintPatricksDayStart()
+                    self.setIdesOfMarchStart()
                     base.localAvatar.chatMgr.chatInputSpeedChat.addIdesOfMarchMenu()
             elif holidayId == ToontownGlobals.EXPANDED_CLOSETS:
                 self.setExpandedClosetsStart()
@@ -326,13 +247,11 @@ class NewsManager(DistributedObject.DistributedObject):
                     base.TTSCPromotionalMenu.endHoliday(holidayId)
             elif holidayId == ToontownGlobals.MORE_XP_HOLIDAY:
                 self.setMoreXpHolidayEnd()
-            elif holidayId == ToontownGlobals.DOUBLE_PROGRESSION_HOLIDAY:
-                self.setDoubleProgressionHolidayEnd()
             elif holidayId == ToontownGlobals.JELLYBEAN_DAY:
                 pass
             elif holidayId == ToontownGlobals.CIRCUIT_RACING_EVENT:
                 self.setGrandPrixWeekendEnd()
-            elif holidayId == ToontownGlobals.APRIL_FOOLS_DAY:
+            elif holidayId == ToontownGlobals.APRIL_FOOLS_COSTUMES:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.removeAprilToonsMenu()
             elif holidayId == ToontownGlobals.VALENTINES_DAY:
@@ -391,7 +310,7 @@ class NewsManager(DistributedObject.DistributedObject):
             elif holidayId == ToontownGlobals.SELLBOT_FIELD_OFFICE:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.removeSellbotFieldOfficeMenu()
-            elif holidayId == ToontownGlobals.SAINT_PATRICKS_DAY:
+            elif holidayId == ToontownGlobals.IDES_OF_MARCH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.removeIdesOfMarchMenu()
 
@@ -476,12 +395,6 @@ class NewsManager(DistributedObject.DistributedObject):
     def setMoreXpHolidayEnd(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.MoreXpHolidayEnd)
 
-    def setDoubleProgressionHolidayStart(self):
-        base.localAvatar.setSystemMessage(0, TTLocalizer.DoubleProgressionHolidayStart)
-
-    def setDoubleProgressionHolidayEnd(self):
-        base.localAvatar.setSystemMessage(0, TTLocalizer.DoubleProgressionHolidayEnd)
-
     def setJellybeanDayStart(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.JellybeanDayHolidayStart)
 
@@ -493,6 +406,9 @@ class NewsManager(DistributedObject.DistributedObject):
 
     def setGrandPrixWeekendEnd(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.GrandPrixWeekendHolidayEnd)
+
+    def setHydrantZeroHolidayStart(self):
+        messenger.send('HydrantZeroIsRunning', [True])
 
     def setSellbotNerfHolidayStart(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.SellbotNerfHolidayStart)
@@ -575,18 +491,18 @@ class NewsManager(DistributedObject.DistributedObject):
     def setKartingTicketsHolidayStart(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.KartingTicketsHolidayStart)
 
-    def setSaintPatricksDayStart(self):
-        base.localAvatar.setSystemMessage(0, TTLocalizer.SaintPatricksDayStart)
+    def setIdesOfMarchStart(self):
+        base.localAvatar.setSystemMessage(0, TTLocalizer.IdesOfMarchStart)
 
     def holidayNotify(self):
-        for holidayId in self.holidayIdList:
-            if holidayId in (7, 19):
+        for id in self.holidayIdList:
+            if id == 19:
                 self.setBingoOngoing()
-            elif holidayId == 20:
+            elif id == 20:
                 self.setCircuitRaceOngoing()
-            elif holidayId in (17, 21):
+            elif id == 21:
                 self.setTrolleyHolidayOngoing()
-            elif holidayId == 22:
+            elif id == 22:
                 self.setRoamingTrialerWeekendOngoing()
 
     def setWeeklyCalendarHolidays(self, weeklyCalendarHolidays):

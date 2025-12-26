@@ -10,7 +10,6 @@ from direct.stdpy import threading2
 from otp.distributed import OtpDoGlobals
 from toontown.distributed.ShardStatusReceiver import ShardStatusReceiver
 from toontown.rpc.ToontownRPCHandlerBase import *
-from toontown.suit.SuitInvasionGlobals import INVASION_TYPE_NORMAL
 from toontown.toon import ToonDNA
 from toontown.toonbase import TTLocalizer
 from toontown.guilds.GuildGlobals import GUILD_FIELD_NAME_STATUS
@@ -834,7 +833,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
 
     @rpcmethod(accessLevel=ADMINISTRATOR)
     def rpc_startInvasion(self, shardId, suitDeptIndex=None, suitTypeIndex=None,
-                          flags=0, type=INVASION_TYPE_NORMAL):
+                          flags=0, skel=False):
         """
         Summary:
             Starts an invasion under the provided [shardId] with the specified
@@ -849,7 +848,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
         """
         self.air.sendNetEvent(
             'startInvasion',
-            [shardId, suitDeptIndex, suitTypeIndex, flags, type])
+            [shardId, suitDeptIndex, suitTypeIndex, skel, type])
 
     @rpcmethod(accessLevel=ADMINISTRATOR)
     def rpc_stopInvasion(self, shardId):

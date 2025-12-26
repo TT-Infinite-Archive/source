@@ -209,7 +209,6 @@ from toontown.coghq import DistributedSinkingPlatform/AI
 from toontown.suit import DistributedGoon/AI
 from toontown.suit import DistributedGridGoon/AI
 from toontown.coghq import BattleBlocker/AI
-from toontown.ai import DistributedAprilToonsMgr/AI
 from toontown.ai import DistributedBlackCatMgr/AI
 from toontown.ai import DistributedPolarBearMgr/AI
 from toontown.ai import DistributedPolarPlaceEffectMgr/AI
@@ -342,7 +341,6 @@ from toontown.cogdominium import DistCogdoCrane/AI
 from toontown.cogdominium import DistCogdoCraneMoneyBag/AI
 from toontown.cogdominium import DistCogdoCraneCog/AI
 from toontown.parties.GlobalPartyManager/AI/UD import GlobalPartyManager/AI/UD
-from toontown.uberdog import MegaInvasionManager/AI/UD
 from toontown.guilds import GuildManager/AI/UD
 from toontown.battle import DistributedBattleVault/AI
 from toontown.zone import ZoneManager/AI/UD
@@ -3018,20 +3016,9 @@ dclass DistributedPetProxy : DistributedPet {
   setDominantMood(string) broadcast ram;
 };
 
-dclass DistributedAprilToonsMgr : DistributedObject {
-  setEventActive(uint8 eventId, bool) broadcast;
-  requestEventsList() clsend airecv;
-  requestEventsListResp(uint8 []);
-};
-
 dclass DistributedBlackCatMgr : DistributedObject {
-  doBlackCatTransformation(uint32 avId) broadcast;
-  requestBlackCatTransformation() airecv clsend;
-};
-
-dclass DistributedPolarBearMgr : DistributedObject {
-  doPolarBearTransformation(uint32 avId) broadcast;
-  requestPolarBearTransformation() airecv clsend;
+  setAvId(uint32) required broadcast ram;
+  doBlackCatTransformation() airecv clsend;
 };
 
 dclass DistributedPolarPlaceEffectMgr : DistributedObject {
@@ -3043,28 +3030,25 @@ dclass DistributedGreenToonEffectMgr : DistributedObject {
 };
 
 dclass DistributedResistanceEmoteMgr : DistributedObject {
-  addResistanceEmote() clsend airecv;
+  addResistanceEmote() airecv clsend;
 };
 
 dclass DistributedScavengerHuntTarget : DistributedObject {
   attemptScavengerHunt() airecv clsend;
 };
 
-dclass DistributedTrickOrTreatTarget : DistributedObject {
-  doScavengerHunt(int8);
-  requestScavengerHunt() airecv clsend;
+
+dclass DistributedTrickOrTreatTarget : DistributedScavengerHuntTarget {
 };
 
-dclass DistributedWinterCarolingTarget : DistributedObject {
-  doScavengerHunt(int8) broadcast;
-  requestScavengerHunt() airecv clsend;
+dclass DistributedWinterCarolingTarget : DistributedScavengerHuntTarget {
 };
 
 dclass DistributedDataStoreManager : DistributedObject {
   startStore(uint8);
   stopStore(uint8);
-  queryStore(uint8, string);
-  receiveResults(uint8, string);
+  queryStore(uint8, blob);
+  receiveResults(uint8, blob);
   deleteBackupStores();
 };
 
@@ -3990,12 +3974,6 @@ dclass DistributedPhaseEventMgr : DistributedObject {
 dclass DistributedSillyMeterMgr : DistributedPhaseEventMgr {
 };
 
-
-dclass MegaInvasionManager : DistributedObjectGlobal {
-  callInvasion(int16 index) airecv;
-  endInvasion(int16 index) airecv;
-  hello();
-};
 
 dclass DistributedBattleVault : DistributedBattleFinal {
 };
