@@ -31,23 +31,27 @@ from toontown.collectibles.CollectibleInventoryManagerAI import CollectibleInven
 from toontown.distributed.ToontownDistrictAI import ToontownDistrictAI
 from toontown.distributed.ToontownDistrictStatsAI import ToontownDistrictStatsAI
 from toontown.distributed.ToontownInternalRepository import ToontownInternalRepository
-from toontown.dna.DNAParser import loadDNAFile, loadDNAFileAI
+from toontown.dna.DNAParser import loadDNAFile, loadDNAFileAI, DNAStorage, DNAGroup, DNAVisGroup
+from toontown.dna.DNAProp import DNAProp
 from toontown.estate.EstateManagerAI import EstateManagerAI
 from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
-from toontown.hood import BRHoodAI
-from toontown.hood import BossbotHQAI
-from toontown.hood import CashbotHQAI
-from toontown.hood import DDHoodAI
-from toontown.hood import DGHoodAI
-from toontown.hood import DLHoodAI
-from toontown.hood import GSHoodAI
-from toontown.hood import GZHoodAI
-from toontown.hood import LawbotHQAI
-from toontown.hood import MMHoodAI
-from toontown.hood import OZHoodAI
-from toontown.hood import SellbotHQAI
-from toontown.hood import TTHoodAI
+from toontown.fishing import DistributedFishingPondAI
+from toontown.safezone import DistributedFishingSpotAI
+from toontown.hood import BRHoodDataAI
+from toontown.hood import BossbotHQDataAI
+from toontown.hood import CashbotHQDataAI
+from toontown.hood import DDHoodDataAI
+from toontown.hood import DGHoodDataAI
+from toontown.hood import DLHoodDataAI
+from toontown.hood import GSHoodDataAI
+from toontown.hood import GZHoodDataAI
+from toontown.hood import LawbotHQDataAI
+from toontown.hood import MMHoodDataAI
+from toontown.hood import OZHoodDataAI
+from toontown.hood import CSHoodDataAI
+from toontown.hood import TTHoodDataAI
 from toontown.hood import ZoneUtil
+
 from toontown.quest.Quests import assertAllQuestsValid
 from toontown.pets.PetManagerAI import PetManagerAI
 from toontown.safezone.SafeZoneManagerAI import SafeZoneManagerAI
@@ -56,6 +60,7 @@ from toontown.toon import NPCToons
 from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.tutorial.TutorialManagerAI import TutorialManagerAI
 from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
+from toontown.safezone import DistributedPartyGateAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
 from toontown.distributed.ShardTimeManagerAI import ShardTimeManagerAI
 import threading
@@ -65,6 +70,71 @@ if ConfigVariableBool('want-leak-graph-ai', False).getValue():
 
 
 class ToontownAIRepository(ToontownInternalRepository):
+    # The zone table determines which dnaStores are created and
+    # whether bulding manager or suit planner ai objects are created.
+    # The elements consist of:
+    # (int the_zone_ID, bool create_building_manager, bool create_suit_planner)
+    zoneTable = {
+        ToontownGlobals.ToontownCentral: ([ToontownGlobals.ToontownCentral, 1, 0],
+                          [ToontownGlobals.ToontownCentral + 100, 1, 1],
+                          [ToontownGlobals.ToontownCentral + 200, 1, 1],
+                          [ToontownGlobals.ToontownCentral + 300, 1, 1],
+                          ),
+
+        ToontownGlobals.DonaldsDock: ([ToontownGlobals.DonaldsDock, 1, 0],
+                      [ToontownGlobals.DonaldsDock + 100, 1, 1],
+                      [ToontownGlobals.DonaldsDock + 200, 1, 1],
+                      [ToontownGlobals.DonaldsDock + 300, 1, 1],
+                      ),
+
+        ToontownGlobals.MinniesMelodyland: ([ToontownGlobals.MinniesMelodyland, 1, 0],
+                            [ToontownGlobals.MinniesMelodyland + 100, 1, 1],
+                            [ToontownGlobals.MinniesMelodyland + 200, 1, 1],
+                            [ToontownGlobals.MinniesMelodyland + 300, 1, 1],
+                            ),
+
+        ToontownGlobals.TheBrrrgh: ([ToontownGlobals.TheBrrrgh, 1, 0],
+                    [ToontownGlobals.TheBrrrgh + 100, 1, 1],
+                    [ToontownGlobals.TheBrrrgh + 200, 1, 1],
+                    [ToontownGlobals.TheBrrrgh + 300, 1, 1],
+                    ),
+
+        ToontownGlobals.DonaldsDreamland: ([ToontownGlobals.DonaldsDreamland, 1, 0],
+                           [ToontownGlobals.DonaldsDreamland + 100, 1, 1],
+                           [ToontownGlobals.DonaldsDreamland + 200, 1, 1],
+                           ),
+
+        ToontownGlobals.DaisyGardens: ([ToontownGlobals.DaisyGardens, 1, 0],
+                       [ToontownGlobals.DaisyGardens + 100, 1, 1],
+                       [ToontownGlobals.DaisyGardens + 200, 1, 1],
+                       [ToontownGlobals.DaisyGardens + 300, 1, 1],
+                       ),
+
+        ToontownGlobals.GoofySpeedway: ([ToontownGlobals.GoofySpeedway, 1, 0],
+                       ),
+
+        ToontownGlobals.OutdoorZone: ([ToontownGlobals.OutdoorZone, 0, 0],
+                       ),
+
+        ToontownGlobals.SellbotHQ: ([ToontownGlobals.SellbotHQ, 0, 1],
+                    [ToontownGlobals.SellbotHQ + 200, 0, 1],
+                    ),
+
+        ToontownGlobals.CashbotHQ: ([ToontownGlobals.CashbotHQ, 0, 1],
+                    ),
+
+        ToontownGlobals.LawbotHQ: ([ToontownGlobals.LawbotHQ, 0, 1],
+                    ),
+
+        ToontownGlobals.GolfZone: ([ToontownGlobals.GolfZone, 0, 0],
+                   ),
+
+        ToontownGlobals.BossbotHQ: ([ToontownGlobals.BossbotHQ, 0, 0],
+                       ),
+
+        }
+
+
     def __init__(self, baseChannel, stateServerChannel, districtName):
         ToontownInternalRepository.__init__(
             self, baseChannel, stateServerChannel, dcSuffix='AI')
@@ -81,7 +151,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.disconnectedToons = {}
         self.factoryMgr = None
         self.mintMgr = None
-        self.lawOfficeMgr = None
+        self.lawMgr = None
         self.countryClubMgr = None
 
         self.zoneAllocator = UniqueIdAllocator(
@@ -100,7 +170,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantEmblems = ConfigVariableBool('want-emblems', False).getValue()
         self.wantAchievements = ConfigVariableBool('want-achievements', True).getValue()
         self.wantCodeRedemption = ConfigVariableBool('want-code-redemption', True).getValue()
-        self.wantGroupTracker = ConfigVariableBool('want-grouptracker', True).getValue()
+        self.wantGroupTracker = ConfigVariableBool('want-grouptracker', False).getValue()
         self.wantGuilds = ConfigVariableBool('want-guilds', True).getValue()
         self.wantGuildQuests = ConfigVariableBool('want-guild-quests', True).getValue()
         self.wantToonStats = ConfigVariableBool('want-toon-stats', True).getValue()
@@ -193,31 +263,31 @@ class ToontownAIRepository(ToontownInternalRepository):
     def createSafeZones(self):
         NPCToons.generateZone2NpcDict()
         if serverSettings[ServerSettingsGlobals.EnabledZones]["ToontownCentral"]:
-            self.hoods.append(TTHoodAI.TTHoodAI(self))
+            self.startupHood(TTHoodDataAI.TTHoodDataAI(self))
         if serverSettings[ServerSettingsGlobals.EnabledZones]["TheHarbor"]:
-            self.hoods.append(DDHoodAI.DDHoodAI(self))
+            self.startupHood(DDHoodDataAI.DDHoodDataAI(self))
         if serverSettings[ServerSettingsGlobals.EnabledZones]["DaisyGardens"]:
-            self.hoods.append(DGHoodAI.DGHoodAI(self))
+            self.startupHood(DGHoodDataAI.DGHoodDataAI(self))
 
         while self.readerPollOnce():
             pass
 
         if ConfigVariableBool('want-minnies-melodyland', True).getValue():
-            self.hoods.append(MMHoodAI.MMHoodAI(self))
+            self.startupHood(MMHoodDataAI.MMHoodDataAI(self))
         if ConfigVariableBool('want-the-burrrgh', True).getValue():
-            self.hoods.append(BRHoodAI.BRHoodAI(self))
+            self.startupHood(BRHoodDataAI.BRHoodDataAI(self))
         if ConfigVariableBool('want-donalds-dreamland', True).getValue():
-            self.hoods.append(DLHoodAI.DLHoodAI(self))
+            self.startupHood(DLHoodDataAI.DLHoodDataAI(self))
 
         while self.readerPollOnce():
             pass
 
-        if ConfigVariableBool('want-goofy-speedway', True).getValue():
-            self.hoods.append(GSHoodAI.GSHoodAI(self))
+        #if ConfigVariableBool('want-goofy-speedway', True).getValue():
+        #    self.startupHood(GSHoodDataAI.GSHoodDataAI(self))
         if ConfigVariableBool('want-outdoor-zone', True).getValue():
-            self.hoods.append(OZHoodAI.OZHoodAI(self))
+            self.startupHood(OZHoodDataAI.OZHoodDataAI(self))
         if ConfigVariableBool('want-golf-zone', True).getValue():
-            self.hoods.append(GZHoodAI.GZHoodAI(self))
+            self.startupHood(GZHoodDataAI.GZHoodDataAI(self))
 
         while self.readerPollOnce():
             pass
@@ -226,17 +296,16 @@ class ToontownAIRepository(ToontownInternalRepository):
         NPCToons.generateZone2NpcDict()
         if ConfigVariableBool('want-sellbot-headquarters', True).getValue():
             self.factoryMgr = FactoryManagerAI.FactoryManagerAI(self)
-            self.cogHeadquarters.append(SellbotHQAI.SellbotHQAI(self))
+            self.startupCogHQ(CSHoodDataAI.CSHoodDataAI(self))
         if ConfigVariableBool('want-cashbot-headquarters', True).getValue():
             self.mintMgr = MintManagerAI.MintManagerAI(self)
-            self.cogHeadquarters.append(CashbotHQAI.CashbotHQAI(self))
+            self.startupCogHQ(CashbotHQDataAI.CashbotHQDataAI(self))
         if ConfigVariableBool('want-lawbot-headquarters', True).getValue():
-            self.lawOfficeMgr = LawOfficeManagerAI.LawOfficeManagerAI(self)
-            self.cogHeadquarters.append(LawbotHQAI.LawbotHQAI(self))
+            self.lawMgr = LawOfficeManagerAI.LawOfficeManagerAI(self)
+            self.startupCogHQ(LawbotHQDataAI.LawbotHQDataAI(self))
         if ConfigVariableBool('want-bossbot-headquarters', True).getValue():
-            self.countryClubMgr = CountryClubManagerAI.CountryClubManagerAI(
-                self)
-            self.cogHeadquarters.append(BossbotHQAI.BossbotHQAI(self))
+            self.countryClubMgr = CountryClubManagerAI.CountryClubManagerAI(self)
+            self.startupCogHQ(BossbotHQDataAI.BossbotHQDataAI(self))
 
     def handleConnected(self):
         ToontownInternalRepository.handleConnected(self)
@@ -248,6 +317,8 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.startDistrict()
 
     def startDistrict(self):
+        self.loadDNA()
+
         self.districtId = self.allocateChannel()
         self.notify.info(f'Creating ToontownDistrictAI({self.districtId})...')
         self.distributedDistrict = ToontownDistrictAI(self)
@@ -542,3 +613,123 @@ class ToontownAIRepository(ToontownInternalRepository):
         #if simbase.wantBingo:
         #    if self.bingoMgr:
         #        self.bingoMgr.setAvCatchForPondMgr(avId, zoneId, catch)
+
+    def loadDNA(self):
+        """
+        Return a dictionary of zoneId to DNAStorage objects
+        """
+        self.dnaStoreMap = {}
+        self.dnaDataMap = {}
+        for zones in list(self.zoneTable.values()):
+            for zone in zones:
+                zoneId = zone[0]
+                if zoneId == ToontownGlobals.BossbotHQ:
+                    continue
+                dnaStore = DNAStorage()
+                dnaFileName = self.lookupDNAFileName(zoneId)
+                dnaData = self.loadDNAFileAI(dnaStore, dnaFileName)
+                self.dnaStoreMap[zoneId] = dnaStore
+                self.dnaDataMap[zoneId] = dnaData
+
+
+    def startupHood(self, hood):
+        hood.startup()
+        self.hoods.append(hood)
+
+    def startupCogHQ(self, cogHQ):
+        cogHQ.startup()
+        self.cogHeadquarters.append(cogHQ)
+
+    def findPartyHats(self, dnaGroup, zoneId, overrideDNAZone = 0):
+        """
+        Recursively scans the given DNA tree for party hats.  These
+        are defined as all the groups whose code includes the string
+        "party_gate".  For each such group, creates a
+        DistributedPartyGateAI.  Returns the list of distributed
+        objects.
+        """
+        partyHats = []
+
+        if ((isinstance(dnaGroup, DNAGroup)) and
+            # If it is a DNAGroup, and the name has party_gate, count it
+            (dnaGroup.getName().find('party_gate') >= 0)):
+            # Here's a party hat!
+            ph = DistributedPartyGateAI.DistributedPartyGateAI(self)
+            ph.generateWithRequired(zoneId)
+            partyHats.append(ph)
+        else:
+            # Now look in the children
+            # Party hats cannot have other party hats in them,
+            # so do not search the one we just found:
+            # If we come across a visgroup, note the zoneId and then recurse
+            if (isinstance(dnaGroup, DNAVisGroup) and not overrideDNAZone):
+                # Make sure we get the real zone id, in case we are in welcome valley
+                zoneId = ZoneUtil.getTrueZoneId(
+                        int(dnaGroup.getName().split(':')[0]), zoneId)
+            for i in range(dnaGroup.getNumChildren()):
+                childPartyHats = self.findPartyHats(dnaGroup.at(i), zoneId, overrideDNAZone)
+                partyHats += childPartyHats
+
+        return partyHats
+
+    def findFishingPonds(self, dnaGroup, zoneId, area, overrideDNAZone = 0):
+        """
+        Recursively scans the given DNA tree for fishing ponds.  These
+        are defined as all the groups whose code includes the string
+        "fishing_pond".  For each such group, creates a
+        DistributedFishingPondAI.  Returns the list of distributed
+        objects and a list of the DNAGroups so we can search them for
+        spots and targets.
+        """
+        fishingPonds = []
+        fishingPondGroups = []
+
+        if ((isinstance(dnaGroup, DNAGroup)) and
+            # If it is a DNAGroup, and the name starts with fishing_pond, count it
+            (dnaGroup.getName().find('fishing_pond') >= 0)):
+            # Here's a fishing pond!
+            fishingPondGroups.append(dnaGroup)
+            fp = DistributedFishingPondAI.DistributedFishingPondAI(self, area)
+            fp.generateWithRequired(zoneId)
+            fishingPonds.append(fp)
+        else:
+            # Now look in the children
+            # Fishing ponds cannot have other ponds in them,
+            # so do not search the one we just found:
+            # If we come across a visgroup, note the zoneId and then recurse
+            if (isinstance(dnaGroup, DNAVisGroup) and not overrideDNAZone):
+                # Make sure we get the real zone id, in case we are in welcome valley
+                zoneId = ZoneUtil.getTrueZoneId(
+                        int(dnaGroup.getName().split(':')[0]), zoneId)
+            for i in range(dnaGroup.getNumChildren()):
+                childFishingPonds, childFishingPondGroups = self.findFishingPonds(
+                        dnaGroup.at(i), zoneId, area, overrideDNAZone)
+                fishingPonds += childFishingPonds
+                fishingPondGroups += childFishingPondGroups
+        return fishingPonds, fishingPondGroups
+
+
+    def findFishingSpots(self, dnaPondGroup, distPond):
+        """
+        Scans the given DNAGroup pond for fishing spots.  These
+        are defined as all the props whose code includes the string
+        "fishing_spot".  Fishing spots should be the only thing under a pond
+        node. For each such prop, creates a DistributedFishingSpotAI.
+        Returns the list of distributed objects created.
+        """
+        fishingSpots = []
+        # Search the children of the pond
+        for i in range(dnaPondGroup.getNumChildren()):
+            dnaGroup = dnaPondGroup.at(i)
+            if ((isinstance(dnaGroup, DNAProp)) and
+                (dnaGroup.getCode().find('fishing_spot') >= 0)):
+                # Here's a fishing spot!
+                pos = dnaGroup.getPos()
+                hpr = dnaGroup.getHpr()
+                fs = DistributedFishingSpotAI.DistributedFishingSpotAI(
+                     self, distPond, pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2])
+                fs.generateWithRequired(distPond.zoneId)
+                fishingSpots.append(fs)
+            else:
+                self.notify.debug("Found dnaGroup that is not a fishing_spot under a pond group")
+        return fishingSpots

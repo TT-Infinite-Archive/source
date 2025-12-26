@@ -78,18 +78,7 @@ class DistributedCCharBaseAI(DistributedAvatarAI.DistributedAvatarAI):
 
 
     def sortNearbyAvatars(self):
-
-        def nAv_compare(a, b, nAvIDict = self.nearbyAvatarInfoDict):
-            tsA = nAvIDict[a]['enterTime']
-            tsB = nAvIDict[b]['enterTime']
-            if tsA == tsB:
-                return 0
-            elif tsA < tsB:
-                return -1
-            else:
-                return 1
-
-        self.nearbyAvatars.sort(nAv_compare)
+        self.nearbyAvatars.sort(key=lambda x: self.nearbyAvatarInfoDict[x]['enterTime'])
 
 
     def getNearbyAvatars(self):

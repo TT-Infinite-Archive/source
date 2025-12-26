@@ -381,11 +381,12 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 # Kill Group; Player left zone with a jellbean fest up
                 self.air.globalGroupTracker.updateGroupAI(self.doId, GroupTrackerGlobals.JELLYBEAN_FEST, [], [''], 1)
 
-        for hood in self.air.hoods:
-            if hood.zoneId == newZoneId and self.doId not in hood.avIds:
-                hood.avIds.append(self.doId)
-            elif hood.zoneId == oldZoneId and self.doId in hood.avIds:
-                hood.avIds.remove(self.doId)
+        # TODO TTI: what to do with global group tracker?
+        #for hood in self.air.hoods:
+        #    if hood.zoneId == newZoneId and self.doId not in hood.avIds:
+        #        hood.avIds.append(self.doId)
+        #    elif hood.zoneId == oldZoneId and self.doId in hood.avIds:
+        #        hood.avIds.remove(self.doId)
 
         if self.isPlayerControlled() and self.WantTpTrack:
             messenger.send(self.staticGetLogicalZoneChangeAllEvent(), [newZoneId, oldZoneId, self])

@@ -56,12 +56,14 @@ class HolidayManagerAI:
 
     def startHoliday(self, holidayId):
         if holidayId == TRICK_OR_TREAT:
-            for hood in self.air.hoods:
-                hood.startupTrickOrTreat()
+            pass
+            #for hood in self.air.hoods:
+            #    hood.startupTrickOrTreat()
 
         elif holidayId == WINTER_CAROLING:
-            for hood in self.air.hoods:
-                hood.startupWinterCaroling()
+            pass
+            #for hood in self.air.hoods:
+            #    hood.startupWinterCaroling()
 
         #elif holidayId == SAINT_PATRICKS_DAY:
             #for hood in self.air.hoods:
@@ -83,9 +85,9 @@ class HolidayManagerAI:
             self.xpMultiplier *= 2
 
         elif holidayId in (FISH_BINGO_NIGHT, SILLY_SATURDAY_BINGO):
-            for hood in self.air.hoods:
-                for fishingPond in hood.fishingPonds:
-                    fishingPond.bingoMgr.b_enableBingo()
+            #for hood in self.air.hoods:
+            #    for fishingPond in hood.fishingPonds:
+            #        fishingPond.bingoMgr.b_enableBingo()
 
             #for estate in list(self.air.estateManager.estate2toons.keys()):
             #    if estate.pond:
@@ -112,12 +114,14 @@ class HolidayManagerAI:
 
     def endHoliday(self, holidayId):
         if holidayId == TRICK_OR_TREAT:
-            for hood in self.air.hoods:
-                hood.endTrickOrTreat()
+            pass
+            #for hood in self.air.hoods:
+            #    hood.endTrickOrTreat()
 
         elif holidayId == WINTER_CAROLING:
-            for hood in self.air.hoods:
-                hood.endWinterCaroling()
+            pass
+            #for hood in self.air.hoods:
+            #    hood.endWinterCaroling()
 
         elif holidayId == JULY4_FIREWORKS:
             taskMgr.remove('fireworkShowTask')
@@ -132,15 +136,16 @@ class HolidayManagerAI:
             self.xpMultiplier /= 2
 
         elif holidayId in (FISH_BINGO_NIGHT, SILLY_SATURDAY_BINGO):
-            for hood in self.air.hoods:
-                for fishingPond in hood.fishingPonds:
-                    fishingPond.bingoMgr.disableBingo()
+            pass
+            #for hood in self.air.hoods:
+            #    for fishingPond in hood.fishingPonds:
+            #        fishingPond.bingoMgr.disableBingo()
 
-            for estate in list(self.air.estateManager.estate2toons.keys()):
-                if estate.pond:
-                    estate.pond.bingoMgr.disableBingo()
+            #for estate in list(self.air.estateManager.estate2toons.keys()):
+            #    if estate.pond:
+            #        estate.pond.bingoMgr.disableBingo()
 
-            self.air.newsManager.setBingoEnd()
+            #self.air.newsManager.setBingoEnd()
 
         elif holidayId in (TROLLEY_HOLIDAY, SILLY_SATURDAY_TROLLEY):
             self.air.newsManager.setTrolleyHolidayEnd()
@@ -211,8 +216,8 @@ class HolidayManagerAI:
         numShows = len(shows.get(showType, []))
         showIndex = random.randint(0, numShows - 1)
 
-        for hood in self.air.hoods:
-            hood.startFireworks(showType, showIndex)
+        #for hood in self.air.hoods:
+        #    hood.startFireworks(showType, showIndex)
 
         now = datetime.now()
         minutesLeft = abs(60 - now.minute)

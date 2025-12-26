@@ -61,13 +61,9 @@ class DistributedPluto(DistributedCCharBase.DistributedCCharBase):
 
     def stand(self):
         self.dropShadow.setScale(0.9, 1.35, 0.9)
-        if hasattr(self, 'collNodePath'):
-            self.collNodePath.setScale(1.0, 1.5, 1.0)
 
     def sit(self):
         self.dropShadow.setScale(0.9)
-        if hasattr(self, 'collNodePath'):
-            self.collNodePath.setScale(1.0)
 
     def enterOff(self):
         pass

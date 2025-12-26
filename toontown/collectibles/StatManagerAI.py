@@ -2,7 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from toontown.collectibles import StatGlobals, CollectibleGlobals
 from toontown.racing import RaceGlobals
 from toontown.suit import SuitBuffGlobals
-from toontown.safezone import TreasureGlobals
+from toontown.safezone import SZTreasureGlobals
 from otp.ai.MagicWordGlobal import *
 
 
@@ -153,9 +153,12 @@ class StatManagerAI:
             return
         category = StatGlobals.StatCategoryTreasure
         self.handleObjectiveCompleted(av, category, StatGlobals.TreasureAny)
-        if treasure.treasureType == TreasureGlobals.TreasurePD:
-            self.handleObjectiveCompleted(av, category, StatGlobals.TreasurePatrickDay)
+        # TODO TTI: saint patrick's day treasure
+        #if treasure.treasureType == TreasureGlobals.TreasurePD:
+        #    self.handleObjectiveCompleted(av, category, StatGlobals.TreasurePatrickDay)
         av.stats.saveStat(category)
+
+
 
     # Utilities
 

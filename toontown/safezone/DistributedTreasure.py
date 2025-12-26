@@ -4,7 +4,7 @@ from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
-from toontown.safezone import TreasureGlobals
+from toontown.safezone import SZTreasureGlobals
 
 class DistributedTreasure(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedTreasure')
@@ -23,7 +23,6 @@ class DistributedTreasure(DistributedObject.DistributedObject):
         self.zOffset = 0.0
         self.billboard = 0
         self.treasureType = None
-        return
 
     def disable(self):
         self.ignoreAll()
@@ -58,17 +57,15 @@ class DistributedTreasure(DistributedObject.DistributedObject):
         return 2.0
 
     def loadModel(self):
-        modelPath, grabSoundPath = TreasureGlobals.TreasureModels[self.treasureType]
-
-        self.grabSound = loader.loadSfx(grabSoundPath)
+        modelAttribs = SZTreasureGlobals.TreasureModelAttribs[self.treasureType]
+        self.grabSound = loader.loadSfx(modelAttribs.grabSoundPath)
         self.rejectSound = loader.loadSfx(self.rejectSoundPath)
         if self.nodePath == None:
             self.makeNodePath()
         else:
             self.treasure.getChildren().detach()
-        model = loader.loadModel(modelPath)
+        model = loader.loadModel(modelAttribs.modelPath)
         model.instanceTo(self.treasure)
-        return
 
     def makeNodePath(self):
         self.nodePath = NodePath(self.uniqueName('treasure'))

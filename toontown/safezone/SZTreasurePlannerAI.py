@@ -1,36 +1,30 @@
-from .RegenTreasurePlannerAI import RegenTreasurePlannerAI
 from direct.directnotify import DirectNotifyGlobal
-from toontown.safezone.TreasureGlobals import TreasurePD
+from .RegenTreasurePlannerAI import RegenTreasurePlannerAI
+
+from toontown.toonbase import ToontownGlobals
 
 
 class SZTreasurePlannerAI(RegenTreasurePlannerAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory('SZTreasurePlannerAI')
+    notify = DirectNotifyGlobal.directNotify.newCategory(
+        "SZTreasurePlannerAI")
 
-    def __init__(self, zoneId, treasureType, value, spawnPoints, spawnRate, maxTreasures, isPercentage=False):
-        self.zoneId = zoneId
-        self.spawnPoints = spawnPoints
-        self.value = value
-        self.isPercentage = isPercentage
-        RegenTreasurePlannerAI.__init__(self, zoneId, treasureType, 'SZTreasurePlanner-%d' % zoneId, spawnRate, maxTreasures)
+    def __init__(self, zoneId, treasureType, healAmount, spawnPoints, taskName,
+                 spawnInterval, maxTreasures, callback=None):
 
-    def initSpawnPoints(self):
-        pass
+        RegenTreasurePlannerAI.__init__(self, zoneId, treasureType, spawnPoints, taskName,
+                                        spawnInterval, maxTreasures, callback)
+        self.healAmount = healAmount
 
-    def getHealAmount(self, av):
-        value = self.value
-        if av is not None and self.isPercentage:
-            value = float(av.getMaxHp()) * (float(value)/100.0)
-        return int(value)
-
-    def validAvatar(self, treasure, av):
-        # Avatars can only heal if they are missing some health, but aren't sad.
-        simbase.air.statManager.handleTreasureObtained(av, treasure)
-        if treasure.treasureType in (TreasurePD,):
-            # This treasure type doesn't heal
+    # override the validate function to indicate that only toons who
+    # need healing can pick up treasures.
+    def validAvatar(self, av):
+        # Only toons with positive hp get rewarded for treasures.
+        if (av.hp > 0) and (av.hp < av.maxHp):
+            simbase.air.statManager.handleTreasureObtained(av, self)
+            # Modify the heal amount based on which holiday is running.
+            if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.VALENTINES_DAY):
+                av.toonUp(self.healAmount * 2)
+            else:
+                av.toonUp(self.healAmount)
             return True
-        elif 0 < av.getHp() < av.getMaxHp():
-            amount = self.getHealAmount(av)
-            av.toonUp(amount)
-            return True
-        else:
-            return False
+        return False

@@ -1,16 +1,20 @@
-from direct.distributed.ClockDelta import *
-from direct.showbase import DirectObject
-from direct.directnotify import DirectNotifyGlobal
-from direct.task import Task
 import random
-from . import TreasurePlannerAI
+from direct.directnotify import DirectNotifyGlobal
+from .TreasurePlannerAI import TreasurePlannerAI
 
-class RegenTreasurePlannerAI(TreasurePlannerAI.TreasurePlannerAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory('RegenTreasurePlannerAI')
 
-    def __init__(self, zoneId, treasureType, taskName, spawnInterval, maxTreasures, callback = None):
-        TreasurePlannerAI.TreasurePlannerAI.__init__(self, zoneId, treasureType, callback)
-        self.taskName = '%s-%s' % (taskName, zoneId)
+class RegenTreasurePlannerAI(TreasurePlannerAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory(
+        "RegenTreasurePlannerAI")
+
+    def __init__(self, zoneId, treasureType, spawnPoints, taskName,
+                 spawnInterval, maxTreasures, callback=None):
+
+        TreasurePlannerAI.__init__(self, zoneId, treasureType, spawnPoints, callback)
+
+        # will spawn a task that creates a treasure every
+        # spawnInterval seconds unless the max has been reached.
+        self.taskName = f"{taskName}-{zoneId}"
         self.spawnInterval = spawnInterval
         self.maxTreasures = maxTreasures
 
@@ -22,21 +26,25 @@ class RegenTreasurePlannerAI(TreasurePlannerAI.TreasurePlannerAI):
         self.stopSpawning()
 
     def stopSpawning(self):
-        taskMgr.remove(self.taskName)
+        self.removeTask(self.taskName)
 
     def startSpawning(self):
         self.stopSpawning()
-        taskMgr.doMethodLater(self.spawnInterval, self.upkeepTreasurePopulation, self.taskName)
+        self.doMethodLater(self.spawnInterval, self.upkeepTreasurePopulation, self.taskName)
 
     def upkeepTreasurePopulation(self, task):
         if self.numTreasures() < self.maxTreasures:
             self.placeRandomTreasure()
-        taskMgr.doMethodLater(self.spawnInterval, self.upkeepTreasurePopulation, self.taskName)
-        return Task.done
+        self.doMethodLater(self.spawnInterval, self.upkeepTreasurePopulation, self.taskName)
+        return task.done
 
     def placeRandomTreasure(self):
         self.notify.debug('Placing a Treasure...')
-        spawnPointIndex = self.nthEmptyIndex(random.randrange(self.countEmptySpawnPoints()))
+        # Pick a random index from the empty indexes that are available.
+        # Probably blows up if there aren't any available.
+        spawnPointIndex = self.nthEmptyIndex(
+            random.randrange(self.countEmptySpawnPoints()))
+
         self.placeTreasure(spawnPointIndex)
 
     def preSpawnTreasures(self):

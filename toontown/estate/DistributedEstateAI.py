@@ -13,7 +13,7 @@ import random
 from . import HouseGlobals
 from toontown.dna.DNAParser import DNAStorage
 from toontown.safezone.SZTreasurePlannerAI import SZTreasurePlannerAI
-from toontown.safezone import TreasureGlobals
+from toontown.safezone import SZTreasureGlobals
 from toontown.safezone import DistributedPicnicTableAI
 from toontown.safezone import DistributedChineseCheckersAI
 from . import DistributedTargetAI

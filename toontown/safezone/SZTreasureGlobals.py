@@ -1,0 +1,285 @@
+import enum
+from typing import NamedTuple
+
+from toontown.toonbase import ToontownGlobals
+
+# TODO TTI: clover treasure
+
+
+class ETreasureType(enum.IntEnum):
+    TOONTOWN_CENTRAL = 0
+    DONALDS_DOCK = 1
+    DAISY_GARDENS = 2
+    MINNIES_MELODYLAND = 3
+    THE_BRRRGH = 4
+    DONALDS_DREAMLAND = 5
+    ACORN_ACRES = 6
+    ESTATE = 7
+
+
+class TreasureModelAttrib(NamedTuple):
+    modelPath: str
+    grabSoundPath: str
+
+
+class TreasureSpawnAttrib(NamedTuple):
+    treasureType: ETreasureType
+    healAmount: int
+    spawnPoints: tuple[tuple[float, float, float], ...]
+    spawnInterval: int
+    maxTreasures: int
+
+
+TreasureModelAttribs: dict[ETreasureType, TreasureModelAttrib] = {
+    ETreasureType.TOONTOWN_CENTRAL: TreasureModelAttrib(
+        modelPath='phase_4/models/props/icecream',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.DONALDS_DOCK: TreasureModelAttrib(
+        modelPath='phase_6/models/props/starfish_treasure',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.DAISY_GARDENS: TreasureModelAttrib(
+        modelPath='phase_8/models/props/flower_treasure',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.MINNIES_MELODYLAND: TreasureModelAttrib(
+        modelPath='phase_6/models/props/music_treasure',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.THE_BRRRGH: TreasureModelAttrib(
+        modelPath='phase_8/models/props/snowflake_treasure',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.DONALDS_DREAMLAND: TreasureModelAttrib(
+        modelPath='phase_8/models/props/zzz_treasure',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.ACORN_ACRES: TreasureModelAttrib(
+        modelPath='phase_6/models/props/acorn_treasure',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    ),
+    ETreasureType.ESTATE: TreasureModelAttrib(
+        modelPath='phase_4/models/props/icecream',
+        grabSoundPath='phase_4/audio/sfx/SZ_DD_treasure.ogg'
+    )
+}
+
+
+SZTreasureSpawnPoints: dict[int, TreasureSpawnAttrib] = {
+    ToontownGlobals.ToontownCentral: TreasureSpawnAttrib(
+        treasureType=ETreasureType.TOONTOWN_CENTRAL,
+        healAmount=3,
+        spawnPoints=(
+            (-60.976, -8.866, 1.3),
+            (-90.632, -5.828, -0.63),
+            (27.1, -93.5, 2.5),
+            (94.2, 33.5, 4),
+            (31.554, 56.915, 4),
+            (67.1, 105.5, 2.5),
+            (-99.15, -87.3407, 0.52499),
+            (8.183, -127.016, 3.025),
+            (39.684, -80.356, 2.525),
+            (129.137, -61.9039, 2.525),
+            (92.99, -158.399, 3.025),
+            (111.749, -8.59927, 4.57466),
+            (37.983, -26.281, 4.025),
+            (31.0649, -43.9149, 4.025),
+            (10.0156, 105.218, 2.525),
+            (46.9667, 169.143, 3.025),
+            (100.68, 93.9896, 2.525),
+            (129.285, 58.6107, 2.525),
+            (-28.6272, 85.9833, 0.525),
+            (-111.589, 79.414, 0.525),
+            (-136.296, 32.794, 0.525)
+        ),
+        spawnInterval=10,
+        maxTreasures=5
+    ),
+    ToontownGlobals.DonaldsDock: TreasureSpawnAttrib(
+        treasureType=ETreasureType.DONALDS_DOCK,
+        healAmount=10,
+        spawnPoints=(
+            (52.9072, -23.4768, -12.308),
+            (35.3827, -51.9196, -12.308),
+            (17.4252, -57.3107, -12.308),
+            (-0.716054, -68.5, -12.308),
+            (-29.0169, -66.8887, -12.308),
+            (-63.492, -64.2191, -12.308),
+            (-72.2423, -58.3686, -12.308),
+            (-97.9602, -42.8905, -12.308),
+            (-102.215, -34.1519, -12.308),
+            (-102.978, -4.09065, -12.308),
+            (-101.305, 30.6454, -12.308),
+            (-45.0621, -21.0088, -12.308),
+            (-11.4043, -29.0816, -12.308),
+            (2.33548, -7.71722, -12.308),
+            (-8.643, 33.9891, -12.308),
+            (-53.224, 18.1293, -12.308),
+            (-99.7225, -8.1298, -12.308),
+            (-100.457, 28.351, -12.308),
+            (-76.7946, 4.21199, -12.308),
+            (-64.9137, 37.5765, -12.308),
+            (-17.6075, 102.135, -12.308),
+            (-23.4112, 127.777, -12.308),
+            (-11.3513, 128.991, -12.308),
+            (-14.1068, 83.2043, -12.308),
+            (53.2685, 24.3585, -12.308),
+            (41.4197, 4.35384, -12.308)
+        ),
+        spawnInterval=10,
+        maxTreasures=4
+    ),
+    ToontownGlobals.DaisyGardens: TreasureSpawnAttrib(
+        treasureType=ETreasureType.DAISY_GARDENS,
+        healAmount=10,
+        spawnPoints=(
+            (-49, 156, 0.0),
+            (-59, 50, 0.0),
+            (19, 16, 0.0),
+            (76, 38, 0.0),
+            (102, 121, 0.0),
+            (69, 123, 0.0),
+            (49, 105, 0.0),
+            (24, 156, 0.0),
+            (-27, 127, 0.0),
+            (-56, 105, 0.0),
+            (-40, 113, 0.0),
+            (25, 114, 0.0),
+            (-6, 84, 0.0),
+            (19, 96, 0.0),
+            (0, 114, 0.0),
+            (-78, 157, 10.0),
+            (-33.4, 218.2, 10.0),
+            (57, 205, 10.0),
+            (32, 77, 0.0),
+            (-102, 101, 0.0)
+        ),
+        spawnInterval=7,
+        maxTreasures=4
+    ),
+    ToontownGlobals.MinniesMelodyland: TreasureSpawnAttrib(
+        treasureType=ETreasureType.MINNIES_MELODYLAND,
+        healAmount=10,
+        spawnPoints=(
+            (118, -39, 3.3),
+            (118, 1, 3.3),
+            (112, -22, 0.8),
+            (108, -74, -4.5),
+            (110, -65, -4.5),
+            (102, 23.5, -4.5),
+            (60, -115, 6.5),
+            (-5, -115, 6.5),
+            (-64, -77, 6.5),
+            (-77, -44, 6.5),
+            (-76, 3, 6.5),
+            (44, 76, 6.5),
+            (136, -96, -13.5),
+            (85, -6.7, -13.5),
+            (60, -95, -14.5),
+            (72, 60, -13.5),
+            (-55, -23, -14.5),
+            (-21, 47, -14.5),
+            (-24, -75, -14.5)
+        ),
+        spawnInterval=10,
+        maxTreasures=4
+    ),
+    ToontownGlobals.TheBrrrgh: TreasureSpawnAttrib(
+        treasureType=ETreasureType.THE_BRRRGH,
+        healAmount=12,
+        spawnPoints=(
+            (-108, 46, 6.2),
+            (-111, 74, 6.2),
+            (-126, 81, 6.2),
+            (-74, -75, 3.0),
+            (-136, -51, 3.0),
+            (-20, 35, 6.2),
+            (-55, 109, 6.2),
+            (58, -57, 6.2),
+            (-42, -134, 6.2),
+            (-68, -148, 6.2),
+            (-1, -62, 6.2),
+            (25, 2, 6.2),
+            (-133, 53, 6.2),
+            (-99, 86, 6.2),
+            (30, 63, 6.2),
+            (-147, 3, 6.2),
+            (-135, -102, 6.2),
+            (35, -98, 6.2)
+        ),
+        spawnInterval=10,
+        maxTreasures=4
+    ),
+    ToontownGlobals.DonaldsDreamland: TreasureSpawnAttrib(
+        treasureType=ETreasureType.DONALDS_DREAMLAND,
+        healAmount=12,
+        spawnPoints=(
+            (86, 69, -17.4),
+            (34, -48, -16.4),
+            (87, -70, -17.5),
+            (-98, 99, 0.0),
+            (51, 100, 0.0),
+            (-45, -12, -15.0),
+            (9, 8, -15.0),
+            (-24, 64, -17.2),
+            (-100, -99, 0.0),
+            (21, -101, 0.0),
+            (88, -17, -15.0),
+            (32, 70, -17.4),
+            (53, 35, -15.8),
+            (2, -30, -15.5),
+            (-40, -56, -16.8),
+            (-28, 18, -15.0),
+            (-34, -88, 0.0)
+        ),
+        spawnInterval=10,
+        maxTreasures=4
+    ),
+    ToontownGlobals.OutdoorZone: TreasureSpawnAttrib(
+        treasureType=ETreasureType.ACORN_ACRES,
+        healAmount=6,
+        spawnPoints=(
+            (-156.9, -118.9, 0.025),
+            (-35.6, 86.0, 1.25),
+            (116.8, 10.8, 0.104),
+            (-35, 145.7, 0.025),
+            (-198.8, -45.1, 0.025),
+            (-47.1, -25.5, 0.809),
+            (59.15, 34.8, 1.767),
+            (-81.02, -72.2, 0.026),
+            (-167.9, 124.5, 0.025),
+            (-226.7, -27.6, 0.025),
+            (-16.0, -108.9, 0.025),
+            (18.0, 58.5, 5.919),
+            (91.4, 127.8, 0.025),
+            (-86.5, -75.9, 0.025),
+            (-48.751, -32.3, 1.143)
+        ),
+        spawnInterval=10,
+        maxTreasures=4
+    ),
+    ToontownGlobals.MyEstate: TreasureSpawnAttrib(
+        treasureType=ETreasureType.ESTATE,
+        healAmount=3,
+        spawnPoints=(
+            (112.061, -34.942, 0.025),
+            (63.325, -88.908, 0.025),
+            (-20.667, -102.478, 1.761),
+            (-40.341, -159.177, 0.025),
+            (36.221, -167.181, 0.025),
+            (-4.692, -25.172, 7.025),
+            (16.197, 62.804, 0.050),
+            (-15.123, 67.480, 0.251),
+            (-117.493, 20.465, 0.777),
+            (-138.482, -17.109, 0.674),
+            (50.777, 19.149, 8.025),
+            (86.523, 67.761, 0.025),
+            (36.235, 99.546, 0.062),
+            (27.756, -4.929, 11.230),
+            (5.738, -131.705, -9.975)
+        ),
+        spawnInterval=10,
+        maxTreasures=4
+    )
+}
