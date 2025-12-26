@@ -1,49 +1,38 @@
-from direct.directnotify import DirectNotifyGlobal
+from direct.directnotify.DirectNotifyGlobal import directNotify
+from direct.distributed.ClockDelta import globalClockDelta
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 
 class DistributedGagAI(DistributedObjectAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedGagAI")
-    
-    def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        self.owner = 0
+    notify = directNotify.newCategory('DistributedGagAI')
 
-    def setInitTime(self, initTime):
-        self.initTime = initTime
-        
+    def __init__(self, air, avId, race, todo1, x, y, z, type):
+        DistributedObjectAI.__init__(self, air)
+
+        self.ownerId = avId
+        self.race = race
+        self.pos = (x, y, z)
+        self.type = type
+        self.initTime = globalClockDelta.getFrameNetworkTime()
+        self.activateTime = 0
+
     def getInitTime(self):
         return self.initTime
 
-    def setActivateTime(self, activateTime):
-        self.activateTime = activateTime
-        
     def getActivateTime(self):
         return self.activateTime
 
-    def setPos(self, x, y, z):
-        self.pos = [x, y, z]
-        
     def getPos(self):
         return self.pos
 
-    def setRace(self, raceId):
-        self.race = self.air.doId2do[raceId]
-        
     def getRace(self):
         return self.race.getDoId()
 
-    def setOwnerId(self, ownerId):
-        self.owner = ownerId
-        
     def getOwnerId(self):
-        return self.owner
+        return self.ownerId
 
-    def setType(self, type):
-        self.type = type
-        
     def getType(self):
         return self.type
 
-    def hitSomebody(self, avId, timestamp):
+    def hitSomebody(self, avId, time):
+        self.race.thrownGags.remove(self)
         self.requestDelete()
-

@@ -1,446 +1,668 @@
-from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.ClockDelta import *
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from direct.fsm.FSM import FSM
-from direct.task import Task
 import random
-
-from toontown.racing import RaceGlobals
-from toontown.racing.DistributedGagAI import DistributedGagAI
-from toontown.racing.DistributedVehicleAI import DistributedVehicleAI
+from direct.distributed import DistributedObjectAI
+from direct.directnotify import DirectNotifyGlobal
+from . import DistributedGagAI
+from . import DistributedProjectileAI
+from . import Racer
+from . import RaceGlobals
+from direct.distributed.ClockDelta import *
 from toontown.toonbase import TTLocalizer
 
 
-class DistributedRaceAI(DistributedObjectAI, FSM):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedRaceAI")
+class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedRaceAI')
 
-    def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        FSM.__init__(self, 'DistributedRaceAI')
-        self.air = air
-        self.zoneId = 0
-        self.trackId = 0
-        self.raceType = 0
-        self.circuitLoop = []
-        self.avatars = []
-        self.finishedAvatars = []
-        self.startingPlaces = []
-        self.avatarKarts = []
-        self.lapCount = 1
-        self.gags = {}
-        self.avatarGags = {}
-        self.livingGags = []
-        self.currentlyAffectedByAnvil = {}
-        self.avatarProgress = {}
+    # notify.setDebug(1)
+
+    def __init__(self, air, trackId, zoneId, avIds, laps, raceType, racerFinishedFunc, raceDoneFunc, circuitLoop,
+                 circuitPoints, circuitTimes, qualTimes=[], circuitTimeList={}, circuitTotalBonusTickets={}):
+
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+
+        self.trackId = trackId
+        # infer direction (odd id's are rev)
+        self.direction = self.trackId % 2
+        self.zoneId = zoneId
+        self.racers = {}
+        self.avIds = []
+        self.kickedAvIds = []
+        self.circuitPoints = circuitPoints
+        self.circuitTimes = circuitTimes
+        self.finishPending = []
+        self.flushPendingTask = None
+        self.kickSlowRacersTask = None
+        # Create the list of avatars that we will potentially cull from
+        for avId in avIds:
+            if (avId) and avId in self.air.doId2do:
+                self.avIds.append(avId)
+                # Create each racer info, which also generates the karts
+                self.racers[avId] = Racer.Racer(self, air, avId, zoneId)
+
+        # At this point, we have karts on the AI
+        self.toonCount = len(self.racers)
+        self.startingPlaces = [i for i in range(self.toonCount)]
+        random.shuffle(self.startingPlaces)
+        self.thrownGags = []
+
+        self.ready = False
+        self.setGo = False
+
+        self.racerFinishedFunc = racerFinishedFunc
+        self.raceDoneFunc = raceDoneFunc
+        self.lapCount = laps
+        self.raceType = raceType
+        if (raceType == RaceGlobals.Practice):
+            self.gagList = []
+        else:
+            self.gagList = [0] * len(RaceGlobals.TrackDict[trackId][4])
+
+        self.circuitLoop = circuitLoop
+        self.qualTimes = qualTimes
+        self.circuitTimeList = circuitTimeList
+
+        self.qualTimes.append(RaceGlobals.TrackDict[trackId][1])
+
+        self.circuitTotalBonusTickets = circuitTotalBonusTickets
 
     def generate(self):
-        for avatar in self.avatars:
-            self.acceptOnce(self.air.getAvatarExitEvent(avatar), self.playerLeave, [avatar])
-        self.demand('Join')
+        DistributedObjectAI.DistributedObjectAI.generate(self)
+        self.notify.debug('generate %s, id=%s, ' %
+                          (self.doId, self.trackId))
+
+        if __debug__:
+            simbase.race = self
+
+        trackFilepath = RaceGlobals.TrackDict[self.trackId][0]
+
+        # self.geom = loader.loadModel(trackFilepath)
+        # self.numItemPos = self.geom.findAllMatches("**/item*").getNumPaths()
+
+        # self.positions=[]
+        # for i in range(4):
+        #    strIndex=str(i+1)
+        #    np=self.geom.find("**/start_pos_"+strIndex)
+        #    self.positions.append([np.getX(), np.getY(), np.getZ(), 0, 0, 0])
+        # count=0
+        # for i in self.racers:
+        #    self.racers[i].startingPlace=self.startingPlaces[count]
+        #    count+=1
+        # log that toons entered the race
+        # description = '%s|%s' % (
+        #    self.trackId, self.avIds)
+        # for avId in self.avIds:
+        #    self.air.writeServerEvent('raceEntered', avId, description)
+
+        taskMgr.doMethodLater(.5, self.enableEntryBarrier, "enableWaitingBarrier")
+
+    def enableEntryBarrier(self, task):
+        self.enterRaceBarrier = self.beginBarrier("waitingForJoin", self.avIds, TTLocalizer.DRAIwaitingForJoin,
+                                                  self.b_racersJoined)
+        self.notify.debug("Waiting for Joins!!!!")
+        self.sendUpdate("waitingForJoin", [])
+
+    # A utility function for doing safe removals of DistributedObjects
+    # Mainly used for karts.
+    def removeObject(self, object):
+        if (object):
+            self.notify.debug("deleting object: %s" % object.doId)
+            object.requestDelete()
+
+    def requestDelete(self, lastRace=True):
+        self.notify.debug('requestDelete: %s' % self.doId)
+        self.ignoreAll()
+        self.ignoreBarrier("waitingForExit")
+        for i in self.thrownGags:
+            i.requestDelete()
+        del self.thrownGags
+
+        if lastRace:
+            for i in self.racers:
+                racer = self.racers[i]
+                self.ignore(racer.exitEvent)
+                if (racer.kart):
+                    racer.kart.requestDelete()
+                    racer.kart = None
+                if (racer.avatar):
+                    racer.avatar.kart = None
+                    racer.avatar = None
+
+        self.racers = {}
+
+        if self.flushPendingTask:
+            taskMgr.remove(self.flushPendingTask)
+            self.flushPendingTask = None
+
+        if self.kickSlowRacersTask:
+            taskMgr.remove(self.kickSlowRacersTask)
+            self.kickSlowRacersTask = None
+
+        DistributedObjectAI.DistributedObjectAI.requestDelete(self)
 
     def delete(self):
-        for aK in self.avatarKarts:
-            kart = self.air.doId2do[aK[1]]
-            kart.requestDelete()
-        for gag in self.livingGags:
-            gag.requestDelete()
-        self.air.deallocateZone(self.zoneId)
-        for i in range(len(self.gags)):
-            taskMgr.remove('regenGag%i-%i' % (i, self.doId))
-        DistributedObjectAI.delete(self)
+        self.notify.debug('delete: %s' % self.doId)
+        DistributedObjectAI.DistributedObjectAI.delete(self)
+        del self.raceDoneFunc
+        del self.racerFinishedFunc
 
-    def enterJoin(self):
-        self.beginBarrier('waitingForJoin', self.avatars, 60, self.joinBarrierCallback)
-        self.d_waitingForJoin()
+    def getTaskZoneId(self):
+        return self.zoneId
 
-    def exitJoin(self):
-        pass
+    def allToonsGone(self):
+        # the race room objs clean themselves up; in fact, the first race
+        # room will call this for us when it detects that all toons have
+        # left
+        self.notify.debug('allToonsGone')
+        self.requestDelete()
 
-    def enterPrep(self):
-        self.beginBarrier('waitingForReady', self.avatars, 60, self.readyBarrierCallback)
-        self.gagPoints = RaceGlobals.TrackDict[self.trackId][4]
-        if self.raceType != RaceGlobals.Practice:
-            for i in range(len(self.gagPoints)):
-                gagId = random.randint(0, 5)
-                self.b_genGag(i, 1, gagId)
-        self.d_prepForRace()
-
-    def exitPrep(self):
-        pass
-
-    def enterTutorial(self):
-        self.beginBarrier('readRules', self.avatars, 30, self.readRulesCallback)
-        self.d_startTutorial()
-
-    def exitTutorial(self):
-        pass
-
-    def enterStart(self):
-        self.startTime = globalClockDelta.networkToLocalTime(globalClockDelta.getRealNetworkTime()) + 3
-        self.b_startRace(3)
-
-    def exitStart(self):
-        pass
-
-    def readyBarrierCallback(self, avatars):
-        self.demand('Tutorial')
-
-    def readRulesCallback(self, avatars):
-        self.demand('Start')
-
-    def joinBarrierCallback(self, avatars):
-        for av in self.avatars:
-            if not av in avatars:
-                self.playerLeave(av)
-        for av in avatars:
-            kart = DistributedVehicleAI(self.air, av)
-            kart.generateWithRequired(self.zoneId)
-            self.avatarKarts.append([av, kart.getDoId()])
-        self.beginBarrier('waitingForPrep', self.avatars, 60, self.prepBarrierCallback)
-        self.sendUpdate('setEnteredRacers', [self.avatarKarts])
-
-    def prepBarrierCallback(self, avatars):
-        self.demand('Prep')
-
-    def setZoneId(self, zoneId):
-        self.zoneId = zoneId
-
-    def d_setZoneId(self, zoneId):
-        self.sendUpdate('setZoneId', [zoneId])
-
-    def b_setZoneId(self, zoneId):
-        self.setZoneId(zoneId)
-        self.d_setZoneId(zoneId)
+    #########################################
+    # required-field getters
+    #########################################
 
     def getZoneId(self):
         return self.zoneId
 
-    def setTrackId(self, trackId):
-        self.trackId = trackId
-
     def getTrackId(self):
         return self.trackId
-
-    def setRaceType(self, raceType):
-        self.raceType = raceType
 
     def getRaceType(self):
         return self.raceType
 
-    def setCircuitLoop(self, circuitLoop):
-        self.circuitLoop = circuitLoop
-
     def getCircuitLoop(self):
         return self.circuitLoop
 
-    def setAvatars(self, avatarList):
-        self.avatars = avatarList
-
     def getAvatars(self):
-        return self.avatars
-
-    def setStartingPlaces(self, startingPlaces):
-        self.startingPlaces = startingPlaces
+        avIds = []
+        for i in self.racers:
+            avIds.append(i)
+        return avIds
 
     def getStartingPlaces(self):
         return self.startingPlaces
 
-    def setLapCount(self, lapCount):
-        self.lapCount = lapCount
-
     def getLapCount(self):
         return self.lapCount
 
-    def waitingForJoin(self):
-        self.beginBarrier('waitingForJoin', self.avatars, 60, self.b_prepForRace)
+    ################################################
+    # requestKart:
+    #    This function is only used to set
+    #    controlled on the kart.
+    #################################################
 
-    def d_waitingForJoin(self):
-        self.sendUpdate('waitingForJoin', [])
-
-    def b_waitingForJoin(self):
-        self.waitingForJoin()
-        self.d_waitingForJoin()
-
-    def setEnteredRacers(self, todo0):
-        pass
-
-    def d_prepForRace(self):
-        self.sendUpdate('prepForRace', [])
-
-    def b_prepForRace(self, avatars):
-        self.prepForRace()
-        self.d_prepForRace()
-
-    def startTutorial(self):
-        self.beginBarrier('readRules', self.avatars, 60, self.raceStart)
-
-    def d_startTutorial(self):
-        self.sendUpdate('startTutorial', [])
-
-    def b_startTutorial(self, avatars):
-        self.startTutorial()
-        self.d_startTutorial()
-
-    def startRace(self, timeUntilStart):
-        taskMgr.doMethodLater(timeUntilStart, self.startKarts, 'startKarts%i' % self.doId, [])
-
-    def startKarts(self):
-        for avatarKart in self.avatarKarts:
-            if avatarKart[1] in self.air.doId2do:
-                kart = self.air.doId2do[avatarKart[1]]
-                kart.sendUpdate('setInput', [1])
-                self.avatarProgress[avatarKart[0]] = 0
-                self.avatarGags[avatarKart[0]] = 0
-                self.currentlyAffectedByAnvil[avatarKart[0]]  = False
-
-    def b_startRace(self, timeUntilStart):
-        self.startRace(timeUntilStart)
-        self.d_startRace(timeUntilStart)
-
-    def d_startRace(self, timeUntilStart):
-        self.sendUpdate('startRace', [globalClockDelta.localToNetworkTime(globalClockDelta.globalClock.getRealTime() + timeUntilStart)])
-
-    def goToSpeedway(self, todo0, todo1):
-        pass
-
-    def genGag(self, slot, number, type):
-        self.gags[slot] = [number, type]
-
-    def d_genGag(self, slot, number, type):
-        self.sendUpdate('genGag', [slot, number, type])
-
-    def b_genGag(self, slot, number, type):
-        self.genGag(slot, number, type)
-        self.d_genGag(slot, number, type)
-
-    def dropAnvilOn(self, todo0, todo1, todo2):
-        pass
-
-    def shootPiejectile(self, todo0, todo1, todo2):
-        pass
-
-    def racerDisconnected(self, todo0):
-        pass
-
-    def setPlace(self, todo0, todo1, todo2, todo3, todo4, todo5, todo6, todo7, todo8, todo9):
-        pass
-
-    def setCircuitPlace(self, todo0, todo1, todo2, todo3, todo4, todo5):
-        pass
-
-    def endCircuitRace(self):
-        pass
-
-    def setRaceZone(self, todo0, todo1):
-        pass
-
-    def hasGag(self, slot, requestedGag, index):
+    def requestKart(self):
         avId = self.air.getAvatarIdFromSender()
-        if not avId in self.avatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to get gag in a race they\'re not in!')
-            return
-        if self.raceType == RaceGlobals.Practice:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to gain gag in a practice race!')
-            return
-        places = sorted(self.avatarProgress, key=self.avatarProgress.get)
-        avPlace = places.index(avId)
-        gag = self.gags[slot]
-        if not gag[0]:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to pick up a gag that doesn\'t exist!')
-            return
-        gagIndex = gag[1]
-        realGag = RaceGlobals.GagFreq[avPlace][gagIndex]
-        if realGag != requestedGag:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to get the wrong gag!')
-            return
-        self.gags[slot] = [0, 0]
-        self.avatarGags[avId] = requestedGag
-        taskMgr.doMethodLater(5, self.__regenGag, 'regenGag%i-%i' % (slot, self.doId), [slot])
+        accId = self.air.getAccountIdFromSender()
+        if (avId in self.racers):
+            kart = self.racers[avId].kart
+            if (kart):
+                kart.request("Controlled", avId, accId)
 
-    def __regenGag(self, index):
-        gagId = random.randint(0, 5)
-        self.b_genGag(index, 1, gagId)
+    #############################################
+    # Clear out players who didn't join yet
+    # Set up Toon/Kart linking on client
+    #############################################
 
-    def racerLeft(self, avId):
-        realAvId = self.air.getAvatarIdFromSender()
-        if realAvId != avId:
-            self.air.writeServerEvent('suspicious', realAvId, 'Toon tried to make another quit race!')
-            return
-        if not avId in self.avatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to leave race they\'re not in!')
-            return
-        self.avatars.remove(avId)
-        if set(self.finishedAvatars) == set(self.avatars) or len(self.avatars) == 0:
-            self.requestDelete()
+    def b_racersJoined(self, avIds):
+        assert self.notify.debug("b_racersJoined %s" % avIds)
+        self.ignoreBarrier("waitingForJoin")
 
-    def heresMyT(self, avId, laps, currentLapT, timestamp):
-        realAvId = self.air.getAvatarIdFromSender()
-        if not avId == realAvId:
-            self.air.writeServerEvent('suspicious', realAvId, 'Toon tried to send a message as another toon!')
-            return
-        if not avId in self.avatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon not in race tried to send update to race!')
-            return
-        if laps == self.lapCount:
-            self.avatarFinished(avId)
-        self.avatarProgress[avId] = laps + currentLapT
+        racersOut = []
+        for i in self.avIds:
+            if i not in avIds:
+                racersOut.append(i)
 
-    def avatarFinished(self, avId):
-        if not avId in self.avatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to finish in a race they\'re not in!')
+        if (len(avIds) == 0):
+            # The racers are too slow. Make sure they know to leave, then exit
+            self.exitBarrier = self.beginBarrier("waitingForExit", self.avIds, 10, self.endRace)
+            for i in self.avIds:
+                self.d_kickRacer(i)
             return
 
-        if avId in self.finishedAvatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to finish in a race twice!')
+        for i in racersOut:
+            self.d_kickRacer(i)
+
+        self.avIds = avIds
+        self.waitingForPrepBarrier = self.beginBarrier("waitingForPrep", self.avIds, 30, self.b_prepForRace)
+        avAndKarts = []
+        for i in self.racers:
+            avAndKarts.append([self.racers[i].avId, self.racers[i].kart.doId])
+        self.sendUpdate("setEnteredRacers", [avAndKarts])
+
+    ##############################################
+    # Clear out users who didn't make it
+    # request Prep state on client
+    ##############################################
+
+    def b_prepForRace(self, avIds):
+        self.notify.debug("Prepping!!!")
+        self.ignoreBarrier("waitingForPrep")
+
+        racersOut = []
+        for i in self.avIds:
+            if i not in avIds:
+                racersOut.append(i)
+
+        if (len(avIds) == 0):
+            self.exitBarrier = self.beginBarrier("waitingForExit", self.avIds, 10, self.endRace)
+        for i in racersOut:
+            self.d_kickRacer(i)
+        if (len(avIds) == 0):
             return
-        self.finishedAvatars.append(avId)
+        self.avIds = avIds
+        # first gen the gags
+        for i in range(len(self.gagList)):
+            self.d_genGag(i)
 
-        av = self.air.doId2do.get(avId)
-        place = len(self.finishedAvatars)
-        entryFee = RaceGlobals.getEntryFee(self.trackId, self.raceType)
-        bonus = 0
-        totalTime = globalClockDelta.networkToLocalTime(globalClockDelta.getRealNetworkTime()) - self.startTime
-        qualify = False
-        if totalTime < RaceGlobals.getQualifyingTime(self.trackId):
-            qualify = True
-        if self.raceType == RaceGlobals.Practice:
-            winnings = RaceGlobals.PracticeWinnings
-            trophies = []
-        elif qualify:
-            offset = 4 - len(self.avatarProgress)  # self.avatarProgress contains the amount of STARTING players.
-            winnings = entryFee * RaceGlobals.Winnings[(place+offset)-1]
-            trophies = self.calculateTrophies(avId, place == 1, qualify, totalTime)
-            if self.air.wantToonStats:
-                self.air.statManager.handleRaceCompleted(avId, place == 1, self.trackId, qualify, totalTime)
-        else:
-            winnings = 0
-            trophies = []
-        av.b_setTickets(av.getTickets() + winnings)
-        if av.getTickets() > RaceGlobals.MaxTickets:
-            av.b_setTickets(RaceGlobals.MaxTickets)
-        self.sendUpdate('setPlace', [avId, totalTime, place, entryFee, qualify, max((winnings-entryFee), 0), bonus, trophies, [], 0])
+        self.waitingForReadyBarrier = self.beginBarrier("waitingForReady", self.avIds, 20, self.b_startTutorial)
+        self.sendUpdate("prepForRace", [])
 
-    def calculateTrophies(self, avId, won, qualify, time):
-        av = self.air.doId2do[avId]
-        kartingHistory = av.getKartingHistory()
-        avTrophies = av.getKartingTrophies()
-        numTrophies = 0
-        for i in range(30):
-            if avTrophies[i] != 0:
-                numTrophies += 1
-        oldLaffBoost = int(numTrophies/10)
-        genre = RaceGlobals.getTrackGenre(self.trackId)
-        trophies = []
-        if won:
-            kartingHistory[genre] += 1
-            kartingHistory[3] += 1
-            if kartingHistory[3] > RaceGlobals.TotalWonRaces:
-                avTrophies[RaceGlobals.TotalWins] = 1
-                trophies.append(RaceGlobals.TotalWins)
-            for i in range(3):
-                if kartingHistory[genre] >= RaceGlobals.WonRaces[i] and avTrophies[RaceGlobals.AllWinsList[genre][i]] != 1:
-                    avTrophies[RaceGlobals.AllWinsList[genre][i]] = 1
-                    trophies.append(RaceGlobals.AllWinsList[genre][i])
-        if qualify:
-            kartingHistory[genre + 4] += 1
-            kartingHistory[7] += 1
-            if kartingHistory[7] >= RaceGlobals.TotalQualifiedRaces and avTrophies[RaceGlobals.TotalQuals] != 1:
-                avTrophies[RaceGlobals.TotalQuals] = 1
-                trophies.append(RaceGlobals.TotalQuals)
-            for i in range(3):
-                if kartingHistory[genre + 4] >= RaceGlobals.QualifiedRaces[i] and avTrophies[RaceGlobals.AllQualsList[genre][i]] != 1:
-                    avTrophies[RaceGlobals.AllQualsList[genre][i]] = 1
-                    trophies.append(RaceGlobals.AllQualsList[genre][i])
-        for i, history in enumerate(kartingHistory):
-            if history > 255:
-                kartingHistory[i] = 255
-        av.b_setKartingHistory(kartingHistory)
-        pKartingBest = av.getKartingPersonalBestAll()
-        trackIndex = list(TTLocalizer.KartRace_TrackNames.keys()).index(self.trackId)
-        if pKartingBest[trackIndex] > time or not pKartingBest[trackIndex]:
-            pKartingBest[trackIndex] = time
-            av.b_setKartingPersonalBest(pKartingBest)
-        gTourTrophy = True
-        for bestTime in pKartingBest:
-            if not bestTime:
-                gTourTrophy = False
-        if gTourTrophy:
-            if avTrophies[RaceGlobals.GrandTouring] != 1:
-                avTrophies[RaceGlobals.GrandTouring] = 1
-                trophies.append(RaceGlobals.GrandTouring)
-        newLaffBoost = int((len(trophies) + numTrophies)/10)
-        if newLaffBoost - oldLaffBoost != 0:
-            for i in range(newLaffBoost):
-                if avTrophies[RaceGlobals.TrophyCups[i]] != 1:
-                    avTrophies[RaceGlobals.TrophyCups[i]] = 1
-                    trophies.append(RaceGlobals.TrophyCups[i])
-            av.b_setMaxHp(av.getMaxHp() + newLaffBoost - oldLaffBoost)
-            av.toonUp(av.getMaxHp())
-        av.b_setKartingTrophies(avTrophies)
-        return trophies
+    ###########################################
+    # Clear out any players who didn't make it,
+    # request Tutorial State on client
+    # Iris in on client
+    ###########################################
+
+    def b_startTutorial(self, avIds):
+        self.ignoreBarrier("waitingForReady")
+
+        racersOut = []
+        for i in self.avIds:
+            if i not in avIds:
+                racersOut.append(i)
+
+        if (len(avIds) == 0):
+            self.exitBarrier = self.beginBarrier("waitingForExit", self.avIds, 10, self.endRace)
+
+        for i in racersOut:
+            self.d_kickRacer(i)
+
+        if (len(avIds) == 0):
+            return
+
+        # need to check and deduct tickets here.  We're not really
+        # set up to handle errors, but at least throw a warning
+        # if somehow the toon got here without enough tix
+        # We check this here since this is when the irisIn happens...
+        # if they Alt-F4 after the irisIn, we will deduct
+        for avId in avIds:
+            av = self.air.doId2do.get(avId, None)
+            if (not av):
+                self.notify.warning("b_racersJoined: Avatar not found with id %s" % (avId))
+            elif not (self.raceType == RaceGlobals.Practice):
+                # circuit race only pays entry on the first race!
+                if self.isCircuit() and not self.isFirstRace():
+                    continue
+                raceFee = RaceGlobals.getEntryFee(self.trackId, self.raceType)
+                avTickets = av.getTickets()
+
+                if (avTickets < raceFee):
+                    self.notify.warning("b_racersJoined: Avatar %s does not own enough tickets for the race!")
+                    av.b_setTickets(0)
+                else:
+                    # Okay, toon has enough tickets so now we must subtract them.
+                    av.b_setTickets(avTickets - raceFee)
+
+        self.avIds = avIds
+        self.readRulesBarrier = self.beginBarrier("readRules", self.avIds, 10, self.b_startRace)
+        self.sendUpdate("startTutorial", [])
+
+    ##############################################
+    # Start Countdown
+    # Request Start state on client
+    ##############################################
+
+    def b_startRace(self, avIds):
+        self.ignoreBarrier("readRules")
+
+        # has the race has been deleted for some reason?
+        if self.isDeleted():
+            return
+
+        self.notify.debug("Going!!!!!!")
+        self.ignoreBarrier(self.waitingForReadyBarrier)
+
+        # re-set this for 'winnings'
+        self.toonCount = len(self.avIds)
+
+        # don't start the race until the message has arrived on the client and countdown has finished
+        self.baseTime = globalClock.getFrameTime() + 0.5 + RaceGlobals.RaceCountdown
+        for i in self.racers:
+            self.racers[i].baseTime = self.baseTime
+        self.sendUpdate("startRace", [globalClockDelta.localToNetworkTime(self.baseTime)])
+
+        # kickout racers who are taking too long
+        qualTime = RaceGlobals.getQualifyingTime(self.trackId)
+        timeout = qualTime + TTLocalizer.DRAIwaitingForJoin + 3  # 3 is for the 'countdown'
+        self.kickSlowRacersTask = taskMgr.doMethodLater(timeout, self.kickSlowRacers, "kickSlowRacers")
+
+    def kickSlowRacers(self, task):
+        assert self.notify.debug("in kickSlowRacers")
+        self.kickSlowRacersTask = None
+
+        # has the race has been deleted for some reason?
+        if self.isDeleted():
+            return
+
+        for racer in self.racers.values():
+            avId = racer.avId
+
+            # racers can be tagged to 'not allow timeout'
+            av = simbase.air.doId2do.get(avId, None)
+            if av and not av.allowRaceTimeout:
+                continue
+
+            if (not racer.finished) and (not avId in self.kickedAvIds):
+                self.notify.info('Racer %s timed out - kicking.' % racer.avId)
+                self.d_kickRacer(avId, RaceGlobals.Exit_Slow)
+                self.ignore(racer.exitEvent)
+                racer.exited = True
+                racer.finished = True
+                taskMgr.doMethodLater(10, self.removeObject, "removeKart-%s" % racer.kart.doId, extraArgs=[racer.kart])
+
+                # Make them invincible in the eyes of the anvil dropper
+                taskMgr.remove("make %s invincible" % avId)
+                self.racers[avId].anvilTarget = True
+
+        self.checkForEndOfRace()
+
+    def d_kickRacer(self, avId, reason=RaceGlobals.Exit_Barrier):
+        if not avId in self.kickedAvIds:
+            self.kickedAvIds.append(avId)
+
+            # this kick will tell them they are not getting a refund
+            if self.isCircuit() and not self.isFirstRace() and reason == RaceGlobals.Exit_Barrier:
+                reason = RaceGlobals.Exit_BarrierNoRefund
+
+            self.sendUpdate("goToSpeedway", [self.kickedAvIds, reason])
+
+    def d_genGag(self, slot):
+        index = random.randint(0, 5)
+        self.gagList[slot] = index
+        # TODO random gen the pos from a subset of total gag positions
+        pos = slot
+        self.sendUpdate("genGag", [slot, pos, index])
+
+    def d_dropAnvil(self, ownerId):
+        possibleTargets = []
+        for i in self.racers:
+            # if(i != avId):
+            if (not self.racers[i].anvilTarget):
+                possibleTargets.append(self.racers[i])
+
+        while (len(possibleTargets) > 1):
+            if (possibleTargets[0].lapT <= possibleTargets[1].lapT):
+                possibleTargets = possibleTargets[1:]
+            else:
+                possibleTargets = possibleTargets[1:] + possibleTargets[:1]
+        if (len(possibleTargets)):
+            id = possibleTargets[0].avId
+            if (id != ownerId):
+                # if the anvil is gonna crush someone, make them invincible
+                # untill they unflatten
+                possibleTargets[0].anvilTarget = True
+                taskMgr.doMethodLater(4, setattr, "make %s invincible" % id,
+                                      extraArgs=[self.racers[id], "anvilTarget", False])
+
+                # This only happens when the player tries to drop on themselves
+            self.sendUpdate("dropAnvilOn", [ownerId, id, globalClockDelta.getFrameNetworkTime()])
+
+    def d_makeBanana(self, avId, x, y, z):
+        gag = DistributedGagAI.DistributedGagAI(simbase.air, avId, self, 3, x, y, z, 0)
+        self.thrownGags.append(gag)
+        gag.generateWithRequired(self.zoneId)
+
+    def d_launchPie(self, avId):
+        ownerRacer = simbase.air.doId2do.get(avId, None)
+        # self.racers[]
+        targetId = 0
+        type = 0
+        targetDist = 10000  # arbitrary large number
+        # searching for targets ahead of us
+        for iiId in self.racers:
+            targetRacer = simbase.air.doId2do.get(iiId, None)
+
+            # some error checking to prevent frequent AI crashes
+            if not (targetRacer and targetRacer.kart and ownerRacer and ownerRacer.kart):
+                continue
+
+            if ((targetRacer.kart.getPos(ownerRacer.kart)[1] < 500)  # getting the y value of the position
+                    and (targetRacer.kart.getPos(ownerRacer.kart)[1] >= 0)
+                    and (abs(targetRacer.kart.getPos(ownerRacer.kart)[0]) < 50)
+                    and (avId != iiId)
+                    and (targetDist > targetRacer.kart.getPos(ownerRacer.kart)[1])):
+                targetId = iiId
+                targetDist = targetRacer.kart.getPos(ownerRacer.kart)[1]
+        # searching for targets behind us
+        if targetId == 0:
+            for iiId in self.racers:
+                targetRacer = simbase.air.doId2do.get(iiId, None)
+
+                # some error checking to prevent frequent AI crashes
+                if not (targetRacer and targetRacer.kart and ownerRacer and ownerRacer.kart):
+                    continue
+
+                if ((targetRacer.kart.getPos(ownerRacer.kart)[1] > -80)  # getting the y value of the position
+                        and (targetRacer.kart.getPos(ownerRacer.kart)[1] <= 0)
+                        and (abs(targetRacer.kart.getPos(ownerRacer.kart)[0]) < 50)
+                        and (avId != iiId)):
+                    targetId = iiId
+
+        self.sendUpdate("shootPiejectile", [avId, targetId, type])
+
+    def d_makePie(self, avId, x, y, z):
+        # gag=DistributedGagAI.DistributedGagAI(simbase.air, avId, self, 3, x, y, z, 1)
+        gag = DistributedProjectileAI.DistributedProjectileAI(simbase.air, self, avId)
+        self.thrownGags.append(gag)
+        gag.generateWithRequired(self.zoneId)
+
+    def endRace(self, avIds):
+        if hasattr(self, "raceDoneFunc"):
+            self.raceDoneFunc(self, False)
+
+    #######################################
+    # Client->AI Functions
+    #######################################
+
+    def racerLeft(self, avIdFromClient):
+        avId = self.air.getAvatarIdFromSender()
+        if (avId in self.racers and avId == avIdFromClient):
+            self.notify.debug("Removing %d from race %d" % (avId, self.doId))
+            # Clear out the players kart
+            racer = self.racers[avId]
+
+            taskMgr.doMethodLater(10, self.removeObject, racer.kart.uniqueName("removeIt"), extraArgs=[racer.kart])
+            if (racer.avatar):
+                racer.avatar.kart = None
+            # we're not calling this here, cause if a player has left
+            # prematurely, they don't get their info passed to the manager
+            self.racers[avId].exited = True
+
+            # Make them invincible in the eyes of the anvil dropper
+            taskMgr.remove("make %s invincible" % id)
+            self.racers[avId].anvilTarget = True
+
+            raceDone = True
+            for i in self.racers:
+                if (not self.racers[i].exited):
+                    raceDone = False
+            if (raceDone):
+                self.notify.debug("race over, sending callback to raceMgr")
+
+                self.raceDoneFunc(self)
+
+            if avId in self.finishPending:
+                self.finishPending.remove(avId)
+
+    def hasGag(self, slot, type, index):
+        avId = self.air.getAvatarIdFromSender()
+        if index < 0 or index > (len(self.gagList) - 1):  # check for cheaters
+            self.air.writeServerEvent('suspicious', avId,
+                                      'Player checking for non-existant karting gag index %s type %s index %s' % (
+                                      slot, type, index))
+            self.notify.warning("somebody is trying to check for a non-existant karting gag %s %s %s! avId: %s" % (
+            slot, type, index, avId))
+
+        if slot < 0 or slot > (len(self.gagList) - 1):  # crash from TTInjector hack
+            self.air.writeServerEvent('suspicious', avId,
+                                      'Player checking for non-existant karting gag slot %s type %s index %s' % (
+                                      slot, type, index))
+            self.notify.warning("somebody is trying to check for a non-existant karting gag %s %s %s! avId: %s" % (
+            slot, type, index, avId))
+            return
+
+        if avId in self.racers:
+            if self.racers[avId].hasGag:
+                # Bad thing
+                return
+            if self.gagList[slot] == index:
+                self.gagList[slot] = None
+                taskMgr.doMethodLater(5, self.d_genGag, "remakeGag-" + str(slot), extraArgs=[slot])
+                self.racers[avId].hasGag = True
+                self.racers[avId].gagType = type
 
     def requestThrow(self, x, y, z):
         avId = self.air.getAvatarIdFromSender()
-        if not avId in self.avatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to throw a gag in a race they\'re not in!')
-        if self.avatarGags[avId] == RaceGlobals.BANANA:
-            gag = DistributedGagAI(self.air)
-            gag.setRace(self.doId)
-            gag.setOwnerId(avId)
-            gag.setPos(x, y, z)
-            gag.setType(0)
-            gag.setInitTime(globalClockDelta.getRealNetworkTime())
-            gag.setActivateTime(globalClockDelta.getRealNetworkTime())
-            gag.generateWithRequired(self.zoneId)
-            self.livingGags.append(gag)
-        elif self.avatarGags[avId] == RaceGlobals.TURBO:
-            pass
-        elif self.avatarGags[avId] == RaceGlobals.ANVIL:
-            places = sorted(self.avatarProgress, key=self.avatarProgress.get, reverse=True)
-            for i in places:
-                if not i in self.finishedAvatars and not self.currentlyAffectedByAnvil[i]:
-                    currAvatar = i
-                    break
-            self.currentlyAffectedByAnvil[avId] = True
-            taskMgr.doMethodLater(RaceGlobals.AnvilSquishDuration, self.unsquish, 'unsquish-%i' % currAvatar, [currAvatar])
-            self.sendUpdate('dropAnvilOn', [avId, currAvatar, globalClockDelta.getRealNetworkTime()])
-        elif self.avatarGags[avId] == RaceGlobals.PIE:
-            places = sorted(self.avatarProgress, key=self.avatarProgress.get)
-            avPlace = places.index(avId)
-            if avPlace + 1 == len(places):
-                target = 0
-            else:
-                target = places[avPlace + 1]
-            self.sendUpdate('shootPiejectile', [avId, target, 0])
-        else:
-            self.air.writeServerEvent('suspicious', avId, 'Toon use race gag while not having one!')
-        self.avatarGags[avId] = 0
+        if avId in self.racers:
+            racer = self.racers[avId]
+            if (racer.hasGag):
+                if (racer.gagType == 1):
+                    self.d_makeBanana(avId, x, y, z)
+                if (racer.gagType == 2):
+                    # self.d_announceTurbo
+                    pass
+                if (racer.gagType == 3):
+                    self.d_dropAnvil(avId)
+                if (racer.gagType == 4):
+                    # self.d_makePie(avId, x, y, z)
+                    self.d_launchPie(avId)
+                racer.hasGag = False
+                racer.gagType = 0
+                # TODO self.sendUpdate("threwGag", [type, avatarToHit]
 
-    def unsquish(self, avId):
-        self.currentlyAffectedByAnvil[avId] = False
+    ##########################################
+    # Sent by players to announce their current
+    # time on the track
+    ##########################################
 
-    def playerLeave(self, avId):
-        self.sendUpdate('racerDisconnected', [avId])
-        if avId in self.avatars:
-            self.avatars.remove(avId)
-        count = 0
-        for aK in self.avatarKarts:
-            if aK[0] == avId and aK[1] in self.air.doId2do:
-                self.air.doId2do[aK[1]].handleUnexpectedExit()
-                del self.avatarKarts[count]
-                break
-            count += 1
-        if len(self.avatars) == 0:
-            self.requestDelete()
-
-    def requestKart(self):
-        pass
+    def heresMyT(self, inputAvId, numLaps, t, timestamp):
         avId = self.air.getAvatarIdFromSender()
-        accId = self.air.getAccountIdFromSender()
-        if not avId in self.avatars:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to request kart in race they\'re not in!')
-            return
-        for aK in self.avatarKarts:
-            if aK[0] == avId:
-                self.air.doId2do[aK[1]].request('Controlled', avId, accId)
-                self.air.doId2do[aK[1]].sendUpdate('setInput', [0])
+        if avId in self.racers and avId == inputAvId:
+            me = self.racers[avId]
+
+            me.setLapT(numLaps, t, timestamp)
+            if (me.maxLap == self.lapCount and not me.finished):
+                me.finished = True
+
+                # Make them invincible in the eyes of the anvil dropper
+                taskMgr.remove("make %s invincible" % id)
+                me.anvilTarget = True
+
+                # see if anyone's close
+                someoneIsClose = False
+                for racer in self.racers.values():
+                    if (not racer.exited) and (not racer.finished):
+                        if (me.lapT - racer.lapT) < 0.15:
+                            someoneIsClose = True
+                            break
+
+                # add the racer to the pendingFinish array, sorted by totalTime
+                index = 0
+                for racer in self.finishPending:
+                    if me.totalTime < racer.totalTime:
+                        break
+                    index += 1
+                self.finishPending.insert(index, me)
+
+                if self.flushPendingTask:
+                    taskMgr.remove(self.flushPendingTask)
+                    self.flushPendingTask = None
+
+                if someoneIsClose:
+                    task = taskMgr.doMethodLater(3, self.flushPending,
+                                                 self.uniqueName("flushPending"))
+                    self.flushPendingTask = task
+                else:
+                    self.flushPending()
+
+    # we've waited long enough... flush the finishPending array
+    def flushPending(self, task=None):
+        for racer in self.finishPending:
+            self.racerFinishedFunc(self, racer)
+
+        self.finishPending = []
+        self.flushPendingTask = None
+
+    ####################################
+    # TODO: Rename
+    # sent after a player finishes a race
+    # Sets their standing and winnings
+    ####################################
+
+    def d_setPlace(self, avId, totalTime, place, entryFee, qualify, winnings, bonus, trophies, circuitPoints,
+                   circuitTime):
+        self.sendUpdate("setPlace",
+                        [avId, totalTime, place, entryFee, qualify, winnings, bonus, trophies, circuitPoints,
+                         circuitTime])
+
+    def d_setCircuitPlace(self, avId, place, entryFee, winnings, bonus, trophies):
+        self.sendUpdate("setCircuitPlace", [avId, place, entryFee, winnings, bonus, trophies])
+
+    def d_endCircuitRace(self):
+        self.sendUpdate("endCircuitRace")
+
+    ####################################
+    # Racer.py calls this function on
+    # an unexpected exit
+    ####################################
+
+    def unexpectedExit(self, avId):
+        self.notify.debug("racer disconnected: %s" % avId)
+        racer = self.racers.get(avId, None)
+        if (racer):
+            self.sendUpdate("racerDisconnected", [avId])
+            self.ignore(racer.exitEvent)
+            racer.exited = True
+            taskMgr.doMethodLater(10, self.removeObject, "removeKart-%s" % racer.kart.doId, extraArgs=[racer.kart])
+
+            # Make them invincible in the eyes of the anvil dropper
+            taskMgr.remove("make %s invincible" % id)
+            self.racers[avId].anvilTarget = True
+
+            self.checkForEndOfRace()
+
+    def checkForEndOfRace(self):
+        if self.isCircuit() and self.everyoneDone():
+            simbase.air.raceMgr.endCircuitRace(self)
+
+        raceOver = True
+        for i in self.racers:
+            if (not self.racers[i].exited):
+                raceOver = False
+
+        if (raceOver):
+            self.raceDoneFunc(self)
+
+    def sendToonsToNextCircuitRace(self, raceZone, trackId):
+        for avId in self.avIds:
+            self.notify.debug("Handling Circuit Race transisiton for avatar %s" % (avId))
+            # Tell each player that they should go to the next race
+            self.sendUpdateToAvatarId(avId, "setRaceZone", [raceZone, trackId])
+
+    def isCircuit(self):
+        return self.raceType == RaceGlobals.Circuit
+
+    def isLastRace(self):
+        return len(self.circuitLoop) == 0
+
+    def isFirstRace(self):
+        return len(self.circuitLoop) == 2
+
+    def everyoneDone(self):
+        done = True
+        for racer in self.racers.values():
+            if (not racer.exited and (not racer.avId in self.playersFinished) and
+                    (not racer.avId in self.kickedAvIds)):
+                # there is a racer who hasn't exited and who hasn't finished
+                done = False
+                break
+
+        return done

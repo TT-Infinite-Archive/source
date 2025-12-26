@@ -16,7 +16,8 @@ class EKartErrorCode(enum.IntEnum):
     NO_KART = 2
     OCCUPIED = 3
     TRACK_CLOSED = 4
-    UNPAID = 5
+    GENERIC = 5
+    SUCCESS = 6
 
 
 class KartGlobals:

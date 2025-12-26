@@ -1,124 +1,119 @@
-from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
-from toontown.racing.KartShopGlobals import EKartErrorCode, KartGlobals
-from toontown.racing import RaceGlobals
+from direct.distributed.ClockDelta import *
+from direct.distributed import DistributedObjectAI
+from toontown.building.ElevatorConstants import *
+from toontown.racing.KartShopGlobals import KartGlobals, EKartErrorCode
 
-class DistributedStartingBlockAI(DistributedObjectAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedStartingBlockAI")
-    
-    def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        self.air = air
-        self.pad = None
-        self.currentMovie = False
+class DistributedStartingBlockAI(DistributedObjectAI.DistributedObjectAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedStartingBlockAI')
+
+    def __init__(self, air, kartPad, x, y, z, h, p, r, padLocationId):
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
         self.avId = 0
-        self.posHpr = [0, 0, 0, 0, 0, 0]
-
-    def setPadDoId(self, padDoId):
-        self.pad = self.air.doId2do[padDoId]
-        
-    def getPadDoId(self):
-        return self.pad.getDoId()
-
-    def setPosHpr(self, x, y, z, h, p, r):
-        self.posHpr = [x, y, z, h, p, r]
-    
-    def getPosHpr(self):
-        return self.posHpr
-    
-    def setPadLocationId(self, padLocationId):
+        self.isActive = True
+        self.kartPad = kartPad
+        self.unexpectedEvent = None
         self.padLocationId = padLocationId
-        
+        self.posHpr = (x, y, z, h, p, r)
+        self.currentMovie = None
+
+    def delete(self):
+        self.avId = 0
+        self.kartPad = None
+        DistributedObjectAI.DistributedObjectAI.delete(self)
+
+    def getPadDoId(self):
+        return self.kartPad.getDoId()
+
     def getPadLocationId(self):
         return self.padLocationId
 
-    def requestEnter(self, isPaid):
+    def getPosHpr(self):
+        return self.posHpr
+
+    def setActive(self, isActive):
+        self.isActive = isActive
+
+    def requestEnter(self):
         avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if not av:
-            return
-        if not av.hasKart():
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.NO_KART])
-            return
-        if av.getTickets() < RaceGlobals.getEntryFee(self.pad.trackId, self.pad.trackType):
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.NOT_ENOUGH_TICKETS])
-            return        
-        if self.pad.state == 'AllAboard' or self.pad.state == 'WaitBoarding' :
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.BOARD_OVER])
-            return
-        if self.avId != 0:
-            if self.avId == avId:
-                self.air.writeServerEvent('suspicious', avId, 'Toon tried to board the same starting block twice!')
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.OCCUPIED])
-            return
-        self.b_setOccupied(avId)
-        self.b_setMovie(KartGlobals.ENTER_MOVIE)
-        
-    def rejectEnter(self, errCode):
-        pass
+        if self.isActive and self.avId == 0:
+            success = self.kartPad.addAvBlock(avId, self)
+            self.notify.debug('requestEnter: avId %s wants to enter the kart block.' % avId)
+            if success == EKartErrorCode.SUCCESS:
+                self.avId = avId
+                self.isActive = False
+                self.unexpectedEvent = self.air.getAvatarExitEvent(self.avId)
+                self.acceptOnce(self.unexpectedEvent, self.unexpectedExit)
+                self.d_setOccupied(self.avId)
+                self.d_setMovie(KartGlobals.ENTER_MOVIE)
+            else:
+                self.sendUpdateToAvatarId(avId, 'rejectEnter', [success])
+        else:
+            if hasattr(self.kartPad, 'state') and self.kartPad.state in ['WaitBoarding', 'AllAboard']:
+                errorCode = EKartErrorCode.BOARD_OVER
+            else:
+                errorCode = EKartErrorCode.OCCUPIED
+            self.sendUpdateToAvatarId(avId, 'rejectEnter', [errorCode])
 
     def requestExit(self):
         avId = self.air.getAvatarIdFromSender()
-        if avId != self.avId:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to get off a starting block they\'re not on!')
-        self.b_setMovie(KartGlobals.EXIT_MOVIE)
-
-    def setOccupied(self, avId):
-        self.avId = avId
-        self.pad.updateTimer()
-        
-    def d_setOccupied(self, avId):
-        self.sendUpdate('setOccupied', [avId])
-        
-    def b_setOccupied(self, avId):
-        self.setOccupied(avId)
-        self.d_setOccupied(avId)
-        
-    def setMovie(self, movie):
-        self.currentMovie = movie
-        self.pad.updateMovieState()
-    
-    def d_setMovie(self, movie):
-        self.sendUpdate('setMovie', [movie])
-    
-    def b_setMovie(self, movie):
-        self.setMovie(movie)
-        self.d_setMovie(movie)
+        self.notify.debug('requestExit: avId %s wants to exit the Kart Block.' % avId)
+        success = self.validate(avId, self.avId == avId, 'requestExit: avId is not occupying this kart block.')
+        if not success:
+            return
+        self.normalExit()
 
     def movieFinished(self):
-        avId = self.air.getAvatarIdFromSender()
-        if self.avId != avId:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to end movie of another toon!')
-            return
-        if not self.currentMovie:
-            self.air.writeServerEvent('suspicious', avId, 'Toon tried to end non-existent movie!')
-            return
         if self.currentMovie == KartGlobals.EXIT_MOVIE:
-            self.b_setOccupied(0)
-        self.b_setMovie(0)
+            self.cleanupAvatar()
+        self.currentMovie = None
+        if not self.kartPad:
+            self.handleUnexpectedCleanup()
+            return
+        self.kartPad.kartMovieDone()
+
+    def cleanupAvatar(self):
+        self.ignore(self.unexpectedEvent)
+        if not self.kartPad:
+            self.handleUnexpectedCleanup()
+            return
+        self.kartPad.removeAvBlock(self.avId, self)
+        self.avId = 0
+        self.isActive = True
+        self.d_setOccupied(0)
+
+    def handleUnexpectedCleanup(self):
+        self.notify.warning('KartPad has already been cleaned up')
+        from toontown.hood import GSHoodDataAI
+        if hasattr(simbase.air, 'hoods') and simbase.air.hoods:
+            for hood in simbase.air.hoods:
+                if isinstance(hood, GSHoodDataAI.GSHoodDataAI):
+                    hood.logPossibleRaceCondition(self)
+
+    def normalExit(self):
+        self.d_setMovie(KartGlobals.EXIT_MOVIE)
+
+    def raceExit(self):
+        self.cleanupAvatar()
+        self.movieFinished()
+
+    def unexpectedExit(self):
+        self.cleanupAvatar()
+        self.movieFinished()
+        self.unexpectedEvent = None
+
+    def d_setOccupied(self, avId):
+        self.sendUpdate('setOccupied', [avId])
+
+    def d_setMovie(self, mode):
+        self.currentMovie = mode
+        self.sendUpdate('setMovie', [mode])
+
 
 class DistributedViewingBlockAI(DistributedStartingBlockAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedViewingBlockAI")
-    
-    def __init__(self, air):
-        DistributedStartingBlockAI.__init__(self, air)
-        self.air = air
-        
-    def requestEnter(self, isPaid):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do[avId]
-        if not av.hasKart():
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.NO_KART])
-            return
-        if self.avId != 0:
-            if self.avId == avId:
-                self.air.writeServerEvent('suspicious', avId, 'Toon tried to board the same starting block twice!')
-            self.sendUpdateToAvatarId(avId, 'rejectEnter', [EKartErrorCode.OCCUPIED])
-            return
-        self.b_setOccupied(avId)
-        self.b_setMovie(KartGlobals.ENTER_MOVIE)
-        taskMgr.doMethodLater(30, DistributedViewingBlockAI.b_setMovie, 'removePlayer%i' % self.doId, [self, KartGlobals.EXIT_MOVIE])
-        
-    def requestExit(self):
-        DistributedStartingBlockAI.requestExit(self)
-        taskMgr.remove('removePlayer%i' % self.doId)
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedViewingBlockAI')
+
+    def __init__(self, air, kartPad, x, y, z, h, p, r, padLocationId):
+        DistributedStartingBlockAI.__init__(self, air, kartPad, x, y, z, h, p, r, padLocationId)
+
+    def delete(self):
+        DistributedStartingBlockAI.delete(self)

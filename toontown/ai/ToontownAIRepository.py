@@ -54,6 +54,14 @@ from toontown.hood import ZoneUtil
 
 from toontown.quest.Quests import assertAllQuestsValid
 from toontown.pets.PetManagerAI import PetManagerAI
+
+from toontown.racing.RaceManagerAI import RaceManagerAI
+from toontown.racing.DistributedLeaderBoardAI import DistributedLeaderBoardAI
+from toontown.racing.DistributedRacePadAI import DistributedRacePadAI
+from toontown.racing.DistributedViewPadAI import DistributedViewPadAI
+from toontown.racing.DistributedStartingBlockAI import DistributedStartingBlockAI
+from toontown.racing.DistributedStartingBlockAI import DistributedViewingBlockAI
+
 from toontown.safezone.SafeZoneManagerAI import SafeZoneManagerAI
 from toontown.suit.SuitInvasionManagerAI import SuitInvasionManagerAI
 from toontown.toon import NPCToons
@@ -162,6 +170,7 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         self.wantFishing = ConfigVariableBool('want-fishing', True).getValue()
         self.wantBingo = ConfigVariableBool('want-bingo', False).getValue()
+        self.wantRacing = ConfigVariableBool('want-racing', True).getValue()
         self.wantHousing = ConfigVariableBool('want-housing', True).getValue()
         self.wantPets = ConfigVariableBool('want-pets', True).getValue()
         self.wantParties = ConfigVariableBool('want-parties', True).getValue()
@@ -244,6 +253,8 @@ class ToontownAIRepository(ToontownInternalRepository):
                 'DistributedDeliveryManager')
         if self.wantPets:
             self.petMgr = PetManagerAI(self)
+        if self.wantRacing:
+            self.raceMgr = RaceManagerAI(self)
         if self.wantParties:
             self.partyManager = DistributedPartyManagerAI(self)
             self.partyManager.generateWithRequired(2)
@@ -278,8 +289,8 @@ class ToontownAIRepository(ToontownInternalRepository):
         while self.readerPollOnce():
             pass
 
-        #if ConfigVariableBool('want-goofy-speedway', True).getValue():
-        #    self.startupHood(GSHoodDataAI.GSHoodDataAI(self))
+        if ConfigVariableBool('want-goofy-speedway', True).getValue():
+            self.startupHood(GSHoodDataAI.GSHoodDataAI(self))
         if ConfigVariableBool('want-outdoor-zone', True).getValue():
             self.startupHood(OZHoodDataAI.OZHoodDataAI(self))
         if ConfigVariableBool('want-golf-zone', True).getValue():
@@ -737,3 +748,73 @@ class ToontownAIRepository(ToontownInternalRepository):
             else:
                 self.notify.debug("Found dnaGroup that is not a fishing_spot under a pond group")
         return fishingSpots
+
+    def findRacingPads(self, dnaGroup, zoneId, area, overrideDNAZone = 0, propType = 'racing_pad'):
+        racingPads = []
+        racingPadGroups = []
+        if isinstance(dnaGroup, DNAGroup) and propType in dnaGroup.getName():
+            racingPadGroups.append(dnaGroup)
+            if (propType == 'racing_pad'):
+                nameInfo = dnaGroup.getName().split('_')
+                #pdb.set_trace()
+                #print "Name Info: ", nameInfo
+                #print "Race Info: ", raceInfo
+                racingPad = DistributedRacePadAI(self, area, nameInfo[3], int(nameInfo[2]))
+            else:
+                racingPad = DistributedViewPadAI(self, area)
+            racingPad.generateWithRequired(zoneId)
+            racingPads.append(racingPad)
+        else:
+            if (isinstance(dnaGroup, DNAVisGroup) and not overrideDNAZone):
+                zoneId = ZoneUtil.getTrueZoneId(int(dnaGroup.getName().split(':')[0]), zoneId)
+            for i in range(dnaGroup.getNumChildren()):
+                childRacingPads, childRacingPadGroups = self.findRacingPads(dnaGroup.at(i), zoneId, area, overrideDNAZone, propType)
+                racingPads += childRacingPads
+                racingPadGroups += childRacingPadGroups
+        return racingPads, racingPadGroups
+
+    def findStartingBlocks(self, dnaRacingPadGroup, distRacePad):
+        """
+        Comment goes here...
+        """
+        startingBlocks = []
+        # Search the children of the racing pad
+        for i in range(dnaRacingPadGroup.getNumChildren()):
+            dnaGroup = dnaRacingPadGroup.at(i)
+
+            # TODO - check if DNAProp instance
+            if 'starting_block' in dnaGroup.getName():
+                padLocation = dnaGroup.getName().split('_')[2]
+                pos = dnaGroup.getPos()
+                hpr = dnaGroup.getHpr()
+
+                if (isinstance(distRacePad, DistributedRacePadAI)):
+                    sb = DistributedStartingBlockAI(self, distRacePad, pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2], int(padLocation))
+                else:
+                    sb = DistributedViewingBlockAI(self, distRacePad, pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2], int(padLocation))
+                sb.generateWithRequired(distRacePad.zoneId)
+                startingBlocks.append(sb)
+            else:
+                self.notify.debug("Found dnaGroup that is not a starting_block under a race pad group")
+        return startingBlocks
+
+    def findLeaderBoards(self, dnaPool, zoneID):
+        '''
+        Find and return leader boards
+        '''
+        leaderBoards = []
+        if 'leaderBoard' in dnaPool.getName():
+            #found a leader board
+            pos = dnaPool.getPos()
+            hpr = dnaPool.getHpr()
+
+            lb = DistributedLeaderBoardAI(self, dnaPool.getName(), zoneID, [], pos, hpr)
+            lb.generateWithRequired(zoneID)
+            leaderBoards.append(lb)
+        else:
+            for i in range(dnaPool.getNumChildren()):
+                result = self.findLeaderBoards(dnaPool.at(i), zoneID)
+                if result:
+                    leaderBoards += result
+
+        return leaderBoards

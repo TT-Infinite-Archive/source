@@ -1,5 +1,7 @@
 from direct.directnotify import DirectNotifyGlobal
 from . import HoodDataAI, ZoneUtil
+from toontown.dna.DNAGroup import DNAGroup
+from toontown.dna.DNAParser import DNAStorage
 from toontown.toonbase import ToontownGlobals
 from toontown.racing.RaceGlobals import *
 from toontown.classicchars import DistributedGoofySpeedwayAI
@@ -65,7 +67,7 @@ class GSHoodDataAI(HoodDataAI.HoodDataAI):
         self.leaderBoards = []
         dnaStore = DNAStorage()
         dnaData = simbase.air.loadDNAFileAI(dnaStore,
-                                            simbase.air.lookupDNAFileName("goofy_speedway_sz.pdna"))
+                                            "phase_6/dna/goofy_speedway_sz.pdna")
 
         if isinstance(dnaData, DNAGroup):
             self.leaderBoards = self.air.findLeaderBoards(dnaData, self.zoneId)
@@ -114,7 +116,7 @@ class GSHoodDataAI(HoodDataAI.HoodDataAI):
                 area = ZoneUtil.getCanonicalZoneId(zoneId)
                 foundRacingPads, foundRacingPadGroups = self.air.findRacingPads(dnaData, zoneId, area)
                 foundViewingPads, foundViewingPadGroups = self.air.findRacingPads(dnaData, zoneId, area,
-                                                                                  type='viewing_pad')
+                                                                                  propType='viewing_pad')
 
                 # Maintain Lists of found racing pads and groups.
                 self.racingPads += foundRacingPads

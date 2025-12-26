@@ -1,19 +1,12 @@
-from panda3d.core import CollideMask, CollisionNode, CollisionSphere, ConfigVariable, ConfigVariableBool, NodePath, Point3, TextNode, Vec4
+from panda3d.core import CollisionNode, CollisionSphere, ConfigVariableBool, NodePath, Point3, TextNode, Vec4
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from toontown.building.ElevatorConstants import *
 from toontown.building.ElevatorUtils import *
-from toontown.building import DistributedElevatorExt
-from toontown.building import DistributedElevator
 from toontown.toonbase import ToontownGlobals
-from direct.fsm import ClassicFSM
-from direct.fsm import State
 from direct.gui import DirectGui
-from toontown.hood import ZoneUtil
 from toontown.toonbase import TTLocalizer
-from toontown.toontowngui import TTDialog
 from direct.distributed import DistributedObject
-from direct.distributed import DistributedSmoothNode
 from direct.actor import Actor
 from direct.fsm.FSM import FSM
 from direct.showbase import PythonUtil
@@ -22,9 +15,6 @@ from toontown.racing.Kart import Kart
 from toontown.racing.KartShopGlobals import EKartErrorCode, KartGlobals
 from toontown.racing import RaceGlobals
 from toontown.toontowngui.TTDialog import TTGlobalDialog
-from toontown.toontowngui.TeaserPanel import TeaserPanel
-if (__debug__):
-    import pdb
 
 class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedStartingBlock')
@@ -61,7 +51,6 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
             self.testLOD = False
         self.id = DistributedStartingBlock.id
         DistributedStartingBlock.id += 1
-        return
 
     def disable(self):
         FSM.cleanup(self)
@@ -75,7 +64,6 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
             self.holeActor.cleanup()
             self.holeActor = None
         DistributedObject.DistributedObject.disable(self)
-        return
 
     def delete(self):
         if hasattr(self, 'dialog'):
@@ -149,7 +137,7 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
             def handleEnterRequest(self = self):
                 self.ignore('stoppedAsleep')
                 if hasattr(self.dialog, 'doneStatus') and self.dialog.doneStatus == 'ok':
-                    self.d_requestEnter(base.cr.isPaid())
+                    self.d_requestEnter()
                 elif self.cr and not self.isDisabled():
                     self.cr.playGame.getPlace().setState('walk')
                 else:
@@ -174,9 +162,9 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
         self.notify.debugStateCall(self)
         self.sendUpdate('movieFinished', [])
 
-    def d_requestEnter(self, paid):
+    def d_requestEnter(self):
         self.notify.debugStateCall(self)
-        self.sendUpdate('requestEnter', [paid])
+        self.sendUpdate('requestEnter', [])
 
     def d_requestExit(self):
         self.notify.debugStateCall(self)
@@ -222,8 +210,6 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
                 self.dialog = TTGlobalDialog(msg, doneEvent, 2)
                 self.dialog.accept(doneEvent, handleTicketError)
                 self.accept('stoppedAsleep', handleTicketError)
-            case EKartErrorCode.UNPAID:
-                self.dialog = TeaserPanel(pageName='karting', doneFunc=handleTicketError)
             case _:
                 self.cr.playGame.getPlace().setState('walk')
 
@@ -626,7 +612,7 @@ class DistributedViewingBlock(DistributedStartingBlock):
             def handleEnterRequest(self = self):
                 self.ignore('stoppedAsleep')
                 if hasattr(self.dialog, 'doneStatus') and self.dialog.doneStatus == 'ok':
-                    self.d_requestEnter(base.cr.isPaid())
+                    self.d_requestEnter()
                 else:
                     self.cr.playGame.getPlace().setState('walk')
                 self.dialog.ignoreAll()

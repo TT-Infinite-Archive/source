@@ -3140,7 +3140,7 @@ dclass DistributedStartingBlock : DistributedObject {
   setPadDoId(uint32) required broadcast ram;
   setPosHpr(int16/10, int16/10, int16/10, int16/10, int16/10, int16/10) required broadcast ram;
   setPadLocationId(uint8) required broadcast ram;
-  requestEnter(uint8) airecv clsend;
+  requestEnter() airecv clsend;
   rejectEnter(uint8);
   requestExit() airecv clsend;
   setOccupied(uint32) broadcast ram;
