@@ -29,7 +29,6 @@ class BingoCardCell(DirectButton, FSM.FSM):
         self.fish = fish
         self.cellId = cellId
         self.request('Off')
-        return
 
     def destroy(self):
         DirectButton.destroy(self)

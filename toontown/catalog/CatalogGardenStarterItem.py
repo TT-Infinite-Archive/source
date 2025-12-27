@@ -32,7 +32,7 @@ class CatalogGardenStarterItem(CatalogItem.CatalogItem):
 
     def recordPurchase(self, avatar, optional):
         if avatar:
-            estate = simbase.air.estateManager._lookupEstate(avatar)
+            estate = simbase.air.estateMgr._lookupEstate(avatar)
             if estate:
                 estate.placeStarterGarden(avatar)
 

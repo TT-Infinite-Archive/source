@@ -169,7 +169,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.zoneDataStore = AIZoneDataStore()
 
         self.wantFishing = ConfigVariableBool('want-fishing', True).getValue()
-        self.wantBingo = ConfigVariableBool('want-bingo', False).getValue()
+        self.wantBingo = ConfigVariableBool('want-bingo', True).getValue()
         self.wantRacing = ConfigVariableBool('want-racing', True).getValue()
         self.wantHousing = ConfigVariableBool('want-housing', True).getValue()
         self.wantPets = ConfigVariableBool('want-pets', True).getValue()
@@ -240,9 +240,10 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.codeRedemptionMgr.generateWithRequired(2)
         if self.wantFishing:
             self.fishManager = FishManagerAI(self)
+        self.bingoMgr = None
         if self.wantHousing:
-            self.estateManager = EstateManagerAI(self)
-            self.estateManager.generateWithRequired(2)
+            self.estateMgr = EstateManagerAI(self)
+            self.estateMgr.generateWithRequired(2)
             self.bankMgr = DistributedBankMgrAI(self)
             self.bankMgr.generateWithRequired(2)
             self.catalogManager = CatalogManagerAI(self)
@@ -265,7 +266,6 @@ class ToontownAIRepository(ToontownInternalRepository):
                 OTP_DO_ID_GLOBAL_GROUP_TRACKER, 'GlobalGroupTracker')
         self.chatAgent = self.generateGlobalObject(OTP_DO_ID_CHAT_MANAGER,
                                                    'ChatAgent')
-        self.holidayManager = HolidayManagerAI(self)
 
     def createSafeZones(self):
         NPCToons.generateZone2NpcDict()
@@ -375,6 +375,10 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.createCogHeadquarters()
 
         self.notify.info('Starting Holiday Manager...')
+        # The Holiday Manager should be instantiated after the each
+        # of the hoods and estateMgrAI are generated because Bingo Night
+        # needs to reference the HoodDataAI and EstateMgrAI for pond
+        # information
         self.holidayManager = HolidayManagerAI(self)
 
         self.notify.info('Making district available...')
@@ -624,10 +628,9 @@ class ToontownAIRepository(ToontownInternalRepository):
         RecordCatch method.
         """
         # Guard for publish
-        pass
-        #if simbase.wantBingo:
-        #    if self.bingoMgr:
-        #        self.bingoMgr.setAvCatchForPondMgr(avId, zoneId, catch)
+        if simbase.wantBingo:
+            if self.bingoMgr:
+                self.bingoMgr.setAvCatchForPondMgr(avId, zoneId, catch)
 
     def loadDNA(self):
         """

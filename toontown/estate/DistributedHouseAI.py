@@ -96,7 +96,7 @@ class DistributedHouseAI(DistributedObjectAI.DistributedObjectAI):
                 del self.houseNode
             # clean up the doors
             if self.interior:
-                del simbase.air.estateManager.houseZone2estateZone[
+                del simbase.air.estateMgr.houseZone2estateZone[
                     self.interiorZoneId]
                 self.air.deallocateZone(self.interiorZoneId)
                 self.interior.requestDelete()
@@ -179,7 +179,7 @@ class DistributedHouseAI(DistributedObjectAI.DistributedObjectAI):
             self.doId, self.air, self.interiorZoneId, self)
         self.interior.generateWithRequired(self.interiorZoneId)
         # add this house to the map of house zone to estate zone
-        simbase.air.estateManager.houseZone2estateZone[
+        simbase.air.estateMgr.houseZone2estateZone[
             self.interiorZoneId] = self.zoneId
 
         # This is a temporary hack, to ensure the user has a phone.

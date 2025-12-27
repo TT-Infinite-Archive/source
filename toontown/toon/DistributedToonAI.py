@@ -3142,8 +3142,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             taskMgr.add(self._moveSphere, self._getMoveSphereTaskName(), priority=OTPGlobals.AICollMovePriority)
             self.inEstate = 1
             self.estateOwnerId = ownerId
-            self.estateZones = simbase.air.estateManager.getEstateZones(ownerId)
-            self.estateHouseZones = simbase.air.estateManager.getEstateHouseZones(ownerId)
+            self.estateZones = simbase.air.estateMgr.getEstateZones(ownerId)
+            self.estateHouseZones = simbase.air.estateMgr.getEstateHouseZones(ownerId)
             self.getZoneData().startCollTrav(cTravName=self.doId)
             self.enterPetLook()
 
@@ -3693,7 +3693,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.sendUpdate('useSpecialResponse', [response])
 
     def tryToUseSpecial(self, special):
-        estateOwnerDoId = simbase.air.estateManager.zone2owner.get(self.zoneId)
+        estateOwnerDoId = simbase.air.estateMgr.zone2owner.get(self.zoneId)
         response = 'badlocation'
         doIHaveThisSpecial = False
         for curSpecial in self.gardenSpecials:
@@ -3707,7 +3707,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             self.notify.warning("how did this happen, planting an item you don't own")
             return response
         if estateOwnerDoId:
-            estate = simbase.air.estateManager.estate.get(estateOwnerDoId)
+            estate = simbase.air.estateMgr.estate.get(estateOwnerDoId)
             if estate and hasattr(estate, 'avIdList'):
                 ownerIndex = estate.avIdList.index(estateOwnerDoId)
                 if ownerIndex >= 0:
@@ -5446,7 +5446,7 @@ def shovelSkill(value):
 @magicWord(category=CATEGORY_USER, types=[])
 def maxTrees():
     invoker = spellbook.getInvoker()
-    estate = simbase.air.estateManager.toon2estate.get(invoker)
+    estate = simbase.air.estateMgr.toon2estate.get(invoker)
     if not estate:
         return 'Unable to locate estate.'
     for house in estate.houses:
