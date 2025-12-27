@@ -1,22 +1,27 @@
 from otp.ai.AIBaseGlobal import *
 from direct.task.Task import Task
-from .DistributedNPCToonBaseAI import *
-from toontown.quest import Quests
+from direct.distributed import ClockDelta
+from .DistributedNPCToonBaseAI import DistributedNPCToonBaseAI
+from . import NPCToons
 
 
 class DistributedNPCToonAI(DistributedNPCToonBaseAI):
+
     def __init__(self, air, npcId, questCallback = None, hq = 0):
         DistributedNPCToonBaseAI.__init__(self, air, npcId, questCallback)
+        # Am I a hq toon? Maybe this should be a subclass?
         self.hq = hq
+        # Am I part of the tutorial?
         self.tutorial = 0
+        # Initialize the pendingAvId to None in case we get any rogue messages
         self.pendingAvId = None
         self.task = None
-        return
 
     def getTutorial(self):
         return self.tutorial
 
     def setTutorial(self, val):
+        # If you are in the tutorial you have no timeouts
         self.tutorial = val
 
     def getHq(self):
@@ -27,18 +32,20 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         if self.isBusy():
             self.freeAvatar(avId)
             return
-        self.busy = avId
+        # this avatar has come within range
         self.air.questManager.requestInteract(avId, self)
         self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
 
         self.clearTasks()
-        self.task = self.uniqueName('clearMovie')
-        taskMgr.doMethodLater(20, self.sendTimeoutMovie, self.task)
+        if not self.tutorial:
+            self.task = self.uniqueName('clearMovie')
+            taskMgr.doMethodLater(20, self.sendTimeoutMovie, self.task)
         DistributedNPCToonBaseAI.avatarEnter(self)
 
     def chooseQuest(self, questId):
         avId = self.air.getAvatarIdFromSender()
         self.notify.debug('chooseQuest: avatar %s choseQuest %s' % (avId, questId))
+        # Sanity check, this should not happen
         if not self.pendingAvId:
             self.notify.warning('chooseQuest: not expecting an answer from any avatar: %s' % avId)
             return
@@ -49,6 +56,7 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
             self.notify.warning('chooseQuest: not expecting a quest choice from this avatar: %s' % avId)
             self.air.writeServerEvent('suspicious', avId, 'unexpected chooseQuest')
             return
+        # See if the avatar cancelled
         if questId == 0:
             self.pendingAvId = None
             self.pendingQuests = None
@@ -60,16 +68,18 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
             if not av:
                 self.notify.warning('chooseQuest: av not present: %s' % avId)
                 return
+         # See if the avatar chose any of the quests offered
         for quest in self.pendingQuests:
             if questId == quest[0]:
                 self.pendingAvId = None
                 self.pendingQuests = None
                 self.air.questManager.avatarChoseQuest(avId, self, *quest)
                 return
+        # If we got here, something is wrong, handle it gracefully
         self.notify.warning('chooseQuest: avatar: %s chose a quest not offered: %s' % (avId, questId))
+        # Clear the pendings
         self.pendingAvId = None
         self.pendingQuests = None
-        return
 
     def chooseTrack(self, trackId):
         avId = self.air.getAvatarIdFromSender()
@@ -84,28 +94,37 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
             self.notify.warning('chooseTrack: not expecting a track choice from this avatar: %s' % avId)
             self.air.writeServerEvent('suspicious', avId, 'unexpected chooseTrack')
             return
+        # See if the avatar cancelled
         if trackId == -1:
+            # Clear the pendings
             self.pendingAvId = None
             self.pendingTracks = None
             self.pendingTrackQuest = None
+            # Tell the Quest Manager the avatar cancelled
             self.air.questManager.avatarCancelled(avId)
+            # Tell the avatar goodbye and allow him to finish the movie
             self.cancelChoseTrack(avId)
             return
+        # See if the avatar chose any of the tracks offered
         for track in self.pendingTracks:
             if trackId == track:
+                # Let the quest manager figure out what to do from here on
                 self.air.questManager.avatarChoseTrack(avId, self, self.pendingTrackQuest, trackId)
+                # Clear the pendings
                 self.pendingAvId = None
                 self.pendingTracks = None
                 self.pendingTrackQuest = None
                 return
 
+        # If we got here, something is wrong, handle it gracefully
         self.notify.warning('chooseTrack: avatar: %s chose a track not offered: %s' % (avId, trackId))
+        # Clear the pendings
         self.pendingAvId = None
         self.pendingTracks = None
         self.pendingTrackQuest = None
-        return
 
     def sendTimeoutMovie(self, task):
+        # Clear the movie
         self.pendingAvId = None
         self.pendingQuests = None
         self.pendingTracks = None
@@ -134,21 +153,27 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
 
     def rejectAvatar(self, avId):
         self.busy = avId
+        # Send a movie to reject the avatar with time stamp
         self.sendUpdate('setMovie', [NPCToons.QUEST_MOVIE_REJECT,
          self.npcId,
          avId,
          [],
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # We need a long pause here - people need to read the text before
+        # clearMovie wipes it
         if not self.tutorial:
             taskMgr.doMethodLater(5.5, self.sendClearMovie, self.uniqueName('clearMovie'))
 
     def rejectAvatarTierNotDone(self, avId):
         self.busy = avId
+        # Send a movie to reject the avatar with time stamp
         self.sendUpdate('setMovie', [NPCToons.QUEST_MOVIE_TIER_NOT_DONE,
          self.npcId,
          avId,
          [],
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # We need a long pause here - people need to read the text before
+        # clearMovie wipes it
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -156,11 +181,13 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
 
     def completeQuest(self, avId, questId, rewardId):
         self.busy = avId
+        # nextQuestId will be the npc for the next visiting quest (visitNpcId)
         self.sendUpdate('setMovie', [NPCToons.QUEST_MOVIE_COMPLETE,
          self.npcId,
          avId,
          [questId, rewardId, 0],
          ClockDelta.globalClockDelta.getRealNetworkTime(bits=16)])
+        # Timeout
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -173,6 +200,7 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
          avId,
          [questId, completeStatus, toNpcId],
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # Timeout
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -180,6 +208,8 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
 
     def assignQuest(self, avId, questId, rewardId, toNpcId):
         self.busy = avId
+        # Call the quest callback now. We could wait until the movie
+        # is over, but I don't think we need to.
         if self.questCallback:
             self.questCallback()
         self.sendUpdate('setMovie', [NPCToons.QUEST_MOVIE_ASSIGN,
@@ -187,6 +217,7 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
          avId,
          [questId, rewardId, toNpcId],
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # Timeout
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -205,6 +236,7 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
          avId,
          flatQuests,
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # Timeout
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -215,11 +247,14 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         self.pendingAvId = avId
         self.pendingTracks = tracks
         self.pendingTrackQuest = questId
+        # Send a movie to present the choice to the avatar
+        # Instead of quests, we send the trackIds
         self.sendUpdate('setMovie', [NPCToons.QUEST_MOVIE_TRACK_CHOICE,
          self.npcId,
          avId,
          tracks,
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # Timeout
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -239,11 +274,13 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
 
     def cancelChoseTrack(self, avId):
         self.busy = avId
+        # Send a movie to present the choice to the avatar
         self.sendUpdate('setMovie', [NPCToons.QUEST_MOVIE_TRACK_CHOICE_CANCEL,
          self.npcId,
          avId,
          [],
          ClockDelta.globalClockDelta.getRealNetworkTime()])
+        # Timeout
         if not self.tutorial:
             self.clearTasks()
             self.task = self.uniqueName('clearMovie')
@@ -253,12 +290,12 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         avId = self.air.getAvatarIdFromSender()
         self.notify.debug('setMovieDone busy: %s avId: %s' % (self.busy, avId))
         if self.busy == avId:
+             # Kill all pending doLaters that will clear the movie 
             self.clearTasks()
             self.sendClearMovie(None)
         elif self.busy:
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCToonAI.setMovieDone busy with %s' % self.busy)
             self.notify.warning('somebody called setMovieDone that I was not busy with! avId: %s' % avId)
-        return
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')
@@ -266,7 +303,6 @@ class DistributedNPCToonAI(DistributedNPCToonBaseAI):
         self.clearTasks()
         taskMgr.remove(self.uniqueName('clearMovie'))
         self.sendClearMovie(None)
-        return
 
     def clearTasks(self):
         if self.task:

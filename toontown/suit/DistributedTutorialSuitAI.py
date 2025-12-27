@@ -1,57 +1,54 @@
 from panda3d.core import Point3, Vec3
-from direct.directnotify.DirectNotifyGlobal import *
-
-from toontown.suit import SuitDNA
-from toontown.suit import SuitDialog
-from toontown.suit.DistributedSuitBaseAI import DistributedSuitBaseAI
-from toontown.tutorial.DistributedBattleTutorialAI import DistributedBattleTutorialAI
+from direct.directnotify import DirectNotifyGlobal
+from toontown.battle import SuitBattleGlobals
+from . import DistributedSuitBaseAI
 
 
-class FakeBattleManager:
-    def __init__(self, avId):
-        self.avId = avId
+class DistributedTutorialSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
 
-    def destroy(self, battle):
-        if battle.suitsKilledThisBattle:
-            if self.avId in simbase.air.tutorialManager.avId2fsm:
-                simbase.air.tutorialManager.avId2fsm[self.avId].demand('HQ')
-        battle.requestDelete()
+    notify = DirectNotifyGlobal.directNotify.newCategory(
+                                        'DistributedTutorialSuitAI')
 
+    def __init__(self, air, suitPlanner):
+        """__init__(air, suitPlanner)"""
+        DistributedSuitBaseAI.DistributedSuitBaseAI.__init__(self, air, 
+                                                             suitPlanner)
 
-class DistributedTutorialSuitAI(DistributedSuitBaseAI):
-    notify = directNotify.newCategory('DistributedTutorialSuitAI')
-
-    def __init__(self, air):
-        DistributedSuitBaseAI.__init__(self, air, None)
-
-        suitDNA = SuitDNA.SuitDNA()
-        suitDNA.newSuit('f')
-        self.dna = suitDNA
-        self.setLevel(1)
-
-    def destroy(self):
-        del self.dna
+    def delete(self):
+        DistributedSuitBaseAI.DistributedSuitBaseAI.delete(self)
+        self.ignoreAll()
 
     def requestBattle(self, x, y, z, h, p, r):
-        avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if av is None:
-            return
+        """requestBattle(x, y, z, h, p, r)
+        """
+        toonId = self.air.getAvatarIdFromSender()
 
+        if self.notify.getDebug():
+            self.notify.debug( str( self.getDoId() ) + \
+                               str( self.zoneId ) + \
+                               ': request battle with toon: %d' % toonId )
+
+        # Store the suit's actual pos and hpr on the client
         self.confrontPos = Point3(x, y, z)
         self.confrontHpr = Vec3(h, p, r)
 
-        if av.getBattleId() > 0:
-            self.notify.warning('Avatar %d tried to request a battle, but is already in one.' % avId)
+        # Request a battle from the suit planner
+        if (self.sp.requestBattle(self.zoneId, self, toonId)):
+            self.acceptOnce(self.getDeathEvent(), self._logDeath, [toonId])
+            if self.notify.getDebug():
+                self.notify.debug( "Suit %d requesting battle in zone %d" %
+                                   (self.getDoId(), self.zoneId) )
+        else:
+            # Suit tells toon to get lost
+            if self.notify.getDebug():
+                self.notify.debug('requestBattle from suit %d - denied by battle manager' % (self.getDoId()))
             self.b_setBrushOff(SuitDialog.getBrushOffIndex(self.getStyleName()))
-            self.d_denyBattle(avId)
-            return
-
-        battle = DistributedBattleTutorialAI(
-            self.air, FakeBattleManager(avId), Point3(35, 20, -0.5), self,
-            avId, 20001)
-        battle.generateWithRequired(self.zoneId)
-        battle.battleCellId = 0
+            self.d_denyBattle( toonId )
 
     def getConfrontPosHpr(self):
+        """ getConfrontPosHpr()
+        """
         return (self.confrontPos, self.confrontHpr)
+
+    def _logDeath(self, toonId):
+        self.air.writeServerEvent('beatFirstCog', toonId, '')

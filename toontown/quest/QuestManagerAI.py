@@ -486,6 +486,28 @@ class QuestManagerAI:
         else:
             self.notify.debug("toonDefeatedFactory: av made NO progress")
 
+    def toonDefeatedMint(self, av, mintId, avList):
+        # mint is telling us that this avatar just defeated it.
+        # see if this toon has a quest on this mint. If so,
+        # update the progress.
+        avQuests = av.quests
+        avId = av.getDoId()
+        changed = 0
+
+        for questDesc in avQuests:
+            quest = Quests.getQuest(questDesc[0])
+            num = quest.doesMintCount(avId, mintId, avList)
+            if num > 0:
+                questDesc[4] += num
+                changed = 1
+
+        # Now send the quests back to the avatar if the status changed
+        if changed:
+            self.notify.debug("toonDefeatedMint: av made progress")
+            av.b_setQuests(avQuests)
+        else:
+            self.notify.debug("toonDefeatedMint: av made NO progress")
+
     def toonDefeatedStage(self, av, location, avList):
         self.notify.debug("toonDefeatedStage: av made NO progress")
 

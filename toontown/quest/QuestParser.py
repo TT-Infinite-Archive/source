@@ -154,7 +154,6 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         self.chapterDict = {}
         self.timeoutTrack = None
         self.currentTrack = None
-        return
 
     def getVar(self, varName):
         if varName in self.privateVarDict:

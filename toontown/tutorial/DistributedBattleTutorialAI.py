@@ -1,16 +1,15 @@
-from direct.directnotify.DirectNotifyGlobal import *
-from toontown.battle.DistributedBattleAI import DistributedBattleAI
+from toontown.battle import DistributedBattleAI
+from direct.directnotify import DirectNotifyGlobal
 
-
-class DistributedBattleTutorialAI(DistributedBattleAI):
-    notify = directNotify.newCategory('DistributedBattleTutorialAI')
+class DistributedBattleTutorialAI(DistributedBattleAI.DistributedBattleAI):
+    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBattleTutorialAI')
 
     def __init__(self, air, battleMgr, pos, suit, toonId, zoneId,
-                 finishCallback=None, maxSuits=4, tutorialFlag=1, levelFlag=0,
-                 interactivePropTrackBonus=-1):
-        DistributedBattleAI.__init__(self, air, battleMgr, pos, suit, toonId,
-            zoneId, finishCallback=finishCallback, maxSuits=1,
-            tutorialFlag=1, levelFlag=0, interactivePropTrackBonus=-1)
+                 finishCallback=None, maxSuits=4, interactivePropTrackBonus = -1):
+        DistributedBattleAI.DistributedBattleAI.__init__(
+            self, air, battleMgr, pos, suit, toonId, zoneId,
+            finishCallback, maxSuits, tutorialFlag=1)
 
+    # There is no timer in the tutorial... The reward movie is random length.
     def startRewardTimer(self):
-        pass  # We don't want a reward timer in the tutorial.
+        pass
