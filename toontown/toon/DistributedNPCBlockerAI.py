@@ -1,4 +1,5 @@
 from otp.ai.AIBaseGlobal import *
+from direct.distributed import ClockDelta
 from .DistributedNPCToonBaseAI import *
 from . import NPCToons
 from direct.task.Task import Task
@@ -29,7 +30,6 @@ class DistributedNPCBlockerAI(DistributedNPCToonBaseAI):
             return
         self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
         self.sendStartMovie(avId)
-        return
 
     def sendStartMovie(self, avId):
         self.busy = avId

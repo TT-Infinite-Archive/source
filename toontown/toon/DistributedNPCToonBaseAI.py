@@ -1,4 +1,6 @@
+from direct.distributed import ClockDelta
 from . import DistributedToonAI
+from . import NPCToons
 
 class DistributedNPCToonBaseAI(DistributedToonAI.DistributedToonAI):
 

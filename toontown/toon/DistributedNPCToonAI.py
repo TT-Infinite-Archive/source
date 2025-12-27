@@ -1,8 +1,6 @@
 from otp.ai.AIBaseGlobal import *
 from direct.task.Task import Task
-from direct.distributed import ClockDelta
-from .DistributedNPCToonBaseAI import DistributedNPCToonBaseAI
-from . import NPCToons
+from .DistributedNPCToonBaseAI import *
 
 
 class DistributedNPCToonAI(DistributedNPCToonBaseAI):

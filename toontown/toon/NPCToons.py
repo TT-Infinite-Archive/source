@@ -228,25 +228,7 @@ def isZoneProtected(zoneId):
 
 
 lnames = TTLocalizer.NPCToonNames
-NPCToonDict = {20000: (-1,
-         lnames[20000],
-         ('dls',
-          'ms',
-          'm',
-          'm',
-          7,
-          0,
-          7,
-          7,
-          2,
-          6,
-          2,
-          6,
-          2,
-          16),
-         'm',
-         1,
-         NPC_SPECIALQUESTGIVER),
+NPCToonDict = {
  998: (2000,
        lnames[998],
        'r',
