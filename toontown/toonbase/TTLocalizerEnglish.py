@@ -5776,7 +5776,6 @@ PhotoGameTitle = 'Photo Fun'
 PhotoGameFilm = 'FILM'
 PhotoGameScore = 'Team Score: %s\n\nBest Photos: %s\n\nTotal Score: %s'
 CogThiefGameTitle = 'Cog Thief'
-CogThiefRewrittenGameTitle = 'Cog Thief Rewritten'
 CogThiefGameInstructions = 'Stop these Cogs from stealing our Gags! Press the Control key to throw pies. But be careful... they have a tendancy to explode!'
 CogThiefBarrelsSaved = '%(num)d Barrels\nSaved!'
 CogThiefBarrelSaved = '%(num)d Barrel\nSaved!'
@@ -10800,8 +10799,6 @@ BehaviorName = {
  1: 'Having a picnic'
 }
 
-AndroidGolfMessage = 'Sorry, but the golf courses are temporarily closed on the Android platform.'
-ToontownRewrittenCredits = 'Created and developed\nby Toontown Rewritten.'
 LoginError = {
  0: 'Invalid password or the username has been taken.',
  1: 'You are trying to do that too fast!',

@@ -1,8 +1,6 @@
 from panda3d.core import TextNode, Vec4
 from direct.fsm import StateData
 from direct.gui.DirectGui import *
-from direct.interval.IntervalGlobal import Sequence, Func, Wait
-from direct.interval.MetaInterval import Parallel
 
 from . import MinigameGlobals
 from toontown.toonbase import ToontownTimer
@@ -17,7 +15,6 @@ class MinigameRulesPanel(StateData.StateData):
         self.instructions = instructions
         self.TIMEOUT = timeout
         self.frame = None
-        self.showFrameSequence = None
 
     def load(self):
         minigameGui = loader.loadModel('phase_4/models/gui/minigame_rules_gui')
@@ -33,7 +30,6 @@ class MinigameRulesPanel(StateData.StateData):
         self.timer.setScale(0.4)
         self.timer.setPos(0.997, 0, 0.064)
         self.frame.hide()
-        return
 
     def unload(self):
         self.frame.destroy()
@@ -43,7 +39,6 @@ class MinigameRulesPanel(StateData.StateData):
         self.playButton.destroy()
         del self.playButton
         del self.timer
-        taskMgr.remove('startInstructionsTask')
 
     def enter(self):
         self.frame.show()
@@ -54,21 +49,6 @@ class MinigameRulesPanel(StateData.StateData):
         self.frame.hide()
         self.timer.stop()
         self.ignore('enter')
-
-    def startInstructionsTask(self, task):
-        self.frame.show()
-        self.timer.countdown(self.TIMEOUT, self.playCallback)
-        self.accept('enter', self.playCallback)
-
-    def enterRewrittenMiniGame(self):
-        self.frame.hide()
-        taskMgr.doMethodLater(10, self.startInstructionsTask, 'startInstructionsTask')
-
-    def exitRewrittenMiniGame(self):
-        self.frame.hide()
-        self.timer.stop()
-        self.ignore('enter')
-        taskMgr.remove('startInstructionsTask')
 
     def playCallback(self):
         messenger.send(self.doneEvent)

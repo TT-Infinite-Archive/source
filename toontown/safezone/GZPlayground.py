@@ -10,7 +10,6 @@ from direct.fsm import State
 from toontown.safezone import GolfKart
 from toontown.toonbase import ToontownGlobals, TTLocalizer
 from toontown.toontowngui import TTDialog
-import sys
 
 class GZPlayground(Playground.Playground):
 
@@ -38,36 +37,10 @@ class GZPlayground(Playground.Playground):
         Playground.Playground.load(self)
         self.hub = loader.loadModel('phase_6/models/golf/golf_hub2')
         self.hub.reparentTo(render)
-        self.dnaroot = render.find('**/goofy_speedway_DNARoot')
-        self.dnaroot = base.cr.playGame.hood.loader.geom.find('**/goofy_speedway_DNARoot')
-        if not self.dnaroot.isEmpty():
-            self.dnaroot.removeNode()
 
     def unload(self):
         Playground.Playground.unload(self)
         self.hub.removeNode()
-
-    def enter(self, requestStatus):
-        Playground.Playground.enter(self, requestStatus)
-        blimp = base.cr.playGame.hood.loader.geom.find('**/GS_blimp')
-        if blimp.isEmpty():
-            return
-        blimp.setPos(-70, 250, -70)
-        blimpBase = NodePath('blimpBase')
-        blimpBase.setPos(0, -200, 25)
-        blimpBase.setH(-40)
-        blimp.reparentTo(blimpBase)
-        blimpRoot = NodePath('blimpRoot')
-        blimpRoot.setPos(0, -70, 40)
-        blimpRoot.reparentTo(base.cr.playGame.hood.loader.geom)
-        blimpBase.reparentTo(blimpRoot)
-        self.rotateBlimp = blimpRoot.hprInterval(360, Vec3(360, 0, 0))
-        self.rotateBlimp.loop()
-
-    def exit(self):
-        Playground.Playground.exit(self)
-        if hasattr(self, 'rotateBlimp'):
-            self.rotateBlimp.finish()
 
     def doRequestLeave(self, requestStatus):
         self.fsm.request('trialerFA', [requestStatus])
@@ -100,17 +73,8 @@ class GZPlayground(Playground.Playground):
             self.dialog = None
         if hasattr(self, 'fsm'):
             self.fsm.request('walk', [1])
-        return
 
     def enterGolfKartBlock(self, golfKart):
-        if sys.platform == 'android':
-            base.localAvatar.b_setAnimState('neutral', 1)
-            self.destroyWarningDialog()
-            
-            self.warningDialog = TTDialog.TTDialog(text=TTLocalizer.AndroidGolfMessage, command=self.warningDone, style=TTDialog.Acknowledge)
-            self.warningDialog.show()
-            return
-
         base.localAvatar.laffMeter.start()
         base.localAvatar.b_setAnimState('off', 1)
         self.accept(self.golfKartDoneEvent, self.handleGolfKartDone)

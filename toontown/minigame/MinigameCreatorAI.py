@@ -7,7 +7,6 @@ from . import DistributedMinigameAI
 from . import DistributedCannonGameAI
 from . import DistributedCatchGameAI
 from . import DistributedCogThiefGameAI
-from . import DistributedCogThiefRewrittenGameAI
 from . import DistributedDivingGameAI
 from . import DistributedIceGameAI
 from . import DistributedMazeGameAI
@@ -123,7 +122,6 @@ def createMinigame(air, playerArray, trolleyZone, minigameZone=None,
         ToontownGlobals.VineGameId: DistributedVineGameAI.DistributedVineGameAI,
         ToontownGlobals.IceGameId: DistributedIceGameAI.DistributedIceGameAI,
         ToontownGlobals.CogThiefGameId: DistributedCogThiefGameAI.DistributedCogThiefGameAI,
-        ToontownGlobals.CogThiefRewrittenGameId: DistributedCogThiefRewrittenGameAI.DistributedCogThiefRewrittenGameAI,
         ToontownGlobals.TwoDGameId: DistributedTwoDGameAI.DistributedTwoDGameAI,
         ToontownGlobals.TravelGameId: DistributedTravelGameAI.DistributedTravelGameAI,
         ToontownGlobals.PhotoGameId: DistributedPhotoGameAI.DistributedPhotoGameAI

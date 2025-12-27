@@ -350,7 +350,7 @@ class Movie(DirectObject.DirectObject):
         self.rewardPanel = RewardPanel.RewardPanel(name)
         self.rewardPanel.hide()
 
-        (victory, camVictory) = MovieToonVictory.doToonVictory(
+        (victory, camVictory, skipper) = MovieToonVictory.doToonVictory(
             self.battle.localToonActive(),
             self.battle.activeToons,
             self.toonRewardIds,
@@ -361,6 +361,7 @@ class Movie(DirectObject.DirectObject):
             self.uberList,
             self.helpfulToonsList)
         if (victory):
+            skipper.setIvals((ptrack, camtrack), ptrack.getDuration())
             ptrack.append(victory)
             camtrack.append(camVictory)
         ptrack.append(Func(callback))
@@ -374,6 +375,8 @@ class Movie(DirectObject.DirectObject):
         self.track.delayDeletes = []
         for t in self.battle.activeToons:
             self.track.delayDeletes.append(DelayDelete.DelayDelete(t, 'Movie.playReward'))
+        skipper.setIvals((self.track,), 0.0)
+        skipper.setBattle(self.battle)
         self.track.start(ts)
 
     def playTutorialReward(self, ts, name, callback):

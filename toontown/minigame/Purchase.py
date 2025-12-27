@@ -159,16 +159,9 @@ class Purchase(PurchaseBase):
         self.rewardDoubledJellybeanLabel.hide()
         self.countSound = loader.loadSfx('phase_3.5/audio/sfx/tick_counter.ogg')
         self.overMaxSound = loader.loadSfx('phase_3.5/audio/sfx/AV_collision.ogg')
-        if random.randint(0, 100) < 5:
-            self.music = base.loader.loadMusic('phase_4/audio/bgm/trolley_purchase_dk_bgm.ogg')
-            self.celebrateSound = base.loader.loadSfx('phase_4/audio/sfx/MG_dk_win.ogg')
-            self.musicSequence = Sequence(Wait(9), Func(base.playMusic, self.music, looping=1, volume=0.8))
-            self.musicSequence.start()
-        else:
-            self.music = base.loader.loadMusic('phase_4/audio/bgm/trolley_purchase_bgm.ogg')
-            base.playMusic(self.music, looping = 1, volume = 0.8)
-            self.celebrateSound = base.loader.loadSfx('phase_4/audio/sfx/MG_win.ogg')
-        return
+        self.music = base.loader.loadMusic('phase_4/audio/bgm/trolley_purchase_bgm.ogg')
+        base.playMusic(self.music, looping = 1, volume = 0.8)
+        self.celebrateSound = base.loader.loadSfx('phase_4/audio/sfx/MG_win.ogg')
 
     def unload(self):
         PurchaseBase.unload(self)
