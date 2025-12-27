@@ -442,7 +442,7 @@ class CharFollowChipStateAI(StateData.StateData):
         self.__lastWalkNode = CCharPaths.startNode
         self.__curWalkNode = CCharPaths.startNode
 
-    def enter(self, chipDestNode):
+    def enter(self, destNode):
         """
         ////////////////////////////////////////////////////////////////////
         // Function:   called when the character enters the walk state
@@ -456,16 +456,6 @@ class CharFollowChipStateAI(StateData.StateData):
         # choose a destination
         # choose a new destination node, different from last
         # import pdb; pdb.set_trace()
-        destNode = self.__lastWalkNode
-        choices = CCharPaths.getAdjacentNodes(self.__curWalkNode, self.paths)
-        if len(choices) == 1:
-            destNode = choices[0]
-        else:
-            while destNode == self.__lastWalkNode:
-                destNode = random.choice(
-                    CCharPaths.getAdjacentNodes(self.__curWalkNode, self.paths))
-
-        destNode = chipDestNode
         self.notify.debug("Walking " +
                           self.character.getName() +
                           "... from " + \
