@@ -9,6 +9,7 @@ from direct.fsm import StateData
 from direct.task import Task
 from toontown.toonbase import TTLocalizer
 
+
 class DistributedDonaldDock(DistributedCCharBase.DistributedCCharBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedDonaldDock')
 
@@ -18,7 +19,10 @@ class DistributedDonaldDock(DistributedCCharBase.DistributedCCharBase):
         except:
             self.DistributedDonaldDock_initialized = 1
             DistributedCCharBase.DistributedCCharBase.__init__(self, cr, TTLocalizer.DonaldDock, 'dw')
-            self.fsm = ClassicFSM.ClassicFSM('DistributedDonaldDock', [State.State('Off', self.enterOff, self.exitOff, ['Neutral']), State.State('Neutral', self.enterNeutral, self.exitNeutral, ['Off'])], 'Off', 'Off')
+            self.fsm = ClassicFSM.ClassicFSM('DistributedDonaldDock',
+                                             [State.State('Off', self.enterOff, self.exitOff, ['Neutral']),
+                                              State.State('Neutral', self.enterNeutral, self.exitNeutral, ['Off'])],
+                                             'Off', 'Off')
             self.fsm.enterInitialState()
             self.nametag.setText(TTLocalizer.Donald)
             self.handleHolidays()

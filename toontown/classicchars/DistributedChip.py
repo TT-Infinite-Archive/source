@@ -7,6 +7,7 @@ from . import CharStateDatas
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 
+
 class DistributedChip(DistributedCCharBase.DistributedCCharBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedChip')
 
@@ -16,7 +17,11 @@ class DistributedChip(DistributedCCharBase.DistributedCCharBase):
         except:
             self.DistributedChip_initialized = 1
             DistributedCCharBase.DistributedCCharBase.__init__(self, cr, TTLocalizer.Chip, 'ch')
-            self.fsm = ClassicFSM.ClassicFSM(self.getName(), [State.State('Off', self.enterOff, self.exitOff, ['Neutral']), State.State('Neutral', self.enterNeutral, self.exitNeutral, ['Walk']), State.State('Walk', self.enterWalk, self.exitWalk, ['Neutral'])], 'Off', 'Off')
+            self.fsm = ClassicFSM.ClassicFSM(self.getName(),
+                                             [State.State('Off', self.enterOff, self.exitOff, ['Neutral']),
+                                              State.State('Neutral', self.enterNeutral, self.exitNeutral, ['Walk']),
+                                              State.State('Walk', self.enterWalk, self.exitWalk, ['Neutral'])], 'Off',
+                                             'Off')
             self.fsm.enterInitialState()
             self.handleHolidays()
 

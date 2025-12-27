@@ -1,5 +1,6 @@
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+
 GREETING = 0
 COMMENT = 1
 GOODBYE = 2
@@ -12,6 +13,7 @@ GoofySpeedwayChatter = TTLocalizer.GoofySpeedwayChatter
 DonaldChatter = TTLocalizer.DonaldChatter
 ChipChatter = TTLocalizer.ChipChatter
 DaleChatter = TTLocalizer.DaleChatter
+
 
 def getExtendedChat(chatset, extendedChat):
     newChat = []

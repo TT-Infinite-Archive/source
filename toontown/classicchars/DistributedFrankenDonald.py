@@ -10,6 +10,7 @@ from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.hood import GSHood
 
+
 class DistributedFrankenDonald(DistributedDonald.DistributedDonald):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedFrankenDonald')
 
@@ -19,7 +20,11 @@ class DistributedFrankenDonald(DistributedDonald.DistributedDonald):
         except:
             self.DistributedFrankenDonald_initialized = 1
             DistributedCCharBase.DistributedCCharBase.__init__(self, cr, TTLocalizer.FrankenDonald, 'fd')
-            self.fsm = ClassicFSM.ClassicFSM(self.getName(), [State.State('Off', self.enterOff, self.exitOff, ['Neutral']), State.State('Neutral', self.enterNeutral, self.exitNeutral, ['Walk']), State.State('Walk', self.enterWalk, self.exitWalk, ['Neutral'])], 'Off', 'Off')
+            self.fsm = ClassicFSM.ClassicFSM(self.getName(),
+                                             [State.State('Off', self.enterOff, self.exitOff, ['Neutral']),
+                                              State.State('Neutral', self.enterNeutral, self.exitNeutral, ['Walk']),
+                                              State.State('Walk', self.enterWalk, self.exitWalk, ['Neutral'])], 'Off',
+                                             'Off')
             self.fsm.enterInitialState()
             self.nametag.setText(TTLocalizer.Donald)
             self.handleHolidays()

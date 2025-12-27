@@ -37,7 +37,6 @@ from toontown.classicchars import DistributedMickey/AI
 from toontown.classicchars import DistributedVampireMickey/AI
 from toontown.classicchars import DistributedMinnie/AI
 from toontown.classicchars import DistributedWitchMinnie/AI
-from toontown.classicchars import DistributedGoofy/AI
 from toontown.classicchars import DistributedSuperGoofy/AI
 from toontown.classicchars import DistributedDaisy/AI
 from toontown.classicchars import DistributedSockHopDaisy/AI
@@ -1148,9 +1147,6 @@ dclass DistributedWitchMinnie : DistributedMickey {
 };
 
 dclass DistributedMinnie : DistributedCCharBase {
-};
-
-dclass DistributedGoofy : DistributedCCharBase {
 };
 
 dclass DistributedDaisy : DistributedCCharBase {

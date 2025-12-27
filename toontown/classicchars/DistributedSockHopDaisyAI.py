@@ -1,6 +1,45 @@
-from direct.directnotify import DirectNotifyGlobal
-from toontown.classicchars.DistributedDaisyAI import DistributedDaisyAI
+"""DistributedSockHopDaisyAI module: contains the DistributedSockHopDaisyAI class"""
 
-class DistributedSockHopDaisyAI(DistributedDaisyAI):
+from toontown.classicchars import DistributedDaisyAI
+from direct.directnotify import DirectNotifyGlobal
+from direct.fsm import ClassicFSM, State
+from . import DistributedCCharBaseAI
+from toontown.toonbase import TTLocalizer
+
+
+class DistributedSockHopDaisyAI(DistributedDaisyAI.DistributedDaisyAI):
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedSockHopDaisyAI")
 
+    def __init__(self, air):
+        DistributedCCharBaseAI.DistributedCCharBaseAI.__init__(self, air, TTLocalizer.SockHopDaisy)
+        self.fsm = ClassicFSM.ClassicFSM('DistributedSockHopDaisyAI',
+                                         [State.State('Off',
+                                                      self.enterOff,
+                                                      self.exitOff,
+                                                      ['Lonely', 'TransitionToCostume', 'Walk']),
+                                          State.State('Lonely',
+                                                      self.enterLonely,
+                                                      self.exitLonely,
+                                                      ['Chatty', 'Walk', 'TransitionToCostume']),
+                                          State.State('Chatty',
+                                                      self.enterChatty,
+                                                      self.exitChatty,
+                                                      ['Lonely', 'Walk', 'TransitionToCostume']),
+                                          State.State('Walk',
+                                                      self.enterWalk,
+                                                      self.exitWalk,
+                                                      ['Lonely', 'Chatty', 'TransitionToCostume']),
+                                          State.State('TransitionToCostume',
+                                                      self.enterTransitionToCostume,
+                                                      self.exitTransitionToCostume,
+                                                      ['Off']),
+                                          ],
+                                         # Initial State
+                                         'Off',
+                                         # Final State
+                                         'Off',
+                                         )
+
+        # We do not want to move into the transitionCostume state unless signalled to do so.
+        self.transitionToCostume = 0
+        self.fsm.enterInitialState()

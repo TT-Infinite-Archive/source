@@ -8,6 +8,7 @@ from direct.task import Task
 from . import CCharPaths
 from toontown.toonbase import ToontownGlobals
 
+
 class CharNeutralState(StateData.StateData):
     notify = DirectNotifyGlobal.directNotify.newCategory('CharNeutralState')
 
@@ -16,7 +17,7 @@ class CharNeutralState(StateData.StateData):
         self.__doneEvent = doneEvent
         self.character = character
 
-    def enter(self, startTrack = None, playRate = None):
+    def enter(self, startTrack=None, playRate=None):
         StateData.StateData.enter(self)
         self.notify.debug('Neutral ' + self.character.getName() + '...')
         self.__neutralTrack = Sequence(name=self.character.getName() + '-neutral')
@@ -42,7 +43,7 @@ class CharNeutralState(StateData.StateData):
 class CharWalkState(StateData.StateData):
     notify = DirectNotifyGlobal.directNotify.newCategory('CharWalkState')
 
-    def __init__(self, doneEvent, character, diffPath = None):
+    def __init__(self, doneEvent, character, diffPath=None):
         StateData.StateData.__init__(self, doneEvent)
         self.doneEvent = doneEvent
         self.character = character
@@ -58,9 +59,10 @@ class CharWalkState(StateData.StateData):
         self.walkTrack = None
         return
 
-    def enter(self, startTrack = None, playRate = None):
+    def enter(self, startTrack=None, playRate=None):
         StateData.StateData.enter(self)
-        self.notify.debug('Walking ' + self.character.getName() + '... from ' + str(self.walkInfo[0]) + ' to ' + str(self.walkInfo[1]))
+        self.notify.debug('Walking ' + self.character.getName() + '... from ' + str(self.walkInfo[0]) + ' to ' + str(
+            self.walkInfo[1]))
         posPoints = CCharPaths.getPointsFromTo(self.walkInfo[0], self.walkInfo[1], self.paths)
         lastPos = posPoints[-1]
         newLastPos = Point3(lastPos[0] + self.offsetX, lastPos[1] + self.offsetY, lastPos[2])
@@ -85,7 +87,7 @@ class CharWalkState(StateData.StateData):
         self.notify.debug('walkTrack.start(%s)' % ts)
         self.walkTrack.start(ts)
 
-    def makePathTrack(self, nodePath, posPoints, velocity, raycast = 0):
+    def makePathTrack(self, nodePath, posPoints, velocity, raycast=0):
         track = Sequence()
         if raycast:
             track.append(Func(nodePath.enableRaycast, 1))
@@ -107,7 +109,11 @@ class CharWalkState(StateData.StateData):
             turnTime = abs(shortestAngle) / 270.0
             nodePath.setHpr(shortestHpr)
             if duration - turnTime > 0.01:
-                track.append(Parallel(Func(nodePath.loop, 'walk'), LerpHprInterval(nodePath, turnTime, shortestHpr, startHpr=reducedCurHpr, name='lerp' + nodePath.getName() + 'Hpr'), LerpPosInterval(nodePath, duration=duration - turnTime, pos=Point3(endPoint), startPos=Point3(startPoint), fluid=1)))
+                track.append(Parallel(Func(nodePath.loop, 'walk'),
+                                      LerpHprInterval(nodePath, turnTime, shortestHpr, startHpr=reducedCurHpr,
+                                                      name='lerp' + nodePath.getName() + 'Hpr'),
+                                      LerpPosInterval(nodePath, duration=duration - turnTime, pos=Point3(endPoint),
+                                                      startPos=Point3(startPoint), fluid=1)))
 
         nodePath.setHpr(startHpr)
         if raycast:
@@ -129,7 +135,7 @@ class CharWalkState(StateData.StateData):
         self.walkTrack = None
         return
 
-    def setWalk(self, srcNode, destNode, timestamp, offsetX = 0, offsetY = 0):
+    def setWalk(self, srcNode, destNode, timestamp, offsetX=0, offsetY=0):
         self.oldOffsetX = self.offsetX
         self.oldOffsetY = self.offsetY
         self.walkInfo = (srcNode, destNode, timestamp)
@@ -146,7 +152,7 @@ class CharFollowChipState(CharWalkState):
         self.offsetDict = {'a': (ToontownGlobals.DaleOrbitDistance, 0)}
         self.chipId = chipId
 
-    def setWalk(self, srcNode, destNode, timestamp, offsetX = 0, offsetY = 0):
+    def setWalk(self, srcNode, destNode, timestamp, offsetX=0, offsetY=0):
         self.offsetDict[destNode] = (offsetX, offsetY)
         self.srcNode = srcNode
         self.destNode = destNode
@@ -157,7 +163,7 @@ class CharFollowChipState(CharWalkState):
             self.orbitDistance = CCharPaths.DaleOrbitDistanceOverride[destNode, srcNode]
         CharWalkState.setWalk(self, srcNode, destNode, timestamp, offsetX, offsetY)
 
-    def makePathTrack(self, nodePath, posPoints, velocity, raycast = 0):
+    def makePathTrack(self, nodePath, posPoints, velocity, raycast=0):
         retval = Sequence()
         if raycast:
             retval.append(Func(nodePath.enableRaycast, 1))
@@ -166,7 +172,8 @@ class CharFollowChipState(CharWalkState):
         self.posPoints = posPoints
         chipDuration = chip.walk.walkTrack.getDuration()
         self.notify.debug('chipDuration = %f' % chipDuration)
-        chipDistance = CCharPaths.getWalkDistance(self.srcNode, self.destNode, ToontownGlobals.ChipSpeed, self.chipPaths)
+        chipDistance = CCharPaths.getWalkDistance(self.srcNode, self.destNode, ToontownGlobals.ChipSpeed,
+                                                  self.chipPaths)
         self.revolutions = chipDistance / self.completeRevolutionDistance
         srcOffset = (0, 0)
         if self.srcNode in self.offsetDict:
@@ -206,11 +213,13 @@ class CharFollowChipState(CharWalkState):
         srcOffset = (0, 0)
         if self.srcNode in self.offsetDict:
             srcOffset = self.offsetDict[self.srcNode]
-        chipSrcPos = Point3(self.posPoints[0][0] - srcOffset[0], self.posPoints[0][1] - srcOffset[1], self.posPoints[0][2])
+        chipSrcPos = Point3(self.posPoints[0][0] - srcOffset[0], self.posPoints[0][1] - srcOffset[1],
+                            self.posPoints[0][2])
         destOffset = (0, 0)
         if self.destNode in self.offsetDict:
             destOffset = self.offsetDict[self.destNode]
-        chipDestPos = Point3(self.posPoints[-1][0] - destOffset[0], self.posPoints[-1][1] - destOffset[1], self.posPoints[-1][2])
+        chipDestPos = Point3(self.posPoints[-1][0] - destOffset[0], self.posPoints[-1][1] - destOffset[1],
+                             self.posPoints[-1][2])
         displacement = chipDestPos - chipSrcPos
         displacement *= t
         chipPos = chipSrcPos + displacement
