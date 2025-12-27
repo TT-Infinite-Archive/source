@@ -1,5 +1,6 @@
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
+from direct.task import Task
 from toontown.building import TutorialBuildingAI
 from toontown.building import TutorialHQBuildingAI
 from toontown.collectibles import CollectibleInventoryGlobals
@@ -16,7 +17,7 @@ class TutorialManagerAI(DistributedObjectAI.DistributedObjectAI):
 
     # how many seconds do we wait for the toon to appear on AI before we
     # nuke his skip tutorial request
-    WaitTimeForSkipTutorial = 5.0
+    WaitTimeForSkipTutorial = 10.0
 
     def __init__(self, air):
         DistributedObjectAI.DistributedObjectAI.__init__(self, air)
