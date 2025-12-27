@@ -31,6 +31,7 @@ class CharLonelyStateAI(StateData.StateData):
         StateData.StateData.__init__(self, doneEvent)
         self.__doneEvent = doneEvent
         self.character = character
+        self.load()
 
     def enter(self):
         """
@@ -107,6 +108,7 @@ class CharChattyStateAI(StateData.StateData):
         self.nextChatTime = 0
         # this is the last thing character said
         self.lastMessage = [-1, -1]  # category, message index
+        self.load()
 
     def enter(self):
         """
@@ -311,6 +313,7 @@ class CharWalkStateAI(StateData.StateData):
         # this is the last node that the character was at
         self.__lastWalkNode = CCharPaths.startNode
         self.__curWalkNode = CCharPaths.startNode
+        self.load()
 
     def enter(self):
         """
@@ -441,6 +444,7 @@ class CharFollowChipStateAI(StateData.StateData):
         # this is the last node that the character was at
         self.__lastWalkNode = CCharPaths.startNode
         self.__curWalkNode = CCharPaths.startNode
+        self.load()
 
     def enter(self, destNode):
         """
