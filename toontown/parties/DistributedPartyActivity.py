@@ -231,9 +231,9 @@ class DistributedPartyActivity(DistributedObject.DistributedObject):
     def loadSign(self):
         actNameForSign = self.activityName
         if self.activityId == PartyGlobals.EActivityId.PartyJukebox40:
-            actNameForSign = PartyGlobals.EActivityId.getString(PartyGlobals.EActivityId.PartyJukebox)
+            actNameForSign = PartyGlobals.EActivityId(PartyGlobals.EActivityId.PartyJukebox).name
         elif self.activityId == PartyGlobals.EActivityId.PartyDance20:
-            actNameForSign = PartyGlobals.EActivityId.getString(PartyGlobals.EActivityId.PartyDance)
+            actNameForSign = PartyGlobals.EActivityId(PartyGlobals.EActivityId.PartyDance).name
         self.sign = self.root.attachNewNode('%sSign' % self.activityName)
         self.signModel = self.party.defaultSignModel.copyTo(self.sign)
         self.signFlat = self.signModel.find('**/sign_flat')

@@ -583,7 +583,7 @@ DecorationInformationDict = {EDecorationId.BalloonAnvil: {'cost': int(10 * Party
                             'gridAsset': 'decoration_1x1'}}
 DefaultRulesTimeout = 10.0
 
-class EDenialReasons(enum.IntEnum):
+class EDenialReason(enum.IntEnum):
     DEFAULT = 0
     FULL = 1
     SILENT_FAIL = 2
@@ -601,7 +601,7 @@ FireworksStartedEvent = 'PartyFireworksStarted'
 FireworksFinishedEvent = 'PartyFireworksFinished'
 FireworksTransitionToDisabledDelay = 3.0
 
-class TeamActivityTeam(enum.IntEnum):
+class ETeamActivityTeam(enum.IntEnum):
     LEFT = 0
     RIGHT = 1
 

@@ -665,7 +665,7 @@ class PartyPlanner(DirectFrame, FSM):
         return invitees
 
     def processAddPartyResponse(self, hostId, errorCode):
-        PartyPlanner.notify.debug('processAddPartyResponse : hostId=%d errorCode=%s' % (hostId, PartyGlobals.AddPartyErrorCode.getString(errorCode)))
+        PartyPlanner.notify.debug('processAddPartyResponse : hostId=%d errorCode=%s' % (hostId, PartyGlobals.EAddPartyErrorCode(errorCode).name))
         goingBackAllowed = False
         if errorCode == PartyGlobals.EAddPartyErrorCode.ALL_OK:
             goingBackAllowed = False

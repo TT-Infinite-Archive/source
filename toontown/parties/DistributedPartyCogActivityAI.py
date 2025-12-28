@@ -1,217 +1,222 @@
-from direct.directnotify import DirectNotifyGlobal
-from direct.task import Task
-from toontown.parties.DistributedPartyTeamActivityAI import DistributedPartyTeamActivityAI
-from toontown.parties import PartyGlobals
+#===============================================================================
+# Contact: Edmundo Ruiz (Schell Games)
+# Created: September 2009
+#
+# Purpose: Distributed controller for Party Cog "Pinata" Activity in the AI
+#===============================================================================
+from direct.showbase.PythonUtil import bound as clamp
+
 from toontown.toonbase import TTLocalizer
 
-NORMAL_HIT = 1
-CRITICAL_HIT = 3
-MID_DISTANCE = 25
-MAX_DISTANCE = (NORMAL_HIT << 7)
-DIST_MULITPLIER = MID_DISTANCE / float(MAX_DISTANCE - NORMAL_HIT)
-PERFECT_WIN = MAX_DISTANCE * 3
-GAME_TIED = 2
-
+from .DistributedPartyTeamActivityAI import DistributedPartyTeamActivityAI
+from . import PartyGlobals, PartyCogUtils
 
 class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPartyCogActivityAI')
+    notify = directNotify.newCategory("DistributedPartyCogActivityAI")
 
-    def __init__(self, air, party, activityInfo):
-        DistributedPartyTeamActivityAI.__init__(self, air, party, activityInfo)
-        self.scores = {}
-        self.highScore = 0
-        self.cogDistances = [0, 0, 0]  # Using integers for accuracy
+    cogDistances = [0, 0, 0] # [cog0, cog1, cog2] goes from -1.0 to 1.0
+    score = [0, 0] # [leftTeam, rightTeam]
+    toonScore = {}
 
-    # For some reason we need these here.
-    def pieThrow(self, todo0, todo1, todo2, todo3, todo4, todo5, todo6):
-        pass
+    highScore = ("", 0) # toonName (in case the toon disconnects), score
 
-    def pieHitsToon(self, todo0, todo1, todo2, todo3, todo4):
-        pass
+    def __init__(self, air, doId, x, y ,h):
+        DistributedPartyTeamActivityAI.__init__(
+            self, air, doId, x, y, h,
+            PartyGlobals.EActivityId.PartyCog,
+            minPlayersPerTeam=PartyGlobals.CogActivityMinPlayersPerTeam,
+            maxPlayersPerTeam=PartyGlobals.CogActivityMaxPlayersPerTeam,
+            duration=PartyGlobals.CogActivityDuration,
+            conclusionDuration=PartyGlobals.CogActivityConclusionDuration,
+            startDelay=PartyGlobals.CogActivityStartDelay,
+            balanceTeams=True,
+            calcAdvantage=True,
+            canSwitchTeams=True,
+            )
 
+        self.cogHeadStartZ = PartyGlobals.CogPinataHeadZ
+
+#===============================================================================
+# Distributed
+#===============================================================================
+
+    # broadcast clsend airecv
     def pieHitsCog(self, toonId, timestamp, hitCogNum, x, y, z, direction, hitHead):
-        if self.state != 'Active':
+        # Count it only if it's the active state. It may be a very delayed hit, sadly.
+        if not self.isState("Active"):
             return
 
-        if toonId not in self.toonsPlaying:
-            return
-
-        av = simbase.air.doId2do.get(toonId)
-        if not av:
-            return
-
-        pointGiven = NORMAL_HIT
+        assert(self.notify.debugStateCall(self))
 
         if hitHead:
-            self.notify.debug('BOOM HEADSHOT')
-            pointGiven = CRITICAL_HIT
+            if z < self.cogHeadStartZ:
+                senderId = self.air.getAvatarIdFromSender()
+                self.notify.debug("pieHitsCog suspicious behavior for toon: %s, z: %d < %d" % (toonId, z, self.cogHeadStartZ))
+                self.air.writeServerEvent(
+                    "suspicious",
+                    senderId,
+                    "Toon %s hits cog head in PartyCogActivity, but the head z %d is less than the expected min z %d." %
+                    (toonId, z, self.cogHeadStartZ)
+                    )
 
-        if toonId not in self.scores:
-            if -MAX_DISTANCE < self.cogDistances[hitCogNum] < MAX_DISTANCE:
-                self.scores[toonId] = pointGiven
-        elif -MAX_DISTANCE < self.cogDistances[hitCogNum] < MAX_DISTANCE:
-            self.scores[toonId] += pointGiven
-
-        if direction == 1.0:
-            self.cogDistances[hitCogNum] += pointGiven
+            points = PartyGlobals.CogActivityHitPointsForHead
         else:
-            self.cogDistances[hitCogNum] -= pointGiven
+            points = PartyGlobals.CogActivityHitPoints
 
-        if not -MAX_DISTANCE < self.cogDistances[hitCogNum] < MAX_DISTANCE:
-            self.cogDistances[hitCogNum] = MAX_DISTANCE if self.cogDistances[hitCogNum] > 0 else -MAX_DISTANCE
+        self._addToToonScore(toonId, points)
 
-        self.sendCogDistances(self.cogDistances)
+        advantage = self.advantage[self.getTeam(toonId)]
 
-    def sendCogDistances(self, distances):
-        # Have to send the distances as floats down the wire.
-        self.sendUpdate('setCogDistances', [[d / 100.0 for d in distances]])
+        self._updateCogDistance(hitCogNum, direction, advantage, hitHead)
+        self.d_broadcastSetCogDistances()
 
-    def getTotalDistances(self):
-        return sum(self.cogDistances)
-
-    def setHighScore(self, toonName, score):
-        self.highScore = score
-        self.sendUpdate('setHighScore', [toonName, score])
+    def d_broadcastSetCogDistances(self):
+        self.sendUpdate("setCogDistances", [self.cogDistances])
 
     def getHighScore(self):
-        avId = max(self.scores)
-        return avId, self.scores[avId]
+        return self.highScore
 
-    def toonReady(self):
-        avId = self.air.getAvatarIdFromSender()
-        if avId not in self.toonsPlaying:
-            self.notify.warning('Unknown avatar %s tried to become ready!' % avId)
-            return
+    # broadcast ram
+    def d_broadcastSetHighScore(self):
+        self.sendUpdate("setHighScore", list(self.highScore))
 
-        self.toonsPlaying[avId] = True
+#===============================================================================
+# Actions
+#===============================================================================
 
-        if self.allToonsReady():
-            self.cancelCountdown()
-            self.balancePlayers()
-            self.setState('Active')
-            taskMgr.doMethodLater(self.DURATION, self.enterConclusion, self.uniqueName('duration'))
-            
-    def enterConclusion(self, task):
-        self.setState('Conclusion', [self.getTeamDistance(PartyGlobals.TeamActivityTeam.LEFT),
-            self.getTeamDistance(PartyGlobals.TeamActivityTeam.RIGHT)])
-        if self.scores:
-            avId, topScore = self.getHighScore()
-            av = simbase.air.doId2do.get(avId)
-            if av:
-                if topScore > self.highScore:
-                    self.setHighScore(av.getName(), topScore)
-        taskMgr.doMethodLater(10, self.awardBeans, self.uniqueName('awardBeans'))
-        return Task.done
+    def _updateCogDistance(self, cogNum, direction, advantage, hitHead):
+        if hitHead:
+            factor = PartyGlobals.CogPinataPushHeadFactor
+        else:
+            factor = PartyGlobals.CogPinataPushBodyFactor
 
-    def getTeamScore(self, team):
-        score = 0
-        if team == PartyGlobals.TeamActivityTeam.LEFT:
-            for d in self.cogDistances:
-                if d > 0:
-                    score += self.convertScoreToFeet(d)
-        elif team == PartyGlobals.TeamActivityTeam.RIGHT:
-            for d in self.cogDistances:
-                if d < 0:
-                    score += self.convertScoreToFeet(d)
-        return int(score)
+        distance = self.cogDistances[cogNum] + (factor * direction * advantage)
 
-    def getTeamDistance(self, team):
-        dist = 0
-        if team == PartyGlobals.TeamActivityTeam.LEFT:
-            for d in self.cogDistances:
-                if d == 0:
-                    dist += MID_DISTANCE
-                elif d > 0:
-                    dist += self.convertScoreToFeet(d)
-                else:
-                    dist += (MID_DISTANCE * 2) - self.convertScoreToFeet(d)
+        self.cogDistances[cogNum] = clamp(distance, -1.0, 1.0)
 
-        elif team == PartyGlobals.TeamActivityTeam.RIGHT:
-            for d in self.cogDistances:
-                if d == 0:
-                    dist += MID_DISTANCE
-                elif d < 0:
-                    dist += self.convertScoreToFeet(d)
-                else:
-                    dist += (MID_DISTANCE * 2) - self.convertScoreToFeet(d)
-        return int(dist)
-
-    def convertScoreToFeet(self, score):
-        return round(abs(score) * DIST_MULITPLIER + MID_DISTANCE)
-
-    def getWinningTeam(self):
-        leftTeam = self.getTeamDistance(PartyGlobals.TeamActivityTeam.LEFT)
-        rightTeam = self.getTeamDistance(PartyGlobals.TeamActivityTeam.RIGHT)
-        if leftTeam > rightTeam:
-            return PartyGlobals.TeamActivityTeam.LEFT
-        elif rightTeam > leftTeam:
-            return PartyGlobals.TeamActivityTeam.RIGHT
-        return GAME_TIED
-
-    def getBeansToAward(self, avId):
-        beansToAward = 0
-        if self.getWinningTeam() == 2:
-            beansToAward = PartyGlobals.CogActivityTieBeans
-        elif avId in self.leftTeam:
-            if self.getTotalDistances() == -PERFECT_WIN:
-                self.notify.debug('Left side got a perfect win')
-                beansToAward = PartyGlobals.CogActivityPerfectWinBeans
-            elif self.getTotalDistances() == PERFECT_WIN:
-                self.notify.debug('Left side got rekt.')
-                beansToAward = PartyGlobals.CogActivityPerfectLossBeans
-            elif self.getWinningTeam() == PartyGlobals.TeamActivityTeam.LEFT:
-                self.notify.debug('Left side won!')
-                beansToAward = PartyGlobals.CogActivityWinBeans
-            else:
-                self.notify.debug('Left side lost! :(')
-                beansToAward = PartyGlobals.CogActivityLossBeans
-        elif avId in self.rightTeam:
-            if self.getTotalDistances() == PERFECT_WIN:
-                self.notify.debug('Right side got a perfect win!')
-                beansToAward = PartyGlobals.CogActivityPerfectWinBeans
-            elif self.getTotalDistances() == -PERFECT_WIN:
-                self.notify.debug('Right side got rekt.')
-                beansToAward = PartyGlobals.CogActivityPerfectLossBeans
-            elif self.getWinningTeam() == PartyGlobals.TeamActivityTeam.RIGHT:
-                self.notify.debug('Right side won!')
-                beansToAward = PartyGlobals.CogActivityWinBeans
-            else:
-                self.notify.debug('Right side lost! :(')
-                beansToAward = PartyGlobals.CogActivityLossBeans
-
-        if self.isDoubleJelleybeans():
-            beansToAward *= 2
-        return beansToAward
-
-    def awardBeans(self, task):
-        for avId in self.leftTeam:
-            av = simbase.air.doId2do.get(avId)
-            reward = self.getBeansToAward(avId)
-            self.notify.debug('Avatar is in leftTeam')
-            message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeam.LEFT)
-            if self.getWinningTeam() == PartyGlobals.TeamActivityTeam.LEFT:
-                bonus = PartyGlobals.CogActivityWinBeans
-                message += TTLocalizer.PartyCogRewardBonus % (bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))
-            self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])
-            av.addMoney(reward)                
-        for avId in self.rightTeam:
-            av = simbase.air.doId2do.get(avId)
-            reward = self.getBeansToAward(avId)
-            self.notify.debug('Avatar is in rightTeam')
-            message = TTLocalizer.PartyCogRewardMessage % self.getTeamScore(PartyGlobals.TeamActivityTeam.RIGHT)
-            if self.getWinningTeam() == PartyGlobals.TeamActivityTeam.RIGHT:
-                bonus = PartyGlobals.CogActivityWinBeans
-                message += TTLocalizer.PartyCogRewardBonus % (bonus, (TTLocalizer.PartyCogJellybeanPlural if bonus > 1 else ''))            
-            self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])
-            av.addMoney(reward)
-
-        self.cleanup()
-        self.clearGame()
-
-        return Task.done
-
-    def cleanup(self):
-        self.scores = {}
-        self.highScore = 0
+    def _resetCogDistances(self):
         self.cogDistances = [0, 0, 0]
-        self.sendCogDistances(self.cogDistances)
+
+    def _resetScores(self):
+        self.toonScore.clear()
+        self.score = [0, 0]
+
+    def _addToToonScore(self, toonId, points):
+        if toonId in self.toonScore:
+            self.toonScore[toonId] += points
+
+    def _addToonToTeam(self, toonId, team):
+        if DistributedPartyTeamActivityAI._addToonToTeam(self, toonId, team):
+            self.toonScore[toonId] = 0
+
+    def _removeToonFromTeam(self, toonId, team):
+        if DistributedPartyTeamActivityAI._removeToonFromTeam(self, toonId, team) and \
+            toonId in self.toonScore:
+            del self.toonScore[toonId]
+
+    def _findNewHighScore(self):
+        """Check to see if a new high score has been made, and broadcast"""
+        highScoreFound = False
+
+        for toonId, score in self.toonScore.items():
+            if score > self.highScore[1] and toonId in self.air.doId2do:
+                self.highScore = (self.air.doId2do[toonId].getName(), score)
+                highScoreFound = True
+
+        if highScoreFound:
+            self.d_broadcastSetHighScore()
+
+#===============================================================================
+# Utility methods
+#===============================================================================
+
+    def computeMatchResults(self):
+        """Determines who was the winning team and rewards the teams accordingly."""
+        # Determine how far the cogs were pushed for every team.
+        for distance in self.cogDistances:
+            if distance < 0.0:
+                self.score[PartyGlobals.ETeamActivityTeam.LEFT] += abs(PartyCogUtils.getCogDistanceUnitsFromCenter(distance))
+            elif distance > 0.0:
+                self.score[PartyGlobals.ETeamActivityTeam.RIGHT] += abs(PartyCogUtils.getCogDistanceUnitsFromCenter(distance))
+
+        # Determine who won, who lost:
+        if self.score[PartyGlobals.ETeamActivityTeam.LEFT] < self.score[PartyGlobals.ETeamActivityTeam.RIGHT]:
+            self.losingTeam = PartyGlobals.ETeamActivityTeam.LEFT
+        elif self.score[PartyGlobals.ETeamActivityTeam.RIGHT] < self.score[PartyGlobals.ETeamActivityTeam.LEFT]:
+            self.losingTeam = PartyGlobals.ETeamActivityTeam.RIGHT
+        else:
+            self.losingTeam = PartyGlobals.TeamActivityNeitherTeam
+            self.winningTeam = PartyGlobals.TeamActivityNeitherTeam
+
+        # Tie:
+        if self.resultIsTie():
+
+            for toonId in self.getToonIdsAsList():
+                self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.CogActivityTieBeans
+
+        # One of the teams won:
+        else:
+            self.winningTeam = 1 - self.losingTeam
+
+            winBeans = PartyGlobals.CogActivityWinBeans
+            lossBeans = PartyGlobals.CogActivityLossBeans
+
+            # The winning team moved all of the cogs all the way:
+            if self.resultIsPerfect():
+                winBeans = PartyGlobals.CogActivityPerfectWinBeans
+                lossBeans = PartyGlobals.CogActivityPerfectLossBeans
+
+            for toonId in self.toonIds[self.winningTeam]:
+                self.toonIdsToJellybeanRewards[toonId] = winBeans
+
+            for toonId in self.toonIds[self.losingTeam]:
+                self.toonIdsToJellybeanRewards[toonId] = lossBeans
+
+        self._findNewHighScore()
+
+    def getConclusionData(self):
+        """Formats the score into a single 32 bit data"""
+        return (int(self.score[0]) * 10000 + int(self.score[1]))
+
+    def getJellybeanRewardMessage(self, toonId, reward):
+        message = None
+
+        if self.resultIsTie():
+            message = TTLocalizer.PartyTeamActivityRewardMessage % reward
+        elif self.toonIsOnWinningTeam(toonId):
+            # "Your team won!\n\nYou got %d jellybeans. Good job!"
+            message = TTLocalizer.PartyTeamActivityLocalAvatarTeamWins + "\n\n" +\
+                      TTLocalizer.PartyTeamActivityRewardMessage % reward
+        else:
+            message = TTLocalizer.PartyTeamActivityRewardMessage % reward
+
+        return message
+
+    def resultIsTie(self):
+        """ Returns True if the teams tied. """
+        return self.losingTeam == PartyGlobals.TeamActivityNeitherTeam
+
+    def resultIsPerfect(self):
+        """ Returns True if the winning team moved all of the cogs all the way. """
+        return self.score[self.winningTeam] >= 3.0 * PartyGlobals.CogActivityArenaLength / 2.0
+
+    def toonIsOnWinningTeam(self, toonId):
+        """ Returns True if the given toon was on the winning team. """
+        return toonId in self.toonIds[self.winningTeam]
+
+#===============================================================================
+# FSM
+#===============================================================================
+
+    def startConclusion(self):
+        # All clients should first and foremost, synchronize cog distances.
+        self.d_broadcastSetCogDistances()
+
+        DistributedPartyTeamActivityAI.startConclusion(self)
+
+    def startWaitForEnough(self):
+        DistributedPartyTeamActivityAI.startWaitForEnough(self)
+
+        self._resetScores()
+        self._resetCogDistances()
+        self.d_broadcastSetCogDistances()

@@ -184,7 +184,7 @@ class PublicPartyGui(DirectFrame):
                 text_pos=(0.0, -0.15),
                 geom_scale=0.3,
                 geom_pos=Vec3(0.0, 0.0, 0.07),
-                geom=PartyUtils.getPartyActivityIcon(self.activityIconsModel, PartyGlobals.EActivityId.getString(activityId)))
+                geom=PartyUtils.getPartyActivityIcon(self.activityIconsModel, PartyGlobals.EActivityId(activityId).name))
             self.activityList.addItem(item)
 
         return

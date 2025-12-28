@@ -1,157 +1,195 @@
-from direct.task import Task
-from toontown.parties import PartyGlobals
-from toontown.parties.DistributedPartyTeamActivityAI import DistributedPartyTeamActivityAI
-from toontown.toonbase.TTLocalizer import PartyTeamActivityRewardMessage
-
-GAME_TIED = 3
-MOVEMENT_MULTIPLIER = 0.04
-
+#-------------------------------------------------------------------------------
+# Contact: Rob Gordon, Edmundo Ruiz (Schell Games)
+# Created: Oct 2008
+#
+# Purpose: AI control of tug of war activity in a party.
+# Changes:
+# - Nov 2009 Migrated to DistributedPartyTeamActivityAI
+#-------------------------------------------------------------------------------
+from toontown.toonbase import ToontownGlobals
+from .DistributedPartyTeamActivityAI import DistributedPartyTeamActivityAI
+from . import PartyGlobals
 
 class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
     notify = directNotify.newCategory("DistributedPartyTugOfWarActivityAI")
-    DURATION = 40
-    COUNTDOWN_TIME = 8
 
-    def __init__(self, air, party, activityInfo):
-        DistributedPartyTeamActivityAI.__init__(self, air, party, activityInfo)
-        self.forceDict = [{}, {}]
-        self.keyRateDict = {}
-        self.rewardDict = {}
-        self.offset = 0
-        self.fallIn = False
-        self.losingTeam = None
+    MaxAbsGlobalOffset = 32
 
+    def __init__(self, air, partyDoId, x, y, h):
+        DistributedPartyTeamActivityAI.__init__(
+            self,
+            air, partyDoId, x, y, h,
+            PartyGlobals.EActivityId.PartyTugOfWar,
+            minPlayersPerTeam = PartyGlobals.TugOfWarMinimumPlayersPerTeam,
+            maxPlayersPerTeam = PartyGlobals.TugOfWarMaximumPlayersPerTeam,
+            duration = PartyGlobals.TugOfWarDuration,
+            conclusionDuration = PartyGlobals.TugOfWarConclusionDuration,
+            startDelay = PartyGlobals.TugOfWarStartDelay,
+            calcAdvantage = True,
+        )
+        self.notify.debug("__init__")
+
+        # Add up all the players forces for each side as soon as we get a
+        # keyRate update from all players.
+        self.forceDictList = [
+            {}, # left team's forces, indexed by toonId
+            {}, # right team's forces, indexed by toonId
+        ]
+        self.toonIdsToKeyRates = {}
+        self.numToonsReported = 0
+
+        self.globalOffset = 0.0 # how far the toons have moved from their initial position
+
+        # Variables for determining the outcome of the game. If
+        # endedWithFall=True that means someone actually fell in the water.
+        self.endedWithFall = False
+        self.losingTeam = PartyGlobals.TeamActivityNeitherTeam
+
+        # Override because this code was migrated into the base class
+        # And it was written assuming that it was 1v1
+        if self._allowSinglePlayer:
+            self.notify.warning("This team activity doesn't work party-team-activity-single-player config." +
+                " This activity will ignore the config instead.")
+            self._allowSinglePlayer = False
+
+
+    # airecv clsend
     def toonReady(self):
-        avId = self.air.getAvatarIdFromSender()
-        if avId not in self.toonsPlaying:
-            self.notify.debug('Unknown avatar %s tried to become ready!' % avId)
-            return
+        """
+        Clients call this over the wire when they are done reading the rules
+        and are ready to play the activity.
+        """
+        if DistributedPartyTeamActivityAI.toonReady(self):
+            senderId = self.air.getAvatarIdFromSender()
+            self.forceDictList[self.getTeam(senderId)][senderId] = 0.0
 
-        self.toonsPlaying[avId] = True
 
-        if avId in self.teamDict[PartyGlobals.TeamActivityTeam.LEFT]:
-            self.forceDict[PartyGlobals.TeamActivityTeam.LEFT][avId] = 0
-        else:
-            self.forceDict[PartyGlobals.TeamActivityTeam.RIGHT][avId] = 0
+    def startWaitClientsReady(self):
+        self.globalOffset = 0.0
+        self.forceDictList = [{}, {}]
 
-        if self.allToonsReady():
-            self.cancelCountdown()
-            self.balancePlayers()
-            self.setState('Active')
-            taskMgr.doMethodLater(self.DURATION, self.enterConclusion, self.uniqueName('duration'))
+        DistributedPartyTeamActivityAI.startWaitClientsReady(self)
 
-    def setToonsPlaying(self, leftTeamToonIds, rightTeamToonIds):
-        self.sendUpdate('setToonsPlaying', [leftTeamToonIds, rightTeamToonIds])
 
-    def updateToonKeyRate(self, toonId, keyRate):
-        self.sendUpdate('updateToonKeyRate', [toonId, keyRate])
+    def startActive(self):
+        # reset game variables
+        self.toonIdsToKeyRates.clear()
+        self.numToonsReported = 0
+        self.losingTeam = PartyGlobals.TeamActivityNeitherTeam
+        self.endedWithFall = False
 
-    def updateToonPositions(self, offset):
-        self.sendUpdate('updateToonPositions', [offset])
+        DistributedPartyTeamActivityAI.startActive(self)
 
+
+    # clsend airecv
     def reportKeyRateForce(self, keyRate, force):
-        avId = self.air.getAvatarIdFromSender()
-        self.keyRateDict[avId] = keyRate
-        if avId in self.teamDict[PartyGlobals.TeamActivityTeam.LEFT]:
-            self.forceDict[PartyGlobals.TeamActivityTeam.LEFT][avId] = force
-        elif avId in self.teamDict[PartyGlobals.TeamActivityTeam.RIGHT]:
-            self.forceDict[PartyGlobals.TeamActivityTeam.RIGHT][avId] = force
-        self.updateToonKeyRate(avId, keyRate)
-        self.calculateOffset()
-        self.updateToonPositions(self.offset)
+        toonId = self.air.getAvatarIdFromSender()
+        self.toonIdsToKeyRates[toonId] = keyRate
+        # sometimes the game has cleaned up and we get an old update from a client
+        if toonId in self.toonIdsToTeams:
+            self.forceDictList[self.toonIdsToTeams[toonId]][toonId] = force
+
+            # send the keyrate for this toonId to the clients so they can update
+            # the toon's animation (pulling or not)
+            self.sendUpdate("updateToonKeyRate", [toonId, keyRate])
+
+            # send the current position to the clients if we have gotten all the clients forces
+            self.numToonsReported += 1
+            if self.numToonsReported == self.getNumToonsPlaying():
+                self.numToonsReported = 0
+                self.calculateOffset()
+                self.sendUpdate("updateToonPositions", [self.globalOffset])
+
 
     def calculateOffset(self):
-        f = [0, 0]
-        for i in [0, 1]:
-            for x in list(self.forceDict[i].values()):
-                f[i] += x
-        deltaF = f[1] - f[0]
-        deltaX = deltaF * MOVEMENT_MULTIPLIER
-        self.offset += deltaX
-        if self.offset > 32.765:
-            self.offset = 32.765
-        elif self.offset < -32.765:
-            self.offset = -32.765
+        # This function totals the forces on each side of the water.  Then the difference
+        # deltaF, between these forces is computed.  This is multiplied by a constant, kMovement,
+        # to determine what the deltaX should be - i.e. how much the toons on each side should
+        # move as a result of one side applying more force than the other.
+
+        forceTotals = [0.0, 0.0] # left team force, right team force
+        # total up all the toon forces on each side
+        for teamIndex in [0,1]:
+            for x in self.forceDictList[teamIndex].values():
+                forceTotals[teamIndex] += x
+
+        deltaF = forceTotals[1] - forceTotals[0]
+        deltaX = deltaF * PartyGlobals.TugOfWarMovementFactor
+
+        self.globalOffset += deltaX
+
+        # make sure we don't move too far
+        if self.globalOffset > self.MaxAbsGlobalOffset:
+            self.globalOffset = self.MaxAbsGlobalOffset
+        elif self.globalOffset < -self.MaxAbsGlobalOffset:
+            self.globalOffset = -self.MaxAbsGlobalOffset
+
 
     def reportFallIn(self, losingTeam):
-        if not self.state == 'Active':
+        self.notify.debug("reportFallIn( losingTeam=%s )" % PartyGlobals.ETeamActivityTeam(losingTeam).name)
+
+        if losingTeam not in PartyGlobals.ETeamActivityTeam:
+            self.notify.warning("Got an invalid losingTeam value %d" %losingTeam)
             return
 
-        taskMgr.remove(self.uniqueName('duration'))
-        self.fallIn = True
+        # if the losing team has already been reported and this report doesn't match
+        if (self.losingTeam != PartyGlobals.TeamActivityNeitherTeam) and (losingTeam != self.losingTeam):
+            self.notify.warning("Report of %s as the losingTeam doesn't match previously reported value. Ignoring." % PartyGlobals.ETeamActivityTeam(losingTeam).name)
+            return
+
+        curState = self.activityFSM.getCurrentOrNextState()
+        if curState != "Active":
+            # probably late report
+            # must be in active state to go to conclusion
+            self.notify.warning("got reportFallIn but state is %s, ignoring" % curState)
+            return
+
         self.losingTeam = losingTeam
-        self.enterConclusion()
 
-    def enterConclusion(self, task=None):
-        if not self.state == 'Active':
-            if task:
-                return Task.done
-            return
+        if not self.endedWithFall:
+            self.endedWithFall = True
+            self.activityFSM.request("Conclusion")
 
-        self.offset = round(self.offset, 2)
-        if self.losingTeam:
-            self.setState('Conclusion', [self.losingTeam])
-        elif self.offset in (-0.01, 0, 0.01):
-            self.setState('Conclusion', [GAME_TIED])
-        elif self.offset > 0:
-            self.setState('Conclusion', [PartyGlobals.TeamActivityTeam.LEFT])
+
+    def computeMatchResults(self):
+        """
+        Determine jelly bean rewards. If neither team fell in, determine if it
+        was a decisive victory or too close to call (a tie).
+        """
+
+        # This seems like the easiest way to get this bean multiplier in for all these different jelly bean cases
+        beanMultiplier = 1
+        if self.air.holidayManager.isHolidayRunning(ToontownGlobals.JELLYBEAN_DAY):
+            beanMultiplier = PartyGlobals.JellyBeanDayMultiplier
+
+
+        if self.endedWithFall:
+            winningTeam = 1 - self.losingTeam # take advantage of enum nature of PartyGlobals.ETeamActivityTeam
+            for toonId in self.toonIds[winningTeam]:
+                self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.TugOfWarFallInWinReward * beanMultiplier
+            for toonId in self.toonIds[self.losingTeam]:
+                self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.TugOfWarFallInLossReward * beanMultiplier
         else:
-            self.setState('Conclusion', [PartyGlobals.TeamActivityTeam.RIGHT])
-
-        taskMgr.doMethodLater(3, self.processResults, self.uniqueName('awardBeans'))
-        if task:
-            return Task.done
-
-    def processResults(self, task=None):
-        self.getBeansToAward()
-        self.awardBeans()
-        self.cleanup()
-        self.clearGame()
-        if task:
-            return Task.done
-
-    def getBeansToAward(self):
-        if self.fallIn:
-            for avId in self.toonsPlaying:
-                if avId in self.teamDict[self.losingTeam]:
-                    self.rewardDict[int(avId)] = PartyGlobals.TugOfWarFallInLossReward
+            # if there is no obvious winner, check how far the teams moved
+            if abs(self.globalOffset) < PartyGlobals.TugOfWarTieThreshold:
+                # a tie
+                self.losingTeam = PartyGlobals.TeamActivityNeitherTeam
+                for toonId in self.getToonIdsAsList():
+                    self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.TugOfWarTieReward * beanMultiplier
+            else:
+                if self.globalOffset > 0:
+                    # right team wins
+                    self.losingTeam = PartyGlobals.ETeamActivityTeam.LEFT
                 else:
-                    self.rewardDict[int(avId)] = PartyGlobals.TugOfWarFallInWinReward
-        else:
-            self.offset = round(self.offset, 2)
-            for avId in self.toonsPlaying:
-                if self.offset in (-0.01, 0, 0.01):
-                    self.rewardDict[int(avId)] = PartyGlobals.TugOfWarTieReward
-                elif avId in self.teamDict[0]:
-                    if self.offset > 0:
-                        self.rewardDict[int(avId)] = PartyGlobals.TugOfWarWinReward
-                    else:
-                        self.rewardDict[int(avId)] = PartyGlobals.TugOfWarLossReward
-                elif avId in self.teamDict[1]:
-                    if self.offset < 0:
-                        self.rewardDict[int(avId)] = PartyGlobals.TugOfWarWinReward
-                    else:
-                        self.rewardDict[int(avId)] = PartyGlobals.TugOfWarLossReward
-        self.awardBeans()
+                    # left team wins
+                    self.losingTeam = PartyGlobals.ETeamActivityTeam.RIGHT
+                winningTeam = 1 - self.losingTeam # take advantage of enum nature of PartyGlobals.ETeamActivityTeam
+                for toonId in self.toonIds[winningTeam]:
+                    self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.TugOfWarWinReward * beanMultiplier
+                for toonId in self.toonIds[self.losingTeam]:
+                    self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.TugOfWarLossReward * beanMultiplier
 
-    def awardBeans(self):
-        for avId in self.toonsPlaying:
-            av = simbase.air.doId2do.get(avId)
-            if not av:
-                return
-            reward = self.rewardDict[avId]
-            if self.isDoubleJelleybeans():
-                reward *= 2
-            message = PartyTeamActivityRewardMessage % reward
-            self.sendUpdateToAvatarId(avId, 'showJellybeanReward', [reward, av.getMoney(), message])
-            av.addMoney(reward)
 
-    def cleanup(self):
-        self.forceDict = [{}, {}]
-        self.keyRateDict = {}
-        self.rewardDict = {}
-        self.fallIn = False
-        self.losingTeam = None
-        self.offset = 0
-        taskMgr.remove(self.uniqueName('duration'))
-        taskMgr.remove(self.uniqueName('awardBeans'))
+    def getConclusionData(self):
+        return self.losingTeam
+

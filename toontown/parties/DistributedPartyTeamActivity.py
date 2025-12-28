@@ -87,14 +87,14 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def joinRequestDenied(self, reason):
         DistributedPartyActivity.joinRequestDenied(self, reason)
         self.notify.debug('joinRequestDenied')
-        if reason == PartyGlobals.EDenialReasons.Full:
+        if reason == PartyGlobals.EDenialReason.Full:
             self.showMessage(TTLocalizer.PartyTeamActivityTeamFull)
-        elif reason == PartyGlobals.EDenialReasons.Default:
+        elif reason == PartyGlobals.EDenialReason.Default:
             self.showMessage(TTLocalizer.PartyTeamActivityJoinDenied % self.getTitle())
 
     def exitRequestDenied(self, reason):
         DistributedPartyActivity.exitRequestDenied(self, reason)
-        if reason == PartyGlobals.EDenialReasons.Default:
+        if reason == PartyGlobals.EDenialReason.Default:
             self.showMessage(TTLocalizer.PartyTeamActivityExitDenied % self.getTitle())
         if self.isLocalToonPlaying and (self.isState('WaitToStart') or self.isState('WaitForEnough')):
             self.teamActivityGui.enableExitButton()
@@ -108,9 +108,9 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
 
     def switchTeamRequestDenied(self, reason):
         self.notify.debug('switchTeamRequestDenied')
-        if reason == PartyGlobals.EDenialReasons.Full:
+        if reason == PartyGlobals.EDenialReason.Full:
             self.showMessage(TTLocalizer.PartyTeamActivityTeamFull, endState='activity')
-        elif reason == PartyGlobals.EDenialReasons.Default:
+        elif reason == PartyGlobals.EDenialReason.Default:
             self.showMessage(TTLocalizer.PartyTeamActivitySwitchDenied, endState='activity')
         if self.isLocalToonPlaying and (self.isState('WaitToStart') or self.isState('WaitForEnough')) and self._canSwitchTeams:
             self.teamActivityGui.enableSwitchButton()
@@ -208,7 +208,7 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
             switchers = list(set(oldLeftTeam) & set(newRightTeam)) + list(set(oldRightTeam) & set(newLeftTeam))
         else:
             switchers = []
-        for i in range(len(PartyGlobals.TeamActivityTeams)):
+        for i in range(len(PartyGlobals.ETeamActivityTeam)):
             persistentToons = set(oldToonIds[i]) & set(newToonIds[i])
             for toonId in persistentToons:
                 if oldToonIds[i].index(toonId) != newToonIds[i].index(toonId):
@@ -241,7 +241,7 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
         return len(self.toonIds[team])
 
     def getTeam(self, toonId):
-        for i in range(len(PartyGlobals.TeamActivityTeams)):
+        for i in range(len(PartyGlobals.ETeamActivityTeam)):
             if self.toonIds[i].count(toonId) > 0:
                 return i
         else:
@@ -259,12 +259,12 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def _joinLeftTeam(self, collEntry):
         if self.isLocalToonInActivity():
             return
-        self.d_toonJoinRequest(PartyGlobals.TeamActivityTeam.LEFT)
+        self.d_toonJoinRequest(PartyGlobals.ETeamActivityTeam.LEFT)
 
     def _joinRightTeam(self, collEntry):
         if self.isLocalToonInActivity():
             return
-        self.d_toonJoinRequest(PartyGlobals.TeamActivityTeam.RIGHT)
+        self.d_toonJoinRequest(PartyGlobals.ETeamActivityTeam.RIGHT)
 
     def showWaitToStartCountdown(self):
         if self.waitToStartTimestamp is None:

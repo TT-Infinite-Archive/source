@@ -179,10 +179,10 @@ class DistributedPartyCogActivity(DistributedPartyTeamActivity):
         DistributedPartyTeamActivity.startConclusion(self, data)
         if self.isLocalToonPlaying:
             winner = 2
-            if data[PartyGlobals.TeamActivityTeam.LEFT] > data[PartyGlobals.TeamActivityTeam.RIGHT]:
-                winner = PartyGlobals.TeamActivityTeam.LEFT
-            elif data[PartyGlobals.TeamActivityTeam.LEFT] < data[PartyGlobals.TeamActivityTeam.RIGHT]:
-                winner = PartyGlobals.TeamActivityTeam.RIGHT
+            if data[PartyGlobals.ETeamActivityTeam.LEFT] > data[PartyGlobals.ETeamActivityTeam.RIGHT]:
+                winner = PartyGlobals.ETeamActivityTeam.LEFT
+            elif data[PartyGlobals.ETeamActivityTeam.LEFT] < data[PartyGlobals.ETeamActivityTeam.RIGHT]:
+                winner = PartyGlobals.ETeamActivityTeam.RIGHT
             if winner < 2:
                 if self.getTeam(base.localAvatar.doId) == winner:
                     resultsText = TTLocalizer.PartyTeamActivityLocalAvatarTeamWins

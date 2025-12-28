@@ -1,36 +1,63 @@
+#-------------------------------------------------------------------------------
+# Contact: Shawn Patton
+# Created: Sep 2008
+#
+# Purpose: AI side of the party hat which is where toon's go to access public
+#          parties.
+#-------------------------------------------------------------------------------
+
+from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from toontown.parties import PartyGlobals
 
-class DistributedPartyGateAI(DistributedObjectAI):
+class DistributedPartyGateAI(DistributedObjectAI.DistributedObjectAI):
+
     notify = DirectNotifyGlobal.directNotify.newCategory("DistributedPartyGateAI")
 
     def __init__(self, air):
-        DistributedObjectAI.__init__(self, air)
-        self.area = None
-
-    def setArea(self, area):
-        self.area = area
-
-    def getArea(self):
-        return self.area
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
 
     def getPartyList(self, avId):
-        partyManager = simbase.air.partyManager
-        self.sendUpdateToAvatarId(avId, 'listAllPublicParties', [partyManager.getPublicParties()])
+        senderId = self.air.getAvatarIdFromSender()
+        if avId != senderId:
+            self.air.writeServerEvent('suspicious', senderId, 'someone else trying to get a list of public parties for: avId = %d' % avId)
+            return
+        self.sendUpdateToAvatarId(avId, "listAllPublicParties", [self.air.partyManager.getAllPublicParties()])
 
     def partyChoiceRequest(self, avId, shardId, zoneId):
-        # Try to get a spot for them in the party
-        # find partyId
-        party = None
-        pid = 0
-        for partyId in self.air.partyManager.pubPartyInfo:
-            p = self.air.partyManager.pubPartyInfo[partyId]
-            if p.get('shardId', 0) == shardId and p.get('zoneId', 0) == zoneId:
-                party = p
-                pid = partyId
-                break
-        if not party:
-            self.sendUpdateToAvatarId(self.air.getAvatarIdFromSender(), 'partyRequestDenied', [PartyGlobals.EPartyGateDenialReason.UNAVAILABLE])
-            return #dafuq
-        self.air.globalPartyMgr.d_requestPartySlot(pid, self.air.getAvatarIdFromSender(), self.doId)
+        # A toon would like to go to this party.
+        # We need to check if the party still has room and is still going (since
+        # a good bit of time might have passed while they were looking at the
+        # options).
+        DistributedPartyGateAI.notify.debug("partyChoiceRequest : avId = %d, shardId = %d, zoneId = %d " % (avId, shardId, zoneId))
+        senderId = self.air.getAvatarIdFromSender()
+
+        if avId != senderId:
+            self.air.writeServerEvent('suspicious', senderId, 'someone else trying to choose a public party for: avId = %d' % avId)
+            return
+
+        allPublicPartyInfo = self.air.partyManager.getAllPublicParties()
+
+        if len(allPublicPartyInfo) == 0:
+            # there are no parties at all
+            DistributedPartyGateAI.notify.debug("partyChoiceRequest denied as no parties exist")
+            self.sendUpdateToAvatarId(avId, "partyRequestDenied", [PartyGlobals.EPartyGateDenialReason.UNAVAILABLE])
+        else:
+            for partyTuple in allPublicPartyInfo:
+                if partyTuple[0] == shardId and partyTuple[1] == zoneId:
+                    # the specific party they requested has been found
+                    if partyTuple[2] < PartyGlobals.MaxToonsAtAParty:
+                        DistributedPartyGateAI.notify.debug("partyChoiceRequest accepted")
+                        self.sendUpdateToAvatarId(avId, "setParty", [partyTuple])
+                    else:
+                        DistributedPartyGateAI.notify.debug("partyChoiceRequest denied as number at party is %d and max allowed is %d" %(partyTuple[2], PartyGlobals.MaxToonsAtAParty))
+                        self.sendUpdateToAvatarId(avId, "partyRequestDenied", [PartyGlobals.EPartyGateDenialReason.FULL])
+                    break # prevent else clause from running
+            else:
+                # the desired party was not found
+                DistributedPartyGateAI.notify.debug("partyChoiceRequest denied as party could not be found")
+                self.sendUpdateToAvatarId(avId, "partyRequestDenied", [PartyGlobals.EPartyGateDenialReason.UNAVAILABLE])
+
+        # We might want to also send a lane for the toon to use when he walks
+        # through the hat...  if so, we should do a wait of like 3 seconds, and
+        # then free the lane we just sent...
