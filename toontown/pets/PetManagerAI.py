@@ -1,85 +1,387 @@
-from direct.fsm.FSM import FSM
-from . import PetUtil, PetDNA, PetNameGenerator
-from toontown.toonbase import ToontownGlobals
-import time
 import random
-import sys
+import time
+from direct.showbase import DirectObject
+from toontown.toonbase import ToontownGlobals
+from direct.directnotify import DirectNotifyGlobal
+from direct.distributed.ClockDelta import *
+from direct.task import Task
+from direct.showbase.PythonUtil import Functor
+from toontown.pets import PetUtil
+from toontown.pets import PetNameGenerator
+from toontown.pets import DistributedPetAI
 
+class PetManagerAI(DirectObject.DirectObject):
 
-class PetManagerAI:
-    dailyPets = 5
+    notify = DirectNotifyGlobal.directNotify.newCategory("PetManagerAI")
+    notify.setDebug(1)
 
     def __init__(self, air):
         self.air = air
-        self.nameGen = PetNameGenerator.PetNameGenerator()
+        self.serialNum = 0
 
-    def getDayId(self):
-        return int(time.time() // 86400)
+        # this table holds petId->zoneId of pets that have already requested
+        # deletion, but are not yet deleted, that need to show up in a
+        # particular zone
+        self._petsToGenerateAfterDeletion = {}
 
-    def generateSeeds(self):
-        random.seed(self.air.ourChannel + self.getDayId())
-        seeds = [random.randint(0, sys.maxsize) for _ in range(90)]
-        random.shuffle(seeds)
+        # this table holds toonAvId->(estateOwnerId, estateZoneId) for
+        # toons that we have been told are in an estate but have not yet
+        # changed zones to the estate
+        self._toonsPendingEstateArrival = {}
+        # table of avId to list of event names that are being used to
+        # listen for whether or not the toon made it to the estate.
+        self._pendingToonEvents = {}
 
-        self.seeds = {}
-        for hood in (ToontownGlobals.ToontownCentral, ToontownGlobals.DonaldsDock, ToontownGlobals.DaisyGardens,
-                     ToontownGlobals.MinniesMelodyland, ToontownGlobals.TheBrrrgh, ToontownGlobals.DonaldsDreamland):
-            bldgMgr = self.air.buildingManagers.get(hood)
-            if bldgMgr is None:
-                continue
-            petshopBlocks = bldgMgr.getDNABlockLists()[3]
-            petShopBuilding = bldgMgr.getBuilding(petshopBlocks[0])
+    def listenEvents(self):
+        # listen for Toons entering estates
+        self.accept(self.air.estateMgr.getAvEnterEvent(),
+                    self.handleToonEnterEstate)
+        self.accept(self.air.estateMgr.getAvExitEvent(),
+                    self.handleToonExitEstate)
 
-            for npcId in petShopBuilding.npcIds:
-                self.seeds[npcId] = [seeds.pop() for _ in range(self.dailyPets)]
+    def destroy(self):
+        self.__stopGenerateAfterDelete()
+        del self._petsToGenerateAfterDeletion
+        del self._toonsPendingEstateArrival
+        del self._pendingToonEvents
+        self.ignoreAll()
 
-        self.seeds['day'] = self.getDayId()
+    def handleToonEnterEstate(self, avId, ownerId, zoneId):
+        assert(PetManagerAI.notify.debug('toon going to estate: %s %s %s' % (
+            avId, ownerId, zoneId)))
+        toon = simbase.air.doId2do[avId]
+        # is the toon already in the estate zone?
+        if toon.zoneId == zoneId:
+            self._onToonArriveInEstate(avId, ownerId, zoneId)
+        else:
+            self.accept(toon.getLogicalZoneChangeEvent(),
+                        Functor(self._toonChangedZone, avId))
+            self.acceptOnce(self.air.getAvatarExitEvent(avId),
+                            Functor(self._toonDidntMakeItToEstate, avId))
 
-    def getAvailablePets(self, npcId):
-        if self.seeds.get('day', -1) != self.getDayId():
-            self.generateSeeds()
+            self._toonsPendingEstateArrival[avId] = (ownerId, zoneId)
+            self._pendingToonEvents[avId] = [
+                toon.getLogicalZoneChangeEvent(),
+                self.air.getAvatarExitEvent(avId),
+                ]
 
-        seeds = self.seeds.get(npcId, [])
-        while len(seeds) < self.dailyPets:
-            # Generate a new one
-            self.generateNewSeed(npcId)
+    def _cancelToonZoneChangeListen(self, avId):
+        # stop listening/waiting for the toon to go to an estate
+        PetManagerAI.notify.debug('_cancelToonZoneChangeListen: %s' % avId)
+        assert avId in self._toonsPendingEstateArrival
+        assert avId in self._pendingToonEvents
+        for event in self._pendingToonEvents[avId]:
+            self.ignore(event)
+        del self._toonsPendingEstateArrival[avId]
+        del self._pendingToonEvents[avId]
 
-        return self.seeds.get(npcId, [])
+    def _toonDidntMakeItToEstate(self, avId):
+        # we were waiting for this toon to change zones to a particular
+        # estate, but he went away before it could happen
+        assert avId in self._toonsPendingEstateArrival, (
+            '_toonDidntMakeItToEstate: %s not in pending list' % avId)
+        self._cancelToonZoneChangeListen(avId)
 
-    def createNewPetFromSeed(self, avId, seed, dna, traitSeed, nameIndex, gender, safeZoneId):
-        av = self.air.doId2do[avId]
+    def _toonChangedZone(self, avId, newZoneId, oldZoneId):
+        # we're waiting for this toon to enter an estate; he has changed
+        # zones. Check if it's the estate
+        assert avId in self._toonsPendingEstateArrival, (
+            '_toonChangedZone: avId %s not in self._toonsPendingEstateArrival'
+            % avId)
+        ownerId, zoneId = self._toonsPendingEstateArrival[avId]
+        if newZoneId == zoneId:
+            self._cancelToonZoneChangeListen(avId)
+            self._onToonArriveInEstate(avId, ownerId, zoneId)
+        else:
+            PetManagerAI.notify.info('toon changed zones to %s, waiting for '
+                                     'estate zone %s' % (newZoneId, zoneId))
 
-        name = self.nameGen.getName(nameIndex)
+    def _onToonArriveInEstate(self, avId, ownerId, zoneId):
+        assert(PetManagerAI.notify.debug('toon arrived in estate: %s %s %s' % (
+            avId, ownerId, zoneId)))
+        # put the toon into estate mode (for now this is only necessary
+        # when pets are around)
+        toon = simbase.air.doId2do.get(avId)
+        if toon is None:
+            PetManagerAI.notify.warning(
+                'got toonEnterEstate event but Toon %s does not exist' % avId)
+            return
+        toon.enterEstate(ownerId, zoneId)
 
-        head, ears, nose, tail, body, color, cs, eye, _ = dna
-        numGenders = len(PetDNA.PetGenders)
-        gender %= numGenders
-        print(('New pet with dna %s and traitSeed %s was generated by %s.' % (dna, traitSeed, avId)))
-
-        fields = {'setOwnerId' : avId, 'setPetName' : name, 'setTraitSeed' : traitSeed, 'setSafeZone' : safeZoneId,
-                  'setHead' : head, 'setEars' : ears, 'setNose' : nose, 'setTail' : tail, 'setBodyTexture' : body,
-                  'setColor' : color, 'setColorScale' : cs, 'setEyeColor' : eye, 'setGender' : gender}
-
-        def response(doId):
-            if not doId:
-                self.air.notify.warning("Cannot create pet for %s!" % avId)
+        # summon the pets
+        # is this toon the estate owner?
+        if avId == ownerId:
+            # summon every pet that lives in the estate
+            estate = simbase.air.estateMgr.estate.get(ownerId)
+            if estate is None:
+                PetManagerAI.notify.warning(
+                    'got toonEnterEstate but %s\'s estate does not exist' %
+                    ownerId)
                 return
+            petIds = estate.petIds
+        else:
+            # just call up this Toon's pet
+            petIds = [toon.getPetId()]
 
-            self.air.writeServerEvent('bought-pet', avId, doId)
-            av.b_setPetId(doId)
+        for petId in petIds:
+            if petId != 0:
+                if petId not in simbase.air.doId2do:
+                    self.generatePetInZone(petId, zoneId)
+                else:
+                    # pet is already generated; there's a good chance that
+                    # the pet has already requested to be deleted, but is
+                    # still around pending a reply
+                    self.movePetToZone(petId, zoneId)
 
-        self.air.dbInterface.createObject(self.air.dbId, self.air.dclassesByName['DistributedPetAI'],
-                                          {k: (v,) for k,v in list(fields.items())}, response)
+    def handleToonExitEstate(self, avId, ownerId, zoneId):
+        assert(PetManagerAI.notify.debug('handleToonExitEstate: %s %s %s' % (
+            avId, ownerId, zoneId)))
+        if avId in self._toonsPendingEstateArrival:
+            pendOwnerId, pendZoneId = self._toonsPendingEstateArrival[avId]
+            if pendOwnerId != ownerId:
+                PetManagerAI.notify.debug(
+                    "toon pending arrival in %s's estate, not %s's" % (
+                    pendOwnerId, ownerId))
+            elif pendZoneId != zoneId:
+                # zone mismatch??
+                PetManagerAI.notify.warning(
+                    "toon %s going to %s's estate, but in zone %s" % (
+                    pendOwnerId, ownerId, pendZoneId))
+            else:
+                PetManagerAI.notify.debug('cancelling pending toon arrival in '
+                                          'estate zone %s' % zoneId)
+                self._cancelToonZoneChangeListen(avId)
+        else:
+            # take the toon out of estate mode (for now this is only necessary
+            # when pets are around)
+            toon = simbase.air.doId2do.get(avId)
+            if toon is None:
+                PetManagerAI.notify.debug("av %s not in doId2do" % avId)
+            elif toon.isInEstate():
+                PetManagerAI.notify.debug("PetManagerAI - Exit Estate toonId:%s ownerId:%s" %(avId, ownerId))
+                toon.exitEstate(ownerId, zoneId)
+            else:
+                PetManagerAI.notify.warning(
+                    'toon %s already out of estate mode' % avId)
 
-    def generateNewSeed(self, npcId):
-        if len(self.seeds[npcId]) != self.dailyPets:
-            self.seeds[npcId].append(random.randint(0, sys.maxsize))
+    def _getNextSerialNum(self):
+        num = self.serialNum
+        self.serialNum += 1
+        return num
 
-    def deleteToonsPet(self, avId):
-        av = self.air.doId2do[avId]
-        pet = av.getPetId()
-        if pet:
-            if pet in self.air.doId2do:
-                self.air.doId2do[pet].requestDelete()
+    def generatePetInZone(self, petId, zoneId, callback=None):
+        self.air.sendActivate(petId, self.air.districtId, zoneId)
 
-        av.b_setPetId(0)
+        if callback:
+            def generated(pet):
+                callback(pet)
+            self.air.acceptOnce('generate-%d' % petId, generated)
+
+    def movePetToZone(self, petId, zoneId):
+        """call this function to make a pet show up in a particular zone.
+        This correctly handles the following situations:
+        - the pet is not instantiated
+        - the pet is instantiated
+        - the pet has requested deletion and is awaiting a delete
+        """
+        def doGenPetInZone(self, petId, zoneId):
+            self.generatePetInZone(petId, zoneId)
+
+        # if petId not in simbase.air.doId2do:
+        #     simbase.air.requestDeleteDoId(petId)
+        #     doGenPetInZone(self, petId, zoneId)
+        # else:
+        # self.notify.warning(
+        #     'movePetToZone(%s): %s is already in doId2do' % (
+        #     petId, simbase.air.doId2do[petId].__class__.__name__))
+        petDO = simbase.air.doId2do.get(petId)
+        if not petDO:
+            self.notify.warning(f'movePetToZone called, but Pet {petId} doesn\'t exist!')
+        if hasattr(petDO, 'leashMode') and petDO.leashMode:
+            # This pet is on a leash, it'll change zones automatically.
+            self.notify.debug('movePetToZone caled on pet who has a leash, not doing anything.')
+            return
+        if hasattr(petDO,'hasRequestedDelete') and petDO.hasRequestedDelete():
+            self.notify.info('movePetToZone NOT calling requestDelete again')
+        else:
+            if not hasattr(petDO, 'hasRequestedDelete'):
+                self.notify.warning('petDO=%s petId=%s does not have hasRequestedDelete' % (petDO,petId))
+            petDO.requestDelete()
+        self.acceptOnce(simbase.air.getAvatarExitEvent(petId),
+                        Functor(doGenPetInZone, self, petId, zoneId))
+
+    def _addPetToGenerateAfterDeletion(self, petId, zoneId):
+        # call this to cause this pet to be re-generated once it has been
+        # deleted (use this if we need to move a pet to a different zone,
+        # but it has just requested to be deleted)
+        if len(self._petsToGenerateAfterDeletion) == 0:
+            self.__startGenerateAfterDelete()
+        self._petsToGenerateAfterDeletion[petId] = zoneId
+
+    def __getGenAfterDelTask(self):
+        return 'PetManagerAI-doGenerateAfterDelete'
+
+    def __startGenerateAfterDelete(self):
+        # kick off a task to generate pets once they've been deleted
+        taskMgr.add(self.__doGenerateAfterDelete, self.__getGenAfterDelTask())
+
+    def __stopGenerateAfterDelete(self):
+        taskMgr.remove(self.__getGenAfterDelTask())
+
+    def __doGenerateAfterDelete(self, task):
+        # if a pet has been deleted, generate it in the new zone
+        assert len(self._petsToGenerateAfterDeletion) > 0
+        petIds = self._petsToGenerateAfterDeletion.keys()
+        for petId in petIds:
+            if petId not in simbase.air.doId2do:
+                zoneId = self._petsToGenerateAfterDeletion[petId]
+                del self._petsToGenerateAfterDeletion[petId]
+                self.generatePetInZone(petId, zoneId)
+
+        if len(self._petsToGenerateAfterDeletion) == 0:
+            return Task.done
+        return Task.cont
+
+    def getPetObject(self, petId, callback):
+        """get an instance of a pet
+        callback must accept (success, pet)
+        pet is undefined if !success
+
+        On success, pet MUST be instantiated with
+        DistributedObjectAI.generateWithRequiredAndId, using the
+        correct pet doId.
+        """
+        doneEvent = 'readPet-%s' % self._getNextSerialNum()
+        dbo = DatabaseObject.DatabaseObject(
+            self.air, petId, doneEvent=doneEvent)
+        pet = dbo.readPet()
+
+        def handlePetRead(dbo, retCode, callback=callback, pet=pet):
+            success = (retCode == 0)
+            if not success:
+                PetManagerAI.notify.warning('pet DB read failed')
+                pet = None
+            callback(success, pet)
+        self.acceptOnce(doneEvent, handlePetRead)
+
+    def createNewPetObject(self, callback):
+        """ creates a new pet object in the DB """
+        # callback must accept (success, petId)
+        # petId is undefined if !success
+        def handleCreateNewPet(doId, callback=callback):
+            success = (doId != 0)
+            if success:
+                petId = doId
+            else:
+                PetManagerAI.notify.warning('pet creation failed')
+                petId = None
+            callback(success, petId)
+
+        self.air.dbInterface.createObject(self.air.dbId,
+                                          self.air.dclassesByName['DistributedPetAI'],
+                                          {}, handleCreateNewPet)
+
+    def deletePetObject(self, petId):
+        """ USE WITH CAUTION, this could delete any DB record (such as
+        Toons or Houses) """
+        assert petId != 0
+        PetManagerAI.notify.warning('deleting pet %s' % petId)
+        self.air.writeServerEvent('deletePetObject', petId, '')
+        dbo = DatabaseObject.DatabaseObject(self.air, petId)
+        dbo.deleteObject()
+
+    def assignPetToToon(self, petId, toonId):
+        # toon must be logged in
+        # we could deal directly with the database for toons that are not
+        # logged in, but we don't need that for the pet system
+        toon = self.air.doId2do.get(toonId)
+        if toon is None:
+            return 0
+        # we must have already discarded our last pet
+        if toon.getPetId() != 0:
+            oldPetId = toon.getPetId()
+            PetManagerAI.notify.warning(
+                'assignPetToToon: assigning pet %s to toon who already '
+                'has pet %s!' % (petId, oldPetId))
+            self.air.writeServerEvent('errorOverwriteExistingPet', toonId,
+                                      '%s|%s' % (oldPetId, petId))
+        else:
+            self.air.writeServerEvent('assignPet', toonId, '%s' % petId)
+            toon.b_setPetId(petId)
+
+    def createNewPetFromSeed(self, toonId, seed, gender = -1, nameIndex = -1, safeZoneId = ToontownGlobals.ToontownCentral):
+        def handleCreate(success, petId):
+            if success:
+                # We'll create an PetAI object, assign its doId, and set up
+                # the database values.  The DBSS will receive and
+                # set the fields up.
+                pet = DistributedPetAI.DistributedPetAI(self.air)
+                pet.doId = petId
+                name, dna, traitSeed = PetUtil.getPetInfoFromSeed(seed, safeZoneId)
+                if gender != -1:
+                    #make sure the size of the dna array hasn't changed
+                    assert(len(dna) == 9)
+                    dna[8] = gender
+                if nameIndex != -1:
+                    name = PetNameGenerator.PetNameGenerator().getName(nameIndex)
+                pet._initDBVals(toonId, name, traitSeed, dna,
+                                safeZoneId)
+                self.assignPetToToon(petId, toonId)
+                message = '%s|%s|%s|%s|%s' % (
+                    petId, name, pet.getSafeZone(), dna,
+                    pet.traits.getValueList())
+                self.air.writeServerEvent('adoptPet', toonId, message)
+                del pet
+            else:
+                PetManagerAI.notify.warning('error creating pet for %s' % toonId)
+        self.createNewPetObject(handleCreate)
+
+    def deleteToonsPet(self, toonId):
+        """ delete the toon's current pet. Pet objects (like all DB objects)
+        are written to a separate XML file upon deletion. """
+        # toon must be logged in
+        toon = self.air.doId2do.get(toonId)
+        if toon is None:
+            PetManagerAI.notify.warning('deleteToonsPet: %s not logged in!' %
+                                        toonId)
+            return 1
+        curPetId = toon.getPetId()
+        # we have to have a pet to delete a pet
+        if curPetId == 0:
+            PetManagerAI.notify.warning('deleteToonsPet: %s has no pet!' %
+                                        toonId)
+            return 2
+
+        pet = simbase.air.doId2do.get(curPetId)
+        if pet is not None:
+            PetManagerAI.notify.warning('deleteToonsPet: %s has tried to delete a pet that is in memory: %s' %
+                                        (toonId, curPetId))
+            pet.requestDelete()
+
+        self.air.writeServerEvent('deleteToonsPet', toonId, '%s' % curPetId)
+        toon.b_setPetId(0)
+        # self.deletePetObject(curPetId)
+        return 0
+
+    def getAvailablePets(self, numDaysPetAvailable, numPetsPerDay):
+        """
+        This should get called when we first enter the PetChooser.
+        It creates the list of toons that are available here.
+        """
+
+        S = random.getstate()
+
+        curDay = int( time.time() / 60.0 / 60.0 / 24.0 )
+        seedMax = 2 ** 30    #or something like that
+        seeds = []
+
+        #get a seed for each day
+        for i in range(numDaysPetAvailable):
+            random.seed(curDay + i)
+            #get a seed for each pet
+            for j in range(numPetsPerDay):
+                seeds.append( random.randrange(seedMax) )
+
+        random.setstate(S)
+
+        return seeds

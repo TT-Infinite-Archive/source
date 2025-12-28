@@ -89,7 +89,6 @@ class TraitDistribution:
             return 1.0 - self._getTraitPercent(traitValue)
 
     def getQuality(self, traitValue):
-        ETraitQuality = ETraitQuality
         TraitCutoffs = self.TraitCutoffs[self.TraitType]
         percent = self._getTraitPercent(traitValue)
         if self.TraitType is ETraitType.INCREASING:
@@ -258,7 +257,6 @@ class PetTraits:
 
     def getExtremeTraitDescriptions(self):
         descs = []
-        ETraitQuality = ETraitQuality
         Quality2index = {ETraitQuality.VERY_BAD: 0,
          ETraitQuality.BAD: 1,
          ETraitQuality.GOOD: 2,

@@ -133,10 +133,10 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
     def announceZoneChange(self, newZoneId, oldZoneId):
         DistributedPetAI.notify.debug('%s.announceZoneChange: %s->%s' % (self.doId, oldZoneId, newZoneId))
         broadcastZones = list2dict([newZoneId, oldZoneId])
-        self.estateOwnerId = simbase.air.estateManager.getOwnerFromZone(newZoneId)
+        self.estateOwnerId = simbase.air.estateMgr.getOwnerFromZone(newZoneId)
         if self.estateOwnerId:
             self.inEstate = 1
-            self.estateZones = simbase.air.estateManager.getEstateZones(self.estateOwnerId)
+            self.estateZones = simbase.air.estateMgr.getEstateZones(self.estateOwnerId)
         else:
             self.inEstate = 0
             self.estateZones = []
@@ -425,7 +425,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         self.d_setTrickAptitudes(aptitudes)
 
     def d_setTrickAptitudes(self, aptitudes):
-        while len(aptitudes) < len(PetTricks.Tricks) - 1:
+        while len(aptitudes) < len(PetTricks.ETrick) - 1:
             aptitudes.append(0.0)
 
         self.sendUpdate('setTrickAptitudes', [aptitudes])
@@ -433,7 +433,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
     def setTrickAptitudes(self, aptitudes, local = 0):
         if not local:
             DistributedPetAI.notify.debug('setTrickAptitudes: %s' % aptitudes)
-        while len(self.trickAptitudes) < len(PetTricks.Tricks) - 1:
+        while len(self.trickAptitudes) < len(PetTricks.ETrick) - 1:
             self.trickAptitudes.append(0.0)
 
         self.trickAptitudes = aptitudes
@@ -511,7 +511,6 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         self.accept(self.mood.getMoodChangeEvent(), self.handleMoodChange)
         self.mood.start()
         self.brain.start()
-        return
 
     def _isPet(self):
         return 1
@@ -1081,6 +1080,6 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
             self.brain.goalMgr.addGoal(self.leashGoal)
             response = 'leash ON'
         return response
-    
+
     def getAdminAccess(self):
         return 0

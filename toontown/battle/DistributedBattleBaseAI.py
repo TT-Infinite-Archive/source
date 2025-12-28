@@ -17,7 +17,7 @@ from toontown.toonbase import ToontownGlobals
 import random
 from toontown.toon import NPCToons
 from otp.ai.MagicWordGlobal import *
-if ConfigVariableBool('want-pets', False).getValue():
+if ConfigVariableBool('want-pets', True).getValue():
     from toontown.pets.PetDNA import FIELD_LIST
 
 class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBase):

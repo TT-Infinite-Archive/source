@@ -241,9 +241,13 @@ class ToontownAIRepository(ToontownInternalRepository):
         if self.wantFishing:
             self.fishManager = FishManagerAI(self)
         self.bingoMgr = None
+        if self.wantPets:
+            self.petMgr = PetManagerAI(self)
         if self.wantHousing:
             self.estateMgr = EstateManagerAI(self)
             self.estateMgr.generateWithRequired(2)
+            if self.wantPets:
+                self.petMgr.listenEvents()
             self.bankMgr = DistributedBankMgrAI(self)
             self.bankMgr.generateWithRequired(2)
             self.catalogManager = CatalogManagerAI(self)
@@ -252,8 +256,6 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.deliveryManager = self.generateGlobalObject(
                 OTP_DO_ID_TOONTOWN_DELIVERY_MANAGER,
                 'DistributedDeliveryManager')
-        if self.wantPets:
-            self.petMgr = PetManagerAI(self)
         if self.wantRacing:
             self.raceMgr = RaceManagerAI(self)
         if self.wantParties:
@@ -365,10 +367,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         if ConfigVariableBool('want-safe-zones', True).getValue():
             self.notify.info('Creating safe zones...')
             self.createSafeZones()
-
-        if self.wantPets:
-            self.notify.info('Generating Pet seeds...')
-            self.petMgr.generateSeeds()
 
         if ConfigVariableBool('want-cog-headquarters', True).getValue():
             self.notify.info('Creating Cog headquarters...')

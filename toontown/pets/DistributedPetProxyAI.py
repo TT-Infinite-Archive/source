@@ -319,7 +319,7 @@ class DistributedPetProxyAI(DistributedObjectAI.DistributedObjectAI):
         self.d_setTrickAptitudes(aptitudes)
 
     def d_setTrickAptitudes(self, aptitudes):
-        while len(aptitudes) < len(PetTricks.Tricks) - 1:
+        while len(aptitudes) < len(EPetTricks.ETrick) - 1:
             aptitudes.append(0.0)
 
         self.sendUpdate('setTrickAptitudes', [aptitudes])
@@ -327,7 +327,7 @@ class DistributedPetProxyAI(DistributedObjectAI.DistributedObjectAI):
     def setTrickAptitudes(self, aptitudes, local = 0):
         if not local:
             DistributedPetProxyAI.notify.debug('setTrickAptitudes: %s' % aptitudes)
-        while len(self.trickAptitudes) < len(PetTricks.Tricks) - 1:
+        while len(self.trickAptitudes) < len(PetTricks.ETrick) - 1:
             self.trickAptitudes.append(0.0)
 
         self.trickAptitudes = aptitudes

@@ -1,4 +1,3 @@
-from panda3d.core import ConfigVariableDouble
 from .DistributedNPCToonBaseAI import *
 from toontown.toonbase import TTLocalizer
 from direct.task import Task
@@ -11,192 +10,182 @@ class DistributedNPCPetclerkAI(DistributedNPCToonBaseAI):
 
     def __init__(self, air, npcId):
         DistributedNPCToonBaseAI.__init__(self, air, npcId)
+        # Pet clerks are not in the business of giving out quests
         self.givesQuests = 0
         self.busy = 0
-        self.petMgr = self.air.petMgr
-        self.petSeeds = []
-        self.petDNA = []
-        self.petTraitSeeds = []
-        self.safezoneId = None
 
     def delete(self):
         taskMgr.remove(self.uniqueName('clearMovie'))
         self.ignoreAll()
         DistributedNPCToonBaseAI.delete(self)
 
-    def announceGenerate(self):
-        self.safezoneId = ZoneUtil.getCanonicalSafeZoneId(self.zoneId)
-        DistributedNPCToonBaseAI.announceGenerate(self)
-
-    def initializePetData(self):
-        del self.petDNA[:]
-        del self.petTraitSeeds[:]
-
-        # Create a new list object to duplicate the seed for both genders.
-        self.petSeeds = list(self.petMgr.getAvailablePets(self.doId))
-
-        for index, seed in enumerate(self.petSeeds):
-            _, dna, traitSeed = PetUtil.getPetInfoFromSeed(seed, self.safezoneId)
-            self.petDNA.append(dna)
-            self.petTraitSeeds.append(traitSeed)
-
-        numGenders = len(PetDNA.PetGenders)
-        self.petSeeds *= numGenders
-        self.petSeeds.sort()
-
     def avatarEnter(self):
         avId = self.air.getAvatarIdFromSender()
-        if avId not in self.air.doId2do:
-            self.notify.warning('Avatar: %s not found' % avId)
+        # this avatar has come within range
+        assert self.notify.debug("avatar enter " + str(avId))
+
+        if (not avId in self.air.doId2do):
+            self.notify.warning("Avatar: %s not found" % (avId))
             return
 
-        if self.isBusy():
+        if (self.isBusy()):
             self.freeAvatar(avId)
             return
 
-        self.initializePetData()
+        self.petSeeds = simbase.air.petMgr.getAvailablePets(3, 2)
+        # 'fix' pet seeds so there are two of each (female/male)
+        numGenders = len(PetDNA.PetGenders)
+        self.petSeeds *= numGenders
+        self.petSeeds.sort()
+        self.sendUpdateToAvatarId(avId, "setPetSeeds", [self.petSeeds])
 
-        print(('avatarEnter() from av %s. petSeeds= %s' % (avId, self.petSeeds)))
+        self.transactionType = ""
 
-        self.sendUpdateToAvatarId(avId, 'setPetData', [self.petSeeds, self.petDNA, self.petTraitSeeds])
-        self.transactionType = ''
-        self.busy = avId
         av = self.air.doId2do[avId]
-        self.acceptOnce(self.air.getAvatarExitEvent(avId), self.__handleUnexpectedExit, extraArgs=[avId])
+        self.busy = avId
+
+        # Handle unexpected exit
+        self.acceptOnce(self.air.getAvatarExitEvent(avId),
+                        self.__handleUnexpectedExit, extraArgs=[avId])
+
+        # If you have some fish, let the client popup a gui to sell them
         flag = NPCToons.SELL_MOVIE_START
         self.d_setMovie(avId, flag)
-        taskMgr.doMethodLater(PetConstants.PETCLERK_TIMER, self.sendTimeoutMovie, self.uniqueName('clearMovie'))
+        taskMgr.doMethodLater(PetConstants.PETCLERK_TIMER, self.sendTimeoutMovie, self.uniqueName("clearMovie"))
+
         DistributedNPCToonBaseAI.avatarEnter(self)
 
     def rejectAvatar(self, avId):
-        self.notify.warning('rejectAvatar: should not be called by a fisherman!')
+        self.notify.warning("rejectAvatar: should not be called by a pet clerk!")
 
-    def d_setMovie(self, avId, flag, extraArgs = []):
-        self.sendUpdate('setMovie', [flag,
-         self.npcId,
-         avId,
-         extraArgs,
-         ClockDelta.globalClockDelta.getRealNetworkTime()])
+    def d_setMovie(self, avId, flag, extraArgs=[]):
+        # tell the client to popup it's sell/adopt interface
+        self.sendUpdate("setMovie",
+                        [flag,
+                         self.npcId, avId, extraArgs,
+                         ClockDelta.globalClockDelta.getRealNetworkTime()])
 
     def sendTimeoutMovie(self, task):
+        assert self.notify.debug('sendTimeoutMovie()')
+        # The timeout has expired.
         self.d_setMovie(self.busy, NPCToons.SELL_MOVIE_TIMEOUT)
         self.sendClearMovie(None)
         return Task.done
 
     def sendClearMovie(self, task):
+        assert self.notify.debug('sendClearMovie()')
+        # Ignore unexpected exits on whoever I was busy with
         self.ignore(self.air.getAvatarExitEvent(self.busy))
-        taskMgr.remove(self.uniqueName('clearMovie'))
+        taskMgr.remove(self.uniqueName("clearMovie"))
         self.busy = 0
         self.d_setMovie(0, NPCToons.SELL_MOVIE_CLEAR)
         return Task.done
 
     def fishSold(self):
+        assert self.notify.debug('fishSold()')
         avId = self.air.getAvatarIdFromSender()
+
         if self.busy != avId:
-            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.fishSold busy with %s' % self.busy)
-            self.notify.warning('somebody called fishSold that I was not busy with! avId: %s' % avId)
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.fishSold busy with %s' % (self.busy))
+            self.notify.warning("somebody called fishSold that I was not busy with! avId: %s" % avId)
             return
+
         av = simbase.air.doId2do.get(avId)
         if av:
+            # this function sells the fish, clears the tank, and
+            # updates the collection, trophies, and maxhp. One stop shopping!
             trophyResult = self.air.fishManager.creditFishTank(av)
+
             if trophyResult:
                 movieType = NPCToons.SELL_MOVIE_TROPHY
                 extraArgs = [len(av.fishCollection), FishGlobals.getTotalNumFish()]
             else:
                 movieType = NPCToons.SELL_MOVIE_COMPLETE
                 extraArgs = []
+
+            # Send a movie to reward the avatar
             self.d_setMovie(avId, movieType, extraArgs)
-            self.transactionType = 'fish'
+            self.transactionType = "fish"
         self.sendClearMovie(None)
-        return
 
     def petAdopted(self, petNum, nameIndex):
+        assert self.notify.debug('petAdopted()')
         avId = self.air.getAvatarIdFromSender()
+
         if self.busy != avId:
-            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.petAdopted busy with %s' % self.busy)
-            self.notify.warning('somebody called petAdopted that I was not busy with! avId: %s' % avId)
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.petAdopted busy with %s' % (self.busy))
+            self.notify.warning("somebody called petAdopted that I was not busy with! avId: %s" % avId)
             return
 
-        av = simbase.air.doId2do.get(avId)
-        if not av:
-            return
-
-
-        if petNum not in range(0, len(self.petSeeds)):
-            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.petAdopted and no such pet!')
-            self.notify.warning('somebody called petAdopted on a non-existent pet! avId: %s' % avId)
-            return
-
-        seed = self.petSeeds[petNum]
-
-        cost = PetUtil.getPetCostFromSeed(seed, self.safezoneId)
-        cost = int(cost * ConfigVariableDouble('pet-cost-multiplier', 1.0).getValue())
-
-        if cost > av.getTotalMoney():
-            self.air.writeServerEvent('suspicious', avId, "DistributedNPCPetshopAI.petAdopted and toon doesn't have enough money!")
-            self.notify.warning("somebody called petAdopted and didn't have enough money to adopt! avId: %s" % avId)
-            return
-
-        if av.petId != 0:
-            self.petMgr.deleteToonsPet(avId)
-
-        gender = petNum % len(PetDNA.PetGenders)
-        if nameIndex not in range(0, TTLocalizer.PetNameIndexMAX):
-            self.air.writeServerEvent('avoid_crash', avId, "DistributedNPCPetclerkAI.petAdopted and didn't have valid nameIndex!")
-            self.notify.warning("somebody called petAdopted and didn't have valid nameIndex to adopt! avId: %s" % avId)
-            return
-
-        dna = self.petDNA.pop(petNum / len(PetDNA.PetGenders))
-        traitSeed = self.petTraitSeeds.pop(petNum / len(PetDNA.PetGenders))
-        print(('createNewPetFromSeed %s %s %s' % (avId, seed, self.safezoneId)))
-        self.petMgr.createNewPetFromSeed(avId, seed, dna, traitSeed, nameIndex, gender,
-                                         self.safezoneId)
-
-        self.transactionType = 'adopt'
-        bankPrice = min(av.getBankMoney(), cost)
-        walletPrice = cost - bankPrice
-        av.b_setBankMoney(av.getBankMoney() - bankPrice)
-        av.b_setMoney(av.getMoney() - walletPrice)
-        print(('Using up seed %s and petNum %s for av %s.' % (seed, petNum, avId)))
-
-        # Use up current seed
-        self.petMgr.getAvailablePets(self.doId).remove(seed)
-        for i in range(self.petSeeds.count(seed)):
-            self.petSeeds.remove(seed)
-
-        self.petSeeds.sort()
-
-    def petReturned(self):
-        avId = self.air.getAvatarIdFromSender()
-        if self.busy != avId:
-            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.petReturned busy with %s' % self.busy)
-            self.notify.warning('somebody called petReturned that I was not busy with! avId: %s' % avId)
-            return
         av = simbase.air.doId2do.get(avId)
         if av:
-            self.petMgr.deleteToonsPet(avId)
-            self.transactionType = 'return'
+            from toontown.hood import ZoneUtil
+            zoneId = ZoneUtil.getCanonicalSafeZoneId(self.zoneId)
+            # make sure this isn't a suspicious request
+            if not petNum in range(0, len(self.petSeeds)):
+                # hacker?
+                self.air.writeServerEvent('suspicious', avId, "DistributedNPCPetshopAI.petAdopted and no such pet!")
+                self.notify.warning("somebody called petAdopted on a non-existent pet! avId: %s" % avId)
+                return
+            cost = PetUtil.getPetCostFromSeed(self.petSeeds[petNum], zoneId)
+            if cost > av.getTotalMoney():
+                #houston, we have a problem
+                self.air.writeServerEvent('suspicious', avId, "DistributedNPCPetshopAI.petAdopted and toon doesn't have enough money!")
+                self.notify.warning("somebody called petAdopted and didn't have enough money to adopt! avId: %s" % avId)
+                return
+
+            if av.petId != 0:
+                # this function deletes the pet
+                simbase.air.petMgr.deleteToonsPet(avId)
+
+            #create new pet
+            gender = petNum % len(PetDNA.PetGenders)
+            simbase.air.petMgr.createNewPetFromSeed(avId, self.petSeeds[petNum], nameIndex = nameIndex, gender = gender, safeZoneId = zoneId)
+            self.transactionType = "adopt"
+
+            #deduct the money from the toon's account
+            bankPrice = min(av.getBankMoney(), cost)
+            walletPrice = cost - bankPrice
+            av.b_setBankMoney(av.getBankMoney() - bankPrice)
+            av.b_setMoney(av.getMoney() - walletPrice)
+
+    def petReturned(self):
+        assert self.notify.debug('petReturned()')
+        avId = self.air.getAvatarIdFromSender()
+
+        if self.busy != avId:
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.petReturned busy with %s' % (self.busy))
+            self.notify.warning("somebody called petReturned that I was not busy with! avId: %s" % avId)
+            return
+
+        av = simbase.air.doId2do.get(avId)
+        if av:
+            # this function deletes the pet
+            simbase.air.petMgr.deleteToonsPet(avId)
+            self.transactionType = "return"
 
     def transactionDone(self):
         avId = self.air.getAvatarIdFromSender()
+
         if self.busy != avId:
-            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.transactionDone busy with %s' % self.busy)
-            self.notify.warning('somebody called transactionDone that I was not busy with! avId: %s' % avId)
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCPetshopAI.transactionDone busy with %s' % (self.busy))
+            self.notify.warning("somebody called transactionDone that I was not busy with! avId: %s" % avId)
             return
+
         av = simbase.air.doId2do.get(avId)
         if av:
-            if self.transactionType == 'adopt':
+            # Send a movie to say goodbye
+            if self.transactionType == "adopt":
                 self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETADOPTED)
-            elif self.transactionType == 'return':
+            elif self.transactionType == "return":
                 self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETRETURNED)
-            elif self.transactionType == '':
+            elif self.transactionType == "":
                 self.d_setMovie(avId, NPCToons.SELL_MOVIE_PETCANCELED)
+
         self.sendClearMovie(None)
-        return
 
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')
         self.notify.warning('not busy with avId: %s, busy: %s ' % (avId, self.busy))
-        taskMgr.remove(self.uniqueName('clearMovie'))
+        taskMgr.remove(self.uniqueName("clearMovie"))
         self.sendClearMovie(None)
-        return

@@ -70,7 +70,7 @@ want-guilds #f
 want-guild-quests #f
 want-emblems #f
 want-gardening #t
-want-pets #f
+want-pets #t
 
 # Safe zones:
 want-safe-zones #t
