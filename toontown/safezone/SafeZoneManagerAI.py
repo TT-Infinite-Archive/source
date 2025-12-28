@@ -1,23 +1,40 @@
-from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed import DistributedObjectAI
-
-
-HealFrequency = 10.0  # The time in seconds between each Toon-up pulse.
-
+from direct.directnotify import DirectNotifyGlobal
 
 class SafeZoneManagerAI(DistributedObjectAI.DistributedObjectAI):
-    notify = directNotify.newCategory('SafeZoneManagerAI')
+    notify = DirectNotifyGlobal.directNotify.newCategory("SafeZoneManagerAI")
+
+    def __init__(self, air):
+        DistributedObjectAI.DistributedObjectAI.__init__(self, air)
+        # Number of seconds between spontaneous heals
+        self.healFrequency = 10 # seconds
 
     def enterSafeZone(self):
         avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if not av:
-            return
-        av.startToonUp(HealFrequency)
+        # Make sure the avatar exists.
+        if avId in self.air.doId2do:
+            # Find the avatar
+            av = self.air.doId2do[avId]
+            # Start healing them
+            av.startToonUp(self.healFrequency)
+
+        else:
+            self.notify.warning(
+                "Toon " +
+                str(avId) +
+                " isn't here, but just entered the safe zone. " +
+                "I will ignore this."
+                )
+        # Send the "avatar escaped to safezone" message, just in case
+        # there are any battles going on that involve this avatar.
+        event = "inSafezone-%s" % (avId)
+        messenger.send(event)
 
     def exitSafeZone(self):
         avId = self.air.getAvatarIdFromSender()
-        av = self.air.doId2do.get(avId)
-        if not av:
-            return
-        av.stopToonUp()
+        # Make sure the avatar exists.
+        if avId in self.air.doId2do:
+            # Find the avatar
+            av = self.air.doId2do[avId]
+            # Start healing them
+            av.stopToonUp()
