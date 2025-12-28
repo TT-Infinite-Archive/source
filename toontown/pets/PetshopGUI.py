@@ -125,7 +125,7 @@ class PetshopGUI(DirectObject):
             self.checkNames()
             self.letters = []
             for name in self.allNames:
-                if not (name[0:TTLocalizer.PGUIcharLength] in self.letters):
+                if (name[0:TTLocalizer.PGUIcharLength] not in self.letters):
                     self.letters.append(name[0:TTLocalizer.PGUIcharLength])
             self.curLetter = self.letters[0]
             self.curNames = []
