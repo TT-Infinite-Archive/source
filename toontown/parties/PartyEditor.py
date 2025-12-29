@@ -49,9 +49,9 @@ class PartyEditor(FSM, DirectObject):
         isVictory = ToontownGlobals.VICTORY_PARTY_HOLIDAY in holidayIds
         isValentine = ToontownGlobals.VALENTINES_DAY in holidayIds
         for activityId in PartyGlobals.PartyEditorActivityOrder:
-            if not isVictory and activityId in PartyGlobals.VictoryPartyEActivityId or not isWinter and activityId in PartyGlobals.WinterPartyEActivityId or not isValentine and activityId in PartyGlobals.ValentinePartyEActivityId:
+            if not isVictory and activityId in PartyGlobals.VictoryPartyActivityIds or not isWinter and activityId in PartyGlobals.WinterPartyActivityIds or not isValentine and activityId in PartyGlobals.ValentinePartyActivityIds:
                 pass
-            elif isVictory and activityId in PartyGlobals.VictoryPartyReplacementEActivityId or isWinter and activityId in PartyGlobals.WinterPartyReplacementEActivityId or isValentine and activityId in PartyGlobals.ValentinePartyReplacementEActivityId:
+            elif isVictory and activityId in PartyGlobals.VictoryPartyReplacementActivityIds or isWinter and activityId in PartyGlobals.WinterPartyReplacementActivityIds or isValentine and activityId in PartyGlobals.ValentinePartyReplacementActivityIds:
                 pass
             else:
                 pele = PartyEditorListElement(self, activityId)

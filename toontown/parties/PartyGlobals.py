@@ -143,7 +143,7 @@ PartyEditorActivityOrder = [EActivityId.PartyClock,
  EActivityId.PartyTugOfWar,
  EActivityId.PartyCog,
  EActivityId.PartyFireworks]
-UnreleasedEActivityId = (
+UnreleasedActivityIds = (
  # These AIs need to be written before they can be used:
  EActivityId.PartyJukebox,
  EActivityId.PartyJukebox40,
@@ -156,7 +156,7 @@ UnreleasedEActivityId = (
  EActivityId.PartyWinterCatch,
  EActivityId.PartyValentineDance,
  EActivityId.PartyValentineDance20)
-UnreleasedEActivityIdSP = (
+UnreleasedActivityIdsSP = (
  # These AIs need to be written before they can be used:
  EActivityId.PartyJukebox,
  EActivityId.PartyJukebox40,
@@ -176,16 +176,16 @@ MutuallyExclusiveActivities = ((EActivityId.PartyJukebox, EActivityId.PartyJukeb
  (EActivityId.PartyValentineJukebox, EActivityId.PartyValentineJukebox40),
  (EActivityId.PartyDance, EActivityId.PartyDance20),
  (EActivityId.PartyValentineDance, EActivityId.PartyValentineDance20))
-VictoryPartyEActivityId = frozenset([EActivityId.PartyVictoryTrampoline])
-VictoryPartyReplacementEActivityId = frozenset([EActivityId.PartyTrampoline])
-WinterPartyEActivityId = frozenset([EActivityId.PartyWinterCatch, EActivityId.PartyWinterTrampoline, EActivityId.PartyWinterCog])
-WinterPartyReplacementEActivityId = frozenset([EActivityId.PartyCatch, EActivityId.PartyTrampoline, EActivityId.PartyCog])
-ValentinePartyEActivityId = frozenset([EActivityId.PartyValentineDance,
+VictoryPartyActivityIds = frozenset([EActivityId.PartyVictoryTrampoline])
+VictoryPartyReplacementActivityIds = frozenset([EActivityId.PartyTrampoline])
+WinterPartyActivityIds = frozenset([EActivityId.PartyWinterCatch, EActivityId.PartyWinterTrampoline, EActivityId.PartyWinterCog])
+WinterPartyReplacementActivityIds = frozenset([EActivityId.PartyCatch, EActivityId.PartyTrampoline, EActivityId.PartyCog])
+ValentinePartyActivityIds = frozenset([EActivityId.PartyValentineDance,
  EActivityId.PartyValentineDance20,
  EActivityId.PartyValentineJukebox,
  EActivityId.PartyValentineJukebox40,
  EActivityId.PartyValentineTrampoline])
-ValentinePartyReplacementEActivityId = frozenset([EActivityId.PartyDance,
+ValentinePartyReplacementActivityIds = frozenset([EActivityId.PartyDance,
  EActivityId.PartyDance20,
  EActivityId.PartyJukebox,
  EActivityId.PartyJukebox40,

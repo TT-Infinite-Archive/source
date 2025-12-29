@@ -89,9 +89,9 @@ class PartyEditorListElement(DirectButton):
         elif self.isDecoration:
             self.unreleased = id in PartyGlobals.UnreleasedEDecorationId
         elif base.wantSinglePlayer:
-            self.unreleased = id in PartyGlobals.UnreleasedEActivityIdSP
+            self.unreleased = id in PartyGlobals.UnreleasedActivityIdsSP
         else:
-            self.unreleased = id in PartyGlobals.UnreleasedEActivityId
+            self.unreleased = id in PartyGlobals.UnreleasedActivityIds
         return self.unreleased
 
     def adjustForUnreleased(self):
