@@ -27,26 +27,27 @@ class DivingFishSpawn(DirectObject):
 
     def createFish(self, fishcode):
         loadBase = 'phase_4/models/char/'
-        if fishcode is 0:
-            fish = Actor.Actor('phase_4/models/char/clownFish-zero.bam', {'anim': loadBase + 'clownFish-swim.bam'})
-            fish.name = 'clown'
-        elif fishcode is 1:
-            fish = Actor.Actor('phase_4/models/char/PBJfish-zero.bam', {'anim': 'phase_4/models/char/PBJfish-swim.bam'})
-            fish.name = 'pbj'
-        elif fishcode is 2:
-            fish = Actor.Actor('phase_4/models/char/BearAcuda-zero.bam', {'anim': 'phase_4/models/char/BearAcuda-swim.bam'})
-            fish.name = 'bear'
-        elif fishcode is 3:
-            fish = Actor.Actor(loadBase + 'balloonFish-zero.bam', {'anim': loadBase + 'balloonFish-swim.bam'})
-            fish.name = 'balloon'
-        elif fishcode is 4:
-            fish = Actor.Actor(loadBase + 'nurseShark-zero.bam', {'anim': loadBase + 'nurseShark-swim.bam'})
-            fish.name = 'nurse'
-        elif fishcode is 5:
-            fish = Actor.Actor(loadBase + 'pianoTuna-zero.bam', {'anim': loadBase + 'pianoTuna-swim.bam'})
-            fish.name = 'piano'
-        else:
-            return
+        match fishcode:
+            case 0:
+                fish = Actor.Actor('phase_4/models/char/clownFish-zero.bam', {'anim': loadBase + 'clownFish-swim.bam'})
+                fish.name = 'clown'
+            case 1:
+                fish = Actor.Actor('phase_4/models/char/PBJfish-zero.bam', {'anim': 'phase_4/models/char/PBJfish-swim.bam'})
+                fish.name = 'pbj'
+            case 2:
+                fish = Actor.Actor('phase_4/models/char/BearAcuda-zero.bam', {'anim': 'phase_4/models/char/BearAcuda-swim.bam'})
+                fish.name = 'bear'
+            case 3:
+                fish = Actor.Actor(loadBase + 'balloonFish-zero.bam', {'anim': loadBase + 'balloonFish-swim.bam'})
+                fish.name = 'balloon'
+            case 4:
+                fish = Actor.Actor(loadBase + 'nurseShark-zero.bam', {'anim': loadBase + 'nurseShark-swim.bam'})
+                fish.name = 'nurse'
+            case 5:
+                fish = Actor.Actor(loadBase + 'pianoTuna-zero.bam', {'anim': loadBase + 'pianoTuna-swim.bam'})
+                fish.name = 'piano'
+            case _:
+                return
         fish.active = 1
         fish.direction = self.direction
         idCode = self.getUniqueNumber()

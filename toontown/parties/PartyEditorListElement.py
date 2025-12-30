@@ -16,7 +16,7 @@ class PartyEditorListElement(DirectButton):
         self.unreleased = self.calcUnreleased(id)
         self.unavailableTextScale = 1.0
         if self.isDecoration:
-            self.name = TTLocalizer.PartyDecorationNameDict[self.id]['editor']
+            self._name = TTLocalizer.PartyDecorationNameDict[self.id]['editor']
             colorList = ((1.0, 0.0, 1.0, 1.0),
              (0.0, 0.0, 1.0, 1.0),
              (0.0, 1.0, 1.0, 1.0),
@@ -44,7 +44,7 @@ class PartyEditorListElement(DirectButton):
                     geom_pos = (0.0, 0.0, -3.9)
                     scale = Vec3(0.05, 0.0001, 0.05)
         else:
-            self.name = TTLocalizer.PartyActivityNameDict[self.id]['editor']
+            self._name = TTLocalizer.PartyActivityNameDict[self.id]['editor']
             colorList = ((0.0, 0.0, 0.0, 1.0),
              (0.0, 1.0, 0.0, 1.0),
              (1.0, 1.0, 0.0, 1.0),
@@ -66,7 +66,7 @@ class PartyEditorListElement(DirectButton):
         self.defineoptions(kw, optiondefs)
         DirectButton.__init__(self, self.partyEditor.elementList)
         self.initialiseoptions(PartyEditorListElement)
-        self.setName('%sListElement' % self.name)
+        self.setName('%sListElement' % self._name)
         self.setScale(scale)
         self.bind(DirectGuiGlobals.B1PRESS, self.clicked)
         self.bind(DirectGuiGlobals.B1RELEASE, self.released)
@@ -81,7 +81,6 @@ class PartyEditorListElement(DirectButton):
 
         self.activeGridElementIndex = -1
         self.adjustForUnreleased()
-        return
 
     def calcUnreleased(self, id):
         if base.cr.partyManager.allowUnreleasedClient():
@@ -99,22 +98,21 @@ class PartyEditorListElement(DirectButton):
             textScale = self.unavailableTextScale
             unavailable = DirectLabel(parent=self, text=TTLocalizer.PartyPlannerUnavailable, text_scale=textScale, text_fg=(1.0, 0, 0, 1.0), text_shadow=(0, 0, 0, 1), relief=None)
             self['state'] = DirectGuiGlobals.DISABLED
-        return
 
     def clearPartyGrounds(self):
         for gridElement in self.partyEditorGridElements:
             gridElement.removeFromGrid()
 
     def elementSelectedFromList(self):
-        PartyEditorListElement.notify.debug('Element %s clicked' % self.name)
+        PartyEditorListElement.notify.debug('Element %s clicked' % self._name)
         if self.isDecoration:
             self.partyEditor.partyPlanner.elementDescriptionNode.setText(TTLocalizer.PartyDecorationNameDict[self.id]['description'])
             self.partyEditor.partyPlanner.elementPriceNode.setText('%d %s' % (PartyGlobals.DecorationInformationDict[self.id]['cost'], TTLocalizer.PartyPlannerBeans))
-            self.partyEditor.partyPlanner.elementTitleLabel['text'] = self.name
+            self.partyEditor.partyPlanner.elementTitleLabel['text'] = self._name
         else:
             self.partyEditor.partyPlanner.elementDescriptionNode.setText(TTLocalizer.PartyActivityNameDict[self.id]['description'])
             self.partyEditor.partyPlanner.elementPriceNode.setText('%d %s' % (PartyGlobals.ActivityInformationDict[self.id]['cost'], TTLocalizer.PartyPlannerBeans))
-            self.partyEditor.partyPlanner.elementTitleLabel['text'] = self.name
+            self.partyEditor.partyPlanner.elementTitleLabel['text'] = self._name
         self.checkSoldOutAndPaidStatusAndAffordability()
 
     def checkSoldOutAndPaidStatusAndAffordability(self):
@@ -139,7 +137,6 @@ class PartyEditorListElement(DirectButton):
                 return
 
         self.setSoldOut(True)
-        return
 
     def setOffLimits(self):
         self['state'] = DirectGuiGlobals.DISABLED
@@ -171,7 +168,7 @@ class PartyEditorListElement(DirectButton):
             self.partyEditor.partyPlanner.elementBuyButton['state'] = DirectGuiGlobals.DISABLED
 
     def clicked(self, mouseEvent):
-        PartyEditorListElement.notify.debug("Element %s's icon was clicked" % self.name)
+        PartyEditorListElement.notify.debug("Element %s's icon was clicked" % self._name)
         self.partyEditor.listElementClicked()
         for i in range(len(self.partyEditorGridElements)):
             if not self.partyEditorGridElements[i].overValidSquare:
@@ -190,7 +187,7 @@ class PartyEditorListElement(DirectButton):
                     return False
 
     def released(self, mouseEvent):
-        PartyEditorListElement.notify.debug("Element %s's icon was released" % self.name)
+        PartyEditorListElement.notify.debug("Element %s's icon was released" % self._name)
         self.partyEditor.listElementReleased()
         if self.activeGridElementIndex != -1:
             self.partyEditorGridElements[self.activeGridElementIndex].detach(mouseEvent)
@@ -204,4 +201,3 @@ class PartyEditorListElement(DirectButton):
         del self.partyEditorGridElements
         self.partyEditor = None
         DirectButton.destroy(self)
-        return

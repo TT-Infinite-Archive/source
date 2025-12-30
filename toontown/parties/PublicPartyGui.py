@@ -66,21 +66,7 @@ class PublicPartyGui(DirectFrame):
         self.activityList.removeAndDestroyAllItems()
         self.partyStartButton['state'] = DirectGuiGlobals.DISABLED
         sortedList = partyInfoTupleList[:]
-
-        def cmp(left, right):
-            if left[2] < right[2]:
-                return -1
-            elif left[2] == right[2]:
-                if len(left[4]) < len(right[4]):
-                    return -1
-                elif len(left[4]) == len(right[4]):
-                    return 0
-                else:
-                    return 1
-            else:
-                return 1
-
-        sortedList.sort(cmp, reverse=True)
+        sortedList.sort(key=lambda party: (party[2], len(party[4])), reverse=True)
         indexToCut = -1
         for index, partyTuple in enumerate(sortedList):
             numberOfGuests = partyTuple[2]

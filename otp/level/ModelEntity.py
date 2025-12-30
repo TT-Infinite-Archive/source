@@ -49,7 +49,7 @@ class ModelEntity(BasicEntities.NodePathEntity):
                 floor = colNode.find('**/floor')
                 floor2 = floor.copyTo(colNode)
                 floor2.setZ(floor2, -.75)
-            if self.goonHatType is not 'none':
+            if self.goonHatType != 'none':
                 self.goonType = {'hardhat': 'pg',
                  'security': 'sg'}[self.goonHatType]
                 self.hat = self.model
@@ -65,7 +65,6 @@ class ModelEntity(BasicEntities.NodePathEntity):
                 self.model.flattenMedium()
             elif self.flattenType == 'strong':
                 self.model.flattenStrong()
-        return
 
     def setModelPath(self, path):
         self.modelPath = path

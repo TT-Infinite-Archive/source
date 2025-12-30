@@ -628,7 +628,7 @@ class BingoCardGui(DirectFrame):
     #################################################################
     def __indicateMatches(self, bFlipFlop, fish):
         unmarkedMatches = self.getUnmarkedMatches(fish)
-        if len(unmarkedMatches) is 0:
+        if len(unmarkedMatches) == 0:
             return Task.done
 
         if bFlipFlop:
@@ -848,7 +848,7 @@ class BingoCardGui(DirectFrame):
 
     def onMouseEnter(self, event):
         """ the mouse has just entered this entity """
-        if self.gameType['text'] is not "":
+        if self.gameType['text'] != "":
             self.showTutorial(BG.TutorialCard)
 
     def onMouseLeave(self, event):

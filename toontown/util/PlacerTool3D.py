@@ -251,7 +251,7 @@ class PlacerToolSpinner(DirectFrame):
         if self.display is None:
             return
         value = self.display.get()
-        value = re.sub("[^0-9\.-]", "", value)
+        value = re.sub(r"[^0-9\.-]", "", value)
         if value == '':
             value = '000.00'
         elif value == '-':

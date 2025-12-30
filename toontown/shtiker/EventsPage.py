@@ -40,7 +40,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.articleIndexList = None
         self.hostedPartyInfo = None
         self.downloadArticlesInProgress = False
-        return
 
     def load(self):
         self.scrollButtonGui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
@@ -54,7 +53,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.loadCalendarTab()
         self.loadNewsTab()
         self.titleLabel = DirectLabel(parent=self, relief=None, text=TTLocalizer.EventsPageHostTabTitle, text_scale=TTLocalizer.EPtitleLabel, textMayChange=True, pos=self.hostingGui.find('**/myNextParty_text_locator').getPos())
-        return
 
     def loadTabs(self):
         normalColor = (1.0, 1.0, 1.0, 1.0)
@@ -204,7 +202,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             textForActivity = activityName
         else:
             textForActivity = '%s x %d' % (activityName, count)
-        iconString = PartyGlobals.EActivityId.getString(activityBase.activityId)
+        iconString = PartyGlobals.EActivityId(activityBase.activityId).name
         geom = getPartyActivityIcon(self.activityIconsModel, iconString)
         label = DirectLabel(relief=None, geom=geom, geom_scale=0.38, geom_pos=Vec3(0.0, 0.0, -0.17), text=textForActivity, text_scale=TTLocalizer.EPactivityItemLabel, text_align=TextNode.ACenter, text_pos=(-0.01, -0.43), text_wordwrap=7.0)
         return label
@@ -215,7 +213,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
             textForDecoration = decorationName
         else:
             textForDecoration = decorationName + ' x ' + str(count)
-        assetName = PartyGlobals.EDecorationId.getString(decorBase.decorId)
+        assetName = PartyGlobals.EDecorationId(decorBase.decorId).name
         if assetName == 'Hydra':
             assetName = 'StageSummer'
         label = DirectLabel(relief=None, geom=self.decorationModels.find('**/partyDecoration_%s' % assetName), text=textForDecoration, text_scale=TTLocalizer.EPdecorationItemLabel, text_align=TextNode.ACenter, text_pos=(-0.01, -0.43), text_wordwrap=7.0)
@@ -259,8 +257,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             item.setPythonTag('startTime', partyInfo.startTime)
             self.invitationPartyList.addItem(item)
 
-        return
-
     def invitePartyClicked(self, item):
         if item.getPythonTag('partyStatus') == PartyGlobals.EPartyStatus.STARTED:
             self.invitePartyGoButton['state'] = DirectGuiGlobals.NORMAL
@@ -275,7 +271,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.fillInviteActivityList(item.getPythonTag('activityIds'))
         startTime = item.getPythonTag('startTime')
         self.invitationDateTimeLabel['text'] = TTLocalizer.EventsPageInvitedTabTime % (PartyUtils.formatDate(startTime.year, startTime.month, startTime.day), PartyUtils.formatTime(startTime.hour, startTime.minute))
-        return
 
     def fillInviteActivityList(self, activityIds):
         self.invitationActivityList.removeAndDestroyAllItems()
@@ -295,8 +290,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             item = DirectLabel(relief=None, text=textOfActivity, text_align=TextNode.ACenter, text_scale=0.05, text_pos=(0.0, -0.15), geom_scale=0.3, geom_pos=Vec3(0.0, 0.0, 0.07), geom=geom)
             self.invitationActivityList.addItem(item)
 
-        return
-
     def _inviteStartParty(self):
         if self.selectedInvitationItem is None:
             self.invitePartyGoButton['state'] = DirectGuiGlobals.DISABLED
@@ -305,7 +298,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
          'firstStart': False,
          'hostId': self.selectedInvitationItem.getPythonTag('hostId')}
         messenger.send(self.doneEvent)
-        return
 
     def loadHostedPartyInfo(self):
         self.unloadGuests()
@@ -360,7 +352,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.publicButton['state'] = DirectGuiGlobals.DISABLED
         self.privateButton['state'] = DirectGuiGlobals.DISABLED
         self.hostedPartyDisplay.show()
-        return
 
     def checkCanStartHostedParty(self):
         result = True
@@ -388,7 +379,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
          'firstStart': firstStart,
          'hostId': None}
         messenger.send(self.doneEvent)
-        return
 
     def loadGuests(self):
         for partyReplyInfoBase in base.localAvatar.partyReplyInfoBases:
@@ -500,7 +490,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         taskMgr.remove('EventsPageUpdateTask-doLater')
         taskMgr.remove(self.DownloadArticlesTaskName)
         ShtikerPage.ShtikerPage.unload(self)
-        return
 
     def enter(self):
         self.updatePage()
@@ -597,7 +586,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             if not self.gotRssFeed:
                 pass
             self.newsDisplay.show()
-        return
 
     def __setPublicPrivateButton(self):
         if self.isPrivate:
@@ -725,7 +713,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
          self.articleListZorigin + self.articleListFrameSizeZ), frameColor=(0.82, 0.8, 0.75, 1), borderWidth=(0.01, 0.01), numItemsVisible=self.numLinesInTextList, itemMakeFunction=makeButton, forceHeight=itemHeight)
         oldParent = self.articleTextList.decButton.getParent()
         self.newsFrame.find('**/scroll').hide()
-        return
 
     def createArticleIndexList(self):
         self.articleIndexList = DirectScrolledList(parent=self.newsFrame, relief=None, pos=(0, 0, 0), incButton_image=(self.newsFrame.find('**/pageRtUp'),
@@ -740,7 +727,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.newsFrame.find('**/pageLfUp').hide()
         self.newsFrame.find('**/pageLfHover').hide()
         self.articleIndexList['command'] = self.articleIndexChanged
-        return
 
     def articleIndexChanged(self):
         if not self.articleIndexList['items']:
@@ -874,7 +860,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         foo2 = Point3(0, 0, 0)
         self.articleImage.calcTightBounds(foo1, foo2)
         foo3 = self.articleImage.getBounds()
-        return
 
     def displayArticleText(self, articleText):
         playaLabel = DirectLabel(parent=None, relief=None, text_align=TextNode.ALeft, text=articleText, text_scale=0.06, text_wordwrap=13.5)
@@ -894,7 +879,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.articleTextList.decButton.show()
             self.articleTextList.incButton.show()
         playaLabel.destroy()
-        return
 
     def createNewsList(self):
         buttonOffSet = 0.045
