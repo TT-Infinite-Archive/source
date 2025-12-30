@@ -1,6 +1,7 @@
 from panda3d.core import ConfigVariableBool, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
 from direct.distributed.PyDatagram import *
 
+from otp.ai.AIMsgTypes import CONTROL_ADD_POST_REMOVE, CONTROL_MESSAGE
 from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
 from otp.ai.TimeManagerAI import TimeManagerAI
@@ -261,8 +262,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         if self.wantParties:
             self.partyManager = DistributedPartyManagerAI(self)
             self.partyManager.generateWithRequired(2)
-            self.globalPartyMgr = self.generateGlobalObject(
-                OTP_DO_ID_GLOBAL_PARTY_MANAGER, 'GlobalPartyManager')
         if self.wantGroupTracker:
             self.globalGroupTracker = self.generateGlobalObject(
                 OTP_DO_ID_GLOBAL_GROUP_TRACKER, 'GlobalGroupTracker')
@@ -392,6 +391,16 @@ class ToontownAIRepository(ToontownInternalRepository):
         datagram.addServerHeader(
             channelId, self.ourChannel, STATESERVER_OBJECT_SET_AI)
         datagram.addChannel(self.ourChannel)
+        self.send(datagram)
+
+    def addPostSocketClose(self, theMessage):
+        # Time to send a register for channel message to the msgDirector
+        datagram = PyDatagram()    
+        datagram.addInt8(1)
+        datagram.addChannel(CONTROL_MESSAGE)
+        datagram.addUint16(CONTROL_ADD_POST_REMOVE)
+
+        datagram.addBlob(theMessage.getMessage())
         self.send(datagram)
 
     def lookupDNAFileName(self, zoneId: int) -> str:

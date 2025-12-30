@@ -60,6 +60,50 @@ class ToontownInternalRepository(AstronInternalRepository):
     def getAccountIdFromSender(self):
         return int((self.getMsgSender() >> 32) & 0xFFFFFFFF)
 
+    def createDgUpdateToDoId(self, dclassName, fieldName, doId, args,
+                             channelId=None):
+        """
+        channelId can be used as a recipient if you want to bypass the normal
+        airecv, ownrecv, broadcast, etc.  If you don't include a channelId
+        or if channelId == doId, then the normal broadcast options will
+        be used.
+        This is just like sendUpdateToDoId, but just returns
+        the datagram instead of immediately sending it.
+        """
+        result = None
+
+        dclass = self.dclassesByName.get(dclassName+self.dcSuffix)
+
+        assert dclass is not None
+
+        if channelId is None:
+            channelId = doId
+
+        if dclass is not None:
+            dg = dclass.aiFormatUpdate(fieldName, doId, channelId, self.ourChannel, args)
+            result = dg
+
+        return result
+
+    def sendUpdateToDoId(self, dclassName, fieldName, doId, args, channelId=None):
+        """
+        channelId can be used as a recipient if you want to bypass the normal
+        airecv, ownrecv, broadcast, etc.  If you don't include a channelId
+        or if channelId == doId, then the normal broadcast options will
+        be used.
+
+        """
+        dclass = self.dclassesByName.get(dclassName+self.dcSuffix)
+
+        assert dclass is not None
+
+        if channelId is None:
+            channelId = doId
+
+        if dclass is not None:
+            dg = dclass.aiFormatUpdate(fieldName, doId, channelId, self.ourChannel, args)
+            self.send(dg)
+
     def _isValidPlayerLocation(self, parentId, zoneId):
         if zoneId < 1000 and zoneId != 1:
             return False

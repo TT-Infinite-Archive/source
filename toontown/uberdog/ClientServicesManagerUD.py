@@ -868,9 +868,9 @@ class LoadAvatarFSM(AvatarOperationFSM):
         datagram.addChannel(self.target<<32 | self.avId)
         self.csm.air.send(datagram)
 
-        # Tell the Managers as well:
-        globalPartyMgr = self.csm.air.getGlobalObject('GlobalPartyManager')
-        globalPartyMgr.avatarJoined(self.avId)
+        # Tell the Managers that we are online
+        messenger.send('avatarOnline', [self.avId])
+
         guildManager = self.csm.air.getGlobalObject('GuildManager')
         guildManager.toonOnline(
             self.avId, self.avatar.get('setGuildId', [0])[0])

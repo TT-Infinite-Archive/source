@@ -47,12 +47,12 @@ uberdogs:
       id: 4684
       anonymous: false
 
-    - class: TTCodeRedemptionMgr
-      id: 4695
+    - class: DistributedPartyManager
+      id: 4691
       anonymous: false
 
-    - class: GlobalPartyManager
-      id: 4477
+    - class: TTCodeRedemptionMgr
+      id: 4695
       anonymous: false
 
     - class: GuildManager

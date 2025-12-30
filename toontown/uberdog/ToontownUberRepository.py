@@ -1,3 +1,4 @@
+import time
 from panda3d.core import ConfigVariableBool, ConfigVariableList, ConfigVariableString, MultiplexStream, Notify, StreamWriter
 
 from otp.distributed.DistributedDirectoryAI import DistributedDirectoryAI
@@ -9,6 +10,7 @@ if ConfigVariableBool('want-rpc-server', False).getValue():
     from toontown.rpc.ToontownRPCServer import ToontownRPCServer
     from toontown.rpc.ToontownRPCHandler import ToontownRPCHandler
 
+from toontown.parties.ToontownTimeManager import ToontownTimeManager
 
 class ToontownUberRepository(ToontownInternalRepository):
     def __init__(self, baseChannel, serverId):
@@ -42,6 +44,8 @@ class ToontownUberRepository(ToontownInternalRepository):
             self.rpcServer = ToontownRPCServer(
                 endpoint, ToontownRPCHandler(self))
             self.rpcServer.start(useTaskChain=True)
+
+        self.toontownTimeManager = ToontownTimeManager(time.time(), time.time(), globalClock.getRealTime())
 
         globalObjectDefs = ConfigVariableList('generate-global-object')
         for globalObjectDef in globalObjectDefs:
