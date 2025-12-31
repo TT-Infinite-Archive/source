@@ -677,7 +677,7 @@ class PartyPlanner(DirectFrame, FSM):
         elif errorCode == PartyGlobals.EAddPartyErrorCode.VALIDATION_ERROR:
             self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
             confirmRecapText = TTLocalizer.PartyPlannerConfirmationValidationErrorText
-        elif errorCode == PartyGlobals.AddPartyErrorCode.DatabaseError:
+        elif errorCode == PartyGlobals.EAddPartyErrorCode.DATABASE_ERROR:
             self.confirmTitleLabel['text'] = TTLocalizer.PartyPlannerConfirmationErrorTitle
             confirmRecapText = TTLocalizer.PartyPlannerConfirmationDatabaseErrorText
         elif errorCode == PartyGlobals.EAddPartyErrorCode.TOO_MANY_HOSTED_PARTIES:

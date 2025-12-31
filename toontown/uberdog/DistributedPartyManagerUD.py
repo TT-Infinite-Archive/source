@@ -553,7 +553,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         for index, partyId in enumerate(hostedPartyIds):
             if index >= len(hostedParties):
                 self.notify.warning('skipping len(hostedPartyIds)=%d != len(hostedParties)=%d' % (
-                    len(hostedPartyIds, len(hostedParties))))
+                    len(hostedPartyIds), len(hostedParties)))
                 continue
             gotCorrectPartyInfo = True
             partyInfoDict = hostedParties[index]

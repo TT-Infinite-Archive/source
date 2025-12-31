@@ -234,7 +234,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         # Check to see if an activity is used too many times
         for activityId in PartyGlobals.EActivityId:
             if activityId in activitiesUsedDict:
-                if activitiesUsedDict[id] > PartyGlobals.ActivityInformationDict[activityId]["limitPerParty"]:
+                if activitiesUsedDict[activityId] > PartyGlobals.ActivityInformationDict[activityId]["limitPerParty"]:
                     return (False, "Too many of activity %s" % activityId)
 
         # Check for mutually exclusive activities
@@ -529,8 +529,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         return newCost
 
     def getAllPublicParties(self):
-        allParties = self.hostAvIdToAllPartiesInfo.values()
-        allParties.sort()
+        allParties = sorted(self.hostAvIdToAllPartiesInfo.values())
         returnParties = []
         curGmTime = time.time()
         for partyInfo in allParties:
