@@ -160,8 +160,8 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
 
         self.hopOffPositions = [[], []]
         for i in range(1, 5):
-            self.hopOffPositions[PartyGlobals.ETeamActivityTeam.LEFT].append(self.playArea.find('**/leftTeamHopOff%d_locator' % i).getPos())
-            self.hopOffPositions[PartyGlobals.ETeamActivityTeam.RIGHT].append(self.playArea.find('**/rightTeamHopOff%d_locator' % i).getPos())
+            self.hopOffPositions[PartyGlobals.ETeamActivityTeam.LeftTeam].append(self.playArea.find('**/leftTeamHopOff%d_locator' % i).getPos())
+            self.hopOffPositions[PartyGlobals.ETeamActivityTeam.RightTeam].append(self.playArea.find('**/rightTeamHopOff%d_locator' % i).getPos())
 
         for i in range(1, 5):
             pos = self.playArea.find('**/fallenToon%d_locator' % i).getPos()
@@ -460,11 +460,11 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
         self.notify.debug('setUpRopes')
         ropeIndex = 0
         leftToonId = -1
-        if self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT]:
-            leftToonId = self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT][0]
+        if self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam]:
+            leftToonId = self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam][0]
         rightToonId = -1
-        if self.toonIds[PartyGlobals.ETeamActivityTeam.RIGHT]:
-            rightToonId = self.toonIds[PartyGlobals.ETeamActivityTeam.RIGHT][0]
+        if self.toonIds[PartyGlobals.ETeamActivityTeam.RightTeam]:
+            rightToonId = self.toonIds[PartyGlobals.ETeamActivityTeam.RightTeam][0]
         if leftToonId in self.toonIdsToRightHands and rightToonId in self.toonIdsToRightHands:
             self.tugRopes[ropeIndex].setup(3, ((self.toonIdsToRightHands[leftToonId], (0, 0, 0)), (self.root, (0.0, 0.0, 2.5)), (self.toonIdsToRightHands[rightToonId], (0, 0, 0))), [0,
              0,
@@ -474,7 +474,7 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
              1])
             self.tugRopes[ropeIndex].unstash()
             ropeIndex += 1
-        teams = [PartyGlobals.ETeamActivityTeam.LEFT, PartyGlobals.ETeamActivityTeam.RIGHT]
+        teams = [PartyGlobals.ETeamActivityTeam.LeftTeam, PartyGlobals.ETeamActivityTeam.RightTeam]
         for currTeam in teams:
             numToons = len(self.toonIds[currTeam])
             if numToons > 1:
@@ -498,7 +498,7 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
 
     def tightenRopes(self):
         self.notify.debug('tightenRopes')
-        self.tugRopes[0].setup(3, ((self.toonIdsToRightHands[self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT][0]], (0, 0, 0)), (self.toonIdsToRightHands[self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT][0]], (0, 0, 0)), (self.toonIdsToRightHands[self.toonIds[PartyGlobals.ETeamActivityTeam.RIGHT][0]], (0, 0, 0))), [0,
+        self.tugRopes[0].setup(3, ((self.toonIdsToRightHands[self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam][0]], (0, 0, 0)), (self.toonIdsToRightHands[self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam][0]], (0, 0, 0)), (self.toonIdsToRightHands[self.toonIds[PartyGlobals.ETeamActivityTeam.RightTeam][0]], (0, 0, 0))), [0,
          0,
          0,
          1,
@@ -653,7 +653,7 @@ class DistributedPartyTugOfWarActivity(DistributedPartyTeamActivity):
             if toon:
                 curPos = toon.getPos(self.root)
                 team = self.getTeam(toonId)
-                if team == PartyGlobals.ETeamActivityTeam.LEFT and curPos[0] > -2.0 or team == PartyGlobals.ETeamActivityTeam.RIGHT and curPos[0] < 2.0:
+                if team == PartyGlobals.ETeamActivityTeam.LeftTeam and curPos[0] > -2.0 or team == PartyGlobals.ETeamActivityTeam.RightTeam and curPos[0] < 2.0:
                     losingTeam = self.getTeam(toonId)
                     self.throwTeamInWater(losingTeam)
                     self.sendUpdate('reportFallIn', [losingTeam])

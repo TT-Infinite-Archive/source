@@ -1770,7 +1770,7 @@ dclass DistributedPartyActivity : DistributedObject {
   exitRequestDenied(uint8);
   setToonsPlaying(uint32 []) broadcast ram;
   setState(string, int16) broadcast ram;
-  showJellybeanReward(uint8, uint32, string);
+  showJellybeanReward(uint32, uint32, string);
 };
 
 dclass DistributedPartyTeamActivity : DistributedPartyActivity {
@@ -1780,7 +1780,7 @@ dclass DistributedPartyTeamActivity : DistributedPartyActivity {
   setPlayersPerTeam(uint8, uint8) broadcast required;
   setDuration(uint8) broadcast required;
   setCanSwitchTeams(bool) broadcast required;
-  setState(string, int16, uint32 []) broadcast ram;
+  setState(string, int16, uint32) broadcast ram;
   setToonsPlaying(uint32 [0-8], uint32 [0-8]) required broadcast ram;
   setAdvantage(uint16/100);
   switchTeamRequestDenied(uint8);
@@ -1885,9 +1885,8 @@ dclass DistributedPartyCannon : DistributedObject {
 };
 
 dclass DistributedPartyFireworksActivity : DistributedPartyActivity {
-  setEventId(uint8 eventId) required broadcast;
-  setShowStyle(uint8 style) required broadcast;
-  setSongId(uint8 songId) required broadcast;
+  setEventId(uint8) required broadcast;
+  setShowStyle(uint8) required broadcast;
 };
 
 dclass DistributedPartyTrampolineActivity : DistributedPartyActivity {
@@ -2704,7 +2703,7 @@ dclass DistributedPhone : DistributedFurnitureItem {
 };
 
 dclass DistributedFireworkShow : DistributedObject {
-  startShow(uint8, uint8, uint8, int16) broadcast ram;
+  startShow(uint8, uint8, int16) broadcast ram;
   requestFirework(int16/10, int16/10, int16/100, uint8, uint8, uint8) airecv clsend;
   shootFirework(int16/10, int16/10, int16/100, uint8, uint8, uint8) broadcast;
 };

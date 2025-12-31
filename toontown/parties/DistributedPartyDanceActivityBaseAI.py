@@ -19,7 +19,7 @@ class DistributedPartyDanceActivityBaseAI(DistributedPartyActivityAI):
                                             partyDoId,
                                             x, y, h,
                                             activityId,
-                                            PartyGlobals.EActivityTypes.CONTINUOUS)
+                                            PartyGlobals.EActivityType.CONTINUOUS)
         self.toonIdsToHeadings = {} # toon's heading when it joined
         self.dancePatternToAnims = dancePatternToAnims
 

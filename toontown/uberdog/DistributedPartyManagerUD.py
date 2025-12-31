@@ -396,26 +396,10 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         return thresholdTime
 
     def getFormattedPartyInfo(self, partyInfoDict):
-        startTime = partyInfoDict['startTime']
-        endTime = partyInfoDict['endTime']
-        activitiesStr = partyInfoDict['activities']
-        formattedActivities = []
-        for i in xrange(len(activitiesStr) / 4):
-            oneActivity = (ord(activitiesStr[i * 4]),
-                           ord(activitiesStr[i * 4 + 1]),
-                           ord(activitiesStr[i * 4 + 2]),
-                           ord(activitiesStr[i * 4 + 3])
-                           )
-            formattedActivities.append(oneActivity)
-        decorStr = partyInfoDict['decorations']
-        formattedDecors = []
-        for i in xrange(len(decorStr) / 4):
-            oneDecor = (ord(decorStr[i * 4]),
-                        ord(decorStr[i * 4 + 1]),
-                        ord(decorStr[i * 4 + 2]),
-                        ord(decorStr[i * 4 + 3])
-                        )
-            formattedDecors.append(oneDecor)
+        startTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict['startTime'])
+        endTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict['endTime'])
+        activities = partyInfoDict['activities']
+        decorations = partyInfoDict['decorations']
         isPrivate = partyInfoDict['isPrivate']
         inviteTheme = partyInfoDict['inviteTheme']
 
@@ -434,8 +418,8 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             endTime.minute,
             isPrivate,
             inviteTheme,
-            formattedActivities,
-            formattedDecors,
+            activities,
+            decorations,
             partyInfoDict['statusId']
         )
 
@@ -611,13 +595,13 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             )
             return
 
-        if party[0]['statusId'] == PartyGlobals.EPartyStatus.STARTED:
+        if party['statusId'] == PartyGlobals.EPartyStatus.STARTED:
             errorCode = PartyGlobals.EChangePartyFieldErrorCode.ALREADY_STARTED
             self.air.sendUpdateToDoId(
                 "DistributedPartyManager",
                 'changePrivateResponseUdToAi',
                 pmDoId,
-                [party[0]['hostId'], partyId, newPrivateStatus, errorCode],
+                [party['hostId'], partyId, newPrivateStatus, errorCode],
             )
             return
 
@@ -628,7 +612,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             "DistributedPartyManager",
             'changePrivateResponseUdToAi',
             pmDoId,
-            [party[0]['hostId'], partyId, newPrivateStatus, errorCode],
+            [party['hostId'], partyId, newPrivateStatus, errorCode],
         )
 
         # TODO do we need to send out partiesInvitedTo again?
@@ -651,14 +635,12 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             )
 
             return errorCode
-        partyDict = party[0]
         # Check to see if this is a party that has finished
-        if partyDict[
-            "statusId"] == PartyGlobals.EPartyStatus.STARTED and newPartyStatus == PartyGlobals.EPartyStatus.FINISHED:
+        if party["statusId"] == PartyGlobals.EPartyStatus.STARTED and newPartyStatus == PartyGlobals.EPartyStatus.FINISHED:
             # It's over, send word to all the AIs so they can update for their public party gates
-            if partyDict["hostId"] in self.hostAvIdToAllPartiesInfo:
-                self.sendUpdateToAllAis("partyHasFinishedUdToAllAi", [partyDict["hostId"]])
-                del self.hostAvIdToAllPartiesInfo[partyDict["hostId"]]
+            if party["hostId"] in self.hostAvIdToAllPartiesInfo:
+                self.sendUpdateToAllAis("partyHasFinishedUdToAllAi", [party["hostId"]])
+                del self.hostAvIdToAllPartiesInfo[party["hostId"]]
 
         # TODO updateResult is always empty, do we need to verify the update took?
         updateResult = self.partyDb.changePartyStatus(partyId, newPartyStatus)
@@ -666,7 +648,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             "DistributedPartyManager",
             'changePartyStatusResponseUdToAi',
             pmDoId,
-            [partyDict['hostId'], partyId, newPartyStatus, errorCode],
+            [party['hostId'], partyId, newPartyStatus, errorCode],
         )
 
         return errorCode
@@ -696,15 +678,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             # Note: Must make partyInfoDict["startTime"]'s time aware of any
             #       time offsets by creating a new datetime based on it but
             #       using the ToontownTimeManager's serverTimeZone info
-            partyStartTime = partyInfoDict["startTime"]
-            partyStartTime = datetime(
-                partyStartTime.year,
-                partyStartTime.month,
-                partyStartTime.day,
-                partyStartTime.hour,
-                partyStartTime.minute,
-                tzinfo=self.air.toontownTimeManager.serverTimeZone,
-            )
+            partyStartTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict["startTime"])
             curServerDateTime = datetime(
                 curServerDateTime.year,
                 curServerDateTime.month,
@@ -722,15 +696,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                     " startTime = %s, servertime = %s" % (partyStartTime, curServerDateTime))
                 partyFail = True
 
-            partyEndTime = partyInfoDict["endTime"]
-            partyEndTime = datetime(
-                partyEndTime.year,
-                partyEndTime.month,
-                partyEndTime.day,
-                partyEndTime.hour,
-                partyEndTime.minute,
-                tzinfo=self.air.toontownTimeManager.serverTimeZone,
-            )
+            partyEndTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict["endTime"])
             if partyEndTime < curServerDateTime:
                 DistributedPartyManagerUD.notify.debug(
                     "partyInfoOfHostRequestAiToUd : party failed because avatar's party's end time has already passed.")
@@ -766,13 +732,12 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                 xRadius = 60.0
                 yRadius = 80.0
                 for i in range(numActivities):
-                    # these are unsigned 8 bit ints (0-255)
-                    activities += "%s%s%s%s" % (
-                        chr(i),
-                        chr(PartyUtils.convertDistanceToPartyGrid(math.cos(i * circleStep) * xRadius, 0)),
-                        chr(PartyUtils.convertDistanceToPartyGrid(math.sin(i * circleStep) * yRadius, 1)),
-                        chr(PartyUtils.convertDegreesToPartyGrid((i * circleStep * 180) / math.pi + 270.0))
-                    )
+                    activites.append((
+                        i,
+                        PartyUtils.convertDistanceToPartyGrid(math.cos(i * circleStep) * xRadius, 0),
+                        PartyUtils.convertDistanceToPartyGrid(math.sin(i * circleStep) * yRadius, 1),
+                        PartyUtils.convertDegreesToPartyGrid((i * circleStep * 180) / math.pi + 270.0)
+                    ))
                 partyInfoDict = {
                     "partyId": partyId,
                     "hostId": hostId,
@@ -902,18 +867,16 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if errorCode != PartyGlobals.EChangePartyFieldErrorCode.ALL_OK:
             return
         party = self.partyDb.getParty(partyId)
-        partyInfo = party[0]
         activityIds = []
-        for i in range(len(partyInfo["activities"])):
-            if i % 4 == 0:
-                activityIds.append(partyInfo["activities"][i])
+        for activity in party['activities']:
+            activityIds.append(activity[0])
         # we can not rely on globalClock.getRealTime() as that depends on when the process is started
         # and will definitely be different between the uberdog and AI
-        actualStartTime = long(time.time())
-        self.hostAvIdToAllPartiesInfo[partyInfo["hostId"]] = [shardId, zoneId, partyInfo["isPrivate"], 0, hostName,
-                                                              activityIds, actualStartTime, partyId]
+        actualStartTime = int(time.time())
+        self.hostAvIdToAllPartiesInfo[party["hostId"]] = [shardId, zoneId, party["isPrivate"], 0, hostName,
+                                                          activityIds, actualStartTime, partyId]
         self.sendUpdateToAllAis("updateToPublicPartyInfoUdToAllAi",
-                                [partyInfo["hostId"], actualStartTime, shardId, zoneId, partyInfo["isPrivate"], 0,
+                                [party["hostId"], actualStartTime, shardId, zoneId, party["isPrivate"], 0,
                                  hostName, activityIds, partyId])
         self.informInviteesPartyHasStarted(partyId)
 

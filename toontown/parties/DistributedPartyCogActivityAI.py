@@ -135,15 +135,15 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
         # Determine how far the cogs were pushed for every team.
         for distance in self.cogDistances:
             if distance < 0.0:
-                self.score[PartyGlobals.ETeamActivityTeam.LEFT] += abs(PartyCogUtils.getCogDistanceUnitsFromCenter(distance))
+                self.score[PartyGlobals.ETeamActivityTeam.LeftTeam] += abs(PartyCogUtils.getCogDistanceUnitsFromCenter(distance))
             elif distance > 0.0:
-                self.score[PartyGlobals.ETeamActivityTeam.RIGHT] += abs(PartyCogUtils.getCogDistanceUnitsFromCenter(distance))
+                self.score[PartyGlobals.ETeamActivityTeam.RightTeam] += abs(PartyCogUtils.getCogDistanceUnitsFromCenter(distance))
 
         # Determine who won, who lost:
-        if self.score[PartyGlobals.ETeamActivityTeam.LEFT] < self.score[PartyGlobals.ETeamActivityTeam.RIGHT]:
-            self.losingTeam = PartyGlobals.ETeamActivityTeam.LEFT
-        elif self.score[PartyGlobals.ETeamActivityTeam.RIGHT] < self.score[PartyGlobals.ETeamActivityTeam.LEFT]:
-            self.losingTeam = PartyGlobals.ETeamActivityTeam.RIGHT
+        if self.score[PartyGlobals.ETeamActivityTeam.LeftTeam] < self.score[PartyGlobals.ETeamActivityTeam.RightTeam]:
+            self.losingTeam = PartyGlobals.ETeamActivityTeam.LeftTeam
+        elif self.score[PartyGlobals.ETeamActivityTeam.RightTeam] < self.score[PartyGlobals.ETeamActivityTeam.LeftTeam]:
+            self.losingTeam = PartyGlobals.ETeamActivityTeam.RightTeam
         else:
             self.losingTeam = PartyGlobals.TeamActivityNeitherTeam
             self.winningTeam = PartyGlobals.TeamActivityNeitherTeam

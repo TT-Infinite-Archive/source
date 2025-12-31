@@ -18,7 +18,7 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
     notify = directNotify.newCategory("DistributedPartyTrampolineActivityAI")
 
     def __init__(self, air, partyDoId, x, y, h, actId=PartyGlobals.EActivityId.PartyTrampoline):
-        DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, actId, PartyGlobals.EActivityTypes.GUEST_INITIATED)
+        DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, actId, PartyGlobals.EActivityType.GUEST_INITIATED)
 
         self.activityFSM = TrampolineActivityFSM(self)
         # bestHeightInfo is a tuple of toon's name and their height

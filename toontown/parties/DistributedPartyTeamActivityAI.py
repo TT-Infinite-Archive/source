@@ -16,6 +16,7 @@
 # party-team-activity-duration int
 #  How long the Active states lasts in the game
 #===============================================================================
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble
 from direct.distributed import ClockDelta
 
 from toontown.toonbase import TTLocalizer
@@ -48,7 +49,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
             y,
             h,
             activityId,
-            PartyGlobals.EActivityTypes.GUEST_INITIATED,
+            PartyGlobals.EActivityType.GUEST_INITIATED,
             )
         self.notify.debug("__init__")
         
@@ -59,10 +60,10 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         self._conclusionDuration = conclusionDuration
         
         # How long the active state lasts
-        self._duration = simbase.config.GetFloat("party-team-activity-duration", duration)
+        self._duration = ConfigVariableDouble("party-team-activity-duration", duration).getValue()
         
         # How long should it wait for more players before going to the active state
-        self._startDelay = simbase.config.GetFloat("party-team-activity-start-delay", startDelay)
+        self._startDelay = ConfigVariableDouble("party-team-activity-start-delay", startDelay).getValue()
         
         # Should it calculate whether both team have roughly an equal amount of players?
         self._shouldBalanceTeams = balanceTeams
@@ -74,7 +75,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         self._canSwitchTeams = canSwitchTeams
         
         # Do we allow a single player? (This is for testing purposes)
-        self._allowSinglePlayer = simbase.config.GetBool("party-team-activity-single-player", False)
+        self._allowSinglePlayer = ConfigVariableBool("party-team-activity-single-player", False).getValue()
         
         self.toonIds = (
             [], # doIds of toons on the left team, ordered from those nearest the water to those furthest
@@ -184,7 +185,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         
         self.notify.debug("removeAllToons")
         
-        for team in (PartyGlobals.ETeamActivityTeam.LEFT, PartyGlobals.ETeamActivityTeam.RIGHT, ):
+        for team in (PartyGlobals.ETeamActivityTeam.LeftTeam, PartyGlobals.ETeamActivityTeam.RightTeam, ):
             toonIds = list(self.toonIds[team])[:]
             self.notify.debug("initial toonIds for team %s = %s" % (team,toonIds))
             
@@ -201,8 +202,8 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         Makes the teams roughly have the same number of toons.
         """
         # We assume that the left team is smaller, but later make the correction
-        smallerTeam = PartyGlobals.ETeamActivityTeam.LEFT
-        largerTeam = PartyGlobals.ETeamActivityTeam.RIGHT
+        smallerTeam = PartyGlobals.ETeamActivityTeam.LeftTeam
+        largerTeam = PartyGlobals.ETeamActivityTeam.RightTeam
         
         # If number of players in one team vs the other is more than 1
         if abs(len(self.toonIds[smallerTeam]) - len(self.toonIds[largerTeam])) > 1:
@@ -237,8 +238,8 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         """
         self.resetAdvantage() # For good measure
         
-        smallerTeam = PartyGlobals.ETeamActivityTeam.LEFT
-        largerTeam = PartyGlobals.ETeamActivityTeam.RIGHT
+        smallerTeam = PartyGlobals.ETeamActivityTeam.LeftTeam
+        largerTeam = PartyGlobals.ETeamActivityTeam.RightTeam
         
         if len(self.toonIds[smallerTeam]) == 0 or len(self.toonIds[largerTeam]) == 0:
             return
@@ -753,21 +754,21 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
             true if there are enough players for starting the game.
         """
         if self._allowSinglePlayer:
-            return (len(self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT]) >= 1 or
-                len(self.toonIds[PartyGlobals.ETeamActivityTeam.RIGHT]) >= 1)
+            return (len(self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam]) >= 1 or
+                len(self.toonIds[PartyGlobals.ETeamActivityTeam.RightTeam]) >= 1)
             
         elif self._shouldBalanceTeams:
             # This activity has enough players if the number of players on any side
             # is enough to create two teams.
             # The teams are balanced before right before the game starts.
             return (
-                (len(self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT]) +
-                len(self.toonIds[PartyGlobals.ETeamActivityTeam.RIGHT])) >=
+                (len(self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam]) +
+                len(self.toonIds[PartyGlobals.ETeamActivityTeam.RightTeam])) >=
                 (self._minPlayersPerTeam * 2)
                 )
 
-        return (len(self.toonIds[PartyGlobals.ETeamActivityTeam.LEFT]) >= self._minPlayersPerTeam and
-                len(self.toonIds[PartyGlobals.ETeamActivityTeam.RIGHT]) >= self._minPlayersPerTeam) 
+        return (len(self.toonIds[PartyGlobals.ETeamActivityTeam.LeftTeam]) >= self._minPlayersPerTeam and
+                len(self.toonIds[PartyGlobals.ETeamActivityTeam.RightTeam]) >= self._minPlayersPerTeam) 
 
             
     def computeMatchResults(self):

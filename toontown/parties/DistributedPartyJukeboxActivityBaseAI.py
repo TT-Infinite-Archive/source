@@ -22,7 +22,7 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
                                             partyDoId,
                                             x, y, h,
                                             actId,
-                                            PartyGlobals.EActivityTypes.CONTINUOUS
+                                            PartyGlobals.EActivityType.CONTINUOUS
                                             )
 
         # Holds the list of songs requested by each avatar.

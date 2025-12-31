@@ -11,7 +11,7 @@ from toontown.minigame.OrthoDrive import OrthoDrive
 from toontown.minigame.OrthoWalk import OrthoWalk
 from toontown.parties.activityFSMs import DanceActivityFSM
 
-from toontown.parties.PartyGlobals import DancePatternToAnims, DanceAnimToName
+from toontown.parties.PartyGlobals import EActivityType, DancePatternToAnims, DanceAnimToName
 from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
 from toontown.parties.PartyDanceActivityToonFSM import PartyDanceActivityToonFSM
 from toontown.parties.PartyDanceActivityToonFSM import EToonDancingState

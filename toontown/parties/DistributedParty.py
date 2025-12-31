@@ -69,8 +69,8 @@ class DistributedParty(DistributedObject.DistributedObject):
         ]
 
         def fillGrid(x, y, size):
-            for i in range(-size[1] / 2 + 1, size[1] / 2 + 1):
-                for j in range(-size[0] / 2 + 1, size[0] / 2 + 1):
+            for i in range(-size[1] // 2 + 1, size[1] // 2 + 1):
+                for j in range(-size[0] // 2 + 1, size[0] // 2 + 1):
                     self.grid[i + y][j + x] = False
 
         for activityBase in self.partyInfo.activityList:

@@ -37,7 +37,7 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
             y,
             h,
             PartyGlobals.EActivityId.PartyFireworks,
-            PartyGlobals.EActivityTypes.HOST_INITIATED,
+            PartyGlobals.EActivityType.HOST_INITIATED,
         )
         self.eventId = eventId
         self.showStyle = showStyle

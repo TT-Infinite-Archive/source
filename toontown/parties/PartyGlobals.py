@@ -602,8 +602,8 @@ FireworksFinishedEvent = 'PartyFireworksFinished'
 FireworksTransitionToDisabledDelay = 3.0
 
 class ETeamActivityTeam(enum.IntEnum):
-    LEFT = 0
-    RIGHT = 1
+    LeftTeam = 0
+    RightTeam = 1
 
 TeamActivityNeitherTeam = 3
 TeamActivityTextScale = 0.135
@@ -825,7 +825,7 @@ DanceReverseLoopAnims = ['left',
  'down',
  'good-putt']
 
-class EToonDancingState(enum.Enum):
+class EToonDancingState(enum.IntEnum):
     Init = 0
     DanceMove = 1
     Run = 2

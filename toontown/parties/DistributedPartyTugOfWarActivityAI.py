@@ -179,10 +179,10 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
             else:
                 if self.globalOffset > 0:
                     # right team wins
-                    self.losingTeam = PartyGlobals.ETeamActivityTeam.LEFT
+                    self.losingTeam = PartyGlobals.ETeamActivityTeam.LeftTeam
                 else:
                     # left team wins
-                    self.losingTeam = PartyGlobals.ETeamActivityTeam.RIGHT
+                    self.losingTeam = PartyGlobals.ETeamActivityTeam.RightTeam
                 winningTeam = 1 - self.losingTeam # take advantage of enum nature of PartyGlobals.ETeamActivityTeam
                 for toonId in self.toonIds[winningTeam]:
                     self.toonIdsToJellybeanRewards[toonId] = PartyGlobals.TugOfWarWinReward * beanMultiplier

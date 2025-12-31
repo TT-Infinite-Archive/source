@@ -32,7 +32,7 @@ class DistributedPartyCatchActivityAI(DistributedPartyActivityAI, DistributedPar
             self.caughtList = [0,] * 20
 
     def __init__(self, air, partyDoId, x, y, h):
-        DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, PartyGlobals.EActivityId.PartyCatch, PartyGlobals.EActivityTypes.HOST_INITIATED)
+        DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, PartyGlobals.EActivityId.PartyCatch, PartyGlobals.EActivityType.HOST_INITIATED)
         self.toonIdsToScores = {}
         # create state machine and set initial state
         self.activityFSM = CatchActivityFSM(self)

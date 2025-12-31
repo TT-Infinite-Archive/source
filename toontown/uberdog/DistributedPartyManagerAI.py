@@ -770,11 +770,11 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         if toon:
             hostedParties = toon.hostedParties
             for partyInfo in hostedParties:
-                # it must not be cancelle or finished
+                # it must not be cancelled or finished
                 if partyInfo.status in (PartyGlobals.EPartyStatus.CANCELLED,
                                         PartyGlobals.EPartyStatus.FINISHED):
                     continue
-                curServerTime = self.air.toontownTimeManager.getCurServerDateTimeForComparison()
+                curServerTime = self.air.toontownTimeManager.getCurServerDateTime()
                 if curServerTime < partyInfo.startTime:
                     # the party is still in the future
                     continue

@@ -259,12 +259,12 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def _joinLeftTeam(self, collEntry):
         if self.isLocalToonInActivity():
             return
-        self.d_toonJoinRequest(PartyGlobals.ETeamActivityTeam.LEFT)
+        self.d_toonJoinRequest(PartyGlobals.ETeamActivityTeam.LeftTeam)
 
     def _joinRightTeam(self, collEntry):
         if self.isLocalToonInActivity():
             return
-        self.d_toonJoinRequest(PartyGlobals.ETeamActivityTeam.RIGHT)
+        self.d_toonJoinRequest(PartyGlobals.ETeamActivityTeam.RightTeam)
 
     def showWaitToStartCountdown(self):
         if self.waitToStartTimestamp is None:
