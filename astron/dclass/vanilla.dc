@@ -1194,7 +1194,7 @@ dclass DistributedPartyGate : DistributedObject {
   partyChoiceRequest(uint32, uint64, uint64) airecv clsend;
   listAllPublicParties(publicPartyInfo []);
   partyRequestDenied(uint8);
-  setParty(publicPartyInfo, uint32 hostId);
+  setParty(publicPartyInfo);
 };
 
 dclass DistributedTrolley : DistributedObject {

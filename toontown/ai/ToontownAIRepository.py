@@ -1,7 +1,6 @@
 from panda3d.core import ConfigVariableBool, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
 from direct.distributed.PyDatagram import *
 
-from otp.ai.AIMsgTypes import CONTROL_ADD_POST_REMOVE, CONTROL_MESSAGE
 from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
 from otp.ai.TimeManagerAI import TimeManagerAI
@@ -9,6 +8,7 @@ from otp.ai import BanManagerAI
 from otp.distributed.OtpDoGlobals import *
 from otp.friends.FriendManagerAI import FriendManagerAI
 from otp.ai.CrashLogManagerAI import CrashLogManagerAI
+from toontown.ai.ToontownAIMsgTypes import CONTROL_ADD_POST_REMOVE, CONTROL_MESSAGE, PARTY_MANAGER_UD_TO_ALL_AI
 from toontown.ai.AchievementsManagerAI import AchievementsManagerAI
 from toontown.fishing.FishManagerAI import FishManagerAI
 from toontown.ai.HolidayManagerAI import HolidayManagerAI
@@ -828,3 +828,24 @@ class ToontownAIRepository(ToontownInternalRepository):
                     leaderBoards += result
 
         return leaderBoards
+
+    def handleDatagram(self, di):
+        msgType = self.getMsgType()
+        # Handle Toontown specific message types
+        # before calling the base class
+        if msgType == PARTY_MANAGER_UD_TO_ALL_AI:
+            self.__handlePartyManagerUdToAllAi(di)
+        else:
+            ToontownInternalRepository.handleDatagram(self, di)
+
+    def __handlePartyManagerUdToAllAi(self, di):
+        """
+        Send all msgs of this type to the party manager on our District.
+        """
+        do = self.partyManager
+        if do:
+            globalId = di.getUint32()
+            if globalId != OTP_DO_ID_TOONTOWN_PARTY_MANAGER:
+                self.notify.error(f'__handlePartyManagerUdToAllAi(): globalId={globalId}, not equal to {OTP_DO_ID_TOONTOWN_PARTY_MANAGER}')
+            # Let the dclass finish the job
+            do.dclass.receiveUpdate(do, di)

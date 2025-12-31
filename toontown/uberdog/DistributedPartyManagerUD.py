@@ -37,7 +37,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
 
         # The uberdog has the database, and knows when every party in every shard
         # is allowed to start, or rather, when the 'go' button is activated. So,
-        # every 15 minutes (parties can only start on increments of 15 minutes)
+        # every 5 minutes (parties can only start on increments of 5 minutes)
         # we'll check and see what parties are allowed to start and make the calls
         # to enable their go buttons.  We'll do the 1st check a minute in...
         taskMgr.doMethodLater(60, self._checkForPartiesStarting, "DistributedPartyManagerUD_checkForPartiesStarting")
@@ -766,7 +766,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         )
 
     def _checkForPartiesStarting(self, task):
-        """ Called every 15 minutes to alert hosts to parties that can start """
+        """ Called every 5 minutes to alert hosts to parties that can start """
         DistributedPartyManagerUD.notify.debug("_checkForPartiesStarting : Checking for parties starting...")
         curServerDateTime = self.air.toontownTimeManager.getCurServerDateTime()
         # force started parties to finished if they've gone for for too long
