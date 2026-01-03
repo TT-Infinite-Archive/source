@@ -12,6 +12,7 @@ from toontown.uberdog.ToontownInviteDatabaseUD import ToontownInviteDatabaseUD
 from toontown.ai.ToontownAIMsgTypes import PARTY_MANAGER_UD_TO_ALL_AI
 from datetime import timedelta  # Used for testing, to create random test party
 from datetime import datetime  # Used for testing, to create random test party
+from datetime import UTC
 
 
 class DistributedPartyManagerUD(DistributedObjectGlobalUD):
@@ -301,7 +302,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
 
         futurePendingParties = self.partyDb.getPrioritizedParties( \
             partyIds,
-            thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+            thresholdTime,
             limit,
             future=True,
             cancelled=False)
@@ -313,7 +314,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if slotsLeft > 0:
             futureCancelledParties = self.partyDb.getPrioritizedParties( \
                 partyIds,
-                thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+                thresholdTime,
                 slotsLeft,
                 future=True,
                 cancelled=True)
@@ -324,7 +325,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if slotsLeft > 0:
             pastFinishedParties = self.partyDb.getPrioritizedParties( \
                 partyIds,
-                thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+                thresholdTime,
                 slotsLeft,
                 future=False,
                 cancelled=False)
@@ -335,7 +336,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if slotsLeft > 0:
             pastCancelledParties = self.partyDb.getPrioritizedParties( \
                 partyIds,
-                thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+                thresholdTime,
                 slotsLeft,
                 future=False,
                 cancelled=True)
@@ -386,18 +387,18 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         )
 
     def getThresholdTime(self):
-        """Return the server threshold time for high priority parties."""
+        """Return the utc threshold time for high priority parties."""
         # Some parties could have started recently.
-        # threshold time, let's get the current server time, subtract default party time
+        # threshold time, let's get the current utc time, subtract default party time
         # and then subtract it again to get the threshold
-        thresholdTime = self.air.toontownTimeManager.getCurServerDateTime()
+        thresholdTime = self.air.toontownTimeManager.getCurUtcDateTime()
         thresholdTime += timedelta(hours=-(2 * PartyGlobals.DefaultPartyDuration))
 
         return thresholdTime
 
     def getFormattedPartyInfo(self, partyInfoDict):
-        startTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict['startTime'])
-        endTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict['endTime'])
+        startTime = self.air.toontownTimeManager.convertToToontownTime(partyInfoDict['startTime'])
+        endTime = self.air.toontownTimeManager.convertToToontownTime(partyInfoDict['endTime'])
         activities = partyInfoDict['activities']
         decorations = partyInfoDict['decorations']
         isPrivate = partyInfoDict['isPrivate']
@@ -435,7 +436,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
 
         futurePendingParties = self.partyDb.getHostPrioritizedParties( \
             hostId,
-            thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+            thresholdTime,
             limit,
             future=True,
             cancelled=False)
@@ -447,7 +448,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if slotsLeft > 0:
             futureCancelledParties = self.partyDb.getHostPrioritizedParties( \
                 hostId,
-                thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+                thresholdTime,
                 slotsLeft,
                 future=True,
                 cancelled=True)
@@ -458,7 +459,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if slotsLeft > 0:
             pastFinishedParties = self.partyDb.getHostPrioritizedParties( \
                 hostId,
-                thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+                thresholdTime,
                 slotsLeft,
                 future=False,
                 cancelled=False)
@@ -469,7 +470,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         if slotsLeft > 0:
             pastCancelledParties = self.partyDb.getHostPrioritizedParties( \
                 hostId,
-                thresholdTime.strftime("%Y-%m-%d %H:%M:%S"),
+                thresholdTime,
                 slotsLeft,
                 future=False,
                 cancelled=True)
@@ -496,6 +497,8 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         formattedPartiesSize = 0
         for partyInfoDict in hostedParties:
             if partyInfoDict['startTime'] and partyInfoDict['endTime']:
+                partyInfoDict['startTime'] = partyInfoDict['startTime'].replace(tzinfo=UTC)
+                partyInfoDict['endTime'] = partyInfoDict['endTime'].replace(tzinfo=UTC)
 
                 formattedPartyInfo = self.getFormattedPartyInfo(partyInfoDict)
                 partyInfoSize = self._getPartyInfoSize(formattedPartyInfo)
@@ -672,36 +675,30 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                 "partyInfoOfHostRequestAiToUd : party failed because avatar is not hosting any parties.")
             partyFail = True
         else:
-            curServerDateTime = self.air.toontownTimeManager.getCurServerDateTime()
+            curUtcDateTime = self.air.toontownTimeManager.getCurUtcDateTime()
             partyInfoDict = hostedParties[0]
             # Check to see if this party's startTime is before the current time
-            # Note: Must make partyInfoDict["startTime"]'s time aware of any
-            #       time offsets by creating a new datetime based on it but
-            #       using the ToontownTimeManager's serverTimeZone info
-            partyStartTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict["startTime"])
-            curServerDateTime = datetime(
-                curServerDateTime.year,
-                curServerDateTime.month,
-                curServerDateTime.day,
-                curServerDateTime.hour,
-                curServerDateTime.minute,
-                tzinfo=self.air.toontownTimeManager.serverTimeZone,
-            )
-            if partyStartTime <= curServerDateTime:
+            # Note: Must make partyInfoDict["startTime"]'s time aware of
+            #       any time offsets by defining a new datetime based on it
+            #       but using UTC timezone info.
+            partyInfoDict["startTime"] = partyInfoDict["startTime"].replace(tzinfo=UTC)
+            partyStartTime = partyInfoDict["startTime"]
+            if partyStartTime <= curUtcDateTime:
                 pass
             else:
                 DistributedPartyManagerUD.notify.debug(
                     "partyInfoOfHostRequestAiToUd : party failed because avatar's party's start time has not passed yet.")
                 DistributedPartyManagerUD.notify.debug(
-                    " startTime = %s, servertime = %s" % (partyStartTime, curServerDateTime))
+                    " startTime = %s, utctime = %s" % (partyStartTime, curUtcDateTime))
                 partyFail = True
 
-            partyEndTime = self.air.toontownTimeManager.convertStrToToontownTime(partyInfoDict["endTime"])
-            if partyEndTime < curServerDateTime:
+            partyInfoDict["endTime"] = partyInfoDict["endTime"].replace(tzinfo=UTC)
+            partyEndTime = partyInfoDict["endTime"]
+            if partyEndTime < curUtcDateTime:
                 DistributedPartyManagerUD.notify.debug(
                     "partyInfoOfHostRequestAiToUd : party failed because avatar's party's end time has already passed.")
                 DistributedPartyManagerUD.notify.debug(
-                    " endTime = %s, servertime = %s" % (partyEndTime, curServerDateTime))
+                    " endTime = %s, utctime = %s" % (partyEndTime, curUtcDateTime))
                 partyFail = True
 
         if partyFail:
@@ -718,9 +715,9 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             else:
                 # We're allowed to create random parties for testing purposes
                 # We'll base the partyId on the current time...
-                curServerDateTime = self.air.toontownTimeManager.getCurServerDateTime()
+                curUtcDateTime = self.air.toontownTimeManager.getCurUtcDateTime()
                 partyDuration = timedelta(hours=PartyGlobals.DefaultPartyDuration)
-                endTime = curServerDateTime + partyDuration
+                endTime = curUtcDateTime + partyDuration
                 partyId = int(time.time())
                 partyId = int(str(partyId)[1:])
                 DistributedPartyManagerUD.notify.debug(
@@ -741,8 +738,8 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                 partyInfoDict = {
                     "partyId": partyId,
                     "hostId": hostId,
-                    "startTime": curServerDateTime,  # .strftime("%Y-%m-%d %H:%M:%S"),
-                    "endTime": endTime,  # .strftime("%Y-%m-%d %H:%M:%S"),
+                    "startTime": curUtcDateTime,
+                    "endTime": endTime,
                     "isPrivate": False,
                     "inviteTheme": 0,
                     "activities": activities,
@@ -768,13 +765,13 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
     def _checkForPartiesStarting(self, task):
         """ Called every 5 minutes to alert hosts to parties that can start """
         DistributedPartyManagerUD.notify.debug("_checkForPartiesStarting : Checking for parties starting...")
-        curServerDateTime = self.air.toontownTimeManager.getCurServerDateTime()
+        curUtcDateTime = self.air.toontownTimeManager.getCurUtcDateTime()
         # force started parties to finished if they've gone for for too long
         self.forceFinishedForStarted()
         # first mark as never started parties who went past the end time
         self.forceNeverStartedForCanStart()
 
-        partiesStartingTuples = self.partyDb.getPartiesAvailableToStart(curServerDateTime.strftime("%Y-%m-%d %H:%M:%S"))
+        partiesStartingTuples = self.partyDb.getPartiesAvailableToStart(curUtcDateTime)
         # Now we know the partyIds and hostIds of parties that can start, let's
         # send those directly out to the DistributedToons who can use them!
         for infoDict in partiesStartingTuples:
@@ -786,7 +783,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                 [infoDict['partyId']],
             )
         timeToNextCheck = ((self.startPartyFrequency - (
-                curServerDateTime.minute % self.startPartyFrequency)) * 60) - curServerDateTime.second + 1
+                curUtcDateTime.minute % self.startPartyFrequency)) * 60) - curUtcDateTime.second + 1
         self.notify.debug("timeToNextCheck=%s" % timeToNextCheck)
         if task:
             taskMgr.doMethodLater(timeToNextCheck, self._checkForPartiesStarting,
@@ -804,9 +801,9 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
 
     def forceFinishedForStarted(self):
         """check the database for started but never finished parties."""
-        curServerDateTime = self.air.toontownTimeManager.getCurServerDateTime()
-        thresholdTime = curServerDateTime + timedelta(hours=-(PartyGlobals.DefaultPartyDuration))
-        result = self.partyDb.forceFinishForStarted(thresholdTime.strftime("%Y-%m-%d %H:%M:%S"))
+        curUtcDateTime = self.air.toontownTimeManager.getCurUtcDateTime()
+        thresholdTime = curUtcDateTime + timedelta(hours=-(PartyGlobals.DefaultPartyDuration))
+        result = self.partyDb.forceFinishForStarted(thresholdTime)
         for info in result:
             partyId = info['partyId']
             hostId = info['hostId']
@@ -815,8 +812,8 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                 self.sendNewPartyStatus(hostId, partyId, status)
 
     def forceNeverStartedForCanStart(self):
-        curServerDateTime = self.air.toontownTimeManager.getCurServerDateTime()
-        result = self.partyDb.forceNeverStartedForCanStart(curServerDateTime.strftime("%Y-%m-%d %H:%M:%S"))
+        curUtcDateTime = self.air.toontownTimeManager.getCurUtcDateTime()
+        result = self.partyDb.forceNeverStartedForCanStart(curUtcDateTime)
         for info in result:
             partyId = info['partyId']
             hostId = info['hostId']
@@ -945,19 +942,12 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
 
         # TODO is it possible for a toon to get back online before we hit this point?
         # Currently if the current server time is past party end time, he is SOL and can't start a party
-        curServerTime = self.air.toontownTimeManager.getCurServerDateTime()
+        curUtcTime = self.air.toontownTimeManager.getCurUtcDateTime()
         interruptedInfo = self.partyDb.getMultipleParties(interruptedParties)
         for info in interruptedInfo:
             endTime = info["endTime"]
-            endTime = datetime(
-                endTime.year,
-                endTime.month,
-                endTime.day,
-                endTime.hour,
-                endTime.minute,
-                tzinfo=self.air.toontownTimeManager.serverTimeZone,
-            )
-            if endTime < curServerTime:
+            endTime = endTime.replace(tzinfo=UTC)
+            if endTime < curUtcTime:
                 interruptedPartiesToFinished.append(info["partyId"])
             else:
                 interruptedPartiesToCanStart.append(info["partyId"])

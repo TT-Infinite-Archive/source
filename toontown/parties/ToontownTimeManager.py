@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed import DistributedObject
 import time
 
-from toontown.parties.ToontownTimeZone import ToontownTimeZone, UTC
+from toontown.parties.ToontownTimeZone import ToontownTimeZone
 
 
 class ToontownTimeManager(DistributedObject.DistributedObject):
@@ -34,11 +34,19 @@ class ToontownTimeManager(DistributedObject.DistributedObject):
         dt = self.serverDateTime + timedelta(seconds=secondsPassed)
         return dt.astimezone(self.serverTimeZone)
 
+    def getCurUtcDateTime(self):
+        secondsPassed = globalClock.getRealTime() - self.realTimeAtLogin
+        dt = self.serverDateTime + timedelta(seconds=secondsPassed)
+        return dt.astimezone(UTC)
+
     def getTimetuple(self):
         secondsPassed = globalClock.getRealTime() - self.realTimeAtLogin
         dt = self.serverDateTime + timedelta(seconds=secondsPassed)
         dt.astimezone(self.serverTimeZone)
         return dt.timetuple()
+
+    def convertToToontownTime(self, dt: datetime) -> datetime:
+        return dt.astimezone(self.serverTimeZone)
 
     def convertStrToToontownTime(self, dateStr):
         try:

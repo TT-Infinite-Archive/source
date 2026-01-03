@@ -17,17 +17,6 @@ def forwardToSunday(dt):
     return dt
 
 
-class UTC(tzinfo):
-    def tzname(self, dt):
-        return 'UTC'
-
-    def utcoffset(self, dt):
-        return timedelta(0)
-
-    def dst(self, dt):
-        return timedelta(0)
-
-
 class ToontownTimeZone(tzinfo):
     def __init__(self):
         timeZoneInfo = ConfigVariableString('server-timezone', 'EST/EDT/-5').getValue()
