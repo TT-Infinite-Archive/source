@@ -1737,9 +1737,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if index >= 0:
             del self.quests[i]
             self.b_setQuests(self.quests)
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     def addQuest(self, quest, finalReward, recordHistory = 1):
         self.quests.append(quest)
@@ -1784,8 +1784,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             self.notify.warning('%s.requestDeleteQuest(%s) -- Tried to cancel non-Just For Fun quest' % (self, str(questDesc)))
             return
         removedStatus = self.removeAllTracesOfQuest(questId, rewardId)
-        if 0 in removedStatus:
-            self.notify.warning('%s.requestDeleteQuest(%s) -- Failed to remove quest, status=%s' % (self, str(questDesc), removedStatus))
+        if not removedStatus[0]:
+            self.notify.warning(f'{self}.requestDeleteQuest({str(questDesc)}) -- Failed to remove quest')
 
     def b_setQuestCarryLimit(self, limit):
         self.setQuestCarryLimit(limit)
@@ -2092,18 +2092,18 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if questId in self.questHistory:
             self.questHistory.remove(questId)
             self.d_setQuestHistory(self.questHistory)
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     def removeRewardFromHistory(self, rewardId):
         rewardTier, rewardHistory = self.getRewardHistory()
         if rewardId in rewardHistory:
             rewardHistory.remove(rewardId)
             self.b_setRewardHistory(rewardTier, rewardHistory)
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     def b_setRewardHistory(self, tier, rewardList):
         self.setRewardHistory(tier, rewardList)
