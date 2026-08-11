@@ -1,4 +1,4 @@
-from panda3d.core import TextEncoder, TextNode, Vec4
+from panda3d.core import TextNode, Vec4
 from direct.distributed.ClockDelta import *
 from direct.gui.DirectGui import *
 
@@ -336,10 +336,7 @@ class DistributedNPCLowdenClear(DistributedNPCToonBase):
         invalidNames = ('', ' ')
         self.notify.debug('__typedAName')
         self.textField['focus'] = 0
-        name = self.textField.get()
-        name = TextEncoder().decodeText(name)
-        name = name.strip()
-        name = TextEncoder().encodeWtext(name)
+        name = self.textField.get().strip()
         sentence = name.split(' ')
         name = ''
         if len(sentence) == 0:
