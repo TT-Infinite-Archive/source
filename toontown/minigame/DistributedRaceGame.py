@@ -1,4 +1,4 @@
-from panda3d.core import InstanceList, Quat, VBase4, Vec3
+from panda3d.core import Quat, VBase4, Vec3
 from toontown.toonbase.ToonBaseGlobal import *
 from direct.distributed.ClockDelta import *
 from .DistributedMinigame import *
