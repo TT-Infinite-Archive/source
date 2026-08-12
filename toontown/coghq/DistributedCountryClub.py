@@ -59,7 +59,7 @@ class DistributedCountryClub(DistributedObject.DistributedObject):
         self.sky.reparentTo(camera)
         self.sky.setZ(0.0)
         self.sky.setHpr(0.0, 0.0, 0.0)
-        ce = CompassEffect.make(NodePath(), CompassEffect.PRot | CompassEffect.PZ)
+        ce = CompassEffect.make(NodePath(), CompassEffect.PRot)
         self.sky.node().setEffect(ce)
         self.sky.setBin('background', 0)
 

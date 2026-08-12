@@ -285,7 +285,7 @@ class Hood(StateData.StateData):
         self.sky.reparentTo(camera)
         self.sky.setZ(0.0)
         self.sky.setHpr(0.0, 0.0, 0.0)
-        ce = CompassEffect.make(NodePath(), CompassEffect.PRot | CompassEffect.PZ)
+        ce = CompassEffect.make(NodePath(), CompassEffect.PRot)
         self.sky.node().setEffect(ce)
 
     def stopSky(self):
@@ -310,7 +310,7 @@ class Hood(StateData.StateData):
         fadeIn.start()
         self.sky.setZ(0.0)
         self.sky.setHpr(0.0, 0.0, 0.0)
-        ce = CompassEffect.make(NodePath(), CompassEffect.PRot | CompassEffect.PZ)
+        ce = CompassEffect.make(NodePath(), CompassEffect.PRot)
         self.sky.node().setEffect(ce)
 
     def endSpookySky(self):
@@ -339,7 +339,7 @@ class Hood(StateData.StateData):
         fadeIn.start()
         self.sky.setZ(0.0)
         self.sky.setHpr(0.0, 0.0, 0.0)
-        ce = CompassEffect.make(NodePath(), CompassEffect.PRot | CompassEffect.PZ)
+        ce = CompassEffect.make(NodePath(), CompassEffect.PRot)
         self.sky.node().setEffect(ce)
 
     def endSnowySky(self):
