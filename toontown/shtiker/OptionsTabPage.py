@@ -107,6 +107,7 @@ class OptionsTabPage(DirectFrame):
             pos = (-0.40, 0, rightYBase + 0.1),
             text = TTLocalizer.OptionsPageVideo
         )
+        base.getSmallestResolution()
         self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
         self.resIndex = self.getResIndex()
         self.resolutionLabel = TTLabel.TTLabel(parent = self.rightFrame, text = TTLocalizer.DisplaySettingsResolution, pos = (-0.33, 0, 0.35))
