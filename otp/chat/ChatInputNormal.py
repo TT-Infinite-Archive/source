@@ -52,6 +52,7 @@ class ChatInputNormal(DirectObject.DirectObject):
             self.whisperLabel.hide()
         self.chatEntry['focus'] = 1
         self.chatFrame.show()
+        self.accept('escape', self.cancelButtonPressed)
         if self.wantHistory:
             self.accept('arrow_up-up', self.getPrevHistory)
             self.accept('arrow_down-up', self.getNextHistory)
@@ -63,6 +64,7 @@ class ChatInputNormal(DirectObject.DirectObject):
         self.chatFrame.hide()
         self.whisperLabel.hide()
         base.win.closeIme()
+        self.ignore('escape')
         self.ignore('arrow_up-up')
         self.ignore('arrow_down-up')
 

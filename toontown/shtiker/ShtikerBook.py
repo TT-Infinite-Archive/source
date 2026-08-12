@@ -397,6 +397,8 @@ class ShtikerBook(DirectFrame, StateData.StateData):
                     tab.hide()
 
     def __close(self):
+        if base.localAvatar.chatMgr.fsm.getCurrentState().getName() in ('normalChat', 'whisperChat', 'whisperChatPlayer'):
+            return
         base.playSfx(self.closeSound)
         self.doneStatus = {'mode': 'close'}
         messenger.send('exitStickerBook')

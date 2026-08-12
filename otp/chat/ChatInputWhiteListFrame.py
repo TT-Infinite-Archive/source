@@ -113,6 +113,7 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
     def enterAllChat(self):
         self.chatEntry['focus'] = 1
         self.show()
+        self.accept('escape', self.requestMode, ['Off'])
 
     def exitAllChat(self):
         pass
@@ -120,6 +121,7 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
     def enterGuildChat(self):
         self['focus'] = 1
         self.show()
+        self.accept('escape', self.requestMode, ['Off'])
 
     def exitGuildChat(self):
         pass
@@ -127,6 +129,7 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
     def enterCrewChat(self):
         self['focus'] = 1
         self.show()
+        self.accept('escape', self.requestMode, ['Off'])
 
     def exitCrewChat(self):
         pass
@@ -168,8 +171,10 @@ class ChatInputWhiteListFrame(FSM.FSM, DirectFrame):
         self.show()
         self.active = 1
         self.chatEntry.guiItem.setAcceptEnabled(False)
+        self.accept('escape', self.requestMode, ['Off'])
 
     def deactivate(self):
+        self.ignore('escape')
         self.chatEntry.set('')
         self.chatEntry['focus'] = 0
         self.hide()

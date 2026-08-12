@@ -52,6 +52,8 @@ class PublicWalk(Walk.Walk):
             return
         if base.localAvatar.book.isObscured():
             return
+        if base.localAvatar.chatMgr.fsm.getCurrentState().getName() in ('normalChat', 'whisperChat', 'whisperChatPlayer'):
+            return
         else:
             doneStatus = {}
             doneStatus['mode'] = 'Options'
