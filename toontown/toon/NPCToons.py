@@ -167,8 +167,8 @@ def createNpcsInZone(air, zoneId):
     for npcId in npcIdList:
         while npcIdList.count(npcId) > 1:
             npcIdList.remove(npcId)
-    for i in range(len(npcIdList)):
-        npcId = npcIdList[i]
+    typeCounters = {}
+    for npcId in npcIdList:
         npcDesc = NPCToonDict.get(npcId)
         if npcDesc[5] == NPC_FISHERMAN:
             if not air.wantFishing:
@@ -179,7 +179,9 @@ def createNpcsInZone(air, zoneId):
         if npcDesc[5] == NPC_SMART:
             if not ConfigVariableBool('want-talkative-tyler', False).getValue():
                 continue
-        npcs.append(createNPC(air, npcId, npcDesc, zoneId, posIndex=i))
+        posIndex = typeCounters.get(npcDesc[5], 0)
+        typeCounters[npcDesc[5]] = posIndex + 1
+        npcs.append(createNPC(air, npcId, npcDesc, zoneId, posIndex=posIndex))
     return npcs
 
 
