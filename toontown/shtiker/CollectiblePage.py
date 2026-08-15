@@ -35,7 +35,7 @@ class CollectiblePage(ShtikerPage.ShtikerPage):
     def load(self):
         ShtikerPage.ShtikerPage.load(self)
         gui = loader.loadModel('phase_3.5/models/gui/fishingBook')
-        self.title = DirectLabel(parent=self, relief=None, text=TTLocalizer.CollectiblePageTitle, text_scale=0.1, pos=(0, 0, 0.65))
+        self.title = DirectLabel(parent=self, relief=None, text=TTLocalizer.CollectiblePageTitle, text_scale=0.1, pos=(0, 0, 0.6375))
         normalColor = (1, 1, 1, 1)
         clickColor = (0.8, 0.8, 0, 1)
         rolloverColor = (0.15, 0.82, 1.0, 1)
@@ -543,7 +543,7 @@ class ItemDialog(DirectButton):
         if self.tooltip is not None:
             self.tooltip.destroy()
             self.tooltip = None
-        self.tooltip = ItemTooltip(self.mainButton, self.item, (0.0, 0.0, 0.2), 1.0, (1.0, 1.0, 1.0, 0.7))
+        self.tooltip = ItemTooltip(self.mainButton, self.item, (0.0, 0.0, 0.2), 1.0, (1.0, 1.0, 1.0, 0.9))
         self.tooltip.setBin('gui-popup', 0)
 
     def hideTooltip(self, e=None):
@@ -581,7 +581,7 @@ class CollectibleItemDialog(ItemDialog):
         if self.tooltip is not None:
             self.tooltip.destroy()
             self.tooltip = None
-        self.tooltip = CollectibleItemTooltip(self.mainButton, self.item, (0.0, 0.0, 0.2), 1.0, (1.0, 1.0, 1.0, 0.7))
+        self.tooltip = CollectibleItemTooltip(self.mainButton, self.item, (0.0, 0.0, 0.2), 1.0, (1.0, 1.0, 1.0, 0.9))
         self.tooltip.setBin('gui-popup', 0)
 
     def isEquipped(self):
@@ -622,10 +622,8 @@ class ItemTooltip(DirectFrame):
             relief=None,
             text=item.name,
             text_scale=0.0525,
-            text_fg=(1.0, 1, 0.0, 1.0),
+            text_fg=(0.4, 0.2, 0.1, 1.0),
             text_align=TextNode.ABoxedLeft,
-            text_shadow=(0.0, 0.0, 0.0, 1.0),
-            text_shadowOffset=(0.06, 0.06),
             pos=(-0.3, 0.0, 0.1)
         )
         self.tooltip = DirectLabel(
@@ -636,7 +634,6 @@ class ItemTooltip(DirectFrame):
             text_fg=(0.1, 0.1, 0.1, 1.0),
             text_align=TextNode.ABoxedLeft,
             text_wordwrap=14,
-            text_shadow=(0.0, 0.0, 0.0, 1.0),
             pos=(-0.3, 0.0, 0.025)
         )
         self.flavorText = DirectLabel(
@@ -644,10 +641,8 @@ class ItemTooltip(DirectFrame):
             relief=None,
             text=self.item.flavorText,
             text_scale=0.04,
-            text_fg=(0.2, 0.6, 0.9, 1.0),
+            text_fg=(0.3, 0.3, 0.3, 1.0),
             text_align=TextNode.ABoxedLeft,
-            text_shadow=(0.0, 0.0, 0.0, 1.0),
-            text_shadowOffset=(0.06, 0.06),
             pos=(-0.3, 0.0, -0.12)
         )
         background.removeNode()
