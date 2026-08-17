@@ -242,7 +242,7 @@ class KartShopGuiMgr(
                     self.arrowRightButton['state'] = DGG.NORMAL
                 if self.curKart > 0:
                     self.arrowLeftButton['state'] = DGG.NORMAL
-                if info[KartInfo.cost] > base.localAvatar.getTickets():
+                if info[EKartInfo.COST] > base.localAvatar.getTickets():
                     self.buyKartButton['state'] = DGG.DISABLED
                     self.buyKartButton.configure(text_scale=KS_TEXT_SIZE_SMALL * 0.75)
                     self.buyKartButton.configure(text=TTLocalizer.KartShop_NotEnoughTickets)
