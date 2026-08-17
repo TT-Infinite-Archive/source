@@ -6,6 +6,7 @@ from toontown.nametag import NametagGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals
 
 
 QUEST_MOVIE_CLEAR = 0
@@ -209,6 +210,8 @@ def createLocalNPC(npcId):
 
     npc.setDNAString(dna.makeNetString())
     npc.animFSM.request('neutral')
+    if settings.get(SettingsGlobals.AnimationSmoothing):
+        npc.setBlend(frameBlend=True)
 
     return npc
 
