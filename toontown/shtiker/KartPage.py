@@ -896,7 +896,7 @@ class KartViewer(DirectFrame):
 
     def __rotateTask(self, direction):
         if hasattr(self, 'pitch'):
-            self.pitch.setH(self.pitch.getH() + 0.4 * direction)
+            self.pitch.setH(self.pitch.getH() + 0.15 * direction)
             return Task.cont
         else:
             return Task.done
