@@ -32,7 +32,7 @@ backups-filepath backups/
 backups-extension .json
 
 # Server:
-server-timezone EST/EDT/-5
+server-timezone PST/PDT/-8
 server-port 7000
 account-server-endpoint https://toontowninfinite.com/api/
 
