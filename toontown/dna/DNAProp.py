@@ -57,12 +57,24 @@ class DNAProp(DNANode.DNANode):
         elif self.code == 'daisys_garden':
             npc = node.findAllMatches('**/+CollisionNode')
             for np in npc:
-                if 'street_floor_collisions' == np.getName():
+                if np.getName() in ('street_floor_collisions', 'collisions_ground'):
                     np.setTag('footstepCode', 'dirt')
+                elif np.getName() == 'collision_pond':
+                    np.setTag('footstepCode', 'water')
+        elif self.code == 'toontown_central':
+            # Paved plaza, sidewalk and the stairs between them; the grassy
+            # main floor and the two ears stay on the default footsteps.
+            npc = node.findAllMatches('**/+CollisionNode')
+            for np in npc:
+                if np.getName() in ('coll_plaza', 'coll_sidewalk',
+                                    'coll_l_stair_2', 'coll_r_stair'):
+                    np.setTag('footstepCode', 'building')
+                elif np.getName() == 'coll_bridge_floor':
+                    np.setTag('footstepCode', 'wood')
         elif self.code in ('prop_snow_pile_full', 'prop_snow_pile_half',
                            'prop_snow_pile_quarter'):
             node.find('**/+CollisionNode').setTag('footstepCode', 'snow')
-        elif self.code in ('prop_crate', 'prop_trolley_station'):
+        elif self.code in ('prop_crate', 'prop_gazebo', 'prop_trolley_station'):
             npc = node.findAllMatches('**/+CollisionNode')
             for np in npc:
                 np.setTag('footstepCode', 'wood')

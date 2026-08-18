@@ -120,6 +120,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.soundWalk = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
             self.oldRunSfx = self.soundRun
             self.oldWalkSfx = self.soundWalk
+            self.footstepSurfaceFrame = -1
+            self.footstepSurfaceZ = 0.0
             self.isIt = 0
             self.cantLeaveGame = 0
             self.tunnelX = 0.0
@@ -179,6 +181,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             self.wantNonFriendWhispers = True
             self.wantFriendsWhispers = True
             self.physControls.event.addAgainPattern('again%in')
+            self.avatarFloorCollisionBroadcaster.addAgainPattern('onFloorAgain')
+            self.accept('onFloorAgain', self.handleOnFloorAgain)
             self.oldPos = None
             self.questMap = None
             self.prevToonIdx = 0
@@ -2079,22 +2083,28 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def putOnSuit(self, suitType, setDisplayName=True, rental=False):
         DistributedToon.DistributedToon.putOnSuit(self, suitType, setDisplayName, rental)
 
-        # Update Footstep noise
+        # Update Footstep noise. Cogs have no runloop variant, so the walk
+        # loop covers both gaits.
         filePrefix = 'phase_3.5/audio/sfx/AV_footstep_'
         if self.suit.style.name in SuitGlobals.FatSuits:
-            runLoopSfx = preloader.getSfx(filePrefix + 'walkloop_fatcog.ogg')
-            walkLoopSfx = preloader.getSfx(filePrefix + 'walkloop_fatcog.ogg')
+            cogLoopSfx = preloader.getSfx(filePrefix + 'walkloop_fatcog.ogg')
         else:
-            runLoopSfx = preloader.getSfx(filePrefix + 'walkloop_broadcog.ogg')
-            walkLoopSfx = preloader.getSfx(filePrefix + 'walkloop_broadcog.ogg')
+            cogLoopSfx = preloader.getSfx(filePrefix + 'walkloop_broadcog.ogg')
 
+        self.__applyFootstepSfx(*self.__resolveFootstepSfx(cogLoopSfx, cogLoopSfx))
+
+    def __resolveFootstepSfx(self, runLoopSfx, walkLoopSfx):
+        # Surfaces with no dedicated loop fall back to the default footsteps.
         if runLoopSfx is None:
             runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
         if walkLoopSfx is None:
             walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+        return runLoopSfx, walkLoopSfx
+
+    def __applyFootstepSfx(self, runLoopSfx, walkLoopSfx):
+        # The Options toggle forces the default footsteps whatever the surface.
         if not settings.get(SettingsGlobals.NewFootsteps, True):
-            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+            runLoopSfx, walkLoopSfx = self.__resolveFootstepSfx(None, None)
         self.updateRunSound(runLoopSfx)
         self.updateWalkSound(walkLoopSfx)
 
@@ -2123,12 +2133,11 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if status == self.soundWalk.PLAYING:
             base.playSfx(self.soundWalk, looping=1)
 
-    def handleOnFloor(self, collEntry):
+    def __surfaceFootstepSfx(self, collEntry):
+        # Resolve the footstep loops for the floor described by collEntry.
         filePrefix = 'phase_3.5/audio/sfx/AV_footstep_'
 
-        if self.isDisguised:
-            return
-        elif collEntry is not None:
+        if collEntry is not None:
             intoNode = collEntry.getIntoNode()
             # print 'DEBUG: onFloor:', intoNode.getName()
             if intoNode.getName() == 'donalds_dock_floor_collisions' and self.getZ(render) > 5.0:
@@ -2139,39 +2148,53 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             runLoopSfx = preloader.getSfx(filePrefix + 'runloop_' + footstepCode + '.ogg')
             walkLoopSfx = preloader.getSfx(filePrefix + 'walkloop_' + footstepCode + '.ogg')
         else:
-            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+            runLoopSfx = walkLoopSfx = None
 
-        if runLoopSfx is None:
-            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-        if walkLoopSfx is None:
-            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+        return self.__resolveFootstepSfx(runLoopSfx, walkLoopSfx)
 
-        self.oldRunSfx = runLoopSfx
-        self.oldWalkSfx = walkLoopSfx
-        if not settings.get(SettingsGlobals.NewFootsteps, True):
-            runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-            walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
-        self.updateRunSound(runLoopSfx)
-        self.updateWalkSound(walkLoopSfx)
+    def __trackFootstepSurface(self, collEntry):
+        # Several floor nodes can be in contact at once -- the DD piers all sit
+        # over the dock floor -- and we get one event per node per frame in no
+        # particular order. Keep the highest surface, which is the one we are
+        # actually standing on, and start the comparison over each frame.
+        if collEntry is not None and collEntry.hasSurfacePoint():
+            surfaceZ = collEntry.getSurfacePoint(render).getZ()
+            if (self.footstepSurfaceFrame == globalClock.getFrameCount()
+                    and surfaceZ < self.footstepSurfaceZ):
+                return False
+            self.footstepSurfaceFrame = globalClock.getFrameCount()
+            self.footstepSurfaceZ = surfaceZ
+
+        self.oldRunSfx, self.oldWalkSfx = self.__surfaceFootstepSfx(collEntry)
+        return True
+
+    def handleOnFloor(self, collEntry):
+        # Track the surface even while disguised, so taking the suit off restores
+        # the floor we are actually standing on instead of a stale one.
+        if self.__trackFootstepSurface(collEntry) and not self.isDisguised:
+            self.__applyFootstepSfx(self.oldRunSfx, self.oldWalkSfx)
+
+    def handleOnFloorAgain(self, collEntry):
+        # 'onFloor' is an enter event: it only fires when we first touch a floor
+        # node. Roaming one large collision node, or crossing between overlapping
+        # nodes that are both already in contact, would otherwise leave the
+        # remembered surface stale until something broke contact -- which is why
+        # a dip in the water used to be what "fixed" it. Refresh it every frame
+        # instead. setSpeed does the playing and owns the water override, so
+        # deliberately do not apply anything here.
+        self.__trackFootstepSurface(collEntry)
 
     def setSpeed(self, forwardSpeed, rotateSpeed):
-        if ZoneUtil.getWakeInfo()[1] > self.getZ(render):
+        showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
+        if wakeWaterHeight > self.getZ(render):
             runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop_water.ogg')
             walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop_water.ogg')
-            if runLoopSfx is None:
-                runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-            if walkLoopSfx is None:
-                walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
+            runLoopSfx, walkLoopSfx = self.__resolveFootstepSfx(runLoopSfx, walkLoopSfx)
         else:
             runLoopSfx = self.oldRunSfx
             walkLoopSfx = self.oldWalkSfx
         if not self.isDisguised:
-            if not settings.get(SettingsGlobals.NewFootsteps, True):
-                runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop.ogg')
-                walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop.ogg')
-            self.updateRunSound(runLoopSfx)
-            self.updateWalkSound(walkLoopSfx)
+            self.__applyFootstepSfx(runLoopSfx, walkLoopSfx)
 
         self.forwardSpeed = forwardSpeed
         self.rotateSpeed = rotateSpeed
@@ -2217,7 +2240,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
                     self.setPlayRate(rate, anim)
                 else:
                     self.suit.setPlayRate(rate, anim)
-            showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
             if showWake and self.getZ(render) < wakeWaterHeight and abs(forwardSpeed) > ToontownGlobals.WalkCutOff:
                 currT = globalClock.getFrameTime()
                 deltaT = currT - self.lastWakeTime

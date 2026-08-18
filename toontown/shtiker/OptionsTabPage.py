@@ -734,10 +734,7 @@ class OptionsTabPage(DirectFrame):
 
     def __doToggleNewFootsteps(self):
         messenger.send(EventGlobals.WakeUp)
-        if settings.get(SettingsGlobals.NewFootsteps, True):
-            settings[SettingsGlobals.NewFootsteps] = False
-        else:
-            settings[SettingsGlobals.NewFootsteps] = True
+        settings[SettingsGlobals.NewFootsteps] = not settings.get(SettingsGlobals.NewFootsteps, True)
 
     def __doToggleVSync(self):
         messenger.send(EventGlobals.WakeUp)
