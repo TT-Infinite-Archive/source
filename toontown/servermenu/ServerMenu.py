@@ -104,7 +104,7 @@ class ServerMenu(DirectFrame, FSM):
         self.ServerMenuHomeScreen.show()
 
         if base.initialEntry:
-            successfulConnectionSfx = base.loadSfx('phase_4/audio/sfx/MG_pairing_match_bonus_both.ogg')
+            successfulConnectionSfx = base.loader.loadSfx('phase_4/audio/sfx/MG_pairing_match_bonus_both.ogg')
             base.playSfx(successfulConnectionSfx)
 
         def mainMenuTask(task):

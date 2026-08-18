@@ -67,7 +67,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.blue = None
         base.isLoggingOut = None
 
-        self.failureSfx = base.loadSfx('phase_4/audio/sfx/MG_sfx_travel_game_no_bonus_2.ogg')
+        self.failureSfx = base.loader.loadSfx('phase_4/audio/sfx/MG_sfx_travel_game_no_bonus_2.ogg')
 
         self.playToken = None
         if self.launcher:
