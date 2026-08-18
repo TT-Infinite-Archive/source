@@ -5,9 +5,6 @@ from direct.task.Task import Task
 import random
 from direct.fsm import ClassicFSM, State
 from toontown.toonbase import ToontownGlobals
-from direct.task.Task import Task
-from toontown.safezone import Playground
-import random
 
 class DDPlayground(Playground.Playground):
     notify = directNotify.newCategory('DDPlayground')
