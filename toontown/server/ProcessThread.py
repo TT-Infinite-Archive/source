@@ -54,10 +54,11 @@ class ProcessThread(threading.Thread):
             filename = os.path.join(path, '%s-%s.log' % (name, int(time.time())))
             f = open(filename, 'w')
             print(("Created Log File: " + f.name))
-            os.chdir(self.folder)
-            self.process = subprocess.Popen(self.processInfo, stdout=subprocess.PIPE, stderr=f)
+            self.process = subprocess.Popen(
+                self.processInfo, stdout=subprocess.PIPE, stderr=f, cwd=self.folder,
+                text=True, encoding='utf-8', errors='replace')
         except Exception as e:
-            print(('failed', e.message, e.args))
+            print(('failed', e, e.args))
             self.failed()
             return
 
@@ -69,7 +70,7 @@ class ProcessThread(threading.Thread):
             if not line:
                 continue
 
-            f.write(line[:-1])
+            f.write(line)
 
             if self.failText in line:
                 self.notify.warning('%s quit with line: %s' % (self.name, line))

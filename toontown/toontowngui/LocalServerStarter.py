@@ -68,9 +68,13 @@ class LocalServerStarter(FSM):
 
         thread = ProcessThread(self.path, self.process)
         
-        if thread.processInfo[0].startswith('astrond'):
+        # the astrond entry is a path (`./astrond`)
+        # because POSIX doesn't search the working directory for executables
+        executable = os.path.basename(thread.processInfo[0])
+
+        if executable.startswith('astrond'):
             thread.processInfo.append(self.astronConfig)
-        elif thread.processInfo[0].startswith('mongod'):
+        elif executable.startswith('mongod'):
             thread.processInfo += ['--port', str(self.mongoPort), '--dbpath', self.mongoPath]
         elif UberdogTarget[-1] in thread.processInfo or AITarget[-1] in thread.processInfo:
             thread.processInfo += ['--astron-ip', '127.0.0.1:%d' % self.mdPort, '--eventlogger-ip', '127.0.0.1:%d' % self.logPort, '--mongodb-ip', 'mongodb://127.0.0.1:%d' % self.mongoPort]

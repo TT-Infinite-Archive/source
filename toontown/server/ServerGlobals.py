@@ -15,10 +15,7 @@ elif hasattr(builtins, '__nirai__'):
     UberdogTarget = [__nirai__.filename, '--uberdog']
     AITarget = [__nirai__.filename, '--ai']
 else:
-    if sys.platform.startswith('linux'):
-        PythonPath = '/usr/bin/python2'
-    else:
-        PythonPath = os.path.join(os.path.dirname(sys.path[1]), 'python')
+    PythonPath = sys.executable
     UberdogTarget = [PythonPath, '-m', 'toontown.uberdog.ServiceStart']
     AITarget = [PythonPath, '-m', 'toontown.ai.ServiceStart']
 
@@ -28,10 +25,10 @@ Processes = [
         'astron',
         TTLocalizer.MongoDB,
         'shutting down',
-        'waiting for connections'
+        'Waiting for connections'
     ],
     [
-        ['astrond'],
+        [os.path.join('.', 'astrond')],
         'astron',
         TTLocalizer.Astron,
         'FATAL',
