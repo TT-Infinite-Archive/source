@@ -22,6 +22,7 @@ NPCInteract = 'npc-interaction-key'
 TextureQuality = 'textures-quality'
 CompressTextures = 'compress-textures'
 ThreadedRender = 'experimental-threaded-render'
+NewFootsteps = 'surface-footsteps'
 
 InitialSettings = {
     # Initial setting
@@ -38,6 +39,7 @@ InitialSettings = {
     AnimationSmoothing: True,
     ProcessFailback: 60,
     ClassicMusic: False,
+    NewFootsteps: True,
     Keymap: {
         "ACTION_BUTTON": "delete",
         "CHAT_HOTKEY": "t",

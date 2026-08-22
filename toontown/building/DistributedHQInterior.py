@@ -28,6 +28,9 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
         self.interior.reparentTo(render)
         self.interior.find('**/cream').hide()
         self.interior.find('**/crashed_piano').hide()
+        floorCollisions = self.interior.find('**/floor collisions')
+        if not floorCollisions.isEmpty():
+            floorCollisions.setTag('footstepCode', 'wood')
         self.buildLeaderBoard()
 
     def announceGenerate(self):

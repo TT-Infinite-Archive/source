@@ -51,4 +51,6 @@ suitProperties = {'f': (4.0 / cSize, SuitDNA.corpPolyColor, ['flunky', 'glasses'
                   'm': (5.75 / aSize, SuitDNA.salesPolyColor, ['twoface'], 'mingler.jpg', 7.61),
                   'mh': (7.0 / aSize, SuitDNA.salesPolyColor, ['yesman'], '', 8.95),
                   }
-
+FatSuits = ('f', 'mm', 'cr', 'sc', 'tw', 'mb', 'cc', 'gh')
+SkinnySuits = ('p', 'b', 'ac', 'bc', 'ls', 'sd', 'tm', 'ms')
+BroadSuits = ('ym', 'ds', 'hh', 'tbc', 'pp', 'nc', 'rb', 'nd', 'tf', 'm', 'mh')

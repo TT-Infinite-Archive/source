@@ -1,21 +1,27 @@
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from panda3d.core import ConfigVariableBool, Fog
 from . import Playground
 from direct.task.Task import Task
 import random
 from direct.fsm import ClassicFSM, State
-from direct.actor import Actor
 from toontown.toonbase import ToontownGlobals
-from direct.directnotify import DirectNotifyGlobal
-from toontown.hood import Place
 
 class DDPlayground(Playground.Playground):
-    notify = DirectNotifyGlobal.directNotify.newCategory('DDPlayground')
+    notify = directNotify.newCategory('DDPlayground')
+    waterLevel = -2.3314585
+    cameraWaterLevel = 1.0
+    underwaterToonTask = 'dd-check-toon-underwater'
+    underwaterCamTask = 'dd-check-cam-underwater'
+    seagullTask = 'dd-seagulls'
 
     def __init__(self, loader, parentFSM, doneEvent):
         Playground.Playground.__init__(self, loader, parentFSM, doneEvent)
         self.cameraSubmerged = -1
         self.toonSubmerged = -1
-        self.activityFsm = ClassicFSM.ClassicFSM('Activity', [State.State('off', self.enterOff, self.exitOff, ['OnBoat']), State.State('OnBoat', self.enterOnBoat, self.exitOnBoat, ['off'])], 'off', 'off')
+        self.nextSeagullTime = 0
+        self.activityFsm = ClassicFSM.ClassicFSM('Activity', [State.State('off', self.enterOff, self.exitOff, ['OnBoat']),
+                                                              State.State('OnBoat', self.enterOnBoat, self.exitOnBoat,
+                                                                          ['off'])], 'off', 'off')
         self.activityFsm.enterInitialState()
 
     def load(self):
@@ -27,7 +33,7 @@ class DDPlayground(Playground.Playground):
 
     def enter(self, requestStatus):
         self.nextSeagullTime = 0
-        taskMgr.add(self.__seagulls, 'dd-seagulls')
+        taskMgr.add(self.__seagulls, self.seagullTask)
         self.loader.hood.setWhiteFog()
         Playground.Playground.enter(self, requestStatus)
 
@@ -35,36 +41,43 @@ class DDPlayground(Playground.Playground):
         if self.cameraSubmerged:
             self.__emergeCamera()
         Playground.Playground.exit(self)
-        taskMgr.remove('dd-check-toon-underwater')
-        taskMgr.remove('dd-check-cam-underwater')
-        taskMgr.remove('dd-seagulls')
+        taskMgr.remove(self.underwaterToonTask)
+        taskMgr.remove(self.underwaterCamTask)
+        taskMgr.remove(self.seagullTask)
         self.loader.hood.setNoFog()
 
     def enterStart(self):
         self.cameraSubmerged = 0
         self.toonSubmerged = 0
-        taskMgr.add(self.__checkToonUnderwater, 'dd-check-toon-underwater')
         taskMgr.add(self.__checkCameraUnderwater, 'dd-check-cam-underwater')
+        taskMgr.add(self.__checkCameraUnderwater, self.underwaterCamTask)
+
 
     def enterDoorOut(self):
-        taskMgr.remove('dd-check-toon-underwater')
+        taskMgr.remove(self.underwaterToonTask)
 
     def exitDoorOut(self):
         pass
 
     def enterDoorIn(self, requestStatus):
         Playground.Playground.enterDoorIn(self, requestStatus)
-        taskMgr.add(self.__checkToonUnderwater, 'dd-check-toon-underwater')
+        taskMgr.add(self.__checkToonUnderwater, self.underwaterToonTask)
+
+    def isToonUnderWater(self):
+        return base.localAvatar.getZ() < self.waterLevel
+
+    def isCameraUnderWater(self):
+        return base.camera.getZ(render) < self.cameraWaterLevel
 
     def __checkCameraUnderwater(self, task):
-        if base.camera.getZ(render) < 1.0:
+        if self.isCameraUnderWater():
             self.__submergeCamera()
         else:
             self.__emergeCamera()
         return Task.cont
 
     def __checkToonUnderwater(self, task):
-        if base.localAvatar.getZ() < -2.3314585:
+        if self.isToonUnderWater():
             self.__submergeToon()
         else:
             self.__emergeToon()
@@ -76,7 +89,7 @@ class DDPlayground(Playground.Playground):
         self.loader.hood.setUnderwaterFog()
         base.playSfx(self.loader.underwaterSound, looping=1, volume=0.8)
         self.loader.seagullSound.stop()
-        taskMgr.remove('dd-seagulls')
+        taskMgr.remove(self.seagullTask)
         self.cameraSubmerged = 1
         self.walkStateData.setSwimSoundAudible(1)
 
@@ -86,7 +99,7 @@ class DDPlayground(Playground.Playground):
         self.loader.hood.setWhiteFog()
         self.loader.underwaterSound.stop()
         self.nextSeagullTime = random.random() * 8.0
-        taskMgr.add(self.__seagulls, 'dd-seagulls')
+        taskMgr.add(self.__seagulls, self.seagullTask)
         self.cameraSubmerged = 0
         self.walkStateData.setSwimSoundAudible(0)
 
@@ -116,12 +129,12 @@ class DDPlayground(Playground.Playground):
 
     def enterTeleportIn(self, requestStatus):
         self.toonSubmerged = -1
-        taskMgr.remove('dd-check-toon-underwater')
+        taskMgr.remove(self.underwaterToonTask)
         Playground.Playground.enterTeleportIn(self, requestStatus)
 
     def teleportInDone(self):
         self.toonSubmerged = -1
-        taskMgr.add(self.__checkToonUnderwater, 'dd-check-toon-underwater')
+        taskMgr.add(self.__checkToonUnderwater, self.underwaterToonTask)
         Playground.Playground.teleportInDone(self)
 
     def enterOff(self):

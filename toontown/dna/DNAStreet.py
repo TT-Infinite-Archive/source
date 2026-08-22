@@ -99,11 +99,34 @@ class DNAStreet(DNANode.DNANode):
         # TEMPORARY (remove this once Toffee is finished):
         if self.code == 'street_BR_pond':
             node.find('**/collision_BRpd_floor').setTag('footstepCode', 'snow')
+            node.find('**/collision_BRpd_pond').setTag('footstepCode', 'water')
+        elif self.code == 'street_DD_pond':
+            node.find('**/collision_DDpd_floor').setTag('footstepCode', 'wood')
+            node.find('**/collision_DDpd_pond').setTag('footstepCode', 'water')
+        elif self.code == 'street_DG_pond':
+            node.find('**/collision_DGpd_pond').setTag('footstepCode', 'water')
+        elif self.code == 'street_DL_pond':
+            node.find('**/collision_DLpd_pond').setTag('footstepCode', 'water')
+        elif self.code == 'street_MM_pond':
+            node.find('**/collision_MMpd_pond').setTag('footstepCode', 'water')
+        elif self.code == 'street_TT_pond':
+            node.find('**/collision_TTpd_pond').setTag('footstepCode', 'water')
         elif self.sidewalkTexture == 'street_sidewalk_BR_tex':
             npc = node.findAllMatches('+CollisionNode')
             for np in npc:
                 if 'sidewalk' in np.getName():
                     np.setTag('footstepCode', 'snow')
+        elif self.sidewalkTexture == 'street_sidewalk_DD_tex':
+            npc = node.findAllMatches('+CollisionNode')
+            for np in npc:
+                np.setTag('footstepCode', 'wood')
+        elif self.sidewalkTexture == 'street_sidewalk_DG_tex':
+            npc = node.findAllMatches('+CollisionNode')
+            for np in npc:
+                if 'street_collisions' in np.getName() \
+                        or 'tunnel_floor_collisions' in np.getName() \
+                        or 'street_street' in np.getName():
+                    np.setTag('footstepCode', 'dirt')
 
         if streetTexture is None:
             raise DNAError.DNAError('street texture not found in DNAStorage : ' + self.streetTexture)

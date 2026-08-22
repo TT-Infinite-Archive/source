@@ -1130,7 +1130,7 @@ class DistributedCannon(DistributedObject.DistributedObject):
         dot = normal.dot(vel)
         self.notify.debug('--------------dot product = %s---------------' % dot)
         temp = render.attachNewNode('temp')
-        temp.iPosHpr()
+        temp.setPosHpr(0, 0, 0, 0, 0, 0)
         temp.lookAt(Point3(normal))
         temp.reparentTo(roof)
         self.notify.debug('avatar pos = %s, landingPos = %s' % (avatar.getPos(), self.landingPos))
