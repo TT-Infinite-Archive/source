@@ -13,6 +13,7 @@
 .DS_Store
 
 # Game-specific files and directories:
+preferences/*
 preferences.json
 snippets.json
 logs/
@@ -31,3 +32,9 @@ astron/mp-database/
 bookmarks.dat
 bookmarks.json
 serversettings.json
+
+# Generated Astron files:
+astron/logs/
+astron/data/
+astron/astrond
+astron/dev.yml
