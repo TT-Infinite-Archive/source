@@ -10804,6 +10804,8 @@ BehaviorName = {
 LoginError = {
  0: 'Invalid password or the username has been taken.',
  1: 'You are trying to do that too fast!',
- 2: 'You must enter both a username and password.'
+ 2: 'You must enter both a username and password.',
+ 3: 'Your game token has expired. Please relaunch the game.',
+ 4: "Couldn't reach the account server. Please try again."
 }
 LoggingIn = 'Logging In...'

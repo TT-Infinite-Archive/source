@@ -1728,6 +1728,8 @@ BGagAccuracy = 1
 BGagAccuracyMultiplier = 1.3
 CSM_LOGIN_ERROR_CREDENTIALS_INVALID = 0
 CSM_LOGIN_ERROR_TOO_FAST = 1
+CSM_LOGIN_ERROR_TOKEN_INVALID = 3
+CSM_LOGIN_ERROR_ACCOUNT_SERVER = 4
 CommonDisplayResolutions = {
     (4, 3): ((800, 600), (1024, 768), (1152, 864), (1280, 960), (1600, 1200),
              (1920, 1440)),
