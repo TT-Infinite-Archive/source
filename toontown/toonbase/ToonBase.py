@@ -215,7 +215,6 @@ class ToonBase(OTPBase.OTPBase):
         self.slowQuietZone = ConfigVariableBool('slow-quiet-zone', 0).getValue()
         self.slowQuietZoneDelay = ConfigVariableDouble('slow-quiet-zone-delay', 5).getValue()
         self.killInterestResponse = ConfigVariableBool('kill-interest-response', 0).getValue()
-        self.forceSkipTutorial = ConfigVariableBool('force-skip-tutorial', 0).getValue()
 
         self.showGroupTracker = settings.get('grouptracker', True)
         settings['grouptracker'] = self.showGroupTracker

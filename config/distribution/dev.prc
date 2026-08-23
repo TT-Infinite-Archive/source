@@ -101,7 +101,6 @@ want-blacklist #f
 want-double-progression #t
 
 # Developer options:
-force-skip-tutorial #t
 show-population #f
 want-instant-parties #t
 want-quest-verification #t

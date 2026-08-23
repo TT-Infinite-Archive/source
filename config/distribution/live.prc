@@ -75,7 +75,6 @@ want-blacklist #t
 
 # Developer options:
 want-yin-yang #t
-force-skip-tutorial #t
 show-population #f
 want-phone-quest #f
 want-heartbeat #f
