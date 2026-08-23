@@ -654,6 +654,83 @@ class OTPClientRepository(ClientRepositoryBase):
             self.__watchLocalServer()
             self.localServerStarter.demand('Start')
 
+    def __watchLocalServer(self):
+        """
+        # HostStartScreen normally listens for the starter's events, but if we skip the main menu
+        # (like when launched directly), nothing is watching. This would leave users waiting 
+        # at a black screen with no feedback.
+        """
+        self.__closeLocalServerDialog()
+
+        dialogClass = OTPGlobals.getDialogClass()
+        self.localServerDialog = dialogClass(
+            text=TTLocalizer.LocalServerStarting,
+            dialogName='LocalServerStarting',
+            style=OTPDialog.NoButtons)
+        self.localServerDialog.show()
+
+        self.accept(EventGlobals.LocalServerStarterProcess,
+                    self.__handleLocalServerProcess)
+        self.accept(EventGlobals.LocalServerStarterDone,
+                    self.__handleLocalServerDone)
+        self.accept(EventGlobals.LocalServerStarterFailed,
+                    self.__handleLocalServerFailed)
+        self.accept(EventGlobals.LocalServerStarterFailedRunning,
+                    self.__handleLocalServerFailedRunning)
+
+    def __ignoreLocalServer(self):
+        self.ignore(EventGlobals.LocalServerStarterProcess)
+        self.ignore(EventGlobals.LocalServerStarterDone)
+        self.ignore(EventGlobals.LocalServerStarterFailed)
+        self.ignore(EventGlobals.LocalServerStarterFailedRunning)
+
+    def __closeLocalServerDialog(self):
+        dialog = getattr(self, 'localServerDialog', None)
+
+        if dialog is not None:
+            dialog.cleanup()
+            self.localServerDialog = None
+
+    def __handleLocalServerProcess(self, processName):
+        if getattr(self, 'localServerDialog', None) is None:
+            return
+
+        self.localServerDialog['text'] = (
+            TTLocalizer.StartingServerDev % processName
+            if __debug__
+            else TTLocalizer.StartingServerLive)
+
+    def __handleLocalServerDone(self):
+        self.__ignoreLocalServer()
+        self.__closeLocalServerDialog()
+
+    def __handleLocalServerFailed(self, processName):
+        self.__localServerFailure(TTLocalizer.StartingFailed % processName)
+
+    def __handleLocalServerFailedRunning(self):
+        self.__localServerFailure(TTLocalizer.LocalServerRunningAlready)
+
+    def __localServerFailure(self, message):
+        """
+        The server didn't come up. Say which part failed, then hand over the menu
+        rather than sitting on a black screen.
+        """
+        self.__ignoreLocalServer()
+        self.__closeLocalServerDialog()
+        self.notify.warning('Local server failed to start: %s' % message)
+
+        dialogClass = OTPGlobals.getGlobalDialogClass()
+        self.localServerErrorBox = dialogClass(
+            message=message, doneEvent='localServerFailedAck',
+            style=OTPDialog.Acknowledge)
+        self.localServerErrorBox.show()
+        self.acceptOnce('localServerFailedAck', self.__handleLocalServerFailedAck)
+
+    def __handleLocalServerFailedAck(self):
+        self.localServerErrorBox.cleanup()
+        del self.localServerErrorBox
+        self.loginFSM.request('mainMenu')
+
     def __connectToAddress(self, address):
         """Splits a `host` or `host:port` the way the join screen does."""
         host, separator, port = address.partition(':')
