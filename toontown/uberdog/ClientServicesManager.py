@@ -36,6 +36,11 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.notify.debug('Performing login: %s.' % [mac, getIp])
         self.sendUpdate('requestAuthToken', [mac, getIp])
 
+    def performTokenLogin(self, doneEvent, token):
+        self.loginDoneEvent = doneEvent
+        self.notify.debug('Performing token login.')
+        self.sendUpdate('loginToken', [token])
+
     def receiveAuthToken(self, authToken):
         self.notify.debug('Received auth token %s.' % authToken)
         self.notify.debug('Requesting login...')

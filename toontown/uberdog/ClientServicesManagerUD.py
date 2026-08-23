@@ -391,6 +391,54 @@ class LoginAccountFSM(OperationFSM):
         combinedPassword = self.password + salt + self.pepper
         return hashlib.sha512(combinedPassword.encode('utf-8')).hexdigest()
 
+
+class LoginTokenFSM(LoginAccountFSM):
+    """
+    Logging in with a launch token instead of a password.
+    After identifying the account, the rest works like the password login path,
+    but authentication is verified by the website instead of a password hashed in Mongo!
+    """
+    notify = directNotify.newCategory('LoginTokenFSM')
+
+    def enterStart(self, token):
+        self.token = token
+        self.demand('VerifyToken')
+
+    def enterVerifyToken(self):
+        self.csm.accountDB.loginToken(self.token, self.__handleToken)
+
+    def __handleToken(self, result):
+        if not result.get('success'):
+            self.csm.air.writeServerEvent('launchTokenRejected', self.target)
+            self.csm.sendUpdateToChannel(
+                self.target, 'loginError',
+                [result.get('error', ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID)])
+            self.demand('Off')
+            return
+
+        if result.get('banned'):
+            # Re-checked at redemption time, so a ban that landed after the
+            # launcher got its token still lands here
+            self.csm.air.writeServerEvent('bannedAccountLogin', self.target,
+                                          result.get('userId'))
+            self.demand('Kill', result.get('banReason')
+                        or 'This account has been banned.')
+            return
+
+        self.username = result.get('username', '')
+        self.userId = result.get('userId', 0)
+        self.accountId = result.get('accountId', 0)
+        self.accessLevel = result.get('accessLevel', 0)
+
+        # Web accounts don't have passwords, so set a random value that can't be guessed
+        self.password = uuid.uuid4().hex
+
+        if self.accountId:
+            self.demand('RetrieveAccount')
+        else:
+            self.demand('CreateAccount')
+
+
 class CreateAvatarFSM(OperationFSM):
     notify = directNotify.newCategory('CreateAvatarFSM')
 
@@ -1189,6 +1237,28 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.connection2Timestamp[sender] = time.time()
         self.connection2fsm[sender] = LoginAccountFSM(self, sender)
         self.connection2fsm[sender].request('Start', username, password)
+
+    def loginToken(self, token):
+        sender = self.air.getMsgSender()
+
+        if sender >> 32:
+            self.killConnection(sender, 'Client is already logged in.')
+            return
+
+        if sender in self.connection2fsm:
+            self.killConnectionFSM(sender)
+            return
+
+        if sender in self.connection2Timestamp:
+            if time.time() - self.connection2Timestamp[sender] <= self.REQUEST_DELAY:
+                self.sendUpdateToChannel(
+                    sender, 'loginError',
+                    [ToontownGlobals.CSM_LOGIN_ERROR_TOO_FAST])
+                return
+
+        self.connection2Timestamp[sender] = time.time()
+        self.connection2fsm[sender] = LoginTokenFSM(self, sender)
+        self.connection2fsm[sender].request('Start', token)
 
     def requestAvatars(self):
         self.notify.debug('Received avatar list request from %d' % (self.air.getMsgSender()))
