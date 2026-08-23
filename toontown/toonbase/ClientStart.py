@@ -41,7 +41,8 @@ builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
 from otp.settings.Settings import Settings
 from toontown.toonbase import ToontownGlobals
 
-preferencesPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
+# The launcher gives each signed-in account a preferences file of its own
+preferencesPath = os.environ.get('TTI_PREFERENCES') or os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
 notify.info('Reading %s...' % preferencesPath)
 builtins.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
@@ -250,11 +251,13 @@ if not launcher.isDummy():
 else:
     base.startShow()
 
-if __debug__:
-    # Skip the introduction if we are in dev mode
-    clickToStart.stop()
-    clickToStart.begin()
-else:
+# Started from the launcher? Play the beautiful intro (unless opted-out)!
+wantIntro = ConfigVariableBool('want-intro',
+                               launcher.getServerMode() is not None).getValue()
+
+if wantIntro:
+    notify.info('Playing the introduction.')
+    clickToStart.startMusic()
     disclaimerTrack.start()
 
     def skip():
@@ -264,6 +267,10 @@ else:
             presentsTrack.finish()
 
     base.accept('mouse1', skip)
+else:
+    notify.info('Skipping the introduction.')
+    clickToStart.stop()
+    clickToStart.begin()
 
 
 

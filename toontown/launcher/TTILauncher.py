@@ -63,6 +63,24 @@ class TTILauncher:
     def getGameServer(self):
         return self.getValue('TTI_GAMESERVER')
 
+    def getServerMode(self):
+        """
+        Which server the launcher picked: 'local', 'direct', or 'production'.
+        """
+        return self.getValue('TTI_SERVER_MODE')
+
+    def getProfile(self):
+        """
+        The local profile name, used as the account name on a local server.
+        """
+        return self.getValue('TTI_PROFILE')
+
+    def getProfileKey(self):
+        """
+        The local profile's password, generated and kept by the launcher.
+        """
+        return self.getValue('TTI_PROFILE_KEY')
+
     def setPandaErrorCode(self, code):
         self.notify.info('setting panda error code to %s' % code)
         self.pandaErrorCode = code

@@ -42,7 +42,7 @@ from toontown.mainmenu.MainMenu import MainMenu
 from toontown.server import ServerGlobals
 from toontown.servermenu.ServerMenu import ServerMenu
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import EventGlobals, TTLocalizer, ToontownGlobals
 
 class EWishNameResult(enum.IntEnum):
     FAILURE = 0
@@ -70,8 +70,16 @@ class OTPClientRepository(ClientRepositoryBase):
         self.failureSfx = base.loader.loadSfx('phase_4/audio/sfx/MG_sfx_travel_game_no_bonus_2.ogg')
 
         self.playToken = None
+        # All 'None' when the game was started manually, 
+        # which is what keeps the main menu the normal way in
+        self.serverMode = None
+        self.profile = None
+        self.profileKey = None
         if self.launcher:
             self.playToken = self.launcher.getPlayToken()
+            self.serverMode = self.launcher.getServerMode()
+            self.profile = self.launcher.getProfile()
+            self.profileKey = self.launcher.getProfileKey()
 
         self.wantMagicWords = False
 
@@ -151,6 +159,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitConnect, [
                       'noConnection',
                       'serverMenu',
+                      'waitForGameList',
                       'failedToConnect',
                       'failedToGetServerConstants']),
             State('createAccount',
@@ -592,6 +601,125 @@ class OTPClientRepository(ClientRepositoryBase):
         # else:
             # self.loginFSM.request('login')
         base.initialEntry = True
+
+        # Started from the launcher
+        if self.playToken:
+            self.__performTokenLogin()
+            return
+
+        # Or they're on their own server, where the launcher's profile is the
+        # account and it keeps the password:
+        if self.profile and self.profileKey:
+            self.__performProfileLogin()
+            return
+
+        self.loginFSM.request('serverMenu')
+
+    def startLauncherSession(self):
+        """
+        Connects to the server the launcher picked, skipping the main menu.
+        """
+        mode = self.serverMode
+
+        if mode == 'local':
+            self.__startLocalServer()
+            return True
+
+        if mode in ('direct', 'production'):
+            address = self.launcher.getGameServer()
+            if not address:
+                self.notify.warning(
+                    'TTI_SERVER_MODE is %r but TTI_GAMESERVER is unset; '
+                    'showing the menu instead.' % mode)
+                return False
+            base.isHosting = False
+            self.__connectToAddress(address)
+            return True
+
+        if mode:
+            self.notify.warning('Unknown TTI_SERVER_MODE %r; showing the menu.' % mode)
+
+        return False
+
+    def __startLocalServer(self):
+        """
+        Brings up the player's own server, or joins the one already running.
+        """
+        if self.localServerStarter.isServerAlive():
+            self.notify.info('A local server is already running; connecting to it.')
+            base.isHosting = False
+            base.connectToServer('127.0.0.1', self.localServerStarter.getPort())
+        else:
+            self.notify.info('Starting a local server.')
+            self.__watchLocalServer()
+            self.localServerStarter.demand('Start')
+
+    def __connectToAddress(self, address):
+        """Splits a `host` or `host:port` the way the join screen does."""
+        host, separator, port = address.partition(':')
+
+        if separator and port:
+            try:
+                base.connectToServer(host, int(port))
+                return
+            except ValueError:
+                self.notify.warning(
+                    'Bad port in TTI_GAMESERVER %r; using the default.' % address)
+
+        base.connectToServer(host)
+
+    def __performTokenLogin(self):
+        """
+        Trades the launcher's play token for a login, skipping the LoginScreen.
+        """
+        self.notify.info('Logging in with the launcher\'s play token.')
+        self.__acceptLauncherLogin()
+        self.csm.performTokenLogin(EventGlobals.LoginDone, self.playToken)
+        self.waitForDatabaseTimeout(requestName='WaitOnCSMTokenLoginResponse')
+
+    def __performProfileLogin(self):
+        """
+        Logs a local profile into the player's own server.
+        """
+        self.notify.info('Logging in as local profile %r.' % self.profile)
+        self.__acceptLauncherLogin()
+        password = hashlib.sha512(self.profileKey.encode('utf-8')).hexdigest()
+        self.csm.performLogin(EventGlobals.LoginDone, self.profile, password)
+        self.waitForDatabaseTimeout(requestName='WaitOnCSMProfileLoginResponse')
+
+    def __acceptLauncherLogin(self):
+        self.acceptOnce(EventGlobals.LoginDone, self.__handleLauncherLoginDone)
+        self.acceptOnce(EventGlobals.LoginError, self.__handleLauncherLoginError)
+
+    def __handleLauncherLoginDone(self, doneStatus):
+        self.ignore(EventGlobals.LoginError)
+        self.handleLoginDone(doneStatus)
+
+    def __handleLauncherLoginError(self, errorCode):
+        """
+        If the launch token is used or expired, show an error and redirect to login.
+        """
+        self.ignore(EventGlobals.LoginDone)
+        self.notify.warning('Launcher login was rejected (%s).' % errorCode)
+        self.cleanupWaitingForDatabase()
+        self.playToken = None
+        self.profile = None
+        self.profileKey = None
+
+        message = TTLocalizer.LoginError.get(
+            errorCode, TTLocalizer.LoginError[ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID])
+
+        dialogClass = OTPGlobals.getGlobalDialogClass()
+        self.launcherLoginErrorBox = dialogClass(
+            message=message, doneEvent='launcherLoginErrorAck',
+            style=OTPDialog.Acknowledge)
+        self.launcherLoginErrorBox.show()
+        self.accept('launcherLoginErrorAck', self.__handleLauncherLoginErrorAck)
+
+    def __handleLauncherLoginErrorAck(self):
+        self.ignore('launcherLoginErrorAck')
+        self.launcherLoginErrorBox.cleanup()
+        del self.launcherLoginErrorBox
         self.loginFSM.request('serverMenu')
 
     def handleLoginDone(self, doneStatus):
