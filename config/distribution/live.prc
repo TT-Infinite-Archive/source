@@ -31,6 +31,7 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # Live account service (the website):
 account-service-url 
 account-service-secret 
+want-game-gateway #t
 
 # Core features:
 want-multiplayer #t

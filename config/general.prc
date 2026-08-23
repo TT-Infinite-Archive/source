@@ -41,6 +41,10 @@ want-rpc-server #f
 rpc-server-endpoint http://localhost:8080/
 rpc-server-secret eWd54mrNYuREmTA6
 
+# Website gateway:
+want-game-gateway #t
+shard-heartbeat-interval 60
+
 # Performance:
 sync-video #f
 texture-power-2 none

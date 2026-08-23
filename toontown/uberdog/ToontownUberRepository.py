@@ -10,6 +10,9 @@ if ConfigVariableBool('want-rpc-server', False).getValue():
     from toontown.rpc.ToontownRPCServer import ToontownRPCServer
     from toontown.rpc.ToontownRPCHandler import ToontownRPCHandler
 
+if ConfigVariableBool('want-game-gateway', False).getValue():
+    from toontown.web.GameGateway import GameGateway
+
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
 
 class ToontownUberRepository(ToontownInternalRepository):
@@ -18,6 +21,7 @@ class ToontownUberRepository(ToontownInternalRepository):
             self, baseChannel, serverId, dcSuffix='UD')
 
         self.rpcServer = None
+        self.gateway = None
         self.globalObjects = {}
         self.remoteGlobalObjects = {}
 
@@ -58,6 +62,10 @@ class ToontownUberRepository(ToontownInternalRepository):
             if dcname not in self.globalObjects:
                 self.remoteGlobalObjects[dcname] = \
                     RemoteGlobalObject(self, dcname, doId)
+
+        # Last, so its first heartbeat has the globals it reports on.
+        if ConfigVariableBool('want-game-gateway', False).getValue():
+            self.gateway = GameGateway(self)
 
         self.notify.info('Done.')
 
