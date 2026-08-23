@@ -17,6 +17,7 @@ from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon import ToonDNA
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.uberdog.ClientServicesManager import generateLookupTable, encodeHexString
+from toontown.web.AccountServiceClient import AccountServiceClient
 
 
 # Some constants for the operations we perform
@@ -29,9 +30,16 @@ accountdbType = ConfigVariableString('accountdb-type', 'developer').getValue()
 
 
 # --- ACCOUNT DATABASES ---
-# These classes make up the available account databases for Toontown Infinite.
-# DeveloperAccountDB is a special database that accepts a username, and assigns
-# each user with 400 access automatically upon login.
+# These classes make up the available account databases for Toontown Infinite,
+# selected by accountdb-type:
+#
+#   developer   LocalAccountDB -- running the client straight from source.
+#   offline     LocalAccountDB -- a server somebody hosts for themselves.
+#   production  WebAccountDB   -- the official server; the website owns
+#                                 accounts and the launcher's launch token is
+#                                 the only credential.
+#
+# developer and offline are the same database, differing only in accessLevel
 
 class AccountDB:
     notify = directNotify.newCategory('AccountDB')
@@ -56,12 +64,12 @@ class AccountDB:
         return hashlib.sha512(combinedPassword.encode('utf-8')).hexdigest()
 
 
-class DeveloperAccountDB(AccountDB):
-    notify = directNotify.newCategory('DeveloperAccountDB')
+class LocalAccountDB(AccountDB):
+    notify = directNotify.newCategory('LocalAccountDB')
 
-    def __init__(self, csm):
+    def __init__(self, csm, accessLevel):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 400
+        self.accessLevel = accessLevel
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
     def lookupUserId(self, userId):
@@ -109,57 +117,84 @@ class DeveloperAccountDB(AccountDB):
         return dict
 
 
-class ProductionDB(AccountDB):
-    notify = directNotify.newCategory('ProductionDB')
+class WebAccountDB(AccountDB):
+    """
+    Accounts owned by the website.
+    """
+
+    notify = directNotify.newCategory('WebAccountDB')
+
+    VERIFY_PATH = 'api/game/verify-token'
 
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
-        self.accessLevel = 100
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
 
-    def lookupUserId(self, userId):
-        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
-        dict = {'userId': userId, 'success': True}
+        url = ConfigVariableString('account-service-url', 'http://localhost:4321').getValue()
+        secret = ConfigVariableString('account-service-secret', '').getValue()
 
-        if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['accessLevel'] = self.accessLevel
-            dict['accountId'] = 0
+        if not secret:
+            self.notify.warning(
+                'account-service-secret is unset; no launch token can be redeemed.')
+
+        self.service = AccountServiceClient(url, secret)
+
+    def accountIdForUser(self, userId):
+        document = self.csm.air.dbAstronCursor.objects.find_one(
+            {'fields.ACCOUNT_ID': str(userId)})
+
+        if not document or document.get('dclass') != 'Account':
+            return 0
+
+        return document['_id']
+
+    def loginToken(self, token, callback):
+        self.service.post(
+            self.VERIFY_PATH, {'token': token},
+            lambda response: self.handleVerify(response, callback),
+            lambda status: self.handleVerifyFailure(status, callback))
+
+    def handleVerify(self, response, callback):
+        userId = response.get('userId')
+
+        if not userId:
+            # A 200 with no user means the website answered but had nothing to
+            # vouch for, aka, a rejection, not an outage
+            self.notify.warning('Account service returned no user for a token.')
+            callback({'success': False,
+                      'error': ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID})
+            return
+
+        callback({
+            'success': True,
+            'userId': userId,
+            'username': response.get('username') or userId,
+            'accessLevel': response.get('accessLevel', 0),
+            'accountId': self.accountIdForUser(userId),
+            'banned': bool(response.get('banned')),
+            'banReason': response.get('banReason')
+        })
+
+    def handleVerifyFailure(self, status, callback):
+        # 401 is the ordinary case which is expired, already used, or was never real
+        # 
+        # Every other status is our problem, not the player's: a 503 means the website has
+        # GAME_SERVER_SECRET not configured
+        # 
+        # 400 means we sent it nothing
+        #
+        # 401 means mismatched secret
+        if status == 401:
+            self.notify.debug('Account service refused a launch token.')
+            error = ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID
         else:
-            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
-            dict['accountId'] = document['_id']
+            self.notify.warning(
+                'Account service failed with status %s -- check '
+                'account-service-url and account-service-secret.' % status)
+            error = ToontownGlobals.CSM_LOGIN_ERROR_ACCOUNT_SERVER
 
-        return dict
+        callback({'success': False, 'error': error})
 
-    def login(self, username, password, pepper, callback):
-        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
-        dict = {}
-        if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
-        elif document['fields']['PASSWORD'] == self.hashedPassword(password, document['fields']['SALT'], pepper):
-            dict['success'] = True
-        else:
-            dict['error'] = ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID
-        callback(dict)
-        return dict
-
-    def lookupUsername(self, username):
-        document = self.csm.air.dbAstronCursor.objects.find_one({'fields.USERNAME': username})
-        dict = {'username': username, 'success': True}
-
-        if not document or 'dclass' not in document or document['dclass'] != 'Account':
-            dict['accessLevel'] = self.accessLevel
-            dict['accountId'] = 0
-        else:
-            dict['accessLevel'] = document['fields']['ACCESS_LEVEL']
-            dict['accountId'] = document['_id']
-            dict['userId'] = document['fields']['ACCOUNT_ID']
-
-        return dict
-
-    def lookup(self, username, callback):
-        dict = self.lookupUsername(username)
-        callback(dict)
-        return dict
 
 
 # --- FSMs ---
@@ -1047,9 +1082,11 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         # Instantiate our account DB interface:
         if accountdbType == 'developer':
-            self.accountDB = DeveloperAccountDB(self)
+            self.accountDB = LocalAccountDB(self, accessLevel=500)
+        elif accountdbType == 'offline':
+            self.accountDB = LocalAccountDB(self, accessLevel=100)
         elif accountdbType == 'production':
-            self.accountDB = ProductionDB(self)
+            self.accountDB = WebAccountDB(self)
         else:
             self.notify.error('Invalid accountdb-type: ' + accountdbType)
 

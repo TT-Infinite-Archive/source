@@ -3,10 +3,9 @@ distribution live
 
 # Server:
 server-version SERVER_VERSION
+# The website owns accounts here-- the launcher's
+# launch token is the only credential:
 accountdb-type production
-
-# Temporary configuration for Alpha
-access-level-clamp 100 400
 
 # MongoDB:
 mongodb-url mongodb://localhost/game
@@ -28,6 +27,10 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
+
+# Live account service (the website):
+account-service-url 
+account-service-secret 
 
 # Core features:
 want-multiplayer #t

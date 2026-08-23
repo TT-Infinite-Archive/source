@@ -9,8 +9,11 @@ model-path ../resources
 
 # Server:
 server-version dev
+
+# developer   login screen, any username, accessLevel 500
+# offline     login screen, any username, accessLevel 100
+# production  no login screen; uses the launcher's launch token
 accountdb-type developer
-access-level-clamp 400 400
 
 # MongoDB:
 mongodb-url mongodb://localhost/game
@@ -32,6 +35,10 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4701 GuildManager
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
+
+# Live account service (the website):
+account-service-url 
+account-service-secret 
 
 # DC file:
 dc-file astron/dclass/vanilla.dc

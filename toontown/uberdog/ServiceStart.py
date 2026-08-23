@@ -18,6 +18,11 @@ parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
 parser.add_argument('--singleplayer', help="If passed, the server will start in singleplayer mode.", action='store_true')
 parser.add_argument('--cheats', help="If passed, the server will start in with cheats enabled.", action='store_true')
+parser.add_argument('--accountdb', choices=('developer', 'offline', 'production'),
+                    help="'developer' and 'offline' both take login screen credentials and register an unknown \
+                    username on the spot, granting access level 500 and 100 respectively. 'production' \
+                    skips the login screen and redeems the launcher's launch token against the website. \
+                    Overrides accountdb-type from the PRC files.")
 if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
 builtins.args = parser.parse_known_args()[0]
 
@@ -34,6 +39,7 @@ if args.eventlogger_ip: localconfig += 'eventlog-host %s\n' % args.eventlogger_i
 if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
 if args.singleplayer: localconfig += 'want-singleplayer #t\n'
 if args.cheats: localconfig += 'want-cheats #f\n'
+if args.accountdb: localconfig += 'accountdb-type %s\n' % args.accountdb
 loadPrcFileData('Command-line', localconfig)
 
 
