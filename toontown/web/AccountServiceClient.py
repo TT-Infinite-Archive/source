@@ -27,30 +27,42 @@ class AccountServiceClient:
         # Written by worker threads, drained by the poll task on the main thread
         self.results = queue.Queue()
 
-        taskMgr.add(self.pollTask, 'AccountServiceClient-poll')
+        # Unique, because the account database and the gateway each keep one
+        taskMgr.add(self.pollTask, 'AccountServiceClient-poll-%d' % id(self))
 
     def post(self, path, payload, callback, errback):
+        self.send('POST', path, payload, callback, errback)
+
+    def get(self, path, callback, errback, timeout=None):
+        self.send('GET', path, None, callback, errback, timeout)
+
+    def send(self, method, path, payload, callback, errback, timeout=None):
         url = '%s/%s' % (self.endpoint, path.lstrip('/'))
 
         thread = threading.Thread(
-            target=self.request, args=(url, payload, callback, errback),
+            target=self.request,
+            args=(method, url, payload, callback, errback, timeout),
             name='AccountServiceClient-%s' % path, daemon=True)
         thread.start()
 
-    def request(self, url, payload, callback, errback):
+    def request(self, method, url, payload, callback, errback, timeout=None):
         # Runs on a worker thread
+        headers = {
+            'Authorization': 'Token %s' % self.secret,
+            'User-Agent': 'AccountServiceClient (Toontown Infinite; src)'
+        }
+
+        data = None
+        if payload is not None:
+            headers['Content-Type'] = 'application/json'
+            data = json.dumps(payload).encode('utf-8')
+
         request = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode('utf-8'),
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': 'Token %s' % self.secret,
-                'User-Agent': 'AccountServiceClient (Toontown Infinite; src)'
-            },
-            method='POST')
+            url, data=data, headers=headers, method=method)
 
         try:
-            with urllib.request.urlopen(request, timeout=self.TIMEOUT) as response:
+            with urllib.request.urlopen(
+                    request, timeout=timeout or self.TIMEOUT) as response:
                 body = json.loads(response.read().decode('utf-8'))
         except urllib.error.HTTPError as error:
             # A 401 here is an expired or already used token

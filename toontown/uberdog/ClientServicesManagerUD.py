@@ -47,11 +47,11 @@ class AccountDB:
     def __init__(self, csm):
         self.csm = csm
 
-    def submitNameRequest(self, avId, name, callback, errback):
+    def submitNameRequest(self, userId, avId, name, callback, errback):
+        """
+        Hand a custom name over for review.
+        """
         callback(NAME_APPROVED)
-
-    def isNameAcceptable(self, name, callback, errback):
-        callback(True)
 
     def login(self, username, password, pepper, callback):
         pass
@@ -125,6 +125,7 @@ class WebAccountDB(AccountDB):
     notify = directNotify.newCategory('WebAccountDB')
 
     VERIFY_PATH = 'api/game/verify-token'
+    NAME_PATH = 'api/game/name-submission'
 
     def __init__(self, csm):
         AccountDB.__init__(self, csm)
@@ -174,6 +175,29 @@ class WebAccountDB(AccountDB):
             'banned': bool(response.get('banned')),
             'banReason': response.get('banReason')
         })
+
+    def submitNameRequest(self, userId, avId, name, callback, errback):
+        """
+        Hand the name to the Toon Council's queue.
+        """
+        self.service.post(
+            self.NAME_PATH,
+            {'toonId': str(avId), 'name': name, 'accountId': str(userId)},
+            lambda response: self.handleNameResponse(response, callback, errback),
+            errback)
+
+    def handleNameResponse(self, response, callback, errback):
+        status = response.get('status')
+
+        if status == 'approved':
+            callback(NAME_APPROVED)
+        elif status == 'pending':
+            callback(NAME_SUBMITTED)
+        else:
+            # A 200 we don't understand is a version skew, not a rejection
+            self.notify.warning(
+                'Name review returned an unknown status: %s' % status)
+            errback(None)
 
     def handleVerifyFailure(self, status, callback):
         # 401 is the ordinary case which is expired, already used, or was never real
@@ -759,10 +783,21 @@ class SetNameTypedFSM(AvatarOperationFSM):
 
     def enterJudgeName(self):
         chatAgent = self.csm.air.getGlobalObject('ChatAgent')
-        badName = chatAgent.checkBadNames(self.name, nameCheck=True)
-        if badName:
-            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, 0])
-        else:
+        if chatAgent.checkBadNames(self.name, nameCheck=True):
+            # Caught by our own filter, so nobody needs to read it.
+            self.__respond(0)
+            return
+
+        if not self.avId:
+            self.__respond(1)
+            return
+
+        self.csm.accountDB.submitNameRequest(
+            self.account['ACCOUNT_ID'], self.avId, self.name,
+            self.__handleNameReviewed, self.__handleNameReviewFailed)
+
+    def __handleNameReviewed(self, result):
+        if result == NAME_APPROVED:
             self.csm.air.dbInterface.updateObject(
                 self.csm.air.dbId,
                 self.avId,
@@ -770,7 +805,25 @@ class SetNameTypedFSM(AvatarOperationFSM):
                 {'WishNameState': ('APPROVED',),
                  'WishName': (self.name,),
                  'setName': (self.name,)})
-            self.csm.sendUpdateToAccountId(self.target, 'setNameTypedResp', [self.avId, 1])
+        else:
+            self.csm.air.dbInterface.updateObject(
+                self.csm.air.dbId,
+                self.avId,
+                self.csm.air.dclassesByName['DistributedToonUD'],
+                {'WishNameState': ('PENDING',),
+                 'WishName': (self.name,)})
+        self.__respond(1)
+
+    def __handleNameReviewFailed(self, status):
+        # The review service is unreachable. Turning the name down would be a
+        # lie, so the player is asked to try again
+        self.notify.warning(
+            'Could not submit a name for review (status %s).' % status)
+        self.__respond(0)
+
+    def __respond(self, status):
+        self.csm.sendUpdateToAccountId(
+            self.target, 'setNameTypedResp', [self.avId, status])
         self.demand('Off')
 
 
