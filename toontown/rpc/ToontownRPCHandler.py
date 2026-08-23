@@ -394,8 +394,6 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
 
         self.air.writeServerEvent('ban', userId, expiration, reason)
 
-        payload = {'expiration': expiration, 'reason': reason}
-        self.air.webApi.execute('accounts/%d/ban' % userId, payload, 'post')
         self.rpc_kickUser(userId, 152, 'ban-' + str(expiration))
 
         return True
@@ -984,22 +982,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
         for document in cursor:
             self.rpc_revokeName(document['_id'])
 
-        payload = {'name': name}
-        self.air.webApi.execute('names-blacklist', payload, 'patch')
-
         return revokeCount
-
-    @rpcmethod(accessLevel=SYSTEM_ADMINISTRATOR)
-    def rpc_whitelistName(self, name):
-        """
-        Summary:
-            Whitelist the provided [name].
-
-        Parameters:
-            [str name] = The name to whitelist.
-        """
-        payload = {'name': name}
-        self.air.webApi.execute('names-whitelist', payload, 'patch')
 
     # --- CHAT LOGS ---
 

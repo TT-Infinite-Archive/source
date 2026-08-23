@@ -12,9 +12,6 @@ from toontown.distributed.ToontownNetMessengerAI import ToontownNetMessengerAI
 
 import pymongo
 
-if config.GetBool('want-web-api', False):
-    from toontown.web.WebserverAPIClient import WebserverAPIClient
-
 
 class ToontownInternalRepository(AstronInternalRepository):
     GameGlobalsId = OTP_DO_ID_TOONTOWN
@@ -38,14 +35,6 @@ class ToontownInternalRepository(AstronInternalRepository):
         db = (urllib.parse.urlparse(url).path or '/game')[1:]
         self.mongodb = self.mongo[db]
         self.dbAstronCursor = self.mongodb.astron
-
-        if config.GetBool('want-web-api', False):
-            endpoint = config.GetString(
-                'web-api-endpoint', 'https://localhost:8000/api/')
-            token = config.GetString('web-api-token', '')
-            self.webApi = WebserverAPIClient(endpoint, token)
-        else:
-            self.webApi = None
 
         self.netMessenger = ToontownNetMessengerAI(self)
 

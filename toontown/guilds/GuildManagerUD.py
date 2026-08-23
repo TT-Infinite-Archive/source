@@ -46,12 +46,6 @@ class CreateGuildOperation(OperationFSM):
         self.iconId = iconId
         self.pendingName = name
 
-        # If a webApi instance exists, then we can assume that we are working
-        # in a production environment. Let's set their name status to pending:
-        if self.air.webApi is not None:
-            self.nameStatus = GUILD_NAME_PENDING
-            self.name = 'Unnamed Guild'
-
         # Create this Guild in the database:
         self.air.dbInterface.createObject(
             self.air.dbId,
@@ -94,33 +88,10 @@ class CreateGuildOperation(OperationFSM):
 
         takenNames = self.mgr.getTakenNames(guildId)
 
-        def handleNameAvailable(response):
-            # This name is reserved or not reserved, handle it
-            if response['reserved']:
-                self.mgr.nameResponse(guildId, False)
-            else:
-                # Submit our name if its not reserved
-                if self.air.webApi is not None:
-                    payload = {'distribution': ConfigVariableString('distribution').getValue(), 'name': guild.pendingName}
-                    self.air.webApi.execute('guilds/%d' % guildId, payload, 'post')
-            self.demand('Off')
-
-        def handleNameError():
-            # Something went wrong, deny the name for safety
-            self.mgr.nameResponse(guildId, False)
-            # Go off, we're done!
-            self.demand('Off')
-
-        # Check if the name is available via the rpc
-        if self.air.webApi is not None:
-            payload = {'name': guild.pendingName, 'distribution': ConfigVariableString('distribution').getValue()}
-            self.air.webApi.execute('reserved-guilds', payload, 'get', callback=handleNameAvailable,
-                                    errback=handleNameError)
-        else:
-            # No wbRpc exists, just check server names
-            self.mgr.nameResponse(guildId, guild.pendingName not in takenNames)
-            # Go off, we're done!
-            self.demand('Off')
+        # TODO: Replace with future API route
+        self.mgr.nameResponse(guildId, guild.pendingName not in takenNames)
+        # Go off, we're done!
+        self.demand('Off')
 
 
 # Manager
@@ -327,31 +298,9 @@ class GuildManagerUD(DistributedObjectGlobalUD):
 
         takenNames = self.getTakenNames(guildId)
 
-        def handleNameAvailable(reserved):
-            # This name is reserved or not reserved, handle it
-            self.notify.debug('WebApi replied with %s' % reserved)
-            if reserved['reserved'] or guildName in takenNames:
-                self.nameResponse(guildId, False)
-
-            if self.air.webApi is not None:
-                payload = {'distribution': ConfigVariableString('distribution').getValue(), 'name': guild.pendingName}
-                self.air.webApi.execute('guilds/%d' % guildId, payload, 'post')
-
-        def handleNameError():
-            # Something went wrong, deny the name for safety
-            self.notify.debug('Something went wrong with webApi returning False')
-            self.nameResponse(guildId, False)
-
-        # Check if the name is available via the rpc
-        if self.air.webApi is not None:
-            self.notify.debug('Asking webApi if guild name is taken')
-            payload = {'name': guild.pendingName, 'distribution': ConfigVariableString('distribution').getValue()}
-            self.air.webApi.execute('reserved-guilds', payload, 'get', callback=handleNameAvailable,
-                                    errback=handleNameError)
-        else:
-            # No wbRpc exists, just check server names
-            self.notify.debug('No webApi exists. Checking if guild name is taken')
-            self.nameResponse(guildId, guildName not in takenNames)
+        # TODO: Replace with future API route
+        self.notify.debug('Checking if guild name is taken')
+        self.nameResponse(guildId, guildName not in takenNames)
 
     def requestRemoveMember(self, avId):
         senderId = self.air.getAvatarIdFromSender()
@@ -493,27 +442,9 @@ class GuildManagerUD(DistributedObjectGlobalUD):
         self.notify.debug('Avatar %d requesting to check name %s' % (avId, guildName))
         takenNames = self.getTakenNames()
 
-        def handleNameAvailable(reserved):
-            # This name is reserved or not reserved, handle it
-            self.notify.debug('WebApi replied with %s' % reserved)
-            valid = (not reserved['reserved']) and (guildName not in takenNames)
-            self.checkNameResponse(avId, valid)
-
-        def handleNameError():
-            # Something went wrong, deny the name for safety
-            self.notify.debug('Something went wrong with webApi returning False')
-            self.checkNameResponse(avId, False)
-
-        # Check if the name is available via the rpc
-        if self.air.webApi is not None:
-            self.notify.debug('Asking webApi if guild name is taken')
-            payload = {'name': guildName, 'distribution': ConfigVariableString('distribution').getValue()}
-            self.air.webApi.execute('reserved-guilds', payload, 'get', callback=handleNameAvailable,
-                                    errback=handleNameError)
-        else:
-            # No wbRpc exists, just check server names
-            self.notify.debug('No webApi exists. Checking if guild name is taken')
-            self.checkNameResponse(avId, guildName not in takenNames)
+        # TODO: Replace with future API route
+        self.notify.debug('Checking if guild name is taken')
+        self.checkNameResponse(avId, guildName not in takenNames)
 
     def getTakenNames(self, guildId=0):
         takenNames = []

@@ -33,11 +33,6 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
 
-# Web API:
-want-web-api #f
-web-api-endpoint https://localhost:8000/api/
-web-api-token invalid
-
 # DC file:
 dc-file astron/dclass/vanilla.dc
 
