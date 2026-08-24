@@ -29,7 +29,7 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4950 ZoneManager
 
 # Live account service (the website):
-account-service-url 
+account-service-url https://infinite.toontown.io
 account-service-secret 
 want-game-gateway #t
 

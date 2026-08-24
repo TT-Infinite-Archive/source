@@ -1,6 +1,7 @@
 from panda3d.core import ConfigVariableInt, ConfigVariableString
 
 from direct.directnotify import DirectNotifyGlobal
+from direct.showbase.DirectObject import DirectObject
 
 from otp.distributed import OtpDoGlobals
 from toontown.distributed.ShardStatusReceiver import ShardStatusReceiver
@@ -8,7 +9,12 @@ from toontown.web.AccountServiceClient import AccountServiceClient
 
 NOT_PENDING = 'The Toon is no longer awaiting a name.'
 
-class GameGateway:
+# lastFailure otherwise holds an HTTP status, or None for a network error, so
+# neither of those can double as a way of saying the website is fine.
+NEVER_FAILED = 'never'
+HEALTHY = 'healthy'
+
+class GameGateway(DirectObject):
     """
     The UberDOG's half of the website gateway. There are two types of communication, but 
     only one connection (always outgoing from us):
@@ -29,8 +35,14 @@ class GameGateway:
     RETRY_DELAY = 15
     # How long a batch has to finish before the stragglers are given up on
     BATCH_TIMEOUT = 60
+    # How long a district has to acknowledge an invasion command
+    INVASION_TIMEOUT = 10
+    # Used when the website does not say how many Cogs should invade
+    DEFAULT_INVASION_COGS = 1000
 
     def __init__(self, air):
+        DirectObject.__init__(self)
+
         self.air = air
         self.service = AccountServiceClient(
             ConfigVariableString('account-service-url',
@@ -42,14 +54,18 @@ class GameGateway:
         self.ops = {
             'approveName': self.approveName,
             'denyName': self.denyName,
+            'startInvasion': self.startInvasion,
+            'stopInvasion': self.stopInvasion,
         }
+
+        self.invasionRequest = 0
 
         self.pending = set()
         self.results = []
         self.batchId = 0
         self.polling = False
 
-        self.lastFailure = 'never'
+        self.lastFailure = NEVER_FAILED
 
         self.poll()
 
@@ -101,10 +117,10 @@ class GameGateway:
     def handleCommands(self, response):
         self.polling = False
 
-        if self.lastFailure is not None:
-            if self.lastFailure != 'never':
+        if self.lastFailure != HEALTHY:
+            if self.lastFailure != NEVER_FAILED:
                 self.notify.info('The website is answering again.')
-            self.lastFailure = None
+            self.lastFailure = HEALTHY
 
         commands = response.get('commands') or []
         if not commands:
@@ -198,7 +214,8 @@ class GameGateway:
                 'available': bool(status['available']),
                 'population': int(status['population']),
                 'created': int(status['created']),
-                'timezone': int(status['timezone'])
+                'timezone': int(status['timezone']),
+                'invasion': status.get('invasion')
             }
 
         self.service.post(
@@ -273,7 +290,67 @@ class GameGateway:
             {'WishNameState': ('PENDING',)},
             rejected)
 
+    def startInvasion(self, args, done):
+        """
+        Send the Cogs into one district.
+        """
+        shardId = int(args['shardId'])
+        cogType = args['cogType']
+        totalNumCogs = args.get('numCogs')
+        totalNumCogs = (self.DEFAULT_INVASION_COGS if totalNumCogs is None
+                        else int(totalNumCogs))
+        duration = int(args.get('duration') or 0)
+        skeleton = bool(args.get('skeleton'))
+
+        if totalNumCogs < 1:
+            done(False, {'error': 'An invasion needs at least one Cog.'})
+            return
+
+        if duration < 0:
+            done(False, {'error': 'An invasion cannot last a negative time.'})
+            return
+
+        self.command(
+            'startInvasion', shardId,
+            [shardId, cogType, totalNumCogs, skeleton, duration], done)
+
+    def stopInvasion(self, args, done):
+        """
+        Call the invasion off early.
+        """
+        shardId = int(args['shardId'])
+
+        self.command('stopInvasion', shardId, [shardId], done)
+
     # --- HELPERS ---
+
+    def command(self, event, shardId, eventArgs, done):
+        """
+        Ask one district to do something and wait for it to say how it went.
+        """
+        if shardId not in self.shardStatus.getShards():
+            done(False, {'error': 'No district is running on channel %s.' % shardId})
+            return
+
+        self.invasionRequest += 1
+        requestId = self.invasionRequest
+        responseEvent = 'invasionResponse-%d' % requestId
+        taskName = 'GameGateway-%s' % responseEvent
+
+        def settle(ok, error):
+            self.ignore(responseEvent)
+            taskMgr.remove(taskName)
+            done(ok, {} if ok else {'error': error})
+
+        def timedOut(task):
+            settle(False, 'The district did not answer in %ss.'
+                          % self.INVASION_TIMEOUT)
+            return task.done
+
+        self.acceptOnce(responseEvent, settle)
+        taskMgr.doMethodLater(self.INVASION_TIMEOUT, timedOut, taskName)
+
+        self.air.sendNetEvent(event, [requestId] + eventArgs)
 
     def claimName(self, avId, wishName, newState, newWish, callback):
         """

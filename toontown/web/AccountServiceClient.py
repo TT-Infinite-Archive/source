@@ -24,6 +24,10 @@ class AccountServiceClient:
         self.endpoint = endpoint.rstrip('/')
         self.secret = secret
 
+        if not self.endpoint:
+            self.notify.warning(
+                'account-service-url is unset; the website cannot be reached.')
+
         # Written by worker threads, drained by the poll task on the main thread
         self.results = queue.Queue()
 
@@ -57,10 +61,10 @@ class AccountServiceClient:
             headers['Content-Type'] = 'application/json'
             data = json.dumps(payload).encode('utf-8')
 
-        request = urllib.request.Request(
-            url, data=data, headers=headers, method=method)
-
         try:
+            request = urllib.request.Request(
+                url, data=data, headers=headers, method=method)
+
             with urllib.request.urlopen(
                     request, timeout=timeout or self.TIMEOUT) as response:
                 body = json.loads(response.read().decode('utf-8'))

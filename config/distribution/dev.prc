@@ -37,7 +37,7 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4950 ZoneManager
 
 # Live account service (the website):
-account-service-url 
+account-service-url http://localhost:4321
 account-service-secret 
 want-game-gateway #t
 

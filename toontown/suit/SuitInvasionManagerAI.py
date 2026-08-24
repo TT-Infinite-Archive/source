@@ -1,9 +1,11 @@
 from direct.directnotify import DirectNotifyGlobal
+from direct.showbase.DirectObject import DirectObject
 from toontown.battle import SuitBattleGlobals
 import random
+import time
 from direct.task import Task
 
-class SuitInvasionManagerAI:
+class SuitInvasionManagerAI(DirectObject):
     """
     Manages invasions of Suits
     """
@@ -11,6 +13,8 @@ class SuitInvasionManagerAI:
     notify = DirectNotifyGlobal.directNotify.newCategory('SuitInvasionManagerAI')
 
     def __init__(self, air):
+        DirectObject.__init__(self)
+
         self.air = air
         self.invading = 0
         self.cogType = None
@@ -18,6 +22,8 @@ class SuitInvasionManagerAI:
         self.skeleton = 0
         self.totalNumCogs = 0
         self.numCogsRemaining = 0
+        # 0 when the invasion runs until the Cogs are gone
+        self.endTime = 0
 
         # Set of cog types to choose from See
         # SuitBattleGlobals.SuitAttributes.keys() for all choices I did not
@@ -51,14 +57,23 @@ class SuitInvasionManagerAI:
         # At least once every 7 days
         self.invasionMaxDelay = 7 * 24 * 60 * 60
 
+        # The website drives invasions through the UberDOG's gateway
+        self.accept('startInvasion', self.handleStartInvasion)
+        self.accept('stopInvasion', self.handleStopInvasion)
+        self.accept('queryShardStatus', self.sendShardStatus)
+
         # Kick off the first invasion
         self.waitForNextInvasion()
+
+        self.sendShardStatus()
 
     def getCogName(self, cogType):
         return SuitBattleGlobals.SuitAttributes.get(cogType)["name"]
 
     def delete(self):
         taskMgr.remove(self.taskName("cogInvasionMgr"))
+        taskMgr.remove(self.taskName("cogInvasionDuration"))
+        self.ignoreAll()
 
     def computeInvasionDelay(self):
         # Compute the delay until the next invasion
@@ -97,7 +112,7 @@ class SuitInvasionManagerAI:
     def getTotalNumCogs(self):
         return self.totalNumCogs
 
-    def startInvasion(self, cogType, totalNumCogs, skeleton=0):
+    def startInvasion(self, cogType, totalNumCogs, skeleton=0, duration=0):
         if self.invading:
             self.notify.warning("startInvasion: already invading cogType: %s numCogsRemaining: %s" %
                                 (cogType, self.numCogsRemaining))
@@ -106,14 +121,22 @@ class SuitInvasionManagerAI:
             self.notify.warning("startInvasion: unknown cogType: %s" % cogType)
             return 0
 
-        self.notify.info("startInvasion: cogType: %s totalNumCogs: %s skeleton: %s" %
-                          (cogType, totalNumCogs, skeleton))
+        self.notify.info("startInvasion: cogType: %s totalNumCogs: %s skeleton: %s duration: %s" %
+                          (cogType, totalNumCogs, skeleton, duration))
         self.invading = 1
         self.cogType = cogType
         self.isSkeleton = skeleton
         self.totalNumCogs = totalNumCogs
         self.numCogsRemaining = self.totalNumCogs
         self.cogName = self.getCogName(cogType)
+
+        # Whichever runs out first ends the invasion: the Cogs or the timer
+        if duration > 0:
+            self.endTime = int(time.time()) + duration
+            taskMgr.doMethodLater(duration, self.durationExpiredTask,
+                                  self.taskName("cogInvasionDuration"))
+        else:
+            self.endTime = 0
 
         # Tell the news manager that an invasion is beginning
         self.air.newsManager.invasionBegin(self.cogType, self.totalNumCogs, self.isSkeleton)
@@ -123,8 +146,15 @@ class SuitInvasionManagerAI:
         for suitPlanner in self.air.suitPlanners.values():
             suitPlanner.flySuits()
 
+        self.sendShardStatus()
+
         # Success!
         return 1
+
+    def durationExpiredTask(self, task):
+        self.notify.info("durationExpiredTask: the invasion is over")
+        self.stopInvasion()
+        return Task.done
 
     def getInvadingCog(self):
         if self.invading:
@@ -140,6 +170,7 @@ class SuitInvasionManagerAI:
 
     def stopInvasion(self):
         self.notify.info("stopInvasion: invasion is over now")
+        taskMgr.remove(self.taskName("cogInvasionDuration"))
         # Tell the news manager that an invasion is ending
         self.air.newsManager.invasionEnd(self.cogType, 0, self.isSkeleton)
         self.invading = 0
@@ -148,10 +179,65 @@ class SuitInvasionManagerAI:
         self.totalNumCogs = 0
         self.numCogsRemaining = 0
         self.cogName = ""
+        self.endTime = 0
         # Get rid of all the current invasion cogs on the streets
         # (except those already in battle, they can stay)
         for suitPlanner in self.air.suitPlanners.values():
             suitPlanner.flySuits()
+
+        self.sendShardStatus()
+
+    def getInvasionStatus(self):
+        if not self.invading:
+            return None
+
+        return {
+            'cogType': self.cogType,
+            'cogName': self.cogName,
+            'skeleton': bool(self.isSkeleton),
+            'total': self.totalNumCogs,
+            'remaining': self.numCogsRemaining,
+            # 0 when the invasion has no timer on it
+            'endTime': self.endTime
+        }
+
+    def sendShardStatus(self):
+        """
+        Let the UberDOG know what is invading, so the website/launcher can show it.
+        """
+        self.air.sendNetEvent(
+            'shardStatus',
+            [self.air.ourChannel, {'invasion': self.getInvasionStatus()}])
+
+    # --- WEBSITE COMMANDS ---
+
+    def handleStartInvasion(self, requestId, shardId, cogType, totalNumCogs,
+                            skeleton, duration):
+        if shardId != self.air.ourChannel:
+            return
+
+        if self.getInvading():
+            self.respond(requestId, False, 'This district is already invaded.')
+        elif not SuitBattleGlobals.SuitAttributes.get(cogType):
+            self.respond(requestId, False, 'No such Cog: %s' % cogType)
+        elif self.startInvasion(cogType, totalNumCogs, skeleton, duration):
+            self.respond(requestId, True, None)
+        else:
+            self.respond(requestId, False, 'The invasion could not be started.')
+
+    def handleStopInvasion(self, requestId, shardId):
+        if shardId != self.air.ourChannel:
+            return
+
+        if not self.getInvading():
+            self.respond(requestId, False, 'This district is not invaded.')
+            return
+
+        self.stopInvasion()
+        self.respond(requestId, True, None)
+
+    def respond(self, requestId, ok, error):
+        self.air.sendNetEvent('invasionResponse-%s' % requestId, [ok, error])
 
     # Need this here since this is not a distributed object
     def taskName(self, taskString):
