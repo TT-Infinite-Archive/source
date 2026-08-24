@@ -685,7 +685,7 @@ QuestDialogDict = {160: {GREETING: '',
        COMPLETE: 'Hope you have fun ordering things from Clarabelle!\x07I just finished redecorating my house. It looks Toontastic!\x07Keep doing ToonTasks to get more rewards!',
        LEAVING: QuestsDefaultLeaving},
  400: {GREETING: '',
-       QUEST: 'Throw and Squirt are great, but you will need more gags to fight higher level Cogs.\x07When you team up with other Toons against the Cogs, you can combine attacks for even more damage.\x07Try different combinations of gags to see what works best.\x07For your next track, choose between Sound and Toonup.\x07Sound is special because when it hits, it damages all Cogs.\x07Toonup lets you heal other Toons in battle.\x07When you are ready to decide, come back here and choose.',
+       QUEST: 'Throw and Squirt are great, but you will need more gags to fight higher level Cogs.\x07When you team up with other Toons against the Cogs, you can combine attacks for even more damage.\x07Try different combinations of gags to see what works best.\x07For your next track, choose between Sound and Toon-Up.\x07Sound is special because when it hits, it damages all Cogs.\x07Toon-Up lets you heal other Toons in battle.\x07When you are ready to decide, come back here and choose.',
        INCOMPLETE_PROGRESS: 'Back so soon?  Okay, are you ready to choose?',
        INCOMPLETE_WRONG_NPC: 'Think about your decision before choosing.',
        COMPLETE: 'Good decision.  Now before you can use those gags, you must train for them.\x07You must complete a series of ToonTasks for training.\x07Each task will give you a single frame of your gag attack animation.\x07When you collect all 15, you can get the Final Gag Training task that will allow you to use your new gags.\x07You can check your progress in the Shticker Book.',
@@ -2260,8 +2260,8 @@ SpokenMoods = {'neutral': 'neutral',
  'playfulness': ["Let's play, Let's play, Let's play, Let's play, Let's play, Let's play, Let's play, Let's play, Let's play...", 'Play with me or I dig up some flowers!', 'Lets run around and  around and around and around and around and around...'],
  'loneliness': ['Where have you been?', 'Wanna cuddle?', 'I want to go with you when you fight Cogs!'],
  'fatigue': ['That swim in the pond really tired me out!', 'Being a Doodle is exhausting!', 'I gotta get to Dreamland!'],
- 'confusion': ['Where am I? Who are you again?', "What's a Toon-up again?", "Whoa, I'm standing between you and the Cogs! Run away!"],
- 'anger': ['... and you wonder why I never give you a Toon-up?!!!', 'You always leave me behind!', 'You love your gags more than you love me!'],
+ 'confusion': ['Where am I? Who are you again?', "What's a Toon-Up again?", "Whoa, I'm standing between you and the Cogs! Run away!"],
+ 'anger': ['... and you wonder why I never give you a Toon-Up?!!!', 'You always leave me behind!', 'You love your gags more than you love me!'],
  'surprise': ['Of course Doodles can talk!', 'Toons can talk?!!', 'Whoa, where did you come from?'],
  'affection': ["You're the best Toon EVER!!!!!!!!!!", 'Do you even KNOW how great you are?!?', 'I am SO lucky to be with you!!!']}
 DialogQuestion = '?'
@@ -2486,7 +2486,7 @@ MovieNPCSOSGoodbye = 'See you later!'
 MovieNPCSOSToonsHit = 'Toons Always Hit!'
 MovieNPCSOSCogsMiss = 'Cogs Always Miss!'
 MovieNPCSOSRestockGags = 'Restocking %s gags!'
-MovieNPCSOSHeal = 'Heal'
+MovieNPCSOSHeal = 'Toon-Up'
 MovieNPCSOSTrap = 'Trap'
 MovieNPCSOSLure = 'Lure'
 MovieNPCSOSSound = 'Sound'
@@ -4170,7 +4170,7 @@ SillyPhase3Chatter = ['The Cogs hate how silly Toontown is becoming!',
  'Toontown is sillier than ever!']
 SillyPhase4Chatter = ['Fire hydrants make your Squirt Gags squirtier!',
  'Mail Boxes give your Throw Gags a special delivery!',
- 'Those crazy Trash Cans can help boost your Toon-up!',
+ 'Those crazy Trash Cans can help boost your Toon-Up!',
  'Objects on the street can help you in battle!',
  "I just know we'll get the Silly Meter back up soon!",
  'Enjoy the sillier Toontown!']
@@ -5289,7 +5289,7 @@ KartShtikerNo = 'No %s Accessory'
 QuestChoiceGuiCancel = lCancel
 TrackChoiceGuiChoose = 'Choose'
 TrackChoiceGuiCancel = lCancel
-TrackChoiceGuiHEAL = 'Toonup lets you heal other Toons in battle.'
+TrackChoiceGuiHEAL = 'Toon-Up lets you heal other Toons in battle.'
 TrackChoiceGuiTRAP = 'Traps are powerful gags that must be used with Lure.'
 TrackChoiceGuiLURE = 'Use Lure to stun Cogs or draw them into traps.'
 TrackChoiceGuiSOUND = 'Sound gags affect all Cogs, but are not very powerful.'
@@ -5324,7 +5324,7 @@ InventoryAffectsOneCog = 'Affects: One ' + Cog
 InventoryAffectsOneToon = 'Affects: One Toon'
 InventoryAffectsAllToons = 'Affects: All Toons'
 InventoryAffectsAllCogs = 'Affects: All ' + Cogs
-InventoryHealString = 'Toon-up'
+InventoryHealString = 'Toon-Up'
 InventoryLureString = 'Rounds'
 InventoryDamageString = 'Damage'
 InventoryBattleMenu = 'BATTLE MENU'
@@ -5349,13 +5349,13 @@ MovieTutorialReward2 = 'You received 1 Squirt point! When you get 10, you will g
 MovieTutorialReward3 = 'Good job! You completed your first ToonTask!'
 MovieTutorialReward4 = 'Go to Toon Headquarters for your reward!'
 MovieTutorialReward5 = 'Have fun!'
-BattleGlobalTracks = ['Toon-up',
- 'trap',
- 'lure',
- 'sound',
- 'throw',
- 'squirt',
- 'drop']
+BattleGlobalTracks = ['Toon-Up',
+ 'Trap',
+ 'Lure',
+ 'Sound',
+ 'Throw',
+ 'Squirt',
+ 'Drop']
 BattleGlobalNPCTracks = ['restock', 'toons hit', 'cogs miss']
 BattleGlobalAvPropStrings = (('Feather',
   'Megaphone',
@@ -6158,7 +6158,7 @@ ResistanceToonToonupInstructions = 'all the Toons near you will gain %s Laff poi
 ResistanceToonToonupAllInstructions = 'all the Toons near you will gain full Laff points'
 ResistanceToonMoneyInstructions = 'all the Toons near you will gain %s Jellybeans'
 ResistanceToonMoneyAllInstructions = 'all the Toons near you will fill their Jellybean jars'
-ResistanceToonRestockInstructions = 'all the Toons near you will restock their "%s" gags'
+ResistanceToonRestockInstructions = 'all the Toons near you will restock their %s gags'
 ResistanceToonDanceInstructions = 'all the Toons near you will start to dance'
 ResistanceToonRestockAllInstructions = 'all the Toons near you will restock all their gags'
 ResistanceToonHPBoost = "\x07You've done a lot of work for the Resistance.\x07The Toon Council has decided to give you another Laff point. Congratulations!"
@@ -9139,17 +9139,17 @@ FishBingoHelpBingo = 'Bingo!'
 FishBingoHelpBlockout = 'Blockout!.  Mark the entire card to win.  You are competing against all the other ponds for a huge jackpot!'
 FishBingoOfferToSellFish = 'Your fish bucket is full. Would you like to sell your fish?'
 FishBingoJackpotWin = 'Win %s Jellybeans!'
-ResistanceToonupMenu = 'Toon-up'
-ResistanceToonupItem = '%s Toon-up'
+ResistanceToonupMenu = 'Toon-Up'
+ResistanceToonupItem = '%s Toon-Up'
 ResistanceToonupItemMax = 'Max'
-ResistanceToonupChat = 'Toons of the World, Toon-up!'
+ResistanceToonupChat = 'Toons of the World, Toon-Up!'
 ResistanceDanceMenu = 'Dance'
 ResistanceDanceItem = 'Make them %s'
 ResistanceDanceChat = 'Toons of the World, Dance with me!'
-ResistanceRestockMenu = 'Gag-up'
-ResistanceRestockItem = 'Gag-up %s'
+ResistanceRestockMenu = 'Gag-Up'
+ResistanceRestockItem = 'Gag-Up %s'
 ResistanceRestockItemAll = 'All'
-ResistanceRestockChat = 'Toons of the World, Gag-up!'
+ResistanceRestockChat = 'Toons of the World, Gag-Up!'
 ResistanceMoneyMenu = 'Jellybeans'
 ResistanceMoneyItem = '%s Jellybeans'
 ResistanceMoneyChat = 'Toons of the World, Spend Wisely!'

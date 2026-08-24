@@ -155,7 +155,7 @@ class TrackPage(ShtikerPage.ShtikerPage):
         if trackId == -1:
             self.clearPage()
         else:
-            trackName = ToontownBattleGlobals.Tracks[trackId].capitalize()
+            trackName = ToontownBattleGlobals.Tracks[trackId]
             self.trackText['text'] = TTLocalizer.TrackPageTraining % (trackName, trackName)
             trackProgressArray = base.localAvatar.getTrackProgressAsArray()
             for index in range(1, MAX_FRAMES - 2):

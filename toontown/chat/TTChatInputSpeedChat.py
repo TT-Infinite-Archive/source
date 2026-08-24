@@ -17,23 +17,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.parties.PartyGlobals import EActivityId, EDecorationId
 from toontown.toonbase import ToontownGlobals
 scStructure = [
- [OTPLocalizer.SCMenuInfinite,
-  [OTPLocalizer.SCMenuBugs,
-   30507,
-   30508,
-   30509,
-   30510,
-   30511,
-   30512
-  ],
-  30500,
-  30501,
-  30502,
-  30503,
-  30504,
-  30505,
-  30506
- ],
  [OTPLocalizer.SCMenuHello,
   {100: 0},
   {101: 0},
@@ -141,7 +124,7 @@ scStructure = [
   {903: 3},
   904,
   {905: 3},
-  907],
+  906],
  [OTPLocalizer.SCMenuPlaces,
   [OTPLocalizer.SCMenuPlacesPlayground,
    1100,

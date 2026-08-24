@@ -316,7 +316,7 @@ class RewardPanel(DirectFrame):
         self.questFrame.hide()
         self.itemFrame.hide()
         self.missedItemFrame.hide()
-        self.newGagFrame['text'] = TTLocalizer.RewardPanelUberGag % {'gagName': ToontownBattleGlobals.Tracks[track].capitalize(),
+        self.newGagFrame['text'] = TTLocalizer.RewardPanelUberGag % {'gagName': ToontownBattleGlobals.Tracks[track],
          'exp': str(ToontownBattleGlobals.UberSkill),
          'avName': toon.getName()}
         self.congratsLeft['text'] = ''
@@ -334,7 +334,7 @@ class RewardPanel(DirectFrame):
         self.questFrame.hide()
         self.itemFrame.hide()
         self.missedItemFrame.hide()
-        self.newGagFrame['text'] = TTLocalizer.RewardPanelNewGag % {'gagName': ToontownBattleGlobals.Tracks[track].capitalize(),
+        self.newGagFrame['text'] = TTLocalizer.RewardPanelNewGag % {'gagName': ToontownBattleGlobals.Tracks[track],
          'avName': toon.getName()}
         self.congratsLeft['text'] = ''
         self.congratsRight['text'] = ''

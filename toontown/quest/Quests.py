@@ -1862,8 +1862,8 @@ class TrackChoiceQuest(Quest):
 
     def getObjectiveStrings(self):
         trackA, trackB = self.getChoices()
-        trackAName = ToontownBattleGlobals.Tracks[trackA].capitalize()
-        trackBName = ToontownBattleGlobals.Tracks[trackB].capitalize()
+        trackAName = ToontownBattleGlobals.Tracks[trackA]
+        trackBName = ToontownBattleGlobals.Tracks[trackB]
         return [trackAName, trackBName]
 
     def getString(self):
@@ -1872,8 +1872,8 @@ class TrackChoiceQuest(Quest):
 
     def getSCStrings(self, toNpcId, progress):
         trackA, trackB = self.getChoices()
-        trackAName = ToontownBattleGlobals.Tracks[trackA].capitalize()
-        trackBName = ToontownBattleGlobals.Tracks[trackB].capitalize()
+        trackAName = ToontownBattleGlobals.Tracks[trackA]
+        trackBName = ToontownBattleGlobals.Tracks[trackB]
         return [TTLocalizer.QuestsTrackChoiceQuestSCString % {'trackA': trackAName,
           'trackB': trackBName}, TTLocalizer.QuestsTrackChoiceQuestMaybeSCString % trackAName, TTLocalizer.QuestsTrackChoiceQuestMaybeSCString % trackBName] + getVisitSCStrings(toNpcId)
 
@@ -4385,7 +4385,7 @@ class TrackTrainingReward(Reward):
         qrc.trackProgress = 0
 
     def getString(self):
-        trackName = ToontownBattleGlobals.Tracks[self.getTrack()].capitalize()
+        trackName = ToontownBattleGlobals.Tracks[self.getTrack()]
         return TTLocalizer.QuestsTrackTrainingReward % trackName
 
     def getPosterString(self):
@@ -4412,12 +4412,12 @@ class TrackProgressReward(Reward):
         qrc.addTrackProgress(self.getTrack(), self.getProgressIndex())
 
     def getString(self):
-        trackName = ToontownBattleGlobals.Tracks[self.getTrack()].capitalize()
+        trackName = ToontownBattleGlobals.Tracks[self.getTrack()]
         return TTLocalizer.QuestsTrackProgressReward % {'frameNum': self.getProgressIndex(),
          'trackName': trackName}
 
     def getPosterString(self):
-        trackName = ToontownBattleGlobals.Tracks[self.getTrack()].capitalize()
+        trackName = ToontownBattleGlobals.Tracks[self.getTrack()]
         return TTLocalizer.QuestsTrackProgressRewardPoster % {'trackName': trackName,
          'frameNum': self.getProgressIndex()}
 
@@ -4441,11 +4441,11 @@ class TrackCompleteReward(Reward):
         qrc.clearTrackProgress()
 
     def getString(self):
-        trackName = ToontownBattleGlobals.Tracks[self.getTrack()].capitalize()
+        trackName = ToontownBattleGlobals.Tracks[self.getTrack()]
         return TTLocalizer.QuestsTrackCompleteReward % trackName
 
     def getPosterString(self):
-        trackName = ToontownBattleGlobals.Tracks[self.getTrack()].capitalize()
+        trackName = ToontownBattleGlobals.Tracks[self.getTrack()]
         return TTLocalizer.QuestsTrackCompleteRewardPoster % trackName
 
 
