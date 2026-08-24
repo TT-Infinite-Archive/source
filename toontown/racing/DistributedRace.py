@@ -91,7 +91,6 @@ class DistributedRace(DistributedObject.DistributedObject):
         self.oldT = 0
         self.debugIt = 0
         self.startPos = None
-        return
 
     def generate(self):
         self.notify.debug('generate: %s' % self.doId)
@@ -101,7 +100,6 @@ class DistributedRace(DistributedObject.DistributedObject):
         self.cutoff = 0.01
         self.startBoopSfx = loader.loadSfx(self.SFX_StartBoop)
         self.startBoop2Sfx = loader.loadSfx(self.SFX_StartBoop2)
-        return
 
     def announceGenerate(self):
         self.notify.debug('announceGenerate: %s' % self.doId)
@@ -165,7 +163,6 @@ class DistributedRace(DistributedObject.DistributedObject):
             self.geom.hide()
         base.camLens.setFar(self.oldFarPlane)
         DistributedObject.DistributedObject.disable(self)
-        return
 
     def delete(self):
         self.notify.debug('delete %s' % self.doId)
@@ -198,7 +195,6 @@ class DistributedRace(DistributedObject.DistributedObject):
         bboard.remove('race')
         self.ignoreAll()
         del base.race
-        return
 
     def d_requestThrow(self, x, y, z):
         self.sendUpdate('requestThrow', [x, y, z])
@@ -226,7 +222,6 @@ class DistributedRace(DistributedObject.DistributedObject):
                 toon.reparentTo(hidden)
             if len(self.toonsToLink) == 0:
                 self.doneBarrier('waitingForPrep')
-        return
 
     def setPlace(self, avId, totalTime, place, entryFee, qualify, winnings, bonus, trophies, circuitPoints, circuitTime):
         if self.fsm.getCurrentState().getName() == 'leaving':
@@ -249,10 +244,9 @@ class DistributedRace(DistributedObject.DistributedObject):
             taskName = 'hideKart: %s' % self.localKart.doId
             taskMgr.doMethodLater(6, kart.reparentTo, taskName, extraArgs=[hidden])
             self.miscTaskNames.append(taskName)
-        return
 
     def setCircuitPlace(self, avId, place, entryFee, winnings, bonus, trophies):
-        print('setting cicruit place')
+        self.notify.debug('setting circuit place')
         if self.fsm.getCurrentState().getName() == 'leaving':
             return
         if avId == localAvatar.doId:
@@ -265,13 +259,11 @@ class DistributedRace(DistributedObject.DistributedObject):
             self.placeFixup.append([oldPlace - 1, place - 1])
         avatar = base.cr.doId2do.get(avId, None)
         if avatar:
-            print('circuit trophies %s' % trophies)
-            print('winnings %s' % winnings)
+            self.notify.debug(f'circuit trophies {trophies}')
+            self.notify.debug(f'winnings {winnings}')
             self.gui.racerFinishedCircuit(avId, oldPlace, entryFee, winnings, bonus, trophies)
-        return
 
     def endCircuitRace(self):
-        print(self.placeFixup)
         self.gui.circuitFinished(self.placeFixup)
 
     def prepForRace(self):
@@ -298,13 +290,11 @@ class DistributedRace(DistributedObject.DistributedObject):
                     kart.dropOnMe(timeStamp)
                 else:
                     kart.dropOnHim(timeStamp)
-        return
 
     def shootPiejectile(self, sourceId, targetId, type = 0):
         kart = base.cr.doId2do.get(self.kartMap.get(sourceId, None), None)
         if kart:
             self.piejectileManager.addPiejectile(sourceId, targetId, type)
-        return
 
     def goToSpeedway(self, avIds, reason = RaceGlobals.Exit_UserReq):
         self.notify.debug('goToSpeedway %s %s' % (avIds, reason))
@@ -322,7 +312,6 @@ class DistributedRace(DistributedObject.DistributedObject):
              'avId': -1,
              'reason': reason}
             base.cr.playGame.fsm.request('quietZone', [out])
-        return
 
     def kartCleanup(self):
         kart = self.localKart
@@ -340,7 +329,6 @@ class DistributedRace(DistributedObject.DistributedObject):
 
         localAvatar.setPos(0, 14, 0)
         localAvatar.sendCurrentPosition()
-        return
 
     def heresMyT(self, avId, avNumLaps, avTime, timestamp):
         self.gui.updateRacerInfo(avId, curvetime=avNumLaps + avTime)
@@ -551,14 +539,12 @@ class DistributedRace(DistributedObject.DistributedObject):
         newLapT = (newT - self.startT) / self.curve.getMaxT() % 1.0
         if newLapT - self.currLapT < -0.5:
             self.laps += 1
-            self.changeMusicTempo(1 + self.laps * 0.5)
             self.notify.debug('crossed the start line: %s, %s, %s, %s' % (self.laps,
              self.startT,
              self.currT,
              newT))
         elif newLapT - self.currLapT > 0.5:
             self.laps -= 1
-            self.changeMusicTempo(1 + self.laps * 0.5)
             self.notify.debug('crossed the start line - wrong way: %s, %s, %s, %s' % (self.laps,
              self.startT,
              self.currT,
@@ -612,7 +598,6 @@ class DistributedRace(DistributedObject.DistributedObject):
         pass
 
     def stopDriving(self):
-        kart = base.cr.doId2do.get(self.kartMap.get(localAvatar.doId, None), None)
         cpos = base.camera.getPos()
         chpr = base.camera.getHpr()
         localAvatar.reparentTo(hidden)
@@ -621,10 +606,8 @@ class DistributedRace(DistributedObject.DistributedObject):
         self.localKart.stopPosHprBroadcast()
         base.camera.setPos(cpos)
         base.camera.setHpr(chpr)
-        return
 
     def enterLeave(self):
-        kart = base.cr.doId2do.get(self.kartMap.get(localAvatar.doId, None), None)
         taskMgr.remove('raceWatcher')
         self.gui.disable()
         if self.localKart:
@@ -638,7 +621,6 @@ class DistributedRace(DistributedObject.DistributedObject):
             self.victory.stop()
         self.bananaSound.stop()
         self.anvilFall.stop()
-        return
 
     def exitLeave(self):
         pass
@@ -658,7 +640,7 @@ class DistributedRace(DistributedObject.DistributedObject):
         countdownInt = int(countdownTime)
         self.clockNode.setTextColor(self.getCountdownColor(countdownInt))
         self.clockNode.setText(str(countdownInt))
-        self.clock = render2d.attachNewNode(self.clockNode)
+        self.clock = base.aspect2d.attachNewNode(self.clockNode)
         rs = TTLocalizer.DRrollScale
         self.clock.setPosHprScale(0, 0, 0, 0, 0, 0, rs, rs, rs)
         self.clock.hide()
@@ -908,8 +890,6 @@ class DistributedRace(DistributedObject.DistributedObject):
 
                     self.currBldgInd[side] = segmentInd
 
-        return
-
     def setupGeom(self):
         trackFilepath = RaceGlobals.TrackDict[self.trackId][0]
         self.geom = loader.loadModel(trackFilepath)
@@ -1040,7 +1020,6 @@ class DistributedRace(DistributedObject.DistributedObject):
             return minIndex
         else:
             return prevIndex
-        return
 
     def getNearestT(self, pos):
         minLength2 = 1000000
@@ -1194,29 +1173,19 @@ class DistributedRace(DistributedObject.DistributedObject):
         idStr = into.getTag('boostId')
         arrowVec = self.boostDir.get(idStr)
         if arrowVec == None:
-            print('Unknown boost arrow %s' % idStr)
+            self.notify.info(f'Unknown boost arrow {idStr}')
             return
         fvec = self.localKart.forward.getPos(self.geom) - self.localKart.getPos(self.geom)
         fvec.normalize()
         dotP = arrowVec.dot(fvec)
         if dotP > 0.7:
             self.localKart.startTurbo()
-        return
 
     def fadeOutMusic(self):
         if self.musicTrack:
             self.musicTrack.finish()
         curVol = self.raceMusic.getVolume()
         interval = LerpFunctionInterval(self.raceMusic.setVolume, fromData=curVol, toData=0, duration=3)
-        self.musicTrack = Sequence(interval)
-        self.musicTrack.start()
-
-    def changeMusicTempo(self, newPR):
-        return # TODO: Reenable when we have music change support.
-        if self.musicTrack:
-            self.musicTrack.finish()
-        curPR = self.raceMusic.getPlayRate()
-        interval = LerpFunctionInterval(self.raceMusic.setPlayRate, fromData=curPR, toData=newPR, duration=3)
         self.musicTrack = Sequence(interval)
         self.musicTrack.start()
 
@@ -1234,7 +1203,6 @@ class DistributedRace(DistributedObject.DistributedObject):
          'shardId': None,
          'reason': RaceGlobals.Exit_UserReq}
         base.cr.playGame.hood.loader.fsm.request('quietZone', [out])
-        return
 
 
 # TODO: Move this command to the AI server, and add more features to it.

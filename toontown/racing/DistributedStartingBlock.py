@@ -4,7 +4,7 @@ from direct.interval.IntervalGlobal import *
 from toontown.building.ElevatorConstants import *
 from toontown.building.ElevatorUtils import *
 from toontown.toonbase import ToontownGlobals
-from direct.gui import DirectGui
+from direct.gui.DirectGui import DirectButton
 from toontown.toonbase import TTLocalizer
 from direct.distributed import DistributedObject
 from direct.actor import Actor
@@ -290,7 +290,6 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
                     self.dialog = TTGlobalDialog(msg, doneEvent, style=1)
                     self.dialog.accept(doneEvent, handleDialogOK)
                     self.accept('stoppedAsleep', handleDialogOK)
-        return
 
     def __avatarGone(self):
         self.notify.debugStateCall(self)
@@ -319,9 +318,26 @@ class DistributedStartingBlock(DistributedObject.DistributedObject, FSM):
         if hasattr(self, 'cancelButton'):
             return
         fishGui = loader.loadModel('phase_4/models/gui/fishingGui')
-        self.cancelButton = DirectGui.DirectButton(relief=None, scale=0.67, pos=(1.16, 0, -0.9), text=('', TTLocalizer.FishingExit, TTLocalizer.FishingExit), text_align=TextNode.ACenter, text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0.0, -0.12), textMayChange=0, text_scale=0.1, image=(fishGui.find('**/exit_buttonUp'), fishGui.find('**/exit_buttonDown'), fishGui.find('**/exit_buttonRollover')), text_font=ToontownGlobals.getInterfaceFont(), command=self.d_requestExit)
+        self.cancelButton = DirectButton(
+            parent=base.a2dBottomRight,
+            relief=None,
+            scale=0.67,
+            pos=(-0.125, 0, 0.1),
+            text=('', TTLocalizer.FishingExit, TTLocalizer.FishingExit),
+            text_align=TextNode.ACenter,
+            text_fg=Vec4(1, 1, 1, 1),
+            text_shadow=Vec4(0, 0, 0, 1),
+            text_pos=(0.0, -0.12),
+            textMayChange=0,
+            text_scale=0.1,
+            image=(fishGui.find('**/exit_buttonUp'),
+                   fishGui.find('**/exit_buttonDown'),
+                   fishGui.find('**/exit_buttonRollover')),
+            text_font=ToontownGlobals.getInterfaceFont(),
+            command=self.d_requestExit
+        )
         self.cancelButton.hide()
-        return
+        fishGui.removeNode()
 
     def showGui(self):
         self.notify.debugStateCall(self)
