@@ -28,10 +28,14 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
 
-# Live account service (the website):
+# Live account & gateway services:
 account-service-url https://infinite.toontown.io
 account-service-secret 
 want-game-gateway #t
+
+# No gateway-url here on purpose because it comes from account-service-url, so
+# the socket is wss:// and the two cannot drift apart. 
+# Development sets it only because there is no proxy.
 
 # Core features:
 want-multiplayer #t

@@ -63,7 +63,7 @@ class ToontownUberRepository(ToontownInternalRepository):
                 self.remoteGlobalObjects[dcname] = \
                     RemoteGlobalObject(self, dcname, doId)
 
-        # Last, so its first heartbeat has the globals it reports on.
+        # Last, so the globals its commands reach are already active
         if ConfigVariableBool('want-game-gateway', False).getValue():
             self.gateway = GameGateway(self)
 

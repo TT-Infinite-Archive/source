@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
+from panda3d.core import ConfigVariableBool, ConfigVariableString, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
 from direct.distributed.PyDatagram import *
 
 from otp.ai.AIZoneData import AIZoneDataStore
@@ -68,6 +68,8 @@ from toontown.suit.SuitInvasionManagerAI import SuitInvasionManagerAI
 from toontown.toon import NPCToons
 from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.tutorial.TutorialManagerAI import TutorialManagerAI
+from toontown.web.GatewaySocket import GatewaySocket, gatewayToken, socketUrl
+from toontown.web.ShardStatusReporter import ShardStatusReporter
 from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.safezone import DistributedPartyGateAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
@@ -149,6 +151,12 @@ class ToontownAIRepository(ToontownInternalRepository):
             self, baseChannel, stateServerChannel, dcSuffix='AI')
 
         self.districtName = districtName
+
+        # The district's own line to the website, and the commands it is
+        # currently answering. Both stay None/empty if the gateway is off.
+        self.gateway = None
+        self.gatewayReporter = None
+        self.gatewayCommands = set()
 
         self.notify.setInfo(True)  # Our AI repository should always log info.
         self.hoods = []
@@ -319,10 +327,85 @@ class ToontownAIRepository(ToontownInternalRepository):
         ToontownInternalRepository.handleConnected(self)
         self.registerForChannel(MESSENGER_CHANNEL_AI)
 
+        self.startGateway()
+
         if ConfigVariableBool('want-threaded-ai-start', False).getValue():
             threading.Thread(target=self.startDistrict).start()
         else:
             self.startDistrict()
+
+    def startGateway(self):
+        """
+        Opens this district's own socket to the website.
+        """
+        if not ConfigVariableBool('want-game-gateway', False).getValue():
+            return
+
+        token = gatewayToken()
+        if not token:
+            self.notify.warning(
+                'want-game-gateway is set but TTI_GATEWAY_TOKEN is not;'
+                ' this district will not appear on the website.')
+            return
+
+        # In production the socket piggybacks on the website's own domain and the
+        # proxy routes it to the gateway
+        url = ConfigVariableString('gateway-url', '').getValue()
+
+        endpoint = ConfigVariableString('account-service-url', '').getValue()
+        if not url and not endpoint:
+            self.notify.warning('account-service-url is unset.')
+            return
+
+        self.gateway = GatewaySocket(
+            url or socketUrl(endpoint), token,
+            onCommand=self.handleGatewayCommand,
+            onReady=self.handleGatewayReady)
+
+        self.gatewayReporter = ShardStatusReporter(self, self.gateway)
+
+    def handleGatewayReady(self, message):
+        if self.gatewayReporter:
+            self.gatewayReporter.flush()
+
+    def handleGatewayCommand(self, message):
+        """
+        Runs a command the website sent straight to this district.
+        """
+        commandId = message.get('id')
+        op = message.get('op')
+        commandArgs = message.get('args') or {}
+
+        if op == 'startInvasion':
+            self.gatewayCommands.add(commandId)
+            messenger.send('startInvasion', [
+                commandId, self.ourChannel,
+                commandArgs.get('cogType'), commandArgs.get('numCogs'),
+                commandArgs.get('skeleton'), commandArgs.get('duration')])
+        elif op == 'stopInvasion':
+            self.gatewayCommands.add(commandId)
+            messenger.send('stopInvasion', [commandId, self.ourChannel])
+        else:
+            self.notify.warning('Ignoring an unknown gateway op: %s' % op)
+            self.gateway.sendResult(
+                commandId, False, {'error': 'Unknown op: %s' % op})
+
+    def sendNetEvent(self, message, sentArgs=[]):
+        """
+        Passes the event through the gateway if applicable.
+        """
+        if message == 'shardStatus' and self.gatewayReporter:
+            self.gatewayReporter.update(sentArgs[1])
+
+        elif message.startswith('invasionResponse-') and self.gateway:
+            commandId = message[len('invasionResponse-'):]
+            if commandId in self.gatewayCommands:
+                self.gatewayCommands.discard(commandId)
+                ok, error = sentArgs
+                self.gateway.sendResult(
+                    commandId, ok, {'error': error} if error else None)
+
+        ToontownInternalRepository.sendNetEvent(self, message, sentArgs)
 
     def startDistrict(self):
         self.loadDNA()

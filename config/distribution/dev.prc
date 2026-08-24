@@ -36,10 +36,11 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
 
-# Live account service (the website):
+# Live account & gateway services:
+want-game-gateway #f
 account-service-url http://localhost:4321
 account-service-secret 
-want-game-gateway #t
+gateway-url ws://localhost:4322/api/game/socket
 
 # DC file:
 dc-file astron/dclass/vanilla.dc
