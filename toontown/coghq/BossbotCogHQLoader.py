@@ -30,13 +30,10 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         self.cogHQLobbyModelPath = 'phase_12/models/bossbotHQ/CogGolfCourtyard'
         self.geom = None
         self.skyBoxLoop = None
-        self.rain = None
-        self.rainRender = None
 
     def load(self, zoneId):
         CogHQLoader.CogHQLoader.load(self, zoneId)
         Toon.loadBossbotHQAnims()
-        self.startRain()
 
     def unloadPlaceGeom(self):
         if self.skyBoxLoop:
@@ -99,21 +96,6 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
     def unload(self):
         CogHQLoader.CogHQLoader.unload(self)
         Toon.unloadSellbotHQAnims()
-        self.stopRain()
-        del self.rain
-        del self.rainRender
-
-    def startRain(self):
-        self.rain = BattleParticles.loadParticleFile('raindisk.ptf')
-        self.rain.setPos(0, 0, 20)
-        self.rainRender = render.attachNewNode('rainRender')
-        self.rainRender.setDepthWrite(0)
-        self.rainRender.setBin('fixed', 1)
-        self.rain.start(camera, self.rainRender)
-
-    def stopRain(self):
-        if self.rain:
-            self.rain.cleanup()
 
     def enterStageInterior(self, requestStatus):
         self.placeClass = StageInterior.StageInterior
@@ -123,7 +105,6 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
     def exitStageInterior(self):
         self.exitPlace()
         self.placeClass = None
-
 
     def getExteriorPlaceClass(self):
         self.notify.debug('getExteriorPlaceClass')
@@ -141,14 +122,12 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         taskMgr.remove('titleText')
         self.hood.hideTitleText()
         self.exitPlace()
-        self.startRain()
         self.placeClass = None
 
     def enterCogHQBossBattle(self, requestStatus):
         self.notify.debug('BossbotCogHQLoader.enterCogHQBossBattle')
         CogHQLoader.CogHQLoader.enterCogHQBossBattle(self, requestStatus)
         base.cr.forbidCheesyEffects(1)
-        self.stopRain()
 
     def exitCogHQBossBattle(self):
         self.notify.debug('BossbotCogHQLoader.exitCogHQBossBattle')
