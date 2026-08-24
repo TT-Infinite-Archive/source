@@ -43,7 +43,7 @@ rpc-server-secret eWd54mrNYuREmTA6
 
 # Website gateway:
 want-game-gateway #t
-shard-heartbeat-interval 15
+shard-heartbeat-interval 20
 
 # Performance:
 sync-video #f

@@ -215,7 +215,9 @@ class GameGateway(DirectObject):
                 'population': int(status['population']),
                 'created': int(status['created']),
                 'timezone': int(status['timezone']),
-                'invasion': status.get('invasion')
+                'invasion': status.get('invasion'),
+                # 0 until the district has scheduled one of its own
+                'nextInvasion': int(status.get('nextInvasion') or 0)
             }
 
         self.service.post(

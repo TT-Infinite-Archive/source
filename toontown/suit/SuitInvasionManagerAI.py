@@ -24,6 +24,8 @@ class SuitInvasionManagerAI(DirectObject):
         self.numCogsRemaining = 0
         # 0 when the invasion runs until the Cogs are gone
         self.endTime = 0
+        # When this shard will next try an invasion of its own
+        self.nextInvasion = 0
 
         # Set of cog types to choose from See
         # SuitBattleGlobals.SuitAttributes.keys() for all choices I did not
@@ -65,8 +67,6 @@ class SuitInvasionManagerAI(DirectObject):
         # Kick off the first invasion
         self.waitForNextInvasion()
 
-        self.sendShardStatus()
-
     def getCogName(self, cogType):
         return SuitBattleGlobals.SuitAttributes.get(cogType)["name"]
 
@@ -96,9 +96,11 @@ class SuitInvasionManagerAI(DirectObject):
     def waitForNextInvasion(self):
         taskMgr.remove(self.taskName("cogInvasionMgr"))
         delay = self.computeInvasionDelay()
+        self.nextInvasion = int(time.time() + delay)
         self.notify.info("invasionTask: waiting %s seconds until next invasion" % delay)
         taskMgr.doMethodLater(delay, self.tryInvasionAndWaitForNext,
                               self.taskName("cogInvasionMgr"))
+        self.sendShardStatus()
 
     def getInvading(self):
         return self.invading
@@ -207,7 +209,9 @@ class SuitInvasionManagerAI(DirectObject):
         """
         self.air.sendNetEvent(
             'shardStatus',
-            [self.air.ourChannel, {'invasion': self.getInvasionStatus()}])
+            [self.air.ourChannel,
+             {'invasion': self.getInvasionStatus(),
+              'nextInvasion': self.nextInvasion}])
 
     # --- WEBSITE COMMANDS ---
 
