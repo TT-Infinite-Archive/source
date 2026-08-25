@@ -1,4 +1,15 @@
-CatalogNodePath = loader.loadModel('phase_3/models/gui/catalog_gui')
+_catalogNodePath = None
+
+
+def getCatalogNodePath():
+    # Loaded on demand rather than at import: the AI reaches this module through
+    # TTCodeRedemptionMgrAI, and a server has no art to load it from
+    global _catalogNodePath
+    if _catalogNodePath is None:
+        _catalogNodePath = loader.loadModel('phase_3/models/gui/catalog_gui')
+    return _catalogNodePath
+
+
 CatalogBKGDScale = 0.60
 ItemPageTextLoc = (-1.7, 0.0, 1.36)
 ItemPageTextScale = 0.1
