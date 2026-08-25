@@ -3,15 +3,13 @@ distribution live
 
 # Server:
 server-version SERVER_VERSION
-# The website owns accounts here-- the launcher's
-# launch token is the only credential:
-accountdb-type production
 
-# MongoDB:
-mongodb-url mongodb://localhost/game
+# DC file:
+# Nirai baked the DC into the binary, so live never had to name it. Anything
+# running from source, the Docker images included, does.
+dc-file astron/dclass/vanilla.dc
 
 # UberDOG:
-generate-root-object #t
 generate-global-object 4688 CentralLogger
 generate-global-object 4665 ClientServicesManager
 generate-global-object 4681 ChatAgent
@@ -28,15 +26,6 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
 
-# Live account & gateway services:
-account-service-url https://infinite.toontown.io
-account-service-secret 
-want-game-gateway #t
-
-# No gateway-url here on purpose because it comes from account-service-url, so
-# the socket is wss:// and the two cannot drift apart. 
-# Development sets it only because there is no proxy.
-
 # Core features:
 want-multiplayer #t
 want-pets #t
@@ -46,16 +35,12 @@ want-grouptracker #f
 
 # Safe zones:
 want-safe-zones #t
-want-toontown-central #t
-want-donalds-dock #t
-want-daisys-garden #t
 want-minnies-melodyland #t
 want-the-burrrgh #t
 want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
-want-resistance-grounds #f
 
 # Cog headquarters:
 want-cog-headquarters #t
@@ -79,14 +64,12 @@ want-blacklist #t
 
 # Developer options:
 want-yin-yang #t
-show-population #f
 want-phone-quest #f
 want-heartbeat #f
 
 # Debug tools:
 want-leak-graph-ai #f
 want-leak-graph-client #f
-want-dev-debug #f
 
 # Mod tools:
 want-mods #f

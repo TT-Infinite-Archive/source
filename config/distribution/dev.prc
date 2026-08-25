@@ -10,16 +10,7 @@ model-path ../resources
 # Server:
 server-version dev
 
-# developer   login screen, any username, accessLevel 500
-# offline     login screen, any username, accessLevel 100
-# production  no login screen; uses the launcher's launch token
-accountdb-type developer
-
-# MongoDB:
-mongodb-url mongodb://localhost/game
-
 # UberDOG:
-generate-root-object #t
 generate-global-object 4688 CentralLogger
 generate-global-object 4665 ClientServicesManager
 generate-global-object 4681 ChatAgent
@@ -36,12 +27,6 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
 
-# Live account & gateway services:
-want-game-gateway #f
-account-service-url http://localhost:4321
-account-service-secret 
-gateway-url ws://localhost:4322/api/game/socket
-
 # DC file:
 dc-file astron/dclass/vanilla.dc
 
@@ -55,16 +40,12 @@ want-server-browser #f
 
 # Safe zones:
 want-safe-zones #t
-want-toontown-central #t
-want-donalds-dock #t
-want-daisys-garden #t
 want-minnies-melodyland #t
 want-the-burrrgh #t
 want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
-want-resistance-grounds #f
 
 # Cog headquarters:
 want-cog-headquarters #t
@@ -78,8 +59,6 @@ zero-pause-mult 1.0
 
 # Interactive Props
 randomize-interactive-idles #t
-interactive-prop-random-idles #t
-interactive-prop-info #f
 props-buff-battles #t
 prop-and-organic-bonus-stack #f
 prop-idle-pause-time 0.0
@@ -102,8 +81,6 @@ want-blacklist #f
 want-double-progression #t
 
 # Developer options:
-show-population #f
-want-instant-parties #t
 want-quest-verification #t
 want-heartbeat #f
 want-yin-yang #t
