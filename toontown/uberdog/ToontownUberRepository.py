@@ -14,6 +14,7 @@ if ConfigVariableBool('want-game-gateway', False).getValue():
     from toontown.web.GameGateway import GameGateway
 
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
+from toontown.server import Readiness
 
 class ToontownUberRepository(ToontownInternalRepository):
     def __init__(self, baseChannel, serverId):
@@ -68,6 +69,7 @@ class ToontownUberRepository(ToontownInternalRepository):
             self.gateway = GameGateway(self)
 
         self.notify.info('Done.')
+        Readiness.markReady()
 
     def getGlobalObject(self, dcname):
         if dcname in self.globalObjects:

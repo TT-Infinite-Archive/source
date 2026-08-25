@@ -1,10 +1,8 @@
-from panda3d.core import ConfigVariableString
-
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 
 from otp.distributed import OtpDoGlobals
-from toontown.web.GatewaySocket import GatewaySocket, gatewayToken, socketUrl
+from toontown.web.GatewaySocket import openSocket
 
 NOT_PENDING = 'The Toon is no longer awaiting a name.'
 
@@ -29,24 +27,10 @@ class GameGateway(DirectObject):
             'denyName': self.denyName,
         }
 
-        self.socket = None
+        self.socket = openSocket(onCommand=self.apply)
 
-        token = gatewayToken()
-        if not token:
-            self.notify.warning(
-                'want-game-gateway is set but TTI_GATEWAY_TOKEN is not;'
-                ' name review will not reach the game.')
-            return
-
-        url = ConfigVariableString('gateway-url', '').getValue()
-        endpoint = ConfigVariableString('account-service-url', '').getValue()
-
-        if not url and not endpoint:
-            self.notify.warning('account-service-url is unset.')
-            return
-
-        self.socket = GatewaySocket(
-            url or socketUrl(endpoint), token, onCommand=self.apply)
+        if self.socket is None:
+            self.notify.warning('No gateway; name review will not reach the game.')
 
     # --- COMMANDS ---
 

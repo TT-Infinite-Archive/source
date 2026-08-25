@@ -10,7 +10,12 @@ builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
 if __debug__:
 
     loadPrcFile('config/general.prc')
+    loadPrcFile('config/server.prc')
     loadPrcFile('config/distribution/dev.prc')
+    loadPrcFile('config/distribution/dev-server.prc')
+
+from toontown.server import Deployment
+Deployment.load()
 
 from otp.ai.AIBaseGlobal import *
 

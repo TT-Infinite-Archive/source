@@ -17,12 +17,15 @@ parser.add_argument('--district-name', help="What this AI Server's district will
 parser.add_argument('--astron-ip', help="The IP address of the Astron Message Director to connect to.")
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
-if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
+if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/server.prc', 'config/distribution/dev.prc', 'config/distribution/dev-server.prc'], help="PRC file(s) to load.")
 builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
     for prc in args.config:
         loadPrcFile(prc)
+
+from toontown.server import Deployment
+Deployment.load()
 
 localconfig = ''
 if args.base_channel: localconfig += 'air-base-channel %s\n' % args.base_channel
@@ -42,10 +45,32 @@ from otp.ai.AIBaseGlobal import *
 import gc
 gc.disable()
 
+# Ask the website for this district's identity before starting anything else
+#
+#
+# If there is no gateway (development or private servers) or the website is down, 
+# fallback to config values
+from toontown.web import GatewaySocket
+
+gateway = GatewaySocket.openSocket()
+if gateway:
+    ready = gateway.waitForReady(ConfigVariableInt('gateway-ready-timeout', 15).getValue())
+    if ready:
+        settings = dict(ready.get('config') or {})
+        if ready.get('name'):
+            settings.setdefault('district-name', ready['name'])
+
+        loadPrcFileData('Gateway', ''.join(
+            '%s %s\n' % (variable, value) for variable, value in sorted(settings.items())))
+
+        Deployment.load()
+        loadPrcFileData('Command-line', localconfig)
+
 from toontown.ai.ToontownAIRepository import ToontownAIRepository
 simbase.air = ToontownAIRepository(ConfigVariableInt('air-base-channel', 401000000).getValue(),
                                    ConfigVariableInt('air-stateserver', 4002).getValue(),
-                                   ConfigVariableString('district-name', 'Devhaven').getValue())
+                                   ConfigVariableString('district-name', 'Devhaven').getValue(),
+                                   gateway=gateway)
 host = ConfigVariableString('air-connect', '127.0.0.1').getValue()
 port = 7010
 if ':' in host:

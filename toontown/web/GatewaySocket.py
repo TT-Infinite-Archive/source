@@ -2,9 +2,12 @@ import json
 import os
 import queue
 import threading
+import time
 import urllib.parse
 
 import websocket
+
+from panda3d.core import ConfigVariableBool, ConfigVariableString
 
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
@@ -27,6 +30,7 @@ class GatewaySocket(DirectObject):
         self.onCommand = onCommand
         self.onReady = onReady
         self.identity = None
+        self.ready = None
         self.inbox = queue.Queue()
         self.lock = threading.Lock()
         self.app = None
@@ -122,6 +126,7 @@ class GatewaySocket(DirectObject):
 
         if kind == 'ready':
             self.identity = message.get('name')
+            self.ready = message
             self.notify.info('Authenticated as %s (%s).'
                              % (self.identity, message.get('kind')))
             if self.onReady:
@@ -139,6 +144,40 @@ class GatewaySocket(DirectObject):
             return
 
         self.notify.warning('Ignoring an unknown frame type: %s' % kind)
+
+    def waitForReady(self, timeout):
+        """
+        Blocks until the website has said who this process is.
+
+        Returns None if the website did not answer in time.
+        """
+        if not self.token:
+            return None
+
+        deadline = time.monotonic() + timeout
+        deferred = []
+
+        while self.ready is None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                self.notify.warning(
+                    'The website did not answer within %ss.' % timeout)
+                break
+
+            try:
+                message = self.inbox.get(timeout=min(remaining, 0.25))
+            except queue.Empty:
+                continue
+
+            if message.get('type') == 'ready':
+                self.handle(message)
+            else:
+                deferred.append(message)
+
+        for message in deferred:
+            self.inbox.put(message)
+
+        return self.ready
 
     def stop(self):
         self.stopped = True
@@ -159,4 +198,32 @@ def gatewayToken():
     """
     The process's own credential.
     """
-    return os.environ.get('TTI_GATEWAY_TOKEN', '')
+    return os.environ.get('GATEWAY_TOKEN', '')
+
+
+def openSocket(onCommand=None, onReady=None):
+    """
+    The process's socket to the website, or None if it has no gateway.
+    """
+    notify = GatewaySocket.notify
+
+    if not ConfigVariableBool('want-game-gateway', False).getValue():
+        return None
+
+    token = gatewayToken()
+    if not token:
+        notify.warning('want-game-gateway is set but GATEWAY_TOKEN is not;'
+                       ' this process will not reach the website.')
+        return None
+
+    # In production the socket piggybacks on the website's own domain and the
+    # proxy routes it to the gateway
+    url = ConfigVariableString('gateway-url', '').getValue()
+    endpoint = ConfigVariableString('account-service-url', '').getValue()
+
+    if not url and not endpoint:
+        notify.warning('account-service-url is unset.')
+        return None
+
+    return GatewaySocket(url or socketUrl(endpoint), token,
+                         onCommand=onCommand, onReady=onReady)
