@@ -1,0 +1,151 @@
+name: Publish client
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.0.0)."
+        required: true
+        type: string
+
+env:
+  BUCKET: ttiwebsite
+  PREFIX: releases
+  AWS_DEFAULT_REGION: auto
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.version.outputs.value }}
+    steps:
+      - id: version
+        run: |
+          VALUE="${{ inputs.version || github.ref_name }}"
+          # A tag push arrives as v1.0.0; the version string itself has no v.
+          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
+
+  resources:
+    name: Pack the resources
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the art
+        uses: actions/checkout@v4
+        with:
+          repository: TT-Infinite-Archive/resources
+          path: art
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Pack the phase multifiles
+        run: |
+          pip install --disable-pip-version-check -r requirements.txt
+          python tools/pack_client_resources.py art build/client/resources
+
+      - name: Describe them
+        run: |
+          python tools/build_manifest.py \
+              --tree build/client/resources \
+              --section resources \
+              --prefix resources \
+              --version ${{ needs.version.outputs.value }} \
+              --manifest build/manifest/resources.json \
+              --blobs build/blobs
+
+      - name: Upload
+        run: |
+          aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
+              --cache-control "public, max-age=31536000, immutable"
+          aws s3 cp build/manifest/resources.json \
+              "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/resources.json" \
+              --cache-control "no-cache" --content-type application/json
+
+  client:
+    name: Build ${{ matrix.target }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Nuitka is a compiler, not a cross-compiler: one runner per target.
+          # macOS is arm64 only (for now)
+          - os: macos-14
+            target: mac-arm64
+          - os: windows-latest
+            target: win-x64
+          - os: ubuntu-latest
+            target: linux-x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install patchelf
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends patchelf
+
+      - name: Ensure the AWS CLI is present
+        if: runner.os == 'macOS'
+        run: command -v aws || brew install awscli
+
+      - name: Report the macOS deployment target
+        if: runner.os == 'macOS'
+        run: python -c "import sysconfig; print(sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET'))"
+
+      - name: Install dependencies
+        run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
+
+      - name: Compile the client
+        env:
+          SERVER_VERSION: ${{ needs.version.outputs.value }}
+        run: python tools/build_client.py
+
+      - name: Describe it
+        shell: bash
+        run: |
+          python tools/build_manifest.py \
+              --tree build/client/FrozenStart.dist \
+              --section ${{ matrix.target }} \
+              --version ${{ needs.version.outputs.value }} \
+              --manifest build/manifest/${{ matrix.target }}.json \
+              --blobs build/blobs
+
+      - name: Upload
+        shell: bash
+        run: |
+          aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
+              --cache-control "public, max-age=31536000, immutable"
+          aws s3 cp "build/manifest/${{ matrix.target }}.json" \
+              "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/${{ matrix.target }}.json" \
+              --cache-control "no-cache" --content-type application/json
+
+  publish:
+    name: Publish the release
+    needs: [version, resources, client]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Point latest.json at ${{ needs.version.outputs.value }}
+        run: |
+          echo '{"version":"${{ needs.version.outputs.value }}"}' > latest.json
+          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
+              --cache-control "no-cache" --content-type application/json

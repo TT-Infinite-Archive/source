@@ -104,9 +104,8 @@ from toontown.launcher.TTILauncher import TTILauncher
 builtins.launcher = TTILauncher()
 
 if not __debug__:
-    # Check if an username is set or not.
-    if launcher.getPlayToken() is None:
-        notify.error("Username isn't set, please start the game from the launcher.  Aborting.")
+    if launcher.getServerMode() is None:
+        notify.error("No server was chosen, please start the game from the launcher.  Aborting.")
 
 notify.info('Starting the game...')
 

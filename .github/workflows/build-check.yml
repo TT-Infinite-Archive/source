@@ -1,8 +1,7 @@
 name: Build check
 
-# The publish workflow only runs on a tag, so without this a broken Dockerfile
-# or a resource prune that stops being equivalent is not found until release.
-# Builds the same images, pushes nothing.
+# Since the publish workflow is triggered only on tags, without this check, issues like a broken Dockerfile
+# or changes in resource pruning that break compiling may go unnoticed
 
 on:
   pull_request:
@@ -51,6 +50,7 @@ jobs:
           cache-from: type=gha,scope=server
           cache-to: type=gha,scope=server,mode=max
 
+      # Astron is slow to compile, so caching it
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -60,6 +60,7 @@ jobs:
           tags: tti-astron:check
           build-args: SERVER_VERSION=check
           cache-from: type=gha,scope=astron
+          cache-to: type=gha,scope=astron,mode=max
 
       - name: Smoke test
         run: docker compose -f docker/compose.check.yaml up --wait --wait-timeout 300
@@ -71,18 +72,3 @@ jobs:
       - name: Stop
         if: always()
         run: docker compose -f docker/compose.check.yaml down -v
-
-  astron:
-    name: Astron image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/astron/Dockerfile
-          push: false
-          build-args: SERVER_VERSION=check
-          cache-from: type=gha,scope=astron
-          cache-to: type=gha,scope=astron,mode=max
