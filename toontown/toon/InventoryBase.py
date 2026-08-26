@@ -2,7 +2,8 @@ from panda3d.core import ConfigVariableBool, Datagram, DatagramIterator
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
 from direct.showbase import DirectObject
-from direct.showbase.PythonUtil import StackTrace
+if __debug__:
+    from direct.showbase.PythonUtil import StackTrace
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
@@ -11,7 +12,7 @@ class InventoryBase(DirectObject.DirectObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('InventoryBase')
 
     def __init__(self, toon, invStr = None):
-        self._createStack = str(StackTrace().compact())
+        self._createStack = str(StackTrace().compact()) if __debug__ else ''
         self.toon = toon
         if invStr == None:
             self.inventory = []

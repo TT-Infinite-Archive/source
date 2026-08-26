@@ -25,7 +25,8 @@ import random
 import time
 import string
 import copy
-from direct.showbase.PythonUtil import StackTrace
+if __debug__:
+    from direct.showbase.PythonUtil import StackTrace
 
 class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLookerAI.PetLookerAI, PetBase.PetBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPetAI')
@@ -550,7 +551,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         else:
             myDoId = 'No doId'
             myTaskName = 'No task name'
-            myStackTrace = StackTrace().trace
+            myStackTrace = StackTrace().trace if __debug__ else 'No Trace'
             myOldStackTrace = 'No Trace'
             if hasattr(self, 'doId'):
                 myDoId = self.doId

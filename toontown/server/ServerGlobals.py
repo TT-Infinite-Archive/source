@@ -1,5 +1,4 @@
 from panda3d.core import ConfigVariableList
-import builtins
 import os
 import sys
 
@@ -11,9 +10,9 @@ print(str(LogsPath))
 if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
-elif hasattr(builtins, '__nirai__'):
-    UberdogTarget = [__nirai__.filename, '--uberdog']
-    AITarget = [__nirai__.filename, '--ai']
+elif getattr(sys, 'frozen', False):
+    UberdogTarget = [sys.executable, '--uberdog']
+    AITarget = [sys.executable, '--ai']
 else:
     PythonPath = sys.executable
     UberdogTarget = [PythonPath, '-m', 'toontown.uberdog.ServiceStart']
