@@ -17,12 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       value: ${{ steps.version.outputs.value }}
+      image: ${{ steps.version.outputs.image }}
     steps:
       - id: version
         run: |
           VALUE="${{ inputs.version || github.ref_name }}"
-          # A tag push arrives as v1.0.0; the version string itself has no v.
-          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
 
   publish:
     name: Build and push ${{ matrix.image }}
@@ -85,8 +84,8 @@ jobs:
           build-args: |
             SERVER_VERSION=${{ needs.version.outputs.value }}
           tags: |
-            ghcr.io/${{ github.repository }}-${{ matrix.image }}:${{ needs.version.outputs.value }}
-            ghcr.io/${{ github.repository }}-${{ matrix.image }}:latest
+            ${{ needs.version.outputs.image }}-${{ matrix.image }}:${{ needs.version.outputs.value }}
+            ${{ needs.version.outputs.image }}-${{ matrix.image }}:latest
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,scope=${{ matrix.image }},mode=max
 
