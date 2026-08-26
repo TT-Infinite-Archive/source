@@ -4,6 +4,9 @@ distribution live
 # Server:
 server-version SERVER_VERSION
 
+# Art assets:
+model-path /
+
 # DC file:
 # Nirai baked the DC into the binary, so live never had to name it. Anything
 # running from source, the Docker images included, does.

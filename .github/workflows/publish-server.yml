@@ -1,0 +1,99 @@
+name: Publish server images
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 1.0.0)."
+        required: true
+        type: string
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.version.outputs.value }}
+    steps:
+      - id: version
+        run: |
+          VALUE="${{ inputs.version || github.ref_name }}"
+          # A tag push arrives as v1.0.0; the version string itself has no v.
+          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Build and push ${{ matrix.image }}
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The districts and the UberDOG run out of this one:
+          - image: server
+            file: Dockerfile
+            resources: true
+          # Compiles Astron and both Mongo drivers from source:
+          - image: astron
+            file: docker/astron/Dockerfile
+            resources: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The server's slice of the art has to exist before the build
+      # Since the art is its own repository, the Dockerfile cannot reach it
+      - name: Check out the art
+        if: matrix.resources
+        uses: actions/checkout@v4
+        with:
+          repository: TT-Infinite-Archive/resources
+          path: art
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        if: matrix.resources
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Assemble server resources
+        if: matrix.resources
+        run: |
+          pip install --disable-pip-version-check -r requirements.txt
+          tools/build-server-resources.sh art build/resources
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          push: true
+          build-args: |
+            SERVER_VERSION=${{ needs.version.outputs.value }}
+          tags: |
+            ghcr.io/${{ github.repository }}-${{ matrix.image }}:${{ needs.version.outputs.value }}
+            ghcr.io/${{ github.repository }}-${{ matrix.image }}:latest
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }},mode=max
+
+  deploy:
+    name: Deploy
+    needs: [version, publish]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      tag: ${{ needs.version.outputs.value }}
+    secrets: inherit
