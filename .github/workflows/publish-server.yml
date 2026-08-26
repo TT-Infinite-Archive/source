@@ -20,8 +20,11 @@ jobs:
       image: ${{ steps.version.outputs.image }}
     steps:
       - id: version
+        shell: bash
         run: |
           VALUE="${{ inputs.version || github.ref_name }}"
+          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
   publish:
     name: Build and push ${{ matrix.image }}
@@ -76,23 +79,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release identity
-        id: release
-        run: |
-          VALUE="${{ inputs.version || github.ref_name }}"
-          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
-          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-
       - uses: docker/build-push-action@v7
         with:
           context: .
           file: ${{ matrix.file }}
           push: true
           build-args: |
-            SERVER_VERSION=${{ steps.release.outputs.value }}
+            SERVER_VERSION=${{ needs.version.outputs.value }}
           tags: |
-            ${{ steps.release.outputs.image }}-${{ matrix.image }}:${{ steps.release.outputs.value }}
-            ${{ steps.release.outputs.image }}-${{ matrix.image }}:latest
+            ${{ needs.version.outputs.image }}-${{ matrix.image }}:${{ needs.version.outputs.value }}
+            ${{ needs.version.outputs.image }}-${{ matrix.image }}:latest
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,scope=${{ matrix.image }},mode=max
 
