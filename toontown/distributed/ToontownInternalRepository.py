@@ -1,6 +1,6 @@
 import urllib.parse
 
-from direct.distributed.AstronInternalRepository import AstronInternalRepository
+from panda3d_astron.repository import AstronInternalRepository
 from direct.distributed.PyDatagram import PyDatagram
 from panda3d.core import loadPrcFile
 from panda3d.direct import DCPacker

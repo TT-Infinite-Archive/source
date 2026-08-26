@@ -1,0 +1,85 @@
+name: ttiserver
+
+x-game: &game
+  image: ${REGISTRY:-ghcr.io/tt-infinite-archive/source}-server:${TAG:-latest}
+  networks: [ttiserver]
+  restart: always
+  environment: &game-env
+    INFISICAL_TOKEN: ${INFISICAL_TOKEN:?}
+    INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:?}
+    INFISICAL_DOMAIN: ${INFISICAL_DOMAIN:-https://infisical.toontown.io}
+    INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+    TZ: &tz ${TZ:-America/Los_Angeles}
+  healthcheck:
+    test: ["CMD", "test", "-f", "/tmp/ready"]
+    interval: 10s
+    timeout: 5s
+    retries: 30
+    start_period: 30s
+  depends_on:
+    astrond:
+      condition: service_healthy
+    mongo:
+      condition: service_healthy
+
+services:
+  astrond:
+    image: ${REGISTRY:-ghcr.io/tt-infinite-archive/source}-astron:${TAG:-latest}
+    container_name: tti-astrond
+    restart: always
+    networks: [ttiserver]
+    ports:
+      - "7000:7000"
+    volumes:
+      - astron-logs:/astron/logs
+    environment:
+      TZ: *tz
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/7010"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  uberdog:
+    <<: *game
+    container_name: tti-uberdog
+    environment:
+      <<: *game-env
+      INFISICAL_PATH: /uberdog
+    command: [uberdog]
+
+  nuttyboro:
+    <<: *game
+    container_name: tti-nuttyboro
+    environment:
+      <<: *game-env
+      INFISICAL_PATH: /districts/nuttyboro
+    command: [ai]
+
+  mongo:
+    image: mongo:8
+    container_name: tti-mongo
+    restart: always
+    networks: [ttiserver]
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      TZ: *tz
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  ttiserver:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  astron-logs:

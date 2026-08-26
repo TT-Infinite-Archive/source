@@ -1,0 +1,35 @@
+.DS_Store
+venv
+.git
+.github
+
+# Secrets arrive from Infisical at runtime; see docker/entrypoint.sh:
+.gateway-env
+.infisical.json
+.env
+.env.*
+
+# Host state:
+logs
+backups
+contentpacks
+preferences
+preferences.json
+serversettings.json
+bookmarks.json
+banned_players.txt
+astron/data
+astron/logs
+astron/astrond
+astron/astrond.exe
+astron/dev.yml
+
+# Platform launcher scripts for running outside a container.
+darwin
+linux
+win32
+tools
+doc
+
+**/__pycache__
+*.pyc

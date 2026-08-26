@@ -33,21 +33,9 @@ backups-extension .json
 
 # Server:
 server-timezone PST/PDT/-8
-server-port 7000
-account-server-endpoint https://toontowninfinite.com/api/
-
-# RPC:
-want-rpc-server #f
-rpc-server-endpoint http://localhost:8080/
-rpc-server-secret eWd54mrNYuREmTA6
-
-# Website gateway:
-want-game-gateway #t
-shard-heartbeat-interval 20
 
 # Performance:
 sync-video #f
-texture-power-2 none
 gl-check-errors #f
 garbage-collect-states #t
 support-threads #t
@@ -68,44 +56,22 @@ egg-object-type-model <Model> { 1 }
 egg-object-type-dcs <DCS> { 1 }
 
 # Core features:
-want-kaldron-network #f
 want-multiplayer #f
 want-guilds #f
 want-guild-quests #f
 want-emblems #f
-want-gardening #t
 want-pets #t
 
 # Safe zones:
 want-safe-zones #t
-want-toontown-central #t
-want-donalds-dock #t
-want-daisys-garden #t
 want-minnies-melodyland #t
 want-the-burrrgh #t
 want-donalds-dreamland #t
 want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
-want-resistance-grounds #f
-
-# Safe zone settings:
-want-treasure-planners #t
-want-suit-planners #t
-
-# Classic characters:
-want-classic-chars #f
-want-mickey #f
-want-donald-dock #f
-want-daisy #f
-want-minnie #f
-want-pluto #f
-want-donald-dreamland #f
-want-chip-and-dale #f
-want-goofy #f
 
 # Trolley minigames:
-want-minigames #t
 want-photo-game #f
 want-travel-game #f
 want-ttc-trolley #t
@@ -133,8 +99,6 @@ zero-pause-mult 1.0
 
 # Interactive Props
 randomize-interactive-idles #t
-interactive-prop-random-idles #t
-interactive-prop-info #f
 props-buff-battles #t
 prop-and-organic-bonus-stack #f
 prop-idle-pause-time 0.0
@@ -145,7 +109,6 @@ want-mat-all-tailors #t
 want-long-pattern-game #f
 want-talkative-tyler #f
 want-yin-yang #f
-want-butterflies #f
 want-estate-fisherman #t
 want-fireworks #t
 want-code-redemption #f

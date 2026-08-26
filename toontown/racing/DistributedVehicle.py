@@ -893,8 +893,9 @@ class DistributedVehicle(DistributedSmoothNode.DistributedSmoothNode, Kart.Kart,
         curHeading = rotMat.xform(Vec3.forward())
         push = (3 - self.getP()) * 0.02
         curHeading.setZ(curHeading.getZ() - min(0.2, max(-.2, push)))
-        onScreenDebug.append('vehicle curHeading = %s\n' % curHeading.pPrintValues())
-        onScreenDebug.append('vehicle H = %s  newHForTurning=%f\n' % (self.getH(), newHForTurning))
+        if __debug__:
+            onScreenDebug.append('vehicle curHeading = %s\n' % curHeading.pPrintValues())
+            onScreenDebug.append('vehicle H = %s  newHForTurning=%f\n' % (self.getH(), newHForTurning))
         windResistance = self.surfaceModifiers[self.groundType]['windResistance']
         self.windResistance.setCoef(windResistance)
         physicsFrame = int((globalClock.getFrameTime() - self.physicsEpoch) * self.physicsCalculationsPerSecond)

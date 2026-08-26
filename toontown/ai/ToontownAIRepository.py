@@ -68,7 +68,8 @@ from toontown.suit.SuitInvasionManagerAI import SuitInvasionManagerAI
 from toontown.toon import NPCToons
 from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.tutorial.TutorialManagerAI import TutorialManagerAI
-from toontown.web.GatewaySocket import GatewaySocket, gatewayToken, socketUrl
+from toontown.server import Readiness
+from toontown.web.GatewaySocket import openSocket
 from toontown.web.ShardStatusReporter import ShardStatusReporter
 from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.safezone import DistributedPartyGateAI
@@ -146,7 +147,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         }
 
 
-    def __init__(self, baseChannel, stateServerChannel, districtName):
+    def __init__(self, baseChannel, stateServerChannel, districtName, gateway=None):
         ToontownInternalRepository.__init__(
             self, baseChannel, stateServerChannel, dcSuffix='AI')
 
@@ -154,7 +155,7 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         # The district's own line to the website, and the commands it is
         # currently answering. Both stay None/empty if the gateway is off.
-        self.gateway = None
+        self.gateway = gateway
         self.gatewayReporter = None
         self.gatewayCommands = set()
 
@@ -336,31 +337,16 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def startGateway(self):
         """
-        Opens this district's own socket to the website.
+        Takes over this district's socket to the website.
         """
-        if not ConfigVariableBool('want-game-gateway', False).getValue():
+        if self.gateway is None:
+            self.gateway = openSocket()
+
+        if self.gateway is None:
             return
 
-        token = gatewayToken()
-        if not token:
-            self.notify.warning(
-                'want-game-gateway is set but TTI_GATEWAY_TOKEN is not;'
-                ' this district will not appear on the website.')
-            return
-
-        # In production the socket piggybacks on the website's own domain and the
-        # proxy routes it to the gateway
-        url = ConfigVariableString('gateway-url', '').getValue()
-
-        endpoint = ConfigVariableString('account-service-url', '').getValue()
-        if not url and not endpoint:
-            self.notify.warning('account-service-url is unset.')
-            return
-
-        self.gateway = GatewaySocket(
-            url or socketUrl(endpoint), token,
-            onCommand=self.handleGatewayCommand,
-            onReady=self.handleGatewayReady)
+        self.gateway.onCommand = self.handleGatewayCommand
+        self.gateway.onReady = self.handleGatewayReady
 
         self.gatewayReporter = ShardStatusReporter(self, self.gateway)
 
@@ -464,6 +450,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.notify.info('Making district available...')
         self.distributedDistrict.b_setAvailable(1)
         self.notify.info('Done.')
+        Readiness.markReady()
 
         if ConfigVariableBool('want-leak-graph-ai', False).getValue():
             self.leakGraph = LeakGraph(f'tti-ai-process-{self.ourChannel}')

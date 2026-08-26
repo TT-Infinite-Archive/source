@@ -203,7 +203,7 @@ class WebAccountDB(AccountDB):
         # 401 is the ordinary case which is expired, already used, or was never real
         # 
         # Every other status is our problem, not the player's: a 503 means the website has
-        # GAME_SERVER_SECRET not configured
+        # ACCOUNT_SERVICE_SECRET not configured
         # 
         # 400 means we sent it nothing
         #

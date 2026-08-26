@@ -1,8 +1,12 @@
 import json
 import os
 
+from direct.directnotify import DirectNotifyGlobal
+
 
 class BackupManager:
+    notify = DirectNotifyGlobal.directNotify.newCategory('BackupManager')
+
     def __init__(self, filepath='backups/', extension='.json'):
         self.filepath = filepath
         self.extension = extension
@@ -18,13 +22,26 @@ class BackupManager:
         if (not os.path.exists(filename)) or (not os.path.getsize(filename)):
             return default
 
-        with open(filename, 'r') as f:
-            return json.load(f)
+        try:
+            with open(filename, 'r') as f:
+                return json.load(f)
+        except (OSError, ValueError) as error:
+            # a single unreadable file would otherwise take the whole district
+            # down and keep doing it on every restart. The next save replaces it!
+            self.notify.warning(
+                'Ignoring unreadable backup %s: %s' % (filename, error))
+            return default
 
     def save(self, category, info, data):
         filepath = os.path.join(self.filepath, category)
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         filename = self.getFileName(category, info)
-        with open(filename, 'w') as f:
+        partial = filename + '.partial'
+
+        with open(partial, 'w') as f:
             json.dump(data, f)
+            f.flush()
+            os.fsync(f.fileno())
+
+        os.replace(partial, filename)

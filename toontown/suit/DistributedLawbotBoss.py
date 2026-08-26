@@ -9,7 +9,8 @@ from direct.distributed.ClockDelta import *
 from direct.fsm import FSM
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
-from direct.showbase.PythonUtil import StackTrace
+if __debug__:
+    from direct.showbase.PythonUtil import StackTrace
 from direct.showbase.ShowBase import *
 from direct.task import Task
 
@@ -1918,8 +1919,8 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.notify.warning('returning from setTaunt, no attr nametag')
             gotError = True
         if gotError:
-            st = StackTrace()
-            print(st)
+            if __debug__:
+                print(StackTrace())
             return
         chatString = TTLocalizer.LawbotBossTaunts[1]
         if tauntIndex == 0:

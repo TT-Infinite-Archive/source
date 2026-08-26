@@ -44,6 +44,11 @@ from toontown.servermenu.ServerMenu import ServerMenu
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
 from toontown.toonbase import EventGlobals, TTLocalizer, ToontownGlobals
 
+if not __debug__:
+    def exceptionLogged(append = True):
+        return lambda method: method
+
+
 class EWishNameResult(enum.IntEnum):
     FAILURE = 0
     PENDING_APPROVAL = 1

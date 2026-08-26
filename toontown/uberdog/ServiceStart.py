@@ -23,12 +23,15 @@ parser.add_argument('--accountdb', choices=('developer', 'offline', 'production'
                     username on the spot, granting access level 500 and 100 respectively. 'production' \
                     skips the login screen and redeems the launcher's launch token against the website. \
                     Overrides accountdb-type from the PRC files.")
-if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
+if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/server.prc', 'config/distribution/dev.prc', 'config/distribution/dev-server.prc'], help="PRC file(s) to load.")
 builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
     for prc in args.config:
         loadPrcFile(prc)
+
+from toontown.server import Deployment
+Deployment.load()
 
 localconfig = ''
 if args.base_channel: localconfig += 'air-base-channel %s\n' % args.base_channel
