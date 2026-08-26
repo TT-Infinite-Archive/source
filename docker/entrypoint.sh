@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+# Re-exec the whole command through Infisical so that everything downstream
+# grabs the injected secrets as environment variables.
+if [ -n "$INFISICAL_TOKEN" ] && [ -z "$_INFISICAL_INJECTED" ]; then
+    export _INFISICAL_INJECTED=1
+    exec infisical run \
+        --env="${INFISICAL_ENV:-prod}" \
+        --projectId="$INFISICAL_PROJECT_ID" \
+        --path="${INFISICAL_PATH:-/}" \
+        -- "$0" "$@"
+fi
+
+case "${1:-}" in
+    ai|uberdog)
+        service="$1"
+        shift
+
+        # Channel ranges. Fixed for the UberDOG
+        # A district normally learns its base channel and name from the gateway when its
+        # token is authenticated, so BASE_CHANNEL is set only for a stack with no
+        # website behind it:
+        if [ "$service" = 'uberdog' ]; then
+            : "${BASE_CHANNEL:=1000000}"
+            : "${CHANNEL_ALLOCATION:=9999}"
+        else
+            : "${CHANNEL_ALLOCATION:=999999}"
+        fi
+        export BASE_CHANNEL CHANNEL_ALLOCATION
+
+        # Written once startup has finished, and what the healthcheck
+        # looks for:
+        export READY_FILE=/tmp/ready
+
+        set -- python -m "toontown.$service.ServiceStart" \
+            config/general.prc \
+            config/server.prc \
+            config/distribution/live.prc \
+            config/distribution/live-server.prc \
+            docker/container.prc \
+            "$@"
+        ;;
+esac
+
+exec "$@"
