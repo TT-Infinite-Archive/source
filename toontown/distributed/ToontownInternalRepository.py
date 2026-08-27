@@ -1,6 +1,7 @@
+import collections
 import urllib.parse
 
-from panda3d_astron.repository import AstronInternalRepository
+from panda3d_astron.repository import AstronInternalRepository, msgpack_encode
 from direct.distributed.PyDatagram import PyDatagram
 from panda3d.core import loadPrcFile
 from panda3d.direct import DCPacker
@@ -37,6 +38,23 @@ class ToontownInternalRepository(AstronInternalRepository):
         self.dbAstronCursor = self.mongodb.astron
 
         self.netMessenger = ToontownNetMessengerAI(self)
+
+    def writeServerEvent(self, logtype, *args, **kwargs):
+        if self.eventSocket is None:
+            return
+
+        log = collections.OrderedDict()
+        log['type'] = logtype
+        log['sender'] = self.eventLogId
+
+        for i, v in enumerate(args):
+            log['_%d' % (i + 1)] = v
+
+        log.update(kwargs)
+
+        dg = PyDatagram()
+        msgpack_encode(dg, log)
+        self.eventSocket.Send(dg.getMessage())
 
     def handleConnected(self):
         self.netMessenger.register()

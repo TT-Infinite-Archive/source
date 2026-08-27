@@ -69,8 +69,12 @@ class AccountServiceClient:
                     request, timeout=timeout or self.TIMEOUT) as response:
                 body = json.loads(response.read().decode('utf-8'))
         except urllib.error.HTTPError as error:
-            # A 401 here is an expired or already used token
-            self.notify.debug('%s returned HTTP %s.' % (url, error.code))
+            detail = ''
+            try:
+                detail = error.read().decode('utf-8', 'replace').strip()
+            except Exception:
+                pass
+            self.notify.warning('%s returned HTTP %s. %s' % (url, error.code, detail))
             self.results.put((errback, (error.code,)))
         except Exception as error:
             self.notify.warning('%s failed: %s' % (url, error))

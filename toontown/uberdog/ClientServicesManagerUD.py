@@ -209,7 +209,7 @@ class WebAccountDB(AccountDB):
         #
         # 401 means mismatched secret
         if status == 401:
-            self.notify.debug('Account service refused a launch token.')
+            self.notify.warning('Account service refused a launch token.')
             error = ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID
         else:
             self.notify.warning(
@@ -240,9 +240,9 @@ class OperationFSM(FSM):
 
     def enterOff(self):
         if self.TARGET_CONNECTION:
-            del self.csm.connection2fsm[self.target]
+            self.csm.connection2fsm.pop(self.target, None)
         else:
-            del self.csm.account2fsm[self.target]
+            self.csm.account2fsm.pop(self.target, None)
 
 
 class LoginAccountFSM(OperationFSM):
@@ -1191,6 +1191,15 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         else:
             self.notify.error('Invalid accountdb-type: ' + accountdbType)
 
+    def recordRequest(self, connId):
+        now = time.time()
+
+        for otherId, stamp in list(self.connection2Timestamp.items()):
+            if now - stamp > self.REQUEST_DELAY:
+                del self.connection2Timestamp[otherId]
+
+        self.connection2Timestamp[connId] = now
+
     def killConnection(self, connId, reason):
         datagram = PyDatagram()
         datagram.addServerHeader(
@@ -1287,7 +1296,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
                 self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_TOO_FAST])
                 return
 
-        self.connection2Timestamp[sender] = time.time()
+        self.recordRequest(sender)
         self.connection2fsm[sender] = LoginAccountFSM(self, sender)
         self.connection2fsm[sender].request('Start', username, password)
 
@@ -1309,7 +1318,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
                     [ToontownGlobals.CSM_LOGIN_ERROR_TOO_FAST])
                 return
 
-        self.connection2Timestamp[sender] = time.time()
+        self.recordRequest(sender)
         self.connection2fsm[sender] = LoginTokenFSM(self, sender)
         self.connection2fsm[sender].request('Start', token)
 
