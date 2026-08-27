@@ -24,6 +24,8 @@ jobs:
         env:
           REGISTRY: ${{ vars.REGISTRY }}
           TAG: ${{ inputs.tag }}
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
           INFISICAL_PROJECT_ID: ${{ vars.INFISICAL_PROJECT_ID }}
           INFISICAL_DOMAIN: ${{ vars.INFISICAL_DOMAIN }}

@@ -5,7 +5,9 @@ x-game: &game
   networks: [ttiserver]
   restart: always
   environment: &game-env
-    INFISICAL_TOKEN: ${INFISICAL_TOKEN:?}
+    INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID:-}
+    INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET:-}
+    INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
     INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:?}
     INFISICAL_DOMAIN: ${INFISICAL_DOMAIN:-https://infisical.toontown.io}
     INFISICAL_ENV: ${INFISICAL_ENV:-prod}
@@ -35,7 +37,7 @@ services:
     environment:
       TZ: *tz
     healthcheck:
-      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/7010"]
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/7000"]
       interval: 10s
       timeout: 5s
       retries: 5
