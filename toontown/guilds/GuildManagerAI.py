@@ -253,7 +253,7 @@ def guildQuest(command, arg=""):
     return 'No command %s exists.' % command
 
 
-@magicWord(category=CATEGORY_MODERATOR, types=[int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def badGuildName(wantSelf=0):
     target = spellbook.getTarget()
     invoker = spellbook.getInvoker()
@@ -292,7 +292,7 @@ def leaveGuild():
     simbase.air.guildManager.d_adminLeaveGuild(invoker.doId)
 
 
-@magicWord(category=CATEGORY_MODERATOR)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def guildId():
     target = spellbook.getTarget()
     guildId = target.getGuildId()

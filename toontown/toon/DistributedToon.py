@@ -2837,17 +2837,15 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             return
         if not gmType:
             gmType = self._gmType
-        iconInfo = [
-            (None, None), # User
-            ('phase_3/models/props/gm_icons.bam', '**/access_level_300'), # Mod
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_whistle', '**/whistleIcon*'), # Admin
-            ('phase_3.5/models/gui/tt_m_gui_gm_toontroop_getConnected', '**/whistleIcon*'), # Host
-        ]
-        index = (gmType / 100) - 1
-        icon = loader.loadModel(iconInfo[index][0])
-        self.gmIcon = icon.find(iconInfo[index][1])
+        icon = loader.loadModel('phase_3/models/props/gm_icons.bam')
+        self.gmIcon = icon.find('**/access_level_%d' % gmType)
+        if self.gmIcon.isEmpty():
+            self.notify.warning('No GM icon for access level %s.' % gmType)
+            self.gmIcon = None
+            return
         np = NodePath(self.nametag.getIcon())
         if np.isEmpty():
+            self.gmIcon = None
             return
         self.gmIcon.flattenStrong()
         self.gmIcon.reparentTo(np)

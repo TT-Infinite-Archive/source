@@ -1,5 +1,13 @@
 import traceback
 
+from direct.directnotify import DirectNotifyGlobal
+
+from otp.ai.LiveMagicWordAccess import LIVE_ACCESS, LIVE_DEFAULT_ACCESS
+
+_notify = DirectNotifyGlobal.directNotify.newCategory('MagicWordGlobal')
+
+FAILURE_RESPONSE = 'The command did not execute. Please see game logs.'
+
 
 class MagicError(Exception):
     pass
@@ -25,8 +33,29 @@ class Spellbook:
         self.currentInvoker = None
         self.currentTarget = None
 
+        self.accessOverrides = {}
+        self.accessDefault = None
+        self._defaulted = set()
+
     def addWord(self, word):
         self.words[word.name.lower()] = word  # lets make this stuff case insensitive
+
+    def useLiveAccess(self):
+        self.accessOverrides = LIVE_ACCESS
+        self.accessDefault = LIVE_DEFAULT_ACCESS
+
+    def requiredAccess(self, word):
+        if self.accessDefault is None:
+            return word.access
+        name = word.name.lower()
+        override = self.accessOverrides.get(name)
+        if override is None:
+            override = self.accessDefault
+            if name not in self._defaulted:
+                self._defaulted.add(name)
+                _notify.warning('Magic word %r is not in the live table; '
+                                'holding it at %d.' % (word.name, override))
+        return max(word.access, override)
 
     def process(self, invoker, target, incantation):
         self.currentInvoker = invoker
@@ -38,7 +67,9 @@ class Spellbook:
         except MagicError as e:
             return ' '.join(e.args)
         except Exception:
-            return traceback.format_exc()
+            _notify.warning('Magic word %r raised for %s:\n%s'
+                            % (incantation, invoker, traceback.format_exc()))
+            return FAILURE_RESPONSE
         finally:
             self.currentInvoker = None
             self.currentTarget = None
@@ -50,13 +81,13 @@ class Spellbook:
         if not word:
             if process == 'ai':
                 for key in self.words:
-                    if self.words.get(key).access <= self.getInvokerAccess():
+                    if self.requiredAccess(self.words[key]) <= self.getInvokerAccess():
                         if wordName in key:
                             return 'Did you mean %s' % self.words.get(key).name
             if not word:
                 return
 
-        ensureAccess(word.access)
+        ensureAccess(self.requiredAccess(word))
         if self.getTarget() and self.getTarget() != self.getInvoker():
             if self.getInvokerAccess() <= self.getTarget().getAdminAccess():
                 raise MagicError('Target must have lower access')
@@ -103,6 +134,10 @@ CATEGORY_ADMINISTRATOR = MagicWordCategory('Administrator', defaultAccess=300)
 CATEGORY_HOST = MagicWordCategory('Host', defaultAccess=400)
 
 MINIMUM_MAGICWORD_ACCESS = CATEGORY_USER.defaultAccess
+PRODUCTION_MAGICWORD_ACCESS = CATEGORY_MODERATOR.defaultAccess
+ACCESS_ADMINISTRATOR = 600
+ACCESS_SYSTEM_ADMINISTRATOR = 700
+GM_ICON_LEVELS = (0, 200, 300, 400, 500, ACCESS_ADMINISTRATOR, ACCESS_SYSTEM_ADMINISTRATOR)
 
 NON_CHEATS = ['ban', 'kick', 'warn', 'mute', 'system', 'gmIcon', 'target']
 

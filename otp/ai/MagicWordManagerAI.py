@@ -1,8 +1,8 @@
+from panda3d.core import ConfigVariableInt
+
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from otp.ai.MagicWordGlobal import *
-from direct.distributed.PyDatagram import PyDatagram
-from direct.distributed.MsgTypes import *
 
 
 class MagicWordManagerAI(DistributedObjectAI):
@@ -11,12 +11,22 @@ class MagicWordManagerAI(DistributedObjectAI):
     def __init__(self, air):
         DistributedObjectAI.__init__(self, air)
         self.wantCheats = self.air.wantCheats
+        self.minimumAccess = ConfigVariableInt(
+            'magic-word-minimum-access', MINIMUM_MAGICWORD_ACCESS).getValue()
 
     def sendMagicWord(self, word, targetId):
         invokerId = self.air.getAvatarIdFromSender()
         invoker = self.air.doId2do.get(invokerId)
         target = self.air.doId2do.get(targetId)
         targets = spellbook.getTargets(word)
+
+        if not invoker:
+            self.notify.warning('Magic word %r from unknown avatar %s.' % (word, invokerId))
+            return
+
+        if invoker.getAdminAccess() < self.minimumAccess:
+            self.air.writeServerEvent('suspicious', invokerId, 'Attempted to issue magic word: %s' % word)
+            return
 
         if ' ' in word:
             cheat = word[0:word.index(' ')]  # Remove arguments from word
@@ -32,19 +42,6 @@ class MagicWordManagerAI(DistributedObjectAI):
                 self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse',
                                           ['Target is a %s object! Expected: %s' % (target.__class__.__name__, targets)])
                 return
-
-        if not invoker:
-            self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', ['Missing invoker!'])
-            return
-
-        if invoker.getAdminAccess() < MINIMUM_MAGICWORD_ACCESS:
-            self.air.writeServerEvent('suspicious', invokerId, 'Attempted to issue magic word: %s' % word)
-            dg = PyDatagram()
-            dg.addServerHeader(self.GetPuppetConnectionChannel(invokerId), self.air.ourChannel, CLIENTAGENT_EJECT)
-            dg.addUint16(126)
-            dg.addString('Magic Words are reserved for administrators only!')
-            self.air.send(dg)
-            return
 
         if target is None:
             self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', ['Missing target!'])
@@ -73,9 +70,12 @@ def help(wordName=None):
         accessLevel = spellbook.getInvoker().getAdminAccess()
         wname = wordName.lower()
         for key in spellbook.words:
-            if spellbook.words.get(key).access <= accessLevel:
+            if spellbook.requiredAccess(spellbook.words[key]) <= accessLevel:
                 if wname in key:
                     return 'Did you mean %s' % spellbook.words.get(key).name
+        return 'I have no clue what %s is referring to' % wordName
+    if spellbook.requiredAccess(word) > spellbook.getInvokerAccess():
+        # Don't describe a word they can't run; it should read as nonexistent.
         return 'I have no clue what %s is referring to' % wordName
     return word.doc.strip()
 
@@ -86,7 +86,7 @@ def words():
     wordString = None
     for key in spellbook.words:
         word = spellbook.words.get(key)
-        if word.access <= accessLevel:
+        if spellbook.requiredAccess(word) <= accessLevel:
             if wordString is None:
                 wordString = key
             else:

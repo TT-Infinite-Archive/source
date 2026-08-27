@@ -435,7 +435,12 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
     def setAdminAccess(self, access):
         self.adminAccess = access
         if self.isLocal():
-            self.cr.wantMagicWords = self.adminAccess >= MINIMUM_MAGICWORD_ACCESS
+            # Live holds magic words to a higher tier than a server the player owns
+            if self.cr.isProductionServer():
+                minimum = PRODUCTION_MAGICWORD_ACCESS
+            else:
+                minimum = MINIMUM_MAGICWORD_ACCESS
+            self.cr.wantMagicWords = self.adminAccess >= minimum
 
     def getAdminAccess(self):
         return self.adminAccess

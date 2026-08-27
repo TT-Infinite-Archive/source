@@ -25,6 +25,7 @@ from direct.showbase.GarbageReportScheduler import GarbageReportScheduler
 from direct.task import Task
 
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
+from otp.ai.MagicWordGlobal import spellbook
 from otp.avatar.DistributedPlayer import DistributedPlayer
 from otp.distributed import OtpDoGlobals
 from otp.distributed.OtpDoGlobals import *
@@ -87,6 +88,9 @@ class OTPClientRepository(ClientRepositoryBase):
             self.profileKey = self.launcher.getProfileKey()
 
         self.wantMagicWords = False
+
+        if self.isProductionServer():
+            spellbook.useLiveAccess()
 
         if self.launcher and hasattr(self.launcher, 'http'):
             self.http = self.launcher.http
@@ -230,7 +234,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitNoConnection, [
                       'connect',
                       'mainMenu',
-                      'serverMenu'
+                      'serverMenu',
                       'shutdown']),
             State('periodTimeout',
                   self.enterPeriodTimeout,
@@ -620,6 +624,23 @@ class OTPClientRepository(ClientRepositoryBase):
 
         self.loginFSM.request('serverMenu')
 
+    def isProductionServer(self):
+        """
+        True when the launcher sent us to the live server. Live has no menu
+        behind the game, so it goes straight from the launcher to Pick-A-Toon.
+        """
+        return self.serverMode == 'production'
+
+    def requestMenuOrExit(self):
+        """
+        The menu is how offline and direct sessions back out. Live has nothing
+        behind it to back out to, so there we quit instead.
+        """
+        if self.isProductionServer():
+            self.loginFSM.request('shutdown')
+        else:
+            self.loginFSM.request('mainMenu')
+
     def startLauncherSession(self):
         """
         Connects to the server the launcher picked, skipping the main menu.
@@ -890,7 +911,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('connect', [self.serverList])
             messenger.send('connectionRetrying')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -984,7 +1005,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if doneStatus == 'ok':
             self.loginFSM.request('waitForGameList')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -1034,7 +1055,7 @@ class OTPClientRepository(ClientRepositoryBase):
             messenger.send('connectionRetrying')
             self.loginFSM.request('noShardsWait')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -1118,7 +1139,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
 
     def exitNoConnection(self):
         self.handler = None
@@ -1851,7 +1872,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return Task.done
 
     def __handleCancelWaiting(self, value):
-        self.loginFSM.request('mainMenu')
+        self.requestMenuOrExit()
 
     def renderFrame(self):
         gsg = base.win.getGsg()

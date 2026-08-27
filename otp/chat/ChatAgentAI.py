@@ -22,7 +22,7 @@ class ChatAgentAI(DistributedObjectGlobalAI):
             self.sendUpdate('muteAccount', [accountId, int(timestamp), time])
             av.d_setSystemMessage(0, MutedMessage % time)
 
-@magicWord(category=CATEGORY_MODERATOR, types=[int])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])
 def mute(time):
     """
     Mutes target's account for the specified time in seconds

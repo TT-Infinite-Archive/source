@@ -2,6 +2,7 @@ from panda3d.core import ConfigVariableBool, ConfigVariableString, MultiplexStre
 from direct.distributed.PyDatagram import *
 
 from otp.ai.AIZoneData import AIZoneDataStore
+from otp.ai.MagicWordGlobal import spellbook
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
 from otp.ai.TimeManagerAI import TimeManagerAI
 from otp.ai import BanManagerAI
@@ -202,7 +203,12 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantFireworks = ConfigVariableBool('want-fireworks', False).getValue()
         self.leakGraph = None
         self.cogSuitMessageSent = False
-        self.wantCheats = serverSettings[ServerSettingsGlobals.WantCheats]
+        self.wantCheats = ConfigVariableBool(
+            'want-cheats', serverSettings[ServerSettingsGlobals.WantCheats]).getValue()
+
+        if ConfigVariableBool('magic-word-live-access', False).getValue():
+            spellbook.useLiveAccess()
+            self.notify.info('Magic words re-gated to live access levels.')
 
         # Logging
         from direct.directnotify import Notifier

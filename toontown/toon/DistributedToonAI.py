@@ -4150,6 +4150,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def getGMType(self):
         gmType = self._gmType
+        if gmType is None:
+            return self.getAdminAccess()
         if (gmType < CATEGORY_USER.defaultAccess) and (gmType != 0):
             gmType = self.getAdminAccess()
         return gmType
@@ -4904,7 +4906,7 @@ def shoes(shoesIndex, shoesTex=0):
     invoker.b_setShoes(shoesIndex, shoesTex, 0)
     return "Set %s's shoes to %d, %d!" % (invoker.getName(), shoesIndex, shoesTex)
 
-@magicWord(category=CATEGORY_MODERATOR, types=[int])
+@magicWord(access=ACCESS_ADMINISTRATOR, types=[int])
 def gmIcon(accessLevel=None):
     """
     Toggles the target's GM icon. If an access level is provided, however, the
@@ -4913,7 +4915,7 @@ def gmIcon(accessLevel=None):
     invoker = spellbook.getInvoker()
     target = spellbook.getTarget()
     invokerAccess = spellbook.getInvokerAccess()
-    if invokerAccess != CATEGORY_HOST.defaultAccess:
+    if invokerAccess != ACCESS_SYSTEM_ADMINISTRATOR:
         if accessLevel is not None:
             return "You must be of a higher access level to override your GM icon."
         target = spellbook.getInvoker()
@@ -4928,13 +4930,9 @@ def gmIcon(accessLevel=None):
         if accessLevel is None:
             accessLevel = target.getAdminAccess()
         if accessLevel != target.getGMType():
-            if invokerAccess != CATEGORY_HOST.defaultAccess:
+            if invokerAccess != ACCESS_SYSTEM_ADMINISTRATOR:
                 accessLevel = target.getGMType()
-        if accessLevel not in (0,
-                               0,
-                               CATEGORY_MODERATOR.defaultAccess,
-                               CATEGORY_ADMINISTRATOR.defaultAccess,
-                               CATEGORY_HOST.defaultAccess):
+        if accessLevel not in GM_ICON_LEVELS:
             return 'Invalid access level!'
         target.b_setGM(accessLevel)
         if accessLevel == target.getAdminAccess():
@@ -4959,7 +4957,7 @@ def ghost():
         invoker.b_setGhostMode(0)
         return 'Ghost mode is disabled.'
 
-@magicWord(category=CATEGORY_MODERATOR)
+@magicWord(category=CATEGORY_ADMINISTRATOR)
 def revokeName():
     """
     Revoke the target's name.
@@ -5470,7 +5468,7 @@ def getDNA():
     return dnaString
 
 
-@magicWord(category=CATEGORY_MODERATOR, types=[str])
+@magicWord(category=CATEGORY_ADMINISTRATOR, types=[str])
 def warn(reason):
     target = spellbook.getTarget()
     if target == spellbook.getInvoker():

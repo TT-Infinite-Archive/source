@@ -1183,7 +1183,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         # Instantiate our account DB interface:
         if accountdbType == 'developer':
-            self.accountDB = LocalAccountDB(self, accessLevel=500)
+            self.accountDB = LocalAccountDB(self, accessLevel=ACCESS_SYSTEM_ADMINISTRATOR)
         elif accountdbType == 'offline':
             self.accountDB = LocalAccountDB(self, accessLevel=100)
         elif accountdbType == 'production':
