@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if [ -z "$INFISICAL_TOKEN" ] && [ -n "$INFISICAL_CLIENT_ID" ]; then
+if [ -n "$INFISICAL_CLIENT_ID" ] && [ -z "$_INFISICAL_INJECTED" ]; then
     if [ -z "$INFISICAL_CLIENT_SECRET" ]; then
         echo "entrypoint: INFISICAL_CLIENT_ID is set but INFISICAL_CLIENT_SECRET is not" >&2
         exit 1
@@ -12,11 +12,7 @@ if [ -z "$INFISICAL_TOKEN" ] && [ -n "$INFISICAL_CLIENT_ID" ]; then
         --client-secret="$INFISICAL_CLIENT_SECRET" \
         --plain --silent)
     export INFISICAL_TOKEN
-fi
-
-# Re-exec the whole command through Infisical so that everything downstream
-# grabs the injected secrets as environment variables.
-if [ -n "$INFISICAL_TOKEN" ] && [ -z "$_INFISICAL_INJECTED" ]; then
+    
     export _INFISICAL_INJECTED=1
     exec infisical run \
         --env="${INFISICAL_ENV:-prod}" \
