@@ -17,3 +17,6 @@ accountdb-type production
 want-cheats #t
 magic-word-minimum-access 200
 magic-word-live-access #t
+
+# Audio (live.prc already turns audio on for the client):
+audio-library-name null

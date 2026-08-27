@@ -1,6 +1,9 @@
 # Distribution:
 distribution live
 
+# Audio:
+audio-library-name p3openal_audio
+
 # Server:
 server-version SERVER_VERSION
 

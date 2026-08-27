@@ -15,3 +15,6 @@ generate-root-object #t
 
 # Website services:
 want-game-gateway #f
+
+# Audio (live.prc already turns audio on for the client):
+audio-library-name null

@@ -1,4 +1,5 @@
 import collections
+import socket
 import urllib.parse
 
 from panda3d_astron.repository import AstronInternalRepository, msgpack_encode
@@ -39,6 +40,24 @@ class ToontownInternalRepository(AstronInternalRepository):
 
         self.netMessenger = ToontownNetMessengerAI(self)
 
+    def setEventLogHost(self, host, port=7197):
+        self.eventSocket = None
+        self.eventLogAddress = None
+
+        if not host:
+            return
+
+        try:
+            address = socket.getaddrinfo(
+                host, port, socket.AF_INET, socket.SOCK_DGRAM)[0][4]
+        except OSError as e:
+            self.notify.warning(
+                'Invalid Event Log host specified: %s:%s (%s)' % (host, port, e))
+            return
+
+        self.eventSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.eventLogAddress = address
+
     def writeServerEvent(self, logtype, *args, **kwargs):
         if self.eventSocket is None:
             return
@@ -52,9 +71,12 @@ class ToontownInternalRepository(AstronInternalRepository):
 
         log.update(kwargs)
 
-        dg = PyDatagram()
-        msgpack_encode(dg, log)
-        self.eventSocket.Send(dg.getMessage())
+        try:
+            dg = PyDatagram()
+            msgpack_encode(dg, log)
+            self.eventSocket.sendto(dg.getMessage(), self.eventLogAddress)
+        except Exception as e:
+            self.notify.warning('Could not write server event %r: %s' % (logtype, e))
 
     def handleConnected(self):
         self.netMessenger.register()
