@@ -40,6 +40,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Check out the build tools
+        uses: actions/checkout@v5
+        with:
+          repository: sypion/tti-build-tools
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+          path: tools
+          fetch-depth: 1
+
       - name: Check out the art
         uses: actions/checkout@v5
         with:
@@ -95,14 +103,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Check out the build tools
+        uses: actions/checkout@v5
+        with:
+          repository: sypion/tti-build-tools
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+          path: tools
+          fetch-depth: 1
+
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
           cache: pip
-
-      - name: Install patchelf
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends patchelf
 
       - name: Ensure the AWS CLI is present
         if: runner.os == 'macOS'
@@ -111,23 +123,6 @@ jobs:
       - name: Report the macOS deployment target
         if: runner.os == 'macOS'
         run: python -c "import sysconfig; print(sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET'))"
-
-      - name: Build astrond for Linux
-        if: runner.os == 'Linux'
-        run: |
-          docker buildx build -f docker/astron/Dockerfile --target build \
-              --cache-from type=gha,scope=astron \
-              --load -t astron-build .
-          # Bundled inside the image, where astrond's libraries actually live.
-          docker run --rm -v "$PWD/tools:/tools" -v "$PWD/astron:/out" astron-build \
-              sh -c "apt-get update -qq && apt-get install -y -qq --no-install-recommends patchelf \
-                     && python3 /tools/bundle_astrond.py /usr/local/bin/astrond /out"
-
-      - name: Build astrond for macOS
-        if: runner.os == 'macOS'
-        run: |
-          brew install --quiet cmake pkg-config openssl@3 zstd snappy || true
-          tools/build_astrond_macos.sh astron
 
       - name: Install dependencies
         run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt

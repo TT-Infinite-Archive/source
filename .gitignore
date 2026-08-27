@@ -23,6 +23,7 @@ crashes/
 contentpacks/
 toondata/
 banned_players.txt
+tools/
 
 # Virtual environments:
 venv/
@@ -42,6 +43,5 @@ astron/dev.yml
 # Infisical files:
 .infisical.json
 
-# The server's portion of the art, handled by tools/build-server-resources.sh
-# from the resources repo:
+# The server's portion of the resources:
 build/

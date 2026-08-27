@@ -24,6 +24,10 @@ else:
     UberdogTarget = [PythonPath, '-m', 'toontown.uberdog.ServiceStart']
     AITarget = [PythonPath, '-m', 'toontown.ai.ServiceStart']
 
+# astrond is committed per platform rather than built, so the name carries the
+# platform with it
+AstronBinary = 'astrond-%s%s' % (sys.platform, '.exe' if sys.platform == 'win32' else '')
+
 Processes = [
     [
         ['mongod'],
@@ -33,7 +37,7 @@ Processes = [
         'Waiting for connections'
     ],
     [
-        [os.path.join('.', 'astrond')],
+        [os.path.join('.', AstronBinary)],
         'astron',
         TTLocalizer.Astron,
         'FATAL',

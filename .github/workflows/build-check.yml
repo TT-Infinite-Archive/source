@@ -19,7 +19,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Check out the art
+      - name: Check out the build tools
+        uses: actions/checkout@v5
+        with:
+          repository: sypion/tti-build-tools
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+          path: tools
+          fetch-depth: 1
+
+      - name: Check out the resources
         uses: actions/checkout@v5
         with:
           repository: TT-Infinite-Archive/resources

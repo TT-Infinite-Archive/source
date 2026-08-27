@@ -49,9 +49,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # The server's slice of the art has to exist before the build
-      # Since the art is its own repository, the Dockerfile cannot reach it
-      - name: Check out the art
+      - name: Check out the build tools
+        uses: actions/checkout@v5
+        with:
+          repository: sypion/tti-build-tools
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+          path: tools
+          fetch-depth: 1
+
+      # The server's slice of the resources has to exist before the build
+      # Since the resources are its own repository, the Dockerfile cannot reach it
+      - name: Check out the resources
         if: matrix.resources
         uses: actions/checkout@v5
         with:
