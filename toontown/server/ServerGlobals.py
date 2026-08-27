@@ -11,8 +11,14 @@ if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
 elif getattr(sys, 'frozen', False):
-    UberdogTarget = [sys.executable, '--uberdog']
-    AITarget = [sys.executable, '--ai']
+    # The server is its own binary, and an optional download. A player who
+    # only joins other people's servers never receives it
+    ServerBinary = os.path.join(
+        ToontownGlobals.CurrentDirectory, 'bin', 'server',
+        'Toontown Infinite Server' + ('.exe' if sys.platform == 'win32' else ''))
+
+    UberdogTarget = [ServerBinary, '--uberdog']
+    AITarget = [ServerBinary, '--ai']
 else:
     PythonPath = sys.executable
     UberdogTarget = [PythonPath, '-m', 'toontown.uberdog.ServiceStart']

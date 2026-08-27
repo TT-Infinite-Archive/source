@@ -112,6 +112,23 @@ jobs:
         if: runner.os == 'macOS'
         run: python -c "import sysconfig; print(sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET'))"
 
+      - name: Build astrond for Linux
+        if: runner.os == 'Linux'
+        run: |
+          docker buildx build -f docker/astron/Dockerfile --target build \
+              --cache-from type=gha,scope=astron \
+              --load -t astron-build .
+          # Bundled inside the image, where astrond's libraries actually live.
+          docker run --rm -v "$PWD/tools:/tools" -v "$PWD/astron:/out" astron-build \
+              sh -c "apt-get update -qq && apt-get install -y -qq --no-install-recommends patchelf \
+                     && python3 /tools/bundle_astrond.py /usr/local/bin/astrond /out"
+
+      - name: Build astrond for macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install --quiet cmake pkg-config openssl@3 zstd snappy || true
+          tools/build_astrond_macos.sh astron
+
       - name: Install dependencies
         run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
 
@@ -124,11 +141,25 @@ jobs:
         shell: bash
         run: |
           python tools/build_manifest.py \
-              --tree build/client/FrozenStart.dist \
+              --tree build/client/install \
               --section ${{ matrix.target }} \
               --version ${{ needs.version.outputs.value }} \
               --manifest build/manifest/${{ matrix.target }}.json \
               --blobs build/blobs
+
+      - name: Describe the host add-on
+        shell: bash
+        run: |
+          if [ -d build/client/host ]; then
+              python tools/build_manifest.py \
+                  --tree build/client/host \
+                  --section host-${{ matrix.target }} \
+                  --version ${{ needs.version.outputs.value }} \
+                  --manifest build/manifest/host-${{ matrix.target }}.json \
+                  --blobs build/blobs
+          else
+              echo "No host add-on for ${{ matrix.target }}."
+          fi
 
       - name: Upload
         shell: bash
@@ -138,6 +169,12 @@ jobs:
           aws s3 cp "build/manifest/${{ matrix.target }}.json" \
               "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/${{ matrix.target }}.json" \
               --cache-control "no-cache" --content-type application/json
+
+          if [ -f "build/manifest/host-${{ matrix.target }}.json" ]; then
+              aws s3 cp "build/manifest/host-${{ matrix.target }}.json" \
+                  "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/host-${{ matrix.target }}.json" \
+                  --cache-control "no-cache" --content-type application/json
+          fi
 
   publish:
     name: Publish the release
