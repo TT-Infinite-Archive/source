@@ -16,9 +16,10 @@ def findRoot(start):
     """
     directory = start
 
-    # Deep enough for Contents/MacOS inside a bundle, with room to spare.
-    for _ in range(4):
-        if os.path.isdir(os.path.join(directory, 'resources')):
+    for _ in range(6):
+        # The first phase file, not the directory holding it: macOS is
+        # case-insensitive
+        if os.path.isfile(os.path.join(directory, 'resources', 'phase_%s.mf' % PHASES[0])):
             return directory
 
         parent = os.path.dirname(directory)
@@ -28,7 +29,7 @@ def findRoot(start):
 
         directory = parent
 
-    sys.exit('No resources directory above %s.' % start)
+    sys.exit('No installed resources above %s.' % start)
 
 
 def prepare():
