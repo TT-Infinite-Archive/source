@@ -48,7 +48,8 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.sendUpdate('login', [self.username, self.password, encodeHexString(lookupTable, authToken)])
         del lookupTable
 
-    def acceptLogin(self, timestamp):
+    def acceptLogin(self, timestamp, serverFlags):
+        self.cr.setServerFlags(serverFlags)
         messenger.send(self.loginDoneEvent, [{'mode': 'success', 'timestamp': timestamp}])
         self.loginDoneEvent = None
 

@@ -119,9 +119,6 @@ class TTILauncher:
     def getVerifyFiles(self):
         return ConfigVariableInt('launcher-verify', 0).getValue()
 
-    def getTestServerFlag(self):
-        return self.getValue('IS_TEST_SERVER', 0)
-
     def isDownloadComplete(self):
         return 1
 

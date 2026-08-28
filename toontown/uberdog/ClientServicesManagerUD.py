@@ -5,8 +5,10 @@ from direct.distributed.MsgTypes import CLIENTAGENT_EJECT, CLIENTAGENT_OPEN_CHAN
     CLIENTAGENT_REMOVE_SESSION_OBJECT
 from direct.distributed.PyDatagram import *
 from direct.fsm.FSM import FSM
+from direct.task import Task
 from datetime import datetime
 import time
+import json
 import random
 import uuid
 import hashlib
@@ -24,6 +26,15 @@ from toontown.web.AccountServiceClient import AccountServiceClient
 NAME_APPROVED = 0
 NAME_SUBMITTED = 1
 NAME_SUBMISSION_ERROR = 2
+
+
+# Flags the webserver is allowed to set
+WEBSITE_FLAGS = {
+    'districtPage': True,
+}
+
+SERVER_FLAGS_PATH = 'api/game/server-flags'
+SERVER_FLAGS_REFRESH = 300
 
 
 accountdbType = ConfigVariableString('accountdb-type', 'developer').getValue()
@@ -408,7 +419,9 @@ class LoginAccountFSM(OperationFSM):
 
         # We're done.
         self.csm.air.writeServerEvent('accountLogin', self.target, self.accountId, self.username)
-        self.csm.sendUpdateToChannel(self.target, 'acceptLogin', [int(time.time())])
+        self.csm.sendUpdateToChannel(
+            self.target, 'acceptLogin',
+            [int(time.time()), self.csm.encodedServerFlags()])
         self.demand('Off')
 
     def __hashedPassword(self, salt):
@@ -1190,6 +1203,49 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             self.accountDB = WebAccountDB(self)
         else:
             self.notify.error('Invalid accountdb-type: ' + accountdbType)
+
+        self.serverFlags = dict(WEBSITE_FLAGS)
+        self.refreshServerFlags()
+
+    # --- SERVER FLAGS ---
+    def refreshServerFlags(self, task=None):
+        """
+        Re-reads the website's flag set. Flags are only looked at when a client
+        logs in.
+        """
+        service = getattr(self.accountDB, 'service', None)
+
+        if service is None:
+            # No website behind this server, so the defaults stand.
+            return Task.done
+
+        service.get(SERVER_FLAGS_PATH,
+                    self.__handleServerFlags, self.__handleServerFlagsError)
+
+        taskMgr.doMethodLater(SERVER_FLAGS_REFRESH, self.refreshServerFlags,
+                              'refreshServerFlags')
+        return Task.done
+
+    def __handleServerFlags(self, body):
+        flags = (body or {}).get('flags') or {}
+
+        for name in WEBSITE_FLAGS:
+            if name in flags:
+                self.serverFlags[name] = bool(flags[name])
+
+    def __handleServerFlagsError(self, status):
+        self.notify.warning('Could not read the website\'s server flags; '
+                            'keeping %r.' % self.serverFlags)
+
+    def encodedServerFlags(self):
+        """
+        The flag set handed to a client at login.
+        """
+        flags = dict(self.serverFlags)
+
+        flags['official'] = accountdbType == 'production'
+
+        return json.dumps(flags)
 
     def recordRequest(self, connId):
         now = time.time()

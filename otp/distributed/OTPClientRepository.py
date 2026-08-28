@@ -1,6 +1,7 @@
 import builtins
 import enum
 import gc
+import json
 import os
 import sys
 import time
@@ -89,8 +90,9 @@ class OTPClientRepository(ClientRepositoryBase):
 
         self.wantMagicWords = False
 
-        if self.isProductionServer():
-            spellbook.useLiveAccess()
+        # Filled in by acceptLogin. Until the server has spoken, nothing is
+        # treated as official.
+        self.serverFlags = {}
 
         if self.launcher and hasattr(self.launcher, 'http'):
             self.http = self.launcher.http
@@ -552,6 +554,7 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def enterConnect(self, serverList):
         base.initialEntry = False
+        self.serverFlags = {}
         self.serverList = serverList
         dialogClass = OTPGlobals.getGlobalDialogClass()
         self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
@@ -626,8 +629,32 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def isProductionServer(self):
         """
-        True when the launcher sent us to the live server. Live has no menu
-        behind the game, so it goes straight from the launcher to Pick-A-Toon.
+        True when the server we are logged into told us it is the official one.
+        """
+        return bool(self.serverFlags.get('official'))
+
+    def setServerFlags(self, raw):
+        """
+        Applies the flags set at login.
+        """
+        try:
+            flags = json.loads(raw) if raw else {}
+        except ValueError:
+            self.notify.warning('Server sent unreadable flags %r.' % raw)
+            flags = {}
+
+        if not isinstance(flags, dict):
+            self.notify.warning('Server sent non-dict flags %r.' % raw)
+            flags = {}
+
+        self.serverFlags = flags
+
+        if self.isProductionServer():
+            spellbook.useLiveAccess()
+
+    def isLauncherSessionLive(self):
+        """
+        Which server the launcher aimed us at.
         """
         return self.serverMode == 'production'
 
@@ -636,7 +663,7 @@ class OTPClientRepository(ClientRepositoryBase):
         The menu is how offline and direct sessions back out. Live has nothing
         behind it to back out to, so there we quit instead.
         """
-        if self.isProductionServer():
+        if self.isLauncherSessionLive():
             self.loginFSM.request('shutdown')
         else:
             self.loginFSM.request('mainMenu')

@@ -389,7 +389,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.optionsPage = OptionsPage.OptionsPage()
         self.optionsPage.load()
         self.book.addPage(self.optionsPage, pageName=TTLocalizer.OptionsPageTitle)
-        if base.cr.isProductionServer():
+        if base.cr.isProductionServer() and base.cr.serverFlags.get('districtPage'):
             # Only live runs more than one district, so only live gets the page.
             self.shardPage = ShardPage.ShardPage()
             self.shardPage.load()
