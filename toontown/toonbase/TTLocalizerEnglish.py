@@ -5193,7 +5193,6 @@ ShardPageHeadingInvasion = 'Invasion'
 ShardPageHeadingPop = 'Pop'
 ShardPageHeadingTimezone = 'Timezone'
 ShardPageNoInvasion = 'None'
-ShardPageUnsupported = "Warning: Servers with multiple districts are not officially supported. Expect inaccurate information from this page."
 SuitPageTitle = 'Cog Gallery'
 SuitPageMystery = DialogQuestion + DialogQuestion + DialogQuestion
 SuitPageQuota = '%s of %s'

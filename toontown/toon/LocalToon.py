@@ -315,7 +315,8 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.newsButtonMgr.request('Off')
         self.book.unload()
         del self.optionsPage
-        # del self.shardPage
+        if hasattr(self, 'shardPage'):
+            del self.shardPage
         del self.mapPage
         del self.invPage
         del self.questPage
@@ -388,9 +389,11 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.optionsPage = OptionsPage.OptionsPage()
         self.optionsPage.load()
         self.book.addPage(self.optionsPage, pageName=TTLocalizer.OptionsPageTitle)
-        # self.shardPage = ShardPage.ShardPage()
-        # self.shardPage.load()
-        # self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
+        if base.cr.isProductionServer():
+            # Only live runs more than one district, so only live gets the page.
+            self.shardPage = ShardPage.ShardPage()
+            self.shardPage.load()
+            self.book.addPage(self.shardPage, pageName=TTLocalizer.ShardPageTitle)
         self.mapPage = MapPage.MapPage()
         self.mapPage.load()
         self.book.addPage(self.mapPage, pageName=TTLocalizer.MapPageTitle)
