@@ -48,9 +48,24 @@ loadPrcFileData('Command-line', localconfig)
 
 from otp.ai.AIBaseGlobal import *
 
+from toontown.web import GatewaySocket
+
+gateway = GatewaySocket.openSocket()
+if gateway:
+    ready = gateway.waitForReady(ConfigVariableInt('gateway-ready-timeout', 15).getValue())
+    if ready:
+        settings = dict(ready.get('config') or {})
+
+        loadPrcFileData('Gateway', ''.join(
+            '%s %s\n' % (variable, value) for variable, value in sorted(settings.items())))
+
+        Deployment.load()
+        loadPrcFileData('Command-line', localconfig)
+
 from toontown.uberdog.ToontownUberRepository import ToontownUberRepository
 simbase.air = ToontownUberRepository(ConfigVariableInt('air-base-channel', 400000000).getValue(),
-                                     ConfigVariableInt('air-stateserver', 4002).getValue())
+                                     ConfigVariableInt('air-stateserver', 4002).getValue(),
+                                     gateway=gateway)
 host = ConfigVariableString('air-connect', '127.0.0.1').getValue()
 port = 7010
 if ':' in host:

@@ -17,7 +17,7 @@ class GameGateway(DirectObject):
 
     notify = DirectNotifyGlobal.directNotify.newCategory('GameGateway')
 
-    def __init__(self, air):
+    def __init__(self, air, socket=None):
         DirectObject.__init__(self)
 
         self.air = air
@@ -27,7 +27,9 @@ class GameGateway(DirectObject):
             'denyName': self.denyName,
         }
 
-        self.socket = openSocket(onCommand=self.apply)
+        self.socket = socket if socket is not None else openSocket(onCommand=self.apply)
+        if socket is not None:
+            self.socket.onCommand = self.apply
 
         if self.socket is None:
             self.notify.warning('No gateway; name review will not reach the game.')
