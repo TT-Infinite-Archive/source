@@ -41,7 +41,7 @@ jobs:
           - image: server
             file: Dockerfile
             resources: true
-          # Compiles Astron and both Mongo drivers from source:
+          # Ships the committed astrond binary; see docker/astron/Dockerfile:
           - image: astron
             file: docker/astron/Dockerfile
             resources: false

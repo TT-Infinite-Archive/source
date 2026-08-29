@@ -1,23 +1,20 @@
-FROM debian:12-slim AS build
-
-COPY tools/build_astrond.py /tmp/build_astrond.py
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 \
-    && python3 /tmp/build_astrond.py --install-deps --target linux --output /tmp \
-    && mv /tmp/astrond-linux /usr/local/bin/astrond \
-    && rm -rf /var/lib/apt/lists/* /tmp/build_astrond.py
-
-
+# astrond is built out of band by .github/workflows/build-astrond.yml, which
+# pins one Astron revision, and the binary it produces is committed. Nothing is
+# compiled here.
+#
+# Rebuilding astrond means running that workflow and committing the artifact,
+# not editing this file.
 FROM debian:12-slim AS runtime
 
-# astrond carries its own libraries now, so the runtime needs nothing but a
+# astrond carries its own libraries, so the runtime needs nothing but a
 # trust store for TLS
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /usr/local/bin/astrond /usr/local/bin/astrond
+# x86-64, which is what the runner and the deploy host are. Building this image
+# for arm64 needs an arm64 astrond committed beside it.
+COPY --chmod=0755 astron/astrond-linux /usr/local/bin/astrond
 
 ARG TZ=America/Los_Angeles
 ENV TZ=${TZ}
