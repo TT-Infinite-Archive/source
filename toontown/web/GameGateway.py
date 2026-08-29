@@ -1,3 +1,5 @@
+from bson.int64 import Int64
+
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 
@@ -5,6 +7,14 @@ from otp.distributed import OtpDoGlobals
 from toontown.web.GatewaySocket import openSocket
 
 NOT_PENDING = 'The Toon is no longer awaiting a name.'
+
+# An account imported from the old database waits under this prefix:
+LEGACY_PREFIX = 'legacy:'
+
+# What a superseded account is parked under once its Toons have moved off it:
+RETIRED_PREFIX = 'migrated:'
+
+AV_SET_SIZE = 6
 
 
 class GameGateway(DirectObject):
@@ -25,6 +35,7 @@ class GameGateway(DirectObject):
         self.ops = {
             'approveName': self.approveName,
             'denyName': self.denyName,
+            'claimLegacyAccount': self.claimLegacyAccount,
         }
 
         self.socket = socket if socket is not None else openSocket(onCommand=self.apply)
@@ -120,7 +131,158 @@ class GameGateway(DirectObject):
             {'WishNameState': ('PENDING',)},
             rejected)
 
+    def claimLegacyAccount(self, args, done):
+        """
+        Hand an account imported from the old database to a website user.
+        """
+        userId = str(args['userId'])
+        username = str(args['username'])
+        legacyName = str(args['legacyUsername'])
+        confirm = bool(args.get('confirm'))
+
+        objects = self.air.dbAstronCursor.objects
+
+        legacy = objects.find_one(
+            {'fields.ACCOUNT_ID': LEGACY_PREFIX + legacyName})
+        if not legacy or legacy.get('dclass') != 'Account':
+            done(False, {'error': 'That account has already been migrated.'})
+            return
+
+        current = objects.find_one({'fields.ACCOUNT_ID': userId})
+        if current is not None and current.get('dclass') != 'Account':
+            current = None
+
+        if current is not None and current['_id'] == legacy['_id']:
+            done(False, {'error': 'That account is already yours.'})
+            return
+
+        legacyToons = self.toonNames(self.liveToons(legacy))
+        currentToons = self.toonNames(self.liveToons(current))
+        fits = len(legacyToons) + len(currentToons) <= AV_SET_SIZE
+
+        if not confirm:
+            done(True, {
+                'legacyToons': legacyToons,
+                'currentToons': currentToons,
+                'fits': fits,
+            })
+            return
+
+        if not fits:
+            done(False, {'error':
+                         'Together that is %d Toons, and an account holds %d.'
+                         % (len(legacyToons) + len(currentToons), AV_SET_SIZE)})
+            return
+
+        self.mergeAccounts(legacy, current, userId, username)
+
+        self.notify.info('Account %s claimed legacy account %s (%d).'
+                         % (userId, legacyName, legacy['_id']))
+
+        done(True, {
+            'legacyToons': legacyToons,
+            'currentToons': currentToons,
+            'fits': True,
+            'claimed': True,
+        })
+
     # --- HELPERS ---
+
+    def liveToons(self, account):
+        """
+        The occupied Toon slots, as (index, doId).
+        """
+        if not account:
+            return []
+        avSet = account['fields'].get('ACCOUNT_AV_SET') or []
+        return [(index, int(avId))
+                for index, avId in enumerate(avSet) if int(avId)]
+
+    def toonNames(self, slots):
+        names = []
+        for _, avId in slots:
+            toon = self.air.dbAstronCursor.objects.find_one({'_id': avId})
+            if not toon:
+                continue
+            names.append(toon['fields'].get('setName', {}).get('_0')
+                         or '(unnamed)')
+        return names
+
+    def mergeAccounts(self, legacy, current, userId, username):
+        """
+        Move any Toons off the player's current account and onto the legacy
+        one, then hand them the legacy account.
+
+        The current account is retired before the legacy one is claimed. If
+        this dies in between, the player has no account and logs in to a fresh
+        one, which is recoverable; the other order would leave two accounts
+        answering to the same user id, which is not good
+        """
+        objects = self.air.dbAstronCursor.objects
+
+        # Nobody may be holding either account open while it is rewritten.
+        for account in (legacy, current):
+            if account:
+                self.air.csm.killAccount(
+                    account['_id'], 'Your account is being migrated.'
+                    ' Please log in again.')
+
+        avSet = [Int64(avId) for avId in
+                 (legacy['fields'].get('ACCOUNT_AV_SET') or [])]
+        avSet += [Int64(0)] * (AV_SET_SIZE - len(avSet))
+
+        estateId = int(legacy['fields'].get('ESTATE_ID') or 0)
+        deleted = list(legacy['fields'].get('ACCOUNT_AV_SET_DEL') or [])
+        moved = []
+
+        if current is not None:
+            for _, avId in self.liveToons(current):
+                slot = avSet.index(Int64(0))
+                avSet[slot] = Int64(avId)
+                moved.append((slot, avId))
+
+            # The Toons moving across need an estate if the legacy one had none.
+            if not estateId:
+                estateId = int(current['fields'].get('ESTATE_ID') or 0)
+
+            deleted += list(current['fields'].get('ACCOUNT_AV_SET_DEL') or [])
+
+            objects.update_one(
+                {'_id': current['_id'], 'fields.ACCOUNT_ID': userId},
+                {'$set': {'fields.ACCOUNT_ID': RETIRED_PREFIX + userId,
+                          'fields.ACCOUNT_AV_SET': [Int64(0)] * AV_SET_SIZE}})
+
+        objects.update_one(
+            {'_id': legacy['_id']},
+            {'$set': {'fields.ACCOUNT_ID': userId,
+                      'fields.USERNAME': username,
+                      'fields.ACCOUNT_AV_SET': avSet,
+                      'fields.ACCOUNT_AV_SET_DEL': deleted,
+                      'fields.ESTATE_ID': Int64(estateId)}})
+
+        # Each Toon must point to the correct (legacy) account, 
+        # including deleted ones, so they don't end up linked to the 
+        # retired account after migration or a restore.
+        following = [avId for _, avId in moved]
+        following += [int(entry['Avatar']) for entry in deleted
+                      if int(entry.get('Avatar') or 0)]
+
+        for avId in following:
+            objects.update_one(
+                {'_id': avId},
+                {'$set': {'fields.setDISLid': {'_0': Int64(legacy['_id'])}}})
+
+        if estateId:
+            # Estate slot N belongs to Toon slot N; the AI wipes a slot's
+            # garden whenever the two disagree.
+            #
+            # "_0" because setSlotNToonId takes an unnamed parameter. Astron
+            # refuses to load an object whose stored shape disagrees with the
+            # dclass file, and a refusal here reads as an estate nobody can
+            # teleport to, causing a district crash.
+            slots = {'fields.setSlot%dToonId' % index: {'_0': avId}
+                     for index, avId in enumerate(avSet)}
+            objects.update_one({'_id': estateId}, {'$set': slots})
 
     def claimName(self, avId, wishName, newState, newWish, callback):
         """

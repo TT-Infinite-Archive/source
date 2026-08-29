@@ -23,6 +23,13 @@ parser.add_argument('--accountdb', choices=('developer', 'offline', 'production'
                     username on the spot, granting access level 500 and 100 respectively. 'production' \
                     skips the login screen and redeems the launcher's launch token against the website. \
                     Overrides accountdb-type from the PRC files.")
+parser.add_argument('--gateway', action='store_true',
+                    help="Open the socket to the website, so name review, \
+                    account migration, and other servicesw reach the game. \
+                    dev-server.prc leaves it off, since a developer with no \
+                    website running does not want a process retrying a connection forever. \
+                    Overrides want-game-gateway from the PRC files.")
+
 if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/server.prc', 'config/distribution/dev.prc', 'config/distribution/dev-server.prc'], help="PRC file(s) to load.")
 builtins.args = parser.parse_known_args()[0]
 
@@ -43,6 +50,7 @@ if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
 if args.singleplayer: localconfig += 'want-singleplayer #t\n'
 if args.cheats: localconfig += 'want-cheats #f\n'
 if args.accountdb: localconfig += 'accountdb-type %s\n' % args.accountdb
+if args.gateway: localconfig += 'want-game-gateway #t\n'
 loadPrcFileData('Command-line', localconfig)
 
 
