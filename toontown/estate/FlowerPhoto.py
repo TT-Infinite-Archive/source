@@ -1,4 +1,4 @@
-from panda3d.core import CardMaker, DisplayRegion, NodePath, PerspectiveLens
+from panda3d.core import Camera, CardMaker, DisplayRegion, NodePath, PerspectiveLens
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from toontown.fishing import FishGlobals

@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool
+from panda3d.core import BitMask32, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, CollisionTube, ConfigVariableBool
 from otp.ai.AIBase import *
 from otp.otpbase import OTPGlobals
 from direct.directnotify import DirectNotifyGlobal
