@@ -172,6 +172,9 @@ def syncLoginFSM(task=None):
                 introduction.label.getText() != TTLocalizer.LoaderLabel):
             introduction.request('Label', TTLocalizer.LoaderLabel)
         taskMgr.doMethodLater(1, syncLoginFSM, 'syncLoginFSM-task')
+    elif base.cr.introPending:
+        # The session is warming up behind the cinematic
+        introduction.request('ClickToStart')
     elif stateName in ('connect', 'login', 'waitForGameList',
                        'waitForShardList'):
         introduction.request('Label', OTPLocalizer.CRConnecting)
@@ -258,6 +261,10 @@ if wantIntro:
     notify.info('Playing the introduction.')
     clickToStart.startMusic()
     disclaimerTrack.start()
+
+    # Connect while the cinematic plays, so the click at the end of it opens
+    # Pick-A-Toon instead of the usual "Connecting..." screen:
+    base.cr.startWarmupSession()
 
     def skip():
         if disclaimerTrack.isPlaying():

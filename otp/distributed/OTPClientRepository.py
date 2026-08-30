@@ -88,6 +88,12 @@ class OTPClientRepository(ClientRepositoryBase):
             self.profile = self.launcher.getProfile()
             self.profileKey = self.launcher.getProfileKey()
 
+        # The launcher's session starts connecting while the intro cinematic is
+        # still on screenL
+        self.introPending = False
+        self.warmupAvList = None
+        self.warmupBox = None
+
         self.wantMagicWords = False
 
         # Filled in by acceptLogin. Until the server has spoken, nothing is
@@ -558,7 +564,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.serverList = serverList
         dialogClass = OTPGlobals.getGlobalDialogClass()
         self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-        if base.isHosting:
+        if base.isHosting or self.introPending:
             self.connectingBox.hide()
         self.renderFrame()
         self.handler = self.handleConnecting
@@ -578,6 +584,9 @@ class OTPClientRepository(ClientRepositoryBase):
             self.handleMessageType(msgtype, di)
 
     def failedToConnect(self, statusCode, statusString):
+        if self.warmupInterrupted():
+            return
+
         self.loginFSM.request('failedToConnect', [statusCode, statusString])
 
     def exitConnect(self):
@@ -693,6 +702,75 @@ class OTPClientRepository(ClientRepositoryBase):
             self.notify.warning('Unknown TTI_SERVER_MODE %r; showing the menu.' % mode)
 
         return False
+
+    def startWarmupSession(self):
+        """
+        Starts the launcher's session while the intro is still playing.
+        """
+        if self.serverMode not in ('direct', 'production'):
+            return False
+
+        if not ConfigVariableBool('want-connection-warmup', True).getValue():
+            return False
+
+        self.notify.info('Connecting behind the intro.')
+
+        self.introPending = True
+        if not self.startLauncherSession():
+            self.introPending = False
+            return False
+
+        return self.introPending
+
+    def finishWarmupSession(self):
+        """
+        Picks the warmed-up session back up when the player clicks through the
+        intro.
+        """
+        if not self.introPending:
+            return False
+
+        self.introPending = False
+
+        if self.warmupAvList is not None:
+            avList, self.warmupAvList = self.warmupAvList, None
+            base.transitions.noFade()
+            self.loginFSM.request('chooseAvatar', [avList])
+        else:
+            self.__waitOutWarmup()
+
+        return True
+
+    def warmupInterrupted(self):
+        """
+        True when the session warming up behind the intro ran into trouble.
+        """
+        if not self.introPending:
+            return False
+
+        self.notify.info('The warm-up connection failed; retrying after the intro.')
+        self.introPending = False
+        self.warmupAvList = None
+        self.cleanupWaitingForDatabase()
+        self.stopReaderPollTask()
+        self.sendDisconnect()
+        self.resetInterestStateForConnectionLoss()
+        self.loginFSM.forceTransition('loginOff')
+        return True
+
+    def __waitOutWarmup(self):
+        dialogClass = OTPGlobals.getGlobalDialogClass()
+        self.warmupBox = dialogClass(message=OTPLocalizer.CRConnecting)
+        self.warmupBox.show()
+        self.accept('connectionIssue', self.__cleanupWarmupBox)
+        self.renderFrame()
+
+    def __cleanupWarmupBox(self):
+        self.ignore('connectionIssue')
+        if self.warmupBox is not None:
+            self.warmupBox.cleanup()
+            self.warmupBox = None
+            base.transitions.noFade()
 
     def __startLocalServer(self):
         """
@@ -831,6 +909,9 @@ class OTPClientRepository(ClientRepositoryBase):
         """
         self.ignore(EventGlobals.LoginDone)
         self.notify.warning('Launcher login was rejected (%s).' % errorCode)
+        if self.warmupInterrupted():
+            return
+
         self.cleanupWaitingForDatabase()
         self.playToken = None
         self.profile = None
@@ -1009,7 +1090,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def waitForGetGameListResponse(self):
         if self.isGameListCorrect():
             self.loginFSM.request('waitForShardList')
-        else:
+        elif not self.warmupInterrupted():
             self.loginFSM.request('missingGameRootObject')
 
     def isGameListCorrect(self):
@@ -1052,7 +1133,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def _wantShardListComplete(self):
         if self._shardsAreReady():
             self.loginFSM.request('waitForAvatarList')
-        else:
+        elif not self.warmupInterrupted():
             self.loginFSM.request('noShards')
 
     def _shardsAreReady(self):
@@ -1206,6 +1287,13 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def handleAvatarsList(self, avatars):
         self.avList = avatars
+
+        if self.introPending:
+            self.cleanupWaitingForDatabase()
+            self.warmupAvList = avatars
+            return
+
+        self.__cleanupWarmupBox()
         self.loginFSM.request('chooseAvatar', [self.avList])
 
     def enterChooseAvatar(self, avList):
@@ -1866,6 +1954,9 @@ class OTPClientRepository(ClientRepositoryBase):
     def lostConnection(self):
         ClientRepositoryBase.lostConnection(self)
 
+        if self.warmupInterrupted():
+            return
+
         self.loginFSM.request('noConnection')
 
     def waitForDatabaseTimeout(self, extraTimeout=0, requestName='unknown'):
@@ -1883,6 +1974,9 @@ class OTPClientRepository(ClientRepositoryBase):
         return
 
     def __showWaitingForDatabase(self, requestName):
+        if self.warmupInterrupted():
+            return Task.done
+
         messenger.send('connectionIssue')
         OTPClientRepository.notify.info('timed out waiting for %s at %s' % (requestName, globalClock.getFrameTime()))
         dialogClass = OTPGlobals.getDialogClass()

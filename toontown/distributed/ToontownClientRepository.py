@@ -679,7 +679,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         if self._shardsAreReady():
             self.acceptOnce(ToontownDistrictStats.EventName(), self.shardDetailStatsComplete)
             ToontownDistrictStats.refresh()
-        else:
+        elif not self.warmupInterrupted():
             self.loginFSM.request('noShards')
 
     def shardDetailStatsComplete(self):

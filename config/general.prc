@@ -128,6 +128,9 @@ want-live-updates #t
 # Heartbeat
 want-heartbeat #t
 
+# Connect while the intro cinematic plays
+want-connection-warmup #t
+
 # Toon patches:
 toon-patch-version 0
 

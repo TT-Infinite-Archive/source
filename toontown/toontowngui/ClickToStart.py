@@ -223,6 +223,10 @@ class ClickToStart(DirectObject):
         self.versionLabel.setColorScale(*args, **kwargs)
 
     def startMainMenu(self):
+        # The intro has been connecting in the background; now we'll pick it up:
+        if base.cr.finishWarmupSession():
+            return
+
         # A launcher-started client was already told which server it's going to
         if base.cr.startLauncherSession():
             return
