@@ -130,6 +130,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.cogs = []
         self.cogCounts = []
         self.NPCFriendsDict = {}
+        self.purgedNPCFriends = []
         self.clothesTopsList = []
         self.clothesBottomsList = []
         self.hatList = []
@@ -245,6 +246,11 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                     self.notify.warning('Unknown patch for DistributedToonAI: patch_'+str(self.patchVersion+1))
                 self.patchVersion += 1
             self.b_setPatchVersion(patchVersion)
+
+            if self.purgedNPCFriends:
+                self.notify.info('purging retired SOS friends %s from %d' % (self.purgedNPCFriends, self.doId))
+                self.purgedNPCFriends = []
+                self.d_setNPCFriendsDict(self.NPCFriendsDict)
 
             messenger.send('avatarEntered', [self])
 
@@ -682,6 +688,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def setNPCFriendsDict(self, NPCFriendsList):
         self.NPCFriendsDict = {}
         for friendPair in NPCFriendsList:
+            if friendPair[0] not in npcFriends:
+                self.purgedNPCFriends.append(friendPair[0])
+                continue
             self.NPCFriendsDict[friendPair[0]] = friendPair[1]
 
     def getNPCFriendsDict(self):
