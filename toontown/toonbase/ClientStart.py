@@ -50,7 +50,7 @@ SettingsGlobals.loadInitialSettings()
 
 # Load server settings (used for the hosting screen)
 from otp.settings.Settings import Settings
-builtins.serverSettings = Settings("serversettings.json")
+builtins.serverSettings = Settings("server-settings.json")
 from toontown.toonbase import ServerSettingsGlobals
 ServerSettingsGlobals.loadInitialSettings()
 

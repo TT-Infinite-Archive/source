@@ -404,7 +404,9 @@ class OTPClientRepository(ClientRepositoryBase):
 
             # Generate a Astron config file.
             path = os.path.join(base.tempDir, 'server.yml')
-            data = ServerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+            data = ServerGlobals.getAstronConfig(
+                dcFileNames=(dcFilePath,), version=version,
+                port=ServerGlobals.getHostPort())
             with open(path, 'w') as f:
                 yaml.dump(data, f)
 

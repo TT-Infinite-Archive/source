@@ -7,6 +7,10 @@ TTCJukebox = 'want-ttc-jukebox'
 # WantSinglePlayer = 'want-singleplayer'
 WantCheats = 'want-cheats'
 
+# The launcher's Hosting screen writes these into the same server-settings.json
+DistrictName = 'district-name'
+HostPort = 'host-port'
+
 InitialSettings = {
     EnabledZones: {
         "ToontownCentral": True,
@@ -30,6 +34,8 @@ InitialSettings = {
     TTCJukebox: False,
     # WantSinglePlayer: False,
     WantCheats: False,
+    DistrictName: 'Kookyboro',
+    HostPort: 7000,
 }
     
 def loadInitialSettings():

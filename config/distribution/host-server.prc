@@ -1,7 +1,7 @@
 # Distribution:
 distribution host
 
-# Server-only settings for a player hosting their own server from the game.
+# Server-only settings for a player hosting their instance of Toontown Infinite.
 #
 # A hosted server has no website behind it so it can't answer to a gateway.
 # The launcher's local profile is the credential instead.
@@ -12,6 +12,9 @@ mongodb-url mongodb://localhost/game
 
 # UberDOG:
 generate-root-object #t
+
+# The launcher's Hosting screen and `--dedicated` both read this:
+host-settings-file server-settings.json
 
 # Website services:
 want-game-gateway #f

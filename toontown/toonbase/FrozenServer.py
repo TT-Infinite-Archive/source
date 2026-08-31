@@ -15,5 +15,8 @@ if '--uberdog' in sys.argv:
     import toontown.uberdog.ServiceStart
 elif '--ai' in sys.argv:
     import toontown.ai.ServiceStart
+elif '--dedicated' in sys.argv:
+    import toontown.dedicated.DedicatedStart
 else:
-    sys.exit('Pass --ai or --uberdog to say which service to run.')
+    sys.exit('Pass --dedicated to run a server, or --ai or --uberdog to run '
+             'one service of one.')

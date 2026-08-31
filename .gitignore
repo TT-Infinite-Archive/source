@@ -32,7 +32,7 @@ astron/mp-database/
 *.mdmp
 bookmarks.dat
 bookmarks.json
-serversettings.json
+server-settings.json
 
 # Generated Astron files:
 astron/logs/

@@ -39,6 +39,7 @@ from toontown.estate.EstateManagerAI import EstateManagerAI
 from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
 from toontown.fishing import DistributedFishingPondAI
 from toontown.safezone import DistributedFishingSpotAI
+from toontown.server.HostSettings import HostSettingsWriter, statusPath
 from toontown.hood import BRHoodDataAI
 from toontown.hood import BossbotHQDataAI
 from toontown.hood import CashbotHQDataAI
@@ -159,6 +160,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.gateway = gateway
         self.gatewayReporter = None
         self.gatewayCommands = set()
+        self.hostSettings = None
 
         self.notify.setInfo(True)  # Our AI repository should always log info.
         self.hoods = []
@@ -335,11 +337,24 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.registerForChannel(MESSENGER_CHANNEL_AI)
 
         self.startGateway()
+        self.startHostSettings()
 
         if ConfigVariableBool('want-threaded-ai-start', False).getValue():
             threading.Thread(target=self.startDistrict).start()
         else:
             self.startDistrict()
+
+    def startHostSettings(self):
+        """
+        Begins writing the status file a self-hosting player's launcher reads.
+        """
+        path = settingsPath()
+
+        if not path:
+            return
+
+        self.hostSettings = HostSettingsWriter(self, path)
+        self.notify.info('Writing host settings to %s' % path)
 
     def startGateway(self):
         """
@@ -386,8 +401,12 @@ class ToontownAIRepository(ToontownInternalRepository):
         """
         Passes the event through the gateway if applicable.
         """
-        if message == 'shardStatus' and self.gatewayReporter:
-            self.gatewayReporter.update(sentArgs[1])
+        if message == 'shardStatus':
+            if self.gatewayReporter:
+                self.gatewayReporter.update(sentArgs[1])
+
+            if self.hostSettings:
+                self.hostSettings.update(sentArgs[1])
 
         elif message.startswith('invasionResponse-') and self.gateway:
             commandId = message[len('invasionResponse-'):]

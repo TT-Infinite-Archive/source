@@ -1,9 +1,10 @@
 from panda3d.core import ConfigVariableList
+import copy
 import os
 import sys
 
 
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import ServerSettingsGlobals, TTLocalizer, ToontownGlobals
 
 LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
 print(str(LogsPath))
@@ -28,42 +29,96 @@ else:
 # platform with it
 AstronBinary = 'astrond-%s%s' % (sys.platform, '.exe' if sys.platform == 'win32' else '')
 
-Processes = [
-    [
-        ['mongod'],
-        'astron',
-        TTLocalizer.MongoDB,
-        'shutting down',
-        'Waiting for connections'
-    ],
-    [
-        [os.path.join('.', AstronBinary)],
-        'astron',
-        TTLocalizer.Astron,
-        'FATAL',
-        'Opened new log.'
-    ],
-    [
-        UberdogTarget + [
-            '--base-channel', '1000000', '--max-channels', '9999',
-            '--stateserver', '4002'
+# The ports a hosted server stack listens on. Only the client agent's is worth
+# changing since it's the one players connect to, and the one a router has to
+# forward:
+DefaultPort = 7000
+MessageDirectorPort = 7010
+EventLoggerPort = 7020
+MongoPort = 7030
+
+DefaultDistrict = 'Kookyboro'
+
+
+def getHostPort():
+    """
+    The port a hosted server listens on.
+    """
+    try:
+        return int(serverSettings.get(
+            ServerSettingsGlobals.HostPort, DefaultPort))
+    except (NameError, TypeError, ValueError):
+        return DefaultPort
+
+
+def getDistrictName():
+    try:
+        return serverSettings.get(
+            ServerSettingsGlobals.DistrictName, DefaultDistrict) or DefaultDistrict
+    except NameError:
+        return DefaultDistrict
+
+
+def getProcesses(districtName=DefaultDistrict, mongo=True, config=()):
+    """
+    The stack a host starts, in the order it has to come up.
+
+    `mongo` is off when the host already has a database to point at, which a
+    VPS usually does; the rest of the stack is the same either way.
+
+    `config` is the PRC files the district and the UberDOG should load. It only
+    applies to a source checkout: a compiled server reads its own config on the
+    way in and would take these as stray arguments. Without it, a child of a
+    source run falls back to the development config rather than the host's.
+    """
+    # ServiceStart takes its PRC files as trailing positional arguments, and
+    # only offers them under __debug__ -- the same condition as `not frozen`.
+    settings = [] if getattr(sys, 'frozen', False) else list(config)
+
+    processes = []
+
+    if mongo:
+        processes.append([
+            ['mongod'],
+            'astron',
+            TTLocalizer.MongoDB,
+            'shutting down',
+            'Waiting for connections'
+        ])
+
+    return processes + [
+        [
+            [os.path.join('.', AstronBinary)],
+            'astron',
+            TTLocalizer.Astron,
+            'FATAL',
+            'Opened new log.'
         ],
-        None,
-        TTLocalizer.Uberdog,
-        'Failed to connect!',
-        'Done.'
-    ],
-    [
-        AITarget + [
-            '--base-channel', '401000000', '--max-channels', '999999',
-            '--stateserver', '4002', '--district-name', 'Toontown'
+        [
+            UberdogTarget + [
+                '--base-channel', '1000000', '--max-channels', '9999',
+                '--stateserver', '4002'
+            ] + settings,
+            None,
+            TTLocalizer.Uberdog,
+            'Failed to connect!',
+            'Done.'
         ],
-        None,
-        TTLocalizer.District,
-        'Failed to connect!',
-        'Done.'
+        [
+            AITarget + [
+                '--base-channel', '401000000', '--max-channels', '999999',
+                '--stateserver', '4002', '--district-name', districtName
+            ] + settings,
+            None,
+            TTLocalizer.District,
+            'Failed to connect!',
+            'Done.'
+        ]
     ]
-]
+
+
+# The default stack, for hosts that never rename the district:
+Processes = getProcesses()
 
 AstronConfig = {
     'general': {
@@ -123,13 +178,17 @@ AstronConfig = {
 }
 
 
-def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', server=0):
-    config = AstronConfig.copy()
-    config['general']['eventlogger'] = '127.0.0.1:7020'
-    config['messagedirector']['bind'] = '127.0.0.1:7010'
-    config['roles'][0]['bind'] = '0.0.0.0:7000'
-    config['roles'][2]['backend']['server'] = 'mongodb://127.0.0.1:7030/game'
-    config['roles'][4]['bind'] = '127.0.0.1:7020'
+def getAstronConfig(dcFileNames=('dclass/vanilla.dc',), version='dev', server=0,
+                    port=DefaultPort, mongoUrl=None):
+    # Use a deep copy so each call gets separate config data.
+    config = copy.deepcopy(AstronConfig)
+    config['general']['eventlogger'] = '127.0.0.1:%d' % EventLoggerPort
+    config['messagedirector']['bind'] = '127.0.0.1:%d' % MessageDirectorPort
+    # The only role bound off the loopback: this is the port players reach:
+    config['roles'][0]['bind'] = '0.0.0.0:%d' % port
+    config['roles'][2]['backend']['server'] = (
+        mongoUrl or 'mongodb://127.0.0.1:%d/game' % MongoPort)
+    config['roles'][4]['bind'] = '127.0.0.1:%d' % EventLoggerPort
     for dcFileName in dcFileNames:
         config['general']['dc_files'].append(dcFileName)
     config['roles'][0]['version'] = version
