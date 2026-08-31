@@ -39,7 +39,7 @@ from toontown.estate.EstateManagerAI import EstateManagerAI
 from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
 from toontown.fishing import DistributedFishingPondAI
 from toontown.safezone import DistributedFishingSpotAI
-from toontown.server.HostSettings import HostSettingsWriter, statusPath
+from toontown.server.HostSettings import HostSettingsWriter, settingsPath
 from toontown.hood import BRHoodDataAI
 from toontown.hood import BossbotHQDataAI
 from toontown.hood import CashbotHQDataAI
