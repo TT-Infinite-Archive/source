@@ -71,13 +71,17 @@ class TTILauncher:
 
     def getProfile(self):
         """
-        The local profile name, used as the account name on a local server.
+        The account name to log in under on a server that keeps its own accounts:
+        the local profile's name in local mode, and the player's username on a server 
+        somebody else hosts.
         """
         return self.getValue('TTI_PROFILE')
 
     def getProfileKey(self):
         """
-        The local profile's password, generated and kept by the launcher.
+        The password that goes with it, generated and kept by the launcher. In
+        direct mode it is derived per server, so the one host it is handed to
+        can't reuse it anywhere else.
         """
         return self.getValue('TTI_PROFILE_KEY')
 

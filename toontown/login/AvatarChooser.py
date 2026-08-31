@@ -125,17 +125,20 @@ class AvatarChooser(StateData.StateData):
             text_wordwrap=25
         )
 
+        # Only a client started from source still has somewhere to log out to:
+        launched = base.cr.isLauncherSession()
+
         quitHover = gui.find('**/QuitBtn_RLVR')
         self.logoutButton = DirectButton(
             image=(quitHover, quitHover, quitHover), relief=None,
-            text=TTLocalizer.AvatarChooserQuit if base.cr.isProductionServer() else 'Log Out',
+            text=TTLocalizer.AvatarChooserQuit if launched else 'Log Out',
             text_font=ToontownGlobals.getSignFont(),
             text_fg=(0.977, 0.816, 0.133, 1),
             text_pos=TTLocalizer.AClogOutTextPos,
             text_scale=TTLocalizer.AClogOutButtonScale, image_scale=1,
             image1_scale=1.05, image2_scale=1.05, scale=1.05,
             pos=(0.25, 0, 0.075),
-            command=self.__handleQuit if base.cr.isProductionServer() else self.__back)
+            command=self.__handleQuit if launched else self.__back)
         self.logoutButton.reparentTo(base.a2dBottomLeft)
 
         """

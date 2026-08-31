@@ -255,7 +255,7 @@ else:
 
 # Started from the launcher? Play the beautiful intro (unless opted-out)!
 wantIntro = ConfigVariableBool('want-intro',
-                               launcher.getServerMode() is not None).getValue()
+                               launcher.getServerMode() == 'production').getValue()
 
 if wantIntro:
     notify.info('Playing the introduction.')
@@ -276,7 +276,7 @@ if wantIntro:
 else:
     notify.info('Skipping the introduction.')
     clickToStart.stop()
-    clickToStart.begin()
+    clickToStart.skip()
 
 
 

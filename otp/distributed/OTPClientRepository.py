@@ -89,7 +89,8 @@ class OTPClientRepository(ClientRepositoryBase):
             self.profileKey = self.launcher.getProfileKey()
 
         # The launcher's session starts connecting while the intro cinematic is
-        # still on screenL
+        # still on screen. Only production plays one; everywhere else the
+        # launcher has already settled what the cinematic used to lead up to.
         self.introPending = False
         self.warmupAvList = None
         self.warmupBox = None
@@ -630,8 +631,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.__performTokenLogin()
             return
 
-        # Or they're on their own server, where the launcher's profile is the
-        # account and it keeps the password:
+        # The launcher holds the player's username and password, so there is nothing to ask for here either:
         if self.profile and self.profileKey:
             self.__performProfileLogin()
             return
@@ -663,18 +663,20 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.isProductionServer():
             spellbook.useLiveAccess()
 
-    def isLauncherSessionLive(self):
+    def isLauncherSession(self):
         """
-        Which server the launcher aimed us at.
+        True when the launcher picked the server and logged us in, whichever one
+        it picked.
         """
-        return self.serverMode == 'production'
+        return self.serverMode is not None
 
     def requestMenuOrExit(self):
         """
-        The menu is how offline and direct sessions back out. Live has nothing
-        behind it to back out to, so there we quit instead.
+        The menu is how a client started from source backs out. A launcher
+        session has the launcher behind it and that is where the server and the
+        account get chosen now, so there we quit back to it instead.
         """
-        if self.isLauncherSessionLive():
+        if self.isLauncherSession():
             self.loginFSM.request('shutdown')
         else:
             self.loginFSM.request('mainMenu')
@@ -889,9 +891,11 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def __performProfileLogin(self):
         """
-        Logs a local profile into the player's own server.
+        Logs in with the username and password the launcher keeps, on a server that
+        owns its own accounts. The server creates the account the first time it
+        sees the username.
         """
-        self.notify.info('Logging in as local profile %r.' % self.profile)
+        self.notify.info('Logging in as %r.' % self.profile)
         self.__acceptLauncherLogin()
         password = hashlib.sha512(self.profileKey.encode('utf-8')).hexdigest()
         self.csm.performLogin(EventGlobals.LoginDone, self.profile, password)
