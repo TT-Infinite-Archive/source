@@ -27,7 +27,7 @@ parser.add_argument('--accountdb', choices=('developer', 'offline', 'production'
                     Overrides accountdb-type from the PRC files.")
 parser.add_argument('--gateway', action='store_true',
                     help="Open the socket to the website, so name review, \
-                    account migration, and other servicesw reach the game. \
+                    account migration, and other services reach the game. \
                     dev-server.prc leaves it off, since a developer with no \
                     website running does not want a process retrying a connection forever. \
                     Overrides want-game-gateway from the PRC files.")
