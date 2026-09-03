@@ -1,3 +1,8 @@
+# What the live distribution changes.
+#
+# general.prc loads first and holds everything the game does the same way
+# everywhere, so this file is a diff against it.
+
 # Distribution:
 distribution live
 
@@ -34,22 +39,9 @@ generate-global-object 4695 TTCodeRedemptionMgr
 
 # Core features:
 want-multiplayer #t
-want-pets #t
 want-parties #t
 want-achievements #f
 want-grouptracker #f
-
-# Safe zones:
-want-safe-zones #t
-want-minnies-melodyland #t
-want-the-burrrgh #t
-want-donalds-dreamland #t
-want-goofy-speedway #t
-want-outdoor-zone #t
-want-golf-zone #t
-
-# Cog headquarters:
-want-cog-headquarters #t
 
 # Cog buildings:
 want-cogbuildings #t
@@ -58,11 +50,6 @@ want-cogdominiums #t
 # Sellbot boss:
 disable-sos-card 91917
 disable-sos-card 91918
-
-# Trolley minigames:
-want-ttc-trolley #t
-want-photo-game #f
-want-travel-game #f
 
 # Chat:
 want-whitelist #t

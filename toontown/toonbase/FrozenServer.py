@@ -1,15 +1,14 @@
 """
 Entry point for a compiled build of the Toontown Infinite server.
 """
-from panda3d.core import loadPrcFile
 import sys
 
-from toontown.toonbase.FrozenCommon import prepare
+from toontown.toonbase import ConfigFiles
+from toontown.toonbase.FrozenCommon import DISTRIBUTION, prepare
 
-prepare()
-
-loadPrcFile('config/server.prc')
-loadPrcFile('config/distribution/host-server.prc')
+# A hosted server is the live distribution with host-server.prc in place of
+# live-server.prc:
+prepare(ConfigFiles.server(DISTRIBUTION, ConfigFiles.HOST))
 
 if '--uberdog' in sys.argv:
     import toontown.uberdog.ServiceStart

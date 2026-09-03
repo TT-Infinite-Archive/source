@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableString, NodePath, Texture, Vec4, loadPrcFile, loadPrcFileData
+from panda3d.core import ConfigVariableBool, ConfigVariableString, NodePath, Texture, Vec4, loadPrcFileData
 #!/usr/bin/env python2
 import gc
 
@@ -21,8 +21,9 @@ notify.setInfo(True)
 
 if __debug__:
 
-    loadPrcFile('config/general.prc')
-    loadPrcFile('config/distribution/dev.prc')
+    from toontown.toonbase import ConfigFiles
+
+    ConfigFiles.load(ConfigFiles.client(ConfigFiles.DEV))
 
     try:
         import wx
@@ -48,10 +49,10 @@ builtins.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
-# Load server settings (used for the hosting screen)
+# The Hosting screen's settings. Not the status file the district writes:
 from otp.settings.Settings import Settings
-builtins.serverSettings = Settings("server-settings.json")
 from toontown.toonbase import ServerSettingsGlobals
+builtins.serverSettings = Settings(ServerSettingsGlobals.settingsPath())
 ServerSettingsGlobals.loadInitialSettings()
 
 loadPrcFileData('Settings: res',

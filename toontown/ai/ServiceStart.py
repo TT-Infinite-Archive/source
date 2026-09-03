@@ -1,5 +1,7 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFile, loadPrcFileData
+from panda3d.core import ConfigVariableBool, ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFileData
 import builtins
+
+from toontown.toonbase import ConfigFiles
 
 
 builtins.process = 'ai'
@@ -17,12 +19,15 @@ parser.add_argument('--district-name', help="What this AI Server's district will
 parser.add_argument('--astron-ip', help="The IP address of the Astron Message Director to connect to.")
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
-if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/server.prc', 'config/distribution/dev.prc', 'config/distribution/dev-server.prc'], help="PRC file(s) to load.")
+if __debug__:
+    parser.add_argument('--distribution', choices=ConfigFiles.CHOICES, default=ConfigFiles.DEV,
+                        help="Which distribution's config to load. Defaults to dev.")
+    parser.add_argument('config', nargs='*',
+                        help="Extra PRC file(s), loaded after the distribution's own.")
 builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
-    for prc in args.config:
-        loadPrcFile(prc)
+    ConfigFiles.load(ConfigFiles.serverFor(args.distribution) + tuple(args.config))
 
 from toontown.server import Deployment
 Deployment.load()

@@ -1,3 +1,8 @@
+# What the development distribution changes.
+#
+# general.prc loads first and holds everything the game does the same way
+# everywhere, so this file is a diff against it.
+
 # Distribution:
 distribution dev
 
@@ -32,46 +37,17 @@ dc-file astron/dclass/vanilla.dc
 
 # Core features:
 want-multiplayer #t
-want-pets #t
 want-parties #t
 want-achievements #f
 want-grouptracker #f
 want-server-browser #f
 
-# Safe zones:
-want-safe-zones #t
-want-minnies-melodyland #t
-want-the-burrrgh #t
-want-donalds-dreamland #t
-want-goofy-speedway #t
-want-outdoor-zone #t
-want-golf-zone #t
-
-# Cog headquarters:
-want-cog-headquarters #t
-
 # Cog buildings:
 want-cogbuildings #t
 want-cogdominiums #t
 
-# Animated Props
-zero-pause-mult 1.0
-
-# Interactive Props
-randomize-interactive-idles #t
-props-buff-battles #t
-prop-and-organic-bonus-stack #f
-prop-idle-pause-time 0.0
-
 # Cashbot boss:
-want-resistance-toonup #t
-want-resistance-restock #t
 want-resistance-dance #t
-
-# Trolley minigames:
-want-ttc-trolley #t
-want-photo-game #f
-want-travel-game #f
 
 # Chat:
 want-whitelist #f

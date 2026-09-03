@@ -39,7 +39,7 @@ from toontown.estate.EstateManagerAI import EstateManagerAI
 from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
 from toontown.fishing import DistributedFishingPondAI
 from toontown.safezone import DistributedFishingSpotAI
-from toontown.server.HostSettings import HostSettingsWriter, settingsPath
+from toontown.server.StatusReporting import FileSink, GatewaySink, StatusReporter
 from toontown.hood import BRHoodDataAI
 from toontown.hood import BossbotHQDataAI
 from toontown.hood import CashbotHQDataAI
@@ -72,7 +72,6 @@ from toontown.toonbase import ToontownGlobals, ServerSettingsGlobals
 from toontown.tutorial.TutorialManagerAI import TutorialManagerAI
 from toontown.server import Readiness
 from toontown.web.GatewaySocket import openSocket
-from toontown.web.ShardStatusReporter import ShardStatusReporter
 from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.safezone import DistributedPartyGateAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
@@ -158,9 +157,9 @@ class ToontownAIRepository(ToontownInternalRepository):
         # The district's own line to the website, and the commands it is
         # currently answering. Both stay None/empty if the gateway is off.
         self.gateway = gateway
-        self.gatewayReporter = None
         self.gatewayCommands = set()
-        self.hostSettings = None
+
+        self.statusReporter = StatusReporter(self)
 
         self.notify.setInfo(True)  # Our AI repository should always log info.
         self.hoods = []
@@ -337,24 +336,24 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.registerForChannel(MESSENGER_CHANNEL_AI)
 
         self.startGateway()
-        self.startHostSettings()
+        self.startStatusFile()
 
         if ConfigVariableBool('want-threaded-ai-start', False).getValue():
             threading.Thread(target=self.startDistrict).start()
         else:
             self.startDistrict()
 
-    def startHostSettings(self):
+    def startStatusFile(self):
         """
         Begins writing the status file a self-hosting player's launcher reads.
         """
-        path = settingsPath()
+        path = ServerSettingsGlobals.statusPath()
 
         if not path:
             return
 
-        self.hostSettings = HostSettingsWriter(self, path)
-        self.notify.info('Writing host settings to %s' % path)
+        self.statusReporter.add(FileSink(self, path))
+        self.notify.info('Writing host status to %s' % path)
 
     def startGateway(self):
         """
@@ -369,11 +368,10 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.gateway.onCommand = self.handleGatewayCommand
         self.gateway.onReady = self.handleGatewayReady
 
-        self.gatewayReporter = ShardStatusReporter(self, self.gateway)
+        self.statusReporter.add(GatewaySink(self, self.gateway))
 
     def handleGatewayReady(self, message):
-        if self.gatewayReporter:
-            self.gatewayReporter.flush()
+        self.statusReporter.flush()
 
     def handleGatewayCommand(self, message):
         """
@@ -392,21 +390,96 @@ class ToontownAIRepository(ToontownInternalRepository):
         elif op == 'stopInvasion':
             self.gatewayCommands.add(commandId)
             messenger.send('stopInvasion', [commandId, self.ourChannel])
+        elif op in ('startHoliday', 'endHoliday'):
+            self.handleHolidayCommand(
+                commandId, op == 'startHoliday', commandArgs)
         else:
             self.notify.warning('Ignoring an unknown gateway op: %s' % op)
             self.gateway.sendResult(
                 commandId, False, {'error': 'Unknown op: %s' % op})
+
+    def startConfiguredHolidays(self):
+        """
+        Starts the holidays `active-holidays` names.
+        """
+        configured = ConfigVariableString('active-holidays', '').getValue()
+
+        for holidayId in configured.split(','):
+            holidayId = holidayId.strip()
+
+            if not holidayId:
+                continue
+
+            try:
+                holidayId = int(holidayId)
+            except ValueError:
+                self.notify.warning('Ignoring holiday id %r' % holidayId)
+                continue
+
+            if holidayId not in self.holidayManager.holidays:
+                self.notify.warning('No holiday %d to start.' % holidayId)
+                continue
+
+            if self.holidayManager.isHolidayRunning(holidayId):
+                continue
+
+            try:
+                self.holidayManager.startHoliday(holidayId)
+            except Exception as error:
+                self.notify.warning(
+                    'Holiday %d would not start: %s' % (holidayId, error))
+
+    def handleHolidayCommand(self, commandId, start, commandArgs):
+        """
+        Turns a holiday on or off for this district, deployed from the website.
+        """
+        manager = getattr(self, 'holidayManager', None)
+
+        if manager is None:
+            self.gateway.sendResult(commandId, False, {
+                'error': 'This district is still starting up.'})
+            return
+
+        try:
+            holidayId = int(commandArgs.get('holidayId'))
+        except (TypeError, ValueError):
+            self.gateway.sendResult(commandId, False, {
+                'error': 'holidayId must be a number.'})
+            return
+
+        if holidayId not in manager.holidays:
+            self.gateway.sendResult(commandId, False, {
+                'error': 'This district has no holiday %d.' % holidayId})
+            return
+
+        if manager.isHolidayRunning(holidayId) == start:
+            self.gateway.sendResult(commandId, False, {
+                'error': 'Holiday %d is already %s.'
+                         % (holidayId, 'running' if start else 'stopped')})
+            return
+
+        try:
+            if start:
+                manager.startHoliday(holidayId)
+            else:
+                manager.endHoliday(holidayId)
+        except Exception as error:
+            self.notify.warning('Holiday %d would not %s: %s'
+                                % (holidayId, 'start' if start else 'end', error))
+            self.gateway.sendResult(commandId, False, {
+                'error': 'The district could not change that holiday.'})
+            return
+
+        self.gateway.sendResult(commandId, True, {
+            'holidayId': holidayId,
+            'running': manager.isHolidayRunning(holidayId)})
 
     def sendNetEvent(self, message, sentArgs=[]):
         """
         Passes the event through the gateway if applicable.
         """
         if message == 'shardStatus':
-            if self.gatewayReporter:
-                self.gatewayReporter.update(sentArgs[1])
-
-            if self.hostSettings:
-                self.hostSettings.update(sentArgs[1])
+            self.statusReporter.update(sentArgs[1])
 
         elif message.startswith('invasionResponse-') and self.gateway:
             commandId = message[len('invasionResponse-'):]
@@ -471,6 +544,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         # needs to reference the HoodDataAI and EstateMgrAI for pond
         # information
         self.holidayManager = HolidayManagerAI(self)
+        self.startConfiguredHolidays()
 
         self.notify.info('Making district available...')
         self.distributedDistrict.b_setAvailable(1)

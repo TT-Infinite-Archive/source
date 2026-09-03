@@ -43,10 +43,7 @@ case "${1:-}" in
         export READY_FILE=/tmp/ready
 
         set -- python -m "toontown.$service.ServiceStart" \
-            config/general.prc \
-            config/server.prc \
-            config/distribution/live.prc \
-            config/distribution/live-server.prc \
+            --distribution live \
             docker/container.prc \
             "$@"
         ;;

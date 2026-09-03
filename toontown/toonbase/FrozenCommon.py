@@ -1,13 +1,15 @@
 """
 The startup both compiled entry points share.
 """
-from panda3d.core import Filename, VirtualFileSystem, loadPrcFile
+from panda3d.core import Filename, VirtualFileSystem
 import os
 import sys
 
+from toontown.toonbase import ConfigFiles
+
 PHASES = ('3', '3.5', '4', '5', '5.5', '6', '7', '8', '9', '10', '11', '12', '13')
 
-DISTRIBUTION = 'live'
+DISTRIBUTION = ConfigFiles.LIVE
 
 
 def findRoot(start):
@@ -32,9 +34,9 @@ def findRoot(start):
     sys.exit('No installed resources above %s.' % start)
 
 
-def prepare():
+def prepare(config):
     """
-    Enter the install root, mount the phase files, and load the shared config.
+    Enter the install root, mount the phase files, and load `config`.
     """
     sys.frozen = True
     sys.executable = os.path.abspath(sys.argv[0])
@@ -45,15 +47,14 @@ def prepare():
 
     vfs = VirtualFileSystem.getGlobalPtr()
 
+    vfs.chdir(Filename.fromOsSpecific(root))
+
     for phase in PHASES:
         multifile = Filename.fromOsSpecific(os.path.join(root, 'resources', 'phase_%s.mf' % phase))
 
         if not vfs.mount(multifile, '/', 0):
             sys.exit('Failed to mount %s.' % multifile)
 
-    # ClientStart and both ServiceStarts load their config only under
-    # __debug__, which -O removes. These are that config:
-    loadPrcFile('config/general.prc')
-    loadPrcFile('config/distribution/%s.prc' % DISTRIBUTION)
+    ConfigFiles.load(config)
 
     return root

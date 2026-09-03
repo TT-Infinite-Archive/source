@@ -13,8 +13,12 @@ mongodb-url mongodb://localhost/game
 # UberDOG:
 generate-root-object #t
 
-# The launcher's Hosting screen and `--dedicated` both read this:
+# The host's settings, which the launcher's Hosting screen and `--dedicated`
+# both read and write:
 host-settings-file server-settings.json
+
+# Where the district reports who is online, for the launcher to poll:
+host-status-file server-status.json
 
 # Website services:
 want-game-gateway #f

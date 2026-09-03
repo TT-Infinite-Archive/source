@@ -24,6 +24,7 @@ contentpacks/
 toondata/
 banned_players.txt
 tools/
+tti-server/
 
 # Virtual environments:
 venv/
@@ -33,6 +34,7 @@ astron/mp-database/
 bookmarks.dat
 bookmarks.json
 server-settings.json
+server-status.json
 
 # Generated Astron files:
 astron/logs/

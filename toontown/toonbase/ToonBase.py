@@ -248,11 +248,16 @@ class ToonBase(OTPBase.OTPBase):
         # Free black/white Toons:
         self.wantYinYang = ConfigVariableBool('want-yin-yang', False).getValue()
 
-        activeHolidays = ConfigVariableString('active-holidays', '').getValue()
+        activeHolidays = os.environ.get('TTI_ACTIVE_HOLIDAYS') or ConfigVariableString('active-holidays', '').getValue()
         self.clientHolidayIdList = []
         for holidayId in activeHolidays.split(','):
-            if holidayId:
-                self.clientHolidayIdList.append(int(holidayId.strip()))
+            holidayId = holidayId.strip()
+            if not holidayId:
+                continue
+            try:
+                self.clientHolidayIdList.append(int(holidayId))
+            except ValueError:
+                self.notify.warning('Ignoring holiday id %r' % holidayId)
         
         self.wantCustomControls = settings.get('want-custom-controls', False)
 

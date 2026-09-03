@@ -65,14 +65,9 @@ def getProcesses(districtName=DefaultDistrict, mongo=True, config=()):
 
     `mongo` is off when the host already has a database to point at, which a
     VPS usually does; the rest of the stack is the same either way.
-
-    `config` is the PRC files the district and the UberDOG should load. It only
-    applies to a source checkout: a compiled server reads its own config on the
-    way in and would take these as stray arguments. Without it, a child of a
-    source run falls back to the development config rather than the host's.
     """
-    # ServiceStart takes its PRC files as trailing positional arguments, and
-    # only offers them under __debug__ -- the same condition as `not frozen`.
+    # ServiceStart only offers these under __debug__ -- the same condition as
+    # `not frozen`.
     settings = [] if getattr(sys, 'frozen', False) else list(config)
 
     processes = []

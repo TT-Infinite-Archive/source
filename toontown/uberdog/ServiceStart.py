@@ -1,5 +1,7 @@
-from panda3d.core import ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFile, loadPrcFileData
+from panda3d.core import ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFileData
 import builtins
+
+from toontown.toonbase import ConfigFiles
 
 
 builtins.process = 'uberdog'
@@ -30,12 +32,16 @@ parser.add_argument('--gateway', action='store_true',
                     website running does not want a process retrying a connection forever. \
                     Overrides want-game-gateway from the PRC files.")
 
-if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/server.prc', 'config/distribution/dev.prc', 'config/distribution/dev-server.prc'], help="PRC file(s) to load.")
+if __debug__:
+    parser.add_argument('--distribution', choices=ConfigFiles.CHOICES, default=ConfigFiles.DEV,
+                        help="Which distribution's config to load. Defaults to dev, \
+                        since a source checkout is a development one.")
+    parser.add_argument('config', nargs='*',
+                        help="Extra PRC file(s), loaded after the distribution's own.")
 builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
-    for prc in args.config:
-        loadPrcFile(prc)
+    ConfigFiles.load(ConfigFiles.serverFor(args.distribution) + tuple(args.config))
 
 from toontown.server import Deployment
 Deployment.load()
