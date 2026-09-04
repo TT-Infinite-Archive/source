@@ -401,6 +401,9 @@ class ToontownAIRepository(ToontownInternalRepository):
     def startConfiguredHolidays(self):
         """
         Starts the holidays `active-holidays` names.
+
+        Unless `want-scheduled-holidays` is on, this is the only thing that
+        starts an event.
         """
         configured = ConfigVariableString('active-holidays', '').getValue()
 

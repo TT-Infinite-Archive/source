@@ -6,3 +6,6 @@ rpc-server-endpoint http://localhost:8080/
 
 # Website gateway:
 want-game-gateway #t
+
+# Holidays:
+want-scheduled-holidays #f
