@@ -8,7 +8,7 @@ set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGS="$ROOT/logs"
-mkdir -p "$LOGS"
+mkdir -p "$LOGS" "$ROOT/astron/logs"
 
 # Which account database the UberDOG authenticates against.
 #   developer   the login screen takes any username; access level 400
@@ -144,6 +144,7 @@ PIDS+=($!)
 wait_for_port 7030
 
 echo "[2/5] Starting astrond..."
+python "$ROOT/scripts/write_astron_config.py" > /dev/null
 (cd "$ROOT/astron" && exec "./astrond-$(uname -s | tr '[:upper:]' '[:lower:]')" --loglevel info dev.yml > "$LOGS/astrond.log" 2>&1) &
 PIDS+=($!)
 wait_for_port 7010
