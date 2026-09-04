@@ -20,16 +20,8 @@ bookmarks.json
 banned_players.txt
 astron/data
 astron/logs
-astron/astrond
-astron/astrond.exe
 astron/dev.yml
 
-# Platform launcher scripts for running outside a container.
-darwin
-linux
-win32
-tools
 doc
-
 **/__pycache__
 *.pyc
