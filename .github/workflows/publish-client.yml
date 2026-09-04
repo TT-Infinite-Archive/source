@@ -11,6 +11,10 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: releases
+  cancel-in-progress: false
+
 env:
   BUCKET: ttiwebsite
   PREFIX: releases
