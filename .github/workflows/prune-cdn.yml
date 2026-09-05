@@ -22,7 +22,7 @@ concurrency:
 jobs:
   prune:
     name: Sweep orphaned blobs
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     env:
       BUCKET: ttiwebsite
       PREFIX: releases
