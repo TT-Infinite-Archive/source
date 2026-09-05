@@ -16,7 +16,7 @@ on:
 jobs:
   deploy:
     name: Deploy
-    runs-on: self-hosted
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v5
 

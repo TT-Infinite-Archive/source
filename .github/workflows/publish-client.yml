@@ -27,7 +27,7 @@ env:
 jobs:
   version:
     name: Resolve version
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     outputs:
       value: ${{ steps.version.outputs.value }}
     steps:
@@ -40,7 +40,7 @@ jobs:
   resources:
     name: Pack the resources
     needs: version
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v5
 
@@ -97,11 +97,11 @@ jobs:
         include:
           # Nuitka is a compiler, not a cross-compiler: one runner per target.
           # macOS is arm64 only (for now)
-          - os: macos-14
+          - os: blacksmith-6vcpu-macos-15
             target: mac-arm64
-          - os: windows-latest
+          - os: blacksmith-4vcpu-windows-2025
             target: win-x64
-          - os: ubuntu-latest
+          - os: blacksmith-4vcpu-ubuntu-2404
             target: linux-x64
 
     steps:
@@ -178,7 +178,7 @@ jobs:
   publish:
     name: Publish the release
     needs: [version, resources, client]
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Point latest.json at ${{ needs.version.outputs.value }}
         run: |
