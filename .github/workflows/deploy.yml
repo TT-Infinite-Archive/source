@@ -35,4 +35,4 @@ jobs:
           cd "${{ vars.DEPLOY_PATH }}"
           docker compose -f compose.yaml pull
           docker compose -f compose.yaml up -d --remove-orphans --wait
-          docker image prune -f
+          docker image prune -a -f
