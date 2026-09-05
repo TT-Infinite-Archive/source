@@ -1,5 +1,7 @@
-from panda3d.core import ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFile, loadPrcFileData
+from panda3d.core import ConfigVariableInt, ConfigVariableString, HTTPChannel, loadPrcFileData
 import builtins
+
+from toontown.toonbase import ConfigFiles
 
 
 builtins.process = 'uberdog'
@@ -18,12 +20,31 @@ parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
 parser.add_argument('--singleplayer', help="If passed, the server will start in singleplayer mode.", action='store_true')
 parser.add_argument('--cheats', help="If passed, the server will start in with cheats enabled.", action='store_true')
-if __debug__: parser.add_argument('config', nargs='*', default=['config/general.prc', 'config/distribution/dev.prc'], help="PRC file(s) to load.")
+parser.add_argument('--accountdb', choices=('developer', 'offline', 'production'),
+                    help="'developer' and 'offline' both take login screen credentials and register an unknown \
+                    username on the spot, granting access level 500 and 100 respectively. 'production' \
+                    skips the login screen and redeems the launcher's launch token against the website. \
+                    Overrides accountdb-type from the PRC files.")
+parser.add_argument('--gateway', action='store_true',
+                    help="Open the socket to the website, so name review, \
+                    account migration, and other services reach the game. \
+                    dev-server.prc leaves it off, since a developer with no \
+                    website running does not want a process retrying a connection forever. \
+                    Overrides want-game-gateway from the PRC files.")
+
+if __debug__:
+    parser.add_argument('--distribution', choices=ConfigFiles.CHOICES, default=ConfigFiles.DEV,
+                        help="Which distribution's config to load. Defaults to dev, \
+                        since a source checkout is a development one.")
+    parser.add_argument('config', nargs='*',
+                        help="Extra PRC file(s), loaded after the distribution's own.")
 builtins.args = parser.parse_known_args()[0]
 
 if __debug__:
-    for prc in args.config:
-        loadPrcFile(prc)
+    ConfigFiles.load(ConfigFiles.serverFor(args.distribution) + tuple(args.config))
+
+from toontown.server import Deployment
+Deployment.load()
 
 localconfig = ''
 if args.base_channel: localconfig += 'air-base-channel %s\n' % args.base_channel
@@ -34,14 +55,31 @@ if args.eventlogger_ip: localconfig += 'eventlog-host %s\n' % args.eventlogger_i
 if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
 if args.singleplayer: localconfig += 'want-singleplayer #t\n'
 if args.cheats: localconfig += 'want-cheats #f\n'
+if args.accountdb: localconfig += 'accountdb-type %s\n' % args.accountdb
+if args.gateway: localconfig += 'want-game-gateway #t\n'
 loadPrcFileData('Command-line', localconfig)
 
 
 from otp.ai.AIBaseGlobal import *
 
+from toontown.web import GatewaySocket
+
+gateway = GatewaySocket.openSocket()
+if gateway:
+    ready = gateway.waitForReady(ConfigVariableInt('gateway-ready-timeout', 15).getValue())
+    if ready:
+        settings = dict(ready.get('config') or {})
+
+        loadPrcFileData('Gateway', ''.join(
+            '%s %s\n' % (variable, value) for variable, value in sorted(settings.items())))
+
+        Deployment.load()
+        loadPrcFileData('Command-line', localconfig)
+
 from toontown.uberdog.ToontownUberRepository import ToontownUberRepository
 simbase.air = ToontownUberRepository(ConfigVariableInt('air-base-channel', 400000000).getValue(),
-                                     ConfigVariableInt('air-stateserver', 4002).getValue())
+                                     ConfigVariableInt('air-stateserver', 4002).getValue(),
+                                     gateway=gateway)
 host = ConfigVariableString('air-connect', '127.0.0.1').getValue()
 port = 7010
 if ':' in host:

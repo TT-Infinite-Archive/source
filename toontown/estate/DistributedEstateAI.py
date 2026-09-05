@@ -1496,6 +1496,8 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
         taskMgr.doMethodLater(secondsUntil, self.endGameTable, self.uniqueName("endGameTable"))
 
     def startGameTable(self, avatar = 0):
+        # The game table was never finished. Same treatment as startCannons.
+        return
         if self.gameTableFlag:
             return
         if not self.picnicTable:

@@ -22,7 +22,7 @@ class NPCFriendPanel(DirectFrame):
         self.accept(localAvatar.uniqueName('maxNPCFriendsChange'), self.updateLayout)
 
     def update(self, friendDict, fCallable = 0):
-        friendList = list(friendDict.keys())
+        friendList = [ NPCID for NPCID in friendDict if NPCID in NPCToons.npcFriends ]
         for i in range(self.maxNPCFriends):
             card = self.cardList[i]
             try:

@@ -1,6 +1,8 @@
+import collections
+import socket
 import urllib.parse
 
-from direct.distributed.AstronInternalRepository import AstronInternalRepository
+from panda3d_astron.repository import AstronInternalRepository, msgpack_encode
 from direct.distributed.PyDatagram import PyDatagram
 from panda3d.core import loadPrcFile
 from panda3d.direct import DCPacker
@@ -11,9 +13,6 @@ from otp.distributed.OtpDoGlobals import *
 from toontown.distributed.ToontownNetMessengerAI import ToontownNetMessengerAI
 
 import pymongo
-
-if config.GetBool('want-web-api', False):
-    from toontown.web.WebserverAPIClient import WebserverAPIClient
 
 
 class ToontownInternalRepository(AstronInternalRepository):
@@ -39,15 +38,45 @@ class ToontownInternalRepository(AstronInternalRepository):
         self.mongodb = self.mongo[db]
         self.dbAstronCursor = self.mongodb.astron
 
-        if config.GetBool('want-web-api', False):
-            endpoint = config.GetString(
-                'web-api-endpoint', 'https://localhost:8000/api/')
-            token = config.GetString('web-api-token', '')
-            self.webApi = WebserverAPIClient(endpoint, token)
-        else:
-            self.webApi = None
-
         self.netMessenger = ToontownNetMessengerAI(self)
+
+    def setEventLogHost(self, host, port=7197):
+        self.eventSocket = None
+        self.eventLogAddress = None
+
+        if not host:
+            return
+
+        try:
+            address = socket.getaddrinfo(
+                host, port, socket.AF_INET, socket.SOCK_DGRAM)[0][4]
+        except OSError as e:
+            self.notify.warning(
+                'Invalid Event Log host specified: %s:%s (%s)' % (host, port, e))
+            return
+
+        self.eventSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.eventLogAddress = address
+
+    def writeServerEvent(self, logtype, *args, **kwargs):
+        if self.eventSocket is None:
+            return
+
+        log = collections.OrderedDict()
+        log['type'] = logtype
+        log['sender'] = self.eventLogId
+
+        for i, v in enumerate(args):
+            log['_%d' % (i + 1)] = v
+
+        log.update(kwargs)
+
+        try:
+            dg = PyDatagram()
+            msgpack_encode(dg, log)
+            self.eventSocket.sendto(dg.getMessage(), self.eventLogAddress)
+        except Exception as e:
+            self.notify.warning('Could not write server event %r: %s' % (logtype, e))
 
     def handleConnected(self):
         self.netMessenger.register()

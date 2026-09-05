@@ -211,38 +211,9 @@ class TutorialManagerAI(DistributedObjectAI.DistributedObjectAI):
                 response = 0
 
         if av and response:
-            # Acknowlege that the player has seen a tutorial
-            self.air.writeServerEvent('skippedTutorial', avId, '')
-            av.b_setTutorialAck(1)
-            # these values were taken by running a real tutorial            
-            self.air.questManager.assignQuest(avId,
-                                              20000,
-                                              101,
-                                              100,
-                                              1000,
-                                              1
-                                              )
-
-            self.air.questManager.completeAllQuestsMagically(av)
-            av.removeQuest(101)
-            self.air.questManager.assignQuest(avId,
-                                              1000,
-                                              110,
-                                              2,
-                                              1000,
-                                              0
-                                              )
-            # do whatever needs to be done to make his quest state good
-            self.air.questManager.completeAllQuestsMagically(av)
-
-            # give him the default collectible items
-            for category, itemStruct in list(CollectibleInventoryGlobals.DefaultItems.items()):
-                for itemId, equip in itemStruct:
-                    self.air.ciManager.handleItemObtained(av.doId, category, itemId)
-                    if equip:
-                        self.air.ciManager.handleEquipItem(av.doId, category, itemId)
+            self.applySkipTutorial(avId, av)
         elif av:
-            self.notify.debug("%s requestedSkipTutorial, but tutorialAck is 1")
+            self.notify.debug("%s requestedSkipTutorial, but tutorialAck is 1" % avId)
         else:
             response = 0
             self.notify.warning(
@@ -253,20 +224,51 @@ class TutorialManagerAI(DistributedObjectAI.DistributedObjectAI):
                 )
         self.sendUpdateToAvatarId(avId, "skipTutorialResponse", [response])
 
+    def applySkipTutorial(self, avId, av):
+        # Acknowledge that the player has seen a tutorial
+        self.air.writeServerEvent('skippedTutorial', avId, '')
+        av.b_setTutorialAck(1)
+        # these values were taken by running a real tutorial
+        self.air.questManager.assignQuest(avId,
+                                          20000,
+                                          101,
+                                          100,
+                                          1000,
+                                          1
+                                          )
+
+        self.air.questManager.completeAllQuestsMagically(av)
+        av.removeQuest(101)
+        self.air.questManager.assignQuest(avId,
+                                          1000,
+                                          110,
+                                          2,
+                                          1000,
+                                          0
+                                          )
+        # do whatever needs to be done to make his quest state good
+        self.air.questManager.completeAllQuestsMagically(av)
+
+        # give him the default collectible items
+        for category, itemStruct in list(CollectibleInventoryGlobals.DefaultItems.items()):
+            for itemId, equip in itemStruct:
+                self.air.ciManager.handleItemObtained(av.doId, category, itemId)
+                if equip:
+                    self.air.ciManager.handleEquipItem(av.doId, category, itemId)
+
     def waitingToonEntered(self, av):
-        """Check if the avatar is someone who's requested to skip, then proceed accordingly."""
+        """Set a Toon up now that it is here, having already been told it could skip."""
         avId = av.doId
-        if avId in self.avIdsRequestingSkip:
-            requestTime = self.avIdsRequestingSkip[avId]
-            
-            curTime = globalClock.getFrameTime()
-            if (curTime - requestTime) <= self.WaitTimeForSkipTutorial:
-                self.respondToSkipTutorial(avId, av)
-            else:
-                self.notify.warning("waited too long for toon %d responding no to skip tutorial request" % avId)
-                self.sendUpdateToAvatarId(avId, "skipTutorialResponse", [0])
-            del self.avIdsRequestingSkip[avId]
-            self.removeTask("skipTutorialToon-%d" % avId)
+        if avId not in self.avIdsRequestingSkip:
+            return
+
+        del self.avIdsRequestingSkip[avId]
+        self.removeTask("skipTutorialToon-%d" % avId)
+
+        # The answer went out when the request arrived, so all that is left is
+        # the state the Toon would have had coming out of a tutorial.
+        if not av.tutorialAck:
+            self.applySkipTutorial(avId, av)
 
     def waitForToonToEnter(self,avId):
         """Mark our toon as requesting to skip, and start a task to timeout for it."""
@@ -275,11 +277,14 @@ class TutorialManagerAI(DistributedObjectAI.DistributedObjectAI):
         self.doMethodLater(self.WaitTimeForSkipTutorial, self.didNotGetToon, "skipTutorialToon-%d" % avId, [avId])
 
     def didNotGetToon(self, avId):
-        """Just say no since the AI didn't get it."""
-        self.notify.debugStateCall(self)
+        """The Toon never arrived, so there is nothing left to set up."""
+        self.notify.warning(
+            "Toon " +
+            str(avId) +
+            " was told it could skip the tutorial but never arrived."
+            )
         if avId in self.avIdsRequestingSkip:
             del self.avIdsRequestingSkip[avId]
-        self.sendUpdateToAvatarId(avId, "skipTutorialResponse", [0])
         return Task.done
 
     def requestSkipTutorial(self):
@@ -287,11 +292,12 @@ class TutorialManagerAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debugStateCall(self)
         avId = self.air.getAvatarIdFromSender()
         # Make sure the avatar exists
-        av = self.air.doId2do.get(avId)        
+        av = self.air.doId2do.get(avId)
         if av:
             self.respondToSkipTutorial(avId,av)
         else:
             self.waitForToonToEnter(avId)
+            self.sendUpdateToAvatarId(avId, "skipTutorialResponse", [1])
 
     def d_enterTutorial(self, avId, branchZone, streetZone, shopZone, hqZone):
         self.sendUpdateToAvatarId(avId, "enterTutorial", [branchZone,

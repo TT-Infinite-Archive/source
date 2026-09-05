@@ -1,6 +1,7 @@
 import builtins
 import enum
 import gc
+import json
 import os
 import sys
 import time
@@ -25,6 +26,7 @@ from direct.showbase.GarbageReportScheduler import GarbageReportScheduler
 from direct.task import Task
 
 from otp.ai.GarbageLeakServerEventAggregator import GarbageLeakServerEventAggregator
+from otp.ai.MagicWordGlobal import spellbook
 from otp.avatar.DistributedPlayer import DistributedPlayer
 from otp.distributed import OtpDoGlobals
 from otp.distributed.OtpDoGlobals import *
@@ -42,7 +44,12 @@ from toontown.mainmenu.MainMenu import MainMenu
 from toontown.server import ServerGlobals
 from toontown.servermenu.ServerMenu import ServerMenu
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import EventGlobals, TTLocalizer, ToontownGlobals
+
+if not __debug__:
+    def exceptionLogged(append = True):
+        return lambda method: method
+
 
 class EWishNameResult(enum.IntEnum):
     FAILURE = 0
@@ -70,10 +77,29 @@ class OTPClientRepository(ClientRepositoryBase):
         self.failureSfx = base.loader.loadSfx('phase_4/audio/sfx/MG_sfx_travel_game_no_bonus_2.ogg')
 
         self.playToken = None
+        # All 'None' when the game was started manually, 
+        # which is what keeps the main menu the normal way in
+        self.serverMode = None
+        self.profile = None
+        self.profileKey = None
         if self.launcher:
             self.playToken = self.launcher.getPlayToken()
+            self.serverMode = self.launcher.getServerMode()
+            self.profile = self.launcher.getProfile()
+            self.profileKey = self.launcher.getProfileKey()
+
+        # The launcher's session starts connecting while the intro cinematic is
+        # still on screen. Only production plays one; everywhere else the
+        # launcher has already settled what the cinematic used to lead up to.
+        self.introPending = False
+        self.warmupAvList = None
+        self.warmupBox = None
 
         self.wantMagicWords = False
+
+        # Filled in by acceptLogin. Until the server has spoken, nothing is
+        # treated as official.
+        self.serverFlags = {}
 
         if self.launcher and hasattr(self.launcher, 'http'):
             self.http = self.launcher.http
@@ -151,6 +177,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitConnect, [
                       'noConnection',
                       'serverMenu',
+                      'waitForGameList',
                       'failedToConnect',
                       'failedToGetServerConstants']),
             State('createAccount',
@@ -216,7 +243,7 @@ class OTPClientRepository(ClientRepositoryBase):
                   self.exitNoConnection, [
                       'connect',
                       'mainMenu',
-                      'serverMenu'
+                      'serverMenu',
                       'shutdown']),
             State('periodTimeout',
                   self.enterPeriodTimeout,
@@ -378,7 +405,9 @@ class OTPClientRepository(ClientRepositoryBase):
 
             # Generate a Astron config file.
             path = os.path.join(base.tempDir, 'server.yml')
-            data = ServerGlobals.getAstronConfig(dcFileNames=(dcFilePath,), version=version)
+            data = ServerGlobals.getAstronConfig(
+                dcFileNames=(dcFilePath,), version=version,
+                port=ServerGlobals.getHostPort())
             with open(path, 'w') as f:
                 yaml.dump(data, f)
 
@@ -534,10 +563,11 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def enterConnect(self, serverList):
         base.initialEntry = False
+        self.serverFlags = {}
         self.serverList = serverList
         dialogClass = OTPGlobals.getGlobalDialogClass()
         self.connectingBox = dialogClass(message=OTPLocalizer.CRConnecting)
-        if base.isHosting:
+        if base.isHosting or self.introPending:
             self.connectingBox.hide()
         self.renderFrame()
         self.handler = self.handleConnecting
@@ -557,6 +587,9 @@ class OTPClientRepository(ClientRepositoryBase):
             self.handleMessageType(msgtype, di)
 
     def failedToConnect(self, statusCode, statusString):
+        if self.warmupInterrupted():
+            return
+
         self.loginFSM.request('failedToConnect', [statusCode, statusString])
 
     def exitConnect(self):
@@ -592,6 +625,318 @@ class OTPClientRepository(ClientRepositoryBase):
         # else:
             # self.loginFSM.request('login')
         base.initialEntry = True
+
+        # Started from the launcher
+        if self.playToken:
+            self.__performTokenLogin()
+            return
+
+        # The launcher holds the player's username and password, so there is nothing to ask for here either:
+        if self.profile and self.profileKey:
+            self.__performProfileLogin()
+            return
+
+        self.loginFSM.request('serverMenu')
+
+    def isProductionServer(self):
+        """
+        True when the server we are logged into told us it is the official one.
+        """
+        return bool(self.serverFlags.get('official'))
+
+    def setServerFlags(self, raw):
+        """
+        Applies the flags set at login.
+        """
+        try:
+            flags = json.loads(raw) if raw else {}
+        except ValueError:
+            self.notify.warning('Server sent unreadable flags %r.' % raw)
+            flags = {}
+
+        if not isinstance(flags, dict):
+            self.notify.warning('Server sent non-dict flags %r.' % raw)
+            flags = {}
+
+        self.serverFlags = flags
+
+        if self.isProductionServer():
+            spellbook.useLiveAccess()
+
+    def isLauncherSession(self):
+        """
+        True when the launcher picked the server and logged us in, whichever one
+        it picked.
+        """
+        return self.serverMode is not None
+
+    def requestMenuOrExit(self):
+        """
+        The menu is how a client started from source backs out. A launcher
+        session has the launcher behind it and that is where the server and the
+        account get chosen now, so there we quit back to it instead.
+        """
+        if self.isLauncherSession():
+            self.loginFSM.request('shutdown')
+        else:
+            self.loginFSM.request('mainMenu')
+
+    def startLauncherSession(self):
+        """
+        Connects to the server the launcher picked, skipping the main menu.
+        """
+        mode = self.serverMode
+
+        if mode == 'local':
+            self.__startLocalServer()
+            return True
+
+        if mode in ('direct', 'production'):
+            address = self.launcher.getGameServer()
+            if not address:
+                self.notify.warning(
+                    'TTI_SERVER_MODE is %r but TTI_GAMESERVER is unset; '
+                    'showing the menu instead.' % mode)
+                return False
+            base.isHosting = False
+            self.__connectToAddress(address)
+            return True
+
+        if mode:
+            self.notify.warning('Unknown TTI_SERVER_MODE %r; showing the menu.' % mode)
+
+        return False
+
+    def startWarmupSession(self):
+        """
+        Starts the launcher's session while the intro is still playing.
+        """
+        if self.serverMode not in ('direct', 'production'):
+            return False
+
+        if not ConfigVariableBool('want-connection-warmup', True).getValue():
+            return False
+
+        self.notify.info('Connecting behind the intro.')
+
+        self.introPending = True
+        if not self.startLauncherSession():
+            self.introPending = False
+            return False
+
+        return self.introPending
+
+    def finishWarmupSession(self):
+        """
+        Picks the warmed-up session back up when the player clicks through the
+        intro.
+        """
+        if not self.introPending:
+            return False
+
+        self.introPending = False
+
+        if self.warmupAvList is not None:
+            avList, self.warmupAvList = self.warmupAvList, None
+            base.transitions.noFade()
+            self.loginFSM.request('chooseAvatar', [avList])
+        else:
+            self.__waitOutWarmup()
+
+        return True
+
+    def warmupInterrupted(self):
+        """
+        True when the session warming up behind the intro ran into trouble.
+        """
+        if not self.introPending:
+            return False
+
+        self.notify.info('The warm-up connection failed; retrying after the intro.')
+        self.introPending = False
+        self.warmupAvList = None
+        self.cleanupWaitingForDatabase()
+        self.stopReaderPollTask()
+        self.sendDisconnect()
+        self.resetInterestStateForConnectionLoss()
+        self.loginFSM.forceTransition('loginOff')
+        return True
+
+    def __waitOutWarmup(self):
+        dialogClass = OTPGlobals.getGlobalDialogClass()
+        self.warmupBox = dialogClass(message=OTPLocalizer.CRConnecting)
+        self.warmupBox.show()
+        self.accept('connectionIssue', self.__cleanupWarmupBox)
+        self.renderFrame()
+
+    def __cleanupWarmupBox(self):
+        self.ignore('connectionIssue')
+        if self.warmupBox is not None:
+            self.warmupBox.cleanup()
+            self.warmupBox = None
+            base.transitions.noFade()
+
+    def __startLocalServer(self):
+        """
+        Brings up the player's own server, or joins the one already running.
+        """
+        if self.localServerStarter.isServerAlive():
+            self.notify.info('A local server is already running; connecting to it.')
+            base.isHosting = False
+            base.connectToServer('127.0.0.1', self.localServerStarter.getPort())
+        else:
+            self.notify.info('Starting a local server.')
+            self.__watchLocalServer()
+            self.localServerStarter.demand('Start')
+
+    def __watchLocalServer(self):
+        """
+        # HostStartScreen normally listens for the starter's events, but if we skip the main menu
+        # (like when launched directly), nothing is watching. This would leave users waiting 
+        # at a black screen with no feedback.
+        """
+        self.__closeLocalServerDialog()
+
+        dialogClass = OTPGlobals.getDialogClass()
+        self.localServerDialog = dialogClass(
+            text=TTLocalizer.LocalServerStarting,
+            dialogName='LocalServerStarting',
+            style=OTPDialog.NoButtons)
+        self.localServerDialog.show()
+
+        self.accept(EventGlobals.LocalServerStarterProcess,
+                    self.__handleLocalServerProcess)
+        self.accept(EventGlobals.LocalServerStarterDone,
+                    self.__handleLocalServerDone)
+        self.accept(EventGlobals.LocalServerStarterFailed,
+                    self.__handleLocalServerFailed)
+        self.accept(EventGlobals.LocalServerStarterFailedRunning,
+                    self.__handleLocalServerFailedRunning)
+
+    def __ignoreLocalServer(self):
+        self.ignore(EventGlobals.LocalServerStarterProcess)
+        self.ignore(EventGlobals.LocalServerStarterDone)
+        self.ignore(EventGlobals.LocalServerStarterFailed)
+        self.ignore(EventGlobals.LocalServerStarterFailedRunning)
+
+    def __closeLocalServerDialog(self):
+        dialog = getattr(self, 'localServerDialog', None)
+
+        if dialog is not None:
+            dialog.cleanup()
+            self.localServerDialog = None
+
+    def __handleLocalServerProcess(self, processName):
+        if getattr(self, 'localServerDialog', None) is None:
+            return
+
+        self.localServerDialog['text'] = (
+            TTLocalizer.StartingServerDev % processName
+            if __debug__
+            else TTLocalizer.StartingServerLive)
+
+    def __handleLocalServerDone(self):
+        self.__ignoreLocalServer()
+        self.__closeLocalServerDialog()
+
+    def __handleLocalServerFailed(self, processName):
+        self.__localServerFailure(TTLocalizer.StartingFailed % processName)
+
+    def __handleLocalServerFailedRunning(self):
+        self.__localServerFailure(TTLocalizer.LocalServerRunningAlready)
+
+    def __localServerFailure(self, message):
+        """
+        The server didn't come up. Say which part failed, then hand over the menu
+        rather than sitting on a black screen.
+        """
+        self.__ignoreLocalServer()
+        self.__closeLocalServerDialog()
+        self.notify.warning('Local server failed to start: %s' % message)
+
+        dialogClass = OTPGlobals.getGlobalDialogClass()
+        self.localServerErrorBox = dialogClass(
+            message=message, doneEvent='localServerFailedAck',
+            style=OTPDialog.Acknowledge)
+        self.localServerErrorBox.show()
+        self.acceptOnce('localServerFailedAck', self.__handleLocalServerFailedAck)
+
+    def __handleLocalServerFailedAck(self):
+        self.localServerErrorBox.cleanup()
+        del self.localServerErrorBox
+        self.loginFSM.request('mainMenu')
+
+    def __connectToAddress(self, address):
+        """Splits a `host` or `host:port` the way the join screen does."""
+        host, separator, port = address.partition(':')
+
+        if separator and port:
+            try:
+                base.connectToServer(host, int(port))
+                return
+            except ValueError:
+                self.notify.warning(
+                    'Bad port in TTI_GAMESERVER %r; using the default.' % address)
+
+        base.connectToServer(host)
+
+    def __performTokenLogin(self):
+        """
+        Trades the launcher's play token for a login, skipping the LoginScreen.
+        """
+        self.notify.info('Logging in with the launcher\'s play token.')
+        self.__acceptLauncherLogin()
+        self.csm.performTokenLogin(EventGlobals.LoginDone, self.playToken)
+        self.waitForDatabaseTimeout(requestName='WaitOnCSMTokenLoginResponse')
+
+    def __performProfileLogin(self):
+        """
+        Logs in with the username and password the launcher keeps, on a server that
+        owns its own accounts. The server creates the account the first time it
+        sees the username.
+        """
+        self.notify.info('Logging in as %r.' % self.profile)
+        self.__acceptLauncherLogin()
+        password = hashlib.sha512(self.profileKey.encode('utf-8')).hexdigest()
+        self.csm.performLogin(EventGlobals.LoginDone, self.profile, password)
+        self.waitForDatabaseTimeout(requestName='WaitOnCSMProfileLoginResponse')
+
+    def __acceptLauncherLogin(self):
+        self.acceptOnce(EventGlobals.LoginDone, self.__handleLauncherLoginDone)
+        self.acceptOnce(EventGlobals.LoginError, self.__handleLauncherLoginError)
+
+    def __handleLauncherLoginDone(self, doneStatus):
+        self.ignore(EventGlobals.LoginError)
+        self.handleLoginDone(doneStatus)
+
+    def __handleLauncherLoginError(self, errorCode):
+        """
+        If the launch token is used or expired, show an error and redirect to login.
+        """
+        self.ignore(EventGlobals.LoginDone)
+        self.notify.warning('Launcher login was rejected (%s).' % errorCode)
+        if self.warmupInterrupted():
+            return
+
+        self.cleanupWaitingForDatabase()
+        self.playToken = None
+        self.profile = None
+        self.profileKey = None
+
+        message = TTLocalizer.LoginError.get(
+            errorCode, TTLocalizer.LoginError[ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID])
+
+        dialogClass = OTPGlobals.getGlobalDialogClass()
+        self.launcherLoginErrorBox = dialogClass(
+            message=message, doneEvent='launcherLoginErrorAck',
+            style=OTPDialog.Acknowledge)
+        self.launcherLoginErrorBox.show()
+        self.accept('launcherLoginErrorAck', self.__handleLauncherLoginErrorAck)
+
+    def __handleLauncherLoginErrorAck(self):
+        self.ignore('launcherLoginErrorAck')
+        self.launcherLoginErrorBox.cleanup()
+        del self.launcherLoginErrorBox
         self.loginFSM.request('serverMenu')
 
     def handleLoginDone(self, doneStatus):
@@ -680,7 +1025,7 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('connect', [self.serverList])
             messenger.send('connectionRetrying')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -751,7 +1096,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def waitForGetGameListResponse(self):
         if self.isGameListCorrect():
             self.loginFSM.request('waitForShardList')
-        else:
+        elif not self.warmupInterrupted():
             self.loginFSM.request('missingGameRootObject')
 
     def isGameListCorrect(self):
@@ -774,7 +1119,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if doneStatus == 'ok':
             self.loginFSM.request('waitForGameList')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -794,7 +1139,7 @@ class OTPClientRepository(ClientRepositoryBase):
     def _wantShardListComplete(self):
         if self._shardsAreReady():
             self.loginFSM.request('waitForAvatarList')
-        else:
+        elif not self.warmupInterrupted():
             self.loginFSM.request('noShards')
 
     def _shardsAreReady(self):
@@ -824,7 +1169,7 @@ class OTPClientRepository(ClientRepositoryBase):
             messenger.send('connectionRetrying')
             self.loginFSM.request('noShardsWait')
         elif doneStatus == 'cancel':
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
         else:
             self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
 
@@ -908,7 +1253,7 @@ class OTPClientRepository(ClientRepositoryBase):
         if self.lostConnectionBox.doneStatus == 'ok' and self.loginInterface.supportsRelogin():
             self.loginFSM.request('connect', [self.serverList])
         else:
-            self.loginFSM.request('mainMenu')
+            self.requestMenuOrExit()
 
     def exitNoConnection(self):
         self.handler = None
@@ -948,6 +1293,13 @@ class OTPClientRepository(ClientRepositoryBase):
 
     def handleAvatarsList(self, avatars):
         self.avList = avatars
+
+        if self.introPending:
+            self.cleanupWaitingForDatabase()
+            self.warmupAvList = avatars
+            return
+
+        self.__cleanupWarmupBox()
         self.loginFSM.request('chooseAvatar', [self.avList])
 
     def enterChooseAvatar(self, avList):
@@ -1608,6 +1960,9 @@ class OTPClientRepository(ClientRepositoryBase):
     def lostConnection(self):
         ClientRepositoryBase.lostConnection(self)
 
+        if self.warmupInterrupted():
+            return
+
         self.loginFSM.request('noConnection')
 
     def waitForDatabaseTimeout(self, extraTimeout=0, requestName='unknown'):
@@ -1625,6 +1980,9 @@ class OTPClientRepository(ClientRepositoryBase):
         return
 
     def __showWaitingForDatabase(self, requestName):
+        if self.warmupInterrupted():
+            return Task.done
+
         messenger.send('connectionIssue')
         OTPClientRepository.notify.info('timed out waiting for %s at %s' % (requestName, globalClock.getFrameTime()))
         dialogClass = OTPGlobals.getDialogClass()
@@ -1641,7 +1999,7 @@ class OTPClientRepository(ClientRepositoryBase):
         return Task.done
 
     def __handleCancelWaiting(self, value):
-        self.loginFSM.request('mainMenu')
+        self.requestMenuOrExit()
 
     def renderFrame(self):
         gsg = base.win.getGsg()

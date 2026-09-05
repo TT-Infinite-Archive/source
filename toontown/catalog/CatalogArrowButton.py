@@ -9,9 +9,10 @@ class CatalogArrowButton(NodePath):
 
         self.clickEvent = clickEvent
 
-        self.normalNode = CatalogGlobals.CatalogNodePath.find('**/arrow_UP_'+nodeName).copyTo(self)
-        self.clickedNode = CatalogGlobals.CatalogNodePath.find('**/arrow_DN_'+nodeName).copyTo(self)
-        self.hoverNode = CatalogGlobals.CatalogNodePath.find('**/arrow_OVR_'+nodeName).copyTo(self)
+        catalogNodePath = CatalogGlobals.getCatalogNodePath()
+        self.normalNode = catalogNodePath.find('**/arrow_UP_'+nodeName).copyTo(self)
+        self.clickedNode = catalogNodePath.find('**/arrow_DN_'+nodeName).copyTo(self)
+        self.hoverNode = catalogNodePath.find('**/arrow_OVR_'+nodeName).copyTo(self)
 
         self.arrowButton = DirectButton(parent=self, relief=None, image=(self.normalNode, self.clickedNode, self.hoverNode), command=self.clickEvent)
 

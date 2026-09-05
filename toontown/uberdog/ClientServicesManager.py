@@ -36,6 +36,11 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.notify.debug('Performing login: %s.' % [mac, getIp])
         self.sendUpdate('requestAuthToken', [mac, getIp])
 
+    def performTokenLogin(self, doneEvent, token):
+        self.loginDoneEvent = doneEvent
+        self.notify.debug('Performing token login.')
+        self.sendUpdate('loginToken', [token])
+
     def receiveAuthToken(self, authToken):
         self.notify.debug('Received auth token %s.' % authToken)
         self.notify.debug('Requesting login...')
@@ -43,7 +48,8 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.sendUpdate('login', [self.username, self.password, encodeHexString(lookupTable, authToken)])
         del lookupTable
 
-    def acceptLogin(self, timestamp):
+    def acceptLogin(self, timestamp, serverFlags):
+        self.cr.setServerFlags(serverFlags)
         messenger.send(self.loginDoneEvent, [{'mode': 'success', 'timestamp': timestamp}])
         self.loginDoneEvent = None
 

@@ -1,6 +1,5 @@
 from panda3d.core import ConfigVariableBool, TextNode, VBase4, Vec3, Vec4
 from direct.showbase import DirectObject
-from direct.showbase.PythonUtil import traceFunctionCall
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLocalizer
 from toontown.toonbase import TTLocalizer

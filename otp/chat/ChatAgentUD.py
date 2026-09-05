@@ -11,8 +11,13 @@ from toontown.chat.TTBlacklist import BLACKLIST, SEQUENCES
 import time
 
 
-class DummyWhiteList(TTWhiteList):
-    def isWord(*args):
+class DummyWhiteList:
+    """
+    Stands in for the whitelist when `want-whitelist` is off.
+    """
+    # This file was a hard startup requirement for the UberDOG even with `want-whitelist` is turned off...
+
+    def isWord(self, word):
         return True
 
 

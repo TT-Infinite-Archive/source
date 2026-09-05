@@ -25,8 +25,8 @@ class AIBase:
     notify = directNotify.newCategory('AIBase')
 
     from otp.settings.Settings import Settings
-    builtins.serverSettings = Settings("serversettings.json")
     from toontown.toonbase import ServerSettingsGlobals
+    builtins.serverSettings = Settings(ServerSettingsGlobals.settingsPath())
     ServerSettingsGlobals.loadInitialSettings()
 
     def __init__(self):

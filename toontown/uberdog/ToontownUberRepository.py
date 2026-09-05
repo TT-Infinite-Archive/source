@@ -10,14 +10,20 @@ if ConfigVariableBool('want-rpc-server', False).getValue():
     from toontown.rpc.ToontownRPCServer import ToontownRPCServer
     from toontown.rpc.ToontownRPCHandler import ToontownRPCHandler
 
+if ConfigVariableBool('want-game-gateway', False).getValue():
+    from toontown.web.GameGateway import GameGateway
+
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
+from toontown.server import Readiness
 
 class ToontownUberRepository(ToontownInternalRepository):
-    def __init__(self, baseChannel, serverId):
+    def __init__(self, baseChannel, serverId, gateway=None):
         ToontownInternalRepository.__init__(
             self, baseChannel, serverId, dcSuffix='UD')
 
         self.rpcServer = None
+        self._pendingGatewaySocket = gateway
+        self.gateway = None
         self.globalObjects = {}
         self.remoteGlobalObjects = {}
 
@@ -59,7 +65,14 @@ class ToontownUberRepository(ToontownInternalRepository):
                 self.remoteGlobalObjects[dcname] = \
                     RemoteGlobalObject(self, dcname, doId)
 
+        # Last, so the globals its commands reach are already active
+        if self._pendingGatewaySocket is not None:
+            self.gateway = GameGateway(self, socket=self._pendingGatewaySocket)
+        elif ConfigVariableBool('want-game-gateway', False).getValue():
+            self.gateway = GameGateway(self)
+
         self.notify.info('Done.')
+        Readiness.markReady()
 
     def getGlobalObject(self, dcname):
         if dcname in self.globalObjects:

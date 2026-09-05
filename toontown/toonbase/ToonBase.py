@@ -215,7 +215,6 @@ class ToonBase(OTPBase.OTPBase):
         self.slowQuietZone = ConfigVariableBool('slow-quiet-zone', 0).getValue()
         self.slowQuietZoneDelay = ConfigVariableDouble('slow-quiet-zone-delay', 5).getValue()
         self.killInterestResponse = ConfigVariableBool('kill-interest-response', 0).getValue()
-        self.forceSkipTutorial = ConfigVariableBool('force-skip-tutorial', 0).getValue()
 
         self.showGroupTracker = settings.get('grouptracker', True)
         settings['grouptracker'] = self.showGroupTracker
@@ -249,11 +248,16 @@ class ToonBase(OTPBase.OTPBase):
         # Free black/white Toons:
         self.wantYinYang = ConfigVariableBool('want-yin-yang', False).getValue()
 
-        activeHolidays = ConfigVariableString('active-holidays', '').getValue()
+        activeHolidays = os.environ.get('TTI_ACTIVE_HOLIDAYS') or ConfigVariableString('active-holidays', '').getValue()
         self.clientHolidayIdList = []
         for holidayId in activeHolidays.split(','):
-            if holidayId:
-                self.clientHolidayIdList.append(int(holidayId.strip()))
+            holidayId = holidayId.strip()
+            if not holidayId:
+                continue
+            try:
+                self.clientHolidayIdList.append(int(holidayId))
+            except ValueError:
+                self.notify.warning('Ignoring holiday id %r' % holidayId)
         
         self.wantCustomControls = settings.get('want-custom-controls', False)
 

@@ -387,7 +387,10 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             base.cr.timeManager.setDisconnectReason(ToontownGlobals.DisconnectBookExit)
         base.transitions.fadeScreen(1.0)
         if self.exitTo == 'disconnect':
-            base.cr.gameFSM.request('closeShard', ['mainMenu'])
+            # Leaving the server hands you back to whatever chose it: the
+            # launcher for a session it started, the main menu otherwise.
+            leftTo = 'shutdown' if base.cr.isLauncherSession() else 'mainMenu'
+            base.cr.gameFSM.request('closeShard', [leftTo])
         else:
             base.cr.gameFSM.request(self.exitTo)
 

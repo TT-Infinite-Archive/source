@@ -1,0 +1,57 @@
+name: tticheck
+
+# docker compose -f docker/compose.check.yaml up --wait
+#
+# The district's healthcheck is the answer. It passes only once the process
+# has built every hood, cog headquarters and suit planner out of the art in the
+# image and made the district available-- it fails if the pruned resources
+# are not enough
+
+services:
+  mongo:
+    image: mongo:8
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  astrond:
+    image: tti-astron:check
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/7000"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  uberdog:
+    image: tti-server:check
+    command: [uberdog]
+    environment:
+      # there is no website here to reach
+      GATEWAY_TOKEN: ""
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+    depends_on:
+      astrond:
+        condition: service_healthy
+
+  district:
+    image: tti-server:check
+    command: [ai, --base-channel, "401000000", --district-name, Checkville]
+    environment:
+      GATEWAY_TOKEN: ""
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+    depends_on:
+      astrond:
+        condition: service_healthy

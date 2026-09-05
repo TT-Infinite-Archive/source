@@ -60,6 +60,9 @@ class ClickToStart(DirectObject):
         if base.musicManagerIsValid and self.music is not None:
             self.music.setLoop(1)
             self.music.setVolume(0.9)
+
+    def startMusic(self):
+        if base.musicManagerIsValid and self.music is not None:
             self.music.play()
 
     def delete(self):
@@ -213,6 +216,21 @@ class ClickToStart(DirectObject):
                 Func(self.music.stop)
             ).start()
 
+    def skip(self):
+        """
+        Straight into the game.
+        """
+        base.cr.introDone = True
+        base.initialEntry = True
+
+        # begin() leaves the screen black for whatever comes next; get there
+        # without spending the two seconds on it:
+        base.transitions.fadeOut(t=0)
+
+        self.delete()
+        base.cr.introduction.delete()
+        self.startMainMenu()
+
     def setColorScale(self, *args, **kwargs):
         self.backgroundNodePath.setColorScale(*args, **kwargs)
         self.logo.setColorScale(*args, **kwargs)
@@ -220,4 +238,12 @@ class ClickToStart(DirectObject):
         self.versionLabel.setColorScale(*args, **kwargs)
 
     def startMainMenu(self):
+        # The intro has been connecting in the background; now we'll pick it up:
+        if base.cr.finishWarmupSession():
+            return
+
+        # A launcher-started client was already told which server it's going to
+        if base.cr.startLauncherSession():
+            return
+
         base.cr.loginFSM.request('mainMenu')

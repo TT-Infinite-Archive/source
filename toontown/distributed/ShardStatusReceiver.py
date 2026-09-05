@@ -1,4 +1,6 @@
-class ShardStatusReceiver:
+from direct.showbase.DirectObject import DirectObject
+
+class ShardStatusReceiver(DirectObject):
     def __init__(self, air):
         self.air = air
 

@@ -248,6 +248,7 @@ from toontown.coghq import DistributedLawbotCannon/AI
 from toontown.coghq import DistributedLawbotChair/AI
 from toontown.estate import DistributedLawnDecor/AI
 from toontown.estate import DistributedGardenPlot/AI
+from toontown.estate import DistributedGardenBox/AI
 from toontown.estate import DistributedFlower/AI
 from toontown.estate import DistributedGagTree/AI
 from toontown.estate import DistributedStatuary/AI
@@ -3253,6 +3254,10 @@ dclass DistributedGardenPlot : DistributedLawnDecor {
   plantNothing(uint8) airecv clsend;
 };
 
+dclass DistributedGardenBox : DistributedLawnDecor {
+  setTypeIndex(uint8) required broadcast ram;
+};
+
 dclass DistributedStatuary : DistributedLawnDecor {
   setTypeIndex(uint8) required broadcast ram;
 };
@@ -3778,9 +3783,10 @@ dclass ClientServicesManager : DistributedObjectGlobal {
   receiveAuthToken(string authToken);
 
   login(string username, string password, string authToken) clsend;
+  loginToken(string token) clsend;
   loginError(uint8 errorCode);
   lockClient(uint32 unlockTime, string message);
-  acceptLogin(uint32 timestamp);
+  acceptLogin(uint32 timestamp, string serverFlags);
 
   requestAvatars() clsend;
   setAvatars(PotentialToon[]);

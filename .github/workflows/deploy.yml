@@ -1,0 +1,38 @@
+name: Deploy to production
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to deploy (e.g. 1.0.0). Rolling back is this workflow with the previous tag."
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Deploy
+        env:
+          REGISTRY: ${{ vars.REGISTRY }}
+          TAG: ${{ inputs.tag }}
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          INFISICAL_PROJECT_ID: ${{ vars.INFISICAL_PROJECT_ID }}
+          INFISICAL_DOMAIN: ${{ vars.INFISICAL_DOMAIN }}
+          INFISICAL_ENV: ${{ vars.INFISICAL_ENV }}
+          TZ: ${{ vars.TZ }}
+        run: |
+          set -euo pipefail
+          cd "${{ vars.DEPLOY_PATH }}"
+          docker compose -f compose.yaml pull
+          docker compose -f compose.yaml up -d --remove-orphans --wait
+          docker image prune -f

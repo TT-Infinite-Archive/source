@@ -406,24 +406,34 @@ class OptionsTabPage(DirectFrame):
                 command = self.__doToggleWantFriends
             )
 
-            if (base.isHosting or base.wantSinglePlayer):
-                text = TTLocalizer.OptionsDisconnect
+            if base.cr.isProductionServer():
+                self.exitButton = TTButton.TTButton(
+                    parent = self,
+                    buttonScale = 1.15,
+                    text = TTLocalizer.OptionsPageExitToontown,
+                    pos = (-0.45, 0, -0.53),
+                    command = self.__handleExitToToonSelectShowWithConfirm
+                )
+                self.toonselectButton = None
             else:
-                text = TTLocalizer.OptionsLeaveServer
-            self.exitButton = TTButton.TTButton(
-                parent = self,
-                buttonScale = 1.15,
-                text = text,
-                pos = (-0.45, 0, -0.53),
-                command = self.__handleExitServerShowWithConfirm
-            )
-            self.toonselectButton = TTButton.TTButton(
-                parent = self,
-                buttonScale = 1.15,
-                text = TTLocalizer.OptionsReturnToToonSelect,
-                pos = (-0.45, 0, -0.33),
-                command = self.__handleExitToToonSelectShowWithConfirm
-            )
+                if (base.isHosting or base.wantSinglePlayer):
+                    text = TTLocalizer.OptionsDisconnect
+                else:
+                    text = TTLocalizer.OptionsLeaveServer
+                self.exitButton = TTButton.TTButton(
+                    parent = self,
+                    buttonScale = 1.15,
+                    text = text,
+                    pos = (-0.45, 0, -0.53),
+                    command = self.__handleExitServerShowWithConfirm
+                )
+                self.toonselectButton = TTButton.TTButton(
+                    parent = self,
+                    buttonScale = 1.15,
+                    text = TTLocalizer.OptionsReturnToToonSelect,
+                    pos = (-0.45, 0, -0.33),
+                    command = self.__handleExitToToonSelectShowWithConfirm
+                )
 
         # -- Gameplay
 
@@ -496,10 +506,12 @@ class OptionsTabPage(DirectFrame):
         self.updateSpeedChatStyle()
         if self._parent.book.safeMode:
             self.exitButton.hide()
-            self.toonselectButton.hide()
+            if self.toonselectButton is not None:
+                self.toonselectButton.hide()
         else:
             self.exitButton.show()
-            self.toonselectButton.show()
+            if self.toonselectButton is not None:
+                self.toonselectButton.show()
 
     def exit(self):
         self.ignore('confirmDone')
@@ -522,8 +534,9 @@ class OptionsTabPage(DirectFrame):
         self.displaySettings = None
         if self.hasAvatar:
             self.exitButton.destroy()
-            self.toonselectButton.destroy()
             del self.exitButton
+            if self.toonselectButton is not None:
+                self.toonselectButton.destroy()
             del self.toonselectButton
             self.speedChatStyleText.exit()
             self.speedChatStyleText.destroy()
@@ -1069,9 +1082,14 @@ class OptionsTabPage(DirectFrame):
         self.accept('confirmDone', self.__handleConfirm)
 
     def __handleExitToToonSelectShowWithConfirm(self):
+        if base.cr.isProductionServer():
+            # Live calls this button Exit Toontown, so it asks the way it used to.
+            message = TTLocalizer.OptionsPageExitConfirm
+        else:
+            message = TTLocalizer.PickAToonConfirm
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',
-            message = TTLocalizer.PickAToonConfirm,
+            message = message,
             style = TTDialog.TwoChoice)
         self.confirm.show()
         self._parent.doneStatus = {'mode': 'exit',

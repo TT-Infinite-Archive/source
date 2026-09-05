@@ -117,6 +117,13 @@ OncelyMultipleStartHolidays = (ToontownGlobals.COLD_CALLER_INVASION,
                                ToontownGlobals.BIG_CHEESE_INVASION,
                                )
 
+# These live in the holiday table but are not events: they reset the kart
+# leaderboards on a timer. They keep their schedule even when the festive
+# holidays are driven by `active-holidays` instead of the calendar.
+MaintenanceHolidays = (ToontownGlobals.KART_RECORD_DAILY_RESET,
+                       ToontownGlobals.KART_RECORD_WEEKLY_RESET,
+                       )
+
 # These variables are too useful in debugging holidays, keeping them around
 # StartMinute = 19
 # StartHour = 19
@@ -2247,8 +2254,20 @@ class HolidayManagerAI:
         # Dictionary of holidays in progress
         # Maps holidayId: holidayObj
         self.currentHolidays = {}
+        self.wantScheduledHolidays = ConfigVariableBool(
+            'want-scheduled-holidays', False).getValue()
         self.createHolidays()
         self.parseCalendarHolidays()
+
+    def isCalendarDriven(self, holidayId):
+        """
+        Whether the calendar below starts and stops this holiday by itself.
+
+        With `want-scheduled-holidays` off, `active-holidays` is the only thing
+        that turns an event on, so a district celebrates exactly what its
+        config names and nothing arrives by surprise on its historical date.
+        """
+        return self.wantScheduledHolidays or holidayId in MaintenanceHolidays
 
     def createHolidays(self):
         currentTime = time.time()
@@ -2258,6 +2277,9 @@ class HolidayManagerAI:
                  localTime[2],  # Current Day
                  localTime[6]) # Current WDay
         for holidayId, holidayInfo in list(self.holidays.items()):
+            if not self.isCalendarDriven(holidayId):
+                continue
+
             startTime = holidayInfo.getStartTime(date)
             endTime = holidayInfo.getEndTime(date)
 
@@ -2387,6 +2409,12 @@ class HolidayManagerAI:
         self.updateNewsManager(list(self.currentHolidays.keys()))
 
         # Spawn a do later for the end of the holiday
+        if not self.isCalendarDriven(holidayId):
+            # `active-holidays` pinned this one on. Only an explicit
+            # endHoliday, from the website gateway or a magic word, takes it
+            # back down, so don't let the historical end date stop it.
+            return
+
         currentTime = time.time()
         localTime = time.localtime()
         date = (localTime[0],  # Current Year
@@ -2467,7 +2495,7 @@ class HolidayManagerAI:
         taskMgr.remove(taskName)
 
         # make sure it is not a one-time only event
-        if startTime != None:
+        if startTime != None and self.isCalendarDriven(holidayId):
             # Handle the case that the start and end times straddle the new year
             if startTime < currentTime:
                 # Go to next year
@@ -2525,7 +2553,7 @@ class HolidayManagerAI:
                 self.notify.debug("oldStart = %s newStart=%s" %(time.ctime(oldStartTime), time.ctime(startTime)))
 
         # make sure it is not a one-time only event
-        if startTime != None:
+        if startTime != None and self.isCalendarDriven(holidayId):
             # Handle the case that the start and end times straddle the new year
             if startTime < currentTime:
                 # Go to next year

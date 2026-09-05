@@ -988,10 +988,7 @@ class NameShop(StateData.StateData):
         self.notify.debug('ParentPos = %.2f %.2f %.2f' % (parentPos[0], parentPos[1], parentPos[2]))
 
     def storeSkipTutorialRequest(self):
-        if base.forceSkipTutorial:
-            base.cr.skipTutorialRequest = True
-        else:
-            base.cr.skipTutorialRequest = self.requestingSkipTutorial
+        base.cr.skipTutorialRequest = self.requestingSkipTutorial
 
     def promptTutorial(self):
         self.promptTutorialDialog = TTDialog.TTDialog(parent=aspect2dp, text=TTLocalizer.PromptTutorial, text_scale=0.06, text_align=TextNode.ACenter, text_wordwrap=22, command=self.__openTutorialDialog, fadeScreen=0.5, style=TTDialog.TwoChoice, buttonTextList=[TTLocalizer.MakeAToonEnterTutorial, TTLocalizer.MakeAToonSkipTutorial], button_text_scale=0.06, buttonPadSF=5.5, sortOrder=NO_FADE_SORT_INDEX)

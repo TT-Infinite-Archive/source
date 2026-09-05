@@ -22,10 +22,6 @@ class ToontownDistrictStatsAI(DistributedObjectAI):
         if self.timeZone is None:
             self.timeZone = random.randrange(0, 6)  # The lowest time is -3 TTT and the highest is +2 TTT
 
-        # Send a shard status update containing our timezone:
-        status = {'timezone': self.timeZone}
-        self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
-
     def announceGenerate(self):
         DistributedObjectAI.announceGenerate(self)
 
@@ -33,9 +29,14 @@ class ToontownDistrictStatsAI(DistributedObjectAI):
         # being created after we're generated will know where we're at:
         self.accept('queryShardStatus', self.handleShardStatusQuery)
 
+        # Send a shard status update with the information we have:
+        self.handleShardStatusQuery()
+
     def handleShardStatusQuery(self):
-        # Send a shard status update containing our population:
-        status = {'population': self.avatarCount}
+        status = {
+            'population': self.avatarCount,
+            'timezone': self.timeZone
+        }
         self.air.sendNetEvent('shardStatus', [self.air.ourChannel, status])
 
     def settoontownDistrictId(self, districtId):

@@ -394,8 +394,6 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
 
         self.air.writeServerEvent('ban', userId, expiration, reason)
 
-        payload = {'expiration': expiration, 'reason': reason}
-        self.air.webApi.execute('accounts/%d/ban' % userId, payload, 'post')
         self.rpc_kickUser(userId, 152, 'ban-' + str(expiration))
 
         return True
@@ -829,39 +827,6 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
         """
         return self.shardStatus.getShards()
 
-    # --- INVASIONS ---
-
-    @rpcmethod(accessLevel=ADMINISTRATOR)
-    def rpc_startInvasion(self, shardId, suitDeptIndex=None, suitTypeIndex=None,
-                          flags=0, skel=False):
-        """
-        Summary:
-            Starts an invasion under the provided [shardId] with the specified
-            configuration.
-
-        Parameters:
-            [int shardId] = The ID of the shard to start the invasion in.
-            <int/NoneType suitDeptIndex> = The invading Cog's department index.
-            <int/NoneType suitTypeIndex> = The invading Cog's type index.
-            <int flags> = Extra invasion flags.
-            <int type> = The invasion type.
-        """
-        self.air.sendNetEvent(
-            'startInvasion',
-            [shardId, suitDeptIndex, suitTypeIndex, skel, type])
-
-    @rpcmethod(accessLevel=ADMINISTRATOR)
-    def rpc_stopInvasion(self, shardId):
-        """
-        Summary:
-            Stops any invasion currently running under the provided [shardId].
-
-        Parameters:
-            [int shardId] = The ID of the shard that is running the invasion to
-                be terminated.
-        """
-        self.air.sendNetEvent('stopInvasion', [shardId])
-
     # --- NAME REVIEW ---
 
     @rpcmethod(accessLevel=MODERATOR)
@@ -984,22 +949,7 @@ class ToontownRPCHandler(ToontownRPCHandlerBase):
         for document in cursor:
             self.rpc_revokeName(document['_id'])
 
-        payload = {'name': name}
-        self.air.webApi.execute('names-blacklist', payload, 'patch')
-
         return revokeCount
-
-    @rpcmethod(accessLevel=SYSTEM_ADMINISTRATOR)
-    def rpc_whitelistName(self, name):
-        """
-        Summary:
-            Whitelist the provided [name].
-
-        Parameters:
-            [str name] = The name to whitelist.
-        """
-        payload = {'name': name}
-        self.air.webApi.execute('names-whitelist', payload, 'patch')
 
     # --- CHAT LOGS ---
 

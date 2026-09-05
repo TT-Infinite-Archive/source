@@ -5019,6 +5019,7 @@ OptionsGoBack = 'Back'
 OptionsDisconnect = 'Disconnect'
 OptionsLeaveServer = 'Leave Server'
 OptionsReturnToToonSelect = 'Toon Select'
+OptionsPageExitToontown = 'Exit Toontown'
 OptionsPageMusicOnLabel = 'Music is on.'
 OptionsPageMusicOffLabel = 'Music is off.'
 OptionsPageSFXOnLabel = 'Sound Effects are on.'
@@ -5043,6 +5044,7 @@ LeaveServerHost = 'Are you sure you want to disconnect the server? All Toons cur
 LogOut = 'Are you sure you want to log out? You will not be disconnected from the server.'
 LogOutHost = 'Are you sure you want to log out? The server will not be disconnected.'
 PickAToonConfirm = 'Are you sure you want to return to the Pick-A-Toon screen?'
+OptionsPageExitConfirm = 'Exit Toontown?'
 OptionsPageResolution = 'Resolution:'
 OptionsPageVideo = 'Video'
 OptionsPageSound = 'Sound'
@@ -5191,7 +5193,6 @@ ShardPageHeadingInvasion = 'Invasion'
 ShardPageHeadingPop = 'Pop'
 ShardPageHeadingTimezone = 'Timezone'
 ShardPageNoInvasion = 'None'
-ShardPageUnsupported = "Warning: Servers with multiple districts are not officially supported. Expect inaccurate information from this page."
 SuitPageTitle = 'Cog Gallery'
 SuitPageMystery = DialogQuestion + DialogQuestion + DialogQuestion
 SuitPageQuota = '%s of %s'
@@ -5890,7 +5891,7 @@ NameShopPlay = 'Free Trial'
 NameShopOnlyPaid = 'Only paid users\nmay name their Toons.\nUntil you subscribe\nyour name will be\n'
 NameShopContinueSubmission = 'Enter Toontown'
 NameShopChooseAnother = 'Choose Another Name'
-NameShopToonCouncil = 'The Toon Council\nhas approved your\nname!'
+NameShopToonCouncil = 'The Toon Council\nwill review your\nname.'
 PleaseTypeName = 'Please type your name:'
 AllNewNames = 'All new names must be\napproved by the Toon Council.'
 NameMessages = 'Be creative, and remember:\nno NPC names, please.'
@@ -10804,6 +10805,8 @@ BehaviorName = {
 LoginError = {
  0: 'Invalid password or the username has been taken.',
  1: 'You are trying to do that too fast!',
- 2: 'You must enter both a username and password.'
+ 2: 'You must enter both a username and password.',
+ 3: 'Your game token has expired. Please relaunch the game.',
+ 4: "Couldn't reach the account server. Please try again."
 }
 LoggingIn = 'Logging In...'

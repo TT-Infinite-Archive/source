@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableString, NodePath, Texture, Vec4, loadPrcFile, loadPrcFileData
+from panda3d.core import ConfigVariableBool, ConfigVariableString, NodePath, Texture, Vec4, loadPrcFileData
 #!/usr/bin/env python2
 import gc
 
@@ -21,8 +21,9 @@ notify.setInfo(True)
 
 if __debug__:
 
-    loadPrcFile('config/general.prc')
-    loadPrcFile('config/distribution/dev.prc')
+    from toontown.toonbase import ConfigFiles
+
+    ConfigFiles.load(ConfigFiles.client(ConfigFiles.DEV))
 
     try:
         import wx
@@ -41,16 +42,17 @@ builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
 from otp.settings.Settings import Settings
 from toontown.toonbase import ToontownGlobals
 
-preferencesPath = os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
+# The launcher gives each signed-in account a preferences file of its own
+preferencesPath = os.environ.get('TTI_PREFERENCES') or os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
 notify.info('Reading %s...' % preferencesPath)
 builtins.settings = Settings(preferencesPath)
 from toontown.toonbase import SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
-# Load server settings (used for the hosting screen)
+# The Hosting screen's settings. Not the status file the district writes:
 from otp.settings.Settings import Settings
-builtins.serverSettings = Settings("serversettings.json")
 from toontown.toonbase import ServerSettingsGlobals
+builtins.serverSettings = Settings(ServerSettingsGlobals.settingsPath())
 ServerSettingsGlobals.loadInitialSettings()
 
 loadPrcFileData('Settings: res',
@@ -103,9 +105,8 @@ from toontown.launcher.TTILauncher import TTILauncher
 builtins.launcher = TTILauncher()
 
 if not __debug__:
-    # Check if an username is set or not.
-    if launcher.getPlayToken() is None:
-        notify.error("Username isn't set, please start the game from the launcher.  Aborting.")
+    if launcher.getServerMode() is None:
+        notify.error("No server was chosen, please start the game from the launcher.  Aborting.")
 
 notify.info('Starting the game...')
 
@@ -172,6 +173,9 @@ def syncLoginFSM(task=None):
                 introduction.label.getText() != TTLocalizer.LoaderLabel):
             introduction.request('Label', TTLocalizer.LoaderLabel)
         taskMgr.doMethodLater(1, syncLoginFSM, 'syncLoginFSM-task')
+    elif base.cr.introPending:
+        # The session is warming up behind the cinematic
+        introduction.request('ClickToStart')
     elif stateName in ('connect', 'login', 'waitForGameList',
                        'waitForShardList'):
         introduction.request('Label', OTPLocalizer.CRConnecting)
@@ -250,12 +254,18 @@ if not launcher.isDummy():
 else:
     base.startShow()
 
-if __debug__:
-    # Skip the introduction if we are in dev mode
-    clickToStart.stop()
-    clickToStart.begin()
-else:
+# Started from the launcher? Play the beautiful intro (unless opted-out)!
+wantIntro = ConfigVariableBool('want-intro',
+                               launcher.getServerMode() == 'production').getValue()
+
+if wantIntro:
+    notify.info('Playing the introduction.')
+    clickToStart.startMusic()
     disclaimerTrack.start()
+
+    # Connect while the cinematic plays, so the click at the end of it opens
+    # Pick-A-Toon instead of the usual "Connecting..." screen:
+    base.cr.startWarmupSession()
 
     def skip():
         if disclaimerTrack.isPlaying():
@@ -264,6 +274,10 @@ else:
             presentsTrack.finish()
 
     base.accept('mouse1', skip)
+else:
+    notify.info('Skipping the introduction.')
+    clickToStart.stop()
+    clickToStart.skip()
 
 
 

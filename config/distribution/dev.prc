@@ -1,3 +1,8 @@
+# What the development distribution changes.
+#
+# general.prc loads first and holds everything the game does the same way
+# everywhere, so this file is a diff against it.
+
 # Distribution:
 distribution dev
 
@@ -9,14 +14,8 @@ model-path ../resources
 
 # Server:
 server-version dev
-accountdb-type developer
-access-level-clamp 400 400
-
-# MongoDB:
-mongodb-url mongodb://localhost/game
 
 # UberDOG:
-generate-root-object #t
 generate-global-object 4688 CentralLogger
 generate-global-object 4665 ClientServicesManager
 generate-global-object 4681 ChatAgent
@@ -33,62 +32,22 @@ generate-global-object 4695 TTCodeRedemptionMgr
 # generate-global-object 4478 GlobalGroupTracker
 # generate-global-object 4950 ZoneManager
 
-# Web API:
-want-web-api #f
-web-api-endpoint https://localhost:8000/api/
-web-api-token invalid
-
 # DC file:
 dc-file astron/dclass/vanilla.dc
 
 # Core features:
 want-multiplayer #t
-want-pets #t
 want-parties #t
 want-achievements #f
 want-grouptracker #f
 want-server-browser #f
 
-# Safe zones:
-want-safe-zones #t
-want-toontown-central #t
-want-donalds-dock #t
-want-daisys-garden #t
-want-minnies-melodyland #t
-want-the-burrrgh #t
-want-donalds-dreamland #t
-want-goofy-speedway #t
-want-outdoor-zone #t
-want-golf-zone #t
-want-resistance-grounds #f
-
-# Cog headquarters:
-want-cog-headquarters #t
-
 # Cog buildings:
 want-cogbuildings #t
 want-cogdominiums #t
 
-# Animated Props
-zero-pause-mult 1.0
-
-# Interactive Props
-randomize-interactive-idles #t
-interactive-prop-random-idles #t
-interactive-prop-info #f
-props-buff-battles #t
-prop-and-organic-bonus-stack #f
-prop-idle-pause-time 0.0
-
 # Cashbot boss:
-want-resistance-toonup #t
-want-resistance-restock #t
 want-resistance-dance #t
-
-# Trolley minigames:
-want-ttc-trolley #t
-want-photo-game #f
-want-travel-game #f
 
 # Chat:
 want-whitelist #f
@@ -98,9 +57,6 @@ want-blacklist #f
 want-double-progression #t
 
 # Developer options:
-force-skip-tutorial #t
-show-population #f
-want-instant-parties #t
 want-quest-verification #t
 want-heartbeat #f
 want-yin-yang #t

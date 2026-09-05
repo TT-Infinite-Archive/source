@@ -1,0 +1,89 @@
+name: Build check
+
+# Since the publish workflow is triggered only on tags, without this check, issues like a broken Dockerfile
+# or changes in resource pruning that break compiling may go unnoticed
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: build-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  server:
+    name: Game server image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check out the build tools
+        uses: actions/checkout@v5
+        with:
+          repository: sypion/tti-build-tools
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+          path: tools
+          fetch-depth: 1
+
+      - name: Check out the resources
+        uses: actions/checkout@v5
+        with:
+          repository: TT-Infinite-Archive/resources
+          path: art
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      # The point of this job is to prove the art in the image is enough to build the game: the district's healthcheck only passes once it has made itself available.
+      - name: Assemble server resources
+        run: |
+          pip install --disable-pip-version-check -r requirements.txt
+          tools/build-server-resources.sh art build/resources
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build server image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: tti-server:check
+          build-args: SERVER_VERSION=check
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,scope=server,mode=max
+
+      # Astron is slow to compile, so caching it
+      - name: Build astron image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/astron/Dockerfile
+          push: false
+          load: true
+          tags: tti-astron:check
+          build-args: SERVER_VERSION=check
+          cache-from: type=gha,scope=astron
+          cache-to: type=gha,scope=astron,mode=max
+
+      - name: Smoke test
+        run: docker compose -f docker/compose.check.yaml up --wait --wait-timeout 300
+
+      - name: Logs
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            docker compose -f docker/compose.check.yaml logs --tail 60
+          else
+            docker compose -f docker/compose.check.yaml logs
+          fi
+
+      - name: Stop
+        if: always()
+        run: docker compose -f docker/compose.check.yaml down -v

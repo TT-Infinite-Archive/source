@@ -74,11 +74,13 @@ class DistributedPet(DistributedSmoothNode.DistributedSmoothNode, Pet.Pet, PetBa
             return 1
         if len(category) > 0:
             category = '-' + category
-        onScreenDebug.add('%s%s-%s' % (self.getDisplayPrefix(), category, key), value)
+        if __debug__:
+            onScreenDebug.add('%s%s-%s' % (self.getDisplayPrefix(), category, key), value)
         return 1
 
     def clearDisplay(self):
-        onScreenDebug.removeAllWithPrefix(self.getDisplayPrefix())
+        if __debug__:
+            onScreenDebug.removeAllWithPrefix(self.getDisplayPrefix())
         return 1
 
     def moodComponentChanged(self, components = []):

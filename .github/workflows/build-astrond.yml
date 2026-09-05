@@ -1,0 +1,54 @@
+name: Build astrond
+
+# Run by hand and not on every release. astrond is pinned to one Astron revision
+# and the built binaries are committed
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: darwin
+          - os: ubuntu-latest
+            target: linux
+          - os: windows-latest
+            target: win32
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check out the build tools
+        uses: actions/checkout@v5
+        with:
+          repository: sypion/tti-build-tools
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+          path: tools
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install the system dependencies
+        shell: bash
+        run: python tools/build_astrond.py --install-deps --target ${{ matrix.target }}
+
+      - name: Build
+        shell: bash
+        run: python tools/build_astrond.py --target ${{ matrix.target }} --output out
+
+      - name: Show what it links
+        shell: bash
+        run: ls -la out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astrond-${{ matrix.target }}
+          path: out/*
+          if-no-files-found: error
