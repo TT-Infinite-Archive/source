@@ -88,21 +88,30 @@ jobs:
               --cache-control "no-cache" --content-type application/json
 
   client:
-    name: Build ${{ matrix.target }}
+    name: Build ${{ matrix.part }} ${{ matrix.target }}
     needs: version
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        # macOS is arm64 only (for now):
+        target: [mac-arm64, win-x64, linux-x64]
+        # The client and the host add-on share no build state, so they compile together:
+        part: [client, host]
         include:
-          # Nuitka is a compiler, not a cross-compiler: one runner per target.
-          # macOS is arm64 only (for now)
-          - os: blacksmith-6vcpu-macos-15
-            target: mac-arm64
-          - os: blacksmith-4vcpu-windows-2025
-            target: win-x64
-          - os: blacksmith-4vcpu-ubuntu-2404
-            target: linux-x64
+          - target: mac-arm64
+            os: blacksmith-6vcpu-macos-15
+          - target: win-x64
+            os: blacksmith-4vcpu-windows-2025
+          - target: linux-x64
+            os: blacksmith-4vcpu-ubuntu-2404
+
+    env:
+      # Nuitka caches the compiled C here:
+      NUITKA_CACHE_DIR: ${{ github.workspace }}/.nuitka-cache
+      # Keep them off the 10 GB the repository gets for all its caches put together:
+      CCACHE_MAXSIZE: 1G
+      CLCACHE_OBJECT_CACHE_SIZE: "1000000000"
 
     steps:
       - uses: actions/checkout@v5
@@ -120,6 +129,15 @@ jobs:
           python-version: "3.14"
           cache: pip
 
+      - name: Reuse the last build's compiled C
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.nuitka-cache
+          key: nuitka-${{ matrix.target }}-${{ matrix.part }}-${{ hashFiles('requirements*.txt') }}-${{ github.sha }}
+          restore-keys: |
+            nuitka-${{ matrix.target }}-${{ matrix.part }}-${{ hashFiles('requirements*.txt') }}-
+            nuitka-${{ matrix.target }}-${{ hashFiles('requirements*.txt') }}-
+
       - name: Ensure the AWS CLI is present
         if: runner.os == 'macOS'
         run: command -v aws || brew install awscli
@@ -128,52 +146,90 @@ jobs:
         if: runner.os == 'macOS'
         run: python -c "import sysconfig; print(sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET'))"
 
+      - name: Ensure ccache is present
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          command -v ccache ||
+              if [ "$RUNNER_OS" = "macOS" ]; then
+                  brew install ccache
+              else
+                  sudo apt-get update && sudo apt-get install -y ccache
+              fi
+
+      # Nuitka needs this in a Windows Blacksmith runner:
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Confirm the MSVC toolchain
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not $env:WindowsSDKVersion) {
+              Write-Host "::error::No Windows SDK in the environment."
+              exit 1
+          }
+
+          Write-Host "Windows SDK $env:WindowsSDKVersion"
+          Write-Host "cl.exe: $((Get-Command cl -ErrorAction SilentlyContinue).Source)"
+
       - name: Install dependencies
         run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
 
-      - name: Compile the client
+      - name: Compile the ${{ matrix.part }}
         env:
           SERVER_VERSION: ${{ needs.version.outputs.value }}
-        run: python tools/build_client.py
+        run: python tools/build_client.py --target ${{ matrix.part }}
 
       - name: Describe it
         shell: bash
         run: |
+          if [ "${{ matrix.part }}" = "client" ]; then
+              TREE=build/client/install
+              SECTION="${{ matrix.target }}"
+          else
+              TREE=build/client/host
+              SECTION="host-${{ matrix.target }}"
+          fi
+
+          # A platform with no astrond committed builds no host add-on.
+          if [ ! -d "$TREE" ]; then
+              echo "No $TREE for ${{ matrix.target }}."
+              exit 0
+          fi
+
           python tools/build_manifest.py \
-              --tree build/client/install \
-              --section ${{ matrix.target }} \
+              --tree "$TREE" \
+              --section "$SECTION" \
               --version ${{ needs.version.outputs.value }} \
-              --manifest build/manifest/${{ matrix.target }}.json \
+              --manifest "build/manifest/$SECTION.json" \
               --blobs build/blobs
 
-      - name: Describe the host add-on
-        shell: bash
-        run: |
-          if [ -d build/client/host ]; then
-              python tools/build_manifest.py \
-                  --tree build/client/host \
-                  --section host-${{ matrix.target }} \
-                  --version ${{ needs.version.outputs.value }} \
-                  --manifest build/manifest/host-${{ matrix.target }}.json \
-                  --blobs build/blobs
-          else
-              echo "No host add-on for ${{ matrix.target }}."
-          fi
+      - name: Keep the compilation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuitka-report-${{ matrix.part }}-${{ matrix.target }}
+          path: build/client/report-*.xml
+          if-no-files-found: ignore
 
       - name: Upload
         shell: bash
         run: |
+          if [ ! -d build/manifest ]; then
+              echo "Nothing to upload for ${{ matrix.part }} ${{ matrix.target }}."
+              exit 0
+          fi
+
           aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
               --cache-control "public, max-age=31536000, immutable"
-          aws s3 cp "build/manifest/${{ matrix.target }}.json" \
-              "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/${{ matrix.target }}.json" \
-              --cache-control "no-cache" --content-type application/json
 
-          if [ -f "build/manifest/host-${{ matrix.target }}.json" ]; then
-              aws s3 cp "build/manifest/host-${{ matrix.target }}.json" \
-                  "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/host-${{ matrix.target }}.json" \
+          for manifest in build/manifest/*.json; do
+              aws s3 cp "$manifest" \
+                  "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/$(basename "$manifest")" \
                   --cache-control "no-cache" --content-type application/json
-          fi
+          done
 
   publish:
     name: Publish the release
