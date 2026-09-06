@@ -30,6 +30,9 @@ jobs:
   server:
     name: Server
     needs: version
+    permissions:
+      contents: read
+      packages: write
     uses: ./.github/workflows/publish-server.yml
     with:
       version: ${{ needs.version.outputs.value }}
