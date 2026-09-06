@@ -1,4 +1,4 @@
-name: Prune the release CDN
+name: Prune old releases
 
 on:
   schedule:
@@ -15,7 +15,7 @@ on:
         type: boolean
 
 concurrency:
-  # Never sweep while a release is being published:
+  # Never sweep while a release is being published
   group: releases
   cancel-in-progress: false
 
@@ -34,12 +34,21 @@ jobs:
 
     steps:
       - name: Check out the build tools
-        uses: actions/checkout@v5
-        with:
-          repository: sypion/tti-build-tools
-          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
-          path: tools
-          fetch-depth: 1
+        shell: bash
+        env:
+          BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
+        run: |
+          echo "::add-mask::$BUILD_TOOLS_TOKEN"
+
+          auth=$(printf 'oauth2:%s' "$BUILD_TOOLS_TOKEN" | base64 | tr -d '\n')
+          echo "::add-mask::$auth"
+
+          git init -q tools
+          git -C tools remote add origin \
+            https://git.toontown.io/toontown-infinite/build-tools.git
+          git -C tools -c http.extraheader="Authorization: Basic $auth" \
+            fetch -q --depth 1 origin HEAD
+          git -C tools checkout -q FETCH_HEAD
 
       - uses: actions/setup-python@v6
         with:

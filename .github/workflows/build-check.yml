@@ -1,8 +1,5 @@
 name: Build check
 
-# Since the publish workflow is triggered only on tags, without this check, issues like a broken Dockerfile
-# or changes in resource pruning that break compiling may go unnoticed
-
 on:
   pull_request:
   push:
@@ -20,12 +17,21 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Check out the build tools
-        uses: actions/checkout@v5
-        with:
-          repository: sypion/tti-build-tools
-          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
-          path: tools
-          fetch-depth: 1
+        shell: bash
+        env:
+          BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
+        run: |
+          echo "::add-mask::$BUILD_TOOLS_TOKEN"
+
+          auth=$(printf 'oauth2:%s' "$BUILD_TOOLS_TOKEN" | base64 | tr -d '\n')
+          echo "::add-mask::$auth"
+
+          git init -q tools
+          git -C tools remote add origin \
+            https://git.toontown.io/toontown-infinite/build-tools.git
+          git -C tools -c http.extraheader="Authorization: Basic $auth" \
+            fetch -q --depth 1 origin HEAD
+          git -C tools checkout -q FETCH_HEAD
 
       - name: Check out the resources
         uses: actions/checkout@v5
@@ -39,7 +45,6 @@ jobs:
           python-version: "3.14"
           cache: pip
 
-      # The point of this job is to prove the art in the image is enough to build the game: the district's healthcheck only passes once it has made itself available.
       - name: Assemble server resources
         run: |
           pip install --disable-pip-version-check -r requirements.txt
@@ -59,7 +64,6 @@ jobs:
           cache-from: type=gha,scope=server
           cache-to: type=gha,scope=server,mode=max
 
-      # Astron is slow to compile, so caching it
       - name: Build astron image
         uses: docker/build-push-action@v7
         with:
