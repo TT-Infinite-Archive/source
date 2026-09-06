@@ -26,7 +26,6 @@ class ProcessThread(threading.Thread):
             self.folder = defaultPath
         else:
             self.folder = os.path.join(defaultPath, self.folder)
-.
         program = self.processInfo[0]
 
         if os.path.dirname(program) and not os.path.isabs(program):
