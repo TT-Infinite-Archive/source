@@ -8,7 +8,7 @@ set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGS="$ROOT/logs"
-mkdir -p "$LOGS" "$ROOT/astron/logs"
+mkdir -p "$LOGS" "$ROOT/astron/logs" "$ROOT/astron/data"
 
 # Which account database the UberDOG authenticates against.
 #   developer   the login screen takes any username; access level 400
@@ -94,19 +94,45 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+port_listening() {
+    (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
+}
+
 wait_for_port() {
-    local port="$1" tries=30
-    while ! lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; do
+    local port="$1" pid="${2:-}" log="${3:-}" tries=30
+    while ! port_listening "$port"; do
+        if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then
+            echo "The process for port $port exited before it started listening." >&2
+            show_log_tail "$log"
+            exit 1
+        fi
         tries=$((tries - 1))
         if [ "$tries" -le 0 ]; then
             echo "Timed out waiting for port $port" >&2
+            show_log_tail "$log"
             exit 1
         fi
         sleep 0.5
     done
 }
 
-source "$ROOT/venv/bin/activate"
+show_log_tail() {
+    local log="$1"
+    if [ -n "$log" ] && [ -f "$log" ]; then
+        echo "--- last 15 lines of ${log##*/} ---" >&2
+        tail -n 15 "$log" >&2
+    fi
+}
+
+if [ -f "$ROOT/venv/bin/activate" ]; then
+    source "$ROOT/venv/bin/activate"
+elif [ -f "$ROOT/venv/Scripts/activate" ]; then
+    source "$ROOT/venv/Scripts/activate"
+else
+    echo "No venv found at $ROOT/venv." >&2
+    echo "Please create one first: python -m venv venv && pip install -r requirements.txt" >&2
+    exit 1
+fi
 
 client_env() {
     # Local mode needs a password as well as a name -- it becomes the account's
@@ -120,7 +146,7 @@ client_env() {
 }
 
 if [ "$CLIENT_ONLY" -eq 1 ]; then
-    if lsof -nP -iTCP:7000 -sTCP:LISTEN >/dev/null 2>&1; then
+    if port_listening 7000; then
         echo "Note: something is already listening on 7000, so the client will"
         echo "connect to it rather than starting a stack of its own."
     fi
@@ -131,7 +157,7 @@ if [ "$CLIENT_ONLY" -eq 1 ]; then
     exit 0
 fi
 
-if lsof -nP -iTCP:7000 -sTCP:LISTEN >/dev/null 2>&1; then
+if port_listening 7000; then
     echo "Port 7000 is already in use." >&2
     exit 1
 fi
@@ -140,15 +166,23 @@ DISTRICT="Nuttyboro"
 
 echo "[1/5] Starting mongod..."
 mongod --port 7030 --dbpath "$ROOT/astron/data" > "$LOGS/mongod.log" 2>&1 &
-PIDS+=($!)
-wait_for_port 7030
+MONGOD_PID=$!
+PIDS+=($MONGOD_PID)
+wait_for_port 7030 "$MONGOD_PID" "$LOGS/mongod.log"
 
 echo "[2/5] Starting astrond..."
 python "$ROOT/scripts/write_astron_config.py" > /dev/null
-(cd "$ROOT/astron" && exec "./astrond-$(uname -s | tr '[:upper:]' '[:lower:]')" --loglevel info dev.yml > "$LOGS/astrond.log" 2>&1) &
-PIDS+=($!)
-wait_for_port 7010
-wait_for_port 7000
+case "$(uname -s)" in
+    Linux*)           ASTROND_BIN="astrond-linux" ;;
+    Darwin*)          ASTROND_BIN="astrond-darwin" ;;
+    MINGW*|MSYS*|CYGWIN*) ASTROND_BIN="astrond-win32.exe" ;;
+    *) echo "Unsupported platform: $(uname -s)" >&2; exit 1 ;;
+esac
+(cd "$ROOT/astron" && exec "./$ASTROND_BIN" --loglevel info dev.yml > "$LOGS/astrond.log" 2>&1) &
+ASTROND_PID=$!
+PIDS+=($ASTROND_PID)
+wait_for_port 7010 "$ASTROND_PID" "$LOGS/astrond.log"
+wait_for_port 7000 "$ASTROND_PID" "$LOGS/astrond.log"
 
 echo "[3/5] Starting UberDOG (accountdb: $ACCOUNTDB)..."
 python -m toontown.uberdog.ServiceStart \

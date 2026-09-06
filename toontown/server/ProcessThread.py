@@ -10,6 +10,8 @@ from toontown.server.ServerGlobals import LogsPath
 if sys.platform != 'android':
     import subprocess
 
+CreationFlags = subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0
+
 class ProcessThread(threading.Thread):
     notify = DirectNotifyGlobal.directNotify.newCategory('ProcessThread')
 
@@ -24,6 +26,12 @@ class ProcessThread(threading.Thread):
             self.folder = defaultPath
         else:
             self.folder = os.path.join(defaultPath, self.folder)
+.
+        program = self.processInfo[0]
+
+        if os.path.dirname(program) and not os.path.isabs(program):
+            self.processInfo[0] = os.path.abspath(
+                os.path.join(self.folder, program))
     
     def hasPid(self):
         return hasattr(self, 'process') and self.process is not None
@@ -56,7 +64,8 @@ class ProcessThread(threading.Thread):
             print(("Created Log File: " + f.name))
             self.process = subprocess.Popen(
                 self.processInfo, stdout=subprocess.PIPE, stderr=f, cwd=self.folder,
-                text=True, encoding='utf-8', errors='replace')
+                text=True, encoding='utf-8', errors='replace',
+                creationflags=CreationFlags)
         except Exception as e:
             print(('failed', e, e.args))
             self.failed()
