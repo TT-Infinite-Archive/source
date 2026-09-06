@@ -1,9 +1,11 @@
 name: Publish server images
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       version:
@@ -22,7 +24,7 @@ jobs:
       - id: version
         shell: bash
         run: |
-          VALUE="${{ inputs.version || github.ref_name }}"
+          VALUE="${{ inputs.version }}"
           echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
           echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 

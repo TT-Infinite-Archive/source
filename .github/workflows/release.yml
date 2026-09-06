@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 1.0.0)."
+        required: true
+        type: string
+
+concurrency:
+  group: releases
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.version.outputs.value }}
+    steps:
+      - id: version
+        run: |
+          VALUE="${{ inputs.version || github.ref_name }}"
+          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
+
+  server:
+    name: Server
+    needs: version
+    uses: ./.github/workflows/publish-server.yml
+    with:
+      version: ${{ needs.version.outputs.value }}
+    secrets: inherit
+
+  client:
+    name: Client
+    needs: version
+    uses: ./.github/workflows/publish-client.yml
+    with:
+      version: ${{ needs.version.outputs.value }}
+      promote: false
+    secrets: inherit
+
+  promote:
+    name: Promote ${{ needs.version.outputs.value }}
+    needs: [version, server, client]
+    runs-on: ubuntu-latest
+    env:
+      BUCKET: ttiwebsite
+      PREFIX: releases
+      AWS_DEFAULT_REGION: auto
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+    steps:
+      - name: Point latest.json at ${{ needs.version.outputs.value }}
+        run: |
+          echo '{"version":"${{ needs.version.outputs.value }}"}' > latest.json
+          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
+              --cache-control "no-cache" --content-type application/json

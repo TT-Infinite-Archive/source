@@ -1,23 +1,31 @@
 name: Publish client
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      promote:
+        description: "Point latest.json at this version when the build lands."
+        default: true
+        type: boolean
   workflow_dispatch:
     inputs:
       version:
         description: "Version to publish (e.g. 1.0.0)."
         required: true
         type: string
-
-concurrency:
-  group: releases
-  cancel-in-progress: false
+      promote:
+        description: "Point latest.json at this version when the build lands."
+        default: true
+        type: boolean
 
 env:
   BUCKET: ttiwebsite
   PREFIX: releases
+  INDEX: release-index
+  PACK_FORMAT: "1"
   AWS_DEFAULT_REGION: auto
   AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -33,7 +41,7 @@ jobs:
     steps:
       - id: version
         run: |
-          VALUE="${{ inputs.version || github.ref_name }}"
+          VALUE="${{ inputs.version }}"
           echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
 
   resources:
@@ -44,6 +52,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Check out the build tools
+        id: tools
         shell: bash
         env:
           BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
@@ -60,6 +69,8 @@ jobs:
             fetch -q --depth 1 origin HEAD
           git -C tools checkout -q FETCH_HEAD
 
+          echo "sha=$(git -C tools rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Check out the art
         uses: actions/checkout@v5
         with:
@@ -67,17 +78,44 @@ jobs:
           path: art
           fetch-depth: 1
 
+      - name: Look for an identical resource pack
+        id: pack
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          art=$(git -C art rev-parse HEAD)
+          key=$(printf '%s\n' \
+                  "$PACK_FORMAT" \
+                  "$art" \
+                  "${{ steps.tools.outputs.sha }}" \
+                  "$(sha256sum requirements.txt | cut -d' ' -f1)" \
+              | sha256sum | cut -d' ' -f1)
+
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+          echo "Art \`$art\`, pack key \`$key\`." >> "$GITHUB_STEP_SUMMARY"
+
+          if aws s3 cp "s3://$BUCKET/$INDEX/resources-$key.json" recorded.json \
+                  --only-show-errors 2> /dev/null; then
+              echo "hit=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-python@v6
+        if: steps.pack.outputs.hit != 'true'
         with:
           python-version: "3.14"
           cache: pip
 
       - name: Pack the phase multifiles
+        if: steps.pack.outputs.hit != 'true'
         run: |
           pip install --disable-pip-version-check -r requirements.txt
           python tools/pack_client_resources.py art build/client/resources
 
       - name: Describe them
+        if: steps.pack.outputs.hit != 'true'
         run: |
           python tools/build_manifest.py \
               --tree build/client/resources \
@@ -88,12 +126,44 @@ jobs:
               --blobs build/blobs
 
       - name: Upload
+        if: steps.pack.outputs.hit != 'true'
         run: |
           aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
               --cache-control "public, max-age=31536000, immutable"
           aws s3 cp build/manifest/resources.json \
               "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/resources.json" \
               --cache-control "no-cache" --content-type application/json
+
+      - name: Record the resource pack
+        if: steps.pack.outputs.hit != 'true'
+        run: |
+          aws s3 cp build/manifest/resources.json \
+              "s3://$BUCKET/$INDEX/resources-${{ steps.pack.outputs.key }}.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          echo "Packed it." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reuse the resource recorded pack
+        if: steps.pack.outputs.hit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! jq -e 'has("version")' recorded.json > /dev/null; then
+              echo "::error::The recorded manifest carries no version field." \
+                   "The manifest format changed; bump PACK_FORMAT."
+              exit 1
+          fi
+
+          jq --arg v "${{ needs.version.outputs.value }}" '.version = $v' \
+              recorded.json > resources.json
+
+          aws s3 cp resources.json \
+              "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/resources.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          echo "The art has not moved since the last pack; reused it." \
+              >> "$GITHUB_STEP_SUMMARY"
 
   client:
     name: Build ${{ matrix.part }} ${{ matrix.target }}
@@ -248,6 +318,7 @@ jobs:
 
   publish:
     name: Publish the release
+    if: inputs.promote
     needs: [version, resources, client]
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
