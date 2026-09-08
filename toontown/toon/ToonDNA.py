@@ -2630,7 +2630,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
         if sleeveTexColor >= len(ClothesColors):
             return False
 
-        if botTex >= (len(BoyShirts) if gender == 'm' else len(GirlBottoms)):
+        if botTex >= (len(BoyShorts) if gender == 'm' else len(GirlBottoms)):
             return False
 
         if botTexColor >= len(ClothesColors):
