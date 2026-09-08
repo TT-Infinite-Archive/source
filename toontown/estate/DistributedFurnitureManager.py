@@ -131,10 +131,13 @@ class DistributedFurnitureManager(DistributedObject.DistributedObject):
         self.doCallbackContext(context, [retcode])
 
     def moveItemFromAtticResponse(self, retcode, objectId, context):
-        if retcode >= 0:
-            dfitem = base.cr.doId2do[objectId]
-        else:
-            dfitem = None
+        if retcode < 0:
+            self.doCallbackContext(context, [retcode, None])
+            return
+        dfitem = base.cr.doId2do.get(objectId)
+        if dfitem is None:
+            self.acceptOnce('generate-%d' % objectId, lambda dfitem: self.doCallbackContext(context, [retcode, dfitem]))
+            return
         self.doCallbackContext(context, [retcode, dfitem])
         return
 
