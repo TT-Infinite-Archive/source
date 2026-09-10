@@ -26,8 +26,6 @@ class ToontownInternalRepository(AstronInternalRepository):
             dcSuffix=dcSuffix, connectMethod=connectMethod,
             threadedNet=threadedNet)
 
-        self.__callbacks = {}
-
         url = config.GetString('mongodb-url', 'mongodb://localhost')
         replicaset = config.GetString('mongodb-replicaset', '')
         if replicaset:
@@ -140,29 +138,8 @@ class ToontownInternalRepository(AstronInternalRepository):
         return True
 
     def queryObjectLocation(self, doId, callback):
-        ctx = self.getContext()
-        self.__callbacks[ctx] = callback
-
-        dg = PyDatagram()
-        dg.addServerHeader(doId, self.ourChannel,
-                           STATESERVER_OBJECT_GET_LOCATION)
-        dg.addUint32(ctx)
-        self.send(dg)
-
-    def handleQueryObjectLocationResp(self, msgType, di):
-        ctx = di.getUint32()
-
-        if ctx not in self.__callbacks:
-            self.notify.warning('Received unexpected %s'
-                                ' (ctx %d)' % (MsgId2Names[msgType], ctx))
-            return
-
-        di.skipBytes(4)
-        parentId = di.getUint32()
-        zoneId = di.getUint32()
-
-        self.__callbacks[ctx](parentId, zoneId)
-        del self.__callbacks[ctx]
+        self.getLocation(
+            doId, lambda _doId, parentId, zoneId: callback(parentId, zoneId))
 
     def sendNetEvent(self, message, sentArgs=[]):
         self.netMessenger.send(message, sentArgs)

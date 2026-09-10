@@ -5,6 +5,7 @@ from toontown.guilds.GuildMemberUD import GuildMemberUD
 from toontown.guilds.GuildQuestUD import GuildQuestUD
 from toontown.guilds.GuildGlobals import *
 from toontown.guilds import GuildQuestGlobals
+from toontown.web.ChatLog import GUILD, chatLogOf
 
 from direct.distributed.ClockDelta import *
 
@@ -721,6 +722,13 @@ class GuildUD:
 
         # Alert all members of this whisper.
         self.sendUpdate('receiveTalkWhisperFromGuild', [sender, message])
+
+        air = self.mgr.air
+        chatLog = chatLogOf(air)
+        if chatLog is not None:
+            chatLog.record(
+                GUILD, sender, chatLog.toonNameFor(sender),
+                air.getAccountIdFromSender(), message)
 
     # Send updates
     def sendUpdate(self, field, args=None):

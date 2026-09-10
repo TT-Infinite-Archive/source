@@ -4,6 +4,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 
 from otp.distributed import OtpDoGlobals
+from toontown.web.ChatLog import ChatLog
 from toontown.web.GatewaySocket import openSocket
 
 NOT_PENDING = 'The Toon is no longer awaiting a name.'
@@ -20,9 +21,6 @@ AV_SET_SIZE = 6
 class GameGateway(DirectObject):
     """
     The UberDOG's half of the website gateway.
-
-    Each district manages its own socket and status, 
-    so commands go directly from the website to the specific district.
     """
 
     notify = DirectNotifyGlobal.directNotify.newCategory('GameGateway')
@@ -41,6 +39,8 @@ class GameGateway(DirectObject):
         self.socket = socket if socket is not None else openSocket(onCommand=self.apply)
         if socket is not None:
             self.socket.onCommand = self.apply
+
+        self.chatLog = ChatLog(air, self.socket)
 
         if self.socket is None:
             self.notify.warning('No gateway; name review will not reach the game.')
@@ -212,15 +212,9 @@ class GameGateway(DirectObject):
         """
         Move any Toons off the player's current account and onto the legacy
         one, then hand them the legacy account.
-
-        The current account is retired before the legacy one is claimed. If
-        this dies in between, the player has no account and logs in to a fresh
-        one, which is recoverable; the other order would leave two accounts
-        answering to the same user id, which is not good
         """
         objects = self.air.dbAstronCursor.objects
 
-        # Nobody may be holding either account open while it is rewritten.
         for account in (legacy, current):
             if account:
                 self.air.csm.killAccount(
@@ -260,9 +254,6 @@ class GameGateway(DirectObject):
                       'fields.ACCOUNT_AV_SET_DEL': deleted,
                       'fields.ESTATE_ID': Int64(estateId)}})
 
-        # Each Toon must point to the correct (legacy) account, 
-        # including deleted ones, so they don't end up linked to the 
-        # retired account after migration or a restore.
         following = [avId for _, avId in moved]
         following += [int(entry['Avatar']) for entry in deleted
                       if int(entry.get('Avatar') or 0)]
@@ -273,13 +264,6 @@ class GameGateway(DirectObject):
                 {'$set': {'fields.setDISLid': {'_0': Int64(legacy['_id'])}}})
 
         if estateId:
-            # Estate slot N belongs to Toon slot N; the AI wipes a slot's
-            # garden whenever the two disagree.
-            #
-            # "_0" because setSlotNToonId takes an unnamed parameter. Astron
-            # refuses to load an object whose stored shape disagrees with the
-            # dclass file, and a refusal here reads as an estate nobody can
-            # teleport to, causing a district crash.
             slots = {'fields.setSlot%dToonId' % index: {'_0': avId}
                      for index, avId in enumerate(avSet)}
             objects.update_one({'_id': estateId}, {'$set': slots})

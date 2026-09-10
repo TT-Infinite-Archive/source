@@ -25,6 +25,8 @@ def fieldsIn(x):
 
 from direct.fsm.FSM import FSM
 
+from toontown.web.ChatLog import WHISPER, chatLogOf
+
 # -- FSMS --
 class OperationFSM(FSM):
 
@@ -546,11 +548,15 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
                 return
         self.whisperRequests[fromId] = currStamp
         self.sendUpdateToAvatarId(toId, 'receiveTalkWhisper', [fromId, message])
-        if ConfigVariableBool('want-chat-logging', False).getValue():
-            self.air.mongodb.chat.messages.insert_one(
-                {'type': 1, 'timestamp': int(time.time()),
-                 'sender': fromId, 'recipient': toId, 'location': [-1, -1],
-                 'message': message})
+
+        chatLog = chatLogOf(self.air)
+        if chatLog is not None:
+            # A whisper is heard by one Toon rather than a zone, so there is no
+            # location worth asking for.
+            chatLog.record(
+                WHISPER, fromId, chatLog.toonNameFor(fromId),
+                self.air.getAccountIdFromSender(), message,
+                recipientId=toId, recipientName=chatLog.toonNameFor(toId))
 
     # -- Secret Friends --
     def requestSecret(self):

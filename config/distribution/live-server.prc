@@ -7,6 +7,7 @@ generate-root-object #t
 # Live account & gateway services:
 want-game-gateway #t
 account-service-url https://infinite.toontown.io
+want-chat-logging #t
 
 # The website owns accounts here with the launcher's lauch token being the credential:
 accountdb-type production

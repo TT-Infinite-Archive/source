@@ -4625,3 +4625,19 @@ SEQUENCES = {
   ]
 }
 
+
+
+def containsBadWord(message):
+    words = message.split()
+
+    for word in words:
+        if word.lower().strip(',.!?\'\"') in BLACKLIST or message.lower().strip(',.!?\'\"') in BLACKLIST:
+            return True
+
+        phrase = ''
+        for letter in word:
+            phrase += letter
+            if phrase.lower().strip(',.!?\'\"') in BLACKLIST:
+                return True
+
+    return False

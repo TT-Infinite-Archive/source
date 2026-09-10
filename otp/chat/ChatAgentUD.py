@@ -6,8 +6,8 @@ from direct.distributed.DistributedObjectGlobalUD import \
 
 from toontown.chat.TTWhiteList import TTWhiteList
 from otp.distributed import OtpDoGlobals
-from otp.chat.ChatGlobals import ChannelToType
-from toontown.chat.TTBlacklist import BLACKLIST, SEQUENCES
+from toontown.chat.TTBlacklist import SEQUENCES, containsBadWord
+from toontown.web.ChatLog import chatLogOf, kindForChannel
 import time
 
 
@@ -65,17 +65,15 @@ class ChatAgentUD(DistributedObjectGlobalUD):
 
         self.air.writeServerEvent('chat-said', senderId, message, message)
 
-        if ConfigVariableBool('want-chat-logging', False).getValue():
-            def handleQueryObjectLocationResp(parentId, zoneId):
-                self.air.mongodb.chat.messages.insert_one(
-                    {'type': ChannelToType[channel],
-                     'timestamp': int(time.time()),
-                     'sender': senderId,
-                     'recipient': 0,
-                     'location': [parentId, zoneId],
-                     'message': message})
+        chatLog = chatLogOf(self.air)
+        if chatLog is not None:
+            event = chatLog.record(
+                kindForChannel(channel), senderId, name, accountId, message)
 
-            self.air.queryObjectLocation(senderId, handleQueryObjectLocationResp)
+            self.air.queryObjectLocation(
+                senderId,
+                lambda parentId, zoneId: chatLog.setLocation(
+                    event, parentId, zoneId))
 
         dclass = self.air.dclassesByName['DistributedAvatarUD']
         dg = dclass.aiFormatUpdate(
@@ -120,18 +118,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
             self.air.dbId, accountId, __handleRetrieve)
 
     def detectBadWords(self, message):
-        words = message.split()
-        for word in words:
-            if word.lower().strip(',.!?\'\"') in BLACKLIST or message.lower().strip(',.!?\'\"') in BLACKLIST:
-                return True
-
-            phrase = ''
-            for letter in word:
-                phrase += letter
-                if phrase.lower().strip(',.!?\'\"') in BLACKLIST:
-                    return True
-
-        return False
+        return containsBadWord(message)
 
     def lookForSequences(self, words):
         flaggedIndexes = []

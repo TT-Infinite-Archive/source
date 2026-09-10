@@ -54,6 +54,8 @@ class GatewaySink(StatusSink):
         payload.setdefault('invasion', None)
         payload.setdefault('nextInvasion', 0)
 
+        payload['districtId'] = getattr(self.air, 'districtId', 0) or 0
+
         self.socket.sendStatus(self.air.ourChannel, payload)
 
 

@@ -18,6 +18,7 @@ generate-root-object #t
 want-game-gateway #f
 account-service-url http://localhost:4321
 gateway-url ws://localhost:4322/api/game/socket
+want-chat-logging #t
 
 # Magic words:
 want-cheats #t
