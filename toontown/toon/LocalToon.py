@@ -1932,6 +1932,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             print('Local Toon Anim State %s' % animName)
         DistributedToon.DistributedToon.b_setAnimState(self, animName, animMultiplier, callback, extraArgs)
 
+    def swimTimeoutAction(self):
+        return self.handleAfkTimeout()
+
     def sbFriendAdd(self, id, info):
         print('sbFriendAdd')
 

@@ -15,6 +15,7 @@ class GameTutorial(DirectFrame, FSM.FSM):
         self.doneFunction = doneFunction
         self.doneEvent = doneEvent
         self.callback = callback
+        base.localAvatar.startSleepWatch(self.handleQuit)
         self.accept('stoppedAsleep', self.handleQuit)
 
         stateArray = []

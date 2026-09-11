@@ -230,6 +230,7 @@ class Estate(Place.Place):
 
     def enterMailbox(self):
         Place.Place.enterPurchase(self)
+        base.localAvatar.startSleepWatch(self.__handleFallingAsleepMailbox)
         self.enablePeriodTimer()
 
     def __handleFallingAsleepMailbox(self, arg):

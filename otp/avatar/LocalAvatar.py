@@ -28,6 +28,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     wantDevCameraPositions = ConfigVariableBool('want-dev-camera-positions', False).getValue()
     wantMouse = ConfigVariableBool('want-mouse', False).getValue()
     sleepTimeout = ConfigVariableInt('sleep-timeout', 120).getValue()
+    swimTimeout = ConfigVariableInt('afk-timeout', 600).getValue()
     __enableMarkerPlacement = ConfigVariableBool('place-markers', False).getValue()
 
     def __init__(self, cr, chatMgr, talkAssistant = None, passMessagesThrough = False):
@@ -1094,7 +1095,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             self.sleepFlag = 1
 
     def forceGotoSleep(self):
-        return
+        if self.hp > 0:
+            self.sleepFlag = 0
+            self.gotoSleep()
 
     def startSleepWatch(self, callback):
         self.sleepCallback = callback
@@ -1131,7 +1134,14 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             self.swimmingFlag = 0
         if self.swimmingFlag or self.hp <= 0:
             self.wakeUp()
+        elif not self.sleepFlag:
+            if now - self.lastMoved > self.swimTimeout:
+                self.swimTimeoutAction()
+                return Task.done
         return Task.cont
+
+    def swimTimeoutAction(self):
+        pass
 
     def trackAnimToSpeed(self, task):
         speed, rotSpeed, slideSpeed = self.controlManager.getSpeeds()
