@@ -41,6 +41,10 @@ class ClickToStart(DirectObject):
             fg=Vec4(1, 1, 1, 1), scale=0.1, align=TextNode.ACenter)
         self.label.setZ(0.35)
 
+        # named builds like 'dev' are left alone
+        if version and version[0].isdigit():
+            version = 'v%s' % version
+
         self.versionLabel = OnscreenText(
             '\x01white_shadow\x01%s\x02' % version, parent=base.a2dBottomRight,
             font=ToontownGlobals.getMinnieFont(), fg=Vec4(0, 0, 0, 1),
