@@ -22,6 +22,7 @@ class QuestPage(ShtikerPage.ShtikerPage):
         self.textDownColor = Vec4(0.5, 0.9, 1, 1)
         self.textDisabledColor = Vec4(0.4, 0.8, 0.4, 1)
         self.onscreen = 0
+        self.onscreenHotkeys = ()
         self.lastQuestTime = globalClock.getRealTime()
         return
 
@@ -58,12 +59,22 @@ class QuestPage(ShtikerPage.ShtikerPage):
         return
 
     def acceptOnscreenHooks(self):
-        self.accept(ToontownGlobals.QuestsHotkeyOn, self.showQuestsOnscreen)
-        self.accept(ToontownGlobals.QuestsHotkeyOff, self.hideQuestsOnscreen)
+        # Remember what we bound:
+        self.onscreenHotkeys = (ToontownGlobals.QuestsHotkeyOn, ToontownGlobals.QuestsHotkeyOff)
+        self.accept(self.onscreenHotkeys[0], self.showQuestsOnscreen)
+        self.accept(self.onscreenHotkeys[1], self.hideQuestsOnscreen)
+        self.accept('controlsRemapped', self.reloadOnscreenHooks)
 
     def ignoreOnscreenHooks(self):
-        self.ignore(ToontownGlobals.QuestsHotkeyOn)
-        self.ignore(ToontownGlobals.QuestsHotkeyOff)
+        self.ignore('controlsRemapped')
+        for hotkey in self.onscreenHotkeys:
+            self.ignore(hotkey)
+        self.onscreenHotkeys = ()
+
+    def reloadOnscreenHooks(self):
+        self.hideQuestsOnscreen()
+        self.ignoreOnscreenHooks()
+        self.acceptOnscreenHooks()
 
     def unload(self):
         self.ignore('questsChanged')

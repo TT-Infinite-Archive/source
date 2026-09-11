@@ -13,6 +13,7 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         ShtikerPage.ShtikerPage.__init__(self)
         self.currentTrackInfo = None
         self.onscreen = 0
+        self.onscreenHotkeys = ()
         self.lastInventoryTime = globalClock.getRealTime()
 
     def load(self):
@@ -126,12 +127,21 @@ class InventoryPage(ShtikerPage.ShtikerPage):
         return
 
     def acceptOnscreenHooks(self):
-        self.accept(ToontownGlobals.InventoryHotkeyOn, self.showInventoryOnscreen)
-        self.accept(ToontownGlobals.InventoryHotkeyOff, self.hideInventoryOnscreen)
+        self.onscreenHotkeys = (ToontownGlobals.InventoryHotkeyOn, ToontownGlobals.InventoryHotkeyOff)
+        self.accept(self.onscreenHotkeys[0], self.showInventoryOnscreen)
+        self.accept(self.onscreenHotkeys[1], self.hideInventoryOnscreen)
+        self.accept('controlsRemapped', self.reloadOnscreenHooks)
 
     def ignoreOnscreenHooks(self):
-        self.ignore(ToontownGlobals.InventoryHotkeyOn)
-        self.ignore(ToontownGlobals.InventoryHotkeyOff)
+        self.ignore('controlsRemapped')
+        for hotkey in self.onscreenHotkeys:
+            self.ignore(hotkey)
+        self.onscreenHotkeys = ()
+
+    def reloadOnscreenHooks(self):
+        self.hideInventoryOnscreen()
+        self.ignoreOnscreenHooks()
+        self.acceptOnscreenHooks()
 
     def showInventoryOnscreen(self):
         messenger.send('wakeup')

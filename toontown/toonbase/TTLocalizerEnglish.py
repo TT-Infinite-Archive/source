@@ -4936,7 +4936,7 @@ DanceAnimPush = 'The Mimetoon'
 DanceAnimAngry = "Rock n' Roll"
 DanceAnimLeft = 'Left'
 PartyCannonActivityTitle = 'Party Cannons'
-PartyCannonActivityInstructions = 'Hit the clouds to change their color and bounce in the air! While IN THE AIR, you can USE THE ARROW KEYS to GLIDE.'
+PartyCannonActivityInstructions = 'Hit the clouds to change their color and bounce in the air! While in the air, you can use your movement keys to glide.'
 PartyCannonResults = 'You collected %d jelly beans!\n\nNumber of Clouds Hit: %d'
 FireworksActivityInstructions = 'Look up using the "Page Up" key to see better.'
 FireworksActivityBeginning = 'Party fireworks are about to start! Enjoy the show!'
@@ -4978,7 +4978,7 @@ PartyCogRewardBonus = '\nYou got %d additional Jellybean%s because your team won
 PartyCogJellybeanPlural = 's'
 PartyCogSignNote = 'HI-SCORE\n%s\n%d'
 PartyCogTitle = 'Cog-O-War'
-PartyCogInstructions = 'Throw pies at cogs to push them away from your team. ' + "When time's up, the team with most cogs on the other side wins!" + '\n\nThrow with the CONTROL KEY. Move with the ARROW KEYS.'
+PartyCogInstructions = 'Throw pies at cogs to push them away from your team. ' + "When time's up, the team with most cogs on the other side wins!" + '\n\nThrow with the actions key. Move with your movement keys.'
 PartyCogDistance = '%d ft'
 PartyCogTimeUp = "Time's up!"
 PartyCogGuiScoreLabel = 'SCORE'
@@ -5579,7 +5579,7 @@ FishPoker2Pair = '2 Pair'
 FishPokerPair = 'Pair'
 TutorialGreeting1 = 'Hi %s!'
 TutorialGreeting2 = 'Hi %s!\nCome over here!'
-TutorialGreeting3 = 'Hi %s!\nCome over here!\nUse the arrow keys!'
+TutorialGreeting3 = 'Hi %s!\nCome over here!\nUse your movement keys!'
 TutorialMickeyWelcome = 'Welcome to Toontown!'
 TutorialFlippyIntro = 'Let me introduce you to my friend %s...' % Flippy
 TutorialFlippyHi = 'Hi, %s!'
@@ -5676,10 +5676,10 @@ MinigamePowerMeterTooFast = 'Too\nfast'
 MinigameTemplateTitle = 'Minigame Template'
 MinigameTemplateInstructions = 'This is a template minigame. Use it to create new minigames.'
 CannonGameTitle = 'Cannon Game'
-CannonGameInstructions = 'Shoot your Toon into the water tower as quickly as you can. Use the mouse or the arrow keys to aim the cannon. Be quick and win a big reward for everyone!'
+CannonGameInstructions = 'Shoot your Toon into the water tower as quickly as you can. Use the mouse or your movement keys to aim the cannon. Be quick and win a big reward for everyone!'
 CannonGameReward = 'REWARD'
 TwoDGameTitle = 'Toon Escape'
-TwoDGameInstructions = 'Escape from the ' + Cog + ' den as soon as you can. Use arrow keys to run/jump and Ctrl to squirt a ' + Cog + '. Collect ' + Cog + ' treasures to gain even more points.'
+TwoDGameInstructions = 'Escape from the ' + Cog + ' den as soon as you can. Use your movement keys to run/jump and Ctrl to squirt a ' + Cog + '. Collect ' + Cog + ' treasures to gain even more points.'
 TwoDGameElevatorExit = 'EXIT'
 TugOfWarGameTitle = 'Tug-of-War'
 TugOfWarInstructions = "Alternately tap the left and right arrow keys just fast enough to line up the green bar with the red line. Don't tap them too slow or too fast, or you'll end up in the water!"
@@ -5725,8 +5725,8 @@ RaceGameJellybeans2 = '2 Jellybeans'
 RaceGameJellybeans4 = '4 Jellybeans'
 RaceGameJellybeans10 = '10 Jellybeans!'
 RingGameTitle = 'Ring Game'
-RingGameInstructionsSinglePlayer = 'Try to swim through as many of the %s rings as you can.  Use the arrow keys to swim.'
-RingGameInstructionsMultiPlayer = 'Try to swim through the %s rings.  Other players will try for the other colored rings.  Use the arrow keys to swim.'
+RingGameInstructionsSinglePlayer = 'Try to swim through as many of the %s rings as you can.  Use your movement keys to swim.'
+RingGameInstructionsMultiPlayer = 'Try to swim through the %s rings.  Other players will try for the other colored rings.  Use your movement keys to swim.'
 RingGameMissed = 'MISSED'
 RingGameGroupPerfect = 'GROUP\nPERFECT!!'
 RingGamePerfect = 'PERFECT!'
@@ -5739,8 +5739,8 @@ ColorWhite = 'white'
 ColorBlack = 'black'
 ColorYellow = 'yellow'
 DivingGameTitle = 'Treasure Dive'
-DivingInstructionsSinglePlayer = 'Treasures will appear at the bottom of the lake.  Use the arrow keys to swim.  Avoid the fish and get the treasures up to the boat!'
-DivingInstructionsMultiPlayer = 'Treasures will appear at the bottom of the lake.  Use the arrow keys to swim.  Work together to get the treasures up to the boat!'
+DivingInstructionsSinglePlayer = 'Treasures will appear at the bottom of the lake.  Use your movement keys to swim.  Avoid the fish and get the treasures up to the boat!'
+DivingInstructionsMultiPlayer = 'Treasures will appear at the bottom of the lake.  Use your movement keys to swim.  Work together to get the treasures up to the boat!'
 DivingGameTreasuresRetrieved = 'Treasures Retrieved'
 TargetGameTitle = 'Toon Slingshot'
 TargetGameInstructionsSinglePlayer = 'Use your umbrella to land on the targets. The smaller the target, the more Jellybeans you get!'
@@ -5749,7 +5749,7 @@ TargetGameBoard = 'Round %s - Keeping Best Score'
 TargetGameCountdown = 'Forced launch in %s seconds'
 TargetGameCountHelp = 'Pound left and right arrows for power, stop to launch'
 TargetGameFlyHelp = 'Press down to open umbrella'
-TargetGameFallHelp = 'Use the arrow keys to land on target'
+TargetGameFallHelp = 'Use your movement keys to land on target'
 TargetGameBounceHelp = ' Bouncing can knock you off target'
 PhotoGameScoreTaken = '%s: %s\nYou: %s'
 PhotoGameScoreBlank = 'Score: %s'
@@ -5773,7 +5773,7 @@ CatchGamePineapples = 'pineapples'
 CatchGameAnvils = 'anvils'
 PieTossGameTitle = 'Pie Toss Game'
 PieTossGameInstructions = 'Toss pies at the targets.'
-PhotoGameInstructions = 'Capture photos matching the toons shown at the bottom. Aim the camera with the mouse, and left click to take a picture. Press Ctrl to zoom in/out, and look around with the arrow keys.  Pictures with higher ratings get more points!'
+PhotoGameInstructions = 'Capture photos matching the toons shown at the bottom. Aim the camera with the mouse, and left click to take a picture. Press Ctrl to zoom in/out, and look around with your movement keys.  Pictures with higher ratings get more points!'
 PhotoGameTitle = 'Photo Fun'
 PhotoGameFilm = 'FILM'
 PhotoGameScore = 'Team Score: %s\n\nBest Photos: %s\n\nTotal Score: %s'
@@ -6040,7 +6040,7 @@ LeaderboardTitle = 'Toon Platoon'
 QuestScriptTutorialMickey_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMickey_2 = 'Sure, %s!'
 QuestScriptTutorialMickey_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
-QuestScriptTutorialMickey_4 = "Hello, new citizen! Welcome to Toontown! Use the arrow keys to move. Walk up to me when you are ready to get started!"
+QuestScriptTutorialMickey_4 = "Hello, new citizen! Welcome to Toontown! Use your movement keys. Walk up to me when you are ready to get started!"
 QuestScriptTutorialMinnie_1 = 'Toontown has a new citizen! Do you have some extra gags?'
 QuestScriptTutorialMinnie_2 = 'Sure, %s!'
 QuestScriptTutorialMinnie_3 = 'Tutorial Tom will tell you all about the Cogs.\x07Gotta go!'
@@ -6176,7 +6176,7 @@ ResistanceToonKeepHimBusy = "Keep him busy! I'm going to set a trap!"
 ResistanceToonWatchThis = 'Watch this!'
 CashbotBossGetAwayFromThat = 'Hey! Get away from that!'
 ResistanceToonCraneInstructions1 = 'Control a magnet by stepping up to a podium.'
-ResistanceToonCraneInstructions2 = 'Use the arrow keys to move the crane, and press the Ctrl key to grab an object.'
+ResistanceToonCraneInstructions2 = 'Use your movement keys to move the crane, and press the Ctrl key to grab an object.'
 ResistanceToonCraneInstructions3 = "Grab a safe with a magnet and knock the C.F.O.'s safe-ty helmet off."
 ResistanceToonCraneInstructions4 = 'Once his helmet is gone, grab a disabled goon and hit him in the head!'
 CashbotBossBattleThreeSpeech = [
@@ -6187,7 +6187,7 @@ CashbotBossBattleThreeSpeech = [
 ]
 ResistanceToonGetaway = 'Eek! Gotta run!'
 CashbotCraneLeave = 'Leave Crane'
-CashbotCraneAdvice = 'Use the arrow keys to move the overhead crane.'
+CashbotCraneAdvice = 'Use your movement keys to move the overhead crane.'
 CashbotMagnetAdvice = 'Hold down the control key to pick things up.'
 CashbotCraneLeaving = 'Leaving crane'
 MintElevatorRejectMessage = 'You cannot enter the Mints until you have completed your %s Cog Suit.'
@@ -8896,7 +8896,7 @@ TipDict = {TIP_NONE: ('',),
               'There are fishing ponds on every street in Toontown. Some streets have unique fish.'),
  TIP_MINIGAME: ('After you fill up your Jellybean jar, any Jellybeans you get from Trolley Games automatically spill over into your bank.',
                 'You can use the arrow keys instead of the mouse in the "Match Minnie" Trolley Game.',
-                'In the Cannon Game you can use the arrow keys to move your cannon and press the "Control" key to fire.',
+                'In the Cannon Game you can use your movement keys to move your cannon and press the "Control" key to fire.',
                 'In the Ring Game, bonus points are awarded when the entire group successfully swims through its rings.',
                 'A perfect game of Match Minnie will double your points.',
                 'In the Tug-of-War you are awarded more Jellybeans if you play against a tougher Cog.',
@@ -9371,7 +9371,7 @@ KartRace_RRInfo = 'Welcome to Rustic Raceway!\nPlease be kind to the fauna and s
 KartRace_AAInfo = 'Welcome to Airborne Acres!\nHold onto your hats! It looks bumpy up ahead...\n'
 KartRace_CCInfo = 'Welcome to City Circuit!\nWatch out for pedestrians as you speed through downtown!\n'
 KartRace_BBInfo = 'Welcome to Blizzard Boulevard!\nWatch your speed. There might be ice out there.\n'
-KartRace_GeneralInfo = 'Use Control to throw gags you pick up on the track, and the arrow keys to control your kart.'
+KartRace_GeneralInfo = 'Use Control to throw gags you pick up on the track, and your movement keys to control your kart.'
 KartRace_TrackInfo = {RaceGlobals.RT_Speedway_1: KartRace_SSInfo + KartRace_GeneralInfo,
  RaceGlobals.RT_Speedway_1_rev: KartRace_SSInfo + KartRace_GeneralInfo,
  RaceGlobals.RT_Speedway_2: KartRace_CoCoInfo + KartRace_GeneralInfo,
@@ -10076,8 +10076,8 @@ ElevatorLawBotCourse2 = 'Office C'
 ElevatorLawBotCourse3 = 'Office D'
 DaysToGo = 'Wait\n%s Days'
 IceGameTitle = 'Ice Slide'
-IceGameInstructions = 'Get as close to the center by the end of the second round. Use arrow keys to change direction and force. Press Ctrl to launch your toon.  Hit barrels for extra points and avoid the TNT!'
-IceGameInstructionsNoTnt = 'Get as close to the center by the end of the second round. Use arrow keys to change direction and force. Press Ctrl to launch your toon.  Hit barrels for extra points.'
+IceGameInstructions = 'Get as close to the center by the end of the second round. Use your movement keys to change direction and force. Press Ctrl to launch your toon.  Hit barrels for extra points and avoid the TNT!'
+IceGameInstructionsNoTnt = 'Get as close to the center by the end of the second round. Use your movement keys to change direction and force. Press Ctrl to launch your toon.  Hit barrels for extra points.'
 IceGameWaitingForPlayersToFinishMove = 'Waiting for other players...'
 IceGameWaitingForAISync = 'Waiting for other players...'
 IceGameInfo = 'Match %(curMatch)d/%(numMatch)d, Round %(curRound)d/%(numRound)d'
@@ -10528,11 +10528,16 @@ achievementClassifiers = {
 def getAchievementClassifier(classifier):
     return '%s Achievements' % achievementClassifiers.get(classifier)
 
-RemapPrompt = 'Choose the keys you wish to remap.'
-RemapPopup = 'Press the button you wish to remap this control to.'
+RemapTitle = 'Custom Controls'
+RemapPrompt = 'Click a control, then press the key you want to use for it.'
+RemapPopup = 'Press a key for "%s".\nPress ESC to cancel.'
+RemapListening = 'Press a key...'
+RemapConflict = 'The highlighted controls share a key and need to be different.'
+RemapDefaults = 'Defaults'
+RemapCategories = ['Movement', 'Actions', 'Shortcuts']
 Controls = ['Move Up:', 'Move Left:', 'Move Down:', 'Move Right:',
             'Jump:', 'Action Key:', 'Options Hotkey:', 'Chatbox Hotkey:',
-            'Screenshot Key:', 'Interact Key:']
+            'Screenshot Key:', 'Interact Key:', 'View Gags:', 'View Tasks:']
 
 GuildChatWarning = 'You are currently not in a Guild. Use "/all" to return to normal chat.'
 GuildDialogMovieStart = 'Are you here to create your very own Guild?'

@@ -24,6 +24,30 @@ CompressTextures = 'compress-textures'
 ThreadedRender = 'experimental-threaded-render'
 NewFootsteps = 'surface-footsteps'
 
+# Default controls:
+ClassicKeymap = {
+    "MOVE_UP": "arrow_up",
+    "MOVE_DOWN": "arrow_down",
+    "MOVE_LEFT": "arrow_left",
+    "MOVE_RIGHT": "arrow_right",
+    "JUMP": "space",
+    "ACTION_BUTTON": "delete",
+    "INTERACT_KEY": "shift",
+    "CHAT_HOTKEY": "t",
+    "OPTIONS_PAGE_HOTKEY": "escape",
+    "SCREENSHOT_KEY": "f9",
+    "VIEW_GAGS_KEY": "home",
+    "VIEW_TASKS_KEY": "end"
+}
+
+# Default custom controls:
+DefaultKeymap = dict(ClassicKeymap, **{
+    "MOVE_UP": "w",
+    "MOVE_LEFT": "a",
+    "MOVE_DOWN": "s",
+    "MOVE_RIGHT": "d"
+})
+
 InitialSettings = {
     # Initial setting
     # name: default
@@ -40,18 +64,7 @@ InitialSettings = {
     ProcessFailback: 60,
     ClassicMusic: False,
     NewFootsteps: True,
-    Keymap: {
-        "ACTION_BUTTON": "delete",
-        "CHAT_HOTKEY": "t",
-        "JUMP": "control",
-        "MOVE_DOWN": "s",
-        "MOVE_LEFT": "a",
-        "MOVE_RIGHT": "d",
-        "MOVE_UP": "w",
-        "OPTIONS_PAGE_HOTKEY": "escape",
-        "SCREENSHOT_KEY": "f9",
-        "INTERACT_KEY": "shift"
-    },
+    Keymap: dict(DefaultKeymap),
     DoorInteract: False,
     NPCInteract: False,
     TextureQuality: 3,
@@ -65,4 +78,4 @@ def loadInitialSettings():
     # Initializes settings if some initial options aren't in there
     for setting, default in list(InitialSettings.items()):
         if setting not in settings:
-            settings[setting] = default
+            settings[setting] = dict(default) if isinstance(default, dict) else default

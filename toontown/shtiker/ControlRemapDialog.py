@@ -1,218 +1,249 @@
-from direct.fsm import ClassicFSM, State
-from toontown.shtiker.OptionsPageGUI import OptionButton
-from toontown.toonbase.TTLocalizer import Controls, RemapPrompt, RemapPopup
-from toontown.toonbase.ToontownGlobals import OptionsPageHotkey
-from toontown.toontowngui import TTDialog
+from direct.gui.DirectGui import DGG, DirectButton
+from direct.showbase.DirectObject import DirectObject
+from panda3d.core import TextNode
+
+from toontown.toonbase import SettingsGlobals, TTLocalizer
+from toontown.toonbase.ColorGlobals import CBlack, CDefault, CGray, CRed, CYellow
+from toontown.toontowngui import TTButton, TTDialog, TTLabel
+
+PanelWidth = 2.26757
+PanelHeight = 1.63266
+
+ColumnXs = (-0.87168, -0.29056, 0.29056, 0.87168)
+CategoryX = -1.07973
+
+# Every remappable control:
+ControlRows = (
+    ('MOVE_UP', 'MOVE_LEFT', 'MOVE_DOWN', 'MOVE_RIGHT'),
+    ('JUMP', 'ACTION_BUTTON', 'INTERACT_KEY', 'CHAT_HOTKEY'),
+    ('OPTIONS_PAGE_HOTKEY', 'SCREENSHOT_KEY', 'VIEW_GAGS_KEY', 'VIEW_TASKS_KEY')
+)
+
+ControlLabelIndex = {
+    'MOVE_UP': 0,
+    'MOVE_LEFT': 1,
+    'MOVE_DOWN': 2,
+    'MOVE_RIGHT': 3,
+    'JUMP': 4,
+    'ACTION_BUTTON': 5,
+    'OPTIONS_PAGE_HOTKEY': 6,
+    'CHAT_HOTKEY': 7,
+    'SCREENSHOT_KEY': 8,
+    'INTERACT_KEY': 9,
+    'VIEW_GAGS_KEY': 10,
+    'VIEW_TASKS_KEY': 11
+}
+
+TitleZ = 0.6894
+PromptZ = 0.58981
+RowZs = ((0.46649, 0.37347, 0.26704),
+         (0.12885, 0.03583, -0.0706),
+         (-0.2088, -0.30182, -0.40825))
+StatusZ = -0.55
+ButtonZ = -0.7
+DefaultsX = -0.90056
+OkX = 0.87168
+CancelX = 0.99905
+IconScale = 1.0
+
+# Wrapping widths
+TextMargin = 0.2
+PromptWrap = int((PanelWidth - TextMargin) / TTLabel.TTLabel.Scales[TTLabel.TTLabel.MediumSize])
+StatusWrap = int((PanelWidth - TextMargin) / TTLabel.TTLabel.Scales[TTLabel.TTLabel.NormalSize])
+
+KeyCaptureEvent = 'controlRemap-buttonPress'
 
 
-class ControlRemap:
+def formatKeyName(keyName):
+    # Turns a Panda button name such as 'arrow_up' into 'Arrow Up'
+    return keyName.replace('_', ' ').title()
 
-    UP = 0
-    LEFT = 1
-    DOWN = 2
-    RIGHT = 3
-    JUMP = 4
-    ACTION_BUTTON = 5
-    OPTIONS_PAGE_HOTKEY = 6
-    CHAT_HOTKEY = 7
-    SCREENSHOT_KEY = 8
-    INTERACT_KEY = 9
+
+class IconButton(DirectButton):
+    def __init__(self, parent, iconName, pos, command):
+        buttons = loader.loadModel('phase_3/models/gui/dialog_box_buttons_gui')
+        optiondefs = (
+            ('relief', None, None),
+            ('pos', pos, None),
+            ('command', command, None),
+            ('image', (buttons.find('**/%s_UP' % iconName),
+                       buttons.find('**/%s_DN' % iconName),
+                       buttons.find('**/%s_Rllvr' % iconName)), None),
+            ('image_scale', IconScale, None)
+        )
+
+        self.defineoptions({}, optiondefs)
+        DirectButton.__init__(self, parent)
+        self.initialiseoptions(IconButton)
+        buttons.removeNode()
+
+    def enable(self):
+        self['state'] = DGG.NORMAL
+        self['image_color'] = CDefault
+
+    def disable(self):
+        self['state'] = DGG.DISABLED
+        self['image_color'] = CGray
+
+
+class ControlRemap(DirectObject):
 
     def __init__(self):
-        self.dialog = TTDialog.TTGlobalDialog(
-            dialogName='ControlRemap', doneEvent='doneRemapping', style=TTDialog.TwoChoice,
-            text=RemapPrompt, text_wordwrap=24,
-            text_pos=(0, 0, -0.8), suppressKeys = True, suppressMouse = True
-        )
-        scale = self.dialog.component('image0').getScale()
-        scale.setX(((scale[0] * 2.5) / base.getAspectRatio()) * 1.2)
-        scale.setZ(scale[2] * 2.5)
-        self.dialog.component('image0').setScale(scale)
-        button_x = -0.6
-        button_y = 0.4
-        labelPos = (0, 0, 0.1)
+        DirectObject.__init__(self)
 
-        self.upKey = OptionButton(
-            parent=self.dialog,
-            text=base.MOVE_UP,
-            pos=(button_x, 0.0, button_y),
-            command=self.enterWaitForKey, extraArgs=[self.UP],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[0])
+        self.keymap = base.getKeymap()
+        self.listeningFor = None
+        self.controlButtons = {}
+        self.controlLabels = {}
 
-        self.leftKey = OptionButton(
-            parent=self.dialog,
-            text=base.MOVE_LEFT,
-            pos=(button_x + 0.4, 0.0, button_y),
-            command=self.enterWaitForKey, extraArgs=[self.LEFT],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[1])
+        self.dialog = TTDialog.TTDialog(
+            style=TTDialog.NoButtons, suppressKeys=True, suppressMouse=True)
+        self.dialog['image_scale'] = (PanelWidth, 1, PanelHeight)
+        self.dialog['image_pos'] = (0, 0, 0)
+        self.dialog['frameSize'] = (-PanelWidth / 2.0, PanelWidth / 2.0,
+                                    -PanelHeight / 2.0, PanelHeight / 2.0)
 
-        self.downKey = OptionButton(
-            parent=self.dialog,
-            text=base.MOVE_DOWN,
-            pos=(button_x + 0.8, 0.0, button_y),
-            command=self.enterWaitForKey, extraArgs=[self.DOWN],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[2])
+        self.title = TTLabel.TTLabel(
+            parent=self.dialog, text=TTLocalizer.RemapTitle,
+            text_size=TTLabel.TTLabel.LargeSize, pos=(0, 0, TitleZ))
+        self.prompt = TTLabel.TTLabel(
+            parent=self.dialog, text=TTLocalizer.RemapPrompt,
+            text_size=TTLabel.TTLabel.MediumSize, text_wordwrap=PromptWrap,
+            pos=(0, 0, PromptZ))
 
-        self.rightKey = OptionButton(
-            parent=self.dialog,
-            text=base.MOVE_RIGHT,
-            pos=(button_x + 1.2, 0.0, button_y),
-            command=self.enterWaitForKey, extraArgs=[self.RIGHT],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[3])
+        for row, controls in enumerate(ControlRows):
+            categoryZ, labelZ, buttonZ = RowZs[row]
+            TTLabel.TTLabel(
+                parent=self.dialog, text=TTLocalizer.RemapCategories[row],
+                text_align=TextNode.ALeft, text_wordwrap=20,
+                pos=(CategoryX, 0, categoryZ))
 
-        self.jumpKey = OptionButton(
-            parent=self.dialog,
-            text=base.JUMP,
-            pos=(button_x, 0.0, button_y - 0.3),
-            command=self.enterWaitForKey, extraArgs=[self.JUMP],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[4])
+            for column, control in enumerate(controls):
+                x = ColumnXs[column]
+                self.controlLabels[control] = TTLabel.TTLabel(
+                    parent=self.dialog, text_wordwrap=12,
+                    text=TTLocalizer.Controls[ControlLabelIndex[control]],
+                    pos=(x, 0, labelZ))
+                self.controlButtons[control] = TTButton.TTButton(
+                    parent=self.dialog, pos=(x, 0, buttonZ),
+                    buttonScale=(1.3, 1, 1), textScale=0.045,
+                    text=formatKeyName(self.keymap[control]),
+                    command=self.listenForKey, extraArgs=[control])
 
-        self.actionKey = OptionButton(
-            parent=self.dialog,
-            text=base.ACTION_BUTTON,
-            pos=(button_x + 0.4, 0.0, button_y - 0.3),
-            command=self.enterWaitForKey, extraArgs=[self.ACTION_BUTTON],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[5])
+        # Reused as the "press a key" prompt and the duplicate binding warning:
+        self.status = TTLabel.TTLabel(
+            parent=self.dialog, text='', text_size=TTLabel.TTLabel.NormalSize,
+            text_wordwrap=StatusWrap, text_fg=CRed, pos=(0, 0, StatusZ))
 
-        self.optionsKey = OptionButton(
-            parent=self.dialog,
-            text=OptionsPageHotkey,
-            pos=(button_x + 0.8, 0.0, button_y - 0.3),
-            command=self.enterWaitForKey, extraArgs=[self.OPTIONS_PAGE_HOTKEY],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[6])
-            
-        self.chatHotkey = OptionButton(
-            parent=self.dialog,
-            text=base.CHAT_HOTKEY,
-            pos=(button_x + 1.2, 0.0, button_y - 0.3),
-            command=self.enterWaitForKey, extraArgs=[self.CHAT_HOTKEY],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[7])
+        self.defaultsButton = TTButton.TTButton(
+            parent=self.dialog, text=TTLocalizer.RemapDefaults,
+            pos=(DefaultsX, 0, ButtonZ), command=self.restoreDefaults)
+        self.okButton = IconButton(
+            self.dialog, 'ChtBx_OKBtn', (OkX, 0, ButtonZ), self.save)
+        self.cancelButton = IconButton(
+            self.dialog, 'CloseBtn', (CancelX, 0, ButtonZ), self.cancel)
 
-        self.screenshotKey = OptionButton(
-            parent=self.dialog,
-            text=base.SCREENSHOT_KEY,
-            pos=(button_x, 0.0, button_y - 0.6),
-            command=self.enterWaitForKey, extraArgs=[self.SCREENSHOT_KEY],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[8])
-            
-        self.interactKey = OptionButton(
-            parent=self.dialog,
-            text=base.INTERACT_KEY,
-            pos=(button_x + 1.2, 0.0, button_y - 0.6),
-            command=self.enterWaitForKey, extraArgs=[self.INTERACT_KEY],
-            wantLabel=True, labelOrientation='top', labelPos=labelPos,
-            labelText=Controls[9])
-            
-        self.controlsToBeSaved = {
-            self.UP: base.MOVE_UP,
-            self.LEFT: base.MOVE_LEFT,
-            self.DOWN: base.MOVE_DOWN,
-            self.RIGHT: base.MOVE_RIGHT,
-            self.JUMP: base.JUMP,
-            self.ACTION_BUTTON: base.ACTION_BUTTON,
-            self.OPTIONS_PAGE_HOTKEY: OptionsPageHotkey,
-            self.CHAT_HOTKEY: base.CHAT_HOTKEY,
-            self.SCREENSHOT_KEY: base.SCREENSHOT_KEY,
-            self.INTERACT_KEY: base.INTERACT_KEY
-        }
-        settings.write()
+        self.dialog.show()
+        self.refresh()
 
-        self.popupDialog = None
-        self.dialog.show()    
-
-        self.fsm = ClassicFSM.ClassicFSM(
-            'ControlRemapDialog',
-            [
-                State.State('off', self.enterShow, self.exitShow, ['waitForKey']),
-                State.State('waitForKey', self.enterWaitForKey, self.exitWaitForKey, ['off']),               
-            ], 'off', 'off')
-        self.fsm.enterInitialState()
-        self.dialog.accept('doneRemapping', self.exit)
         messenger.send('disable-hotkeys')
         if hasattr(base, 'localAvatar'):
             base.localAvatar.chatMgr.disableBackgroundFocus()
 
-    def enterShow(self):
-        pass
+    def getConflicts(self):
+        seen = {}
+        conflicts = set()
+        for control, keyName in list(self.keymap.items()):
+            if keyName in seen:
+                conflicts.add(control)
+                conflicts.add(seen[keyName])
+            else:
+                seen[keyName] = control
 
-    def exitShow(self):
-        pass
+        return conflicts
 
-    def enterWaitForKey(self, controlNum):
-        base.transitions.fadeScreen(0.9)
-        self.dialog.hide()
+    def refresh(self):
+        conflicts = self.getConflicts()
+        for control, button in list(self.controlButtons.items()):
+            color = CRed if control in conflicts else CBlack
+            if control != self.listeningFor:
+                # placeholder:
+                button.button['text'] = formatKeyName(self.keymap[control])
+            button.button['text_fg'] = color
+            self.controlLabels[control]['text_fg'] = color
 
-        if self.popupDialog:
-            self.popupDialog.cleanup()
-        self.popupDialog = TTDialog.TTDialog(style=TTDialog.NoButtons,
-          text=RemapPopup, suppressMouse=True, suppressKeys=True)
-
-        scale = self.popupDialog.component('image0').getScale()
-        scale.setX((scale[0] * 3.5) / base.getAspectRatio())
-        scale.setZ(scale[2] * 3)
-        self.popupDialog.setScale(scale)
-        self.popupDialog.show()
-
-        base.buttonThrowers[0].node().setButtonDownEvent('buttonPress-' + str(controlNum))
-        self.dialog.accept('buttonPress-' + str(controlNum), self.registerKey, [controlNum])
-
-    def registerKey(self, controlNum, keyName):
-        self.popupDialog.cleanup()
-        self.controlsToBeSaved[controlNum] = keyName
-        if controlNum == self.UP:
-            self.upKey['text'] = keyName
-        elif controlNum == self.LEFT:
-            self.leftKey['text'] = keyName
-        elif controlNum == self.DOWN:
-            self.downKey['text'] = keyName
-        elif controlNum == self.RIGHT:
-            self.rightKey['text'] = keyName
-        elif controlNum == self.JUMP:
-            self.jumpKey['text'] = keyName
-        elif controlNum == self.ACTION_BUTTON:
-            self.actionKey['text'] = keyName
-        elif controlNum == self.OPTIONS_PAGE_HOTKEY:
-            self.optionsKey['text'] = keyName
-        elif controlNum == self.CHAT_HOTKEY:
-            self.chatHotkey['text'] = keyName
-        elif controlNum == self.SCREENSHOT_KEY:
-            self.screenshotKey['text'] = keyName
-        elif controlNum == self.INTERACT_KEY:
-            self.interactKey['text'] = keyName
-        self.dialog.show()    
-        self.exitWaitForKey(controlNum, keyName)
-        
-    def exitWaitForKey(self, controlNum, keyName):
-        self.dialog.ignore('buttonPress-' + str(controlNum))
-
-    def exit(self):
-        if self.dialog.doneStatus == 'ok':
-            self.enterSave()
+        if self.listeningFor is not None:
+            control = self.listeningFor
+            self.status['text'] = TTLocalizer.RemapPopup % (
+                TTLocalizer.Controls[ControlLabelIndex[control]].rstrip(':'))
+            self.status['text_fg'] = CBlack
+        elif conflicts:
+            self.status['text'] = TTLocalizer.RemapConflict
+            self.status['text_fg'] = CRed
         else:
-            self.enterCancel()
+            self.status['text'] = ''
 
-    def enterSave(self):
-        keymap = settings.get('keymap', {})
-        keymap['MOVE_UP'] = self.controlsToBeSaved[self.UP]
-        keymap['MOVE_LEFT'] = self.controlsToBeSaved[self.LEFT]
-        keymap['MOVE_DOWN'] = self.controlsToBeSaved[self.DOWN]        
-        keymap['MOVE_RIGHT'] = self.controlsToBeSaved[self.RIGHT]
-        keymap['JUMP'] = self.controlsToBeSaved[self.JUMP]
-        keymap['ACTION_BUTTON'] = self.controlsToBeSaved[self.ACTION_BUTTON]
-        keymap['OPTIONS_PAGE_HOTKEY'] = self.controlsToBeSaved[self.OPTIONS_PAGE_HOTKEY]
-        keymap['CHAT_HOTKEY'] = self.controlsToBeSaved[self.CHAT_HOTKEY]
-        keymap['SCREENSHOT_KEY'] = self.controlsToBeSaved[self.SCREENSHOT_KEY]
-        keymap['INTERACT_KEY'] = self.controlsToBeSaved[self.INTERACT_KEY]
-        settings['keymap'] = keymap
+        if conflicts or self.listeningFor is not None:
+            self.okButton.disable()
+        else:
+            self.okButton.enable()
+
+    def listenForKey(self, control):
+        if self.listeningFor is not None:
+            return
+
+        self.listeningFor = control
+        for name, button in list(self.controlButtons.items()):
+            if name == control:
+                button.button['text'] = TTLocalizer.RemapListening
+                button.button['image_color'] = CYellow
+            else:
+                button.disable()
+
+        self.defaultsButton.disable()
+        self.cancelButton.disable()
+        self.refresh()
+
+        base.buttonThrowers[0].node().setButtonDownEvent(KeyCaptureEvent)
+        self.accept(KeyCaptureEvent, self.registerKey)
+
+    def stopListening(self):
+        self.ignore(KeyCaptureEvent)
+        base.buttonThrowers[0].node().setButtonDownEvent('')
+
+        listeningFor = self.listeningFor
+        self.listeningFor = None
+        if listeningFor is not None:
+            self.controlButtons[listeningFor].button['image_color'] = CDefault
+
+        for button in list(self.controlButtons.values()):
+            button.enable()
+
+        self.defaultsButton.enable()
+        self.cancelButton.enable()
+        self.refresh()
+
+    def registerKey(self, keyName):
+        # escape is reserved so there is always a way out of a capture:
+        if keyName.startswith('mouse'):
+            return
+
+        if keyName != 'escape':
+            self.keymap[self.listeningFor] = keyName
+
+        self.stopListening()
+
+    def restoreDefaults(self):
+        self.keymap = dict(SettingsGlobals.DefaultKeymap)
+        self.refresh()
+
+    def save(self):
+        if self.getConflicts():
+            return
+
+        keymap = settings.get(SettingsGlobals.Keymap, {})
+        keymap.update(self.keymap)
+        settings[SettingsGlobals.Keymap] = keymap
         settings.write()
 
         base.reloadControls()
@@ -224,19 +255,17 @@ class ControlRemap:
             base.localAvatar.controlManager.disable()
         messenger.send('controlsRemapped')
 
-    def exitSave(self):
-        pass
-
-    def enterCancel(self):
+    def cancel(self):
         self.unload()
 
-    def exitCancel(self):
-        pass
-
     def unload(self):
-        if self.popupDialog:
-            self.popupDialog.cleanup()
-        del self.popupDialog
+        if self.listeningFor is not None:
+            self.stopListening()
+        self.ignoreAll()
         self.dialog.cleanup()
         del self.dialog
+        del self.controlButtons
+        del self.controlLabels
+        if hasattr(base, 'localAvatar'):
+            base.localAvatar.chatMgr.reloadWASD()
         messenger.send('enable-hotkeys')

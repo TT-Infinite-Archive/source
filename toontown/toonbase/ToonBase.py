@@ -261,30 +261,7 @@ class ToonBase(OTPBase.OTPBase):
         
         self.wantCustomControls = settings.get('want-custom-controls', False)
 
-        self.MOVE_UP = 'arrow_up'   
-        self.MOVE_DOWN = 'arrow_down'
-        self.MOVE_LEFT = 'arrow_left'      
-        self.MOVE_RIGHT = 'arrow_right'
-        self.JUMP = 'control'
-        self.ACTION_BUTTON = 'delete'
-        self.SCREENSHOT_KEY = 'f9'
-        self.INTERACT_KEY = 'shift'
-        
-        keymap = settings.get('keymap', {})
-        if self.wantCustomControls:
-            self.MOVE_UP = keymap.get('MOVE_UP', self.MOVE_UP)
-            self.MOVE_DOWN = keymap.get('MOVE_DOWN', self.MOVE_DOWN)
-            self.MOVE_LEFT = keymap.get('MOVE_LEFT', self.MOVE_LEFT)
-            self.MOVE_RIGHT = keymap.get('MOVE_RIGHT', self.MOVE_RIGHT)
-            self.JUMP = keymap.get('JUMP', self.JUMP)
-            self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
-            ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
-            self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
-            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
-        
-        self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
-        
-        self.accept(self.SCREENSHOT_KEY, self.takeScreenShot)
+        self.reloadControls()
 
         self.wantClassicMusic = settings.get('classic-music', False)
         
@@ -657,30 +634,43 @@ class ToonBase(OTPBase.OTPBase):
         wp.setMinimized(True)
         base.win.requestProperties(wp)
 
-    def reloadControls(self):
-        self.ignore(self.SCREENSHOT_KEY) # Ignore the current screenshot key to replace it
-        keymap = settings.get('keymap', {})
-        self.CHAT_HOTKEY = keymap.get('CHAT_HOTKEY', 't')
+    def getKeymap(self):
+        """Returns the complete, gap-free keymap the player is currently using."""
         if self.wantCustomControls:
-            self.MOVE_UP = keymap.get('MOVE_UP', self.MOVE_UP)
-            self.MOVE_DOWN = keymap.get('MOVE_DOWN', self.MOVE_DOWN)
-            self.MOVE_LEFT = keymap.get('MOVE_LEFT', self.MOVE_LEFT)
-            self.MOVE_RIGHT = keymap.get('MOVE_RIGHT', self.MOVE_RIGHT)
-            self.JUMP = keymap.get('JUMP', self.JUMP)
-            self.ACTION_BUTTON = keymap.get('ACTION_BUTTON', self.ACTION_BUTTON)
-            ToontownGlobals.OptionsPageHotkey = keymap.get('OPTIONS-PAGE', ToontownGlobals.OptionsPageHotkey)
-            self.SCREENSHOT_KEY = keymap.get('SCREENSHOT_KEY', self.SCREENSHOT_KEY)
-            self.INTERACT_KEY = keymap.get('INTERACT_KEY', self.INTERACT_KEY)
+            keymap = dict(SettingsGlobals.DefaultKeymap)
+            for control, key in list(settings.get(SettingsGlobals.Keymap, {}).items()):
+                if control in keymap and key:
+                    keymap[control] = key
         else:
-            self.MOVE_UP = 'arrow_up'
-            self.MOVE_DOWN = 'arrow_down'
-            self.MOVE_LEFT = 'arrow_left'      
-            self.MOVE_RIGHT = 'arrow_right'
-            self.JUMP = 'control'
-            self.ACTION_BUTTON = 'delete'
-            self.SCREENSHOT_KEY = 'f9'
-            self.INTERACT_KEY = 'shift'
-            
+            keymap = dict(SettingsGlobals.ClassicKeymap)
+            keymap['CHAT_HOTKEY'] = settings.get(SettingsGlobals.Keymap, {}).get(
+                'CHAT_HOTKEY', keymap['CHAT_HOTKEY'])
+
+        return keymap
+
+    def reloadControls(self):
+        if hasattr(self, 'SCREENSHOT_KEY'):
+            self.ignore(self.SCREENSHOT_KEY) # Ignore the current screenshot key to replace it
+
+        keymap = self.getKeymap()
+        self.MOVE_UP = keymap['MOVE_UP']
+        self.MOVE_DOWN = keymap['MOVE_DOWN']
+        self.MOVE_LEFT = keymap['MOVE_LEFT']
+        self.MOVE_RIGHT = keymap['MOVE_RIGHT']
+        self.JUMP = keymap['JUMP']
+        self.ACTION_BUTTON = keymap['ACTION_BUTTON']
+        self.INTERACT_KEY = keymap['INTERACT_KEY']
+        self.CHAT_HOTKEY = keymap['CHAT_HOTKEY']
+        self.SCREENSHOT_KEY = keymap['SCREENSHOT_KEY']
+        self.VIEW_GAGS_KEY = keymap['VIEW_GAGS_KEY']
+        self.VIEW_TASKS_KEY = keymap['VIEW_TASKS_KEY']
+        
+        ToontownGlobals.OptionsPageHotkey = keymap['OPTIONS_PAGE_HOTKEY']
+        ToontownGlobals.InventoryHotkeyOn = self.VIEW_GAGS_KEY
+        ToontownGlobals.InventoryHotkeyOff = self.VIEW_GAGS_KEY + '-up'
+        ToontownGlobals.QuestsHotkeyOn = self.VIEW_TASKS_KEY
+        ToontownGlobals.QuestsHotkeyOff = self.VIEW_TASKS_KEY + '-up'
+
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
     def __tick(self, t=None):

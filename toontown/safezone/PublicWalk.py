@@ -1,5 +1,5 @@
-from toontown.toonbase.ToontownGlobals import *
 from direct.directnotify import DirectNotifyGlobal
+from toontown.toonbase import ToontownGlobals
 from . import Walk
 
 class PublicWalk(Walk.Walk):
@@ -8,6 +8,7 @@ class PublicWalk(Walk.Walk):
     def __init__(self, parentFSM, doneEvent):
         Walk.Walk.__init__(self, doneEvent)
         self.parentFSM = parentFSM
+        self.hotkeys = ()
 
     def load(self):
         Walk.Walk.load(self)
@@ -19,18 +20,20 @@ class PublicWalk(Walk.Walk):
     def enter(self, slowWalk = 0):
         Walk.Walk.enter(self, slowWalk)
         base.localAvatar.book.showButton()
-        self.accept(StickerBookHotkey, self.__handleStickerBookEntry)
+        self.hotkeys = (ToontownGlobals.StickerBookHotkey, ToontownGlobals.OptionsPageHotkey)
+        self.accept(self.hotkeys[0], self.__handleStickerBookEntry)
         self.accept('enterStickerBook', self.__handleStickerBookEntry)
-        self.accept(OptionsPageHotkey, self.__handleOptionsEntry)
+        self.accept(self.hotkeys[1], self.__handleOptionsEntry)
         base.localAvatar.laffMeter.start()
         base.localAvatar.beginAllowPies()
 
     def exit(self):
         Walk.Walk.exit(self)
         base.localAvatar.book.hideButton()
-        self.ignore(StickerBookHotkey)
+        for hotkey in self.hotkeys:
+            self.ignore(hotkey)
+        self.hotkeys = ()
         self.ignore('enterStickerBook')
-        self.ignore(OptionsPageHotkey)
         base.localAvatar.laffMeter.stop()
         base.localAvatar.endAllowPies()
 
