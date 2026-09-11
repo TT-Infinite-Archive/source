@@ -172,13 +172,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macOS is arm64 only (for now):
-        target: [mac-arm64, win-x64, linux-x64]
+        target: [mac-arm64, mac-x64, win-x64, linux-x64]
         # The client and the host add-on share no build state, so they compile together:
         part: [client, host]
         include:
           - target: mac-arm64
             os: blacksmith-6vcpu-macos-15
+          # going away in August 2027
+          - target: mac-x64
+            os: macos-15-intel
           - target: win-x64
             os: blacksmith-4vcpu-windows-2025
           - target: linux-x64

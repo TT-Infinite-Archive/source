@@ -174,7 +174,7 @@ echo "[2/5] Starting astrond..."
 python "$ROOT/scripts/write_astron_config.py" > /dev/null
 case "$(uname -s)" in
     Linux*)           ASTROND_BIN="astrond-linux" ;;
-    Darwin*)          ASTROND_BIN="astrond-darwin" ;;
+    Darwin*)          ASTROND_BIN="astrond-darwin-$(uname -m)" ;;
     MINGW*|MSYS*|CYGWIN*) ASTROND_BIN="astrond-win32.exe" ;;
     *) echo "Unsupported platform: $(uname -s)" >&2; exit 1 ;;
 esac
