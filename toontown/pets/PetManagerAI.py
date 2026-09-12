@@ -1,4 +1,4 @@
-import random
+from otp.util import random
 import time
 from direct.showbase import DirectObject
 from toontown.toonbase import ToontownGlobals

@@ -1,7 +1,7 @@
 from panda3d.core import Texture
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
-import random
+from otp.util import random
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from . import ToonInteriorColors

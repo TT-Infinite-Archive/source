@@ -1,5 +1,5 @@
 from panda3d.core import Mat4, NodePath, Point3, TextNode, Texture
-import random
+from otp.util import random
 
 from . import ToonInterior
 from . import ToonInteriorColors

@@ -1,5 +1,5 @@
 from panda3d.core import ConfigVariableBool, Datagram, DatagramIterator, VBase4
-import random
+from otp.util import random
 from direct.directnotify.DirectNotifyGlobal import *
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
