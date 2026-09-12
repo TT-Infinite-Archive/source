@@ -1611,8 +1611,8 @@ class HolidayManagerAI:
 
         ToontownGlobals.SELLBOT_FIELD_OFFICE: HolidayInfo_Oncely(
         None,
-        [(2010, Month.FEBRUARY, 17, 0, 0, 1),
-         (2010, Month.MARCH, 7, 23, 59, 59)],
+        [(2011, Month.FEBRUARY, 17, 0, 0, 1),
+         (2011, Month.MARCH, 7, 23, 59, 59)],
         displayOnCalendar = False,
         ),
 
@@ -1796,14 +1796,14 @@ class HolidayManagerAI:
 
         ToontownGlobals.LEGAL_EAGLE_INVASION: HolidayInfo_Oncely(
         HolidaySuitInvasionManagerAI.HolidaySuitInvasionManagerAI,
-        [ (2013, Month.JUNE, 28, 2, 0, 0),
-          (2013, Month.JUNE, 28, 5, 0, 0),
+        [ (2013, Month.JUNE, 28, 3, 0, 0),
+          (2013, Month.JUNE, 28, 6, 0, 0),
 
           (2013, Month.JUNE, 28, 10, 0, 0),
           (2013, Month.JUNE, 28, 13, 0, 0),
 
-          (2013, Month.JUNE, 28, 18, 0, 0),
-          (2013, Month.JUNE, 28, 21, 0, 0),
+          (2013, Month.JUNE, 28, 17, 0, 0),
+          (2013, Month.JUNE, 28, 20, 0, 0),
           ],
         displayOnCalendar = False,
         ),
@@ -1891,18 +1891,17 @@ class HolidayManagerAI:
         [ (Month.SEPTEMBER, 11, 2, 0, 0),
           (Month.SEPTEMBER, 11, 5, 0, 0),
 
-          (Month.SEPTEMBER, 11, 10, 0, 0),
-          (Month.SEPTEMBER, 11, 13, 0, 0),
+          (Month.SEPTEMBER, 11, 12, 0, 0),
+          (Month.SEPTEMBER, 11, 15, 0, 0),
 
           (Month.SEPTEMBER, 11, 18, 0, 0),
           (Month.SEPTEMBER, 11, 21, 0, 0),
 
-
           (Month.SEPTEMBER, 12, 2, 0, 0),
           (Month.SEPTEMBER, 12, 5, 0, 0),
 
-          (Month.SEPTEMBER, 12, 10, 0, 0),
-          (Month.SEPTEMBER, 12, 13, 0, 0),
+          (Month.SEPTEMBER, 12, 12, 0, 0),
+          (Month.SEPTEMBER, 12, 15, 0, 0),
 
           (Month.SEPTEMBER, 12, 18, 0, 0),
           (Month.SEPTEMBER, 12, 21, 0, 0)],
@@ -1911,24 +1910,24 @@ class HolidayManagerAI:
 
         ToontownGlobals.BIG_CHEESE_INVASION: HolidayInfo_Yearly(
         HolidaySuitInvasionManagerAI.HolidaySuitInvasionManagerAI,
-        [ (Month.SEPTEMBER, 16, 2, 0, 0),
-          (Month.SEPTEMBER, 16, 5, 0, 0),
+        [ (Month.SEPTEMBER, 16, 3, 0, 0),
+          (Month.SEPTEMBER, 16, 6, 0, 0),
 
           (Month.SEPTEMBER, 16, 10, 0, 0),
           (Month.SEPTEMBER, 16, 13, 0, 0),
 
-          (Month.SEPTEMBER, 16, 18, 0, 0),
-          (Month.SEPTEMBER, 16, 21, 0, 0),
+          (Month.SEPTEMBER, 16, 17, 0, 0),
+          (Month.SEPTEMBER, 16, 20, 0, 0),
 
 
-          (Month.SEPTEMBER, 17, 2, 0, 0),
-          (Month.SEPTEMBER, 17, 5, 0, 0),
+          (Month.SEPTEMBER, 17, 3, 0, 0),
+          (Month.SEPTEMBER, 17, 6, 0, 0),
 
           (Month.SEPTEMBER, 17, 10, 0, 0),
           (Month.SEPTEMBER, 17, 13, 0, 0),
 
-          (Month.SEPTEMBER, 17, 18, 0, 0),
-          (Month.SEPTEMBER, 17, 21, 0, 0)],
+          (Month.SEPTEMBER, 17, 17, 0, 0),
+          (Month.SEPTEMBER, 17, 20, 0, 0)],
         displayOnCalendar = False,
         ),
     }
