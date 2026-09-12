@@ -616,20 +616,47 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.sendUpdate('setFriendsList', [friendsList])
 
     def setFriendsList(self, friendsList):
+        self.notify.debug("setting friends list to %s" % self.friendsList)
         self.friendsList = friendsList
+        # If the friendsList is nonEmpty, notify the quest manager
+        if friendsList:
+            # Assume the newest one on the list is the one we just
+            # made friends with. Is it? Check with Roger.
+            friendId = friendsList[-1]
+            # See if the otherAv is logged in
+            otherAv = self.air.doId2do.get(friendId)
+            # Tell the quest manager. Note: there is a design flaw here
+            # whereby the player could remove a friend and still get credit
+            # for this a friend quest. Really we need to know when a friend
+            # is added, not simply when the friends list changed (add or
+            # remove)
+            self.air.questManager.toonMadeFriend(self, otherAv)
 
     def getFriendsList(self):
         return self.friendsList
 
     def extendFriendsList(self, friendId, friendCode):
+        # This is called only by the friend manager when a new friend
+        # transaction is successfully completed.  Its purpose is
+        # simply to update the AI's own copy of the avatar's friends
+        # list, mainly so that the quest manager can reliably know
+        # if the avatar has any friends.
+
+        # First, see if we already had this friend.
         for i in range(len(self.friendsList)):
             friendPair = self.friendsList[i]
             if friendPair[0] == friendId:
+                # We did.  Update the code.
                 self.friendsList[i] = (friendId, friendCode)
                 return
 
+        # We didn't already have this friend; tack it on.
         self.friendsList.append((friendId, friendCode))
-        self.air.questManager.toonMadeFriend(self)
+
+        # Note that if an avatar *breaks* a friendship, the AI never
+        # hears about it.  So our friends list will not be 100%
+        # up-to-date, but it will at least be good enough for the
+        # quest manager.
 
         if self.air.wantAchievements:
             self.air.achievementsManager.toonMadeFriend(self.doId)
