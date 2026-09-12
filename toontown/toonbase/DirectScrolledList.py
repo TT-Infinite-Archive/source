@@ -8,7 +8,6 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.task.Task import Task
 from direct.gui.DirectFrame import *
 from direct.gui.DirectButton import *
-import types
 
 
 class DirectScrolledListItem(DirectButton):
@@ -172,7 +171,7 @@ class DirectScrolledList(DirectFrame):
         if(len(self["items"])==0):
             return 0
 
-        if(type(self["items"][0])!=types.InstanceType):
+        if isinstance(self["items"][0], str):
             self.notify.warning("getItemIndexForItemID: cant find itemID for non-class list items!")
             return 0
 
@@ -345,7 +344,7 @@ class DirectScrolledList(DirectFrame):
         Add this string and extraArg to the list
         """
         assert self.notify.debugStateCall(self)
-        if(type(item) == types.InstanceType):
+        if not isinstance(item, str):
             # cant add attribs to non-classes (like strings & ints)
             item.itemID = self.nextItemID
             self.nextItemID += 1
@@ -354,7 +353,7 @@ class DirectScrolledList(DirectFrame):
             item.reparentTo(self.itemFrame)
         if refresh:
             self.refresh()
-        if(type(item) == types.InstanceType):
+        if not isinstance(item, str):
             return item.itemID  # to pass to scrollToItemID
 
     def removeItem(self, item, refresh=1):
