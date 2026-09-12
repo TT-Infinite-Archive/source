@@ -19,6 +19,7 @@ from toontown.toon import NPCToons
 from otp.ai.MagicWordGlobal import *
 if ConfigVariableBool('want-pets', True).getValue():
     from toontown.pets.PetDNA import FIELD_LIST
+    from toontown.pets import DistributedPetProxyAI
 
 class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBattleBaseAI')
