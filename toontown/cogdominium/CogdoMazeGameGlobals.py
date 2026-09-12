@@ -88,7 +88,7 @@ SuitCollisionName = 'CogdoMazeSuit_Collision'
 SuitWalkSameDirectionProb = 1
 SuitWalkTurnAroundProb = 100
 
-class ESuitType(enum.Enum):
+class ESuitType(enum.IntEnum):
     BOSS = 0
     FAST_MINION = 1
     SLOW_MINION = 2

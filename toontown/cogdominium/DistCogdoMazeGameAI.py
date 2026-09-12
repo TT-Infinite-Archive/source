@@ -32,9 +32,9 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
         self.setupSuitsAI()
 
     def setupSuitsAI(self):
-        bossHp = CogdoMazeGameGlobals.SuitData[0]['hp']
-        fastMiniHp = CogdoMazeGameGlobals.SuitData[1]['hp']
-        slowMiniHp = CogdoMazeGameGlobals.SuitData[2]['hp']
+        bossHp = CogdoMazeGameGlobals.SuitData[CogdoMazeGameGlobals.ESuitType.BOSS]['hp']
+        fastMiniHp = CogdoMazeGameGlobals.SuitData[CogdoMazeGameGlobals.ESuitType.FAST_MINION]['hp']
+        slowMiniHp = CogdoMazeGameGlobals.SuitData[CogdoMazeGameGlobals.ESuitType.SLOW_MINION]['hp']
 
         serialNum = 0
         for i in range(self.numSuits[0]):
@@ -69,7 +69,7 @@ class DistCogdoMazeGameAI(DistCogdoGameAI):
         avId = self.air.getAvatarIdFromSender()
         av = self.air.doId2do.get(avId)
         if av:
-            lostHp = CogdoMazeGameGlobals.SuitData[suitType]['toonDamage'] * self.getDifficulty() * 10
+            lostHp = CogdoMazeGameGlobals.SuitData[CogdoMazeGameGlobals.ESuitType(suitType)]['toonDamage'] * self.getDifficulty() * 10
             av.takeDamage(lostHp)
             networkTime = globalClockDelta.getRealNetworkTime()
             self.sendUpdate('toonHitBySuit', [avId, suitType, suitNum, networkTime])
