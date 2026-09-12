@@ -15,4 +15,4 @@ class DistributedDeliveryManager(DistributedObjectGlobal):
 
     def readCatalogItem(self, x):
         x = base64.b64decode(x)
-        return ''.join([chr((256 + x[i] - self.item[i % len(self.item)]) % 256) for i in range(len(x))])
+        return bytes((256 + x[i] - self.item[i % len(self.item)]) % 256 for i in range(len(x)))

@@ -77,7 +77,7 @@ class TTIFriendsManager(DistributedObjectGlobal):
         fields.append(("setSafeZone", sz))
         fields.append(("setLastSeenTimestamp", lastSeen))
         fields.append(("setDNA", dna))
-        base.cr.n_handleGetAvatarDetailsResp(avId, fields=fields)    
+        base.cr.n_handleGetAvatarDetailsResp(avId, fields=fields)
 
     def d_teleportQuery(self, toId):
         self.sendUpdate('routeTeleportQuery', [toId])

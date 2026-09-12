@@ -14,13 +14,13 @@ import hmac
 import base64
 
 
-key = '\x43\x6f\x6c\x64\x70\x6c\x61\x79\x57\x61\x73\x48\x65\x72\x65'
+key = b'\x43\x6f\x6c\x64\x70\x6c\x61\x79\x57\x61\x73\x48\x65\x72\x65'
 BAD_FIELDS = {'WishNameState', 'WishName', 'setPatchVersion', 'setAdminAccess', 'setGM', 'setDISLid',
               'setFriendsList', 'setPreviousAccess'}
 
 
 def fieldsIn(x):
-    return base64.b64encode(''.join([chr((ord(x[i]) + ord(key[i % len(key)])) % 256) for i in range(len(x))]))
+    return base64.b64encode(bytes((x[i] + key[i % len(key)]) % 256 for i in range(len(x))))
 
 
 from direct.fsm.FSM import FSM
@@ -388,7 +388,7 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
                     del fields[fieldName]
 
             data = zlib.compress(fieldsIn(pickle.dumps(fields, protocol=pickle.HIGHEST_PROTOCOL)))
-            k = str(avId + self.doId)
+            k = str(avId + self.doId).encode('utf-8')
             sig = hmac.new(k, data, hashlib.sha1).hexdigest()
 
             self.sendUpdateToAvatarId(senderId, 'friendDetailsExtended', [data, sig, avId])
