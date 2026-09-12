@@ -775,6 +775,7 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
             smoother.clearPositions(1)
 
     def setCablePos(self, changeSeq, y, h, links, timestamp):
+        h -= self.armMaxH # crane fix
         self.changeSeq = changeSeq
         if self.smoothStarted:
             if len(links) > self.numLinks:
@@ -807,7 +808,7 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
 
         self.sendUpdate('setCablePos', [self.changeSeq,
          self.crane.getY(),
-         self.arm.getH(),
+         self.arm.getH() + self.armMaxH, # crane fix
          links,
          timestamp])
 
