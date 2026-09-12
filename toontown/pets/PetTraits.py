@@ -194,7 +194,7 @@ class PetTraits:
         def __repr__(self):
             return 'Trait: %s, %s, %s, %s' % (self.name,
              self.value,
-             ETraitQuality.getString(self.quality),
+             ETraitQuality(self.quality).name,
              self.howExtreme)
 
     def __init__(self, traitSeed, safeZoneId, traitValueList = []):
