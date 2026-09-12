@@ -250,7 +250,7 @@ class DistributedPartyDanceActivityBase(DistributedPartyActivity):
 
     def exitRequestDenied(self, reason):
         DistributedPartyActivity.exitRequestDenied(self, reason)
-        if reason != PartyGlobals.EDenialReason.SilentFail:
+        if reason != PartyGlobals.EDenialReason.SILENT_FAIL:
             self.showMessage(TTLocalizer.PartyActivityDefaultExitDeny)
 
     def handleToonExited(self, toonId):

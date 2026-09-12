@@ -286,7 +286,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
                 textOfActivity = TTLocalizer.PartyActivityNameDict[activityId]['generic']
             else:
                 textOfActivity = TTLocalizer.PartyActivityNameDict[activityId]['generic'] + ' x ' + str(countDict[activityId])
-            geom = getPartyActivityIcon(self.activityIconsModel, PartyGlobals.EActivityId.getString(activityId))
+            geom = getPartyActivityIcon(self.activityIconsModel, PartyGlobals.EActivityId(activityId).name)
             item = DirectLabel(relief=None, text=textOfActivity, text_align=TextNode.ACenter, text_scale=0.05, text_pos=(0.0, -0.15), geom_scale=0.3, geom_pos=Vec3(0.0, 0.0, 0.07), geom=geom)
             self.invitationActivityList.addItem(item)
 

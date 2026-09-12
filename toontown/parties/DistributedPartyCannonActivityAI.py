@@ -19,7 +19,7 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
     #notify.setDebug(True)
 
     def __init__(self, air, partyDoId, x, y, h):
-        DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, PartyGlobals.EActivityId.PartyCannon, PartyGlobals.EActivityId.Continuous)
+        DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, PartyGlobals.EActivityId.PartyCannon, PartyGlobals.EActivityType.CONTINUOUS)
 
         # map of cannons by cannon doId
         self.cannons = {}

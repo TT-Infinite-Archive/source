@@ -87,14 +87,14 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
     def joinRequestDenied(self, reason):
         DistributedPartyActivity.joinRequestDenied(self, reason)
         self.notify.debug('joinRequestDenied')
-        if reason == PartyGlobals.EDenialReason.Full:
+        if reason == PartyGlobals.EDenialReason.FULL:
             self.showMessage(TTLocalizer.PartyTeamActivityTeamFull)
-        elif reason == PartyGlobals.EDenialReason.Default:
+        elif reason == PartyGlobals.EDenialReason.DEFAULT:
             self.showMessage(TTLocalizer.PartyTeamActivityJoinDenied % self.getTitle())
 
     def exitRequestDenied(self, reason):
         DistributedPartyActivity.exitRequestDenied(self, reason)
-        if reason == PartyGlobals.EDenialReason.Default:
+        if reason == PartyGlobals.EDenialReason.DEFAULT:
             self.showMessage(TTLocalizer.PartyTeamActivityExitDenied % self.getTitle())
         if self.isLocalToonPlaying and (self.isState('WaitToStart') or self.isState('WaitForEnough')):
             self.teamActivityGui.enableExitButton()
@@ -108,9 +108,9 @@ class DistributedPartyTeamActivity(DistributedPartyActivity):
 
     def switchTeamRequestDenied(self, reason):
         self.notify.debug('switchTeamRequestDenied')
-        if reason == PartyGlobals.EDenialReason.Full:
+        if reason == PartyGlobals.EDenialReason.FULL:
             self.showMessage(TTLocalizer.PartyTeamActivityTeamFull, endState='activity')
-        elif reason == PartyGlobals.EDenialReason.Default:
+        elif reason == PartyGlobals.EDenialReason.DEFAULT:
             self.showMessage(TTLocalizer.PartyTeamActivitySwitchDenied, endState='activity')
         if self.isLocalToonPlaying and (self.isState('WaitToStart') or self.isState('WaitForEnough')) and self._canSwitchTeams:
             self.teamActivityGui.enableSwitchButton()
