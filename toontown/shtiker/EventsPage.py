@@ -86,7 +86,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.hostingDecorationList, self.hostingDecorationLabel = self.createListAndLabel(self.hostedPartyDisplay, self.hostingGui, 'decorations', 1)
         self.hostingDateLabel = DirectLabel(parent=self.hostedPartyDisplay, relief=None, text='', scale=TTLocalizer.EPhostingDateLabel, text_align=TextNode.ACenter, text_wordwrap=10, textMayChange=True, pos=self.hostingGui.find('**/date_locator').getPos())
         pos = self.hostingGui.find('**/cancel_text_locator').getPos()
-        self.hostingCancelButton = DirectButton(parent=hidden, relief=None, geom=(self.hostingGui.find('**/cancelPartyButton_up'),
+        self.hostingCancelButton = DirectButton(parent=self.hostedPartyDisplay, relief=None, geom=(self.hostingGui.find('**/cancelPartyButton_up'),
          self.hostingGui.find('**/cancelPartyButton_down'),
          self.hostingGui.find('**/cancelPartyButton_rollover'),
          self.hostingGui.find('**/cancelPartyButton_inactive')), text=TTLocalizer.EventsPageHostTabCancelButton, text_scale=TTLocalizer.EPhostingCancelButton, text_pos=(pos[0], pos[2]), command=self.__doCancelParty)
