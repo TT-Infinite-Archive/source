@@ -384,11 +384,11 @@ class ToonBase(OTPBase.OTPBase):
         if hasattr(self, 'notificationPopup') and self.notificationPopup:
             self.notificationPopup.destroy()
             taskMgr.remove('clearScreenshot')
-        if not os.path.exists(TTLocalizer.ScreenshotPath):
-            os.mkdir(TTLocalizer.ScreenshotPath)
+        if not os.path.exists('screenshots/'):
+            os.mkdir('screenshots/')
             self.notify.info('Made new directory to save screenshots.')
         self.screenshotSfx.play()
-        namePrefix = TTLocalizer.ScreenshotPath + launcher.logPrefix + 'screenshot'
+        namePrefix = 'screenshots/' + launcher.logPrefix + 'screenshot-%i.png' % time.time()
         timedif = globalClock.getRealTime() - self.lastScreenShotTime
         if self.glitchCount > 10 and self.walking:
             return
@@ -396,7 +396,7 @@ class ToonBase(OTPBase.OTPBase):
             self.glitchCount += 1
             return
         if not hasattr(self, 'localAvatar'):
-            self.screenshot(namePrefix=namePrefix)
+            self.screenshot(namePrefix=namePrefix, defaultFilename=0)
             self.lastScreenShotTime = globalClock.getRealTime()
             return
         coordOnScreen = ConfigVariableBool('screenshot-coords', 0).getValue()
@@ -422,9 +422,8 @@ class ToonBase(OTPBase.OTPBase):
                                            relief=None)
                 strTextLabel.setBin('gui-popup', 0)
         self.graphicsEngine.renderFrame()
-        self.screenshot(namePrefix=namePrefix,
-                        imageComment=ctext + ' ' + self.screenshotStr)
-        screenshot = self.screenshot(namePrefix=namePrefix, imageComment=ctext + ' ' + self.screenshotStr)
+        screenshot = self.screenshot(namePrefix=namePrefix, 
+                                     defaultFilename=0, imageComment=ctext + ' ' + self.screenshotStr)
         self.lastScreenShotTime = globalClock.getRealTime()
         pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
         winfile = pandafile.toOsSpecific()
