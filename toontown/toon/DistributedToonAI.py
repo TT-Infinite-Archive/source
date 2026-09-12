@@ -4888,7 +4888,7 @@ def name(name=''):
     Modify the target's name.
     """
     target = spellbook.getTarget()
-    target.checkForBadName(requestName=True, name=name)
+    target.b_setName(name=name)
 
 @magicWord(category=CATEGORY_USER, types=[int, int])
 def hat(hatIndex, hatTex=0):
