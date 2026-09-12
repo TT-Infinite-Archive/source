@@ -94,7 +94,7 @@ class DistributedHouseInterior(DistributedObject.DistributedObject):
         self.__colorWalls()
         self.__setupWindows()
         messenger.send('houseInteriorLoaded-%d' % self.zoneId)
-        self.interiorMusic = base.loadMusic(self.interiorMusicName)
+        self.interiorMusic = base.loader.loadMusic(self.interiorMusicName)
         base.playMusic(self.interiorMusic, looping=1, volume=0.8)
         return None
 

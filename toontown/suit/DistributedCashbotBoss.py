@@ -303,11 +303,11 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.bossBattleLeaderboard = BossBattleLeaderboard()
         self.bossBattleLeaderboard.load()
 
-        self.battleOneMusic = base.loadMusic('phase_9/audio/bgm/CFO_round_1.ogg')
-        self.battleTwoMusic = base.loadMusic('phase_9/audio/bgm/CFO_round_2.ogg')
-        self.battleThreeMusic = base.loadMusic('phase_9/audio/bgm/encntr_cfo_boss.ogg')
+        self.battleOneMusic = base.loader.loadMusic('phase_9/audio/bgm/CFO_round_1.ogg')
+        self.battleTwoMusic = base.loader.loadMusic('phase_9/audio/bgm/CFO_round_2.ogg')
+        self.battleThreeMusic = base.loader.loadMusic('phase_9/audio/bgm/encntr_cfo_boss.ogg')
 
-        self.battleTwoCutsceneMusic = base.loadMusic('phase_9/audio/bgm/CBHQ_Mint_bg.ogg')  # Place Holder Track
+        self.battleTwoCutsceneMusic = base.loader.loadMusic('phase_9/audio/bgm/CBHQ_Mint_bg.ogg')  # Place Holder Track
 
         self.rbc = RigidBodyCombiner("goon-rbc")
         self.rbcnp = NodePath(self.rbc)

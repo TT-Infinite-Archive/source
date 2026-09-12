@@ -653,11 +653,11 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.rope.ropeNode.setUvScale(0.8)
         self.rope.setTexture(self.cage.findTexture('hq_chain'))
         self.rope.setTransparency(1)
-        self.promotionMusic = base.loadMusic('phase_9/audio/bgm/VP_intro_cutscene.ogg')
-        self.betweenBattleMusic = base.loadMusic('phase_9/audio/bgm/encntr_toon_winning.ogg')
-        self.battleOneMusic = base.loadMusic('phase_9/audio/bgm/VP_round_1.ogg')
-        self.battleTwoMusic = base.loadMusic('phase_9/audio/bgm/VP_round_2.ogg')
-        self.battleThreeMusic = base.loadMusic('phase_9/audio/bgm/encntr_vp_boss.ogg')
+        self.promotionMusic = base.loader.loadMusic('phase_9/audio/bgm/VP_intro_cutscene.ogg')
+        self.betweenBattleMusic = base.loader.loadMusic('phase_9/audio/bgm/encntr_toon_winning.ogg')
+        self.battleOneMusic = base.loader.loadMusic('phase_9/audio/bgm/VP_round_1.ogg')
+        self.battleTwoMusic = base.loader.loadMusic('phase_9/audio/bgm/VP_round_2.ogg')
+        self.battleThreeMusic = base.loader.loadMusic('phase_9/audio/bgm/encntr_vp_boss.ogg')
         self.geom.reparentTo(render)
 
     def unloadEnvironment(self):

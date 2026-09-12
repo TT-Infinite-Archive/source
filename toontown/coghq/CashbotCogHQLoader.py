@@ -29,7 +29,7 @@ class CashbotCogHQLoader(CogHQLoader.CogHQLoader):
     def load(self, zoneId):
         CogHQLoader.CogHQLoader.load(self, zoneId)
         Toon.loadCashbotHQAnims()
-        self.battleMusic = base.loadMusic(self.battleMusicFile)
+        self.battleMusic = base.loader.loadMusic(self.battleMusicFile)
 
     def unloadPlaceGeom(self):
         if self.geom:
