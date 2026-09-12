@@ -148,8 +148,8 @@ class ToontownPartyDatabaseUD:
             partyData = {
                 'partyId': self.allocatePartyId(),
                 'hostId': hostId,
-                'startTime': datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S").astimezone(self.air.toontownTimeManager.serverTimeZone),
-                'endTime': datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S").astimezone(self.air.toontownTimeManager.serverTimeZone),
+                'startTime': datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S").replace(tzinfo=self.air.toontownTimeManager.serverTimeZone),
+                'endTime': datetime.strptime(endTime, "%Y-%m-%d %H:%M:%S").replace(tzinfo=self.air.toontownTimeManager.serverTimeZone),
                 'isPrivate': isPrivate,
                 'inviteTheme': inviteTheme,
                 'activities': activities,
