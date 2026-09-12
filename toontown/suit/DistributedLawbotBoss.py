@@ -1483,7 +1483,8 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             Wait(3),
             Parallel(
                 base.camera.posHprInterval(1.15, Point3(myToPos[0] + 1, myToPos[1] - 35, myToPos[2]), VBase3(-2.9, 29.7, 8.3), blendType='easeIn'),
-                Func(self.setChatAbsolute, TTLocalizer.BossCogAttackToons, CFSpeech, dialogue=self.bossGruntSfx)),
+                Func(self.setChatAbsolute, TTLocalizer.BossCogAttackToons, CFSpeech, dialogue=self.bossGruntSfx),
+                LerpColorScaleInterval(base.render, 3, Vec4(0.67, 0.76, 0.98, 1.0)),
             Wait(3),
             Func(self.unstickToons), name=self.uniqueName('Introduction'))
 
@@ -1711,6 +1712,9 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 rollTrack,
                 Func(self.setChatAbsolute, TTLocalizer.LawbotBossDefenseWins3, CFSpeech),
                 self.door3.posInterval(2, doorEndPos, startPos=doorStartPos))),
+            (11.6, Parallel(
+                LerpColorScaleInterval(base.render, 3, Vec4(1, 1, 1, 1)),
+            )),
             (13.1, Sequence(self.door3.posInterval(1, doorStartPos))))
         retTrack = Parallel(bossTrack, ActorInterval(self, 'Ff_speech', loop=1))
         return bossTrack
