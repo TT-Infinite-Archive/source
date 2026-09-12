@@ -1,5 +1,6 @@
 import sys
 import time
+import decimal
 
 from direct.showbase.PythonUtil import Functor
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
@@ -331,12 +332,16 @@ class DistributedPartyManagerAI(DistributedObjectAI):
     ####
 
     def computeGridYRange(self, centerGridY, size):
+        result = []
         if size == 1:
             result = [centerGridY]
         else:
-            result = range(int(centerGridY + size / 2.0),
-                           int(centerGridY - round(size / 2.0)),
-                           -1)
+            # HACK: round() rounds to even in Python 3.
+            D = decimal.Decimal
+            roundedSize = int(D(str(size/2)).quantize(D('1.'), rounding=decimal.ROUND_HALF_UP))
+            result =  list(range(int(centerGridY + size/2),
+                            int(centerGridY - roundedSize),
+                            -1))
 
         # The result list should be the same size as given.
         assert len(result) == size, "Bad result range: c=%s s=%s result=%s" % (centerGridY, size, result)
@@ -344,13 +349,16 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         return result
 
     def computeGridXRange(self, centerGridX, size):
+        result = []
         if size == 1:
             result = [centerGridX]
         else:
-            result = range(int(centerGridX + size / 2.0),
-                           int(centerGridX - round(size / 2.0)),
-                           -1
-                           )
+            # HACK: round() rounds to even in Python 3.
+            D = decimal.Decimal
+            roundedSize = int(D(str(size/2)).quantize(D('1.'), rounding=decimal.ROUND_HALF_UP))
+            result = list(range(int(centerGridX + size/2),
+                           int(centerGridX - roundedSize),
+                           -1))
 
         # The result list should be the same size as given.
         assert len(result) == size, "Bad result range: c=%s s=%s result=%s" % (centerGridX, size, result)
