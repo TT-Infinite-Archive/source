@@ -624,12 +624,12 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def setLODs(self):
         self.setLODNode()
-        levelOneIn = ConfigVariableInt('lod1-in', 20).getValue()
+        levelOneIn = ConfigVariableInt('lod1-in', 600).getValue()
         levelOneOut = ConfigVariableInt('lod1-out', 0).getValue()
-        levelTwoIn = ConfigVariableInt('lod2-in', 80).getValue()
-        levelTwoOut = ConfigVariableInt('lod2-out', 20).getValue()
-        levelThreeIn = ConfigVariableInt('lod3-in', 280).getValue()
-        levelThreeOut = ConfigVariableInt('lod3-out', 80).getValue()
+        levelTwoIn = ConfigVariableInt('lod2-in', 800).getValue()
+        levelTwoOut = ConfigVariableInt('lod2-out', 600).getValue()
+        levelThreeIn = ConfigVariableInt('lod3-in', 1280).getValue()
+        levelThreeOut = ConfigVariableInt('lod3-out', 800).getValue()
         self.addLOD(1000, levelOneIn, levelOneOut)
         self.addLOD(500, levelTwoIn, levelTwoOut)
         self.addLOD(250, levelThreeIn, levelThreeOut)
