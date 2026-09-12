@@ -212,9 +212,30 @@ class OptionsTabPage(DirectFrame):
             text_fg = ColorGlobals.CRed,
             text = '* %s' % TTLocalizer.OptionsPageRequiresRestart
         )
+        self.changedAntiAliasing = False
+        self.antiAliasingCheckbox = TTCheckBox.TTCheckBox(
+            parent = self.rightFrame,
+            pos = (-0.42, 0, -0.49),
+            checked = settings.get(SettingsGlobals.AntiAliasing, True),
+            command = self.__doToggleAntiAliasing
+        )
+        self.antiAliasingLabel = TTLabel.TTLabel(
+            parent = self.rightFrame,
+            pos = (-0.36, 0.0, -0.50),
+            text_align = TextNode.ALeft,
+            text = TTLocalizer.OptionsPageAntiAliasing
+        )
+        self.antiAliasingRequiresRestartLabel = TTLabel.TTLabel(
+            parent = self.rightFrame,
+            pos = (-0.08, 0.0, -0.51),
+            text_align = TextNode.ALeft,
+            text_fg = ColorGlobals.CRed,
+            text = '*'
+        )
         self.requiresRestart = False
         self.animationSmoothingRequiresRestartLabel.hide()
         self.vsyncRequiresRestartLabel.hide()
+        self.antiAliasingRequiresRestartLabel.hide()
         self.requiresRestartLabel.hide()
 
         # -- Sound
@@ -589,6 +610,8 @@ class OptionsTabPage(DirectFrame):
             self.vsyncRequiresRestartLabel.show()
         if self.changedAnimationSmoothing:
             self.animationSmoothingRequiresRestartLabel.show()
+        if self.changedAntiAliasing:
+            self.antiAliasingRequiresRestartLabel.show()
         if self.requiresRestart:
             self.requiresRestartLabel.show()
 
@@ -611,6 +634,7 @@ class OptionsTabPage(DirectFrame):
         self.requiresRestartLabel.hide()
         self.vsyncRequiresRestartLabel.hide()
         self.animationSmoothingRequiresRestartLabel.hide()
+        self.antiAliasingRequiresRestartLabel.hide()
 
     def showSoundGui(self):
         self.volumeTitle.show()
@@ -775,6 +799,15 @@ class OptionsTabPage(DirectFrame):
         self.requiresRestartLabel.show()
         self.requiresRestart = True
         self.changedAnimationSmoothing = True
+
+    def __doToggleAntiAliasing(self):
+        messenger.send(EventGlobals.WakeUp)
+        flag = not settings.get(SettingsGlobals.AntiAliasing, True)
+        settings[SettingsGlobals.AntiAliasing] = flag
+        self.antiAliasingRequiresRestartLabel.show()
+        self.requiresRestartLabel.show()
+        self.requiresRestart = True
+        self.changedAntiAliasing = True
 
     def __doToggleSfx(self):
         messenger.send(EventGlobals.WakeUp)
