@@ -1486,7 +1486,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 Func(self.setChatAbsolute, TTLocalizer.BossCogAttackToons, CFSpeech, dialogue=self.bossGruntSfx),
                 LerpColorScaleInterval(base.render, 3, Vec4(0.67, 0.76, 0.98, 1.0)),
             Wait(3),
-            Func(self.unstickToons), name=self.uniqueName('Introduction'))
+            Func(self.unstickToons), name=self.uniqueName('Introduction')))
 
         return introTrack
 
