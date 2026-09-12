@@ -257,10 +257,10 @@ class DistributedPartyManagerAI(DistributedObjectAI):
                     or (decorName == "FlyingHeart"):
                 if not simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.VALENTINES_DAY):
                     return (False, "Can't add ValenToons decoration %s" % decorId)
-            if decorId in PartyGlobals.VictoryPartyDecorationIds:
+            if decorId in PartyGlobals.VictoryPartyEDecorationId:
                 if not simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.VICTORY_PARTY_HOLIDAY):
                     return (False, "Can't add Victory Party decoration %s" % decorId)
-            elif decorId in PartyGlobals.VictoryPartyReplacementDecorationIds:
+            elif decorId in PartyGlobals.VictoryPartyReplacementEDecorationId:
                 if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.VICTORY_PARTY_HOLIDAY):
                     return (False, "Can't add decoration during Victory Party %s" % decorId)
 
@@ -276,7 +276,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             if decorationTuple[3] < 0 or decorationTuple[3] > 255:
                 return (False, "Invalid decoration H %s" % decorationTuple[3])
             # check for unreleased decoration
-            if decorationTuple[0] in PartyGlobals.UnreleasedDecorationIds:
+            if decorationTuple[0] in PartyGlobals.UnreleasedEDecorationId:
                 self.air.writeServerEvent('suspicious', hostId, "trying to buy unreleased decoration %s" %
                                           PartyGlobals.EDecorationId(decorationTuple[0]).name)
                 self.notify.warning("%d trying to buy unreleased decoration %s" %
