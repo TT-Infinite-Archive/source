@@ -1110,7 +1110,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                                 # Less ugly way to initialize the petProxy's fields.
                                 setter = petDO.getSetterName(field, 'set')
                                 getter = petDO.getSetterName(field, 'get')
-                                getattr(petProxy, setter)(getattr(petDO, getter)())                     
+                                getattr(petProxy, setter)(getattr(petDO, getter)())
                             petDO.requestDelete()
 
                         def onDelete(task):
