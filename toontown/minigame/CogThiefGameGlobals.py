@@ -66,7 +66,7 @@ def getMaxScore():
 Zones = (1000, 2000, 3000, 4000, 5000, 9000)
 
 NumCogsTable = [
-    {zoneId: i + zoneId / 1500 for zoneId in Zones} for i in range(5, 13, 2)
+    {zoneId: i + zoneId // 1500 for zoneId in Zones} for i in range(5, 13, 2)
 ]
 
 CogSpeedTable = [
