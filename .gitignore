@@ -50,3 +50,4 @@ astron/dev.yml
 
 # The server's portion of the resources:
 build/
+/.venv
