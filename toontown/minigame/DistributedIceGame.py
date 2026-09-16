@@ -923,8 +923,8 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
         index = 0
         treasureMargin = IceGameGlobals.TireRadius + 1.0
         while len(self.treasures) < self.numTreasures:
-            xPos = random.randrange(IceGameGlobals.MinWall[0] + 5, IceGameGlobals.MaxWall[0] - 5)
-            yPos = random.randrange(IceGameGlobals.MinWall[1] + 5, IceGameGlobals.MaxWall[1] - 5)
+            xPos = random.randrange(int(IceGameGlobals.MinWall[0] + 5), int(IceGameGlobals.MaxWall[0] - 5))
+            yPos = random.randrange(int(IceGameGlobals.MinWall[1] + 5), int(IceGameGlobals.MaxWall[1] - 5))
             self.notify.debug('yPos=%s' % yPos)
             pos = Point3(xPos, yPos, IceGameGlobals.TireRadius)
             newTreasure = IceTreasure.IceTreasure(self.treasureModel, pos, index, self.doId, penalty=False)
@@ -954,8 +954,8 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
             self.penalties = []
         index = 0
         while len(self.penalties) < self.numPenalties:
-            xPos = random.randrange(IceGameGlobals.MinWall[0] + 5, IceGameGlobals.MaxWall[0] - 5)
-            yPos = random.randrange(IceGameGlobals.MinWall[1] + 5, IceGameGlobals.MaxWall[1] - 5)
+            xPos = random.randrange(int(IceGameGlobals.MinWall[0] + 5), int(IceGameGlobals.MaxWall[0] - 5))
+            yPos = random.randrange(int(IceGameGlobals.MinWall[1] + 5), int(IceGameGlobals.MaxWall[1] - 5))
             self.notify.debug('yPos=%s' % yPos)
             pos = Point3(xPos, yPos, IceGameGlobals.TireRadius)
             newPenalty = IceTreasure.IceTreasure(self.penaltyModel, pos, index, self.doId, penalty=True)
