@@ -231,6 +231,8 @@ class OZSafeZoneLoader(SafeZoneLoader):
         avList.append(base.localAvatar)
         playSound = 0
         for av in avList:
+            if av.isEmpty():
+                continue
             distance = self.geyserPlacer.getDistance(av)
             if distance < 7.0:
                 place = base.cr.playGame.getPlace()
