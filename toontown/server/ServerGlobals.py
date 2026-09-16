@@ -1,6 +1,7 @@
 from panda3d.core import ConfigVariableList
 import copy
 import os
+import platform
 import sys
 
 
@@ -26,8 +27,11 @@ else:
     AITarget = [PythonPath, '-m', 'toontown.ai.ServiceStart']
 
 # astrond is committed per platform rather than built, so the name carries the
-# platform with it
-AstronBinary = 'astrond-%s%s' % (sys.platform, '.exe' if sys.platform == 'win32' else '')
+# platform with it. This has to match what build_client.py packages.
+AstronBinary = 'astrond-%s%s%s' % (
+    sys.platform,
+    '-%s' % platform.machine() if sys.platform == 'darwin' else '',
+    '.exe' if sys.platform == 'win32' else '')
 
 # The ports a hosted server stack listens on. Only the client agent's is worth
 # changing since it's the one players connect to, and the one a router has to
