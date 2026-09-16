@@ -14,6 +14,7 @@ from toontown.toon import ToonHead
 from . import PhotoGameGlobals
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
+from otp.chat.ChatGlobals import ChatInputFocusEvent, ChatInputUnfocusEvent
 from toontown.golf import BuildGeometry
 from toontown.toon import Toon
 from toontown.toon import ToonDNA
@@ -1158,14 +1159,32 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         pass
 
     def __enableAimInterface(self):
+        self.__acceptAimKeys()
+        self.accept(ChatInputFocusEvent, self.__ignoreAimKeys)
+        self.accept(ChatInputUnfocusEvent, self.__acceptAimKeys)
+        self.__spawnLocalPhotoMoveTask()
+
+    def __disableAimInterface(self):
+        self.ignore(ChatInputFocusEvent)
+        self.ignore(ChatInputUnfocusEvent)
+        self.__ignoreAimKeys()
+        self.__killLocalPhotoMoveTask()
+
+    def __acceptAimKeys(self):
+        if base.chatInputFocused:
+            # The player is typing on these keys; we take them back on unfocus.
+            return
         self.accept(self.FIRE_KEY, self.__fireKeyPressed)
         self.accept(self.UP_KEY, self.__upKeyPressed)
         self.accept(self.DOWN_KEY, self.__downKeyPressed)
         self.accept(self.LEFT_KEY, self.__leftKeyPressed)
         self.accept(self.RIGHT_KEY, self.__rightKeyPressed)
-        self.__spawnLocalPhotoMoveTask()
 
-    def __disableAimInterface(self):
+    def __ignoreAimKeys(self):
+        self.leftPressed = 0
+        self.rightPressed = 0
+        self.upPressed = 0
+        self.downPressed = 0
         self.ignore(self.FIRE_KEY)
         self.ignore(self.UP_KEY)
         self.ignore(self.DOWN_KEY)
@@ -1176,7 +1195,6 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         self.ignore(self.DOWN_KEY + '-up')
         self.ignore(self.LEFT_KEY + '-up')
         self.ignore(self.RIGHT_KEY + '-up')
-        self.__killLocalPhotoMoveTask()
 
     def __fireKeyPressed(self):
         self.ignore(self.FIRE_KEY)

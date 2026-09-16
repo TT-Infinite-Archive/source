@@ -261,6 +261,8 @@ class ToonBase(OTPBase.OTPBase):
         
         self.wantCustomControls = settings.get('want-custom-controls', False)
 
+        self.chatInputFocused = False
+
         self.reloadControls()
 
         self.wantClassicMusic = settings.get('classic-music', False)

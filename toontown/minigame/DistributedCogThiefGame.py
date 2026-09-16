@@ -19,6 +19,7 @@ from toontown.minigame.DistributedMinigame import DistributedMinigame
 from toontown.minigame import Trajectory
 from toontown.minigame import MinigameGlobals
 from toontown.minigame import CogThiefWalk
+from otp.chat.ChatGlobals import ChatInputFocusEvent, ChatInputUnfocusEvent
 import random
 CTGG = CogThiefGameGlobals
 
@@ -275,12 +276,26 @@ class DistributedCogThiefGame(DistributedMinigame):
         self.notify.debug('enterPlay')
         self.startGameWalk()
         self.spawnUpdateSuitsTask()
-        self.accept(base.JUMP, self.controlKeyPressed)
+        self.__acceptThrowKey()
+        # Typing in chat must not throw pies.
+        self.accept(ChatInputFocusEvent, self.__ignoreThrowKey)
+        self.accept(ChatInputUnfocusEvent, self.__acceptThrowKey)
         self.pieHandler = CollisionHandlerEvent()
         self.pieHandler.setInPattern('pieHit-%fn')
 
-    def exitPlay(self):
+    def __acceptThrowKey(self):
+        if base.chatInputFocused:
+            # The player is typing on this key; we take it back on unfocus.
+            return
+        self.accept(base.JUMP, self.controlKeyPressed)
+
+    def __ignoreThrowKey(self):
         self.ignore(base.JUMP)
+
+    def exitPlay(self):
+        self.__ignoreThrowKey()
+        self.ignore(ChatInputFocusEvent)
+        self.ignore(ChatInputUnfocusEvent)
         if self.resultIval and self.resultIval.isPlaying():
             self.resultIval.finish()
             self.resultIval = None

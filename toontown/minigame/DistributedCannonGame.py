@@ -20,6 +20,7 @@ from toontown.effects import DustCloud
 from . import CannonGameGlobals
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
+from otp.chat.ChatGlobals import ChatInputFocusEvent, ChatInputUnfocusEvent
 LAND_TIME = 2
 WORLD_SCALE = 2.0
 GROUND_SCALE = 1.4 * WORLD_SCALE
@@ -474,15 +475,32 @@ class DistributedCannonGame(DistributedMinigame):
 
     def __enableAimInterface(self):
         self.aimPad.show()
+        self.__acceptAimKeys()
+        self.accept(ChatInputFocusEvent, self.__ignoreAimKeys)
+        self.accept(ChatInputUnfocusEvent, self.__acceptAimKeys)
+        self.__spawnLocalCannonMoveTask()
+
+    def __disableAimInterface(self):
+        self.aimPad.hide()
+        self.ignore(ChatInputFocusEvent)
+        self.ignore(ChatInputUnfocusEvent)
+        self.__ignoreAimKeys()
+        self.__killLocalCannonMoveTask()
+
+    def __acceptAimKeys(self):
+        if base.chatInputFocused:
+            return
         self.accept(self.FIRE_KEY, self.__fireKeyPressed)
         self.accept(self.UP_KEY, self.__upKeyPressed)
         self.accept(self.DOWN_KEY, self.__downKeyPressed)
         self.accept(self.LEFT_KEY, self.__leftKeyPressed)
         self.accept(self.RIGHT_KEY, self.__rightKeyPressed)
-        self.__spawnLocalCannonMoveTask()
 
-    def __disableAimInterface(self):
-        self.aimPad.hide()
+    def __ignoreAimKeys(self):
+        self.leftPressed = 0
+        self.rightPressed = 0
+        self.upPressed = 0
+        self.downPressed = 0
         self.ignore(self.FIRE_KEY)
         self.ignore(self.UP_KEY)
         self.ignore(self.DOWN_KEY)
@@ -493,7 +511,6 @@ class DistributedCannonGame(DistributedMinigame):
         self.ignore(self.DOWN_KEY + '-up')
         self.ignore(self.LEFT_KEY + '-up')
         self.ignore(self.RIGHT_KEY + '-up')
-        self.__killLocalCannonMoveTask()
 
     def __fireKeyPressed(self):
         self.ignore(self.FIRE_KEY)

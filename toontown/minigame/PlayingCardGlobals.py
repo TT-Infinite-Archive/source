@@ -41,7 +41,7 @@ def getCardName(value):
         return TTLocalizer.PlayingCardUnknown
     else:
         rank = value % MaxRank
-        suit = value / MaxRank
+        suit = value // MaxRank
         return TTLocalizer.getPlayingCardName(suit, rank)
 
 

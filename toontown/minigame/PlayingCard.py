@@ -11,7 +11,7 @@ class PlayingCardBase:
         self.setValue(value)
 
     def getCardName(self):
-        PlayingCardGlobals.getCardName(self.value)
+        return PlayingCardGlobals.getCardName(self.value)
 
     def getRank(self):
         return self.rank
@@ -32,7 +32,7 @@ class PlayingCardBase:
             self.rank = None
             self.turnDown()
         else:
-            self.suit = value / PlayingCardGlobals.MaxRank
+            self.suit = value // PlayingCardGlobals.MaxRank
             self.rank = value % PlayingCardGlobals.MaxRank
         self.setImage()
         return

@@ -9,6 +9,7 @@ from toontown.minigame import PlayingCardGlobals
 from toontown.minigame import PairingGameCard
 from toontown.minigame import PlayingCardDeck
 from toontown.minigame import PairingGameGlobals
+from otp.chat.ChatGlobals import ChatInputFocusEvent, ChatInputUnfocusEvent
 from .OrthoWalk import OrthoWalk
 from .OrthoDrive import OrthoDrive
 from direct.interval.IntervalGlobal import Sequence, Parallel, Func, LerpColorScaleInterval, LerpScaleInterval, LerpFunctionInterval, Wait, SoundInterval
@@ -233,9 +234,10 @@ class DistributedPairingGame(DistributedMinigame):
         orthoDrive = OrthoDrive(self.TOON_SPEED, maxFrameMove=self.MAX_FRAME_MOVE, customCollisionCallback=self.__doPairingGameCollisions)
         self.orthoWalk = OrthoWalk(orthoDrive, broadcast=not self.isSinglePlayer())
         self.orthoWalk.start()
-        self.accept(base.ACTION_BUTTON, self.__flipKeyPressed)
-        self.accept('time-'+base.JUMP, self.__beginSignal)
-        self.accept('time-'+base.JUMP+'-up', self.__endSignal)
+        self.__acceptCardKeys()
+        # Typing in chat must not flip cards or signal.
+        self.accept(ChatInputFocusEvent, self.__ignoreCardKeys)
+        self.accept(ChatInputUnfocusEvent, self.__acceptCardKeys)
         self.bonusGlowIndex = 0
         self.bonusGlowCard = self.bonusTraversal[self.bonusGlowIndex]
         self.startBonusTask()
@@ -245,6 +247,20 @@ class DistributedPairingGame(DistributedMinigame):
         self.timer.countdown(self.gameDuration, self.timerExpired)
         if base.localAvatar.laffMeter:
             base.localAvatar.laffMeter.stop()
+
+    def __acceptCardKeys(self):
+        if base.chatInputFocused:
+            return
+        self.accept(base.ACTION_BUTTON, self.__flipKeyPressed)
+        self.accept('time-' + base.JUMP, self.__beginSignal)
+        self.accept('time-' + base.JUMP + '-up', self.__endSignal)
+
+    def __ignoreCardKeys(self):
+        if taskMgr.hasTaskNamed('pairGameContinueSignal'):
+            self.__endSignal()
+        self.ignore(base.ACTION_BUTTON)
+        self.ignore('time-' + base.JUMP)
+        self.ignore('time-' + base.JUMP + '-up')
 
     def exitPlay(self):
         self.music.stop()
@@ -493,7 +509,7 @@ class DistributedPairingGame(DistributedMinigame):
         self.b_setSignaling(self.localAvId)
         taskMgr.doMethodLater(1.67, self.__continueSignal, 'pairGameContinueSignal')
 
-    def __endSignal(self, mouseParam):
+    def __endSignal(self, mouseParam=None):
         self.notify.debug('endSignal')
         base.localAvatar.b_setEmoteState(-1, 1.0)
         taskMgr.remove('pairGameContinueSignal')
@@ -519,7 +535,7 @@ class DistributedPairingGame(DistributedMinigame):
 
     def calcBonusTraversal(self):
         self.bonusTraversal = []
-        halfRow = self.cardsPerRow / 2
+        halfRow = self.cardsPerRow // 2
         if self.cardsPerRow % 2:
             halfRow += 1
         for i in range(halfRow):

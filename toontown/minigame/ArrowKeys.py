@@ -1,6 +1,8 @@
 from panda3d.core import ModifierButtons
 from direct.showbase.DirectObject import DirectObject
 
+from otp.chat.ChatGlobals import ChatInputFocusEvent, ChatInputUnfocusEvent
+
 class ArrowKeys(DirectObject):
     UP_INDEX = 0
     DOWN_INDEX = 1
@@ -16,6 +18,7 @@ class ArrowKeys(DirectObject):
         self.RIGHT_KEY = base.MOVE_RIGHT
         self.JUMP_KEY = base.JUMP
         self.__jumpPost = 0
+        self.__enabled = 0
         self.setPressHandlers(self.NULL_HANDLERS)
         self.setReleaseHandlers(self.NULL_HANDLERS)
         self.origMb = base.buttonThrowers[0].node().getModifierButtons()
@@ -23,16 +26,28 @@ class ArrowKeys(DirectObject):
         
         self.enable()
         self.accept('controlsRemapped', self.__handleControlRemap)
+        self.accept(ChatInputFocusEvent, self.__ignoreKeys)
+        self.accept(ChatInputUnfocusEvent, self.__acceptKeys)
 
     def enable(self):
-        self.disable()
+        self.__enabled = 1
+        self.__acceptKeys()
+
+    def disable(self):
+        self.__enabled = 0
+        self.__ignoreKeys()
+
+    def __acceptKeys(self):
+        self.__ignoreKeys()
+        if not self.__enabled or base.chatInputFocused:
+            return
         self.accept(self.UP_KEY, self.__upKeyPressed)
         self.accept(self.DOWN_KEY, self.__downKeyPressed)
         self.accept(self.LEFT_KEY, self.__leftKeyPressed)
         self.accept(self.RIGHT_KEY, self.__rightKeyPressed)
         self.accept(self.JUMP_KEY, self.__jumpKeyPressed)
 
-    def disable(self):
+    def __ignoreKeys(self):
         self.__upPressed = 0
         self.__downPressed = 0
         self.__leftPressed = 0
@@ -51,14 +66,8 @@ class ArrowKeys(DirectObject):
 
     def destroy(self):
         base.buttonThrowers[0].node().setModifierButtons(self.origMb)
-        events = [self.UP_KEY,
-         self.DOWN_KEY,
-         self.LEFT_KEY,
-         self.RIGHT_KEY,
-         self.JUMP_KEY]
-        for event in events:
-            self.ignore(event)
-            self.ignore(event + '-up')
+        self.disable()
+        self.ignoreAll()
 
     def upPressed(self):
         return self.__upPressed
@@ -171,10 +180,10 @@ class ArrowKeys(DirectObject):
         self.__doCallback(self.__releaseHandlers[self.JUMP_INDEX])
 
     def __handleControlRemap(self):
-        self.disable()
+        self.__ignoreKeys()
         self.UP_KEY = base.MOVE_UP
         self.DOWN_KEY = base.MOVE_DOWN
         self.LEFT_KEY = base.MOVE_LEFT
         self.RIGHT_KEY = base.MOVE_RIGHT
         self.JUMP_KEY = base.JUMP
-        self.enable()
+        self.__acceptKeys()

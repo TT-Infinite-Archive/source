@@ -227,26 +227,29 @@ class ChatManager(DirectObject.DirectObject):
         self.checkObscurred()
         if self.wantBackgroundFocus:
             self.chatInputNormal.chatEntry['backgroundFocus'] = 0
+        self.acquireChatInputFocus()
         base.localAvatar.chatMgr.chatInputWhiteList.activateByData()
 
     def exitWhiteListOpenChat(self):
-        pass
+        self.releaseChatInputFocus()
 
     def enterWhiteListAvatarChat(self, receiverId):
         if self.wantBackgroundFocus:
             self.chatInputNormal.chatEntry['backgroundFocus'] = 0
+        self.acquireChatInputFocus()
         base.localAvatar.chatMgr.chatInputWhiteList.activateByData(receiverId, 0)
 
     def exitWhiteListAvatarChat(self):
-        pass
+        self.releaseChatInputFocus()
 
     def enterWhiteListPlayerChat(self, receiverId):
         if self.wantBackgroundFocus:
             self.chatInputNormal.chatEntry['backgroundFocus'] = 0
+        self.acquireChatInputFocus()
         base.localAvatar.chatMgr.chatInputWhiteList.activateByData(receiverId, 1)
 
     def exitWhiteListPlayerChat(self):
-        pass
+        self.releaseChatInputFocus()
 
     def enterWhisper(self, avatarName, avatarId, playerId = None):
         self.whisperScButton['extraArgs'] = [avatarName, avatarId, playerId]
@@ -348,24 +351,24 @@ class ChatManager(DirectObject.DirectObject):
         self.chatInputSpeedChat.hide()
 
     def enterWhisperChat(self, avatarName, avatarId):
-        if base.wantCustomControls:
-            base.localAvatar.controlManager.disableWASD()
+        self.acquireChatInputFocus()
         result = self.chatInputNormal.activateByData(avatarId)
         return result
 
     def exitWhisperChat(self):
-        if base.wantCustomControls:
-            base.localAvatar.controlManager.enableWASD()
+        self.releaseChatInputFocus()
         self.chatInputNormal.deactivate()
 
     def enterWhisperChatPlayer(self, avatarName, playerId):
         playerInfo = base.cr.playerFriendsManager.getFriendInfo(playerId)
         if playerInfo:
             avatarName = playerInfo.playerName
+        self.acquireChatInputFocus()
         result = self.chatInputNormal.activateByData(playerId, 1)
         return result
 
     def exitWhisperChatPlayer(self):
+        self.releaseChatInputFocus()
         self.chatInputNormal.deactivate()
 
     def enterSpeedChat(self):
@@ -384,14 +387,12 @@ class ChatManager(DirectObject.DirectObject):
         self.chatInputSpeedChat.hide()
 
     def enterNormalChat(self):
-        if base.wantCustomControls:
-            base.localAvatar.controlManager.disableWASD()
+        self.acquireChatInputFocus()
         result = self.chatInputNormal.activateByData()
         return result
 
     def exitNormalChat(self):
-        if base.wantCustomControls:
-            base.localAvatar.controlManager.enableWASD()
+        self.releaseChatInputFocus()
         self.chatInputNormal.deactivate()
 
     def enterOpenChatWarning(self):
@@ -505,6 +506,27 @@ class ChatManager(DirectObject.DirectObject):
 
     def __privacyPolicyDone(self):
         self.fsm.request('activateChat')
+
+    def acquireChatInputFocus(self):
+        # A typed chat entry is about to take the keyboard. Panda keeps throwing
+        # the key events while the entry has focus, so anything listening for a
+        # keybind would act on what the player is typing: force the avatar's
+        # movement off and tell gameplay key handlers to let go of their keys.
+        if not base.wantCustomControls:
+            # The classic keymap has nothing bound to a key you can type.
+            return
+        base.chatInputFocused = True
+        base.localAvatar.controlManager.disableWASD()
+        messenger.send(ChatInputFocusEvent)
+
+    def releaseChatInputFocus(self):
+        # Driven by the flag rather than the setting, so that turning custom
+        # controls off mid-conversation cannot leave the keys suspended.
+        if not base.chatInputFocused:
+            return
+        base.chatInputFocused = False
+        base.localAvatar.controlManager.enableWASD()
+        messenger.send(ChatInputUnfocusEvent)
 
     def reloadWASD(self):
         self.wantBackgroundFocus = not base.wantCustomControls

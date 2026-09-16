@@ -814,7 +814,7 @@ class DistributedRaceGame(DistributedMinigame):
 
     def runInPlace(self, avatar, lane, currentPlace, newPlace, time):
         place = min(newPlace, len(self.posHprArray[lane]) - 1)
-        step = (place - currentPlace) / 3
+        step = (place - currentPlace) // 3
         pos1 = self.posHprArray[lane][currentPlace + step]
         pos2 = self.posHprArray[lane][currentPlace + 2 * step]
         pos3 = self.posHprArray[lane][place]
