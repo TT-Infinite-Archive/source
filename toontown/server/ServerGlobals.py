@@ -2,13 +2,13 @@ from panda3d.core import ConfigVariableList
 import copy
 import os
 import platform
+import socket
 import sys
 
 
 from toontown.toonbase import ServerSettingsGlobals, TTLocalizer, ToontownGlobals
 
 LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
-print(str(LogsPath))
 if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
@@ -42,6 +42,52 @@ EventLoggerPort = 7020
 MongoPort = 7030
 
 DefaultDistrict = 'Kookyboro'
+
+# The ports above that the rest of the stack keeps for itself:
+InternalPorts = (MessageDirectorPort, EventLoggerPort, MongoPort)
+
+# How far above the wanted port to look before giving up:
+PortSearchLimit = 50
+
+
+def isPortFree(port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    if sys.platform != 'win32':
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    try:
+        sock.bind(('', port))
+        return True
+    except OSError:
+        return False
+    finally:
+        sock.close()
+
+
+def isPortListening(port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(0.33)
+
+    try:
+        return sock.connect_ex(('127.0.0.1', port)) == 0
+    finally:
+        sock.close()
+
+
+def isStackRunning(port):
+    return isPortListening(MessageDirectorPort) and isPortListening(port)
+
+
+def choosePort(wanted=DefaultPort):
+    for port in range(wanted, min(wanted + PortSearchLimit, 65536)):
+        if port in InternalPorts:
+            continue
+
+        if isPortFree(port):
+            return port
+
+    return wanted
 
 
 def getHostPort():

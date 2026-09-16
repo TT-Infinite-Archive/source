@@ -1,6 +1,8 @@
 import atexit
 import copy
+import yaml
 
+from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.fsm.FSM import FSM
 
 from toontown.chat import ChatGlobals
@@ -13,6 +15,8 @@ from toontown.toonbase import ServerSettingsGlobals
 
 class LocalServerStarter(FSM):
 
+    notify = directNotify.newCategory('LocalServerStarter')
+
     def __init__(self):
         FSM.__init__(self, 'LocalServerStarter')
         
@@ -22,6 +26,7 @@ class LocalServerStarter(FSM):
 
         # The launcher's Hosting screen writes these into server-settings.json:
         self.districtName = getDistrictName()
+        self.port = getHostPort()
         self.processes = getProcesses(districtName=self.districtName)
         self.lastProcess = len(self.processes)
 
@@ -42,6 +47,8 @@ class LocalServerStarter(FSM):
         if self.isServerAlive():
             messenger.send(EventGlobals.LocalServerStarterFailedRunning)
             return
+
+        self.settlePort()
         messenger.send(EventGlobals.LocalServerStarterStart)
         os.makedirs(self.mongoPath, exist_ok=True)
         self.accept('processStarted', self.__processStarted)
@@ -108,17 +115,30 @@ class LocalServerStarter(FSM):
             else:
                 WhisperPopup(message, ToontownGlobals.getInterfaceFont(), ChatGlobals.WTSystem).manage(base.marginManager)
 
+    def settlePort(self):
+        wanted = getHostPort()
+        self.port = choosePort(wanted)
+
+        if self.port != wanted:
+            self.notify.warning(
+                'Port %d is already taken on this computer. Moved to %d.'
+                % (wanted, self.port))
+
+        serverSettings[ServerSettingsGlobals.HostPort] = self.port
+
+        with open(self.astronConfig, 'w') as f:
+            yaml.dump(getAstronConfig(
+                dcFileNames=(os.path.join(base.tempDir, 'vanilla.dc'),),
+                version=version, port=self.port), f)
+
     def getPort(self):
-        return getHostPort()
+        return self.port
 
     def getPids(self):
         return [thread.getPid() for thread in self.threads if thread.hasPid()]
 
     def isServerAlive(self):
-        import socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(0.33)
-        return sock.connect_ex(('127.0.0.1', self.getPort())) == 0
+        return isStackRunning(self.getPort())
 
     def killThreads(self):
         self.ignoreAll()

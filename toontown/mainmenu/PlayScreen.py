@@ -9,6 +9,7 @@ from direct.interval.LerpInterval import LerpPosInterval
 
 from toontown.mainmenu import MainMenuGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
+from toontown.server.ServerGlobals import getHostPort
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.util.PlacerTool3D import PlacerTool3D
 
@@ -82,7 +83,7 @@ class PlayScreen(DirectFrame, FSM):
                 text="Connect to\nlocal host",
                 pos=TTI_SERVER_START_POS,
                 text_pos=(0, 0.02, 0),
-                command=lambda: base.connectToServer('127.0.0.1'),
+                command=lambda: base.connectToServer('127.0.0.1', getHostPort()),
                 wantArrows=False,
                 image_scale=(-1.4, 1.4, 1.4),
                 image2_scale=(-1.5, 1.5, 1.5),

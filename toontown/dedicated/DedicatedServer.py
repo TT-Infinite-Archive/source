@@ -62,10 +62,7 @@ class DedicatedServer(FSM):
         return self.mongoUrl or 'mongodb://127.0.0.1:%d/game' % self.mongoPort
 
     def isServerAlive(self):
-        import socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(0.33)
-        return sock.connect_ex(('127.0.0.1', self.port)) == 0
+        return isStackRunning(self.port)
 
     def killThreads(self):
         self.ignoreAll()

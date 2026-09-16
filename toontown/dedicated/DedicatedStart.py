@@ -66,14 +66,20 @@ Deployment.load()
 
 from otp.ai.AIBaseGlobal import *
 
-from toontown.server.ServerGlobals import DefaultDistrict, DefaultPort
+from toontown.server.ServerGlobals import (
+    DefaultDistrict, DefaultPort, choosePort)
 from toontown.toonbase import ServerSettingsGlobals
 
 # The command line wins, then server-settings.json, then the defaults:
-port = args.port or int(
+wanted = args.port or int(
     serverSettings.get(ServerSettingsGlobals.HostPort, DefaultPort))
+port = choosePort(wanted)
 districtName = args.district_name or serverSettings.get(
     ServerSettingsGlobals.DistrictName, DefaultDistrict)
+
+if port != wanted:
+    print('Port %d is already taken on this computer. Moving to '
+          '%d.' % (wanted, port))
 
 serverSettings[ServerSettingsGlobals.HostPort] = port
 serverSettings[ServerSettingsGlobals.DistrictName] = districtName
