@@ -427,14 +427,14 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.ignore('page_down-up')
 
     def enableAvatarControls(self):
-        if self.avatarControlsEnabled:
+        if self.avatarControlsEnabled and self.controlManager.isEnabled:
             return
         self.avatarControlsEnabled = 1
         self.setupAnimationEvents()
         self.controlManager.enable()
 
     def disableAvatarControls(self):
-        if not self.avatarControlsEnabled:
+        if not self.avatarControlsEnabled and not self.controlManager.isEnabled:
             return
         self.avatarControlsEnabled = 0
         self.ignoreAnimationEvents()

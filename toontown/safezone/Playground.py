@@ -627,6 +627,8 @@ class Playground(Place.Place):
         return
 
     def enterPopup(self, teleportIn = 0):
+        base.localAvatar.disableAvatarControls()
+        base.localAvatar.stopTrackAnimToSpeed()
         if base.localAvatar.hp < 1:
             base.localAvatar.b_setAnimState('Sad', 1)
         else:
@@ -641,9 +643,7 @@ class Playground(Place.Place):
         self.ignore('teleportQuery')
 
     def __handleFallingAsleepPopup(self, task):
-        if hasattr(self, 'fsm'):
-            self.fsm.request('walk')
-            base.localAvatar.forceGotoSleep()
+        base.localAvatar.forceGotoSleep()
         return Task.done
 
     def enterTeleportOut(self, requestStatus):
