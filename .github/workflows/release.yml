@@ -4,12 +4,18 @@ on:
   push:
     tags:
       - "v*"
+      - "tti-*-v*"
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to release (e.g. 1.0.0)."
+        description: "Version to release (e.g. 1.0.5)."
         required: true
         type: string
+      channel:
+        description: "Which channel it goes out on."
+        default: live
+        type: choice
+        options: [live, qa]
 
 concurrency:
   group: releases
@@ -21,11 +27,34 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       value: ${{ steps.version.outputs.value }}
+      channel: ${{ steps.version.outputs.channel }}
     steps:
       - id: version
+        shell: bash
         run: |
-          VALUE="${{ inputs.version || github.ref_name }}"
-          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+
+          REF="${{ inputs.version || github.ref_name }}"
+          CHANNEL="${{ inputs.channel || 'live' }}"
+
+          case "$REF" in
+              tti-*-v*)
+                  NAME="${REF#tti-}"
+                  CHANNEL="${NAME%%-v*}"
+                  VALUE="${NAME#*-v}"
+                  ;;
+              *)
+                  VALUE="${REF#v}"
+                  ;;
+          esac
+
+          case "$VALUE" in
+              [0-9]*) ;;
+              *) echo "::error::No version to release in '$REF'."; exit 1 ;;
+          esac
+
+          echo "value=$VALUE" >> "$GITHUB_OUTPUT"
+          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
 
   server:
     name: Server
@@ -36,6 +65,7 @@ jobs:
     uses: ./.github/workflows/publish-server.yml
     with:
       version: ${{ needs.version.outputs.value }}
+      channel: ${{ needs.version.outputs.channel }}
     secrets: inherit
 
   client:
@@ -44,24 +74,38 @@ jobs:
     uses: ./.github/workflows/publish-client.yml
     with:
       version: ${{ needs.version.outputs.value }}
+      channel: ${{ needs.version.outputs.channel }}
       promote: false
     secrets: inherit
 
   promote:
-    name: Promote ${{ needs.version.outputs.value }}
+    name: Promote tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
     needs: [version, server, client]
     runs-on: ubuntu-latest
     env:
       BUCKET: ttiwebsite
       PREFIX: releases
+      CHANNEL: ${{ needs.version.outputs.channel }}
+      VERSION: ${{ needs.version.outputs.value }}
       AWS_DEFAULT_REGION: auto
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
       AWS_REQUEST_CHECKSUM_CALCULATION: when_required
     steps:
-      - name: Point latest.json at ${{ needs.version.outputs.value }}
+      - name: Point latest.json at tti-${{ env.CHANNEL }}-v${{ env.VERSION }}
+        shell: bash
         run: |
-          echo '{"version":"${{ needs.version.outputs.value }}"}' > latest.json
-          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
+          set -euo pipefail
+
+          echo "{\"version\":\"$VERSION\"}" > latest.json
+          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/$CHANNEL/latest.json" \
               --cache-control "no-cache" --content-type application/json
+
+          if [ "$CHANNEL" = live ]; then
+              aws s3 sync "s3://$BUCKET/$PREFIX/live/$VERSION/" \
+                  "s3://$BUCKET/$PREFIX/$VERSION/" \
+                  --cache-control "no-cache" --content-type application/json
+              aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
+                  --cache-control "no-cache" --content-type application/json
+          fi
