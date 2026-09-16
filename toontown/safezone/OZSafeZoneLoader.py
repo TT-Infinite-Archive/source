@@ -354,13 +354,15 @@ class OZSafeZoneLoader(SafeZoneLoader):
         print(thing)
 
     def unload(self):
-        del self.birdSound
-        SafeZoneLoader.unload(self)
         self.done = 1
-        self.collBase.removeNode()
+        taskMgr.remove('geyser Task')
+        taskMgr.remove('start geyser Task')
         if self.geyserTrack:
-            self.geyserTrack.finish()
+            self.geyserTrack.pause()
         self.geyserTrack = None
+
+        del self.birdSound
+        self.collBase.removeNode()
         self.geyserActor.cleanup()
         self.geyserModel.removeNode()
         self.waterfallActor.cleanup()
@@ -379,6 +381,8 @@ class OZSafeZoneLoader(SafeZoneLoader):
         self.geyserSoundNoToon.stop()
         self.geyserSoundNoToonInterval = None
         self.geyserSoundNoToon = None
+
+        SafeZoneLoader.unload(self)
 
         if hasattr(self, 'constructionSite'):
             if hasattr(self, 'painterPete'):
