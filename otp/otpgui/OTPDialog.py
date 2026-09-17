@@ -80,6 +80,13 @@ class OTPDialog(DirectDialog):
             buttons.removeNode()
         return
 
+    def isDestroyed(self):
+        return not hasattr(self, '_optionInfo')
+
+    def cleanup(self):
+        if not self.isDestroyed():
+            DirectDialog.cleanup(self)
+
 
 class GlobalDialog(OTPDialog):
     notify = DirectNotifyGlobal.directNotify.newCategory('GlobalDialog')
