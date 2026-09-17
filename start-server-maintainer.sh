@@ -1,21 +1,64 @@
 #!/bin/bash
+# Maintainers only. This is start-server.sh plus the pieces that need
+# credentials: the Infisical wrapper, the .gateway-env fallback, --gateway, and
+# --accountdb production.
+
 # Starts the TTI server stack and then the client.
-# Launch order: mongod -> astrond -> UberDOG -> AI -> client
+# Launch order: mongod -> astrond -> UberDOG -> AI -> client.
 #
 # With --client-only the servers are skipped and the client brings its own stack
-# up through LocalServerStarter, same as the launcher in local mode.
+# up through LocalServerStarter, which is the path a launcher-started client in
+# local mode takes.
 set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGS="$ROOT/logs"
-mkdir -p "$LOGS" "$ROOT/astron/logs" "$ROOT/astron/data"
+mkdir -p "$LOGS" "$ROOT/astron/logs"
 
-# Which account database the UberDOG authenticates against.
-#   developer   the login screen takes any username; access level 400
-#   offline     the login screen takes any username; access level 100
+# Secrets reach a server process as environment variables. Infisical hands it over:
 #
-# Overrides accountdb-type in config/distribution/dev-server.prc.
+#   /districts/<name>  GATEWAY_TOKEN
+#   /uberdog           GATEWAY_TOKEN, ACCOUNT_SERVICE_SECRET
+#
+# toontown/server/Deployment.py lists every environment variable a server reads
+# a district's name and base channel come from the website when its token is authenticated
+#
+#
+# Linking a developer machine to the "Server" project:
+#   infisical login --domain=https://infisical.toontown.io
+#   infisical init
+#
+INFISICAL=0
+if command -v infisical >/dev/null 2>&1 \
+   && { [ -f "$ROOT/.infisical.json" ] || [ -n "$INFISICAL_PROJECT_ID" ]; }; then
+    INFISICAL=1
+fi
+
+with_secrets() {
+    local path="$1" token="$2"
+    shift 2
+
+    if [ "$INFISICAL" -eq 1 ]; then
+        infisical run --env="${INFISICAL_ENV:-dev}" --path="$path" --silent \
+            ${INFISICAL_PROJECT_ID:+--projectId="$INFISICAL_PROJECT_ID"} -- "$@"
+    else
+        GATEWAY_TOKEN="$token" \
+        ACCOUNT_SERVICE_SECRET="${ACCOUNT_SERVICE_SECRET:-}" \
+        "$@"
+    fi
+}
+
+if [ "$INFISICAL" -eq 0 ]; then
+    [ -f "$ROOT/.gateway-env" ] && . "$ROOT/.gateway-env"
+fi
+
+# Which account database the UberDOG authenticates against:
+#   developer   takes any username; access level 400
+#   offline     takes any username; access level 100
+#   production  redeems launch tokens from the launcher against the website
+
 ACCOUNTDB="developer"
+GATEWAY=0
 NO_CLIENT=0
 CLIENT_ONLY=0
 PROFILE=""
@@ -25,17 +68,23 @@ usage() {
 Usage: ${0##*/} [options]
 
   --accountdb TYPE  Account database for the UberDOG (default: developer).
-                    One of: developer, offline.
-  --no-client       Start the servers only; don't launch the client.
-  --client-only     Launch the client only. Nothing else is started, so the
-                    client spins the stack up itself the first time it needs it.
+                    One of: developer, offline, production.
+  --gateway         Open the UberDOG's and the district's sockets to the
+                    website. Name review and account migration reach the game
+                    and the district registers itself there. Off by default,
+                    since a stack with no website behind it would retry forever.
+  --no-client       Start the servers only.
+  --client-only     Launch the client only.
   --profile NAME    Start the client in local mode as local profile NAME,
                     skipping the main menu and the login screen. Combine with
                     --client-only to test a cold start end to end.
 
 Examples:
   ${0##*/}                                     servers, then the client
-  ${0##*/} --no-client                         servers only
+  ${0##*/} --accountdb production --no-client  servers only, launcher logins
+  ${0##*/} --accountdb production --gateway --no-client
+                                               the above, plus the website
+                                               gateway for migration testing
   ${0##*/} --client-only                       client alone; use Play > Host
   ${0##*/} --client-only --profile Kid         client alone, cold start as "Kid"
 USAGE
@@ -49,6 +98,8 @@ while [ $# -gt 0 ]; do
             ACCOUNTDB="$2"; shift 2 ;;
         --accountdb=*)
             ACCOUNTDB="${1#*=}"; shift ;;
+        --gateway)
+            GATEWAY=1; shift ;;
         --no-client)
             NO_CLIENT=1; shift ;;
         --client-only)
@@ -66,7 +117,7 @@ while [ $# -gt 0 ]; do
 done
 
 case "$ACCOUNTDB" in
-    developer|offline) ;;
+    developer|offline|production) ;;
     *) echo "Invalid --accountdb: $ACCOUNTDB" >&2; usage ;;
 esac
 
@@ -75,8 +126,6 @@ if [ "$CLIENT_ONLY" -eq 1 ] && [ "$NO_CLIENT" -eq 1 ]; then
     usage
 fi
 
-# The client's own stack always runs the developer accountdb, since it loads
-# dev.prc with no --accountdb of its own:
 if [ "$CLIENT_ONLY" -eq 1 ] && [ "$ACCOUNTDB" != "developer" ]; then
     echo "--accountdb has no effect with --client-only: the client starts its" >&2
     echo "own UberDOG, which reads accountdb-type from dev-server.prc." >&2
@@ -94,49 +143,21 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-port_listening() {
-    (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
-}
-
 wait_for_port() {
-    local port="$1" pid="${2:-}" log="${3:-}" tries=30
-    while ! port_listening "$port"; do
-        if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then
-            echo "The process for port $port exited before it started listening." >&2
-            show_log_tail "$log"
-            exit 1
-        fi
+    local port="$1" tries=30
+    while ! lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; do
         tries=$((tries - 1))
         if [ "$tries" -le 0 ]; then
             echo "Timed out waiting for port $port" >&2
-            show_log_tail "$log"
             exit 1
         fi
         sleep 0.5
     done
 }
 
-show_log_tail() {
-    local log="$1"
-    if [ -n "$log" ] && [ -f "$log" ]; then
-        echo "--- last 15 lines of ${log##*/} ---" >&2
-        tail -n 15 "$log" >&2
-    fi
-}
-
-if [ -f "$ROOT/venv/bin/activate" ]; then
-    source "$ROOT/venv/bin/activate"
-elif [ -f "$ROOT/venv/Scripts/activate" ]; then
-    source "$ROOT/venv/Scripts/activate"
-else
-    echo "No venv found at $ROOT/venv." >&2
-    echo "Please create one first: python -m venv venv && pip install -r requirements.txt" >&2
-    exit 1
-fi
+source "$ROOT/venv/bin/activate"
 
 client_env() {
-    # Local mode needs a password as well as a name -- it becomes the account's
-    # password on the local server:
     if [ -n "$PROFILE" ]; then
         export TTI_SERVER_MODE=local
         export TTI_PROFILE="$PROFILE"
@@ -145,6 +166,7 @@ client_env() {
     fi
 }
 
+# Where the client will look for a local server, as the game records it:
 configured_port() {
     local port=""
 
@@ -159,27 +181,50 @@ configured_port() {
 if [ "$CLIENT_ONLY" -eq 1 ]; then
     CLIENT_PORT="$(configured_port)"
 
-    if port_listening "$CLIENT_PORT"; then
+    if lsof -nP -iTCP:"$CLIENT_PORT" -sTCP:LISTEN >/dev/null 2>&1; then
         echo "Note: something is already listening on $CLIENT_PORT, so the client"
         echo "will connect to it rather than starting a stack of its own."
     fi
 
-    echo "[1/1] Launching client (no servers; it starts its own when needed)..."
+    echo "[1/1] Launching client (no servers)..."
     client_env
     python -m toontown.toonbase.ClientStart
     exit 0
 fi
 
 DISTRICT="Nuttyboro"
+DISTRICT_PATH="$(printf '%s' "$DISTRICT" | tr '[:upper:]' '[:lower:]')"
 WANTED_PORT="$(configured_port)"
+GATEWAY_FLAG=""
+[ "$GATEWAY" -eq 1 ] && GATEWAY_FLAG="--gateway"
+
+require_token() {
+    local variable="$1" value="$2" issue="$3"
+
+    if [ "$GATEWAY" -eq 1 ] && [ "$INFISICAL" -eq 0 ] && [ -z "$value" ]; then
+        echo "--gateway needs $variable, which neither the environment nor" >&2
+        echo ".gateway-env supplies. Issue one from the website checkout:" >&2
+        echo >&2
+        echo "    $issue" >&2
+        echo >&2
+        exit 1
+    fi
+}
+
+require_token UBERDOG_GATEWAY_TOKEN "${UBERDOG_GATEWAY_TOKEN:-}" \
+    "pnpm gateway:issue --uberdog uberdog"
+require_token AI_GATEWAY_TOKEN "${AI_GATEWAY_TOKEN:-}" \
+    "pnpm gateway:issue $DISTRICT"
 
 echo "[1/5] Starting mongod..."
 mongod --port 7030 --dbpath "$ROOT/astron/data" > "$LOGS/mongod.log" 2>&1 &
-MONGOD_PID=$!
-PIDS+=($MONGOD_PID)
-wait_for_port 7030 "$MONGOD_PID" "$LOGS/mongod.log"
+PIDS+=($!)
+wait_for_port 7030
 
 echo "[2/5] Starting astrond..."
+# The writer settles on a port -- stepping over one macOS has handed to its
+# AirPlay Receiver, say -- writes it into server-settings.json where the client
+# reads it, and prints it on its last line:
 PORT="$(python "$ROOT/scripts/write_astron_config.py" | tail -n 1)"
 case "$PORT" in
     ''|*[!0-9]*)
@@ -191,6 +236,8 @@ if [ "$PORT" != "$WANTED_PORT" ]; then
     echo "        Port $WANTED_PORT was taken, so the stack is on $PORT."
 fi
 
+# A bare address on the join screen goes to 7000, so anywhere else has to be
+# typed in full:
 if [ "$PORT" != "7000" ]; then
     echo "        On the join screen, type 127.0.0.1:$PORT"
 fi
@@ -206,20 +253,23 @@ PIDS+=($ASTROND_PID)
 wait_for_port 7010 "$ASTROND_PID" "$LOGS/astrond.log"
 wait_for_port "$PORT" "$ASTROND_PID" "$LOGS/astrond.log"
 
-echo "[3/5] Starting UberDOG (accountdb: $ACCOUNTDB)..."
-python -m toontown.uberdog.ServiceStart \
+echo "[3/5] Starting UberDOG (accountdb: $ACCOUNTDB, gateway: $([ "$GATEWAY" -eq 1 ] && echo on || echo off))..."
+with_secrets /uberdog "${UBERDOG_GATEWAY_TOKEN:-}" \
+    python -m toontown.uberdog.ServiceStart \
     --base-channel 1000000 --max-channels 9999 --stateserver 4002 \
     --astron-ip 127.0.0.1:7010 --eventlogger-ip 127.0.0.1:7020 \
     --mongodb-ip mongodb://127.0.0.1:7030/game \
-    --accountdb "$ACCOUNTDB" > "$LOGS/uberdog.log" 2>&1 &
+    --accountdb "$ACCOUNTDB" $GATEWAY_FLAG > "$LOGS/uberdog.log" 2>&1 &
 PIDS+=($!)
 
-echo "[4/5] Starting AI..."
-python -m toontown.ai.ServiceStart \
+echo "[4/5] Starting AI (gateway: $([ "$GATEWAY" -eq 1 ] && echo on || echo off))..."
+with_secrets "/districts/$DISTRICT_PATH" "${AI_GATEWAY_TOKEN:-}" \
+    python -m toontown.ai.ServiceStart \
     --base-channel 401000000 --max-channels 999999 --stateserver 4002 \
     --district-name "$DISTRICT" \
     --astron-ip 127.0.0.1:7010 --eventlogger-ip 127.0.0.1:7020 \
-    --mongodb-ip mongodb://127.0.0.1:7030/game > "$LOGS/ai.log" 2>&1 &
+    --mongodb-ip mongodb://127.0.0.1:7030/game \
+    $GATEWAY_FLAG > "$LOGS/ai.log" 2>&1 &
 PIDS+=($!)
 
 sleep 2

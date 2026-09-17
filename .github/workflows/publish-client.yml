@@ -6,6 +6,9 @@ on:
       version:
         required: true
         type: string
+      channel:
+        default: live
+        type: string
       promote:
         description: "Point latest.json at this version when the build lands."
         default: true
@@ -13,9 +16,14 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to publish (e.g. 1.0.0)."
+        description: "Version to publish (e.g. 1.0.5)."
         required: true
         type: string
+      channel:
+        description: "Which channel it goes out on."
+        default: live
+        type: choice
+        options: [live, qa]
       promote:
         description: "Point latest.json at this version when the build lands."
         default: true
@@ -33,20 +41,8 @@ env:
   AWS_REQUEST_CHECKSUM_CALCULATION: when_required
 
 jobs:
-  version:
-    name: Resolve version
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    outputs:
-      value: ${{ steps.version.outputs.value }}
-    steps:
-      - id: version
-        run: |
-          VALUE="${{ inputs.version }}"
-          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
-
   resources:
     name: Pack the resources
-    needs: version
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v5
@@ -121,7 +117,7 @@ jobs:
               --tree build/client/resources \
               --section resources \
               --prefix resources \
-              --version ${{ needs.version.outputs.value }} \
+              --version ${{ inputs.version }} \
               --manifest build/manifest/resources.json \
               --blobs build/blobs
 
@@ -131,7 +127,7 @@ jobs:
           aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
               --cache-control "public, max-age=31536000, immutable"
           aws s3 cp build/manifest/resources.json \
-              "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/resources.json" \
+              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/resources.json" \
               --cache-control "no-cache" --content-type application/json
 
       - name: Record the resource pack
@@ -155,11 +151,11 @@ jobs:
               exit 1
           fi
 
-          jq --arg v "${{ needs.version.outputs.value }}" '.version = $v' \
+          jq --arg v "${{ inputs.version }}" '.version = $v' \
               recorded.json > resources.json
 
           aws s3 cp resources.json \
-              "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/resources.json" \
+              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/resources.json" \
               --cache-control "no-cache" --content-type application/json
 
           echo "The art has not moved since the last pack; reused it." \
@@ -167,7 +163,6 @@ jobs:
 
   client:
     name: Build ${{ matrix.part }} ${{ matrix.target }}
-    needs: version
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -267,7 +262,7 @@ jobs:
 
       - name: Compile the ${{ matrix.part }}
         env:
-          SERVER_VERSION: ${{ needs.version.outputs.value }}
+          SERVER_VERSION: tti-${{ inputs.channel }}-v${{ inputs.version }}
         run: python tools/build_client.py --target ${{ matrix.part }}
 
       - name: Describe it
@@ -289,7 +284,7 @@ jobs:
           python tools/build_manifest.py \
               --tree "$TREE" \
               --section "$SECTION" \
-              --version ${{ needs.version.outputs.value }} \
+              --version ${{ inputs.version }} \
               --manifest "build/manifest/$SECTION.json" \
               --blobs build/blobs
 
@@ -314,18 +309,31 @@ jobs:
 
           for manifest in build/manifest/*.json; do
               aws s3 cp "$manifest" \
-                  "s3://$BUCKET/$PREFIX/${{ needs.version.outputs.value }}/$(basename "$manifest")" \
+                  "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/$(basename "$manifest")" \
                   --cache-control "no-cache" --content-type application/json
           done
 
   publish:
     name: Publish the release
     if: inputs.promote
-    needs: [version, resources, client]
+    needs: [resources, client]
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
-      - name: Point latest.json at ${{ needs.version.outputs.value }}
+      - name: Point latest.json at tti-${{ inputs.channel }}-v${{ inputs.version }}
+        shell: bash
         run: |
-          echo '{"version":"${{ needs.version.outputs.value }}"}' > latest.json
-          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
+          set -euo pipefail
+
+          echo '{"version":"${{ inputs.version }}"}' > latest.json
+          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/latest.json" \
               --cache-control "no-cache" --content-type application/json
+
+          # Live is mirrored to the unprefixed path, where the launchers
+          # already installed look. The manifests go first:
+          if [ "${{ inputs.channel }}" = live ]; then
+              aws s3 sync "s3://$BUCKET/$PREFIX/live/${{ inputs.version }}/" \
+                  "s3://$BUCKET/$PREFIX/${{ inputs.version }}/" \
+                  --cache-control "no-cache" --content-type application/json
+              aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
+                  --cache-control "no-cache" --content-type application/json
+          fi

@@ -474,9 +474,9 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
         randomDelay = random.random() * 5 * 60 # random five minute range
         gardeningDay = self.dayInSeconds
         whenNextEpoch = (time.mktime(tupleLastDay) + self.epochHourInSeconds + gardeningDay + randomDelay)
+        while whenNextEpoch < currentTime:
+            whenNextEpoch += self.dayInSeconds
         secondsNextEpoch = whenNextEpoch - currentTime
-        if secondsNextEpoch >= 0:
-            secondsNextEpoch += self.dayInSeconds
         taskMgr.doMethodLater((secondsNextEpoch), self.doEpochNow, self.uniqueName("GardenEpoch"))
 
         tupleNextEpoch = time.localtime(whenNextEpoch)

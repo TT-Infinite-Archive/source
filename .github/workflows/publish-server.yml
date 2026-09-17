@@ -6,31 +6,24 @@ on:
       version:
         required: true
         type: string
+      channel:
+        default: live
+        type: string
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to publish (e.g. 1.0.0)."
+        description: "Version to publish (e.g. 1.0.5)."
         required: true
         type: string
+      channel:
+        description: "Which channel it goes out on."
+        default: live
+        type: choice
+        options: [live, qa]
 
 jobs:
-  version:
-    name: Resolve version
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    outputs:
-      value: ${{ steps.version.outputs.value }}
-      image: ${{ steps.version.outputs.image }}
-    steps:
-      - id: version
-        shell: bash
-        run: |
-          VALUE="${{ inputs.version }}"
-          echo "value=${VALUE#v}" >> "$GITHUB_OUTPUT"
-          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-
   publish:
     name: Build and push ${{ matrix.image }}
-    needs: version
     runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
@@ -97,21 +90,36 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Name the image
+        id: image
+        shell: bash
+        run: |
+          repo="ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.image }}"
+
+          {
+              echo "tags<<TAGS"
+              echo "$repo:tti-${{ inputs.channel }}-v${{ inputs.version }}"
+              # :latest is whatever is live:
+              if [ "${{ inputs.channel }}" = live ]; then
+                  echo "$repo:latest"
+              fi
+              echo TAGS
+          } >> "$GITHUB_OUTPUT"
+
       - uses: useblacksmith/build-push-action@v2
         with:
           context: .
           file: ${{ matrix.file }}
           push: true
           build-args: |
-            SERVER_VERSION=${{ needs.version.outputs.value }}
-          tags: |
-            ${{ needs.version.outputs.image }}-${{ matrix.image }}:${{ needs.version.outputs.value }}
-            ${{ needs.version.outputs.image }}-${{ matrix.image }}:latest
+            SERVER_VERSION=tti-${{ inputs.channel }}-v${{ inputs.version }}
+          tags: ${{ steps.image.outputs.tags }}
 
   deploy:
     name: Deploy
-    needs: [version, publish]
+    needs: publish
+    if: inputs.channel == 'live'
     uses: ./.github/workflows/deploy.yml
     with:
-      tag: ${{ needs.version.outputs.value }}
+      tag: tti-${{ inputs.channel }}-v${{ inputs.version }}
     secrets: inherit

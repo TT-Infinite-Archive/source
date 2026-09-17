@@ -143,7 +143,11 @@ class QuestMap(DirectFrame):
         iconNP.removeNode()
 
     def getDoorNodeFromBlock(self, block):
-        return base.cr.playGame.hood.loader.geom.find('**/??'+str(block)+':*_landmark_*_DNARoot;+s').find('**/*door_origin')
+        building = base.cr.playGame.hood.loader.geom.find('**/??'+str(block)+':*_landmark_*_DNARoot;+s')
+        if building.isEmpty():
+            return None
+        door = building.find('**/*door_origin')
+        return None if door.isEmpty() else door
 
     def updateQuestInfo(self):
         for marker in self.buildingMarkers:
@@ -196,8 +200,11 @@ class QuestMap(DirectFrame):
                 interiorZoneId = (zoneId - (zoneId % 100)) + 500 + blockNumber
                 if npcZoneId == interiorZoneId:
                     taskBlocks.append(blockNumber)
+                    doorNode = self.getDoorNodeFromBlock(blockNumber)
+                    if doorNode is None:
+                        continue
                     self.putBuildingMarker(
-                        self.getDoorNodeFromBlock(blockNumber).getPos(render),
+                        doorNode.getPos(render),
                         mapIndex=mapIndex,
                         isSuitBlock=base.cr.playGame.dnaStore.isSuitBlock(blockNumber))
                     continue
@@ -205,9 +212,15 @@ class QuestMap(DirectFrame):
         for blockIndex in range(base.cr.playGame.dnaStore.getNumBlockNumbers()):
             blockNumber = base.cr.playGame.dnaStore.getBlockNumberAt(blockIndex)
             if base.cr.playGame.dnaStore.isSuitBlock(blockNumber) and blockNumber not in taskBlocks:
+                zoneId = base.cr.playGame.dnaStore.getZoneFromBlockNumber(blockNumber)
+                if ZoneUtil.getCanonicalBranchZone(zoneId) != self.zoneId:
+                    continue
+                doorNode = self.getDoorNodeFromBlock(blockNumber)
+                if doorNode is None:
+                    continue
                 self.putCogMarker(blockNumber,
                     base.cr.playGame.dnaStore.getSuitBlockTrack(blockNumber),
-                    self.getDoorNodeFromBlock(blockNumber).getPos(render))
+                    doorNode.getPos(render))
                 continue
 
     def transformAvPos(self, pos):
