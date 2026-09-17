@@ -154,8 +154,7 @@ class Estate(Place.Place):
         if self.cameraSubmerged:
             self.__emergeCamera()
         base.localAvatar.stopChat()
-        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
-            self.stopAprilFoolsControls()
+        self.stopAprilFoolsControls()
         self._telemLimiter.destroy()
         del self._telemLimiter
         if hasattr(self, 'fsm'):
@@ -380,7 +379,7 @@ class Estate(Place.Place):
         if hasattr(self, 'walkStateData'):
             self.walkStateData.fsm.request('walking')
         self.toonSubmerged = 0
-        if base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
+        if base.cr.newsManager and base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
             self.startAprilFoolsControls()
 
     def __setUnderwaterFog(self):

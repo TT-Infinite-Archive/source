@@ -404,53 +404,22 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
         self.sendUpdate("cannonsOver", [])
 
     def bootStrapEpochs(self):
-        #first update the graden data based on how much time has based
-        #print ("last time %s" % (self.lastEpochTimeStamp))
+        # first update the garden data based on how much time has passed
         currentTime = time.time()
-        #print ("current time %s" % (currentTime))
         timeDiff = currentTime - self.lastEpochTimeStamp
-        #print ("time diff %s" % (timeDiff))
 
-        #self.lastEpochTimeStamp = time.mktime((2006, 8, 24, 10, 50, 31, 4, 237, 1))
-
-        tupleNewTime = time.localtime(currentTime - self.epochHourInSeconds)
-        tupleOldTime = time.localtime(self.lastEpochTimeStamp)
-
-        #tupleOldTime = (2006, 6, 18, 0, 36, 45, 0, 170, 1)
-        #tupleNewTime = (2006, 6, 19, 3, 36, 45, 0, 170, 1)
-
-        listLastDay = list(tupleOldTime)
-        listLastDay[3] = 0 #set hour to epoch time
-        listLastDay[4] = 0 #set minute to epoch time
-        listLastDay[5] = 0 #set second to epoch time
-        tupleLastDay = tuple(listLastDay)
-
-        randomDelay = random.random() * 5 * 60 # random five minute range
-
-        secondsNextEpoch = (time.mktime(tupleLastDay) + self.epochHourInSeconds + self.dayInSeconds + randomDelay) - currentTime
-
-
-        #should we do the epoch for the current day?
-        #beforeEpoch = 1
-        #if  tupleNewTime[3] >= self.timeToEpoch:
-        #    beforeEpoch = 0
-
-        epochsToDo =  int((time.time() - time.mktime(tupleLastDay)) / self.dayInSeconds)
-        #epochsToDo -= beforeEpoch
+        # Only count the epochs that have really elapsed since the last one
+        epochsToDo = int(timeDiff / self.dayInSeconds)
         if epochsToDo < 0:
             epochsToDo = 0
 
         self.notify.debug("epochsToDo %s" % (epochsToDo))
 
-        #print("tuple times")
-        #print tupleNewTime
-        #print tupleOldTime
-
-
         if epochsToDo:
-            pass
             self.notify.debug("doingEpochData")
-            self.doEpochData(0, epochsToDo)
+
+            self.doEpochData(0, epochsToDo,
+                             epochTimeStamp = self.lastEpochTimeStamp + (epochsToDo * self.dayInSeconds))
         else:
             pass
             self.notify.debug("schedualing next Epoch")
@@ -550,9 +519,9 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
 
 
 
-    def doEpochData(self, time, numEpochs = 0, onlyForThisToonIndex = None):
+    def doEpochData(self, time, numEpochs = 0, onlyForThisToonIndex = None, epochTimeStamp = None):
         #this function just updates the data buit doesn't effect anything within the zone
-        self.saveTime()
+        self.saveTime(epochTimeStamp)
 
         # Tell the distributedLawnDecors to update themselves... and update our 'itemLists'
         #numEpochs = int(time / self.timePerEpoch)
@@ -1320,10 +1289,11 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
     def setLastEpochTimeStamp(self, ts):
         self.lastEpochTimeStamp = ts
 
-    def saveTime(self):
-        currentTime = time.time()
-        self.setLastEpochTimeStamp(currentTime)
-        self.sendUpdate("setLastEpochTimeStamp", [currentTime])
+    def saveTime(self, timeStamp = None):
+        if timeStamp is None:
+            timeStamp = time.time()
+        self.setLastEpochTimeStamp(timeStamp)
+        self.sendUpdate("setLastEpochTimeStamp", [timeStamp])
 
     def completeFlowerSale(self,sell):
         assert self.notify.debug('completeFlowerSale()')
