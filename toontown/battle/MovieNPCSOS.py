@@ -94,7 +94,8 @@ def __getSoundTrack(level, delay, duration = None, node = None):
 
 
 def teleportIn(attack, npc, pos = Point3(0, 0, 0), hpr = Vec3(180.0, 0.0, 0.0)):
-    if npc.getName() == 'Magic Cat':
+    isMagicCat = NPCToons.getNPCName(91917)
+    if isMagicCat:
         LaughingManGlobals.addToonEffect(npc)
         npc.nametag3d.hide()
     a = Func(npc.reparentTo, attack['battle'])
@@ -116,7 +117,7 @@ def teleportIn(attack, npc, pos = Point3(0, 0, 0), hpr = Vec3(180.0, 0.0, 0.0)):
     if npc.getName() == 'Trap Cat':
         seq.append(Wait(3))
     seq.append(Func(npc.clearChat))
-    if npc.getName() == 'Magic Cat':
+    if isMagicCat:
         magicCatTrack = Sequence()
         magicCatTrack.append(Func(npc.setChatAbsolute, "I've got this, so start dancing!", CFSpeech | CFTimeout))
         magicCatTrack.append(Func(attack['toon'].loop, 'victory'))

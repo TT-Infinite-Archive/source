@@ -807,6 +807,8 @@ class Suit(Avatar.Avatar):
             dropShadow.setScale(0.75)
             if not self.shadowJoint.isEmpty():
                 dropShadow.reparentTo(self.shadowJoint)
+        if settings.get(SettingsGlobals.AnimationSmoothing):
+            self.setBlend(frameBlend=True)
         self.loop(anim)
         self.isSkeleton = 1
 

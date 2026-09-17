@@ -10,7 +10,7 @@ from otp.avatar import Avatar
 
 from toontown.battle import BattleParticles, BattleProps
 from toontown.nametag import NametagGlobals
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 
 from . import Suit
 from . import SuitDNA
@@ -139,8 +139,10 @@ class BossCog(Avatar.Avatar):
 
             self.loadAnims(animDict, partName)
 
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.stars = BattleProps.globalPropPool.getProp('stun')
         self.stars.setPosHprScale(7, 0, 0, 0, 0, -90, 3, 3, 3)
+        self.stars.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.stars.loop('stun')
         self.pelvis = self.getPart('torso')
         self.pelvisForwardHpr = VBase3(0, 0, 0)

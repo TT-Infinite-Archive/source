@@ -3,7 +3,7 @@ from direct.actor import Actor
 from direct.fsm import FSM
 from direct.interval.IntervalGlobal import Sequence, ActorInterval, Wait, Func, SoundInterval, Parallel
 from direct.showbase.PythonUtil import weightedChoice
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from . import GenericAnimatedProp
 import math, random
 
@@ -110,6 +110,7 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
 
         self.trashcan.loadAnims(animDict)
         self.trashcan.pose('anim', 0)
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.node = self.trashcan
         self.idleInterval = self.createIdleInterval()
         self.battleCheerInterval = self.createBattleCheerInterval()

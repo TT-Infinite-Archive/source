@@ -1,7 +1,7 @@
 from panda3d.core import CollideMask, GeomNode, Point3
 from direct.actor import Actor
 from otp.avatar import Avatar
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from . import GoonGlobals
 from . import SuitDNA
@@ -37,6 +37,7 @@ class Goon(Avatar.Avatar):
         self.type = dnaName
         self.createHead()
         self.find('**/actorGeom').setH(180)
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.nametag3d.hide()
 
     def initializeBodyCollisions(self, collIdStr):

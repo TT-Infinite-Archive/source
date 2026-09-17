@@ -2,7 +2,7 @@ from . import AnimatedProp
 from direct.actor import Actor
 from direct.interval.IntervalGlobal import *
 from direct.directnotify import DirectNotifyGlobal
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from toontown.hood import ZoneUtil
 from toontown.hood import HoodUtil
 
@@ -68,6 +68,7 @@ class GenericAnimatedProp(AnimatedProp.AnimatedProp):
         self.trashcan.reparentTo(node)
         self.trashcan.loadAnims({'anim': '%s/%s' % (self.path, anim)})
         self.trashcan.pose('anim', 0)
+        self.trashcan.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.node = self.trashcan
 
     def calcHoodId(self, node):

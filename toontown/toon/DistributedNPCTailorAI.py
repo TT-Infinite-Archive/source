@@ -9,7 +9,7 @@ from toontown.estate import ClosetGlobals
 class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
     freeClothes = ConfigVariableBool('free-clothes', False).getValue()
     housingEnabled = ConfigVariableBool('want-housing', True).getValue()
-    useJellybeans = ConfigVariableBool('want-tailor-jellybeans', False).getValue()
+    useJellybeans = ConfigVariableBool('want-tailor-jellybeans', True).getValue()
 
     def __init__(self, air, npcId):
         DistributedNPCToonBaseAI.__init__(self, air, npcId)
