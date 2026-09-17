@@ -4,7 +4,7 @@ from direct.gui.DirectGui import *
 from direct.directtools.DirectGeometry import LineNodePath
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from toontown.fishing import FishGlobals
 from toontown.shtiker import FishPage
 from toontown.toonbase import TTLocalizer
@@ -284,6 +284,7 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         self.pole = Actor.Actor()
         self.pole.loadModel(rodPath)
         self.pole.loadAnims({'cast': 'phase_4/models/props/fishing-pole-chan'})
+        self.pole.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.pole.pose('cast', 0)
         self.ptop = self.pole.find('**/joint_attachBill')
         if self.line == None:

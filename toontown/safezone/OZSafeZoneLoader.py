@@ -17,7 +17,7 @@ from toontown.hood import ZoneUtil
 from toontown.safezone.OZPlayground import OZPlayground
 from toontown.safezone.SafeZoneLoader import SafeZoneLoader
 from toontown.toon import Toon, ToonDNA
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 
 
 class OZSafeZoneLoader(SafeZoneLoader):
@@ -68,6 +68,7 @@ class OZSafeZoneLoader(SafeZoneLoader):
             self.geyserActor = Actor.Actor(self.geyserModel)
             self.geyserActor.loadAnims({'idle': 'phase_6/models/golf/golf_geyser'})
             self.geyserActor.reparentTo(render)
+            self.geyserActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
             self.geyserActor.setPlayRate(8.6, 'idle')
             self.geyserActor.loop('idle')
             self.geyserActor.setDepthWrite(0)

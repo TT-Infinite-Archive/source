@@ -14,7 +14,7 @@ from toontown.chat.ChatGlobals import *
 from toontown.nametag import NametagGlobals
 from toontown.pets import PetDNA
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from toontown.toonbase.HolidayGlobals import APRIL_FOOLS_COSTUMES
 
 
@@ -257,6 +257,7 @@ class Pet(Avatar.Avatar):
         self.eyesClosedTexture.setMinfilter(Texture.FTLinear)
         self.eyesClosedTexture.setMagfilter(Texture.FTLinear)
         self.eyesOpen()
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         return None
 
     def initializeBodyCollisions(self, collIdStr):

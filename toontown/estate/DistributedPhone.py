@@ -1,5 +1,5 @@
 from panda3d.core import BoundingSphere, CollideMask, CollisionNode, CollisionSphere, GeomNode, Point3, Quat, TextEncoder, VBase3
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from . import PhoneGlobals
 from toontown.catalog import CatalogScreen
 from toontown.catalog import CatalogItem
@@ -90,6 +90,7 @@ class DistributedPhone(DistributedFurnitureItem.DistributedFurnitureItem):
          'LL_phoneNeutral': 'phase_5.5/models/estate/prop_phone-LL_phoneNeutral',
          'LL_phoneBack': 'phase_5.5/models/estate/prop_phone-LL_phoneBack'})
         self.model.pose('SS_phoneOut', 0)
+        self.model.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.receiverJoint = self.model.find('**/joint_receiver')
         self.receiverGeom = self.receiverJoint.getChild(0)
         mount = loader.loadModel('phase_5.5/models/estate/phoneMount-mod')

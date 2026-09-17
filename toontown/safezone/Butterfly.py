@@ -6,7 +6,7 @@ from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.fsm.FSM import FSM
 from direct.interval.IntervalGlobal import *
 
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 
 
 class Butterfly(FSM):
@@ -51,6 +51,7 @@ class Butterfly(FSM):
             return
         self.butterfly = Actor.Actor()
         self.butterfly.loadModel('phase_4/models/props/SZ_butterfly-mod.bam')
+        self.butterfly.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.butterfly.loadAnims({
             'flutter': 'phase_4/models/props/SZ_butterfly-flutter.bam',
             'glide': 'phase_4/models/props/SZ_butterfly-glide.bam',
@@ -79,6 +80,7 @@ class Butterfly(FSM):
                 wing.setColor(color)
 
         self.butterfly2 = Actor.Actor(other=self.butterfly)
+        self.butterfly2.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.butterfly.enableBlend(blendType=PartBundle.BTLinear)
         self.butterfly.loop('flutter')
         self.butterfly.loop('land')
