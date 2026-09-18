@@ -3,7 +3,7 @@ from direct.actor import Actor
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import Sequence, Func
 from toontown.hood import InteractiveAnimatedProp
-from toontown.toonbase import ToontownGlobals, ToontownBattleGlobals, TTLocalizer
+from toontown.toonbase import SettingsGlobals, ToontownGlobals, ToontownBattleGlobals, TTLocalizer
 
 class MailboxInteractiveProp(InteractiveAnimatedProp.InteractiveAnimatedProp):
     notify = DirectNotifyGlobal.directNotify.newCategory('MailboxInteractiveProp')
@@ -73,6 +73,7 @@ class MailboxInteractiveProp(InteractiveAnimatedProp.InteractiveAnimatedProp):
     def setupActor(self, node):
         self.pieActor = Actor.Actor('phase_5/models/char/tt_r_prp_ext_piePackage', {'fightBoost': 'phase_5/models/char/tt_a_prp_ext_piePackage_fightBoost'})
         self.pieActor.reparentTo(self.node)
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.pieActor.hide()
 
         InteractiveAnimatedProp.InteractiveAnimatedProp.setupActor(self, node)

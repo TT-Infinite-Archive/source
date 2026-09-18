@@ -28,7 +28,7 @@ from toontown.hood import ZoneUtil
 from toontown.nametag.NametagGlobals import *
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals,  ToontownGlobals
 
 
 def teleportDebug(requestStatus, msg, onlyIfToAv = True):
@@ -573,6 +573,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.swapToonLegs(newDNA.legs)
         self.swapToonColor(newDNA)
         self.__swapToonClothes(newDNA)
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
 
     def setDNAString(self, dnaString):
         newDNA = ToonDNA.ToonDNA()
@@ -644,6 +645,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.rescaleToon()
         self.resetHeight()
         self.setupToonNodes()
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
 
     def setupToonNodes(self):
         rightHand = NodePath('rightHand')
@@ -692,6 +694,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.__bookActors = [bookActor, bookActor2, bookActor3]
         hands = self.getRightHands()
         for bookActor, hand in zip(self.__bookActors, hands):
+            bookActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
             bookActor.reparentTo(hand)
             bookActor.hide()
 
@@ -774,6 +777,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.generateToonLegs(copy)
         self.generateToonColor()
         self.parentToonParts()
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.rescaleToon()
         self.resetHeight()
         del self.shadowJoint
@@ -813,6 +817,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.resetHeight()
         self.setupToonNodes()
         self.generateBackpack()
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
 
     def generateToonHead(self, copy = 1):
         headHeight = ToonHead.generateToonHead(self, copy, self.style, ('1000', '500', '250'))
@@ -837,6 +842,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.parentToonParts()
         self.rescaleToon()
         self.resetHeight()
+        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.eyelids.request('open')
         if not self.isGoofy:
             self.startLookAround()
@@ -2701,6 +2707,7 @@ class Toon(Avatar.Avatar, ToonHead):
                                      'neutral': 'phase_6/models/char/TT_GWait',
                                      'walk': 'phase_6/models/char/TT_GWalk',
                                      'run': 'phase_6/models/char/TT_GRun'})
+        self.goofy.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         return self.goofy
 
     # To prevent crashes

@@ -2,6 +2,7 @@ from panda3d.core import Camera, CardMaker, DisplayRegion, NodePath, Perspective
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from . import FishGlobals
+from toontown.toonbase import SettingsGlobals
 
 class DirectRegion(NodePath):
     notify = DirectNotifyGlobal.directNotify.newCategory('DirectRegion')
@@ -135,6 +136,7 @@ class FishPhoto(NodePath):
                 self.fishDisplayRegion.unload()
             self.hide()
         self.actor = self.fish.getActor()
+        self.actor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.actor.setTwoSided(1)
         self.fishFrame = self.makeFishFrame(self.actor)
         if showBackground:

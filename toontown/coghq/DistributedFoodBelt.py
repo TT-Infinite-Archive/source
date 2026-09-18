@@ -4,7 +4,7 @@ from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import Sequence, Wait, LerpPosInterval, ProjectileInterval, Func, SoundInterval
 from direct.actor import Actor
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import SettingsGlobals, ToontownGlobals
 from toontown.coghq.FoodBeltBase import FoodBeltBase
 
 class DistributedFoodBelt(DistributedObject.DistributedObject, FSM.FSM, FoodBeltBase):
@@ -160,6 +160,7 @@ class DistributedFoodBelt(DistributedObject.DistributedObject, FSM.FSM, FoodBelt
                 self.beltActor.loadAnims({'idle': 'phase_12/models/bossbotHQ/food_belt1'})
             else:
                 self.beltActor.loadAnims({'idle': 'phase_12/models/bossbotHQ/food_belt2'})
+            self.beltActor.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
             self.beltActor.reparentTo(render)
             self.beltActor.setPlayRate(self.BeltActorPlayRate, 'idle')
             mesh = self.beltActor.find('**/mesh_tide1')

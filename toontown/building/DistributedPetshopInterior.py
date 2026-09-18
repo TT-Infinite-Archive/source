@@ -1,6 +1,7 @@
 from panda3d.core import Texture
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import SettingsGlobals
 import random
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
@@ -75,6 +76,7 @@ class DistributedPetshopInterior(DistributedObject.DistributedObject):
         self.interior = loader.loadModel('phase_4/models/modules/PetShopInterior')
         self.interior.reparentTo(render)
         self.fish = Actor.Actor('phase_4/models/props/interiorfish-zero', {'swim': 'phase_4/models/props/interiorfish-swim'})
+        self.fish.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.fish.reparentTo(self.interior)
         self.fish.setColorScale(0.8, 0.9, 1, 0.8)
         self.fish.setScale(0.8)
