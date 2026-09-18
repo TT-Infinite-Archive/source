@@ -82,6 +82,9 @@ class Guild(DirectObject):
         del self.avId2Member[memberId]
 
     def getLocalAvatar(self):
+        if not hasattr(base, 'localAvatar'):
+            # Name approval notification happens before localAvatar is set.
+            return None
         return self.getMember(base.localAvatar.doId)
 
     def getMember(self, avId):
