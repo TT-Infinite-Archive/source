@@ -4049,7 +4049,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
         return result
 
-    def setPartyReplyInfoBases(self, replies):
+    def setPartyReplies(self, replies):
         self.partyReplyInfoBases = []
         for i in range(len(replies)):
             partyReply = replies[i]
@@ -4069,7 +4069,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             if partyReply.partyId == partyId:
                 for reply in partyReply.replies:
                     if reply.inviteeId == inviteeId:
-                        reply.inviteeId = newStatus
+                        reply.status = newStatus
                         break
 
     def canPlanParty(self):
