@@ -43,7 +43,7 @@ env:
 jobs:
   resources:
     name: Pack the resources
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
@@ -172,14 +172,14 @@ jobs:
         part: [client, host]
         include:
           - target: mac-arm64
-            os: blacksmith-6vcpu-macos-15
+            os: macos-latest
           # going away in August 2027
           - target: mac-x64
-            os: macos-15-intel
+            os: macos-26-intel
           - target: win-x64
-            os: blacksmith-4vcpu-windows-2025
+            os: windows-2025
           - target: linux-x64
-            os: blacksmith-4vcpu-ubuntu-2404
+            os: ubuntu-latest
 
     env:
       # Nuitka caches the compiled C here:
@@ -239,23 +239,6 @@ jobs:
               else
                   sudo apt-get update && sudo apt-get install -y ccache
               fi
-
-      # Nuitka needs this in a Windows Blacksmith runner:
-      - name: Set up MSVC
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Confirm the MSVC toolchain
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          if (-not $env:WindowsSDKVersion) {
-              Write-Host "::error::No Windows SDK in the environment."
-              exit 1
-          }
-
-          Write-Host "Windows SDK $env:WindowsSDKVersion"
-          Write-Host "cl.exe: $((Get-Command cl -ErrorAction SilentlyContinue).Source)"
 
       - name: Install dependencies
         run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
@@ -317,7 +300,7 @@ jobs:
     name: Publish the release
     if: inputs.promote
     needs: [resources, client]
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - name: Point latest.json at tti-${{ inputs.channel }}-v${{ inputs.version }}
         shell: bash
