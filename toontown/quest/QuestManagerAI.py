@@ -32,6 +32,10 @@ class QuestManagerAI:
             npc.freeAvatar(avId)
             return
 
+        # Gag delivery tasks take whatever the toon is carrying right now, so
+        # they can be filled a few gags at a time instead of all in one trip
+        self.depositGags(av, npc)
+
        # handle unusual cases such as NPC specific quests
         # interactionComplete = self.handleSpecialCases(avId, npc)
 
@@ -226,18 +230,7 @@ class QuestManagerAI:
             # This happens in avatarChoseTrack
             return
 
-        # If this is a deliver gag quest, we need to actually remove the
-        # gags delivered from the player's inventory
-        if questClass == Quests.DeliverGagQuest:
-            self.notify.debug("completeQuest: presentTrackChoice avId: %s, npcId: %s, questId: %s" %
-                              (av.getDoId(), npc.getNpcId(), questId))
-            # Use the items from the inventory now
-            quest = Quests.getQuest(questId)
-            track, level = quest.getGagType()
-            for i in range(0, quest.getNumGags()):
-                av.inventory.useItem(track, level)
-            av.d_setInventory(av.inventory.makeNetString())
-
+        # Deliver gag quests took their gags on the way in, see depositGags
 
         # See if this quest is part of a multiquest. If it is, we assign
         # the next part of the multiquest.
@@ -304,6 +297,26 @@ class QuestManagerAI:
             eventLogMessage += "|next %s" % (nextQuestId)
 
         self.air.writeServerEvent('questComplete', av.getDoId(), eventLogMessage)
+
+    def depositGags(self, av, npc):
+        # Take however many of the requested gags the toon is carrying and record
+        # the progress
+        changed = False
+        for questDesc in av.quests:
+            questId, fromNpcId, toNpcId, rewardId, toonProgress = questDesc
+            if not Quests.questExists(questId) or Quests.getQuestClass(questId) != Quests.DeliverGagQuest:
+                continue
+            if not Quests.npcMatches(toNpcId, npc):
+                continue
+            deposited = Quests.getQuest(questId).removeGags(av, toonProgress)
+            if deposited:
+                self.notify.debug("depositGags: avId: %s questId: %s deposited: %s" %
+                                  (av.getDoId(), questId, deposited))
+                questDesc[4] += deposited
+                changed = True
+
+        if changed:
+            av.b_setQuests(av.quests)
 
     def incompleteQuest(self, av, npc, questId, completeStatus, toNpcId):
         self.notify.debug("incompleteQuest: avId: %s questId: %s" %

@@ -1495,11 +1495,9 @@ class DeliverGagQuest(Quest):
 
     def getCompletionStatus(self, av, questDesc, npc = None):
         questId, fromNpcId, toNpcId, rewardId, toonProgress = questDesc
-        gag = self.getGagType()
-        num = self.getNumGags()
-        track = gag[0]
-        level = gag[1]
-        questComplete = npc and av.inventory and av.inventory.numItem(track, level) >= num
+        track, level = self.getGagType()
+        numHeld = av.inventory.numItem(track, level) if npc and av.inventory else 0
+        questComplete = toonProgress + numHeld >= self.getNumGags()
         return getCompleteStatusWithNpc(questComplete, toNpcId, npc)
 
     def getProgressString(self, avatar, questDesc):
@@ -1547,14 +1545,16 @@ class DeliverGagQuest(Quest):
     def getHeadlineString(self):
         return TTLocalizer.QuestsDeliverGagQuestHeadline
 
-    def removeGags(self, av):
-        gag = self.getGagType()
+    def removeGags(self, av, toonProgress = 0):
+        track, level = self.getGagType()
         inventory = av.inventory
+        remaining = self.getNumGags() - toonProgress
         takenGags = 0
-        for i in range(self.getNumGags()):
-            if inventory.useItem(gag[0], gag[1]):
-                takenGags += 1
-        av.b_setInventory(inventory.makeNetString())
+        while takenGags < remaining and inventory.numItem(track, level) > 0:
+            inventory.useItem(track, level)
+            takenGags += 1
+        if takenGags:
+            av.b_setInventory(inventory.makeNetString())
         return takenGags
 
 class DeliverItemQuest(Quest):
