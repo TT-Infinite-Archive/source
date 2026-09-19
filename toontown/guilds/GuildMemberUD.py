@@ -1,4 +1,5 @@
 from direct.distributed.PyDatagram import *
+from direct.distributed.MsgTypes import CLIENTAGENT_CLOSE_CHANNEL, CLIENTAGENT_OPEN_CHANNEL
 from direct.showbase.DirectObject import DirectObject
 
 from toontown.toon.ToonDNA import ToonDNA

@@ -49,3 +49,6 @@ astron/dev.yml
 
 # The server's portion of the resources:
 build/
+
+# Built Panda3D wheels:
+wheels/

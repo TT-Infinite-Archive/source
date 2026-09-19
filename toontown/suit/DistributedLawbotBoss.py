@@ -1,6 +1,6 @@
 from panda3d.core import BitMask32, CSDefault, CollideMask, CollisionNode, CollisionPlane, CollisionPolygon, CollisionTube, ConfigVariable, ConfigVariableBool, \
     Geom, GeomNode, GeomTriangles, GeomVertexData, GeomVertexFormat, GeomVertexWriter, headsUp, Mat3, NodePath, Plane, Point3, RigidBodyCombiner, \
-    TextNode, VBase3, VBase4, Vec3, composeMatrix, decomposeMatrix
+    TextNode, VBase3, VBase4, Vec3, Vec4, composeMatrix, decomposeMatrix
 import math
 import random
 from direct.directnotify import DirectNotifyGlobal

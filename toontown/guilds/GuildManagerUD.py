@@ -2,6 +2,7 @@ from panda3d.core import ConfigVariableString, Datagram
 import semidbm
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.PyDatagram import *
+from direct.distributed.MsgTypes import CLIENTAGENT_ADD_POST_REMOVE
 from toontown.friends.TTIFriendsManagerUD import OperationFSM
 from toontown.guilds.GuildGlobals import *
 from toontown.guilds.GuildUD import *

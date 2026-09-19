@@ -240,6 +240,37 @@ jobs:
                   sudo apt-get update && sudo apt-get install -y ccache
               fi
 
+      # The Panda3D the client needs is not on PyPI, so it is built here and
+      # kept by pin:
+      - name: Read the Panda3D pin
+        id: panda
+        shell: bash
+        run: echo "rev=$(python scripts/build_panda3d.py --print-pin)" >> "$GITHUB_OUTPUT"
+
+      - name: Reuse the built Panda3D wheel
+        id: panda-cache
+        uses: actions/cache@v4
+        with:
+          path: wheels
+          key: panda3d-${{ matrix.target }}-${{ steps.panda.outputs.rev }}-${{ hashFiles('scripts/build_panda3d.py') }}
+
+      - name: Build Panda3D
+        if: steps.panda-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          python scripts/build_panda3d.py --install-deps
+          python scripts/build_panda3d.py --output wheels
+
+      - name: Install Panda3D
+        shell: bash
+        run: |
+          if [ -z "$(ls wheels/*.whl 2>/dev/null)" ]; then
+              echo "::error::No Panda3D wheel for pin ${{ steps.panda.outputs.rev }}."
+              exit 1
+          fi
+
+          pip install --disable-pip-version-check wheels/*.whl
+
       - name: Install dependencies
         run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
 
