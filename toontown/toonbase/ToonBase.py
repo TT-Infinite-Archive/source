@@ -43,8 +43,9 @@ class ToonBase(OTPBase.OTPBase):
 
         # Get the native display info:
         if sys.platform != 'android':
-            self.nativeWidth = self.pipe.getDisplayWidth()
-            self.nativeHeight = self.pipe.getDisplayHeight()
+            zoom = self.pipe.getDisplayZoom() or 1.0
+            self.nativeWidth = int(self.pipe.getDisplayWidth() / zoom)
+            self.nativeHeight = int(self.pipe.getDisplayHeight() / zoom)
             ratio = float(self.nativeWidth) / float(self.nativeHeight)
             fraction = fractions.Fraction(ratio).limit_denominator()
             self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))

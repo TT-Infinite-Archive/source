@@ -1,4 +1,5 @@
-from panda3d.core import Texture
+from panda3d.core import PandaSystem, Texture
+import sys
 Music = 'music'
 MusicVolume = 'music-volume'
 Sound = 'sfx'
@@ -20,6 +21,7 @@ ClassicMusic = 'classic-music'
 DoorInteract = 'door-interaction-key'
 NPCInteract = 'npc-interaction-key'
 AntiAliasing = 'anti-aliasing'
+RetinaMode = 'retina-mode'
 TextureQuality = 'textures-quality'
 CompressTextures = 'compress-textures'
 ThreadedRender = 'experimental-threaded-render'
@@ -72,10 +74,15 @@ InitialSettings = {
     TextureQuality: 3,
     CompressTextures: False,
     ThreadedRender: False,
-    AntiAliasing: True
+    AntiAliasing: True,
+    RetinaMode: True
 }
 
 TextureOptionToDimension = [128, 256, 1024, 4096]
+
+def retinaModeAvailable():
+    return sys.platform == 'darwin' and (
+        PandaSystem.getMajorVersion(), PandaSystem.getMinorVersion()) >= (1, 11)
 
 def loadInitialSettings():
     # Initializes settings if some initial options aren't in there

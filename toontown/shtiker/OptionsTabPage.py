@@ -232,10 +232,31 @@ class OptionsTabPage(DirectFrame):
             text_fg = ColorGlobals.CRed,
             text = '*'
         )
+        self.changedRetinaMode = False
+        self.retinaModeCheckbox = TTCheckBox.TTCheckBox(
+            parent = self.rightFrame,
+            pos = (-0.42, 0, -0.57),
+            checked = settings.get(SettingsGlobals.RetinaMode, True),
+            command = self.__doToggleRetinaMode
+        )
+        self.retinaModeLabel = TTLabel.TTLabel(
+            parent = self.rightFrame,
+            pos = (-0.36, 0.0, -0.58),
+            text_align = TextNode.ALeft,
+            text = TTLocalizer.OptionsPageRetinaMode
+        )
+        self.retinaModeRequiresRestartLabel = TTLabel.TTLabel(
+            parent = self.rightFrame,
+            pos = (-0.08, 0.0, -0.59),
+            text_align = TextNode.ALeft,
+            text_fg = ColorGlobals.CRed,
+            text = '*'
+        )
         self.requiresRestart = False
         self.animationSmoothingRequiresRestartLabel.hide()
         self.vsyncRequiresRestartLabel.hide()
         self.antiAliasingRequiresRestartLabel.hide()
+        self.retinaModeRequiresRestartLabel.hide()
         self.requiresRestartLabel.hide()
 
         # -- Sound
@@ -608,6 +629,11 @@ class OptionsTabPage(DirectFrame):
         self.animationSmoothingCheckBox.show()
         self.antiAliasingLabel.show()
         self.antiAliasingCheckbox.show()
+        if SettingsGlobals.retinaModeAvailable():
+            self.retinaModeLabel.show()
+            self.retinaModeCheckbox.show()
+        if self.changedRetinaMode:
+            self.retinaModeRequiresRestartLabel.show()
         if self.changedVsync:
             self.vsyncRequiresRestartLabel.show()
         if self.changedAnimationSmoothing:
@@ -635,6 +661,9 @@ class OptionsTabPage(DirectFrame):
         self.animationSmoothingCheckBox.hide()
         self.antiAliasingLabel.hide()
         self.antiAliasingCheckbox.hide()
+        self.retinaModeLabel.hide()
+        self.retinaModeCheckbox.hide()
+        self.retinaModeRequiresRestartLabel.hide()
         self.requiresRestartLabel.hide()
         self.vsyncRequiresRestartLabel.hide()
         self.animationSmoothingRequiresRestartLabel.hide()
@@ -812,6 +841,15 @@ class OptionsTabPage(DirectFrame):
         self.requiresRestartLabel.show()
         self.requiresRestart = True
         self.changedAntiAliasing = True
+
+    def __doToggleRetinaMode(self):
+        messenger.send(EventGlobals.WakeUp)
+        flag = not settings.get(SettingsGlobals.RetinaMode, True)
+        settings[SettingsGlobals.RetinaMode] = flag
+        self.retinaModeRequiresRestartLabel.show()
+        self.requiresRestartLabel.show()
+        self.requiresRestart = True
+        self.changedRetinaMode = True
 
     def __doToggleSfx(self):
         messenger.send(EventGlobals.WakeUp)

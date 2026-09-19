@@ -55,8 +55,31 @@ from toontown.toonbase import ServerSettingsGlobals
 builtins.serverSettings = Settings(ServerSettingsGlobals.settingsPath())
 ServerSettingsGlobals.loadInitialSettings()
 
-loadPrcFileData('Settings: res',
-                'win-size %d %d' % tuple(settings.get(SettingsGlobals.Resolution, (800, 600))))
+if sys.platform != 'android':
+    loadPrcFileData('Settings: loadDisplay',
+                    'load-display %s' % settings[SettingsGlobals.LoadDisplay])
+else:
+    loadPrcFileData('Settings: loadDisplay',
+                    'load-display pandagles')
+
+def retinaModeScale():
+    from panda3d.core import GraphicsPipeSelection
+
+    try:
+        return GraphicsPipeSelection.getGlobalPtr().makeDefaultPipe().getDisplayZoom()
+    except Exception:
+        return 1.0
+
+resolution = tuple(settings.get(SettingsGlobals.Resolution, (800, 600)))
+
+if SettingsGlobals.retinaModeAvailable() and settings.get(SettingsGlobals.RetinaMode, True):
+    loadPrcFileData('Settings: retina-mode', 'dpi-aware #t')
+    scale = retinaModeScale()
+    resolution = (int(resolution[0] * scale), int(resolution[1] * scale))
+    notify.info('Retina Mode: display zoom %.1fx, rendering at %dx%d'
+                % (scale, resolution[0], resolution[1]))
+
+loadPrcFileData('Settings: res', 'win-size %d %d' % resolution)
 loadPrcFileData('Settings: fullscreen',
                 'fullscreen #%s' % ('t' if settings[SettingsGlobals.Fullscreen] else 'f'))
 loadPrcFileData('Settings: music', 'audio-music-active %s' % settings[SettingsGlobals.Music])
@@ -85,12 +108,6 @@ if settings[SettingsGlobals.AntiAliasing]:
                     'framebuffer-multisample 1')
     loadPrcFileData('Settings: Anti Aliasing Amount',
                     'multisamples %s' % 4)
-if sys.platform != 'android':
-    loadPrcFileData('Settings: loadDisplay',
-                    'load-display %s' % settings[SettingsGlobals.LoadDisplay])
-else:
-    loadPrcFileData('Settings: loadDisplay',
-                    'load-display pandagles')
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
 
