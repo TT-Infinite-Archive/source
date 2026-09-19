@@ -1,14 +1,13 @@
 #!/bin/bash
-# Maintainers only. This is start-server.sh plus the pieces that need
-# credentials: the Infisical wrapper, the .gateway-env fallback, --gateway, and
+# For use by maintainers only. This is start-server.sh plus the pieces that need
+# credentials: the secret manager wrapper, the .gateway-env fallback, --gateway, and
 # --accountdb production.
 
 # Starts the TTI server stack and then the client.
 # Launch order: mongod -> astrond -> UberDOG -> AI -> client.
 #
 # With --client-only the servers are skipped and the client brings its own stack
-# up through LocalServerStarter, which is the path a launcher-started client in
-# local mode takes.
+# up through LocalServerStarter.
 set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -25,7 +24,7 @@ mkdir -p "$LOGS" "$ROOT/astron/logs"
 #
 #
 # Linking a developer machine to the "Server" project:
-#   infisical login --domain=https://infisical.toontown.io
+#   infisical login
 #   infisical init
 #
 INFISICAL=0
@@ -222,9 +221,6 @@ PIDS+=($!)
 wait_for_port 7030
 
 echo "[2/5] Starting astrond..."
-# The writer settles on a port -- stepping over one macOS has handed to its
-# AirPlay Receiver, say -- writes it into server-settings.json where the client
-# reads it, and prints it on its last line:
 PORT="$(python "$ROOT/scripts/write_astron_config.py" | tail -n 1)"
 case "$PORT" in
     ''|*[!0-9]*)

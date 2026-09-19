@@ -27,7 +27,6 @@ tools/
 tti-server/
 databases/
 .gateway-env
-start-server-maintainer.sh
 
 # Virtual environments:
 venv/
