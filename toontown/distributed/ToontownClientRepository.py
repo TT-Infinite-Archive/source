@@ -419,6 +419,11 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                     self.notify.warning("Caught exception with field %s" % k)
             else:
                 getattr(pad.avatar, currentField[0])(currentField[1])
+        
+        # We need to call these too. The original response used
+        # updateAllRequiredFields to fill in fields, which called these.
+        pad.avatar.announceGenerate()
+        pad.avatar.postGenerateMessage()
 
         gotData = 1
 
