@@ -78,9 +78,25 @@ jobs:
       promote: false
     secrets: inherit
 
+  deploy:
+    name: Deploy
+    needs: [version, server, client]
+    if: needs.version.outputs.channel == 'live'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      tag: tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
+    secrets: inherit
+
+  # Last, so the launcher only offers the new client once there is a server
+  # that will accept it. On qa there is no deploy to wait for.
   promote:
     name: Promote tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
-    needs: [version, server, client]
+    needs: [version, server, client, deploy]
+    if: >-
+      !cancelled()
+      && needs.server.result == 'success'
+      && needs.client.result == 'success'
+      && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       BUCKET: ttiwebsite

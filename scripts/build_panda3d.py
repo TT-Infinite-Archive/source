@@ -27,7 +27,7 @@ WINDOWS_SDK = '10'
 MSVC_VERSION = '14.3'
 DEBIAN_PACKAGES = (
     'build-essential', 'cmake', 'git', 'ca-certificates', 'pkg-config',
-    'python3-dev', 'libgl1-mesa-dev', 'libx11-dev', 'libxrandr-dev',
+    'python3-dev', 'patchelf', 'libgl1-mesa-dev', 'libx11-dev', 'libxrandr-dev',
     'libxcursor-dev', 'libfreetype-dev', 'libharfbuzz-dev', 'libvorbis-dev',
     'libopus-dev', 'libopenal-dev', 'libode-dev', 'libssl-dev', 'libjpeg-dev',
     'libpng-dev', 'libtiff-dev', 'libeigen3-dev', 'libavcodec-dev',
@@ -87,6 +87,44 @@ def pythonPaths():
         library = Path(sys.base_prefix) / ('libs' if os.name == 'nt' else 'lib')
 
     return ['--python-incdir', str(include), '--python-libdir', str(library)]
+
+def visualStudio():
+    if sys.platform != 'win32' or os.environ.get('VCINSTALLDIR'):
+        return
+
+    programs = [os.environ.get('ProgramFiles(x86)', r'C:\Program Files (x86)'),
+                os.environ.get('ProgramFiles', r'C:\Program Files')]
+    roots = []
+
+    for program in programs:
+        vswhere = Path(program, 'Microsoft Visual Studio', 'Installer',
+                       'vswhere.exe')
+
+        if not vswhere.is_file():
+            continue
+
+        found = capture([vswhere, '-latest', '-products', '*',
+                         '-requires',
+                         'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
+                         '-property', 'installationPath']).strip()
+
+        if found:
+            roots = [Path(found)]
+            break
+
+    if not roots:
+        roots = sorted(path for program in programs
+                       for path in Path(program, 'Microsoft Visual Studio')
+                       .glob('20*/*'))
+
+    for root in roots:
+        if (root / 'VC').is_dir():
+            os.environ['VCINSTALLDIR'] = str(root / 'VC')
+            print('+ VCINSTALLDIR=%s' % os.environ['VCINSTALLDIR'], flush=True)
+            return
+
+    print('No Visual Studio found; leaving makepanda to search for itself.',
+          flush=True)
 
 class Build:
     def __init__(self, work, jobs, arch):
@@ -160,6 +198,7 @@ class Build:
         toolchain = []
 
         if sys.platform == 'win32':
+            visualStudio()
             toolchain = ['--windows-sdk=%s' % WINDOWS_SDK,
                          '--msvc-version=%s' % MSVC_VERSION]
 
@@ -210,8 +249,9 @@ def verifyInstalled(arch):
             problems.append('no %s support, which the phase files need' % name)
 
     loadPrcFileData('', 'audio-library-name p3openal_audio')
+
     if not AudioManager.createAudioManager().isValid():
-        problems.append('the audio manager is not valid')
+        print('note: no audio device here')
 
     loadPrcFileData('', 'dpi-aware #t')
     if not ConfigVariableBool('dpi-aware', False).getValue():
@@ -249,7 +289,7 @@ def installDependencies():
                     '--no-install-recommends', *DEBIAN_PACKAGES])
 
     elif sys.platform == 'darwin':
-        run(['brew', 'install', '--quiet', 'cmake', 'pkg-config'])
+        run(['brew', 'install', '--quiet', 'cmake', 'pkg-config', 'nasm'])
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output', type=Path,

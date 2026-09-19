@@ -115,12 +115,3 @@ jobs:
           tags: ${{ steps.image.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,scope=${{ matrix.image }},mode=max
-
-  deploy:
-    name: Deploy
-    needs: publish
-    if: inputs.channel == 'live'
-    uses: ./.github/workflows/deploy.yml
-    with:
-      tag: tti-${{ inputs.channel }}-v${{ inputs.version }}
-    secrets: inherit
