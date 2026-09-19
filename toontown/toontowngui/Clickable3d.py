@@ -4,31 +4,33 @@ from toontown.toontowngui.Clickable import Clickable
 
 
 class Clickable3d(Clickable):
-    def setClickRegionFrame(self, left, right, bottom, top):
-        transform = self.contents.getNetTransform()
-
-        # We use the inverse of the cam transform so that it will not be
-        # applied to the frame points twice:
-        camTransform = base.cam.getNetTransform().getInverse()
-
-        # Compose the inverse of the cam transform and our node's transform:
-        transform = camTransform.compose(transform)
-
-        # Discard its rotational components:
-        transform.setQuat(Quat())
-
-        # Transform the frame points into cam space:
+    def projectFrame(self, nodePath, left, right, bottom, top):
+        # Discard the rotational components so that the frame points are
+        # measured in a camera-facing plane:
+        transform = base.cam.getNetTransform().getInverse().compose(
+            nodePath.getNetTransform()).setQuat(Quat())
         mat = transform.getMat()
+
         camSpaceTopLeft = mat.xformPoint(Point3(left, 0, top))
         camSpaceBottomRight = mat.xformPoint(Point3(right, 0, bottom))
 
-        # Project into screen space:
+        near = base.camLens.getNear()
+        if (camSpaceTopLeft[1] < near) or (camSpaceBottomRight[1] < near):
+            return None
+
         screenSpaceTopLeft = Point2()
         screenSpaceBottomRight = Point2()
-        base.camLens.project(Point3(camSpaceTopLeft), screenSpaceTopLeft)
-        base.camLens.project(Point3(camSpaceBottomRight), screenSpaceBottomRight)
+        base.camLens.project(camSpaceTopLeft, screenSpaceTopLeft)
+        base.camLens.project(camSpaceBottomRight, screenSpaceBottomRight)
 
-        left, top = screenSpaceTopLeft
-        right, bottom = screenSpaceBottomRight
+        return (screenSpaceTopLeft[0], screenSpaceBottomRight[0],
+                screenSpaceBottomRight[1], screenSpaceTopLeft[1])
 
-        self.region.setFrame(left, right, bottom, top)
+    def setRegionFrame(self, frame):
+        if frame is not None:
+            self.region.setFrame(*frame)
+        self.region.setActive(frame is not None)
+
+    def setClickRegionFrame(self, left, right, bottom, top):
+        self.setRegionFrame(
+            self.projectFrame(self.contents, left, right, bottom, top))

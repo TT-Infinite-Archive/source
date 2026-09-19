@@ -43,6 +43,9 @@ want2dNametags = True
 forceOnscreenChat = False
 force2dNametags = False
 wantActiveNametags = True
+wantBodyClick = True
+tickers = {}
+TickTaskName = 'nametag-tick'
 
 
 def setCardModel(model):
@@ -125,6 +128,29 @@ def setForce2dNametags(value):
 def setWantActiveNametags(value):
     global wantActiveNametags
     wantActiveNametags = value
+
+
+def setWantBodyClick(value):
+    global wantBodyClick
+    wantBodyClick = value
+
+
+def addTicker(ticker):
+    tickers[id(ticker)] = ticker
+    if not taskMgr.hasTaskNamed(TickTaskName):
+        taskMgr.add(tickAll, TickTaskName, sort=45)
+
+
+def removeTicker(ticker):
+    tickers.pop(id(ticker), None)
+    if not tickers:
+        taskMgr.remove(TickTaskName)
+
+
+def tickAll(task):
+    for ticker in list(tickers.values()):
+        ticker.tick()
+    return task.cont
 
 
 def getModelWidthHeight(model):

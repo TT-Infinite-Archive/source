@@ -1,5 +1,4 @@
 from panda3d.core import TextNode, VBase4
-from direct.task.Task import Task
 
 from toontown.chat.ChatBalloon import ChatBalloon
 from toontown.nametag import NametagGlobals
@@ -60,14 +59,10 @@ class Nametag:
         self.chatTextNode.setGlyphScale(ChatBalloon.TEXT_GLYPH_SCALE)
         self.chatTextNode.setGlyphShift(ChatBalloon.TEXT_GLYPH_SHIFT)
 
-        # Add the tick task:
-        self.tickTaskName = self.getUniqueName() + '-tick'
-        self.tickTask = taskMgr.add(self.tick, self.tickTaskName, sort=45)
+        NametagGlobals.addTicker(self)
 
     def destroy(self):
-        if self.tickTask is not None:
-            taskMgr.remove(self.tickTask)
-            self.tickTask = None
+        NametagGlobals.removeTicker(self)
 
         self.chatTextNode = None
         self.guildTextNode = None
@@ -105,8 +100,8 @@ class Nametag:
     def getChatBalloonHeight(self):
         pass  # Inheritors should override this method.
 
-    def tick(self, task):
-        return Task.done  # Inheritors should override this method.
+    def tick(self):
+        pass  # Inheritors should override this method.
 
     def updateClickRegion(self):
         pass  # Inheritors should override this method.

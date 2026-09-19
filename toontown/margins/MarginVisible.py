@@ -55,5 +55,8 @@ class MarginVisible:
     def getCell(self):
         return self.cell
 
+    def getMarginScreenPos(self):
+        return None  # Inheritors with a world position should override this.
+
     def marginVisibilityChanged(self):
         pass  # Inheritors should override this method.

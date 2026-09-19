@@ -1,5 +1,4 @@
-from panda3d.core import DepthWriteAttrib, NodePath, PGButton, Point3, Quat, TextNode, VBase4
-from direct.task.Task import Task
+from panda3d.core import DepthWriteAttrib, NodePath, PGButton, Point2, Point3, Quat, TextNode, VBase4
 import math
 
 from toontown.chat.ChatBalloon import ChatBalloon
@@ -145,22 +144,36 @@ class Nametag2d(Nametag, Clickable2d, MarginVisible):
             if self.region is not None:
                 self.region.setActive(False)
 
-    def tick(self, task):
+    def getMarginScreenPos(self):
         if (self.avatar is None) or self.avatar.isEmpty():
-            return Task.cont
+            return None
+
+        pos = self.avatar.getPos(base.cam)
+        aspectRatio = base.getAspectRatio()
+
+        if pos[1] < base.camLens.getNear():
+            # The avatar is behind us and all we can say is which side it's on:
+            return Point2(math.copysign(aspectRatio, pos[0]), 0)
+
+        point = Point2()
+        base.camLens.project(pos, point)
+        return Point2(
+            min(max(point[0] * aspectRatio, -aspectRatio), aspectRatio),
+            min(max(point[1], -1), 1))
+
+    def tick(self):
+        if (self.avatar is None) or self.avatar.isEmpty():
+            return
 
         if (self.cell is None) or (self.arrow is None):
-            return Task.cont
+            return
 
         location = self.avatar.getPos(NametagGlobals.me)
         rotation = NametagGlobals.me.getQuat(base.cam)
         camSpacePos = rotation.xform(location)
 
         arrowRadians = math.atan2(camSpacePos[0], camSpacePos[1])
-        arrowDegrees = (arrowRadians/math.pi) * 180
-        self.arrow.setR(arrowDegrees - 90)
-
-        return Task.cont
+        self.arrow.setR(math.degrees(arrowRadians) - 90)
 
     def drawChatBalloon(self, model, modelWidth, modelHeight):
         if self.chatFont is None:

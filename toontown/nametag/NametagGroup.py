@@ -61,17 +61,13 @@ class NametagGroup:
         self.add(self.nametag2d)
         self.add(self.nametag3d)
 
-        # Add the tick task:
-        self.tickTaskName = self.getUniqueName() + '-tick'
-        self.tickTask = taskMgr.add(self.tick, self.tickTaskName, sort=45)
+        NametagGlobals.addTicker(self)
 
     def destroy(self):
         if self.marginManager is not None:
             self.unmanage(self.marginManager)
 
-        if self.tickTask is not None:
-            taskMgr.remove(self.tickTask)
-            self.tickTask = None
+        NametagGlobals.removeTicker(self)
 
         self.clearChatText()
 
@@ -96,9 +92,9 @@ class NametagGroup:
     def getUniqueName(self):
         return 'NametagGroup-' + str(id(self))
 
-    def tick(self, task):
+    def tick(self):
         if (self.avatar is None) or (self.avatar.isEmpty()):
-            return Task.cont
+            return
 
         chatText = self.getChatText()
         if (NametagGlobals.forceOnscreenChat and
@@ -125,8 +121,6 @@ class NametagGroup:
             self.visible3d = visible3d
             if self.nametag2d is not None:
                 self.nametag2d.setVisible(not visible3d)
-
-        return Task.cont
 
     def setAvatar(self, avatar):
         self.avatar = avatar

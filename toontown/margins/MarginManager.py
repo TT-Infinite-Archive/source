@@ -1,5 +1,4 @@
 from panda3d.core import PandaNode
-import random
 
 from toontown.margins.MarginCell import MarginCell
 
@@ -40,17 +39,26 @@ class MarginManager(PandaNode):
     def getActiveCells(self):
         return [cell for cell in self.cells if cell.getActive()]
 
+    def chooseCell(self, visible, cells):
+        # Prefer the cell nearest to where the visible actually is on screen:
+        target = visible.getMarginScreenPos()
+        if target is None:
+            lastCell = visible.getLastCell()
+            return lastCell if lastCell in cells else cells[0]
+
+        return min(
+            cells,
+            key=lambda cell: (cell.getPos(base.aspect2d).getXz() - target).lengthSquared())
+
     def reorganize(self):
         # First, get all of the active cells:
         activeCells = self.getActiveCells()
 
-        # Next, get all of the visibles sorted by priority:
-        visibles = list(self.visibles)
-        visibles.sort(key=lambda visible: visible.getPriority(), reverse=True)
-
-        # We can only display so many visibles, so truncate them based on the
-        # number of active cells:
-        visibles = visibles[:len(activeCells)]
+        # Next, get all of the visibles sorted by priority. We can only display
+        # so many, so truncate them based on the number of active cells:
+        visibles = sorted(
+            self.visibles, key=lambda visible: visible.getPriority(),
+            reverse=True)[:len(activeCells)]
 
         # Now, let's build a list of empty cells:
         emptyCells = []
@@ -69,8 +77,6 @@ class MarginManager(PandaNode):
 
         # Assign the visibles to their cells:
         for visible in visibles:
-            cell = visible.getLastCell()
-            if cell not in emptyCells:
-                cell = random.choice(emptyCells)
+            cell = self.chooseCell(visible, emptyCells)
             cell.setContent(visible)
             emptyCells.remove(cell)

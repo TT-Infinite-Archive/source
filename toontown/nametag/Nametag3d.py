@@ -1,10 +1,10 @@
 from panda3d.core import BillboardEffect, DepthWriteAttrib, NodePath, PGButton, Point3, TextNode, VBase4, Vec3
 import math
 
-from direct.task.Task import Task
 from direct.interval.IntervalGlobal import Sequence, Parallel
 from direct.interval.IntervalGlobal import LerpScaleInterval, Func
 
+from otp.otpbase import OTPGlobals
 from toontown.chat.ChatBalloon import ChatBalloon
 from toontown.nametag import NametagGlobals
 from toontown.nametag.Nametag import Nametag
@@ -16,11 +16,17 @@ class Nametag3d(Nametag, Clickable3d):
     SCALING_MAX_DISTANCE = 50
     SCALING_FACTOR = 0.065
 
+    # The vertical FOV that SCALING_FACTOR was tuned against:
+    REFERENCE_FOV_TAN = math.tan(math.radians(
+        (OTPGlobals.DefaultCameraFov / (4.0 / 3.0)) / 2.0))
+
     def __init__(self):
         Nametag.__init__(self)
         Clickable3d.__init__(self, 'Nametag3d')
 
         self.distance = 0
+        self.fov = 0
+        self.regionSort = 0
 
         self.billboardOffset = 3
         self.doBillboardEffect()
@@ -62,6 +68,30 @@ class Nametag3d(Nametag, Clickable3d):
             Point3(0, 0, 0))
         self.contents.setEffect(billboardEffect)
 
+    def unionBodyFrame(self, frame):
+        # Extend the nametag's click region over the avatar's body
+        avatar = self.avatar
+        if (self.chatBalloon is not None) or (avatar is None) or avatar.isEmpty():
+            return frame
+        if not (NametagGlobals.wantBodyClick and self.isClickable()):
+            return frame
+        if not hasattr(avatar, 'getRadius'):
+            return frame
+
+        radius = avatar.getRadius()
+        body = self.projectFrame(avatar, -radius, radius, 0, avatar.getHeight())
+        if body is None:
+            return frame
+
+        return (min(frame[0], body[0]), max(frame[1], body[1]),
+                min(frame[2], body[2]), max(frame[3], body[3]))
+
+    def setClickRegionFrame(self, left, right, bottom, top):
+        frame = self.projectFrame(self.contents, left, right, bottom, top)
+        if frame is not None:
+            frame = self.unionBodyFrame(frame)
+        self.setRegionFrame(frame)
+
     def updateClickRegion(self):
         if self.chatBalloon is not None:
             left = self.chatBalloon.center[0] - (self.chatBalloon.width / 2)
@@ -95,6 +125,8 @@ class Nametag3d(Nametag, Clickable3d):
             top = centerY + (self.panelHeight / 2.0)
 
             self.setClickRegionFrame(left, right, bottom, top)
+        else:
+            self.region.setActive(False)
 
     def isClickable(self):
         if self.getChatText() and self.hasChatButton():
@@ -126,21 +158,26 @@ class Nametag3d(Nametag, Clickable3d):
 
         Nametag.update(self)
 
-    def tick(self, task):
+    def tick(self):
         distance = self.contents.getPos(base.cam).length()
+        scaleDistance = min(
+            max(distance, self.SCALING_MIN_DISTANCE), self.SCALING_MAX_DISTANCE)
+        fov = base.camLens.getFov()[1]
 
-        if distance < self.SCALING_MIN_DISTANCE:
-            distance = self.SCALING_MIN_DISTANCE
-        elif distance > self.SCALING_MAX_DISTANCE:
-            distance = self.SCALING_MAX_DISTANCE
+        if (scaleDistance != self.distance) or (fov != self.fov):
+            self.distance = scaleDistance
+            self.fov = fov
+            self.contents.setScale(
+                math.sqrt(scaleDistance) * self.SCALING_FACTOR *
+                math.tan(math.radians(fov / 2.0)) / self.REFERENCE_FOV_TAN)
 
-        if distance != self.distance:
-            self.contents.setScale(math.sqrt(distance) * self.SCALING_FACTOR)
-            self.distance = distance
+        # Prefer the nearest nametag:
+        regionSort = -int(distance)
+        if regionSort != self.regionSort:
+            self.regionSort = regionSort
+            self.region.setSort(regionSort)
 
         self.updateClickRegion()
-
-        return Task.cont
 
     def drawChatBalloon(self, model, modelWidth, modelHeight):
         if self.chatFont is None:
