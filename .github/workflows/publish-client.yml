@@ -260,8 +260,8 @@ jobs:
           fi
 
           if [ ! -d "$TREE" ]; then
-              echo "No $TREE for ${{ matrix.target }}."
-              exit 0
+              echo "::error::${{ matrix.part }} produced no $TREE for ${{ matrix.target }}."
+              exit 1
           fi
 
           python tools/build_manifest.py \
@@ -283,8 +283,8 @@ jobs:
         shell: bash
         run: |
           if [ ! -d build/manifest ]; then
-              echo "Nothing to upload for ${{ matrix.part }} ${{ matrix.target }}."
-              exit 0
+              echo "::error::No manifest to upload for ${{ matrix.part }} ${{ matrix.target }}."
+              exit 1
           fi
 
           aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
