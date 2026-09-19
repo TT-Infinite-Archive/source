@@ -117,10 +117,7 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
         self.music = base.loader.loadMusic('phase_4/audio/bgm/MG_IceGame.ogg')
         self.gameBoard = loader.loadModel('phase_4/models/minigames/ice_game_icerink')
         background = loader.loadModel('phase_4/models/minigames/ice_game_2d')
-        backgroundWide = loader.loadModel('phase_4/models/minigames/iceslide_ground')
         background.reparentTo(self.gameBoard)
-        backgroundWide.reparentTo(self.gameBoard)
-        backgroundWide.setPos(0, -0.3, -0.5)
         self.gameBoard.setPosHpr(0, 0, 0, 0, 0, 0)
         self.gameBoard.setScale(1.0)
         self.setupSimulation()
@@ -1031,10 +1028,9 @@ class DistributedIceGame(DistributedMinigame.DistributedMinigame, DistributedIce
 
     def postStep(self):
         DistributedIceWorld.DistributedIceWorld.postStep(self)
-        if not self.colCount:
-            return
-        for count in range(self.colCount):
-            c0, c1 = self.getOrderedContacts(count)
+
+        for entry in self.colEntries:
+            c0, c1 = self.getOrderedContacts(entry)
             if c1 in self.tireCollideIds:
                 tireIndex = self.tireCollideIds.index(c1)
                 if c0 in self.tireCollideIds:
