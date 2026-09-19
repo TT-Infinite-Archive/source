@@ -364,17 +364,12 @@ class DistributedMailboxAI(DistributedObjectAI.DistributedObjectAI):
 
     def markInviteReadButNotReplied(self, inviteKey):
         """Mark the invite as read but not replied in the db."""
-        avId = self.air.getAvatarIdFromSender()
-        validInviteKey = False
-        toon = simbase.air.doId2do.get(avId)
-        for invite in toon.invites:
-            if invite.inviteKey == inviteKey and \
-               invite.status == EInviteStatus.NOT_READ:
-                validInviteKey = True
-                break
-        if validInviteKey:
-            # self.air.partyManager.markInviteReadButNotReplied(inviteKey)
-            self.air.partyManager.d_respondToInvite(avId, EInviteStatus.READ_BUT_NOT_REPLIED, 0, inviteKey)
+        toon = simbase.air.doId2do.get(self.air.getAvatarIdFromSender())
+        if not toon:
+            return
+        if any(invite.inviteKey == inviteKey and invite.status == EInviteStatus.NOT_READ
+               for invite in toon.invites):
+            self.air.partyManager.markInviteReadButNotReplied(inviteKey)
 
     def rejectInviteMessage(self, context, inviteKey):
         DistributedMailboxAI.notify.debug("rejectInviteMessage")
