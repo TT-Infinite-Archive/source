@@ -110,7 +110,7 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
 
         self.trashcan.loadAnims(animDict)
         self.trashcan.pose('anim', 0)
-        self.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
+        self.trashcan.setBlend(frameBlend = settings.get(SettingsGlobals.AnimationSmoothing))
         self.node = self.trashcan
         self.idleInterval = self.createIdleInterval()
         self.battleCheerInterval = self.createBattleCheerInterval()
