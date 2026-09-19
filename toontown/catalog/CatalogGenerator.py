@@ -4,11 +4,16 @@ from . import CatalogItem
 from . import CatalogItemList
 from .CatalogFurnitureItem import nextAvailableCloset, get50ItemTrunk
 from .CatalogPoleItem import nextAvailablePole
+from toontown.toonbase import ToontownGlobals
+from panda3d.core import ConfigVariableInt
 from datetime import datetime
 
 
 class CatalogGenerator:
     notify = directNotify.newCategory('CatalogGenerator')
+
+    rodWeekInterval = max(1, ConfigVariableInt(
+        'catalog-rod-interval', ToontownGlobals.CatalogNewRodWeekInterval).getValue())
 
     def __init__(self):
         self.__itemLists = {}
@@ -50,7 +55,7 @@ class CatalogGenerator:
             if catalog.newCloset:
                 weeklyCatalog += self.__selectItem(avatar, nextAvailableCloset, monthlyCatalog, saleItem=0)
 
-            if catalog.newRod:
+            if week % self.rodWeekInterval == 0:
                 weeklyCatalog += self.__selectItem(avatar, nextAvailablePole, monthlyCatalog, saleItem=0)
 
             weeklyCatalog += self.__selectItem(avatar, get50ItemTrunk, monthlyCatalog, saleItem=0)

@@ -69,6 +69,7 @@ ExtraDeletedItems = 5
 DeletedItemLifetime = 7 * 24 * 60
 CatalogNumWeeksPerSeries = 13
 CatalogNumWeeks = 78
+CatalogNewRodWeekInterval = 1
 PetFloorCollPriority = 5
 PetPanelProximityPriority = 6
 P_NoTrunk = -28

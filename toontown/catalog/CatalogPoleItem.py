@@ -96,6 +96,9 @@ def nextAvailablePole(avatar, duplicateItems):
     inventory = avatar.collectibleInventory
     if inventory is None:
         return None
+    for item in avatar.onOrder + avatar.mailboxContents:
+        if isinstance(item, CatalogPoleItem):
+            return None
     category = CollectibleInventoryGlobals.CICategoryFishingRod
     maxRodId = len(CollectibleInventoryGlobals.CICategoryToItemIds[category]) - 1
     bestRod = 0
@@ -106,14 +109,7 @@ def nextAvailablePole(avatar, duplicateItems):
             break
     if bestRod > maxRodId:
         return None
-    item = CatalogPoleItem(bestRod)
-    while item in avatar.onOrder or item in avatar.mailboxContents:
-        bestRod += 1
-        if bestRod > maxRodId:
-            return None
-        item = CatalogPoleItem(maxRodId)
-
-    return item
+    return CatalogPoleItem(bestRod)
 
 
 def getAllPoles():
