@@ -20,7 +20,7 @@ class GuildQuestUD(DirectObject):
         self.reward = quest[GuildQuestGlobals.GUILD_QUEST_REWARD]
         self.progress = quest[GuildQuestGlobals.GUILD_QUEST_PROGRESS]
 
-    def attemptProgress(self, category, posObjectives):
+    def attemptProgress(self, category, posObjectives, amount=1):
         myCat = GuildQuestGlobals.GuildQuestDict[self.questId][0]
         myObj = GuildQuestGlobals.GuildQuestDict[self.questId][1]
 
@@ -35,7 +35,7 @@ class GuildQuestUD(DirectObject):
             # This quest is done?
             return
 
-        self.progress += 1
+        self.progress = min(self.goal, self.progress + amount)
 
     def complete(self):
         self.guild.finishQuest()

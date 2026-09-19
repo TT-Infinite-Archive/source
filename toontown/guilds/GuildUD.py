@@ -182,15 +182,21 @@ class GuildUD:
         self.quest = self.questInst.asStruct()
 
     def progressQuest(self, avIds, category, possibleObjectives):
-        # Get how much a guild member would get for doing this
-        cpReward = GuildQuestGlobals.GuildQuestDict[self.questInst.questId][2] / len(avIds)
-        
         # Attempt to progress quest with task
+        if category in GuildQuestGlobals.GUILD_QUEST_PER_TOON_CATEGORIES:
+            amount = len(avIds)
+        else:
+            amount = 1
+
         prevProgress = self.questInst.progress
-        self.questInst.attemptProgress(category, possibleObjectives)
+        self.questInst.attemptProgress(category, possibleObjectives, amount)
         self.quest = self.questInst.asStruct()
 
-        if self.questInst.progress > prevProgress:
+        gained = self.questInst.progress - prevProgress
+        if gained > 0:
+            # Get how much a guild member would get for doing this
+            cpReward = GuildQuestGlobals.GuildQuestDict[self.questInst.questId][2] * gained / len(avIds)
+
             # This quest progressed, lets add contribution for the members
             for avId in avIds:
                 if avId in self.questContributions:
