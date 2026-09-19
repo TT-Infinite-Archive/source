@@ -58,7 +58,7 @@ ServerSettingsGlobals.loadInitialSettings()
 loadPrcFileData('Settings: res',
                 'win-size %d %d' % tuple(settings.get(SettingsGlobals.Resolution, (800, 600))))
 loadPrcFileData('Settings: fullscreen',
-                'fullscreen #%s' % 't' if settings[SettingsGlobals.Fullscreen] else 'f')
+                'fullscreen #%s' % ('t' if settings[SettingsGlobals.Fullscreen] else 'f'))
 loadPrcFileData('Settings: music', 'audio-music-active %s' % settings[SettingsGlobals.Music])
 loadPrcFileData('Settings: sfx',
                 'audio-sfx-active %s' % settings[SettingsGlobals.Sound])
@@ -75,14 +75,14 @@ loadPrcFileData('Settings: animationSmoothing',
 loadPrcFileData('Settings: Texture Quality',
                 'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
 loadPrcFileData('Settings: Texture Compression',
-                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
+                'compressed-textures #%s' % ('t' if settings[SettingsGlobals.CompressTextures] else 'f'))
 if settings[SettingsGlobals.ThreadedRender]:
     loadPrcFileData('Settings: Experimental Threaded Rendering',
                     'threading-model Cull/Draw')
     notify.warning("Experimental Threaded Rendering is enabled! The game may crash randomly! You have been warned!")
 if settings[SettingsGlobals.AntiAliasing]:
     loadPrcFileData('Settings: Anti Aliasing',
-                    'framebuffer-multisample %s' % 1 if settings[SettingsGlobals.AntiAliasing] else 'f')
+                    'framebuffer-multisample 1')
     loadPrcFileData('Settings: Anti Aliasing Amount',
                     'multisamples %s' % 4)
 if sys.platform != 'android':
