@@ -18,6 +18,8 @@ class DistributedTrophyMgrAI(DistributedObjectAI):
         # Load the leaderboard backup for this shard:
         self.leaderInfo, self.trophyScores = simbase.backups.load(
             'trophy-mgr', (simbase.air.districtId,), default=(([], [], []), {}))
+        self.trophyScores = {
+            int(avId): score for avId, score in self.trophyScores.items()}
 
     def requestTrophyScore(self):
         avId = self.air.getAvatarIdFromSender()

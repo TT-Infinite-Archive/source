@@ -1,7 +1,22 @@
+import base64
 import json
 import os
 
 from direct.directnotify import DirectNotifyGlobal
+
+BYTES_TAG = '_bytes_b64'
+
+
+def encodeBytes(obj):
+    if not isinstance(obj, bytes):
+        raise TypeError('%r is not JSON serializable' % (obj,))
+    return {BYTES_TAG: base64.b64encode(obj).decode('ascii')}
+
+
+def decodeBytes(obj):
+    if len(obj) == 1 and BYTES_TAG in obj:
+        return base64.b64decode(obj[BYTES_TAG])
+    return obj
 
 
 class BackupManager:
@@ -24,7 +39,7 @@ class BackupManager:
 
         try:
             with open(filename, 'r') as f:
-                return json.load(f)
+                return json.load(f, object_hook=decodeBytes)
         except (OSError, ValueError) as error:
             # a single unreadable file would otherwise take the whole district
             # down and keep doing it on every restart. The next save replaces it!
@@ -33,15 +48,24 @@ class BackupManager:
             return default
 
     def save(self, category, info, data):
-        filepath = os.path.join(self.filepath, category)
-        if not os.path.exists(filepath):
-            os.makedirs(filepath)
         filename = self.getFileName(category, info)
         partial = filename + '.partial'
 
-        with open(partial, 'w') as f:
-            json.dump(data, f)
-            f.flush()
-            os.fsync(f.fileno())
+        try:
+            filepath = os.path.join(self.filepath, category)
+            if not os.path.exists(filepath):
+                os.makedirs(filepath)
 
-        os.replace(partial, filename)
+            with open(partial, 'w') as f:
+                json.dump(data, f, default=encodeBytes)
+                f.flush()
+                os.fsync(f.fileno())
+
+            os.replace(partial, filename)
+        except (OSError, TypeError, ValueError) as error:
+            # a bad value would otherwise kill whatever task asked for the save,
+            # mid-transition. The last good backup stands until the next save.
+            self.notify.warning(
+                'Failed to save backup %s: %s' % (filename, error))
+            if os.path.exists(partial):
+                os.remove(partial)

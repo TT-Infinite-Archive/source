@@ -123,6 +123,7 @@ class DistributedBuildingMgrAI:
 
     def findAllLandmarkBuildings(self):
         backups = simbase.backups.load('block-info', (self.air.districtId, self.branchId), default={})
+        backups = {int(blockNumber): backup for blockNumber, backup in backups.items()}
         (blocks, hqBlocks, gagshopBlocks, petshopBlocks, kartshopBlocks,
          bankBlocks, libraryBlocks, animBldgBlocks) = self.getDNABlockLists()
         for blockNumber in blocks:
