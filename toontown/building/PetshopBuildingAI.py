@@ -3,7 +3,7 @@ from . import DistributedPetshopInteriorAI
 from . import DoorTypes
 from toontown.hood import ZoneUtil
 from toontown.pets import DistributedPetAI, PetTraits, PetUtil
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 from toontown.toonbase import ToontownGlobals
 
 
@@ -30,7 +30,7 @@ class PetshopBuildingAI:
             blockNumber, self.air, self.interiorZone)
         self.interior.generateWithRequired(self.interiorZone)
 
-        self.npcs = NPCToons.createNpcsInZone(self.air, self.interiorZone)
+        self.npcs = NPCToonsAI.createNpcsInZone(self.air, self.interiorZone)
         self.npcIds = [npc.doId for npc in self.npcs]
 
         door = DistributedDoorAI.DistributedDoorAI(

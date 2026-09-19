@@ -1,7 +1,7 @@
 from . import DistributedDoorAI
 from . import DistributedHQInteriorAI
 from . import DoorTypes
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 
 
 class HQBuildingAI:
@@ -31,7 +31,7 @@ class HQBuildingAI:
             blockNumber, self.air, self.interiorZone)
         self.interior.generateWithRequired(self.interiorZone)
 
-        self.npcs = NPCToons.createNpcsInZone(self.air, self.interiorZone)
+        self.npcs = NPCToonsAI.createNpcsInZone(self.air, self.interiorZone)
 
         door0 = DistributedDoorAI.DistributedDoorAI(
             self.air, blockNumber, DoorTypes.EXT_HQ, doorIndex=0)

@@ -2,7 +2,7 @@
 from toontown.building import DistributedBankInteriorAI
 from toontown.building import DistributedDoorAI
 from toontown.building import DoorTypes
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 
 
 class BankBuildingAI:
@@ -28,7 +28,7 @@ class BankBuildingAI:
             blockNumber, self.air, self.interiorZone)
         self.interior.generateWithRequired(self.interiorZone)
 
-        self.npcs = NPCToons.createNpcsInZone(self.air, self.interiorZone)
+        self.npcs = NPCToonsAI.createNpcsInZone(self.air, self.interiorZone)
 
         door = DistributedDoorAI.DistributedDoorAI(
             self.air, blockNumber, DoorTypes.EXT_STANDARD)

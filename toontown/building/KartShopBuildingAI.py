@@ -2,7 +2,7 @@ from direct.directnotify.DirectNotifyGlobal import *
 from toontown.building import DoorTypes
 from toontown.building.DistributedDoorAI import DistributedDoorAI
 from toontown.building.DistributedKartShopInteriorAI import DistributedKartShopInteriorAI
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 
 
 if __debug__:
@@ -38,7 +38,7 @@ class KartShopBuildingAI:
             blockNumber, self.air, self.interiorZone)
         self.kartShopInterior.generateWithRequired(self.interiorZone)
 
-        self.npcs = NPCToons.createNpcsInZone(self.air, self.interiorZone)
+        self.npcs = NPCToonsAI.createNpcsInZone(self.air, self.interiorZone)
 
         self.outsideDoor0 = DistributedDoorAI(
             self.air, blockNumber, DoorTypes.EXT_KS, doorIndex=1)

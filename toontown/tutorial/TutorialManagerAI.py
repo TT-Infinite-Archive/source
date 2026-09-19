@@ -8,6 +8,7 @@ from toontown.dna.DNAParser import DNAStorage
 from . import SuitPlannerTutorialAI
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 from toontown.toonbase import TTLocalizer
 from toontown.ai import BlackCatHolidayMgrAI
 from toontown.ai import DistributedBlackCatMgrAI
@@ -153,7 +154,7 @@ class TutorialManagerAI(DistributedObjectAI.DistributedObjectAI):
             battleOverCallback)
 
         # Create the NPC blocking the tunnel to the playground
-        blockerNPC = NPCToons.createNPC(self.air, 20001, NPCToons.NPCToonDict[20001], streetZone,
+        blockerNPC = NPCToonsAI.createNPC(self.air, 20001, NPCToons.NPCToonDict[20001], streetZone,
                                         questCallback=self.__handleBlockDone)
         blockerNPC.setTutorial(1)
 

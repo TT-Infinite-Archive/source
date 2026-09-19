@@ -5,7 +5,7 @@ from toontown.building import DistributedBuildingMgrAI
 from toontown.safezone.SZTreasureGlobals import SZTreasureSpawnPoints
 from toontown.safezone.SZTreasurePlannerAI import SZTreasurePlannerAI
 from toontown.suit import DistributedSuitPlannerAI
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 
 
 class HoodDataAI:
@@ -119,7 +119,7 @@ class HoodDataAI:
         for distObj in self.fishingPonds:
             self.addDistObj(distObj)
             # Every pond gets a fisherman
-            npcs = NPCToons.createNpcsInZone(self.air, distObj.zoneId)
+            npcs = NPCToonsAI.createNpcsInZone(self.air, distObj.zoneId)
             # TODO-parties : Ask for clarification on this.
             # Since this creates all the NPCs in the zone, this creates the
             # party people for the party hat as well... but what if there are

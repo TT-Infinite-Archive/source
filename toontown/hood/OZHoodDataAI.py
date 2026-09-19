@@ -10,6 +10,7 @@ from toontown.classicchars import DistributedChipAI
 from toontown.classicchars import DistributedDaleAI
 from toontown.distributed import DistributedTimerAI
 from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 
 from toontown.safezone import DistributedPicnicTableAI
 #from toontown.safezone import DistributedChineseCheckersAI
@@ -46,7 +47,7 @@ class OZHoodDataAI(HoodDataAI.HoodDataAI):
         self.timer.generateWithRequired(self.zoneId)
 
         if self.air.wantGuilds:
-            lowdenClear = NPCToons.createNPC(self.air, 91920, NPCToons.NPCToonDict[91920], self.zoneId)
+            lowdenClear = NPCToonsAI.createNPC(self.air, 91920, NPCToons.NPCToonDict[91920], self.zoneId)
             lowdenClear.d_setPos(-48.044, -131.050, 0.025)
             lowdenClear.d_setH(0.607)
             self.addDistObj(lowdenClear)

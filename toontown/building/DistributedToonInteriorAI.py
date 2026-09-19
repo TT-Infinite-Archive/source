@@ -2,7 +2,7 @@ from direct.distributed import DistributedObjectAI
 from direct.distributed.ClockDelta import *
 from direct.fsm import ClassicFSM, State
 from otp.ai.AIBaseGlobal import *
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 from toontown.toonbase.ToontownGlobals import *
 
 
@@ -12,7 +12,7 @@ class DistributedToonInteriorAI(DistributedObjectAI.DistributedObjectAI):
         self.block = block
         self.zoneId = zoneId
         self.building = building
-        self.npcs = NPCToons.createNpcsInZone(air, zoneId)
+        self.npcs = NPCToonsAI.createNpcsInZone(air, zoneId)
         self.fsm = ClassicFSM.ClassicFSM(
             'DistributedToonInteriorAI',
             [

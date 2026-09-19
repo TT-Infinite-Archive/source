@@ -24,6 +24,7 @@ from toontown.estate import DistributedStatuaryAI
 from toontown.estate import DistributedGardenPlotAI
 from toontown.estate import DistributedGardenBoxAI
 from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.estate import DistributedChangingStatuaryAI
@@ -288,7 +289,7 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
 
         # Create fisherman
         if ConfigVariableBool('want-estate-fisherman', True).getValue():
-            self.fisherman = NPCToons.createNPC(self.air, 91919,
+            self.fisherman = NPCToonsAI.createNPC(self.air, 91919,
                                                 NPCToons.NPCToonDict[91919], self.zoneId)
             self.fisherman.setPosHpr(75.476, -127.599, 0, 36, 0, 0)
 

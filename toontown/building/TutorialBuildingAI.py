@@ -4,6 +4,7 @@ from . import DistributedTutorialInteriorAI
 from . import FADoorCodes
 from . import DoorTypes
 from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 from toontown.toonbase import TTLocalizer
 
 # This is not a distributed class... It just owns and manages some distributed
@@ -32,7 +33,7 @@ class TutorialBuildingAI:
     def setup(self, blockNumber):
         # Put an NPC in here. Give him id# 20000. When he has assigned
         # his quest, he will unlock the interior door.
-        self.gagShopNPC = NPCToons.createNPC(
+        self.gagShopNPC = NPCToonsAI.createNPC(
             self.air, 20000,
             (self.interiorZone,
              TTLocalizer.NPCToonNames[20000],

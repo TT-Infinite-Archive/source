@@ -1,7 +1,6 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableList, Point3
 
 from . import ToonDNA
-from toontown.hood import ZoneUtil
 from toontown.nametag import NametagGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
@@ -78,112 +77,6 @@ def getRandomDNA(seed, gender):
     randomDNA.newToonRandom(seed, gender, 1)
     netString = randomDNA.makeNetString()
     return netString
-
-
-def createNPC(air, npcId, desc, zoneId, posIndex = 0, questCallback = None):
-    from . import DistributedNPCToonAI
-    from . import DistributedNPCClerkAI
-    from . import DistributedNPCTailorAI
-    from . import DistributedNPCBlockerAI
-    from . import DistributedNPCFishermanAI
-    from . import DistributedNPCPetclerkAI
-    from . import DistributedNPCKartClerkAI
-    from . import DistributedNPCPartyPersonAI
-    from . import DistributedNPCSpecialQuestGiverAI
-    from . import DistributedNPCFlippyInToonHallAI
-    from . import DistributedNPCScientistAI
-    from . import DistributedSmartNPCAI
-    from . import DistributedNPCBankerAI
-    from . import DistributedNPCYinAI
-    from . import DistributedNPCYangAI
-    from . import DistributedNPCLowdenClearAI
-    canonicalZoneId, name, dnaType, gender, protected, type = desc
-    if type == NPC_REGULAR:
-        npc = DistributedNPCToonAI.DistributedNPCToonAI(air, npcId, questCallback=questCallback)
-    elif type == NPC_HQ:
-        npc = DistributedNPCToonAI.DistributedNPCToonAI(air, npcId, questCallback=questCallback, hq=1)
-    elif type == NPC_CLERK:
-        npc = DistributedNPCClerkAI.DistributedNPCClerkAI(air, npcId)
-    elif type == NPC_TAILOR:
-        npc = DistributedNPCTailorAI.DistributedNPCTailorAI(air, npcId)
-    elif type == NPC_BLOCKER:
-        npc = DistributedNPCBlockerAI.DistributedNPCBlockerAI(air, npcId)
-    elif type == NPC_FISHERMAN:
-        npc = DistributedNPCFishermanAI.DistributedNPCFishermanAI(air, npcId)
-    elif type == NPC_PETCLERK:
-        npc = DistributedNPCPetclerkAI.DistributedNPCPetclerkAI(air, npcId)
-    elif type == NPC_KARTCLERK:
-        npc = DistributedNPCKartClerkAI.DistributedNPCKartClerkAI(air, npcId)
-    elif type == NPC_PARTYPERSON:
-        npc = DistributedNPCPartyPersonAI.DistributedNPCPartyPersonAI(air, npcId)
-    elif type == NPC_SPECIALQUESTGIVER:
-        npc = DistributedNPCSpecialQuestGiverAI.DistributedNPCSpecialQuestGiverAI(air, npcId)
-    elif type == NPC_FLIPPYTOONHALL:
-        npc = DistributedNPCFlippyInToonHallAI.DistributedNPCFlippyInToonHallAI(air, npcId)
-    elif type == NPC_SCIENTIST:
-        npc = DistributedNPCScientistAI.DistributedNPCScientistAI(air, npcId)
-    elif type == NPC_SMART:
-        npc = DistributedSmartNPCAI.DistributedSmartNPCAI(air, npcId)
-    elif type == NPC_BANKER:
-        npc = DistributedNPCBankerAI.DistributedNPCBankerAI(air, npcId)
-    elif type == NPC_YIN:
-        if simbase.wantYinYang or simbase.holidayManager.isHolidayRunning(ToontownGlobals.HALLOWEEN):
-            npc = DistributedNPCYinAI.DistributedNPCYinAI(air, npcId)
-    elif type == NPC_YANG:
-        if simbase.wantYinYang:
-            npc = DistributedNPCYangAI.DistributedNPCYangAI(air, npcId)
-    elif type == NPC_RESISTANCE:
-        if air.wantGuilds:
-            npc = DistributedNPCLowdenClearAI.DistributedNPCLowdenClearAI(air, npcId)
-    else:
-        print('createNPC() error!!!')
-
-    npc.setName(name)
-    dna = ToonDNA.ToonDNA()
-
-    if dnaType == 'r':
-        dnaNetString = getRandomDNA(npcId, gender)
-        dna.makeFromNetString(dnaNetString)
-    else:
-        dna.newToonFromProperties(*dnaType)
-
-    npc.setDNAString(dna.makeNetString())
-    npc.setHp(15)
-    npc.setMaxHp(15)
-    npc.setPositionIndex(posIndex)
-    npc.generateWithRequired(zoneId)
-
-    if hasattr(npc, 'startAnimState'):
-        npc.d_setAnimState(npc.startAnimState, 1.0)
-    else:
-        npc.d_setAnimState('neutral', 1.0)
-
-    return npc
-
-
-def createNpcsInZone(air, zoneId):
-    npcs = []
-    canonicalZoneId = ZoneUtil.getCanonicalZoneId(zoneId)
-    npcIdList = zone2NpcDict.get(canonicalZoneId, [])
-    for npcId in npcIdList:
-        while npcIdList.count(npcId) > 1:
-            npcIdList.remove(npcId)
-    typeCounters = {}
-    for npcId in npcIdList:
-        npcDesc = NPCToonDict.get(npcId)
-        if npcDesc[5] == NPC_FISHERMAN:
-            if not air.wantFishing:
-                continue
-        if npcDesc[5] == NPC_PARTYPERSON:
-            if not air.wantParties:
-                continue
-        if npcDesc[5] == NPC_SMART:
-            if not ConfigVariableBool('want-talkative-tyler', False).getValue():
-                continue
-        posIndex = typeCounters.get(npcDesc[5], 0)
-        typeCounters[npcDesc[5]] = posIndex + 1
-        npcs.append(createNPC(air, npcId, npcDesc, zoneId, posIndex=posIndex))
-    return npcs
 
 
 def createLocalNPC(npcId):

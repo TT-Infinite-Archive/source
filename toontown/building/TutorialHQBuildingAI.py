@@ -3,7 +3,7 @@ from . import DistributedDoorAI
 from . import DistributedHQInteriorAI
 from . import FADoorCodes
 from . import DoorTypes
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 from toontown.quest import Quests
 from toontown.toonbase import TTLocalizer
 
@@ -43,7 +43,7 @@ class TutorialHQBuildingAI:
         # the fly for as many tutorials as we need. The interior zone is not known
         # until the ai allocates a zone, so we fabricate the description here.
         desc = (self.interiorZone, TTLocalizer.TutorialHQOfficerName, ('dls', 'ms', 'm', 'm', 6,0,6,6,0,10,0,10,2,9), "m", 1, 0)
-        self.npc = NPCToons.createNPC(self.air, Quests.ToonHQ, desc,
+        self.npc = NPCToonsAI.createNPC(self.air, Quests.ToonHQ, desc,
                                       self.interiorZone,
                                       questCallback=self.unlockInsideDoor1)
         # Flag npc as part of tutorial

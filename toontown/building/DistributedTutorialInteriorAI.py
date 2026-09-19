@@ -1,6 +1,6 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObjectAI
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonsAI
 
 class DistributedTutorialInteriorAI(DistributedObjectAI.DistributedObjectAI):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedTutorialInteriorAI')
@@ -15,7 +15,7 @@ class DistributedTutorialInteriorAI(DistributedObjectAI.DistributedObjectAI):
 
         # Make any npcs that may be in this interior zone
         # If there are none specified, this will just be an empty list
-        self.npcs = NPCToons.createNpcsInZone(air, zoneId)
+        self.npcs = NPCToonsAI.createNpcsInZone(air, zoneId)
 
     def delete(self):
         self.ignoreAll()
