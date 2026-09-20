@@ -134,7 +134,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             return
 
         # verify the party is still there
-        partyId = invite[0]['partyId']
+        partyId = invite['partyId']
         party = self.partyDb.getParty(partyId)
         if not party:
             return
@@ -145,7 +145,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
     def updateHostAndInviteeStatus(self, inviteKey, partyId, invite, party, newStatus):
         """Tell the invitee and host toons of the change in inviteStatus."""
         # tell the Invitee DistributedToon
-        inviteeId = invite[0]['guestId']
+        inviteeId = invite['guestId']
 
         DistributedPartyManagerUD.notify.debug(
             "Calling DistributedToon::updateInvite( inviteKey=%s, newStatus=%s ) across the network with inviteeId %d." % (
@@ -158,7 +158,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         )
 
         # tell the host, he might not be logged in
-        hostId = party[0]['hostId']
+        hostId = party['hostId']
 
         DistributedPartyManagerUD.notify.debug(
             "Calling DistributedToon::updateReply( partyId=%d, inviteeId=%d, newStatus=%s ) across the network with hostId %d." % (
@@ -190,7 +190,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
             return
 
         # verify the party is still there
-        partyId = invite[0]['partyId']
+        partyId = invite['partyId']
         party = self.partyDb.getParty(partyId)
         if not party:
             self.air.sendUpdateToDoId(
