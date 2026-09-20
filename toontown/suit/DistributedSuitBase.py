@@ -1,8 +1,6 @@
-from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerFloor, CollisionNode, CollisionRay, ConfigVariable, ConfigVariableBool, ConfigVariableInt, GeomNode, NodePath, Point3, TextNode, TransparencyAttrib, VBase4, Vec3, Vec4
-import random
+from panda3d.core import *
 from direct.controls.ControlManager import CollisionHandlerRayStart
 from direct.directnotify import DirectNotifyGlobal
-from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
 
@@ -17,8 +15,6 @@ from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.chat.ChatGlobals import CFSpeech, CFTimeout
 from toontown.suit import SuitBuffGlobals
 from toontown.collectibles import CollectibleGlobals, CollectibleInventoryGlobals
-
-
 
 class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBase.SuitBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedSuitBase')
@@ -385,14 +381,14 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
                 if number < 0:
                     self.HpTextGenerator.setText(str(number))
 
-                    if ConfigVariableBool('silly-surge-text', True).getValue() and random.randrange(0, 100) < ConfigVariableInt('silly-surge-chance', 100).getValue() and bonus == 2 and self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
+                    if self.cr.newsManager.isHolidayRunning(ToontownGlobals.SILLY_SURGE_HOLIDAY):
                         self.sillySurgeText = True
-                        absNumber = int(abs(number) / 10)
 
+                        absNumber = abs(number) // 10
                         if len(TTLocalizer.SillySurgeTerms) > absNumber:
-                            self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.SillySurgeTerms[absNumber])
+                            self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.SillySurgeTerms[-1])
                         else:
-                            self.HpTextGenerator.setText(str(number) + '\n' + random.choice(TTLocalizer.SillySurgeTerms))
+                            self.HpTextGenerator.setText(str(number) + '\n' + TTLocalizer.SillySurgeTerms[absNumber])
                     elif self.interactivePropTrackBonus > -1 and self.interactivePropTrackBonus == attackTrack:
                         self.sillySurgeText = True
 
