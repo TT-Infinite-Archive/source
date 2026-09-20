@@ -6,7 +6,7 @@ class DistributedCashbotBossTreasureAI(DistributedTreasureAI.DistributedTreasure
 
     def __init__(self, air, boss, goon, style, fx, fy, fz):
         pos = goon.getPos()
-        treasureType = SZTreasureGlobals.SafeZoneTreasureSpawns[style].treasureType
+        treasureType = SZTreasureGlobals.SZTreasureSpawnPoints[style].treasureType
         DistributedTreasureAI.DistributedTreasureAI.__init__(self, air, boss, treasureType, pos[0], pos[1], 0)
         self.goonId = goon.doId
         self.style = style
