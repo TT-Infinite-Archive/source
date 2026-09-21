@@ -83,6 +83,7 @@ class DistributedPartyFireworksActivity(DistributedPartyActivity, FireworkShowMi
         del self.activityFSM
         del self.eventId
         del self.showStyle
+        del self.songId
         DistributedPartyActivity.unload(self)
         return
 

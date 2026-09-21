@@ -1,3 +1,4 @@
+import random
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import ClockDelta
@@ -13,6 +14,7 @@ class DistributedFireworkShowAI(DistributedObjectAI.DistributedObjectAI):
         self.fireworkMgr = fireworkMgr
         self.eventId = None
         self.style = None
+        self.songId = 0
         self.timestamp = None
 
     def delete(self):
@@ -23,8 +25,9 @@ class DistributedFireworkShowAI(DistributedObjectAI.DistributedObjectAI):
         timestamp = ClockDelta.globalClockDelta.getRealNetworkTime()
         self.eventId = eventId
         self.style = style
+        self.songId = random.randint(0, 1)
         self.timestamp = timestamp
-        self.sendUpdate('startShow', (self.eventId, self.style, self.timestamp))
+        self.sendUpdate('startShow', (self.eventId, self.style, self.songId, self.timestamp))
         duration = getShowDuration(self.eventId or ToontownGlobals.NEWYEARS_FIREWORKS) + 20.0
         taskMgr.doMethodLater(duration, self.fireworkShowDone, self.taskName('waitForShowDone'))
 

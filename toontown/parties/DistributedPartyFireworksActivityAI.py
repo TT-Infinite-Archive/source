@@ -6,6 +6,8 @@
 #
 #-------------------------------------------------------------------------------
 
+import random
+
 # Panda imports
 from direct.distributed import ClockDelta
 from direct.task import Task
@@ -41,6 +43,7 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
         )
         self.eventId = eventId
         self.showStyle = showStyle
+        self.songId = random.randint(0, 1)
         self.activityFSM = FireworksActivityFSM(self)
 
     def generate(self):
@@ -54,6 +57,9 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
     def getShowStyle(self):
         DistributedPartyFireworksActivityAI.notify.debug("getShowStyle")
         return self.showStyle
+
+    def getSongId(self):
+        return self.songId
 
     def toonJoinRequest(self):
         """

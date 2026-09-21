@@ -1890,6 +1890,7 @@ dclass DistributedPartyCannon : DistributedObject {
 dclass DistributedPartyFireworksActivity : DistributedPartyActivity {
   setEventId(uint8) required broadcast;
   setShowStyle(uint8) required broadcast;
+  setSongId(uint8) required broadcast;
 };
 
 dclass DistributedPartyTrampolineActivity : DistributedPartyActivity {
@@ -2707,7 +2708,7 @@ dclass DistributedPhone : DistributedFurnitureItem {
 };
 
 dclass DistributedFireworkShow : DistributedObject {
-  startShow(uint8, uint8, int16) broadcast ram;
+  startShow(uint8, uint8, uint8, int16) broadcast ram;
   requestFirework(int16/10, int16/10, int16/100, uint8, uint8, uint8) airecv clsend;
   shootFirework(int16/10, int16/10, int16/100, uint8, uint8, uint8) broadcast;
 };
