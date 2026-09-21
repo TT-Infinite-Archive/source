@@ -116,13 +116,13 @@ class FireworkShowMixin:
             return
 
         self.createFireworkShow()
-        if t > self.fireworkShow.getShowDuration():
+        if t > self.fireworkShow.getDuration():
             return
         preShow = self.preShow(eventId, songId, t)
         postShow = self.postShow(eventId)
         beginFireworkShow = Func(self.beginFireworkShow, max(0, t), root)
         self.currentShow = Sequence(
-            preShow, beginFireworkShow, Wait(max(0, self.fireworkShow.getShowDuration() - max(0, t))), postShow
+            preShow, beginFireworkShow, Wait(max(0, self.fireworkShow.getDuration() - max(0, t))), postShow
         )
         self.currentShow.start()
         return

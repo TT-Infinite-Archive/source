@@ -11,7 +11,7 @@ from direct.distributed import ClockDelta
 from direct.task import Task
 
 # Toontown imports
-from toontown.effects.FireworkShow import FireworkShow
+from toontown.effects.FireworkShowGlobals import getShowDuration
 
 # parties imports
 from . import PartyGlobals
@@ -99,15 +99,13 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
             ]
         )
         # setup to transition to Disabled after the show is over
-        throwAwayShow = FireworkShow()
-        showDuration = throwAwayShow.getShowDuration( self.eventId)
+        showDuration = getShowDuration(self.eventId)
         showDuration += 20.0
         taskMgr.doMethodLater(
             PartyGlobals.FireworksPostLaunchDelay + showDuration + PartyGlobals.FireworksTransitionToDisabledDelay,
             self.showComplete,
             self.taskName("waitForShowComplete"),
         )
-        del throwAwayShow
 
     def finishActive(self):
         DistributedPartyFireworksActivityAI.notify.debug("finishActive")
