@@ -2,6 +2,7 @@ import sys
 import time
 import decimal
 
+from panda3d.core import ConfigVariableDouble
 from direct.showbase.PythonUtil import Functor
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
@@ -1370,7 +1371,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         # now start up new tasks to end the party right now
         taskMgr.doMethodLater(0.1, self.__setPartyEnded, "DistributedPartyManagerAI_PartyEnding_%d" % partyZoneId,
                               [hostId, partyZoneId])
-        kickDelay = simbase.config.GetInt("party-kick-delay", PartyGlobals.DelayBeforeAutoKick)
+        kickDelay = ConfigVariableDouble("party-kick-delay", PartyGlobals.DelayBeforeAutoKick).getValue()
         taskMgr.doMethodLater(0.1 + kickDelay, self.__bootGuests,
                               "DistributedPartyManagerAI_BootGuests_%d" % partyZoneId, [hostId, partyZoneId])
         taskMgr.doMethodLater(0.1 + kickDelay + 10.0, self.__cleanupParty,
