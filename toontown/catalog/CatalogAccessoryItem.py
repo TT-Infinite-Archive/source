@@ -5,8 +5,6 @@ from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toon import ToonDNA
 import random
-from direct.showbase import PythonUtil
-from direct.gui.DirectGui import *
 
 class CatalogAccessoryItem(CatalogItem.CatalogItem):
 
@@ -243,39 +241,6 @@ class CatalogAccessoryItem(CatalogItem.CatalogItem):
             self.applyColor(model, modelColor)
         model.flattenLight()
         return model
-
-    def requestPurchase(self, phone, callback):
-        from toontown.toontowngui import TTDialog
-        avatar = base.localAvatar
-        accessoriesOnOrder = 0
-        for item in avatar.onOrder + avatar.mailboxContents:
-            if item.storedInTrunk():
-                accessoriesOnOrder += 1
-
-        if avatar.isTrunkFull(accessoriesOnOrder):
-            self.requestPurchaseCleanup()
-            buttonCallback = PythonUtil.Functor(self.__handleFullPurchaseDialog, phone, callback)
-            if avatar.getMaxAccessories() == 0:
-                text = TTLocalizer.CatalogPurchaseNoTrunk
-            else:
-                text = TTLocalizer.CatalogPurchaseTrunkFull
-            self.dialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=text, text_wordwrap=15, command=buttonCallback)
-            self.dialog.show()
-        else:
-            CatalogItem.CatalogItem.requestPurchase(self, phone, callback)
-
-    def requestPurchaseCleanup(self):
-        if hasattr(self, 'dialog'):
-            self.dialog.cleanup()
-            del self.dialog
-
-    def __handleFullPurchaseDialog(self, phone, callback, buttonValue):
-        from toontown.toontowngui import TTDialog
-        self.requestPurchaseCleanup()
-        if buttonValue == DGG.DIALOG_OK:
-            CatalogItem.CatalogItem.requestPurchase(self, phone, callback)
-        else:
-            callback(ToontownGlobals.P_UserCancelled, self)
 
     def getAcceptItemErrorText(self, retcode):
         if retcode == ToontownGlobals.P_ItemAvailable:

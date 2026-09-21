@@ -14,7 +14,7 @@ from toontown.battle import BattleProps
 from toontown.toonbase import TTLocalizer, ToontownGlobals
 from toontown.chat.ChatGlobals import CFSpeech, CFTimeout
 from toontown.suit import SuitBuffGlobals
-from toontown.collectibles import CollectibleGlobals, CollectibleInventoryGlobals
+from toontown.collectibles import CollectibleGlobals, CollectibleInventoryGlobals, CollectibleItemGui
 
 class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBase.SuitBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedSuitBase')
@@ -476,10 +476,10 @@ class DistributedSuitBase(DistributedAvatar.DistributedAvatar, Suit.Suit, SuitBa
         if self.buffIndex == SuitBuffGlobals.SuitBuffHealthy:
             self.setScale(1.5)
         elif self.buffIndex == SuitBuffGlobals.SuitBuffLoveStruck:
-            particle = CollectibleGlobals.getItem(
+            particle = CollectibleItemGui.loadFile(CollectibleGlobals.getItem(
                 CollectibleInventoryGlobals.CICategoryParticleEffect,
                 CollectibleInventoryGlobals.ParticleEffectHeart
-            ).loadFile()
+            ))
             if particle is None:
                 return
             self.particleEffect = particle

@@ -1,6 +1,6 @@
 import random
 from . import PlayingCardGlobals
-from toontown.minigame.PlayingCard import PlayingCardBase
+from toontown.minigame.PlayingCardBase import PlayingCardBase
 
 class PlayingCardDeck:
 

@@ -3,7 +3,6 @@ from toontown.pets import PetTricks
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from otp.otpbase import OTPLocalizerServer as OTPLocalizer
-from direct.interval.IntervalGlobal import *
 
 class CatalogPetTrickItem(CatalogItem.CatalogItem):
     sequenceNumber = 0
@@ -40,31 +39,6 @@ class CatalogPetTrickItem(CatalogItem.CatalogItem):
         avatar.petTrickPhrases.append(self.trickId)
         avatar.d_setPetTrickPhrases(avatar.petTrickPhrases)
         return ToontownGlobals.P_ItemAvailable
-
-    def getPicture(self, avatar):
-        from toontown.pets import PetDNA, Pet
-        if not hasattr(avatar, 'petDNA'):
-            return None, None
-        pet = Pet.Pet(forGui=1)
-        dna = avatar.petDNA
-        if dna == None:
-            dna = PetDNA.getRandomPetDNA()
-        pet.setDNA(dna)
-        pet.setH(180)
-        model, ival = self.makeFrameModel(pet, 0)
-        pet.setScale(2.0)
-        pet.setP(-40)
-        track = PetTricks.getTrickIval(pet, self.trickId)
-        name = 'petTrick-item-%s' % self.sequenceNumber
-        CatalogPetTrickItem.sequenceNumber += 1
-        if track != None:
-            track = Sequence(Sequence(track), ActorInterval(pet, 'neutral', duration=2), name=name)
-        else:
-            pet.animFSM.request('neutral')
-            track = Sequence(Wait(4), name=name)
-        self.petPicture = pet
-        self.hasPicture = True
-        return (model, track)
 
     def cleanupPicture(self):
         CatalogItem.CatalogItem.cleanupPicture(self)

@@ -1,12 +1,10 @@
 from toontown.nametag import NametagGlobals
-from toontown.toon import ToonDNA
+from toontown.toon import Toon, ToonDNA
 from toontown.toon.NPCToons import NPCToonDict, getRandomDNA
 from toontown.toonbase import SettingsGlobals
 
 
 def createLocalNPC(npcId):
-    from . import Toon
-
     if npcId not in NPCToonDict:
         return None
 

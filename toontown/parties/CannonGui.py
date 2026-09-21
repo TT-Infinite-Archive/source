@@ -1,7 +1,7 @@
 from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import DirectFrame, DirectButton
 import direct.gui.DirectGuiGlobals as DGG
-from toontown.parties import PartyUtils
+from toontown.toonbase import ToontownTimer
 
 class CannonGui(DirectObject):
     notify = directNotify.newCategory('CannonGui')
@@ -25,7 +25,7 @@ class CannonGui(DirectObject):
     def load(self):
         if self.__loaded:
             return
-        self.__timerPad = PartyUtils.getNewToontownTimer()
+        self.__timerPad = ToontownTimer.getNewToontownTimer()
         guiModel = 'phase_4/models/gui/cannon_game_gui'
         guiNode = loader.loadModel(guiModel)
         self.__aimPad = DirectFrame(image=guiNode.find('**/CannonFire_PAD'), relief=None, pos=(0.7, 0, -0.553333), scale=0.8)

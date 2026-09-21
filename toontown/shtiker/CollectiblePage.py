@@ -1,6 +1,6 @@
 from panda3d.core import CardMaker, TextNode, Vec4
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectScrolledList, DGG, DirectButton
-from toontown.collectibles import CollectibleGlobals
+from toontown.collectibles import CollectibleGlobals, CollectibleItemGui
 from toontown.collectibles.CollectibleInventoryGlobals import DefaultItems
 from toontown.toonbase import TTLocalizer, EventGlobals
 from toontown.shtiker import ShtikerPage
@@ -456,7 +456,7 @@ class ItemDialog(DirectButton):
         self.mainButton.bind(DGG.WITHOUT, self.__handleExit)
 
         if item is not None:
-            self.icon = item.getButtonIcon()
+            self.icon = CollectibleItemGui.getButtonIcon(item)
             if self.icon is not None:
                 pos = self.icon.getPos()
                 self.icon.reparentTo(self.mainButton)

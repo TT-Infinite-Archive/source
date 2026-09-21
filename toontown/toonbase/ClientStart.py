@@ -44,6 +44,9 @@ builtins.buildVersion = VersionGlobals.build()
 
 from otp.settings.Settings import Settings
 from toontown.toonbase import ToontownGlobals
+from toontown.toontowngui import TTDialog
+
+ToontownGlobals.setDialogClasses(TTDialog.TTDialog, TTDialog.TTGlobalDialog)
 
 # The launcher gives each signed-in account a preferences file of its own
 preferencesPath = os.environ.get('TTI_PREFERENCES') or os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())

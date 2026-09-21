@@ -4,7 +4,7 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.task.Task import Task
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
-from toontown.parties import PartyUtils
+from toontown.toonbase import ToontownTimer
 from toontown.parties import PartyGlobals
 
 class TeamActivityGui:
@@ -35,7 +35,7 @@ class TeamActivityGui:
         self.countdownText.hide()
         self.statusText = OnscreenText(text='', pos=(0.0, 0.0), scale=PartyGlobals.TeamActivityTextScale, fg=PartyGlobals.TeamActivityStatusColor, align=TextNode.ACenter, font=ToontownGlobals.getSignFont(), mayChange=True)
         self.statusText.hide()
-        self.timer = PartyUtils.getNewToontownTimer()
+        self.timer = ToontownTimer.getNewToontownTimer()
         self.timer.hide()
         return
 

@@ -17,17 +17,6 @@ class CatalogToonStatueItem(CatalogGardenItem.CatalogGardenItem):
     def needsCustomize(self):
         return self.endPoseIndex - self.startPoseIndex > 0
 
-    def getPicture(self, avatar):
-        from toontown.estate import DistributedToonStatuary
-        toonStatuary = DistributedToonStatuary.DistributedToonStatuary(None)
-        toonStatuary.setupStoneToon(base.localAvatar.style)
-        toonStatuary.poseToonFromSpecialsIndex(self.gardenIndex)
-        toonStatuary.toon.setZ(0)
-        model, ival = self.makeFrameModel(toonStatuary.toon, 1)
-        self.pictureToonStatue = toonStatuary
-        self.hasPicture = True
-        return (model, ival)
-
     def cleanupPicture(self):
         self.pictureToonStatue.deleteToon()
         self.pictureToonStatue = None

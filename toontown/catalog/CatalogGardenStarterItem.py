@@ -4,9 +4,6 @@ import time
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from otp.otpbase import OTPLocalizerServer as OTPLocalizer
-from direct.interval.IntervalGlobal import *
-from toontown.toontowngui import TTDialog
-from toontown.estate import GardenTutorial
 
 class CatalogGardenStarterItem(CatalogItem.CatalogItem):
 
@@ -75,26 +72,3 @@ class CatalogGardenStarterItem(CatalogItem.CatalogItem):
 
     def isGift(self):
         return 0
-
-    def acceptItem(self, mailbox, index, callback):
-        self.confirmGarden = TTDialog.TTGlobalDialog(doneEvent='confirmGarden', message=TTLocalizer.MessageConfirmGarden, command=Functor(self.handleGardenConfirm, mailbox, index, callback), style=TTDialog.TwoChoice)
-        self.confirmGarden.show()
-
-    def handleGardenConfirm(self, mailbox, index, callback, choice):
-        if choice > 0:
-
-            def handleTutorialDone():
-                self.gardenTutorial.destroy()
-                self.gardenTutorial = None
-                return
-
-            self.gardenTutorial = GardenTutorial.GardenTutorial(callback=handleTutorialDone)
-            if hasattr(mailbox, 'mailboxGui') and mailbox.mailboxGui:
-                mailbox.acceptItem(self, index, callback)
-                mailbox.mailboxGui.justExit()
-        else:
-            callback(ToontownGlobals.P_UserCancelled, self, index)
-        if self.confirmGarden:
-            self.confirmGarden.cleanup()
-            self.confirmGarden = None
-        return

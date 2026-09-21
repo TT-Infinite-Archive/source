@@ -164,9 +164,6 @@ class CatalogItem:
     def requestGiftPurchase(self, phone, targetDoID, callback, optional = -1):
         phone.requestGiftPurchase(self, targetDoID, callback, optional)
 
-    def requestPurchaseCleanup(self):
-        pass
-
     def getRequestPurchaseErrorText(self, retcode):
         if retcode == ToontownGlobals.P_ItemAvailable:
             return TTLocalizer.CatalogPurchaseItemAvailable

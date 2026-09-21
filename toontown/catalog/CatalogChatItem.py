@@ -69,54 +69,6 @@ class CatalogChatItem(CatalogItem.CatalogItem):
         CatalogItem.CatalogItem.encodeDatagram(self, dg, store)
         dg.addUint16(self.customIndex)
 
-    def acceptItem(self, mailbox, index, callback):
-        if len(base.localAvatar.customMessages) < ToontownGlobals.MaxCustomMessages:
-            mailbox.acceptItem(self, index, callback)
-        else:
-            self.showMessagePickerOnAccept(mailbox, index, callback)
-
-    def requestPurchase(self, phone, callback):
-        if len(base.localAvatar.customMessages) < ToontownGlobals.MaxCustomMessages:
-            CatalogItem.CatalogItem.requestPurchase(self, phone, callback)
-        else:
-            self.showMessagePicker(phone, callback)
-
-    def showMessagePicker(self, phone, callback):
-        self.phone = phone
-        self.callback = callback
-        from . import CatalogChatItemPicker
-        self.messagePicker = CatalogChatItemPicker.CatalogChatItemPicker(self.__handlePickerDone, self.customIndex)
-        self.messagePicker.show()
-
-    def showMessagePickerOnAccept(self, mailbox, index, callback):
-        self.mailbox = mailbox
-        self.callback = callback
-        self.index = index
-        from . import CatalogChatItemPicker
-        self.messagePicker = CatalogChatItemPicker.CatalogChatItemPicker(self.__handlePickerOnAccept, self.customIndex)
-        self.messagePicker.show()
-
-    def __handlePickerOnAccept(self, status, pickedMessage = None):
-        print('Picker Status%s' % status)
-        if status == 'pick':
-            self.mailbox.acceptItem(self, self.index, self.callback, pickedMessage)
-        else:
-            self.callback(ToontownGlobals.P_UserCancelled, None, self.index)
-        self.messagePicker.hide()
-        self.messagePicker.destroy()
-        del self.messagePicker
-        del self.callback
-        del self.mailbox
-
-    def __handlePickerDone(self, status, pickedMessage = None):
-        if status == 'pick':
-            CatalogItem.CatalogItem.requestPurchase(self, self.phone, self.callback, pickedMessage)
-        self.messagePicker.hide()
-        self.messagePicker.destroy()
-        del self.messagePicker
-        del self.callback
-        del self.phone
-
     def getPicture(self, avatar):
         chatBalloon = loader.loadModel('phase_3/models/props/chatbox.bam')
         chatBalloon.find('**/top').setPos(1, 0, 5)

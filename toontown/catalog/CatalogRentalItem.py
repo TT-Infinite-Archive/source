@@ -4,8 +4,6 @@ import time
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from otp.otpbase import OTPLocalizerServer as OTPLocalizer
-from direct.interval.IntervalGlobal import *
-from toontown.toontowngui import TTDialog
 
 class CatalogRentalItem(CatalogItem.CatalogItem):
 
@@ -109,20 +107,6 @@ class CatalogRentalItem(CatalogItem.CatalogItem):
 
     def isRental(self):
         return 1
-
-    def acceptItem(self, mailbox, index, callback):
-        self.confirmRent = TTDialog.TTGlobalDialog(doneEvent='confirmRent', message=TTLocalizer.MessageConfirmRent, command=Functor(self.handleRentConfirm, mailbox, index, callback), style=TTDialog.TwoChoice)
-        self.confirmRent.show()
-
-    def handleRentConfirm(self, mailbox, index, callback, choice):
-        if choice > 0:
-            mailbox.acceptItem(self, index, callback)
-        else:
-            callback(ToontownGlobals.P_UserCancelled, self, index)
-        if self.confirmRent:
-            self.confirmRent.cleanup()
-            self.confirmRent = None
-        return
 
 
 def getAllRentalItems():

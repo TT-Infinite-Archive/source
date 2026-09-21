@@ -1,11 +1,9 @@
-from panda3d.core import Datagram, Filename, NodePath
+from panda3d.core import Datagram, Filename
 from . import CatalogItem
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toon import ToonDNA
 import random
-from direct.showbase import PythonUtil
-from direct.gui.DirectGui import *
 CTArticle = 0
 CTString = 1
 CTBasePrice = 2
@@ -426,63 +424,6 @@ class CatalogClothingItem(CatalogItem.CatalogItem):
         avatar.b_setDNAString(dna.makeNetString())
         avatar.d_catalogGenClothes()
         return ToontownGlobals.P_ItemAvailable
-
-    def getPicture(self, avatar):
-        from toontown.toon import Toon
-        self.hasPicture = True
-        dna = ToonDNA.ToonDNA(type='t', dna=avatar.style)
-        str = ClothingTypes[self.clothingType][CTString]
-        if self.isShirt():
-            defn = ToonDNA.ShirtStyles[str]
-            dna.topTex = defn[0]
-            dna.topTexColor = defn[2][self.colorIndex][0]
-            dna.sleeveTex = defn[1]
-            dna.sleeveTexColor = defn[2][self.colorIndex][1]
-            pieceNames = ('**/1000/**/torso-top', '**/1000/**/sleeves')
-        else:
-            defn = ToonDNA.BottomStyles[str]
-            dna.botTex = defn[0]
-            dna.botTexColor = defn[1][self.colorIndex]
-            pieceNames = ('**/1000/**/torso-bot',)
-        toon = Toon.Toon()
-        toon.setDNA(dna)
-        model = NodePath('clothing')
-        for name in pieceNames:
-            for piece in toon.findAllMatches(name):
-                piece.wrtReparentTo(model)
-
-        model.setH(180)
-        toon.delete()
-        return self.makeFrameModel(model)
-
-    def requestPurchase(self, phone, callback):
-        from toontown.toontowngui import TTDialog
-        avatar = base.localAvatar
-        clothesOnOrder = 0
-        for item in avatar.onOrder + avatar.mailboxContents:
-            if item.storedInCloset():
-                clothesOnOrder += 1
-
-        if avatar.isClosetFull(clothesOnOrder):
-            self.requestPurchaseCleanup()
-            buttonCallback = PythonUtil.Functor(self.__handleFullPurchaseDialog, phone, callback)
-            self.dialog = TTDialog.TTDialog(style=TTDialog.YesNo, text=TTLocalizer.CatalogPurchaseClosetFull, text_wordwrap=15, command=buttonCallback)
-            self.dialog.show()
-        else:
-            CatalogItem.CatalogItem.requestPurchase(self, phone, callback)
-
-    def requestPurchaseCleanup(self):
-        if hasattr(self, 'dialog'):
-            self.dialog.cleanup()
-            del self.dialog
-
-    def __handleFullPurchaseDialog(self, phone, callback, buttonValue):
-        from toontown.toontowngui import TTDialog
-        self.requestPurchaseCleanup()
-        if buttonValue == DGG.DIALOG_OK:
-            CatalogItem.CatalogItem.requestPurchase(self, phone, callback)
-        else:
-            callback(ToontownGlobals.P_UserCancelled, self)
 
     def getAcceptItemErrorText(self, retcode):
         if retcode == ToontownGlobals.P_ItemAvailable:

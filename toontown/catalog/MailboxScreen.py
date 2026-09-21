@@ -10,6 +10,7 @@ from toontown.toontowngui import TTDialog
 from toontown.toontowngui.TeaserPanel import TeaserPanel
 from toontown.parties.InviteVisual import InviteVisual
 from . import CatalogItem
+from . import CatalogItemGui
 if __debug__:
     from direct.showbase.PythonUtil import StackTrace
 
@@ -187,7 +188,7 @@ class MailboxScreen(DirectObject.DirectObject):
         self.acceptButton['state'] = DGG.DISABLED
         self.__showCurrentItem()
         item = self.items[self.itemIndex]
-        item.acceptItem(self.mailbox, self.acceptingIndex, self.__acceptItemCallback)
+        CatalogItemGui.acceptItem(item, self.mailbox, self.acceptingIndex, self.__acceptItemCallback)
         return
 
     def __handleDiscard(self, buttonValue = None):
@@ -390,7 +391,7 @@ class MailboxScreen(DirectObject.DirectObject):
                     self.giftTagPanel['text'] = TTLocalizer.MailboxGiftTag % nameOfSender
             else:
                 self.giftTagPanel['text'] = ''
-            self.itemPanel, self.ival = item.getPicture(base.localAvatar)
+            self.itemPanel, self.ival = CatalogItemGui.getPicture(item, base.localAvatar)
         elif isinstance(item, SimpleMailBase):
             self.acceptButton['text'] = ('',
              TTLocalizer.MailboxAcceptButton,

@@ -7,6 +7,7 @@ import random
 from . import CatalogFurnitureItem
 from . import CatalogInvalidItem
 from . import CatalogItem
+from . import CatalogItemGui
 from . import CatalogItemPanel
 from . import CatalogItemTypes
 from toontown.chat.ChatBalloon import ChatBalloon
@@ -919,7 +920,7 @@ class CatalogScreen(DirectFrame):
                         item.updateButtons(self.gifting)
 
     def __handlePurchaseRequest(self, item):
-        item.requestPurchase(self['phone'], self.__handlePurchaseResponse)
+        CatalogItemGui.requestPurchase(item, self['phone'], self.__handlePurchaseResponse)
         taskMgr.remove('clarabelleAskAnythingElse')
 
     def __handleGiftPurchaseRequest(self, item):

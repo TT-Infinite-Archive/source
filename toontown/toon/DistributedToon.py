@@ -33,7 +33,7 @@ from toontown.chat import ToonChatGarbler
 from toontown.chat.ChatGlobals import *
 from toontown.chat.WhisperPopup import *
 from toontown.coghq import CogDisguiseGlobals
-from toontown.collectibles import Stats, CollectibleInventory, CollectibleInventoryGlobals, CollectibleGlobals
+from toontown.collectibles import Stats, CollectibleInventory, CollectibleInventoryGlobals, CollectibleGlobals, CollectibleItemGui
 from toontown.distributed import DelayDelete
 from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.effects.ScavengerHuntEffects import *
@@ -1201,7 +1201,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             return
         if not self.collectibleInventory.isObtained(category, effectId):
             return
-        particle = CollectibleGlobals.getItem(category, effectId).loadFile()
+        particle = CollectibleItemGui.loadFile(CollectibleGlobals.getItem(category, effectId))
         if particle is None:
             if self.particleEffect is not None:
                 self.particleEffect.cleanup()

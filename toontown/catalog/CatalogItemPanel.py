@@ -6,6 +6,7 @@ from toontown.toontowngui import TTDialog
 from toontown.toonbase import TTLocalizer
 from . import CatalogItemTypes
 from . import CatalogItem
+from . import CatalogItemGui
 from .CatalogWallpaperItem import getAllWallpapers
 from .CatalogFlooringItem import getAllFloorings
 from .CatalogMouldingItem import getAllMouldings
@@ -77,7 +78,7 @@ class CatalogItemPanel(DirectFrame):
                 self.variantPictures = [(None, None)]
             self.showCurrentVariant()
         else:
-            picture, self.ival = self['item'].getPicture(base.localAvatar)
+            picture, self.ival = CatalogItemGui.getPicture(self['item'], base.localAvatar)
             if picture:
                 picture.reparentTo(self)
                 picture.setScale(0.15)
@@ -233,7 +234,7 @@ class CatalogItemPanel(DirectFrame):
             self.ival.finish()
         if not newPic:
             variant = self.items[self.itemIndex]
-            newPic, self.ival = variant.getPicture(base.localAvatar)
+            newPic, self.ival = CatalogItemGui.getPicture(variant, base.localAvatar)
             self.variantPictures[self.itemIndex] = (newPic, self.ival)
         newPic.reparentTo(self.pictureFrame)
         if self.ival:
@@ -257,7 +258,7 @@ class CatalogItemPanel(DirectFrame):
             self['item'].deleteAllToonStatues()
             self['item'].gardenIndex = self['item'].startPoseIndex
             self.nameLabel['text'] = self['item'].getDisplayName()
-        self['item'].requestPurchaseCleanup()
+        CatalogItemGui.requestPurchaseCleanup(self['item'])
         for picture, ival in self.variantPictures:
             if picture:
                 picture.destroy()
@@ -501,11 +502,11 @@ class CatalogItemPanel(DirectFrame):
         item = self.items[self.itemIndex]
         self.soundOnButton.hide()
         self.soundOffButton.show()
-        if hasattr(item, 'changeIval'):
+        if item.getTypeCode() == CatalogItemTypes.EMOTE_ITEM:
             if self.ival:
                 self.ival.finish()
                 self.ival = None
-            self.ival = item.changeIval(volume=1)
+            self.ival = CatalogItemGui.changeEmoteIval(item, volume=1)
             self.ival.loop()
         return
 
@@ -513,11 +514,11 @@ class CatalogItemPanel(DirectFrame):
         item = self.items[self.itemIndex]
         self.soundOffButton.hide()
         self.soundOnButton.show()
-        if hasattr(item, 'changeIval'):
+        if item.getTypeCode() == CatalogItemTypes.EMOTE_ITEM:
             if self.ival:
                 self.ival.finish()
                 self.ival = None
-            self.ival = item.changeIval(volume=0)
+            self.ival = CatalogItemGui.changeEmoteIval(item, volume=0)
             self.ival.loop()
         return
 
