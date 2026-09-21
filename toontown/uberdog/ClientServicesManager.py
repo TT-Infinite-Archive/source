@@ -3,18 +3,11 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
 from toontown.toonbase import ToontownGlobals, EventGlobals, VersionGlobals
+from toontown.uberdog.ClientServicesGlobals import generateLookupTable, encodeHexString
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
 import sys
-
-
-def generateLookupTable(key):
-    return [hex(ord(str(key)[i % len(str(key))]) & ord(key[4]) & i) for i in range(255)]
-
-
-def encodeHexString(lookupTable, hexString):
-    return ''.join(lookupTable[int('0x%s' % i, 16)] for i in hexString.split('0x')[1:])
 
 
 class ClientServicesManager(DistributedObjectGlobal):
