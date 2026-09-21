@@ -12,7 +12,7 @@ from direct.fsm import State
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import globalClockDelta
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.parties import PartyGlobals
 from toontown.ai.ToonBarrier import ToonBarrier

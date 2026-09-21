@@ -12,7 +12,7 @@ from direct.directnotify.DirectNotifyGlobal import *
 from direct.fsm.FSM import FSM
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 
 
 class DedicatedServer(FSM):

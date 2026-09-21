@@ -4,7 +4,7 @@ import time
 import datetime
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.LerpInterval import LerpFunc
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase.ToontownTimer import ToontownTimer
 from toontown.parties import PartyGlobals
 notify = DirectNotifyGlobal.directNotify.newCategory('PartyUtils')

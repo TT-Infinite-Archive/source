@@ -1,4 +1,4 @@
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 GUILD_MOVIE_START = 0           # Guild creation prompt
 GUILD_MOVIE_PROMPT_NAME = 1     # Guild creation name prompt

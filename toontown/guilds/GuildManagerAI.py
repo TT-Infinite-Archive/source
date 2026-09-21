@@ -2,7 +2,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
 from toontown.golf import GolfGlobals
 from toontown.guilds import GuildGlobals, GuildQuestGlobals
-from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toonbase import ToontownGlobals, TTLocalizerServer as TTLocalizer
 from toontown.toon import GuildMasterGlobals
 from otp.ai.MagicWordGlobal import *
 

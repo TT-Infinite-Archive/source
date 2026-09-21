@@ -1,6 +1,6 @@
 import enum
 from toontown.suit import SuitDNA
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from otp.otpbase import OTPGlobals
 from toontown.battle import SuitBattleGlobals
 PartsPerSuit = (10,

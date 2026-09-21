@@ -1,7 +1,7 @@
 import enum
 
 from direct.showbase.PythonUtil import randFloat, normalDistrib
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 import random, copy
 TraitDivisor = 10000
 

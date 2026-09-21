@@ -9,6 +9,7 @@ from toontown.chat import ChatGlobals
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, SettingsGlobals, EventGlobals
 from toontown.toonbase import ServerSettingsGlobals
 

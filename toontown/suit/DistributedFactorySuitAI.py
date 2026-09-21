@@ -4,7 +4,7 @@ from direct.directnotify import DirectNotifyGlobal
 from toontown.suit import DistributedSuitBaseAI
 from toontown.suit import SuitDialog
 from toontown.toonbase.ToontownGlobals import cogDept2index, SellbotFactoryInt
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.suit import SuitBuffGlobals
 import random
 

@@ -1,7 +1,7 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableList, Point3
 
 from . import ToonDNA
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 

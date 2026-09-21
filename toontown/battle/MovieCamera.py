@@ -5,6 +5,7 @@ from .BattleBase import *
 from .BattleProps import *
 from toontown.toonbase.ToontownBattleGlobals import *
 from .SuitBattleGlobals import *
+from toontown.toonbase import TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 import random
 from . import MovieUtil

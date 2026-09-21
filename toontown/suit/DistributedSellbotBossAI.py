@@ -9,7 +9,7 @@ from direct.fsm import FSM
 from otp.ai.AIBaseGlobal import *
 from toontown.battle import BattleExperienceAI
 from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from otp.ai.MagicWordGlobal import *
 

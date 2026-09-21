@@ -1,7 +1,7 @@
 from panda3d.direct import STInt16, STInt8
 from panda3d.core import Datagram, DatagramIterator, Filename, Notify, Texture, VBase3, VBase4, Vec3, oldToNewHpr
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from direct.interval.IntervalGlobal import *
 from direct.distributed.PyDatagram import PyDatagram

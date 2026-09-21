@@ -1,7 +1,7 @@
 from panda3d.core import ConfigVariableString
 from direct.directnotify import DirectNotifyGlobal
 from . import DistributedRaceAI
-from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toonbase import ToontownGlobals, TTLocalizerServer as TTLocalizer
 from toontown.ai import HolidayBaseAI
 from direct.showbase import DirectObject
 from . import RaceGlobals

@@ -17,7 +17,7 @@ from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
 from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon import ToonDNA
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 from toontown.uberdog.ClientServicesGlobals import generateLookupTable, encodeHexString
 from toontown.web.AccountServiceClient import AccountServiceClient
 

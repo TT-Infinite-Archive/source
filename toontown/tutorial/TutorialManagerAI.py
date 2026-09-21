@@ -9,7 +9,7 @@ from . import SuitPlannerTutorialAI
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toon import NPCToons
 from toontown.toon import NPCToonsAI
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.ai import BlackCatHolidayMgrAI
 from toontown.ai import DistributedBlackCatMgrAI
 

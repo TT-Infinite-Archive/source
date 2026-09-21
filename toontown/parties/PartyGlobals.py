@@ -1,7 +1,7 @@
 import enum
 from panda3d.core import BitMask32, Point3, VBase4
 from direct.showbase import PythonUtil
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 KICK_TO_PLAYGROUND_EVENT = 'parties_kickToPlayground'
 MaxSetInvites = 1000
 MaxSetPartiesInvitedTo = 100

@@ -1,4 +1,5 @@
 from panda3d.core import Datagram, Filename, Texture
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from .CatalogSurfaceItem import *
 MTTextureName = 0
 MTColor = 1

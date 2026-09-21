@@ -3,6 +3,7 @@ from direct.interval.IntervalGlobal import *
 from .BattleBase import *
 from .BattleProps import *
 from toontown.suit.SuitBase import *
+from toontown.toonbase import TTLocalizer
 from toontown.toon.ToonDNA import *
 from .BattleSounds import *
 from . import MovieCamera

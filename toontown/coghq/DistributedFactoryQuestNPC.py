@@ -1,5 +1,6 @@
 from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, VBase3
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject
 from toontown.toon import NPCToonFactory

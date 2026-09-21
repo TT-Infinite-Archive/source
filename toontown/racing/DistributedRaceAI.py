@@ -6,7 +6,7 @@ from . import DistributedProjectileAI
 from . import Racer
 from . import RaceGlobals
 from direct.distributed.ClockDelta import *
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):

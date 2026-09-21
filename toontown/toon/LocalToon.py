@@ -56,6 +56,7 @@ from toontown.toon import ElevatorNotifier
 from toontown.toon.ToonAvatarDetailPanel import preloadGagGui
 from toontown.toonbase import ToontownGlobals, SettingsGlobals, VersionGlobals
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import NewsPageButtonManager
 from toontown.friends.FriendHandle import FriendHandle
 import sys

@@ -8,7 +8,7 @@ from otp.avatar import DistributedAvatarAI
 from otp.avatar import PlayerBase
 from otp.distributed import OtpDoGlobals
 from otp.distributed.ClsendTracker import ClsendTracker
-from otp.otpbase import OTPLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
 
 
 class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.PlayerBase, ClsendTracker):

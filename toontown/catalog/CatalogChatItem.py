@@ -1,7 +1,7 @@
 from . import CatalogItem
 from toontown.toonbase import ToontownGlobals
-from otp.otpbase import OTPLocalizer
-from toontown.toonbase import TTLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 class CatalogChatItem(CatalogItem.CatalogItem):
 

@@ -5,13 +5,13 @@ if __name__ == '__main__':
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
 from direct.showbase import DirectObject, PythonUtil
-from toontown.toonbase import ToontownGlobals, TTLocalizer
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
 from .KartShopGlobals import *
 from toontown.racing.Kart import Kart
 from toontown.shtiker.KartPage import KartViewer
 from .KartDNA import *
+from toontown.toonbase import TTLocalizer
 from toontown.toontowngui.TeaserPanel import TeaserPanel
 if (__debug__):
     import pdb

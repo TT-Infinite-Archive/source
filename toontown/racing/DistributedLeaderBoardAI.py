@@ -11,7 +11,7 @@
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from toontown.racing.RaceGlobals import  *
-from toontown.toonbase.TTLocalizer import *
+from toontown.toonbase.TTLocalizerServer import *
 import pickle
 
 class DistributedLeaderBoardAI(DistributedObjectAI.DistributedObjectAI):

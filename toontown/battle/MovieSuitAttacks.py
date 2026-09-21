@@ -15,9 +15,9 @@ from toontown.chat.ChatGlobals import *
 from toontown.nametag import NametagGlobals
 from toontown.nametag.NametagGlobals import *
 from toontown.suit.SuitDNA import *
-from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 
 
 notify = DirectNotifyGlobal.directNotify.newCategory('MovieSuitAttacks')

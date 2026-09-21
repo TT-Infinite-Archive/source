@@ -5,7 +5,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.showbase import AppRunnerGlobal
 from otp.chat.WhiteList import WhiteList
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
     RedownloadTaskName = 'RedownloadWhitelistTask'

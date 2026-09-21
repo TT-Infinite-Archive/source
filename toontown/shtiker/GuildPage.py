@@ -6,6 +6,7 @@ from toontown.toonbase import EventGlobals, FontAwesomeGlobals
 from toontown.toonbase.ToontownGlobals import getInterfaceFont, getMinnieFont
 from toontown.util import TTCardMaker
 from toontown.guilds.GuildGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.guilds import GuildQuestGlobals
 from toontown.guilds.IconGlobals import *
 from toontown.shtiker.GuildLeaderboard import GuildLeaderboard

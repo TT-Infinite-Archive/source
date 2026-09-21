@@ -432,7 +432,7 @@ def calcCupListFromHistory(history):
 
 
 def getCourseName(courseId):
-    from toontown.toonbase import TTLocalizer
+    from toontown.toonbase import TTLocalizerServer as TTLocalizer
     if courseId in CourseInfo:
         if not CourseInfo[courseId]['name']:
             CourseInfo[courseId]['name'] = TTLocalizer.GolfCourseNames[courseId]
@@ -442,7 +442,7 @@ def getCourseName(courseId):
 
 
 def getHoleName(holeId):
-    from toontown.toonbase import TTLocalizer
+    from toontown.toonbase import TTLocalizerServer as TTLocalizer
     if holeId in HoleInfo:
         if not HoleInfo[holeId]['name']:
             HoleInfo[holeId]['name'] = TTLocalizer.GolfHoleNames[holeId]

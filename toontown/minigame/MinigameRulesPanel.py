@@ -5,6 +5,7 @@ from direct.gui.DirectGui import *
 from . import MinigameGlobals
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 
 
 class MinigameRulesPanel(StateData.StateData):

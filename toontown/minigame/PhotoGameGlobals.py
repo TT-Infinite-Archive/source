@@ -1,5 +1,5 @@
 from panda3d.core import Point3
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 GAME_TIME = 60
 MAX_SCORE = 23

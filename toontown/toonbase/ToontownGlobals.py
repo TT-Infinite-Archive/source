@@ -3,7 +3,7 @@ import os
 import random
 import sys
 from panda3d.core import BitMask32, Vec4
-from . import TTLocalizer
+from . import TTLocalizerServer
 from otp.otpbase.OTPGlobals import *
 from direct.showbase.PythonUtil import invertDict
 
@@ -127,8 +127,8 @@ MaxCarryLimit = 80
 MaxQuestCarryLimit = 4
 GravityValue = 32.174
 MaxCogSuitLevel = 12 - 1
-setInterfaceFont(TTLocalizer.InterfaceFont)
-setSignFont(TTLocalizer.SignFont)
+setInterfaceFont(TTLocalizerServer.InterfaceFont)
+setSignFont(TTLocalizerServer.SignFont)
 from toontown.toontowngui import TTDialog
 setDialogClasses(TTDialog.TTDialog, TTDialog.TTGlobalDialog)
 ToonFont = None
@@ -157,35 +157,35 @@ def getIp():
 def getToonFont():
     global ToonFont
     if ToonFont == None:
-        ToonFont = loader.loadFont(TTLocalizer.ToonFont, lineHeight=1.0)
+        ToonFont = loader.loadFont(TTLocalizerServer.ToonFont, lineHeight=1.0)
     return ToonFont
 
 
 def getBuildingNametagFont():
     global BuildingNametagFont
     if BuildingNametagFont == None:
-        BuildingNametagFont = loader.loadFont(TTLocalizer.BuildingNametagFont)
+        BuildingNametagFont = loader.loadFont(TTLocalizerServer.BuildingNametagFont)
     return BuildingNametagFont
 
 
 def getMinnieFont():
     global MinnieFont
     if MinnieFont == None:
-        MinnieFont = loader.loadFont(TTLocalizer.MinnieFont)
+        MinnieFont = loader.loadFont(TTLocalizerServer.MinnieFont)
     return MinnieFont
 
 
 def getSuitFont():
     global SuitFont
     if SuitFont == None:
-        SuitFont = loader.loadFont(TTLocalizer.SuitFont, spaceAdvance=0.25, lineHeight=1.0)
+        SuitFont = loader.loadFont(TTLocalizerServer.SuitFont, spaceAdvance=0.25, lineHeight=1.0)
     return SuitFont
 
 
 def getFontAwesome():
     global FontAwesome
     if FontAwesome is None:
-        FontAwesome = loader.loadFont(TTLocalizer.FontAwesome)
+        FontAwesome = loader.loadFont(TTLocalizerServer.FontAwesome)
     return FontAwesome
 
 
@@ -313,24 +313,24 @@ HQToSafezone = {
     BossbotHQ: DonaldsDock
 }
 CogDeptNames = [
-    TTLocalizer.Bossbot,
-    TTLocalizer.Lawbot,
-    TTLocalizer.Cashbot,
-    TTLocalizer.Sellbot
+    TTLocalizerServer.Bossbot,
+    TTLocalizerServer.Lawbot,
+    TTLocalizerServer.Cashbot,
+    TTLocalizerServer.Sellbot
 ]
 HoodIdToName = {
-    ToontownCentral: TTLocalizer.lToontownCentral,
-    DonaldsDock: TTLocalizer.lDonaldsDock,
-    TheBrrrgh: TTLocalizer.lTheBrrrgh,
-    MinniesMelodyland: TTLocalizer.lMinniesMelodyland,
-    DaisyGardens: TTLocalizer.lDaisyGardens,
-    DonaldsDreamland: TTLocalizer.lDonaldsDreamland,
-    GoofySpeedway: TTLocalizer.lGoofySpeedway,
-    OutdoorZone: TTLocalizer.lOutdoorZone,
-    BossbotHQ: TTLocalizer.BossbotHQ[2],
-    SellbotHQ: TTLocalizer.SellbotHQ[2],
-    CashbotHQ: TTLocalizer.CashbotHQ[2],
-    LawbotHQ: TTLocalizer.LawbotHQ[2],
+    ToontownCentral: TTLocalizerServer.lToontownCentral,
+    DonaldsDock: TTLocalizerServer.lDonaldsDock,
+    TheBrrrgh: TTLocalizerServer.lTheBrrrgh,
+    MinniesMelodyland: TTLocalizerServer.lMinniesMelodyland,
+    DaisyGardens: TTLocalizerServer.lDaisyGardens,
+    DonaldsDreamland: TTLocalizerServer.lDonaldsDreamland,
+    GoofySpeedway: TTLocalizerServer.lGoofySpeedway,
+    OutdoorZone: TTLocalizerServer.lOutdoorZone,
+    BossbotHQ: TTLocalizerServer.BossbotHQ[2],
+    SellbotHQ: TTLocalizerServer.SellbotHQ[2],
+    CashbotHQ: TTLocalizerServer.CashbotHQ[2],
+    LawbotHQ: TTLocalizerServer.LawbotHQ[2],
 }
 
 
@@ -431,7 +431,7 @@ factoryId2factoryType = {
     SellbotFactoryInt: FT_FullSuit,
     LawbotOfficeInt: FT_FullSuit
 }
-StreetNames = TTLocalizer.GlobalStreetNames
+StreetNames = TTLocalizerServer.GlobalStreetNames
 StreetBranchZones = list(StreetNames.keys())
 Hoods = (
     DonaldsDock,
@@ -601,23 +601,23 @@ dnaMap = {
     GolfZone: 'golf_zone'
 }
 hoodNameMap = {
-    DonaldsDock: TTLocalizer.DonaldsDock,
-    ToontownCentral: TTLocalizer.ToontownCentral,
-    TheBrrrgh: TTLocalizer.TheBrrrgh,
-    MinniesMelodyland: TTLocalizer.MinniesMelodyland,
-    DaisyGardens: TTLocalizer.DaisyGardens,
-    OutdoorZone: TTLocalizer.OutdoorZone,
-    FunnyFarm: TTLocalizer.FunnyFarm,
-    GoofySpeedway: TTLocalizer.GoofySpeedway,
-    DonaldsDreamland: TTLocalizer.DonaldsDreamland,
-    BossbotHQ: TTLocalizer.BossbotHQ,
-    SellbotHQ: TTLocalizer.SellbotHQ,
-    CashbotHQ: TTLocalizer.CashbotHQ,
-    LawbotHQ: TTLocalizer.LawbotHQ,
-    Tutorial: TTLocalizer.Tutorial,
-    MyEstate: TTLocalizer.MyEstate,
-    GolfZone: TTLocalizer.GolfZone,
-    PartyHood: TTLocalizer.PartyHood
+    DonaldsDock: TTLocalizerServer.DonaldsDock,
+    ToontownCentral: TTLocalizerServer.ToontownCentral,
+    TheBrrrgh: TTLocalizerServer.TheBrrrgh,
+    MinniesMelodyland: TTLocalizerServer.MinniesMelodyland,
+    DaisyGardens: TTLocalizerServer.DaisyGardens,
+    OutdoorZone: TTLocalizerServer.OutdoorZone,
+    FunnyFarm: TTLocalizerServer.FunnyFarm,
+    GoofySpeedway: TTLocalizerServer.GoofySpeedway,
+    DonaldsDreamland: TTLocalizerServer.DonaldsDreamland,
+    BossbotHQ: TTLocalizerServer.BossbotHQ,
+    SellbotHQ: TTLocalizerServer.SellbotHQ,
+    CashbotHQ: TTLocalizerServer.CashbotHQ,
+    LawbotHQ: TTLocalizerServer.LawbotHQ,
+    Tutorial: TTLocalizerServer.Tutorial,
+    MyEstate: TTLocalizerServer.MyEstate,
+    GolfZone: TTLocalizerServer.GolfZone,
+    PartyHood: TTLocalizerServer.PartyHood
 }
 safeZoneCountMap = {
     MyEstate: 8,

@@ -1,7 +1,6 @@
 from . import CatalogItem
 from . import CatalogAtticItem
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
 from .CatalogSurfaceColors import *
 
 

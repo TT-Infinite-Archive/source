@@ -6,7 +6,7 @@
 #===============================================================================
 from direct.showbase.PythonUtil import bound as clamp
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 from .DistributedPartyTeamActivityAI import DistributedPartyTeamActivityAI
 from . import PartyGlobals, PartyCogUtils

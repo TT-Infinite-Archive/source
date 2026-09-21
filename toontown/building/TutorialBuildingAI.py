@@ -5,7 +5,7 @@ from . import FADoorCodes
 from . import DoorTypes
 from toontown.toon import NPCToons
 from toontown.toon import NPCToonsAI
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 # This is not a distributed class... It just owns and manages some distributed
 # classes.

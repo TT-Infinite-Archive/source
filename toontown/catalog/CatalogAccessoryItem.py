@@ -2,7 +2,7 @@ from panda3d.core import Datagram, Filename, Texture, VBase4, Vec4
 from . import CatalogItem
 from .CatalogAccessoryItemGlobals import *
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toon import ToonDNA
 import random
 from direct.showbase import PythonUtil

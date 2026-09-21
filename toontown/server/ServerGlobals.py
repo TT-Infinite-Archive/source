@@ -6,7 +6,7 @@ import socket
 import sys
 
 
-from toontown.toonbase import ServerSettingsGlobals, TTLocalizer, ToontownGlobals
+from toontown.toonbase import ServerSettingsGlobals, TTLocalizerServer as TTLocalizer, ToontownGlobals
 
 LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
 if sys.platform == 'android':

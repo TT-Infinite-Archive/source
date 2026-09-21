@@ -2,7 +2,7 @@ from panda3d.core import Texture, VBase4
 from toontown.pets.PetMood import PetMood
 from toontown.pets.PetTraits import getTraitNames
 from toontown.toon import ToonDNA
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 from direct.showbase import PythonUtil
 NumFields = 9
 Fields = {'head': 0,

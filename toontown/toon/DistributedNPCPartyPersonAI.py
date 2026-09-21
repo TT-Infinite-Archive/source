@@ -1,5 +1,5 @@
 from .DistributedNPCToonBaseAI import DistributedNPCToonBaseAI
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.task import Task
 from toontown.toonbase import ToontownGlobals
 from toontown.toon import NPCToons

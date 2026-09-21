@@ -2,7 +2,7 @@ from panda3d.core import Datagram
 from . import CatalogItem
 from toontown.collectibles.CollectibleInventoryGlobals import CICategoryNametag
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.gui.DirectGui import *
 
 

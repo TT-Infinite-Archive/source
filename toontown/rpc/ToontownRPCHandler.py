@@ -11,7 +11,7 @@ from otp.distributed import OtpDoGlobals
 from toontown.distributed.ShardStatusReceiver import ShardStatusReceiver
 from toontown.rpc.ToontownRPCHandlerBase import *
 from toontown.toon import ToonDNA
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.guilds.GuildGlobals import GUILD_FIELD_NAME_STATUS
 from toontown.guilds.GuildGlobals import GUILD_FIELD_NAME, GUILD_NAME_ACCEPTED
 from toontown.guilds.GuildGlobals import GUILD_FIELD_PENDING_NAME

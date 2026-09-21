@@ -1,4 +1,4 @@
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 import random
 FLOWERS_PER_BONUS = 10

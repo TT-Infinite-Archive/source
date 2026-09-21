@@ -19,7 +19,7 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableDouble
 from direct.distributed import ClockDelta
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivityAI
 from toontown.parties.activityFSMs import TeamActivityAIFSM

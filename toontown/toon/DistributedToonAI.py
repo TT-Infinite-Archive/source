@@ -21,7 +21,7 @@ from otp.distributed import OtpDoGlobals
 from otp.avatar import DistributedAvatarAI
 from otp.avatar import DistributedPlayerAI
 from otp.otpbase import OTPGlobals
-from otp.otpbase import OTPLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
 from toontown.achievements import Achievements
 from toontown.battle import SuitBattleGlobals
 from toontown.building import GroupTrackerGlobals
@@ -46,12 +46,12 @@ from toontown.racing import RaceGlobals
 from toontown.shtiker import CogPageGlobals
 from toontown.suit import SuitDNA
 from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownAccessAI
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownGlobals import *
-from toontown.toonbase.TTLocalizerEnglish import SuitNameDropper
+from toontown.toonbase.TTLocalizerServer import SuitNameDropper
 from functools import reduce
 
 

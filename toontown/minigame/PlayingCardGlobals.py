@@ -1,6 +1,6 @@
 from panda3d.core import Vec4
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 
 # For dealing

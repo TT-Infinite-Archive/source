@@ -4,7 +4,7 @@ from toontown.classicchars import DistributedDaleAI
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from . import DistributedCCharBaseAI
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DistributedJailbirdDaleAI(DistributedDaleAI.DistributedDaleAI):

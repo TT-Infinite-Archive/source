@@ -14,7 +14,7 @@ from direct.task import Task
 from direct.fsm import State
 from toontown.hood import *
 from direct.showbase import DirectObject
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.classicchars import *
 from toontown.classicchars import DistributedVampireMickeyAI, DistributedSuperGoofyAI, DistributedWesternPlutoAI
 from toontown.classicchars import DistributedWitchMinnieAI, DistributedPoliceChipAI, DistributedJailbirdDaleAI

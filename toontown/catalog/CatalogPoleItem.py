@@ -4,7 +4,7 @@ from toontown.collectibles import CollectibleInventoryGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.fishing import FishGlobals
 from direct.actor import Actor
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.interval.IntervalGlobal import *
 
 

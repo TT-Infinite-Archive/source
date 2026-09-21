@@ -12,7 +12,7 @@ from toontown.parties import PartyGlobals
 from toontown.ai.ToonBarrier import ToonBarrier
 from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivityAI
 from toontown.parties.activityFSMs import TrampolineActivityFSM
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
     notify = directNotify.newCategory("DistributedPartyTrampolineActivityAI")

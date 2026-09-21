@@ -8,7 +8,7 @@
 #          so that it can be set to fire on the client side.
 #-------------------------------------------------------------------------------
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivityAI
 from toontown.parties.DistributedPartyCannonAI import DistributedPartyCannonAI

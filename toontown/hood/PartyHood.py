@@ -4,6 +4,7 @@ from direct.task.Task import Task
 from otp.avatar import DistributedAvatar
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.distributed.ToontownMsgTypes import *
 from toontown.minigame import Purchase
 from toontown.parties import PartyLoader

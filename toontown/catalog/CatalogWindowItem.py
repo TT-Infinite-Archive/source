@@ -2,7 +2,7 @@ from panda3d.core import Datagram, Filename, NodePath, Plane, PlaneNode, Point3,
 from . import CatalogAtticItem
 from . import CatalogItem
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 WVTModelName = 0
 WVTBasePrice = 1
 WVTSkyName = 2

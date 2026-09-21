@@ -12,7 +12,7 @@ from toontown.battle import BattleExperienceAI
 from direct.fsm import FSM
 from toontown.toonbase import ToontownGlobals
 from toontown.toon import InventoryBase
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.battle import BattleBase
 from toontown.toon import NPCToons
 from toontown.building import SuitBuildingGlobals

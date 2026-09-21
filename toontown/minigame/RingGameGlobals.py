@@ -1,5 +1,5 @@
 from panda3d.core import ConfigVariableBool, VBase4
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 ENDLESS_GAME = ConfigVariableBool('endless-ring-game', False).getValue()
 NUM_RING_GROUPS = 16

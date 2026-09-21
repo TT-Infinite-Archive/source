@@ -1,5 +1,5 @@
 from . import CatalogItem
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.showbase import PythonUtil
 from toontown.toonbase import ToontownGlobals
 

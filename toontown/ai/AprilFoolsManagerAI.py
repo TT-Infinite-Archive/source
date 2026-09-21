@@ -7,7 +7,7 @@ from toontown.ai import HolidayBaseAI
 from toontown.ai import CostumeManagerAI
 from toontown.toonbase import ToontownGlobals
 from direct.showbase import DirectObject
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 
 class AprilFoolsManagerAI(CostumeManagerAI.CostumeManagerAI):

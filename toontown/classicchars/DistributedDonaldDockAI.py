@@ -4,7 +4,7 @@ from . import DistributedCCharBaseAI
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from . import CharStateDatasAI
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DistributedDonaldDockAI(DistributedCCharBaseAI.DistributedCCharBaseAI):
