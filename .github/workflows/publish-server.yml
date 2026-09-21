@@ -89,15 +89,40 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Read the protocol version
+        id: protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          value=$(awk '$1 == "server-version" { print $2; exit }' \
+                  config/distribution/live.prc)
+
+          if [ -z "$value" ]; then
+              echo "::error::config/distribution/live.prc names no server-version."
+              exit 1
+          fi
+
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+
       - name: Name the image
         id: image
         shell: bash
         run: |
+          set -euo pipefail
+
           repo="ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.image }}"
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ matrix.image }}" = astron ]; then
+              version="${{ steps.protocol.outputs.value }}"
+          else
+              version="tti-${{ inputs.channel }}-v${{ inputs.version }}"
+          fi
 
           {
               echo "tags<<TAGS"
-              echo "$repo:tti-${{ inputs.channel }}-v${{ inputs.version }}"
+              echo "$repo:$version"
               # :latest is whatever is live:
               if [ "${{ inputs.channel }}" = live ]; then
                   echo "$repo:latest"
@@ -105,13 +130,29 @@ jobs:
               echo TAGS
           } >> "$GITHUB_OUTPUT"
 
+      - name: Look for an astron image on this protocol
+        id: existing
+        if: matrix.image == 'astron'
+        shell: bash
+        run: |
+          tag="${{ steps.image.outputs.repo }}:${{ steps.protocol.outputs.value }}"
+
+          if docker buildx imagetools inspect "$tag" > /dev/null 2>&1; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Protocol \`${{ steps.protocol.outputs.value }}\` is already published; keeping it." \
+                  >> "$GITHUB_STEP_SUMMARY"
+          else
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: docker/build-push-action@v7
+        if: steps.existing.outputs.skip != 'true'
         with:
           context: .
           file: ${{ matrix.file }}
           push: true
           build-args: |
-            SERVER_VERSION=tti-${{ inputs.channel }}-v${{ inputs.version }}
+            BUILD_VERSION=tti-${{ inputs.channel }}-v${{ inputs.version }}
           tags: ${{ steps.image.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,scope=${{ matrix.image }},mode=max

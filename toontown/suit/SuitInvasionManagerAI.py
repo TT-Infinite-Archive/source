@@ -1,6 +1,7 @@
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 from toontown.battle import SuitBattleGlobals
+from toontown.suit import SuitDNA
 import random
 import time
 from direct.task import Task
@@ -12,6 +13,9 @@ class SuitInvasionManagerAI(DirectObject):
 
     notify = DirectNotifyGlobal.directNotify.newCategory('SuitInvasionManagerAI')
 
+    # Cogs spent between shard status updates-- the website's count moves
+    REPORT_EVERY = 25
+
     def __init__(self, air):
         DirectObject.__init__(self)
 
@@ -19,7 +23,7 @@ class SuitInvasionManagerAI(DirectObject):
         self.invading = 0
         self.cogType = None
         self.cogName = ""
-        self.skeleton = 0
+        self.isSkeleton = 0
         self.totalNumCogs = 0
         self.numCogsRemaining = 0
         # 0 when the invasion runs until the Cogs are gone
@@ -143,6 +147,11 @@ class SuitInvasionManagerAI(DirectObject):
         # Tell the news manager that an invasion is beginning
         self.air.newsManager.invasionBegin(self.cogType, self.totalNumCogs, self.isSkeleton)
 
+        # And the Shticker book's district list, through the district's stats
+        deptIndex, typeIndex = divmod(
+            SuitDNA.suitHeadTypes.index(self.cogType), SuitDNA.suitsPerDept)
+        self.air.districtStats.b_setInvasionStatus([deptIndex, typeIndex])
+
         # Get rid of all the current cogs on the streets
         # (except those already in battle, they can stay)
         for suitPlanner in self.air.suitPlanners.values():
@@ -158,23 +167,33 @@ class SuitInvasionManagerAI(DirectObject):
         self.stopInvasion()
         return Task.done
 
+    def spendInvadingCog(self):
+        """
+        Charges the invasion for one Cog. getCogType() is the look without one.
+        """
+        if not self.invading:
+            return
+        self.numCogsRemaining -= 1
+        self.notify.debug("spendInvadingCog: spent cog: %s, num remaining: %s" %
+                          (self.cogType, self.numCogsRemaining))
+        if self.numCogsRemaining <= 0:
+            self.stopInvasion()
+        elif self.numCogsRemaining % self.REPORT_EVERY == 0:
+            self.sendShardStatus()
+
     def getInvadingCog(self):
-        if self.invading:
-            self.numCogsRemaining -= 1
-            if self.numCogsRemaining <= 0:
-                self.stopInvasion()
-            self.notify.debug("getInvadingCog: returned cog: %s, num remaining: %s" %
-                              (self.cogType, self.numCogsRemaining))
-            return self.cogType, self.isSkeleton
-        else:
-            self.notify.debug("getInvadingCog: not currently invading")
-            return None, None
+        self.spendInvadingCog()
+        return self.getCogType()
 
     def stopInvasion(self):
+        if not self.invading:
+            return
+
         self.notify.info("stopInvasion: invasion is over now")
         taskMgr.remove(self.taskName("cogInvasionDuration"))
         # Tell the news manager that an invasion is ending
         self.air.newsManager.invasionEnd(self.cogType, 0, self.isSkeleton)
+        self.air.districtStats.b_setInvasionStatus([])
         self.invading = 0
         self.cogType = None
         self.isSkeleton = 0

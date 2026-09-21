@@ -63,7 +63,7 @@ jobs:
           push: false
           load: true
           tags: tti-server:check
-          build-args: SERVER_VERSION=check
+          build-args: BUILD_VERSION=check
           cache-from: type=gha,scope=server
           cache-to: type=gha,scope=server,mode=max
 
@@ -75,7 +75,7 @@ jobs:
           push: false
           load: true
           tags: tti-astron:check
-          build-args: SERVER_VERSION=check
+          build-args: BUILD_VERSION=check
           cache-from: type=gha,scope=astron
           cache-to: type=gha,scope=astron,mode=max
 

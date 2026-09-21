@@ -59,7 +59,10 @@ if args.settings_file:
 if args.status_file:
     loadPrcFileData('Command-line', 'host-status-file %s\n' % args.status_file)
 
-builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
+from toontown.toonbase import VersionGlobals
+
+builtins.version = VersionGlobals.protocol()
+builtins.buildVersion = VersionGlobals.build()
 
 from toontown.server import Deployment
 Deployment.load()

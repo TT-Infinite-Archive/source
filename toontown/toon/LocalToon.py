@@ -54,7 +54,7 @@ from toontown.shtiker import TrackPage
 from toontown.shtiker import CollectiblePage
 from toontown.toon import ElevatorNotifier
 from toontown.toon.ToonAvatarDetailPanel import preloadGagGui
-from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownGlobals, SettingsGlobals, VersionGlobals
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toontowngui import NewsPageButtonManager
 from toontown.friends.FriendHandle import FriendHandle
@@ -1262,13 +1262,13 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def getAvPosStr(self):
         pos = self.getPos()
         hpr = self.getHpr()
-        serverVersion = base.cr.getServerVersion()
+        buildVersion = VersionGlobals.build()
         districtName = base.cr.getShardName(base.localAvatar.defaultShard)
         if hasattr(base.cr.playGame.hood, 'loader') and hasattr(base.cr.playGame.hood.loader, 'place') and base.cr.playGame.getPlace() != None:
             zoneId = base.cr.playGame.getPlace().getZoneId()
         else:
             zoneId = '?'
-        strPosCoordText = 'X: %.3f' % pos[0] + ', Y: %.3f' % pos[1] + '\nZ: %.3f' % pos[2] + ', H: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ', Ver: %s, ' % serverVersion + 'District: %s' % districtName
+        strPosCoordText = 'X: %.3f' % pos[0] + ', Y: %.3f' % pos[1] + '\nZ: %.3f' % pos[2] + ', H: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ', Ver: %s, ' % buildVersion + 'District: %s' % districtName
         return strPosCoordText
         self.refreshOnscreenButtons()
         return
@@ -1276,13 +1276,13 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     def thinkPos(self):
         pos = self.getPos()
         hpr = self.getHpr()
-        serverVersion = base.cr.getServerVersion()
+        buildVersion = VersionGlobals.build()
         districtName = base.cr.getShardName(base.localAvatar.defaultShard)
         if hasattr(base.cr.playGame.hood, 'loader') and hasattr(base.cr.playGame.hood.loader, 'place') and base.cr.playGame.getPlace() != None:
             zoneId = base.cr.playGame.getPlace().getZoneId()
         else:
             zoneId = '?'
-        strPos = '(%.3f' % pos[0] + '\n %.3f' % pos[1] + '\n %.3f)' % pos[2] + '\nH: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ',\nVer: %s, ' % serverVersion + '\nDistrict: %s' % districtName
+        strPos = '(%.3f' % pos[0] + '\n %.3f' % pos[1] + '\n %.3f)' % pos[2] + '\nH: %.3f' % hpr[0] + '\nZone: %s' % str(zoneId) + ',\nVer: %s, ' % buildVersion + '\nDistrict: %s' % districtName
         print('Current position=', strPos.replace('\n', ', '))
         self.setChatAbsolute(strPos, CFThought | CFTimeout)
         return

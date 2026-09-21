@@ -2,7 +2,7 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
-from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals, VersionGlobals
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
@@ -52,6 +52,12 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.cr.setServerFlags(serverFlags)
         messenger.send(self.loginDoneEvent, [{'mode': 'success', 'timestamp': timestamp}])
         self.loginDoneEvent = None
+
+    def requestReconnectToken(self):
+        self.sendUpdate('requestReconnectToken', [])
+
+    def setReconnectToken(self, token):
+        self.cr.setReconnectToken(token)
 
     def loginError(self, errorCode):
         self.notify.debug('Login Error %s' % errorCode)
@@ -116,7 +122,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     # --- AVATAR CHOICE ---
     def sendChooseAvatar(self, avId):
-        self.sendUpdate('chooseAvatar', [avId, sys.platform])
+        self.sendUpdate('chooseAvatar', [avId, sys.platform, VersionGlobals.build()])
 
     def systemMessage(self, message):
         whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)

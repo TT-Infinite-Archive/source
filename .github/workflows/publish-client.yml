@@ -276,7 +276,7 @@ jobs:
 
       - name: Compile the ${{ matrix.part }}
         env:
-          SERVER_VERSION: tti-${{ inputs.channel }}-v${{ inputs.version }}
+          BUILD_VERSION: tti-${{ inputs.channel }}-v${{ inputs.version }}
         run: python tools/build_client.py --target ${{ matrix.part }}
 
       - name: Describe it

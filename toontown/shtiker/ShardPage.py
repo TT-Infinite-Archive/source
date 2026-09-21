@@ -13,6 +13,7 @@ POP_COLORS = (
     Vec4(0.4, 1.0, 0.4, 1.0),
     Vec4(1.0, 0.4, 0.4, 1.0)
 )
+DRAIN_COLOR = Vec4(1.0, 0.6, 0.2, 1.0)
 
 
 class ShardPage(ShtikerPage.ShtikerPage):
@@ -134,7 +135,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
         totalPop = 0
 
         for i in range(len(curShardTuples)):
-            shardId, name, pop, WVPop, invasionStatus, timeZone = curShardTuples[i]
+            shardId, name, pop, WVPop, invasionStatus, timeZone, draining = curShardTuples[i]
 
             # Get the formatted timezone string
             timezone = base.cr.shardTimeManager.formatTimeZone(timeZone)
@@ -143,7 +144,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
             totalPop += pop
 
             # Make our shard widget
-            shardWidget = ShardWidget(render2d, shardId, name, invasionStatus, pop, timezone, i, self.shardList)
+            shardWidget = ShardWidget(render2d, shardId, name, invasionStatus, pop, timezone, i, self.shardList, draining)
             self.shards.append(shardWidget)
             self.shardList.addItem(shardWidget)
 
@@ -196,13 +197,14 @@ class ShardPage(ShtikerPage.ShtikerPage):
 
 
 class ShardWidget(DirectButton):
-    def __init__(self, parent, shardId, shardName, invasion, population, timezone, index, listObject):
+    def __init__(self, parent, shardId, shardName, invasion, population, timezone, index, listObject, draining=0):
         self._parent = parent
         self.shardId = shardId
         self.shardName = shardName
         self.invasion = invasion            # [CogDeptIndex, CogSuitIndex]
         self.population = population
         self.listObject = listObject
+        self.draining = draining
 
         self.lowPop = ConfigVariableInt('shard-low-pop', 150).getValue()
         self.midPop = ConfigVariableInt('shard-mid-pop', 300).getValue()
@@ -226,7 +228,11 @@ class ShardWidget(DirectButton):
 
         DirectButton.__init__(self, listObject, relief=None, frameSize=listFrameSize)
         self.mainFrame = DirectFrame(self, relief=DGG.SUNKEN, pos=(0.0, 0.0, 0.49), borderWidth=(0.001, 0.001), frameSize=(listFrameSize[0], listFrameSize[1], -0.05, 0.05), frameColor=frameColor)
-        self.nameLabel = DirectLabel(self.mainFrame, relief=None, pos=(-0.45, 0.0, 0), text=shardName, text_fg=textColor, text_scale=self.getShardNameScale(shardName), text_pos=(0.0, -0.015, 0.0), text_align=TextNode.ACenter)
+        displayName = shardName
+        if self.draining:
+            displayName = '%s (%s)' % (shardName, TTLocalizer.ShardPageDraining)
+
+        self.nameLabel = DirectLabel(self.mainFrame, relief=None, pos=(-0.45, 0.0, 0), text=displayName, text_fg=textColor, text_scale=self.getShardNameScale(shardName), text_pos=(0.0, -0.015, 0.0), text_align=TextNode.ACenter)
         self.invasionLabel = DirectButton(self.mainFrame, relief=None, text_scale=0.06, pos=(-0.1, 0.0, 0), text_pos=(0.0, -0.015, 0.0), image_pos=(0.0, 0.0, 0.1))
         self.populationLabel = DirectButton(self.mainFrame, relief=None, image=(shardButton, None, None, shardButton), image_scale=(0.35, 1, 0.35), image_color=self.getPopColor(self.population), pos=(0.11, 0.0, 0.0), text=('', self.getPopText(self.population, 1), self.getPopText(self.population, 1), ''), text_pos=(-0.01, -0.0125), text_fg=textColor, text_scale=textScale, text_align=TextNode.ACenter)
         self.timezoneLabel = DirectLabel(self.mainFrame, relief=None, pos=(0.29, 0.0, -0.015), text=timezone, text_fg=textColor, text_scale=textScale, text_align=TextNode.ACenter)
@@ -294,6 +300,8 @@ class ShardWidget(DirectButton):
         else:
             return 0.06, 0.06
     def getPopColor(self, pop):
+        if self.draining:
+            return DRAIN_COLOR
         if pop <= self.lowPop:
             newColor = POP_COLORS[0]
         elif pop <= self.midPop:
@@ -324,6 +332,9 @@ class ShardWidget(DirectButton):
 
         if self.noTeleport:
             self.reject = WarningDialog.WarningDialog(parent=self.listObject, text=TTLocalizer.ShardPageChoiceRejectNoTeleport)
+            return
+        elif self.draining:
+            self.reject = WarningDialog.WarningDialog(parent=self.listObject, text=TTLocalizer.ShardPageChoiceRejectDraining)
             return
         elif self.shardId == currentShardId:
             self.reject = WarningDialog.WarningDialog(parent=self.listObject, text=TTLocalizer.ShardPageChoiceRejectAlreadyIn)

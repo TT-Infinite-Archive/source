@@ -35,10 +35,10 @@ COPY docker/entrypoint.sh docker/container.prc ./docker/
 
 COPY build/resources /resources
 
-ARG SERVER_VERSION=dev
-RUN sed -i "s/^server-version SERVER_VERSION$/server-version ${SERVER_VERSION}/" \
+ARG BUILD_VERSION=dev
+RUN sed -i "s/^build-version BUILD_VERSION$/build-version ${BUILD_VERSION}/" \
         config/distribution/live.prc \
-    && grep -qx "server-version ${SERVER_VERSION}" config/distribution/live.prc
+    && grep -qx "build-version ${BUILD_VERSION}" config/distribution/live.prc
 
 # Unbuffered so the district's log reaches `docker logs` as it happens
 ENV PYTHONUNBUFFERED=1
@@ -52,3 +52,4 @@ ENTRYPOINT ["./docker/entrypoint.sh"]
 LABEL org.opencontainers.image.title="Toontown Infinite Game Server"
 LABEL org.opencontainers.image.description="The official Docker image for the TTI game server (AI and UberDOG)."
 LABEL org.opencontainers.image.authors="Chris/Sonder"
+LABEL org.opencontainers.image.version="${BUILD_VERSION}"

@@ -32,6 +32,7 @@ from toontown.toonbase.ToontownGlobals import *
 from toontown.launcher.DownloadForceAcknowledge import *
 from toontown.distributed import DelayDelete
 from toontown.distributed.ShardTimeManager import ShardTimeManager
+from toontown.distributed.ShardDrainWatcher import ShardDrainWatcher
 from toontown.friends import FriendHandle
 from toontown.friends import FriendsListPanel
 from toontown.friends import ToontownFriendSecret
@@ -91,6 +92,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
 
         self.toontownTimeManager = ToontownTimeManager.ToontownTimeManager()
         self.shardTimeManager = ShardTimeManager(self)
+        self.shardDrainWatcher = ShardDrainWatcher(self)
 
         self.csm = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_CLIENT_SERVICES_MANAGER, 'ClientServicesManager')
         self.avatarFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_AVATAR_FRIENDS_MANAGER, 'AvatarFriendsManager')

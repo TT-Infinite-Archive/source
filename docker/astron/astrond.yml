@@ -5,7 +5,8 @@
 #     config/distribution/live.prc, or the UberDOG and Astron disagree about
 #     which doIds exist
 #
-#   - `version` must equal server-version in live.prc
+#   - `version` is rewritten by docker/astron/Dockerfile from the server-version
+#     line in config/distribution/live.prc, so leave the placeholder alone
 daemon:
     name: Toontown Infinite
 

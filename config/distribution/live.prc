@@ -10,7 +10,8 @@ distribution live
 audio-library-name p3openal_audio
 
 # Server:
-server-version SERVER_VERSION
+server-version tti-live-p1
+build-version BUILD_VERSION
 
 # Art assets:
 model-path /

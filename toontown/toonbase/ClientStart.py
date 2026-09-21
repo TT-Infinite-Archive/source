@@ -36,7 +36,10 @@ if __debug__:
         builtins.injector = Injector()
 
 
-builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
+from toontown.toonbase import VersionGlobals
+
+builtins.version = VersionGlobals.protocol()
+builtins.buildVersion = VersionGlobals.build()
 
 
 from otp.settings.Settings import Settings
@@ -179,7 +182,7 @@ introduction = Introduction()
 
 from toontown.toontowngui.ClickToStart import ClickToStart
 
-clickToStart = ClickToStart(version=version)
+clickToStart = ClickToStart(version=buildVersion)
 clickToStart.setColorScale(0, 0, 0, 0)
 
 from toontown.toonbase import TTLocalizer

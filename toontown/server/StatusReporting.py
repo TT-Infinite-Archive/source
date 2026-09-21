@@ -13,6 +13,7 @@ from direct.showbase.DirectObject import DirectObject
 
 from toontown.server import ServerGlobals
 from toontown.toon.DistributedToonAI import DistributedToonAI
+from toontown.toonbase import VersionGlobals
 
 
 class StatusSink:
@@ -53,8 +54,12 @@ class GatewaySink(StatusSink):
         payload = dict(status)
         payload.setdefault('invasion', None)
         payload.setdefault('nextInvasion', 0)
+        payload.setdefault('draining', False)
 
         payload['districtId'] = getattr(self.air, 'districtId', 0) or 0
+
+        # Which build this district is on
+        payload['version'] = VersionGlobals.build()
 
         self.socket.sendStatus(self.air.ourChannel, payload)
 
@@ -86,6 +91,8 @@ class FileSink(StatusSink):
         payload = {
             'district': status.get('name') or self.air.districtName,
             'available': bool(status.get('available', True)),
+            'draining': bool(status.get('draining', False)),
+            'version': VersionGlobals.build(),
             'population': len(players),
             'players': players,
             'port': ServerGlobals.getHostPort(),

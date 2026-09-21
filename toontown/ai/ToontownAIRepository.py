@@ -14,6 +14,7 @@ from toontown.ai.AchievementsManagerAI import AchievementsManagerAI
 from toontown.fishing.FishManagerAI import FishManagerAI
 from toontown.ai.HolidayManagerAI import HolidayManagerAI
 from toontown.ai.NewsManagerAI import NewsManagerAI
+from toontown.ai.ShardDrainer import ShardDrainer
 from toontown.quest.QuestManagerAI import QuestManagerAI
 from toontown.ai import BankManagerAI
 from toontown.battle.BehaviorManagerAI import BehaviorManagerAI
@@ -40,6 +41,7 @@ from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
 from toontown.fishing import DistributedFishingPondAI
 from toontown.safezone import DistributedFishingSpotAI
 from toontown.server.StatusReporting import FileSink, GatewaySink, StatusReporter
+from toontown.toon.DistributedToonAI import DistributedToonAI
 from toontown.hood import BRHoodDataAI
 from toontown.hood import BossbotHQDataAI
 from toontown.hood import CashbotHQDataAI
@@ -76,6 +78,7 @@ from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.safezone import DistributedPartyGateAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
 from toontown.distributed.ShardTimeManagerAI import ShardTimeManagerAI
+import signal
 import threading
 
 if ConfigVariableBool('want-leak-graph-ai', False).getValue():
@@ -160,6 +163,11 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.gatewayCommands = set()
 
         self.statusReporter = StatusReporter(self)
+
+        # Closing this district down without dropping the Toons in it. Armed in
+        # handleConnected, once there is something to drain.
+        self.drainer = ShardDrainer(self)
+        self.drainRequested = False
 
         self.notify.setInfo(True)  # Our AI repository should always log info.
         self.hoods = []
@@ -341,6 +349,7 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         self.startGateway()
         self.startStatusFile()
+        self.startDrainWatch()
 
         if ConfigVariableBool('want-threaded-ai-start', False).getValue():
             threading.Thread(target=self.startDistrict).start()
@@ -358,6 +367,36 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         self.statusReporter.add(FileSink(self, path))
         self.notify.info('Writing host status to %s' % path)
+
+    def startDrainWatch(self):
+        if not ConfigVariableBool('want-drain-on-stop', True).getValue():
+            return
+
+        try:
+            signal.signal(signal.SIGTERM, self.handleTerm)
+        except ValueError:
+            self.notify.warning('Could not take SIGTERM; stops will not drain.')
+            return
+
+        taskMgr.doMethodLater(1, self.__drainWatch, 'ToontownAIRepository-drain-watch')
+
+    def handleTerm(self, signum, frame):
+        self.drainRequested = True
+
+    def __drainWatch(self, task):
+        if not self.drainRequested or self.drainer.isDraining():
+            return task.again
+
+        self.drainRequested = False
+
+        error = self.drainer.start('Asked to stop.')
+
+        if error:
+            self.notify.info('Stopping without a drain: %s' % error)
+            taskMgr.stop()
+            return task.done
+
+        return task.done
 
     def startGateway(self):
         """
@@ -399,10 +438,56 @@ class ToontownAIRepository(ToontownInternalRepository):
                 commandId, op == 'startHoliday', commandArgs)
         elif op == 'setXpMultiplier':
             self.handleXpMultiplierCommand(commandId, commandArgs)
+        elif op == 'drain':
+            self.handleDrainCommand(commandId, commandArgs)
+        elif op == 'announce':
+            self.handleAnnounceCommand(commandId, commandArgs)
         else:
             self.notify.warning('Ignoring an unknown gateway op: %s' % op)
             self.gateway.sendResult(
                 commandId, False, {'error': 'Unknown op: %s' % op})
+
+    def playerToons(self):
+        return [do for do in list(self.doId2do.values())
+                if isinstance(do, DistributedToonAI) and do.isPlayerControlled()]
+
+    def handleAnnounceCommand(self, commandId, commandArgs):
+        """
+        Whispers a message to the Toons in this district.
+        """
+        message = (commandArgs.get('message') or '').strip()
+
+        if not message:
+            self.gateway.sendResult(
+                commandId, False, {'error': 'There is no message to send.'})
+            return
+
+        build = (commandArgs.get('build') or '').strip()
+        toons = self.playerToons()
+        online = len(toons)
+
+        if build:
+            toons = [av for av in toons if av.getBuild() != build]
+
+        for av in toons:
+            av.d_setSystemMessage(0, message)
+
+        self.gateway.sendResult(
+            commandId, True, {'told': len(toons), 'online': online})
+
+    def handleDrainCommand(self, commandId, commandArgs):
+        """
+        Closes this district off and ends the process once it is empty.
+        """
+        error = self.drainer.start(
+            commandArgs.get('reason') or 'Requested from the website.')
+
+        if error:
+            self.gateway.sendResult(commandId, False, {'error': error})
+            return
+
+        self.gateway.sendResult(
+            commandId, True, {'population': len(self.playerToons())})
 
     @staticmethod
     def parseXpMultiplier(value):
@@ -595,8 +680,11 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.holidayManager = HolidayManagerAI(self)
         self.startConfiguredHolidays()
 
-        self.notify.info('Making district available...')
-        self.distributedDistrict.b_setAvailable(1)
+        if self.drainer.isDraining():
+            self.notify.info('Asked to drain while starting up; staying closed.')
+        else:
+            self.notify.info('Making district available...')
+            self.distributedDistrict.b_setAvailable(1)
         self.notify.info('Done.')
         Readiness.markReady()
 

@@ -425,6 +425,8 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             lowestPop = 100000000000000000
             shardId = None
             for shardInfo in curShardTuples:
+                if shardInfo[6]:
+                    continue
                 pop = shardInfo[2]
                 if pop < lowestPop:
                     lowestPop = pop

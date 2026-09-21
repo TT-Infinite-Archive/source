@@ -140,6 +140,7 @@ class WebAccountDB(AccountDB):
     notify = directNotify.newCategory('WebAccountDB')
 
     VERIFY_PATH = 'api/game/verify-token'
+    RECONNECT_PATH = 'api/game/reconnect-token'
     NAME_PATH = 'api/game/name-submission'
     GUILD_NAME_PATH = 'api/game/guild-name-submission'
 
@@ -171,6 +172,12 @@ class WebAccountDB(AccountDB):
             lambda response: self.handleVerify(response, callback),
             lambda status: self.handleVerifyFailure(status, callback))
 
+    def reconnectToken(self, userId, callback):
+        self.service.post(
+            self.RECONNECT_PATH, {'userId': str(userId)},
+            lambda response: callback(response.get('token')),
+            lambda status: callback(None))
+
     def handleVerify(self, response, callback):
         userId = response.get('userId')
 
@@ -189,7 +196,8 @@ class WebAccountDB(AccountDB):
             'accessLevel': response.get('accessLevel', 0),
             'accountId': self.accountIdForUser(userId),
             'banned': bool(response.get('banned')),
-            'banReason': response.get('banReason')
+            'banReason': response.get('banReason'),
+            'reconnectToken': response.get('reconnectToken')
         })
 
     def submitNameRequest(self, userId, avId, name, callback, errback):
@@ -446,6 +454,15 @@ class LoginAccountFSM(OperationFSM):
         self.csm.sendUpdateToChannel(
             self.target, 'acceptLogin',
             [int(time.time()), self.csm.encodedServerFlags()])
+
+        # The launch token they arrived with has been spent, so they leave with
+        # the one that gets them back in after a dropped connection.
+        token = getattr(self, 'reconnectToken', None)
+
+        if token:
+            self.csm.sendUpdateToChannel(
+                self.target, 'setReconnectToken', [token])
+
         self.demand('Off')
 
     def __hashedPassword(self, salt):
@@ -486,6 +503,7 @@ class LoginTokenFSM(LoginAccountFSM):
                         or 'This account has been banned.')
             return
 
+        self.reconnectToken = result.get('reconnectToken')
         self.username = result.get('username', '')
         self.userId = result.get('userId', 0)
         self.accountId = result.get('accountId', 0)
@@ -988,9 +1006,10 @@ class LoadAvatarFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('LoadAvatarFSM')
     POST_ACCOUNT_STATE = 'GetTargetAvatar'
 
-    def enterStart(self, avId, platform):
+    def enterStart(self, avId, platform, build):
         self.avId = avId
         self.platform = platform
+        self.build = build
         self.demand('RetrieveAccount')
 
     def enterGetTargetAvatar(self):
@@ -1082,7 +1101,8 @@ class LoadAvatarFSM(AvatarOperationFSM):
             {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
              'setChatMode': [self.account.get('CHAT_MODE', 1)],
-             'setPlatform': [self.platform]})
+             'setPlatform': [self.platform],
+             'setBuild': [self.build]})
 
         # Let the TTIFriendsManager know about the account's chat mode.
         friendsManager = self.csm.air.getGlobalObject('TTIFriendsManager')
@@ -1193,6 +1213,9 @@ class UnloadAvatarFSM(OperationFSM):
 class ClientServicesManagerUD(DistributedObjectGlobalUD):
     notify = directNotify.newCategory('ClientServicesManagerUD')
     REQUEST_DELAY = 5 # Time in seconds before another request can be made for limited requests
+    # A client refreshes its reconnect token roughly hourly, so anything
+    # more often than this is a retry rather than a new session.
+    RECONNECT_REQUEST_DELAY = 300
 
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
@@ -1213,6 +1236,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # Keep track of timestamp of last request made by connection; this is to prevent
         # clients from doing certain requests too many times
         self.connection2Timestamp = {}
+        self.reconnectRequests = {}
 
         # For processing name patterns.
         self.nameGenerator = NameGenerator()
@@ -1412,6 +1436,43 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.connection2fsm[sender] = LoginTokenFSM(self, sender)
         self.connection2fsm[sender].request('Start', token)
 
+    def requestReconnectToken(self):
+        sender = self.air.getMsgSender()
+        accountId = sender >> 32
+
+        if not accountId:
+            return
+
+        now = time.time()
+        cutoff = now - self.RECONNECT_REQUEST_DELAY
+
+        if self.reconnectRequests.get(accountId, 0) > cutoff:
+            return
+
+        self.reconnectRequests = {
+            account: seen for account, seen in self.reconnectRequests.items()
+            if seen > cutoff}
+        self.reconnectRequests[accountId] = now
+
+        mint = getattr(self.accountDB, 'reconnectToken', None)
+
+        if mint is None:
+            return
+
+        def gotAccount(dclass, fields):
+            if dclass != self.air.dclassesByName['AccountUD']:
+                return
+
+            userId = fields.get('ACCOUNT_ID')
+
+            if not userId:
+                return
+
+            mint(userId, lambda token: token and self.sendUpdateToChannel(
+                sender, 'setReconnectToken', [token]))
+
+        self.air.dbInterface.queryObject(self.air.dbId, accountId, gotAccount)
+
     def requestAvatars(self):
         self.notify.debug('Received avatar list request from %d' % (self.air.getMsgSender()))
         self.runAccountFSM(GetAvatarsFSM)
@@ -1432,7 +1493,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def acknowledgeAvatarName(self, avId):
         self.runAccountFSM(AcknowledgeNameFSM, avId)
 
-    def chooseAvatar(self, avId, platform):
+    def chooseAvatar(self, avId, platform, build):
         currentAvId = self.air.getAvatarIdFromSender()
         accountId = self.air.getAccountIdFromSender()
         if currentAvId and avId:
@@ -1444,7 +1505,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             return
 
         if avId:
-            self.runAccountFSM(LoadAvatarFSM, avId, platform)
+            self.runAccountFSM(LoadAvatarFSM, avId, platform, build)
             chatAgent = self.air.getGlobalObject('ChatAgent')
             chatAgent.checkMuted(accountId)
         else:

@@ -22,6 +22,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         self.adminAccess = 0
         self.chatMode = 0
         self.platform = ''
+        self.build = ''
 
     if __dev__:
 
@@ -155,6 +156,19 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
     
     def getPlatform(self):
         return self.platform
+
+    def setBuild(self, build):
+        self.build = build
+
+    def d_setBuild(self, build):
+        self.sendUpdate('setBuild', [build])
+
+    def b_setBuild(self, build):
+        self.setBuild(build)
+        self.d_setBuild(build)
+
+    def getBuild(self):
+        return self.build
 
     def extendFriendsList(self, friendId, friendCode):
         for i in range(len(self.friendsList)):

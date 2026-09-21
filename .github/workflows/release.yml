@@ -28,7 +28,11 @@ jobs:
     outputs:
       value: ${{ steps.version.outputs.value }}
       channel: ${{ steps.version.outputs.channel }}
+      revision: ${{ steps.version.outputs.revision }}
+      protocol: ${{ steps.protocol.outputs.value }}
     steps:
+      - uses: actions/checkout@v5
+
       - id: version
         shell: bash
         run: |
@@ -53,12 +57,110 @@ jobs:
               *) echo "::error::No version to release in '$REF'."; exit 1 ;;
           esac
 
+          case "$VALUE" in
+              *[a-z]) REVISION=true ;;
+              *)      REVISION=false ;;
+          esac
+
           echo "value=$VALUE" >> "$GITHUB_OUTPUT"
           echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+          echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
+
+      - id: protocol
+        name: Read the protocol version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VALUE=$(awk '$1 == "server-version" { print $2; exit }' \
+                  config/distribution/live.prc)
+
+          if [ -z "$VALUE" ]; then
+              echo "::error::config/distribution/live.prc names no server-version."
+              exit 1
+          fi
+
+          echo "value=$VALUE" >> "$GITHUB_OUTPUT"
+
+  protocol:
+    name: Check this can ship as a revision
+    needs: version
+    if: needs.version.outputs.revision == 'true'
+    runs-on: ubuntu-latest
+    env:
+      BUCKET: ttiwebsite
+      PREFIX: releases
+      CHANNEL: ${{ needs.version.outputs.channel }}
+      PROTOCOL: ${{ needs.version.outputs.protocol }}
+      AWS_DEFAULT_REGION: auto
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Compare against what ${{ needs.version.outputs.channel }} is serving
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! aws s3 cp "s3://$BUCKET/$PREFIX/$CHANNEL/protocol.json" served.json \
+                  --only-show-errors 2> /dev/null; then
+              echo "::error::No protocol recorded for $CHANNEL yet." \
+                   "Cut a full release before a revision."
+              exit 1
+          fi
+
+          served=$(jq -r '.protocol // empty' served.json)
+
+          if [ "$served" != "$PROTOCOL" ]; then
+              echo "::error::$CHANNEL is serving protocol '$served' but this" \
+                   "commit builds '$PROTOCOL'. A revision cannot move the" \
+                   "protocol; release this as a full version instead."
+              exit 1
+          fi
+
+          echo "Protocol \`$PROTOCOL\` matches what $CHANNEL serves." \
+              >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check nothing the servers load has moved
+        shell: bash
+        env:
+          VERSION: ${{ needs.version.outputs.value }}
+        run: |
+          set -euo pipefail
+
+          stem=$(printf '%s' "$VERSION" | sed 's/[a-z]*$//')
+          base="tti-$CHANNEL-v$stem"
+
+          if ! git rev-parse -q --verify "refs/tags/$base" > /dev/null; then
+              base="v$stem"
+          fi
+
+          if ! git rev-parse -q --verify "refs/tags/$base" > /dev/null; then
+              echo "::warning::No tag for $stem. The scope of this revision" \
+                   "could not be checked."
+              exit 0
+          fi
+
+          if python3 scripts/release_scope.py --base "$base" --head HEAD \
+                  | tee scope.txt; then
+              cat scope.txt >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+          fi
+
+          cat scope.txt >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::This touches code the servers load. It needs a" \
+               "full release rather than a revision."
+          exit 1
 
   server:
     name: Server
     needs: version
+    if: needs.version.outputs.revision != 'true'
     permissions:
       contents: read
       packages: write
@@ -70,7 +172,11 @@ jobs:
 
   client:
     name: Client
-    needs: version
+    needs: [version, protocol]
+    if: >-
+      !cancelled()
+      && needs.version.result == 'success'
+      && (needs.protocol.result == 'success' || needs.protocol.result == 'skipped')
     uses: ./.github/workflows/publish-client.yml
     with:
       version: ${{ needs.version.outputs.value }}
@@ -81,10 +187,13 @@ jobs:
   deploy:
     name: Deploy
     needs: [version, server, client]
-    if: needs.version.outputs.channel == 'live'
+    if: >-
+      needs.version.outputs.channel == 'live'
+      && needs.version.outputs.revision != 'true'
     uses: ./.github/workflows/deploy.yml
     with:
       tag: tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
+      astron_tag: ${{ needs.version.outputs.protocol }}
     secrets: inherit
 
   # Last, so the launcher only offers the new client once there is a server
@@ -94,7 +203,7 @@ jobs:
     needs: [version, server, client, deploy]
     if: >-
       !cancelled()
-      && needs.server.result == 'success'
+      && (needs.server.result == 'success' || needs.server.result == 'skipped')
       && needs.client.result == 'success'
       && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     runs-on: ubuntu-latest
@@ -103,12 +212,24 @@ jobs:
       PREFIX: releases
       CHANNEL: ${{ needs.version.outputs.channel }}
       VERSION: ${{ needs.version.outputs.value }}
+      PROTOCOL: ${{ needs.version.outputs.protocol }}
+      REVISION: ${{ needs.version.outputs.revision }}
       AWS_DEFAULT_REGION: auto
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
       AWS_REQUEST_CHECKSUM_CALCULATION: when_required
     steps:
+      - name: Record the protocol ${{ env.CHANNEL }} serves
+        if: env.REVISION != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "{\"protocol\":\"$PROTOCOL\",\"version\":\"$VERSION\"}" > protocol.json
+          aws s3 cp protocol.json "s3://$BUCKET/$PREFIX/$CHANNEL/protocol.json" \
+              --cache-control "no-cache" --content-type application/json
+
       - name: Point latest.json at tti-${{ env.CHANNEL }}-v${{ env.VERSION }}
         shell: bash
         run: |
@@ -125,3 +246,34 @@ jobs:
               aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
                   --cache-control "no-cache" --content-type application/json
           fi
+
+      - name: Tell the webserver
+        if: env.CHANNEL == 'live'
+        shell: bash
+        env:
+          WEBSITE_URL: ${{ vars.WEBSITE_URL }}
+          RELEASE_WEBHOOK_SECRET: ${{ secrets.RELEASE_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${WEBSITE_URL:-}" ] || [ -z "${RELEASE_WEBHOOK_SECRET:-}" ]; then
+              echo "::warning::No release webhook configured; nobody was told." \
+                  >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+          fi
+
+          if ! curl -fsS --max-time 60 -X POST "$WEBSITE_URL/api/game/release" \
+                  -H "Authorization: Token $RELEASE_WEBHOOK_SECRET" \
+                  -H "Content-Type: application/json" \
+                  -d "{\"channel\":\"$CHANNEL\",\"version\":\"$VERSION\"}" \
+                  -o told.json; then
+              echo "::warning::The website would not take the release."
+              exit 0
+          fi
+
+          jq -r '
+              if .announced then
+                  "Whispered \(.announced.told) of \(.announced.online) Toons online across \(.announced.districts) district(s)."
+              else
+                  "Recorded \(.release.build); nobody was whispered."
+              end' told.json >> "$GITHUB_STEP_SUMMARY"

@@ -61,6 +61,8 @@ class OTPClientRepository(ClientRepositoryBase):
     notify = directNotify.newCategory('OTPClientRepository')
     avatarLimit = 6
     whiteListChatEnabled = 1 # TODO: Have server set this on localAvatar on login.
+    TOKEN_REFRESH_SECONDS = 45 * 60
+    TOKEN_REFRESH_TASK = 'OTPClientRepository-token-refresh'
 
     def __init__(self, serverVersion, launcher = None, playGame = None):
         ClientRepositoryBase.__init__(self)
@@ -669,6 +671,29 @@ class OTPClientRepository(ClientRepositoryBase):
 
         if self.isProductionServer():
             spellbook.useLiveAccess()
+
+    def setReconnectToken(self, token):
+        """
+        Replaces the launch token, which is spent the moment it is redeemed.
+
+        Without this a dropped connection has nothing left to log in with, and
+        the retry the player is offered cannot succeed.
+        """
+        if not token:
+            return
+
+        self.playToken = token
+
+        taskMgr.remove(self.TOKEN_REFRESH_TASK)
+        taskMgr.doMethodLater(
+            self.TOKEN_REFRESH_SECONDS, self.__refreshToken, self.TOKEN_REFRESH_TASK)
+
+    def __refreshToken(self, task):
+        if self.isConnected():
+            self.csm.requestReconnectToken()
+
+        # A refresh that went nowhere gets another go before the token lapses.
+        return task.again
 
     def isLauncherSession(self):
         """
@@ -1965,9 +1990,9 @@ class OTPClientRepository(ClientRepositoryBase):
     def listActiveShards(self):
         _list = []
         for s in list(self.activeDistrictMap.values()):
-            if s.available:
+            if s.available or s.draining:
                 _list.append((s.doId, s.name, s.avatarCount, s.newAvatarCount,
-                              s.invasionStatus, s.timeZone))
+                              s.invasionStatus, s.timeZone, s.draining))
 
         return _list
 

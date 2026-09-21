@@ -6,11 +6,18 @@ on:
       tag:
         required: true
         type: string
+      astron_tag:
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       tag:
         description: "Image tag to deploy (e.g. 1.0.0). Rolling back is this workflow with the previous tag."
         required: true
+        type: string
+      astron_tag:
+        description: "Astron's tag, which is the protocol version (e.g. tti-live-p1). Blank reads it from this branch's live.prc."
+        required: false
         type: string
 
 jobs:
@@ -20,10 +27,26 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Resolve the astron tag
+        id: astron
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          value="${{ inputs.astron_tag }}"
+
+          if [ -z "$value" ]; then
+              value=$(awk '$1 == "server-version" { print $2; exit }' \
+                      config/distribution/live.prc)
+          fi
+
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+
       - name: Deploy
         env:
           REGISTRY: ${{ vars.REGISTRY }}
           TAG: ${{ inputs.tag }}
+          ASTRON_TAG: ${{ steps.astron.outputs.value }}
           INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
           INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
           INFISICAL_PROJECT_ID: ${{ vars.INFISICAL_PROJECT_ID }}
@@ -33,6 +56,28 @@ jobs:
         run: |
           set -euo pipefail
           cd "${{ vars.DEPLOY_PATH }}"
-          docker compose -f compose.yaml pull
-          docker compose -f compose.yaml up -d --remove-orphans --wait
-          docker image prune -a -f
+
+          compose() { docker compose -f compose.yaml "$@"; }
+
+          INFRA='mongo|astrond|uberdog'
+
+          compose pull
+
+          compose up -d --wait mongo astrond uberdog
+
+          districts=$(compose config --services | grep -vxE "$INFRA" || true)
+
+          if [ -z "$districts" ]; then
+              echo "::warning::No district services in the compose file."
+          fi
+
+          for district in $districts; do
+              echo "::group::$district"
+              compose stop "$district"
+              compose up -d --no-deps --wait "$district"
+              echo "::endgroup::"
+          done
+
+          compose up -d --wait --remove-orphans
+
+          docker image prune -a -f --filter "until=168h"
