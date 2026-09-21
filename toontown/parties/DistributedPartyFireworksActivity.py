@@ -56,7 +56,7 @@ class DistributedPartyFireworksActivity(DistributedPartyActivity, FireworkShowMi
         self.rocketActor = Actor('phase_13/models/parties/rocket_model', {'launch': 'phase_13/models/parties/rocket_launch'})
         rocketLocator = self.launchPadModel.find('**/rocket_locator')
         self.rocketActor.reparentTo(rocketLocator)
-        self.rocketActor.node().setBound(OmniBoundingVolume())
+        self.rocketActor.node().setBounds(OmniBoundingVolume())
         self.rocketActor.node().setFinal(True)
         effectsLocator = self.rocketActor.find('**/joint1')
         self.rocketExplosionEffect = RocketExplosion(effectsLocator, rocketLocator)
