@@ -3,9 +3,12 @@ Whether a change can ship as a client revision or needs a full release.
 """
 import argparse
 import ast
+import io
 import re
 import subprocess
 import sys
+import tarfile
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -20,7 +23,10 @@ CLIENT_ENTRY = (
     'toontown/toonbase/ClientStart.py',
 )
 
-# Not Python, and the server image is built from all of it.
+CLIENT_INPUTS = (
+    'config/client.prc',
+)
+
 SERVER_INPUTS = (
     'astron/dclass/',
     'config/',
@@ -29,8 +35,6 @@ SERVER_INPUTS = (
     'requirements.txt',
 )
 
-# Built or run from the repo, shipped to nobody, so they cannot make a
-# revision unsafe.
 NOT_SHIPPED = (
     '.github/',
     'scripts/',
@@ -48,19 +52,31 @@ PACKAGES = ('toontown', 'otp')
 DC_FILE = 'astron/dclass/vanilla.dc'
 
 
-def modulePath(module):
-    base = ROOT / module.replace('.', '/')
+def modulePath(module, root=ROOT):
+    base = root / module.replace('.', '/')
 
     for candidate in (base.with_suffix('.py'), base / '__init__.py'):
         if candidate.is_file():
-            return candidate.relative_to(ROOT)
+            return candidate.relative_to(root)
 
     return None
 
 
-def importsOf(path):
+def absoluteModule(module, package):
+    level = len(module) - len(module.lstrip('.'))
+
+    if not level:
+        return module
+
+    parts = package.split('.')
+    parts = parts[:len(parts) - (level - 1)]
+    rest = module[level:]
+    return '.'.join(parts + ([rest] if rest else []))
+
+
+def importsOf(path, root=ROOT):
     try:
-        tree = ast.parse((ROOT / path).read_text(errors='replace'), str(path))
+        tree = ast.parse((root / path).read_text(errors='replace'), str(path))
     except (SyntaxError, OSError):
         return set()
 
@@ -71,24 +87,23 @@ def importsOf(path):
         if isinstance(node, ast.Import):
             found.update(alias.name for alias in node.names)
         elif isinstance(node, ast.ImportFrom):
-            # A relative import names its own package; `from x import y` may be
-            # naming a module rather than a symbol, so both are followed.
-            module = node.module or ''
-            roots = ['%s.%s' % (package, module) if node.level else module]
+            module = absoluteModule('.' * node.level + (node.module or ''), package)
+            found.add(module)
+            found.update('%s.%s' % (module, alias.name) for alias in node.names)
 
-            for root in list(roots):
-                if root:
-                    found.add(root)
-                    found.update('%s.%s' % (root, alias.name)
-                                 for alias in node.names)
+    names = set()
 
-    return {name for name in found
-            if name.split('.')[0] in PACKAGES}
+    for name in found:
+        parts = name.split('.')
+        if parts[0] in PACKAGES:
+            names.update('.'.join(parts[:i]) for i in range(1, len(parts) + 1))
+
+    return names
 
 
-def closure(seeds):
+def closure(seeds, root=ROOT):
     seen = set()
-    queue = [path for path in seeds if (ROOT / path).is_file()]
+    queue = [path for path in seeds if (root / path).is_file()]
 
     while queue:
         path = queue.pop()
@@ -98,71 +113,84 @@ def closure(seeds):
 
         seen.add(path)
 
-        for module in importsOf(path):
-            found = modulePath(module)
+        for module in importsOf(path, root):
+            found = modulePath(module, root)
             if found is not None and found not in seen:
                 queue.append(found)
 
     return seen
 
 
-def dclassNames():
-    """
-    What the DC file can ask either side to load by name.
-    """
-    try:
-        text = (ROOT / DC_FILE).read_text(errors='replace')
-    except OSError:
-        return []
+def dcName(name, suffix):
+    name, *suffixes = name.strip().split('/')
 
-    return re.findall(r'^\s*dclass\s+(\w+)', text, re.MULTILINE)
+    if suffix in suffixes:
+        return name + suffix
 
+    if suffix == 'UD' and 'AI' in suffixes:
+        return name + 'AI'
 
-def dcSeeds(suffixes):
-    """
-    Modules the DC file names, which nothing has to import for them to load.
-    """
-    seeds = []
-
-    for name in dclassNames():
-        for suffix in suffixes:
-            for package in PACKAGES:
-                seeds += [path.relative_to(ROOT)
-                          for path in (ROOT / package).rglob('%s%s.py' % (name, suffix))]
-
-    return seeds
+    return name
 
 
-def serverClosure():
-    # Both seedings: the DC file names most of them, and the suffix catches the
-    # handful it does not. Over-reaching here only costs a deploy.
-    seeds = [Path(entry) for entry in SERVER_ENTRY] + dcSeeds(('AI', 'UD'))
+def dcSeeds(suffixes, root=ROOT):
+    text = (root / DC_FILE).read_text(errors='replace')
+    lines = re.findall(r'^\s*from\s+(\S+)\s+import\s+([^;\n]+)', text, re.MULTILINE)
+    names = []
+
+    for suffix in suffixes:
+        for module, symbols in lines:
+            module = dcName(module, suffix)
+            names.append(module)
+            names += ['%s.%s' % (module, dcName(symbol, suffix)) for symbol in symbols.split(',')]
+
+    return [path for path in (modulePath(name, root) for name in names) if path is not None]
+
+
+def serverClosure(root=ROOT):
+    seeds = [Path(entry) for entry in SERVER_ENTRY] + dcSeeds(('AI', 'UD'), root)
 
     for package in PACKAGES:
         for pattern in ('**/*AI.py', '**/*UD.py'):
-            seeds += [path.relative_to(ROOT)
-                      for path in (ROOT / package).glob(pattern)]
+            seeds += [path.relative_to(root)
+                      for path in (root / package).glob(pattern)]
 
-    return closure(seeds)
+    return closure(seeds, root)
 
 
-def clientClosure():
-    return closure([Path(entry) for entry in CLIENT_ENTRY] + dcSeeds(('',)))
+def clientClosure(root=ROOT):
+    return closure([Path(entry) for entry in CLIENT_ENTRY] + dcSeeds(('',), root), root)
+
+
+def closuresAt(ref):
+    if not ref:
+        return serverClosure(), clientClosure()
+
+    archive = subprocess.run(
+        ['git', 'archive', ref] + list(PACKAGES) + [DC_FILE],
+        cwd=ROOT, capture_output=True)
+
+    if archive.returncode:
+        sys.exit('Could not read %s:\n%s' % (ref, archive.stderr.decode().strip()))
+
+    with tempfile.TemporaryDirectory() as tree:
+        with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as tar:
+            tar.extractall(tree, filter='data')
+
+        return serverClosure(Path(tree)), clientClosure(Path(tree))
 
 
 def changedFiles(base, head):
-    # No head means the working tree, which is where this gets asked before
-    # anything is tagged.
     span = '%s..%s' % (base, head) if head else base
 
     diff = subprocess.run(
-        ['git', 'diff', '--name-only', span],
+        ['git', 'diff', '--name-status', '--no-renames', span],
         cwd=ROOT, capture_output=True, text=True)
 
     if diff.returncode:
         sys.exit('Could not diff %s:\n%s' % (span, diff.stderr.strip()))
 
-    return [line for line in diff.stdout.splitlines() if line]
+    return [tuple(line.split('\t', 1)) for line in diff.stdout.splitlines() if line]
 
 
 def classify(name, server, client):
@@ -171,6 +199,9 @@ def classify(name, server, client):
     """
     if any(name == entry or name.startswith(entry) for entry in NOT_SHIPPED):
         return True, 'nobody ships it'
+
+    if name in CLIENT_INPUTS:
+        return True, 'only the client loads it'
 
     if any(name == entry or name.startswith(entry) for entry in SERVER_INPUTS):
         return False, 'the server is built from it'
@@ -189,47 +220,34 @@ def classify(name, server, client):
     return False, 'not known to be client-only'
 
 
-def defaultBase(head):
-    """
-    A revision is a revision of something: 1.1.0a came after 1.1.0.
-    """
-    described = subprocess.run(
-        ['git', 'describe', '--tags', '--exact-match', head],
-        cwd=ROOT, capture_output=True, text=True)
-
-    tag = described.stdout.strip()
-
-    if described.returncode == 0 and tag and tag[-1].isalpha():
-        return tag.rstrip('abcdefghijklmnopqrstuvwxyz')
-
-    previous = subprocess.run(
-        ['git', 'describe', '--tags', '--abbrev=0', '%s^' % head],
-        cwd=ROOT, capture_output=True, text=True)
-
-    if previous.returncode:
-        sys.exit('No release tag to compare against; pass --base.')
-
-    return previous.stdout.strip()
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--base', help='What to compare against. Defaults to '
-                                       'the release this one follows.')
+    parser.add_argument('--base', required=True, help='The release to compare against.')
     parser.add_argument('--head', default='', help='Defaults to the working tree.')
     args = parser.parse_args()
 
-    base = args.base or defaultBase(args.head or 'HEAD')
+    base = args.base
     changed = changedFiles(base, args.head)
 
     if not changed:
         print('Nothing changed since %s.' % base)
         return 0
 
-    server = serverClosure()
-    client = clientClosure()
+    server, client = closuresAt(args.head)
+    verdicts = []
 
-    verdicts = [(name,) + classify(name, server, client) for name in changed]
+    if any(status == 'D' for status, name in changed):
+        baseServer, baseClient = closuresAt(base)
+
+    for status, name in changed:
+        if status == 'D':
+            clientOnly, why = classify(name, baseServer, baseClient)
+            why = 'deleted; %s in %s' % (why, base)
+        else:
+            clientOnly, why = classify(name, server, client)
+
+        verdicts.append((name, clientOnly, why))
+
     blocking = [row for row in verdicts if not row[1]]
 
     print('%d file(s) changed since %s:\n' % (len(changed), base))
