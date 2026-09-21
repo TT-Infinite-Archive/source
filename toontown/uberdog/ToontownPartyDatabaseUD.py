@@ -71,6 +71,10 @@ class ToontownPartyDatabaseUD:
         results = self.objects.find({'hostId': hostId, 'statusId': EPartyStatus.CAN_START})
         return tuple(results)
 
+    def getPartiesOfStatus(self, status: EPartyStatus) -> tuple[dict[str, Any], ...]:
+        results = self.objects.find({'statusId': status})
+        return tuple(results)
+
     def getPartiesAvailableToStart(self, thresholdTime: datetime) -> tuple[dict[str, Any], ...]:
         """
         Retrieves and updates all parties that are ready to start.

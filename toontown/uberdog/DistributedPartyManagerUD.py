@@ -51,10 +51,10 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                                                         PartyGlobals.UberdogCheckPartyStartFrequency).getValue()
 
         # The uberdog has the database, we need to check if party has been started but never finished
-        # We'll do the 1st check a 1 second in...
+        # We'll do the 1st check 10 seconds in once the AIs have reported the parties they're running
         self.partiesSanityCheckFrequency = ConfigVariableInt('parties-sanity-check-frequency',
                                                              PartyGlobals.UberdogPartiesSanityCheckFrequency).getValue()
-        taskMgr.doMethodLater(1, self._sanityCheckParties, "DistributedPartyManagerUD_sanityCheckParties")
+        taskMgr.doMethodLater(10, self._sanityCheckParties, "DistributedPartyManagerUD_sanityCheckParties")
 
     def announceGenerate(self):
         DistributedObjectGlobalUD.announceGenerate(self)
@@ -796,6 +796,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         """ Called every 60 minutes to check the database for started but never finished parties """
         self.notify.debug("_sanityCheckParties :...")
         self.forceFinishedForStarted()
+        self.handleInterruptedPartiesWhileDown()
         # check is now done every 5 minutes as part of check parties starting
         # taskMgr.doMethodLater(self.partiesSanityCheckFrequency * 60, self._sanityCheckParties, "DistributedPartyManagerUD_sanityCheckParties")
 
@@ -931,14 +932,24 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         # figure out which partyIds are running on that shard
         assert self.notify.debugStateCall(self)
         interruptedParties = []
-        interruptedPartiesToCanStart = []
-        interruptedPartiesToFinished = []
         interruptedHostIds = []
         for hostId in self.hostAvIdToAllPartiesInfo:
             partyInfo = self.hostAvIdToAllPartiesInfo[hostId]
             if partyInfo[0] == shardId:
                 interruptedParties.append(partyInfo[7])
                 interruptedHostIds.append(hostId)
+
+        self.handleInterruptedParties(interruptedParties, interruptedHostIds)
+
+    def handleInterruptedPartiesWhileDown(self):
+        parties = [party for party in self.partyDb.getPartiesOfStatus(PartyGlobals.EPartyStatus.STARTED)
+                   if party['hostId'] not in self.hostAvIdToAllPartiesInfo]
+        self.handleInterruptedParties([party['partyId'] for party in parties],
+                                      [party['hostId'] for party in parties])
+
+    def handleInterruptedParties(self, interruptedParties, interruptedHostIds):
+        interruptedPartiesToCanStart = []
+        interruptedPartiesToFinished = []
 
         # TODO is it possible for a toon to get back online before we hit this point?
         # Currently if the current server time is past party end time, he is SOL and can't start a party
@@ -975,7 +986,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
         # tell all AI servers the party has finished since it was interrupted
         for hostId in interruptedHostIds:
             self.sendUpdateToAllAis("partyHasFinishedUdToAllAi", [hostId])
-            del self.hostAvIdToAllPartiesInfo[hostId]
+            self.hostAvIdToAllPartiesInfo.pop(hostId, None)
 
     def partyManagerAIStartingUp(self, pmDoId, shardId):
         """An AI server is starting up (or restarting) , send him all public parties running."""
