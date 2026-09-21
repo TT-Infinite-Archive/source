@@ -2,7 +2,7 @@ from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, 
 from toontown.toonbase.ToontownGlobals import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.chat.ChatGlobals import CFSpeech
 
 
@@ -68,7 +68,7 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         self.cage.setScale(1.0)
 
         self.cageDoor = sellbotRoom.find('**/cage_door')
-        self.toon = NPCToons.createLocalNPC(self.npcId)
+        self.toon = NPCToonFactory.createLocalNPC(self.npcId)
         self.toon.setHpr(180, 0.0, 0.0)
 
         self.cage.reparentTo(self)

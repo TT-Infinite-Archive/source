@@ -20,6 +20,7 @@ from toontown.cogdominium.CogdoLayout import CogdoLayout
 from toontown.distributed import DelayDelete
 from toontown.hood import ZoneUtil
 from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
@@ -143,12 +144,12 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
     def __makeShopOwnerNpc(self):
         if self.shopOwnerNpc:
             return
-        self.shopOwnerNpc = NPCToons.createLocalNPC(self.shopOwnerNpcId)
+        self.shopOwnerNpc = NPCToonFactory.createLocalNPC(self.shopOwnerNpcId)
         if not self.shopOwnerNpc:
             self.notify.warning('No shopkeeper in this cogdominium, using FunnyFarm Sellbot FO NPCToons')
             random.seed(self.doId)
             shopkeeper = random.randint(7001, 7009)
-            self.shopOwnerNpc = NPCToons.createLocalNPC(shopkeeper)
+            self.shopOwnerNpc = NPCToonFactory.createLocalNPC(shopkeeper)
         self.shopOwnerNpc.addActive()
         self.shopOwnerNpc.reparentTo(self.cage)
         self.shopOwnerNpc.setPosHpr(0, -2, 0, 180, 0, 0)

@@ -14,6 +14,7 @@ from toontown.chat.ChatGlobals import *
 from toontown.nametag.NametagGlobals import *
 from toontown.toon import LaughingManGlobals
 from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 
@@ -163,7 +164,7 @@ def __getPartTrack(particleEffect, startDelay, durationDelay, partExtraArgs):
 
 
 def __doSprinkle(attack, recipients, hp = 0):
-    toon = NPCToons.createLocalNPC(attack['npcId'])
+    toon = NPCToonFactory.createLocalNPC(attack['npcId'])
     if toon == None:
         return
     targets = attack[recipients]
@@ -198,7 +199,7 @@ def __doSprinkle(attack, recipients, hp = 0):
 
 
 def __doSmooch(attack, hp = 0):
-    toon = NPCToons.createLocalNPC(attack['npcId'])
+    toon = NPCToonFactory.createLocalNPC(attack['npcId'])
     if toon == None:
         return
     targets = attack['toons']
@@ -283,7 +284,7 @@ def doNPCTeleports(attacks):
     for attack in attacks:
         if 'npcId' in attack:
             npcId = attack['npcId']
-            npc = NPCToons.createLocalNPC(npcId)
+            npc = NPCToonFactory.createLocalNPC(npcId)
             if npc != None:
                 npcs.append(npc)
                 attack['npc'] = npc

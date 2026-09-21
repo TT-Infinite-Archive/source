@@ -24,7 +24,7 @@ from toontown.coghq import CogDisguiseGlobals
 from toontown.distributed import DelayDelete
 from toontown.nametag.NametagGlobals import *
 from toontown.suit import SellbotBossGlobals
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
@@ -218,7 +218,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def __makeCagedToon(self):
         if self.cagedToon:
             return
-        self.cagedToon = NPCToons.createLocalNPC(self.cagedToonNpcId)
+        self.cagedToon = NPCToonFactory.createLocalNPC(self.cagedToonNpcId)
         self.cagedToon.addActive()
         self.cagedToon.reparentTo(self.cage)
         self.cagedToon.setPosHpr(0, -2, 0, 180, 0, 0)

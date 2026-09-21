@@ -9,7 +9,7 @@ from toontown.estate import DistributedCannon
 from toontown.estate import CannonGlobals
 from toontown.nametag import NametagGlobals
 from direct.gui.DirectGui import *
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.toon import ToonHead
 from toontown.toonbase import TTLocalizer
 from toontown.minigame import Trajectory
@@ -506,7 +506,7 @@ class DistributedLawbotCannon(DistributedObject.DistributedObject):
 
     def __createToonModels(self):
         self.model_Created = 1
-        self.jurorToon = NPCToons.createLocalNPC(ToontownGlobals.LawbotBossBaseJurorNpcId + self.index)
+        self.jurorToon = NPCToonFactory.createLocalNPC(ToontownGlobals.LawbotBossBaseJurorNpcId + self.index)
         self.toonScale = self.jurorToon.getScale()
         jurorToonParent = render.attachNewNode('toonOriginChange')
         self.jurorToon.wrtReparentTo(jurorToonParent)

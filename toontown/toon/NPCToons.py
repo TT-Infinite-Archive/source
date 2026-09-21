@@ -1,11 +1,9 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableList, Point3
 
 from . import ToonDNA
-from toontown.nametag import NametagGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import SettingsGlobals
 
 
 QUEST_MOVIE_CLEAR = 0
@@ -78,35 +76,6 @@ def getRandomDNA(seed, gender):
     netString = randomDNA.makeNetString()
     return netString
 
-
-def createLocalNPC(npcId):
-    from . import Toon
-
-    if npcId not in NPCToonDict:
-        return None
-
-    desc = NPCToonDict[npcId]
-    canonicalZoneId, name, dnaType, gender, protected, type = desc
-
-    npc = Toon.Toon()
-    npc.setName(name)
-    npc.setPickable(0)
-    npc.setPlayerType(NametagGlobals.CCNonPlayer)
-
-    dna = ToonDNA.ToonDNA()
-
-    if dnaType == 'r':
-        dnaNetString = getRandomDNA(npcId, gender)
-        dna.makeFromNetString(dnaNetString)
-    else:
-        dna.newToonFromProperties(*dnaType)
-
-    npc.setDNAString(dna.makeNetString())
-    npc.animFSM.request('neutral')
-    if settings.get(SettingsGlobals.AnimationSmoothing):
-        npc.setBlend(frameBlend=True)
-
-    return npc
 
 # Some buildings don't have NPCs, so we need to store their zone IDs here:
 badBlocks = [
