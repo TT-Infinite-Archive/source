@@ -1025,7 +1025,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         # closing the window).  We need to handle that gracefully.
         if not partyInfo.hostId in self.avIdToPartyZoneId:
             self.notify.warning(
-                "Party Zone info was requested, but the guest left before it could be recived: %d" % estateId)
+                "Party Zone info was requested, but the guest left before it could be recived: %d" % partyInfo.hostId)
             return
 
         # create the DistributedPartyAI object for this hostId
