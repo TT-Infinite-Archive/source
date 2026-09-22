@@ -1,9 +1,8 @@
-from panda3d.core import Vec4, CSDefault
+from panda3d.core import Vec4
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from . import HolidayDecorator
-from toontown.dna.DNAParser import loadDNAFile
 from toontown.toonbase import ToontownGlobals
 from toontown.safezone import Playground
 from toontown.town import Street
@@ -104,7 +103,7 @@ class HalloweenHolidayDecorator(HolidayDecorator.HolidayDecorator):
             return
         storageFile = base.cr.playGame.hood.storageDNAFile
         if storageFile:
-            loadDNAFile(self.dnaStore, storageFile, CSDefault)
+            loader.loadDNAFile(self.dnaStore, storageFile)
         self.swapIval = self.getSwapVisibleIval()
         if self.swapIval:
             self.swapIval.start()
