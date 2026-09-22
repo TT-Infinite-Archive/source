@@ -938,6 +938,7 @@ CollectiblePagePageOfPage = 'Page %d of %d'
 CollectiblePageObtained = 'Obtained'
 CollectiblePageCollectiblesTab = 'Collectibles'
 CollectiblePageItemsTab = 'Items'
+CollectiblePageAprilToons = "It's April Toons! Cheesy effects are random until it's over."
 NPCFriendPageTitle = 'SOS Toons'
 NPCFriendPageDelete = 'Delete'
 NPCFriendPageDeleteConfirmation = 'Are you sure you want to delete all of your %s SOS cards?'

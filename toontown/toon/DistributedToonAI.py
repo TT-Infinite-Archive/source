@@ -1673,6 +1673,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.sendUpdate('setCheesyEffectInventory', [inventoryList])
 
     def requestEquipCollectibleItem(self, categoryId, itemId):
+        if categoryId == CollectibleInventoryGlobals.CICategoryCheesyEffect \
+                and self.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
+            return
+
         self.air.ciManager.handleEquipItem(self.doId, categoryId, itemId)
 
     def makeRandomFishTank(self):

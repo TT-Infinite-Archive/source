@@ -1660,8 +1660,6 @@ dclass DistributedTargetGame : DistributedMinigame {
 };
 
 dclass EstateManager : DistributedObject {
-  startAprilFools() broadcast;
-  stopAprilFools() broadcast;
   getEstateZone(uint32) airecv clsend;
   setEstateZone(uint32, uint32);
   setAvHouseId(uint32, uint32[]) broadcast;

@@ -754,13 +754,3 @@ class EstateManagerAI(DistributedObjectAI.DistributedObjectAI):
 
         else:
             self.notify.warning("owner not in estate")
-
-    ## -----------------------------------------------------------
-    ## April fools stuff
-    ## -----------------------------------------------------------
-
-    def startAprilFools(self):
-        self.sendUpdate("startAprilFools",[])
-
-    def stopAprilFools(self):
-        self.sendUpdate("stopAprilFools",[])

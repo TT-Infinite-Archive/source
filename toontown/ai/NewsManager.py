@@ -142,6 +142,7 @@ class NewsManager(DistributedObject.DistributedObject):
             elif holidayId == ToontownGlobals.APRIL_FOOLS_COSTUMES:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.addAprilToonsMenu()
+                    self.setAprilFoolsHolidayStart()
             elif holidayId == ToontownGlobals.WINTER_CAROLING:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.addCarolMenu()
@@ -255,6 +256,7 @@ class NewsManager(DistributedObject.DistributedObject):
             elif holidayId == ToontownGlobals.APRIL_FOOLS_COSTUMES:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
                     base.localAvatar.chatMgr.chatInputSpeedChat.removeAprilToonsMenu()
+                    self.setAprilFoolsHolidayEnd()
             elif holidayId == ToontownGlobals.VALENTINES_DAY:
                 messenger.send('ValentinesDayStop')
                 base.localAvatar.setSystemMessage(0, TTLocalizer.ValentinesDayEnd)
@@ -407,6 +409,12 @@ class NewsManager(DistributedObject.DistributedObject):
 
     def setGrandPrixWeekendEnd(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.GrandPrixWeekendHolidayEnd)
+
+    def setAprilFoolsHolidayStart(self):
+        base.localAvatar.physControls.setGravity(ToontownGlobals.GravityValue * 0.75)
+
+    def setAprilFoolsHolidayEnd(self):
+        base.localAvatar.physControls.setGravity(ToontownGlobals.GravityValue * 2.0)
 
     def setSellbotNerfHolidayStart(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.SellbotNerfHolidayStart)
