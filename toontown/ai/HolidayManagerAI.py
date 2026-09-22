@@ -40,9 +40,6 @@ from toontown.minigame import TrolleyWeekendMgrAI
 from toontown.ai import RoamingTrialerWeekendMgrAI
 from toontown.ai import CostumeManagerAI
 from toontown.ai import AprilFoolsManagerAI
-from toontown.ai import HydrantZeroHolidayAI
-from toontown.ai import MailboxZeroHolidayAI
-from toontown.ai import TrashcanZeroHolidayAI
 from toontown.ai import HydrantBuffHolidayAI
 from toontown.ai import MailboxBuffHolidayAI
 from toontown.ai import TrashcanBuffHolidayAI
@@ -138,42 +135,6 @@ TestServerHolidayTimeDelta = timedelta(days = TestServerHolidayDaysAhead)
 
 # TODO figure out how to make this work for more than just oncely holidays
 OriginalHolidays = {
-    ToontownGlobals.HYDRANT_ZERO_HOLIDAY:
-    { 'startAndEndPairs':       [datetime.datetime( 2010, Month.MAY, 5, 8, 0), # firstMoveArmUp1
-                                          datetime.datetime( 2010, Month.JUNE,   12,  11, 55),],
-      'phaseDates': [datetime.datetime( 2010, Month.MAY, 9,  11, 0o5), # firstMoveStruggle
-                     datetime.datetime( 2010, Month.MAY,    13,  11, 0o5), # firstMoveArmUp2
-                     datetime.datetime( 2010, Month.MAY,    18,  11, 0o5), # firstMoveJump hydrants around hydrant zero animate
-                     datetime.datetime( 2010, Month.MAY,   21,  16, 0o5), # firstMoveJumpBalance
-                     datetime.datetime( 2010, Month.MAY,   22,  15, 30), # firstMoveArmUp3 Hydrant Zero and his hydrant pals get more elaborate animations
-                     datetime.datetime( 2010, Month.JUNE,   3,  15, 30), # firstMoveJumpSpin
-                    ],
-    },
-
-    ToontownGlobals.TRASHCAN_ZERO_HOLIDAY:
-    { 'startAndEndPairs':       [datetime.datetime( 2010, Month.MAY, 8,  12, 15), # firstMoveLidFLip1
-                                          datetime.datetime( 2010, Month.JUNE,  12,  11, 55),],
-      'phaseDates': [datetime.datetime( 2010, Month.MAY, 11,  11, 0o5), # firstMoveStruggle
-                     datetime.datetime( 2010, Month.MAY,    15,  11, 0o5), # firstMoveLidFlip2
-                     datetime.datetime( 2010, Month.MAY,   20,  11, 0o5), # firstMoveJump trashcans around trashcan zero animate
-                     datetime.datetime( 2010, Month.MAY,   23,  11, 0o5), # firstMoveLidFlip3
-                     datetime.datetime( 2010, Month.MAY,   29,  14, 10), # firstMoveJumpHit Trashcan Zero and his trashcan pals get more elaborate animations
-                     datetime.datetime( 2010, Month.JUNE,   6,  14, 0o1), # firstMoveJumpJuggle
-                     ],
-    },
-
-    ToontownGlobals.MAILBOX_ZERO_HOLIDAY:
-    { 'startAndEndPairs':       [datetime.datetime( 2010, Month.MAY,    9,  12, 00), # firstMoveFlagSpin1
-                       datetime.datetime( 2010, Month.JUNE,  12,  11, 55),],
-      'phaseDates': [datetime.datetime( 2010, Month.MAY,    16,  16, 55), # firstMoveStruggle & Jump
-                     datetime.datetime( 2010, Month.MAY,   21,  16, 55), # firstMoveFlagSpin2
-                     datetime.datetime( 2010, Month.MAY,   23,  17, 0o5), # firstMoveFlagSpin3 mailboxs around mailbox zero animate
-                     datetime.datetime( 2010, Month.JUNE,   1,  11, 0o5), # firstMoveJumpSummersault
-                     datetime.datetime( 2010, Month.JUNE,   5,  12, 0o1), # firstMoveJumpFall Mailbox Zero and his mailbox pals get more elaborate animations
-                     datetime.datetime( 2010, Month.JUNE,   8,  11, 45), # firstMoveJump3Summersaults
-                     ],
-    },
-
     ToontownGlobals.SILLYMETER_HOLIDAY:
     { 'startAndEndPairs':       [datetime.datetime( 2010, Month.MAY,    14,   0,  0o1),          # Stage 1 animates
                                          datetime.datetime( 2010, Month.JULY,  14,   0,  0o1),],
@@ -883,30 +844,6 @@ class HolidayManagerAI:
         displayOnCalendar = False,
         ),
 
-        ToontownGlobals.HYDRANT_ZERO_HOLIDAY: HolidayInfo_Oncely(
-        HydrantZeroHolidayAI.HydrantZeroHolidayAI,
-        # Hydrant zero animating
-        AdjustedHolidays[ToontownGlobals.HYDRANT_ZERO_HOLIDAY]['startAndEndPairs'],
-        displayOnCalendar = False,
-        phaseDates = AdjustedHolidays[ToontownGlobals.HYDRANT_ZERO_HOLIDAY]['phaseDates'],
-        ),
-
-        ToontownGlobals.MAILBOX_ZERO_HOLIDAY: HolidayInfo_Oncely(
-        MailboxZeroHolidayAI.MailboxZeroHolidayAI,
-        # Mailbox zero animating
-        AdjustedHolidays[ToontownGlobals.MAILBOX_ZERO_HOLIDAY]['startAndEndPairs'],
-        displayOnCalendar = False,
-        phaseDates = AdjustedHolidays[ToontownGlobals.MAILBOX_ZERO_HOLIDAY]['phaseDates'],
-        ),
-
-        ToontownGlobals.TRASHCAN_ZERO_HOLIDAY: HolidayInfo_Oncely(
-        TrashcanZeroHolidayAI.TrashcanZeroHolidayAI,
-        # Trashcan zero animating
-        AdjustedHolidays[ToontownGlobals.TRASHCAN_ZERO_HOLIDAY]['startAndEndPairs'],
-        displayOnCalendar = False,
-        phaseDates = AdjustedHolidays[ToontownGlobals.TRASHCAN_ZERO_HOLIDAY]['phaseDates'],
-        ),
-
         ToontownGlobals.SILLYMETER_HOLIDAY: HolidayInfo_Oncely(
         SillyMeterHolidayAI.SillyMeterHolidayAI,
         # Silly Meter animating
@@ -967,9 +904,6 @@ class HolidayManagerAI:
                                 ToontownGlobals.SILLY_CHATTER_ONE : [60, 195] , \
                                 ToontownGlobals.SILLY_CHATTER_TWO : [200, 235], ToontownGlobals.SILLY_CHATTER_THREE : [240, 325], \
                                 ToontownGlobals.SILLY_CHATTER_FOUR : [330, 610], \
-                                ToontownGlobals.HYDRANT_ZERO_HOLIDAY : [0, 20, 50, 100, 130, 160, 250, 325],  \
-                                ToontownGlobals.MAILBOX_ZERO_HOLIDAY : [30, 80, 140, 180, 230, 270, 300, 325], \
-                                ToontownGlobals.TRASHCAN_ZERO_HOLIDAY : [10, 40, 70, 120, 170, 210, 280, 325], \
                                 ToontownGlobals.SILLY_SURGE_HOLIDAY : [60, 340],  \
                                 ToontownGlobals.HYDRANTS_BUFF_BATTLES : [330, 350], \
                                 ToontownGlobals.MAILBOXES_BUFF_BATTLES : [330, 420, ],
