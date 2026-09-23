@@ -32,6 +32,7 @@ from toontown.chat import ResistanceChat
 from toontown.coghq import CogDisguiseGlobals
 from toontown.collectibles import StatsAI, CollectibleInventoryGlobals, CollectibleInventoryAI
 from toontown.estate import FlowerBasket, FlowerCollection, GardenGlobals
+from toontown.estate.DistributedGagTreeAI import DistributedGagTreeAI
 from toontown.fishing import FishCollection, FishTank
 from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
@@ -5490,19 +5491,20 @@ def shovelSkill(value):
 @magicWord(category=CATEGORY_USER, types=[])
 def maxTrees():
     invoker = spellbook.getInvoker()
-    estate = simbase.air.estateMgr.toon2estate.get(invoker)
+    estateMgr = simbase.air.estateMgr
+    estate = estateMgr.estate.get(estateMgr.getOwnerFromZone(invoker.zoneId))
     if not estate:
         return 'Unable to locate estate.'
-    for house in estate.houses:
-        if hasattr(house, 'gardenManager') and house.avatarId == invoker.doId:
-            for plot in house.gardenManager.plots:
-                if hasattr(plot, 'growthLevel'):
-                    plot.growthLevel = plot.getGrowthThresholds()[2]
-                    plot.d_setGrowthLevel(plot.growthLevel)
-                    timePassed = plot.growthLevel * GardenGlobals.GROWTH_INTERVAL
-                    plot.timestamp = int(time.time()) - timePassed
-                    house.gardenManager.updateGardenData()
-                    return 'Successfully maxed tree growth!'
+    for slot, garden in enumerate(estate.gardenTable):
+        if estate.getToonId(slot) != invoker.doId:
+            continue
+        trees = [plant for plant in garden if isinstance(plant, DistributedGagTreeAI)]
+        if not trees:
+            break
+        for tree in trees:
+            tree.b_setGrowthLevel(tree.growthThresholds[2], False)
+        estate.d_setItems(slot, estate.getItems(slot))
+        return 'Successfully maxed tree growth!'
     return 'Failed to max tree growth.'
 
 
