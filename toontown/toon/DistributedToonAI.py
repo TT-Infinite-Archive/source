@@ -1861,15 +1861,15 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def getMaxCarry(self):
         return self.maxCarry
 
-    def b_setCheesyEffect(self, effect, hoodId, expireTime):
-        self.setCheesyEffect(effect, hoodId, expireTime)
+    def b_setCheesyEffect(self, effect, hoodId, expireTime, syncCollectible=True):
+        self.setCheesyEffect(effect, hoodId, expireTime, syncCollectible)
         self.d_setCheesyEffect(effect, hoodId, expireTime)
 
     def d_setCheesyEffect(self, effect, hoodId, expireTime):
         self.sendUpdate('setCheesyEffect', [effect, hoodId, expireTime])
 
-    def setCheesyEffect(self, effect, hoodId, expireTime):
-        if self.collectibleInventory is not None:
+    def setCheesyEffect(self, effect, hoodId, expireTime, syncCollectible=True):
+        if syncCollectible and self.collectibleInventory is not None:
             # TODO: Remove this when we port cheesy effects completely
             # If the toon obtains a cheesy effect another way, we need to react
             if self.collectibleInventory.isObtained(CollectibleInventoryGlobals.CICategoryCheesyEffect, effect):
@@ -1910,8 +1910,15 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def getCheesyEffect(self):
         return (self.savedCheesyEffect, self.savedCheesyHoodId, self.savedCheesyExpireTime)
 
+    def getEquippedCheesyEffect(self):
+        if self.collectibleInventory is None:
+            return ToontownGlobals.CENormal
+
+        equipped = self.collectibleInventory.getEquipped(CollectibleInventoryGlobals.CICategoryCheesyEffect)
+        return ToontownGlobals.CENormal if equipped is None else equipped
+
     def __undoCheesyEffect(self, task):
-        self.b_setCheesyEffect(ToontownGlobals.CENormal, 0, 0)
+        self.b_setCheesyEffect(self.getEquippedCheesyEffect(), 0, 0)
         return Task.cont
 
     def b_setTrackAccess(self, trackArray):

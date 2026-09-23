@@ -69,7 +69,7 @@ class AprilFoolsManagerAI(CostumeManagerAI.CostumeManagerAI):
             nextTime = self.nextEffectTimes.get(av.doId)
 
             if av.doId not in self.savedEffects:
-                self.savedEffects[av.doId] = av.getCheesyEffect()
+                self.savedEffects[av.doId] = self.__getOwnEffect(av)
 
             if nextTime is None:
                 self.__scrambleVoice(av)
@@ -82,6 +82,13 @@ class AprilFoolsManagerAI(CostumeManagerAI.CostumeManagerAI):
         self.nextEffectTimes = nextEffectTimes
         return task.again
 
+    def __getOwnEffect(self, av):
+        effect = av.getCheesyEffect()
+        if effect[0] in self.RandomCheesyList and effect[2]:
+            return (av.getEquippedCheesyEffect(), 0, 0)
+
+        return effect
+
     def __scrambleVoice(self, av):
         species = self.__getSpecies(av)
         av.b_setAnimalSound(random.choice([index for index in range(len(ToonDNA.toonSpeciesTypes))
@@ -92,5 +99,5 @@ class AprilFoolsManagerAI(CostumeManagerAI.CostumeManagerAI):
                                 if effect != av.getCheesyEffect()[0]])
         nextTime = now + 60 * random.randint(self.RandomCheesyMinTime, self.RandomCheesyMaxTime)
 
-        av.b_setCheesyEffect(effect, 0, int(nextTime / 60) + 2)
+        av.b_setCheesyEffect(effect, 0, int(nextTime / 60) + 2, syncCollectible=False)
         return nextTime
