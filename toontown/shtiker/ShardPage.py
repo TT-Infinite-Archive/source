@@ -7,6 +7,7 @@ from toontown.hood import ZoneUtil
 from toontown.shtiker import ShtikerPage
 from toontown.toonbase import TTLocalizer, EventGlobals, ToontownGlobals
 from toontown.toontowngui import WarningDialog
+from toontown.toontowngui.TTLabel import fitText
 
 POP_COLORS = (
     Vec4(0.4, 0.4, 1.0, 1.0),
@@ -54,7 +55,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
             text_scale=headingTextScale,
             text_align=TextNode.ACenter,
             text_font=ToontownGlobals.getInterfaceFont(),
-            pos=(-0.45, 0.0, 0.6)
+            pos=(-0.4, 0.0, 0.6)
         )
         self.invasionLabel = DirectLabel(
             self.mainFrame,
@@ -63,7 +64,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
             text_scale=headingTextScale,
             text_align=TextNode.ACenter,
             text_font=ToontownGlobals.getInterfaceFont(),
-            pos=(-0.1, 0.0, 0.6)
+            pos=(0.0, 0.0, 0.6)
         )
         self.popLabel = DirectLabel(
             self.mainFrame,
@@ -72,7 +73,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
             text_scale=headingTextScale,
             text_align=TextNode.ACenter,
             text_font=ToontownGlobals.getInterfaceFont(),
-            pos=(0.1, 0.0, 0.6)
+            pos=(0.18, 0.0, 0.6)
         )
         self.timezoneLabel = DirectLabel(
             self.mainFrame,
@@ -81,7 +82,7 @@ class ShardPage(ShtikerPage.ShtikerPage):
             text_scale=headingTextScale,
             text_align=TextNode.ACenter,
             text_font=ToontownGlobals.getInterfaceFont(),
-            pos=(0.3, 0.0, 0.6)
+            pos=(0.35, 0.0, 0.6)
         )
         self.totalPopLabel = OnscreenText(
             parent=self.mainFrame,
@@ -232,11 +233,12 @@ class ShardWidget(DirectButton):
         if self.draining:
             displayName = '%s (%s)' % (shardName, TTLocalizer.ShardPageDraining)
 
-        self.nameLabel = DirectLabel(self.mainFrame, relief=None, pos=(-0.45, 0.0, 0), text=displayName, text_fg=textColor, text_scale=self.getShardNameScale(shardName), text_pos=(0.0, -0.015, 0.0), text_align=TextNode.ACenter)
-        self.invasionLabel = DirectButton(self.mainFrame, relief=None, text_scale=0.06, pos=(-0.1, 0.0, 0), text_pos=(0.0, -0.015, 0.0), image_pos=(0.0, 0.0, 0.1))
-        self.populationLabel = DirectButton(self.mainFrame, relief=None, image=(shardButton, None, None, shardButton), image_scale=(0.35, 1, 0.35), image_color=self.getPopColor(self.population), pos=(0.11, 0.0, 0.0), text=('', self.getPopText(self.population, 1), self.getPopText(self.population, 1), ''), text_pos=(-0.01, -0.0125), text_fg=textColor, text_scale=textScale, text_align=TextNode.ACenter)
-        self.timezoneLabel = DirectLabel(self.mainFrame, relief=None, pos=(0.29, 0.0, -0.015), text=timezone, text_fg=textColor, text_scale=textScale, text_align=TextNode.ACenter)
-        self.goToButton = DirectButton(self.mainFrame, relief=None, pos=(0.525, 0.0, 0.0), geom=pointingArrowButton, geom_scale=0.3, geom_color=self.buttonColor, command=self.handleSelectShard)
+        self.nameLabel = DirectLabel(self.mainFrame, relief=None, pos=(-0.4, 0.0, 0), text=displayName, text_fg=textColor, text_scale=0.06, text_pos=(0.0, -0.015, 0.0), text_align=TextNode.ACenter)
+        fitText(self.nameLabel, 0.48)
+        self.invasionLabel = DirectButton(self.mainFrame, relief=None, text_scale=0.06, pos=(0.0, 0.0, 0), text_pos=(0.0, -0.015, 0.0), image_pos=(0.0, 0.0, 0.1))
+        self.populationLabel = DirectButton(self.mainFrame, relief=None, image=(shardButton, None, None, shardButton), image_scale=(0.35, 1, 0.35), image_color=self.getPopColor(self.population), pos=(0.18, 0.0, 0.0), text=('', self.getPopText(self.population, 1), self.getPopText(self.population, 1), ''), text_pos=(-0.01, -0.0125), text_fg=textColor, text_scale=textScale, text_align=TextNode.ACenter)
+        self.timezoneLabel = DirectLabel(self.mainFrame, relief=None, pos=(0.35, 0.0, -0.015), text=timezone, text_fg=textColor, text_scale=textScale, text_align=TextNode.ACenter)
+        self.goToButton = DirectButton(self.mainFrame, relief=None, pos=(0.56, 0.0, 0.0), geom=pointingArrowButton, geom_scale=0.3, geom_color=self.buttonColor, command=self.handleSelectShard)
 
         self.reject = None
         self.invasionDisplay = None
@@ -292,13 +294,6 @@ class ShardWidget(DirectButton):
             self.mainFrame.destroy()
             self.mainFrame = None
 
-    def getShardNameScale(self, shardName):
-        if len(shardName) >= 20:
-            return 0.05, 0.05
-        elif len(shardName) >= 15:
-            return 0.055, 0.055
-        else:
-            return 0.06, 0.06
     def getPopColor(self, pop):
         if self.draining:
             return DRAIN_COLOR
