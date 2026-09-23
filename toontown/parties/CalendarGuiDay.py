@@ -156,7 +156,7 @@ class CalendarGuiDay(DirectFrame):
                     item.unbind(DGG.EXIT)
                     item.description.destroy()
 
-        except e:
+        except Exception:
             self.notify.debug('pass %s' % self.myDate)
 
         self.scrollList.removeAndDestroyAllItems()
@@ -199,7 +199,7 @@ class CalendarGuiDay(DirectFrame):
         numItems = 0
         try:
             numItems = len(self.scrollList['items'])
-        except e:
+        except Exception:
             numItems = 0
 
         if numItems <= self.scrollList['numItemsVisible']:

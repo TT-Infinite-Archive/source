@@ -1,5 +1,6 @@
 from panda3d.core import ConfigVariableString, Filename
 import os
+import sys
 
 class ModuleList:
     serverDataFolder = ConfigVariableString('server-data-folder', '.').getValue()

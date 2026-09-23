@@ -115,7 +115,7 @@ class DistributedStage(DistributedObject.DistributedObject):
                 try:
                     roomNum = int(name[prefixLen:])
                 except:
-                    DistributedLevel.notify.warning('Invalid zone floor collision node: %s' % name)
+                    self.notify.warning('Invalid zone floor collision node: %s' % name)
                 else:
                     self.camEnterRoom(roomNum)
                     print(collEntry)

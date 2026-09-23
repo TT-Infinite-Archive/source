@@ -44,7 +44,7 @@ class LawOfficeManagerAI(DirectObject.DirectObject):
                             layoutIndex = lt
                             floor = i
                 else:
-                    StageRoomSpecs = StageRoomSpecs
+                    from toontown.coghq import StageRoomSpecs
                     roomName = StageRoomSpecs.CashbotStageRoomId2RoomName[roomId]
                     LawOfficeManagerAI.notify.warning('room %s (%s) not found in any floor of Stage %s' % (roomId, roomName, StageId))
         StageZone = self.air.allocateZone()

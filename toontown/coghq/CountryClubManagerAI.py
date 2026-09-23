@@ -48,7 +48,7 @@ class CountryClubManagerAI(DirectObject.DirectObject):
                     if roomId in layout.getRoomIds():
                         floor = i
                 else:
-                    CountryClubRoomSpecs = CountryClubRoomSpecs
+                    from toontown.coghq import CountryClubRoomSpecs
                     roomName = CountryClubRoomSpecs.BossbotCountryClubRoomId2RoomName[roomId]
                     CountryClubManagerAI.notify.warning('room %s (%s) not found in any floor of countryClub %s' % (roomId, roomName, countryClubId))
         countryClubZone = self.air.allocateZone()

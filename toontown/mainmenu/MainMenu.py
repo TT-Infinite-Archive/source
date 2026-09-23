@@ -105,7 +105,7 @@ class MainMenu(DirectFrame, FSM):
         def cloudSkyTrack(task):
             task.h += globalClock.getDt() * 0.25
             if task.cloud1.isEmpty() or task.cloud2.isEmpty():
-                notify.warning("Couldn't find clouds!")
+                self.notify.warning("Couldn't find clouds!")
                 return task.done
 
             task.cloud1.setH(task.h)
