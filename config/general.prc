@@ -1,27 +1,10 @@
-# Window settings:
-window-title Toontown Infinite
-win-origin -2 -2
-icon-filename phase_3/etc/icon.ico
-cursor-filename phase_3/etc/toonmono.cur
-
-# Audio:
+# Audio (client.prc turns it on for the client):
 audio-library-name null
-
-# Graphics:
-# aux-display pandagl
-load-display pandagl
-aux-display p3tinydisplay
 
 # Models:
 model-cache-models #f
 model-cache-textures #f
 default-model-extension .bam
-
-# Preferences:
-preferences-path preferences.json
-
-# Content packs:
-content-packs-path contentpacks
 
 # Backups:
 backups-filepath backups/
@@ -31,8 +14,6 @@ backups-extension .json
 server-timezone PST/PDT/-8
 
 # Performance:
-sync-video #f
-gl-check-errors #f
 garbage-collect-states #t
 support-threads #t
 loader-num-threads 35
@@ -132,8 +113,3 @@ want-connection-warmup #t
 
 # Toon patches:
 toon-patch-version 0
-
-# Intel:
-stencil-bits 1
-depth-bits 24
-allow-incomplete-render #f

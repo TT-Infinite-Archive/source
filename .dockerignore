@@ -25,3 +25,6 @@ astron/dev.yml
 doc
 **/__pycache__
 *.pyc
+
+# Only the client loads it:
+config/client.prc

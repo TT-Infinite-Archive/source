@@ -1,13 +1,10 @@
 # What the development distribution changes.
 #
-# general.prc loads first and holds everything the game does the same way
-# everywhere, so this file is a diff against it.
+# general.prc, and client.prc on the client, load first and hold everything the
+# game does the same way everywhere, so this file is a diff against them.
 
 # Distribution:
 distribution dev
-
-# Audio:
-audio-library-name p3openal_audio
 
 # Art assets:
 model-path ../resources
