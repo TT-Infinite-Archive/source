@@ -10,7 +10,6 @@ from otp.distributed import OtpDoGlobals
 from toontown.parties import PartyGlobals
 from toontown.parties.DistributedPartyAI import DistributedPartyAI
 from toontown.parties.PartyInfo import PartyInfoAI
-from toontown.ai import RepairAvatars
 from toontown.toonbase import ToontownGlobals
 
 
@@ -1383,45 +1382,42 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         """Deduct the cost of the party from an offline toon."""
         # it's possible for someone to alt f4 out in between the time it takes for
         # the uberdog to respond to AI that buying the party was a success
-        ag = RepairAvatars.AvatarGetter(self.air)
-        event = 'gotOfflineToon-%s' % toonId
-        ag.getAvatar(toonId, fields=['setName', 'setMaxHp',
-                                     'setMaxMoney',
-                                     'setMaxBankMoney',
-                                     'setMoney',
-                                     'setBankMoney'],
-                     event=event)
-        self.acceptOnce(event, Functor(self.gotOfflineToon, cost=cost, toonId=toonId))
+        def gotOfflineToon(dclass, fields):
+            if dclass != self.air.dclassesByName['DistributedToonAI']:
+                self.notify.warning("gotOfflineToon - toon %s not found. buying a party for free! cost=%s"
+                                    % (toonId, cost))
+                self.air.writeServerEvent('suspicious', toonId,
+                                          "gotOfflineToon - toon %s not found. buying a party for free! cost=%s"
+                                          % (toonId, cost))
+                return
 
-    def gotOfflineToon(self, toon, cost, toonId):
-        """Handle a response to our request to get an offline toon, deduct the money from him."""
-        if toon is None:
-            # prevent mem leak
-            self.notify.warning("gotOfflineToon - toon %s not found. buying a party for free!cost=%s"
-                                % (toonId, cost))
-            self.air.writeServerEvent('suspicious', toonId,
-                                      "gotOfflineToon - toon %s not found. buying a party for free!cost=%s"
-                                      % (toonId, cost))
-            return
+            money = fields['setMoney'][0]
+            accountId = fields['setDISLid'][0]
 
-        totalMoney = toon.getTotalMoney()
-        result = toon.takeMoney(cost, bUseBank=True)
-        if result:
-            newTotalMoney = toon.getTotalMoney()
-            self.notify.info("gotOfflineToon - deducting %s from offline toon %s newTotalMoney=%s"
-                             % (cost, toonId, newTotalMoney))
-        else:
-            self.notify.warning(
-                "gotOfflineToon - Host %s got away with buying a party he can't afford! totalMoney=%s cost=%s"
-                % (toonId, totalMoney, cost))
-            self.air.writeServerEvent('suspicious', toonId,
-                                      "gotOfflineToon - Host %s got away with buying a party he can't afford! totalMoney=%s cost=%s"
-                                      % (toonId, totalMoney, cost))
+            self.notify.info("gotOfflineToon - deducting %s from offline toon %s money=%s"
+                             % (cost, toonId, money))
+            self.air.dbInterface.updateObject(
+                self.air.dbId, toonId, dclass, {'setMoney': (max(0, money - cost),)})
 
-        # takeMoney is doing a b_setMoney, so that gets written into the otp database
-        # db = DatabaseObject.DatabaseObject(self.air, toon.doId)
-        # db.storeObject(toon, ["setMoney", "setBankMoney"])
+            if money < cost:
+                self.air.dbInterface.queryObject(
+                    self.air.dbId, accountId,
+                    lambda dclass, fields: gotOfflineAccount(dclass, fields, accountId, cost - money))
 
-        # prevent mem leak
-        # as far as I can tell we don't need this, ~aigarbage reports 0 cycles
-        # toon.patchDelete()
+        def gotOfflineAccount(dclass, fields, accountId, owed):
+            if dclass != self.air.dclassesByName['AccountAI']:
+                bankMoney = 0
+            else:
+                bankMoney = fields['MONEY']
+                self.air.dbInterface.updateObject(
+                    self.air.dbId, accountId, dclass, {'MONEY': max(0, bankMoney - owed)})
+
+            if bankMoney < owed:
+                self.notify.warning(
+                    "gotOfflineToon - Host %s got away with buying a party he can't afford! bankMoney=%s owed=%s"
+                    % (toonId, bankMoney, owed))
+                self.air.writeServerEvent('suspicious', toonId,
+                                          "gotOfflineToon - Host %s got away with buying a party he can't afford! bankMoney=%s owed=%s"
+                                          % (toonId, bankMoney, owed))
+
+        self.air.dbInterface.queryObject(self.air.dbId, toonId, gotOfflineToon)

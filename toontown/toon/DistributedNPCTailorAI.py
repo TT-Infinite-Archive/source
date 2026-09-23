@@ -3,7 +3,6 @@ from otp.ai.AIBaseGlobal import *
 from .DistributedNPCToonBaseAI import *
 from . import ToonDNA
 from direct.task.Task import Task
-from toontown.ai import DatabaseObject
 from toontown.estate import ClosetGlobals
 
 class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
@@ -180,14 +179,16 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')
         if self.customerId == avId:
-            toon = self.air.doId2do.get(avId)
-            if toon == None:
-                toon = DistributedToonAI.DistributedToonAI(self.air)
-                toon.doId = avId
             if self.customerDNA:
-                toon.b_setDNAString(self.customerDNA.makeNetString())
-                db = DatabaseObject.DatabaseObject(self.air, avId)
-                db.storeObject(toon, ['setDNAString'])
+                toon = self.air.doId2do.get(avId)
+                if toon is not None:
+                    toon.b_setDNAString(self.customerDNA.makeNetString())
+                else:
+                    self.air.dbInterface.updateObject(
+                        self.air.dbId, avId,
+                        self.air.dclassesByName['DistributedToonAI'],
+                        {'setDNAString': (self.customerDNA.makeNetString(),)}
+                    )
         else:
             self.notify.warning('invalid customer avId: %s, customerId: %s ' % (avId, self.customerId))
         if self.busy == avId:

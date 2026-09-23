@@ -10,8 +10,6 @@ from direct.distributed import DistributedObjectAI
 from direct.fsm import ClassicFSM, State
 from direct.task import Task
 from direct.directnotify import DirectNotifyGlobal
-from toontown.ai import DatabaseObject
-from toontown.toon import DistributedToonAI
 from toontown.toon import InventoryBase
 from toontown.toonbase import ToontownGlobals
 import random
@@ -704,15 +702,13 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
                 self.air.cogPageManager.toonEncounteredCogs(toon, self.suitsEncountered, self.getTaskZoneId())
         elif len(self.suits) > 0 and not self.streetBattle:
             self.notify.info('toon %d aborted non-street battle; clearing inventory and hp.' % toonId)
-            toon = DistributedToonAI.DistributedToonAI(self.air)
-            toon.doId = toonId
-            empty = InventoryBase.InventoryBase(toon)
-            toon.b_setInventory(empty.makeNetString())
-            toon.b_setHp(0)
-            db = DatabaseObject.DatabaseObject(self.air, toonId)
-            db.storeObject(toon, ['setInventory', 'setHp'])
-            self.notify.info('killing mem leak from temporary DistributedToonAI %d' % toonId)
-            toon.deleteDummy()
+            empty = InventoryBase.InventoryBase(None)
+            self.air.dbInterface.updateObject(
+                self.air.dbId, toonId,
+                self.air.dclassesByName['DistributedToonAI'],
+                {'setInventory': (empty.makeNetString(),),
+                 'setHp': (0,)}
+            )
         return
 
     def getToon(self, toonId):
