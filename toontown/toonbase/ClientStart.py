@@ -52,7 +52,7 @@ ToontownGlobals.setDialogClasses(TTDialog.TTDialog, TTDialog.TTGlobalDialog)
 preferencesPath = os.environ.get('TTI_PREFERENCES') or os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
 notify.info('Reading %s...' % preferencesPath)
 builtins.settings = Settings(preferencesPath)
-from toontown.toonbase import SettingsGlobals
+from toontown.toonbase import GraphicsSettings, SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
 # The Hosting screen's settings. Not the status file the district writes:
@@ -109,11 +109,22 @@ if settings[SettingsGlobals.ThreadedRender]:
     loadPrcFileData('Settings: Experimental Threaded Rendering',
                     'threading-model Cull/Draw')
     notify.warning("Experimental Threaded Rendering is enabled! The game may crash randomly! You have been warned!")
-if settings[SettingsGlobals.AntiAliasing]:
+samples = GraphicsSettings.antiAliasingSamples()
+if samples:
     loadPrcFileData('Settings: Anti Aliasing',
                     'framebuffer-multisample 1')
     loadPrcFileData('Settings: Anti Aliasing Amount',
-                    'multisamples %s' % 4)
+                    'multisamples %d' % samples)
+loadPrcFileData('Settings: Anisotropic Filtering',
+                'texture-anisotropic-degree %d' % GraphicsSettings.anisotropicDegree())
+loadPrcFileData('Settings: Font Quality',
+                GraphicsSettings.fontConfig(GraphicsSettings.fontQuality()))
+frameRateLimit = GraphicsSettings.frameRateLimit()
+if frameRateLimit:
+    loadPrcFileData('Settings: Frame Rate Limit',
+                    'clock-mode limited')
+    loadPrcFileData('Settings: Frame Rate Limit Amount',
+                    'clock-frame-rate %d' % frameRateLimit)
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
 
@@ -149,6 +160,8 @@ ToonBase.ToonBase()
 
 if base.win is None:
     notify.error('Unable to open window; aborting.')
+
+GraphicsSettings.applyLodScale(GraphicsSettings.lodScale())
 
 launcher.setPandaErrorCode(0)
 

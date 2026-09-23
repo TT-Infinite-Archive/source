@@ -4,12 +4,14 @@ from toontown.toonbase.ColorGlobals import CToontownBlue, CGray, CDefault
 
 
 class TTSlider(DirectButton):
-    def __init__(self, parent=aspect2d, pos=(0, 0, 0), value=0, scale=1.0, enabled=True, command=None):
+    def __init__(self, parent=aspect2d, pos=(0, 0, 0), value=0, scale=1.0, length=None, enabled=True, command=None):
         DirectButton.__init__(self, parent, relief=None)
         self._parent = parent
         self.command = command
         self.pos = pos
-        self.scale = (0.375 * scale, 0.1 * scale, 0.25 * scale)
+        if length is None:
+            length = scale
+        self.scale = (0.375 * length, 0.1 * scale, 0.25 * scale)
         self.enabled = enabled
 
         gui = loader.loadModel('phase_3/models/gui/tt_m_gui_mat_nameShop')
@@ -26,7 +28,7 @@ class TTSlider(DirectButton):
             orientation=DGG.HORIZONTAL,
             thumb_relief=None,
             thumb_geom=thumb,
-            thumb_geom_scale=(1 * scale, 1 * scale, 1.5 * scale),
+            thumb_geom_scale=(1 * scale / max(length, 0.01), 1 * scale, 1.5 * scale),
             command=self.onChange
         )
 

@@ -21,6 +21,11 @@ ClassicMusic = 'classic-music'
 DoorInteract = 'door-interaction-key'
 NPCInteract = 'npc-interaction-key'
 AntiAliasing = 'anti-aliasing'
+AntiAliasingSamples = 'anti-aliasing-samples'
+AnisotropicFiltering = 'anisotropic-filtering'
+FrameRateLimit = 'frame-rate-limit'
+LodDistance = 'lod-distance'
+FontQuality = 'font-quality'
 RetinaMode = 'retina-mode'
 TextureQuality = 'textures-quality'
 CompressTextures = 'compress-textures'
@@ -75,6 +80,11 @@ InitialSettings = {
     CompressTextures: False,
     ThreadedRender: False,
     AntiAliasing: True,
+    AntiAliasingSamples: 4,
+    AnisotropicFiltering: 16,
+    FrameRateLimit: 0,
+    LodDistance: 1.0,
+    FontQuality: 128,
     RetinaMode: True
 }
 

@@ -11,15 +11,11 @@ audio-library-name null
 # aux-display pandagl
 load-display pandagl
 aux-display p3tinydisplay
-text-pixels-per-unit 128
 
 # Models:
 model-cache-models #f
 model-cache-textures #f
 default-model-extension .bam
-
-# Textures:
-texture-anisotropic-degree 16
 
 # Preferences:
 preferences-path preferences.json

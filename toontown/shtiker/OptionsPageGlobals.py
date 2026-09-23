@@ -1,4 +1,7 @@
 import enum
+import sys
+
+from toontown.toonbase import GraphicsSettings, SettingsGlobals, TTLocalizer
 
 speedChatStyles = (
     (
@@ -105,6 +108,201 @@ speedChatStyles = (
     )
 )
 
-class EPageMode(enum.Enum):
-    OPTIONS = 0
-    CODES = 1
+class ECategory(enum.Enum):
+    VIDEO = 0
+    SOUND = 1
+    GAMEPLAY = 2
+    SOCIAL = 3
+    CODES = 4
+
+
+Categories = (
+    (ECategory.VIDEO, TTLocalizer.OptionsPageVideo),
+    (ECategory.SOUND, TTLocalizer.OptionsPageSound),
+    (ECategory.GAMEPLAY, TTLocalizer.OptionsPageGameplay),
+    (ECategory.SOCIAL, TTLocalizer.OptionsPageSocial)
+)
+
+
+class ERowKind(enum.Enum):
+    TOGGLE = 0
+    CHOICE = 1
+    SLIDER = 2
+    HEADING = 3
+
+
+class Option:
+    def __init__(self, key = None, label = '', kind = ERowKind.TOGGLE, default = None, values = (),
+                 valueLabels = (), requiresRestart = False, apply = None, getter = None, setter = None,
+                 available = None):
+        self.key = key
+        self.label = label
+        self.kind = kind
+        self.default = default
+        self.values = values
+        self.valueLabels = valueLabels
+        self.requiresRestart = requiresRestart
+        self.apply = apply
+        self.getter = getter
+        self.setter = setter
+        self.available = available
+
+    def isAvailable(self):
+        return self.available is None or self.available()
+
+    def getValue(self):
+        if self.getter is not None:
+            return self.getter()
+        return settings.get(self.key, self.default)
+
+    def setValue(self, value):
+        if self.setter is not None:
+            self.setter(value)
+        else:
+            settings[self.key] = value
+        if self.apply is not None:
+            self.apply(value)
+
+
+def heading(label):
+    return Option(label = label, kind = ERowKind.HEADING)
+
+
+VideoOptions = (
+    Option(
+        key = SettingsGlobals.ShowFps,
+        label = TTLocalizer.OptionsPageShowFps,
+        default = False,
+        apply = lambda value: base.setFrameRateMeter(value)
+    ),
+    Option(
+        key = SettingsGlobals.VSync,
+        label = TTLocalizer.OptionsPageVSync,
+        default = False,
+        requiresRestart = sys.platform != 'darwin',
+        apply = GraphicsSettings.applyVSync
+    ),
+    Option(
+        key = SettingsGlobals.RetinaMode,
+        label = TTLocalizer.OptionsPageRetinaMode,
+        default = True,
+        requiresRestart = True,
+        available = SettingsGlobals.retinaModeAvailable
+    ),
+    heading(TTLocalizer.OptionsPageQuality),
+    Option(
+        key = SettingsGlobals.AntiAliasing,
+        label = TTLocalizer.OptionsPageAntiAliasing,
+        kind = ERowKind.CHOICE,
+        values = GraphicsSettings.AntiAliasingSamples,
+        valueLabels = TTLocalizer.OptionsPageAntiAliasingValues[:len(GraphicsSettings.AntiAliasingSamples)],
+        requiresRestart = True,
+        getter = GraphicsSettings.antiAliasingSamples,
+        setter = GraphicsSettings.setAntiAliasingSamples
+    ),
+    Option(
+        key = SettingsGlobals.AnisotropicFiltering,
+        label = TTLocalizer.OptionsPageAnisotropicFiltering,
+        kind = ERowKind.CHOICE,
+        default = 16,
+        values = GraphicsSettings.AnisotropicDegrees,
+        valueLabels = TTLocalizer.OptionsPageAnisotropicFilteringValues,
+        apply = GraphicsSettings.applyAnisotropicDegree
+    ),
+    Option(
+        key = SettingsGlobals.FrameRateLimit,
+        label = TTLocalizer.OptionsPageFrameRateLimit,
+        kind = ERowKind.CHOICE,
+        default = 0,
+        values = GraphicsSettings.FrameRateLimits,
+        valueLabels = TTLocalizer.OptionsPageFrameRateLimitValues,
+        apply = GraphicsSettings.applyFrameRateLimit
+    ),
+    Option(
+        key = SettingsGlobals.LodDistance,
+        label = TTLocalizer.OptionsPageLodDistance,
+        kind = ERowKind.CHOICE,
+        default = 1.0,
+        values = GraphicsSettings.LodScales,
+        valueLabels = TTLocalizer.OptionsPageLodDistanceValues,
+        apply = GraphicsSettings.applyLodScale
+    ),
+    Option(
+        key = SettingsGlobals.FontQuality,
+        label = TTLocalizer.OptionsPageFontQuality,
+        kind = ERowKind.CHOICE,
+        default = 128,
+        values = GraphicsSettings.FontQualities,
+        valueLabels = TTLocalizer.OptionsPageFontQualityValues,
+        apply = GraphicsSettings.applyFontQuality
+    ),
+    Option(
+        key = SettingsGlobals.AnimationSmoothing,
+        label = TTLocalizer.OptionsPageAnimationSmoothing,
+        default = True,
+        apply = GraphicsSettings.applyAnimationSmoothing
+    )
+)
+
+SoundOptions = (
+    Option(
+        key = SettingsGlobals.Music,
+        label = TTLocalizer.OptionsPageEnableMusic,
+        default = True,
+        apply = lambda value: base.enableMusic(value)
+    ),
+    Option(
+        key = SettingsGlobals.MusicVolume,
+        label = TTLocalizer.OptionsPageMusicVolume,
+        kind = ERowKind.SLIDER,
+        default = 1.0,
+        apply = lambda value: base.musicManager.setVolume(value)
+    ),
+    Option(
+        key = SettingsGlobals.Sound,
+        label = TTLocalizer.OptionsPageEnableSound,
+        default = True,
+        apply = lambda value: base.enableSoundEffects(value)
+    ),
+    Option(
+        key = SettingsGlobals.SoundVolume,
+        label = TTLocalizer.OptionsPageSoundVolume,
+        kind = ERowKind.SLIDER,
+        default = 1.0,
+        apply = lambda value: base.setSfxVolume(value)
+    ),
+    Option(
+        key = SettingsGlobals.ClassicMusic,
+        label = TTLocalizer.OptionsPageClassicMusic,
+        default = False,
+        apply = lambda value: setattr(base, 'wantClassicMusic', value)
+    ),
+    Option(
+        key = SettingsGlobals.NewFootsteps,
+        label = TTLocalizer.OptionsPageSurfaceFootsteps,
+        default = True
+    )
+)
+
+CustomControlsOptions = (
+    Option(
+        key = SettingsGlobals.WantCustomControls,
+        label = TTLocalizer.OptionsPageCustomControls,
+        default = False
+    ),
+)
+
+InteractionOptions = (
+    Option(
+        key = SettingsGlobals.DoorInteract,
+        label = TTLocalizer.OptionsPageDoorInteract,
+        default = False,
+        apply = lambda value: setattr(base, 'wantDoorInteract', value)
+    ),
+    Option(
+        key = SettingsGlobals.NPCInteract,
+        label = TTLocalizer.OptionsPageNpcInteract,
+        default = False,
+        apply = lambda value: setattr(base, 'wantNpcInteract', value)
+    )
+)

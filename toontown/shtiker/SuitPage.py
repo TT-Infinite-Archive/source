@@ -78,11 +78,12 @@ class SuitPage(ShtikerPage.ShtikerPage):
 
     def load(self):
         ShtikerPage.ShtikerPage.load(self)
-        frameModel = loader.loadModel('phase_3.5/models/gui/suitpage_frame')
-        frameModel.setScale((0.0452/base.getAspectRatio()), 0.03, 0.045)
-        frameModel.setPos(0, 10, -0.575)
         self.guiTop = NodePath('guiTop')
         self.guiTop.reparentTo(self)
+        frameModel = loader.loadModel('phase_3.5/models/gui/suitpage_frame')
+        frameModel.reparentTo(self.guiTop)
+        frameModel.setScale(0.045, 1, 0.045)
+        frameModel.setPos(0, 10, -0.575)
         self.frameNode = NodePath('frameNode')
         self.frameNode.reparentTo(self.guiTop)
         self.panelNode = NodePath('panelNode')
@@ -96,6 +97,7 @@ class SuitPage(ShtikerPage.ShtikerPage):
         screws = frameModel.find('**/screws')
         screws.wrtReparentTo(self.iconNode)
         icons = frameModel.find('**/icons')
+        frameModel.detachNode()
         del frameModel
         self.title = DirectLabel(parent=self.iconNode, relief=None, text=TTLocalizer.SuitPageTitle, text_scale=0.1, text_pos=(0.04, 0), textMayChange=0)
         self.radarButtons = []

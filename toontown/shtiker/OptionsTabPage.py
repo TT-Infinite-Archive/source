@@ -1,16 +1,16 @@
-from panda3d.core import ConfigVariableBool, FrameRateMeter, TextNode, WindowProperties
+from panda3d.core import ConfigVariableBool, TextNode, WindowProperties
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from direct.gui.DirectGui import DirectFrame, DirectButton, DGG
+from direct.gui.DirectGui import DirectFrame, DirectScrolledFrame, DGG
 
 from otp.speedchat import SpeedChat, SCColorScheme, SCStaticTextTerminal
 
 from toontown.shtiker import OptionsPageGlobals, ControlRemapDialog
-from toontown.toontowngui import TTLabel, TTClickableLabel, TTButton, TTCheckBox, TTSlider, TTDialog, \
-    TTRadioButton, TTRadioGroup
-from toontown.toontowngui.TTArrow import TTArrow
+from toontown.shtiker.OptionsPageGlobals import ECategory, ERowKind
+from toontown.toontowngui import TTLabel, TTButton, TTDialog
+from toontown.toontowngui.TTOptionRow import TTButtonRow, TTChoiceRow, TTOptionHeading, TTSliderRow, TTToggleRow
+from toontown.toontowngui.TTTabBar import TTTabBar
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, SettingsGlobals, ColorGlobals
-from toontown.util.PlacerTool3D import PlacerTool3D
 
 
 class OptionsTabPage(DirectFrame):
@@ -19,31 +19,39 @@ class OptionsTabPage(DirectFrame):
     DisplaySettingsDelay = 60
     ChangeDisplaySettings = ConfigVariableBool('change-display-settings', True).getValue()
     ChangeDisplayAPI = ConfigVariableBool('change-display-api', False).getValue()
-    VideoState = 0
-    SoundState = 1
-    GameplayState = 2
-    SocialState = 3
+    PaneLeft = -0.82
+    PaneRight = 0.84
+    CanvasRight = 0.72
+    PaneTop = 0.52
+    PaneBottom = -0.54
+    RowTop = -0.06
+    TabsZ = 0.64
+    ButtonsZ = -0.62
+    TrackWidth = 0.012
+    ThumbWidth = 0.045
+    ThumbLength = 0.15
 
-    def __init__(self, parent = aspect2d):
+    def __init__(self, parent = aspect2d, wantTabs = True):
         DirectFrame.__init__(self, parent = parent, relief = None, pos = (0.0, 0.0, 0.0), scale = (1.0, 1.0, 1.0))
 
         self._parent = parent
-        self.currentSizeIndex = None
+        self.wantTabs = wantTabs
+        self.tabBar = None
+        self.state = None
         self.displaySettingsChanged = 0
         self.displaySettingsSize = (None, None)
         self.displaySettingsFullscreen = None
-        self.displaySettingsApi = None
-        self.displaySettingsApiChanged = 0
-        self.displaySettings = None
         self.customControlDialog = None
 
         self.speed_chat_scale = 0.055
 
         self.warning = None
         self.videoDialog = None
-        self.hasAvatar = True
-        if not hasattr(base, 'localAvatar'):
-            self.hasAvatar = False
+        self.confirm = None
+        self.requiresRestart = False
+        self.hasAvatar = hasattr(base, 'localAvatar')
+        self.panes = {}
+        self.rows = {}
         self.load()
 
     def destroy(self):
@@ -54,506 +62,378 @@ class OptionsTabPage(DirectFrame):
         DirectFrame.destroy(self)
 
     def load(self):
-        rightXBase = -0.4
-        rightYBase = 0.4
-        leftXBase = 0.05
-        textRowHeight = 0.1
-        row = 0
+        if self.wantTabs:
+            self.tabBar = TTTabBar(
+                self,
+                tabs = OptionsPageGlobals.Categories,
+                pos = (0, 0, self.TabsZ),
+                command = self.setOptionsState
+            )
 
-        leftFrameGeom = loader.loadModel('phase_3/models/gui/tt_m_gui_ups_panelBg')
-
-        self.leftFrame = DirectFrame(
-            parent = self, relief = None, pos = (-0.5, 0.0, 0.0), frameSize = (-0.3, 0.4, -0.5, 0.5), geom = leftFrameGeom,
-            geom_scale = (0.75, 0.75, 0.75),
-            geom_pos = (0.05, 0, 0.2)
-        )
-        self.rightFrame = DirectFrame(
-            parent = self, relief = None, pos = (0.5, 0.0, 0.0), frameSize = (-0.4, 0.3, -0.5, 0.5)
-        )
-
-        self.videoButton = TTClickableLabel.TTClickableLabel(
-            self.leftFrame,
-            text = TTLocalizer.OptionsPageVideo,
-            pos = (leftXBase, 0.0, 0.35),
-            command = self.setOptionsState,
-            extraArgs = [self.VideoState]
-        )
-        self.soundButton = TTClickableLabel.TTClickableLabel(
-            self.leftFrame,
-            text = TTLocalizer.OptionsPageSound,
-            pos = (leftXBase, 0.0, 0.24),
-            command = self.setOptionsState,
-            extraArgs = [self.SoundState]
-        )
-        self.gameplayButton = TTClickableLabel.TTClickableLabel(
-            self.leftFrame,
-            text = TTLocalizer.OptionsPageGameplay,
-            pos = (leftXBase, 0.0, 0.13),
-            command = self.setOptionsState,
-            extraArgs = [self.GameplayState]
-        )
-        self.socialButton = TTClickableLabel.TTClickableLabel(
-            self.leftFrame,
-            text = TTLocalizer.OptionsPageSocial,
-            pos = (leftXBase, 0.0, 0.02),
-            command = self.setOptionsState,
-            extraArgs = [self.SocialState]
-        )
-
-        # -- Video
-        self.videoTitle = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text_size = TTLabel.TTLabel.MediumSize,
-            pos = (-0.40, 0, rightYBase + 0.1),
-            text = TTLocalizer.OptionsPageVideo
-        )
-        base.getSmallestResolution()
-        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
-        self.resIndex = self.getResIndex()
-        self.resolutionLabel = TTLabel.TTLabel(parent = self.rightFrame, text = TTLocalizer.DisplaySettingsResolution, pos = (-0.33, 0, 0.35))
-        self.resolutionValueLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text = '%s x %s' % tuple(self.screenSizes[self.resIndex]),
-            pos = (0.12, 0, 0.35)
-        )
-        self.resolutionLeftArrow = TTArrow(
-            parent = self.rightFrame,
-            orientation = TTArrow.OrientationLeft,
-            pos = (-0.11, 0, 0.36),
-            command = self.__handleLeftResolutionClicked,
-            extraArgs = []
-        )
-        self.resolutionRightArrow = TTArrow(
-            parent = self.rightFrame,
-            orientation = TTArrow.OrientationRight,
-            pos = (0.34, 0, 0.36),
-            command = self.__handleRightResolutionClicked,
-            extraArgs = []
-        )
-        self.__updateResolutionArrows()
-        self.fullscreenLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text = TTLocalizer.OptionsPageFullscreen,
-            text_align = TextNode.ALeft,
-            pos = (-0.45, 0, 0.21)
-        )
-        self.windowLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text = TTLocalizer.OptionsPageWindow,
-            text_align = TextNode.ALeft,
-            pos = (-0.45, 0, 0.10)
-        )
-        isFullscreen = settings.get(SettingsGlobals.Fullscreen, False)
-        self.fullscreenRadio = TTRadioButton.TTRadioButton(
-            parent = self.rightFrame, selected = isFullscreen, value = 'fullscreen', pos = (-0.11, 0, 0.22)
-        )
-        self.windowRadio = TTRadioButton.TTRadioButton(
-            parent = self.rightFrame, selected = not isFullscreen, value = 'window', pos = (-0.11, 0, 0.12))
-        self.windowSizeRG = TTRadioGroup.TTRadioGroup(buttons = [self.fullscreenRadio, self.windowRadio], command = self.__handleFullscreenRadioClicked)
-        self.applyVideoButton = TTButton.TTButton(
-            parent = self.rightFrame, text = TTLocalizer.OptionsPageApply, pos = (-0.31, 0, -0.02), disable = True, command = self.__applyVideoChanges)
-
-        self.vsyncLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.36, 0.0, -0.28),
-            text_align = TextNode.ALeft,
-            text = TTLocalizer.OptionsPageVSync,
-        )
-        self.vsyncCheckBox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (-0.42, 0, -0.27),
-            checked = settings.get(SettingsGlobals.VSync, False),
-            command = self.__doToggleVSync
-        )
-        self.vsyncRequiresRestartLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.2, 0.0, -0.29),
-            text_align = TextNode.ALeft,
-            text_fg = ColorGlobals.CRed,
-            text = '*'
-        )
-        self.changedVsync = False
-        self.showFpsLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.36, 0.0, -0.17),
-            text_align = TextNode.ALeft,
-            text = TTLocalizer.OptionsPageShowFps,
-        )
-        self.showFpsCheckBox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (-0.42, 0, -0.16),
-            checked = settings.get(SettingsGlobals.ShowFps, False),
-            command = self.__doToggleShowFps
-        )
-        self.animationSmoothingLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.36, 0.0, -0.39),
-            text_align = TextNode.ALeft,
-            text = TTLocalizer.OptionsPageAnimationSmoothing
-        )
-        self.animationSmoothingCheckBox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (-0.42, 0, -0.38),
-            checked = settings.get(SettingsGlobals.AnimationSmoothing, True),
-            command = self.__doToggleAnimationSmoothing
-        )
-        self.animationSmoothingRequiresRestartLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (0.12, 0.0, -0.4),
-            text_align = TextNode.ALeft,
-            text_fg = ColorGlobals.CRed,
-            text = '*'
-        )
-        self.changedAnimationSmoothing = False
         self.requiresRestartLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.04, 0.0, -0.57),
+            parent = self,
+            pos = (self.PaneLeft, 0.0, self.PaneBottom - 0.06),
             text_align = TextNode.ALeft,
             text_fg = ColorGlobals.CRed,
+            text_size = TTLabel.TTLabel.SmallSize,
             text = '* %s' % TTLocalizer.OptionsPageRequiresRestart
         )
-        self.changedAntiAliasing = False
-        self.antiAliasingCheckbox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (-0.42, 0, -0.49),
-            checked = settings.get(SettingsGlobals.AntiAliasing, True),
-            command = self.__doToggleAntiAliasing
-        )
-        self.antiAliasingLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.36, 0.0, -0.50),
-            text_align = TextNode.ALeft,
-            text = TTLocalizer.OptionsPageAntiAliasing
-        )
-        self.antiAliasingRequiresRestartLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.08, 0.0, -0.51),
-            text_align = TextNode.ALeft,
-            text_fg = ColorGlobals.CRed,
-            text = '*'
-        )
-        self.changedRetinaMode = False
-        self.retinaModeCheckbox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (-0.42, 0, -0.57),
-            checked = settings.get(SettingsGlobals.RetinaMode, True),
-            command = self.__doToggleRetinaMode
-        )
-        self.retinaModeLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.36, 0.0, -0.58),
-            text_align = TextNode.ALeft,
-            text = TTLocalizer.OptionsPageRetinaMode
-        )
-        self.retinaModeRequiresRestartLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (-0.08, 0.0, -0.59),
-            text_align = TextNode.ALeft,
-            text_fg = ColorGlobals.CRed,
-            text = '*'
-        )
-        self.requiresRestart = False
-        self.animationSmoothingRequiresRestartLabel.hide()
-        self.vsyncRequiresRestartLabel.hide()
-        self.antiAliasingRequiresRestartLabel.hide()
-        self.retinaModeRequiresRestartLabel.hide()
         self.requiresRestartLabel.hide()
 
-        # -- Sound
+        self.__loadVideoPane()
+        self.__loadSoundPane()
+        self.__loadGameplayPane()
+        self.__loadSocialPane()
 
-        # Volume
-        self.volumeTitle = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text_size = TTLabel.TTLabel.MediumSize,
-            pos = (rightXBase + 0.02, 0, rightYBase + 0.1),
-            text = TTLocalizer.OptionsPageSound
-        )
+        self.setOptionsState(ECategory.VIDEO)
 
-        # Music
-        row = 0
-        self.musicLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text_align = TextNode.ALeft,
-            text = TTLocalizer.OptionsPageEnableMusic,
-        )
-        self.musicCheckBox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked = base.musicActive,
-            command = self.__doToggleMusic
-        )
-        self.musicSlider = TTSlider.TTSlider(
-            parent = self.rightFrame,
-            value = self.getMusicVolume(),
-            pos = (-0.1, 0, rightYBase - textRowHeight * row - 0.07),
-            enabled = base.musicActive,
-            command = self.setMusicVolume
-        )
+    # -- Panes
 
-        # Sound
-        row += 1.5
-        self.soundLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text = TTLocalizer.OptionsPageSound,
-            text_align = TextNode.ALeft,
-        )
-        self.soundCheckBox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked = base.sfxActive,
-            command = self.__doToggleSfx
-        )
-        self.soundSlider = TTSlider.TTSlider(
-            parent = self.rightFrame,
-            value = self.getSoundVolume(),
-            pos = (-0.1, 0, rightYBase - textRowHeight * row - 0.07),
-            enabled = base.sfxActive,
-            command = self.setSoundVolume
-        )
+    def __makePane(self):
+        # A thin track like the volume sliders', with a handle made from the
+        # yellow button art turned on its side.
+        buttonGui = loader.loadModel('phase_3/models/gui/quit_button')
+        thumb = [buttonGui.find('**/QuitBtn_%s' % state) for state in ('UP', 'DN', 'RLVR', 'UP')]
+        low, high = thumb[0].getTightBounds()
 
-        # Classic Music
-        row += 1.5
-        self.classicMusicLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text = TTLocalizer.OptionsPageClassicMusic,
-            text_align = TextNode.ALeft,
+        pane = DirectScrolledFrame(
+            parent = self,
+            relief = None,
+            frameSize = (self.PaneLeft, self.PaneRight, self.PaneBottom, self.PaneTop),
+            canvasSize = (self.PaneLeft, self.CanvasRight, 0, 0),
+            manageScrollBars = True,
+            autoHideScrollBars = True,
+            scrollBarWidth = self.TrackWidth,
+            horizontalScroll_relief = None,
+            verticalScroll_relief = DGG.FLAT,
+            verticalScroll_frameColor = ColorGlobals.CToontownBlue,
+            verticalScroll_manageButtons = False,
+            verticalScroll_resizeThumb = False,
+            verticalScroll_thumb_relief = None,
+            verticalScroll_thumb_frameSize = (-self.ThumbWidth / 2, self.ThumbWidth / 2,
+                                              -self.ThumbLength / 2, self.ThumbLength / 2),
+            verticalScroll_thumb_image = tuple(thumb),
+            verticalScroll_thumb_image_hpr = (0, 0, 90),
+            verticalScroll_thumb_image_scale = (self.ThumbLength / (high[0] - low[0]), 1,
+                                                self.ThumbWidth / (high[2] - low[2]))
         )
-        self.classicMusicCheckBox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked = base.wantClassicMusic,
-            command = self.__doToggleClassicMusic
-        )
-        
-        # Surface related footsteps
-        row += 1
-        self.newFootstepsLabel = TTLabel.TTLabel(
-            parent=self.rightFrame,
-            pos=(rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text=TTLocalizer.OptionsPageSurfaceFootsteps,
-            text_align=TextNode.ALeft,
-        )
-        self.newFootstepsCheckBox = TTCheckBox.TTCheckBox(
-            parent=self.rightFrame,
-            pos=(rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked=settings.get(SettingsGlobals.NewFootsteps, True),
-            command=self.__doToggleNewFootsteps
-        )
+        pane.verticalScroll.incButton.hide()
+        pane.verticalScroll.decButton.hide()
+        buttonGui.removeNode()
+        return pane
 
-        # -- Social
-        row = 0
+    def __fitPane(self, pane, bottom):
+        pane['canvasSize'] = (self.PaneLeft, self.CanvasRight,
+                              min(bottom, self.PaneBottom - self.PaneTop), 0)
 
-        # - Chat
-        self.chatTitle = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text_size = TTLabel.TTLabel.MediumSize,
-            pos = (rightXBase - 0.02, 0, rightYBase + 0.1),
-            text = TTLocalizer.OptionsPageChat
-        )
-        if self.hasAvatar:
-            # Whisper Settings
-            self.whispersLabel = TTLabel.TTLabel(
-                parent = self.rightFrame,
-                pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text = TTLocalizer.OptionsPageAcceptingWhispers,
-                text_align = TextNode.ALeft
-            )
-            self.whispersCheckBox = TTCheckBox.TTCheckBox(
-                parent = self.rightFrame,
-                pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-                checked = base.localAvatar.wantWhispers,
-                command = self.__doToggleWantWhispers
-            )
-            row += 0.75
-            self.whispersAnyoneLabel = TTLabel.TTLabel(
-                parent = self.rightFrame,
-                pos = (rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text = TTLocalizer.OptionsPageFromStrangers,
-                text_align = TextNode.ALeft,
-                text_size = TTLabel.TTLabel.SmallSize
-            )
-            self.whispersAnyoneCheckBox = TTCheckBox.TTCheckBox(
-                parent = self.rightFrame, pos = (rightXBase, 0, rightYBase - textRowHeight * row),
-                disable = not base.localAvatar.wantWhispers,
-                checked = base.localAvatar.wantNonFriendWhispers,
-                command = self.__doToggleWantNonFriendWhispers
-            )
-            row += 0.75
-            self.whispersFriendsLabel = TTLabel.TTLabel(
-                parent = self.rightFrame,
-                pos = (rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text = TTLocalizer.OptionsPageFromFriends,
-                text_align = TextNode.ALeft,
-                text_size = TTLabel.TTLabel.SmallSize
-            )
-            self.whispersFriendsCheckBox = TTCheckBox.TTCheckBox(
-                parent = self.rightFrame, pos = (rightXBase, 0, rightYBase - textRowHeight * row),
-                disable = not base.localAvatar.wantWhispers,
-                checked = base.localAvatar.wantFriendWhispers,
-                command = self.__doToggleWantFriendWhispers
-            )
-            row += 1
-            self.speedChatStyleLabel = TTLabel.TTLabel(
-                parent = self.rightFrame,
-                pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text = TTLocalizer.OptionsPageSpeedChatStyleLabel,
-                text_align = TextNode.ALeft
-            )
-            row += 1
+    def __addRows(self, pane, options, z):
+        rows = {}
+        for option in options:
+            if not option.isAvailable():
+                continue
+            row = self.__makeRow(pane.getCanvas(), option)
+            row.setPos(0, 0, z)
+            z -= row.Height
+            if option.key is not None:
+                rows[option.key] = row
+        return rows, z
 
-            self.speedChatStyleLeftArrow = TTArrow(
-                parent = self,
-                orientation = TTArrow.OrientationLeft,
-                pos = (0.25, 0, rightYBase - textRowHeight * row),
-                command = self.__doSpeedChatStyleLeft)
-            self.speedChatStyleRightArrow = TTArrow(
-                parent = self,
-                orientation = TTArrow.OrientationRight,
-                pos = (0.65, 0, rightYBase - textRowHeight * row),
-                command = self.__doSpeedChatStyleRight
-            )
-            self.speedChatStyleText = SpeedChat.SpeedChat(
-                name = 'OptionsPageStyleText',
-                structure = [2000],
-                backgroundModelName = 'phase_3/models/gui/ChatPanel',
-                guiModelName = 'phase_3.5/models/gui/speedChatGui'
-            )
-            self.speedChatStyleText.setScale(self.speed_chat_scale)
-            self.speedChatStyleText.setPos(0.37, 0, rightYBase - textRowHeight * row + 0.03)
-            self.speedChatStyleText.reparentTo(self, DGG.FOREGROUND_SORT_INDEX)
+    def __makeRow(self, canvas, option):
+        if option.kind == ERowKind.HEADING:
+            return TTOptionHeading(canvas, text = option.label)
 
-            row += 2
-            # - Friends
-            self.friendsTitle = TTLabel.TTLabel(
-                parent = self.rightFrame,
-                text_size = TTLabel.TTLabel.MediumSize,
-                pos = (rightXBase - 0.08, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text = TTLocalizer.OptionsPageFriends,
-                text_align = TextNode.ALeft
-            )
-            row += 1
-            self.acceptingFriendsLabel = TTLabel.TTLabel(
-                parent = self.rightFrame,
-                pos = (rightXBase + 0.05, 0, rightYBase - 0.0125 - textRowHeight * row),
-                text = TTLocalizer.OptionsPageAcceptingFriends,
-                text_align = TextNode.ALeft
-            )
-            self.acceptingFriendsCheckBox = TTCheckBox.TTCheckBox(
-                parent = self.rightFrame,
-                pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-                checked = base.localAvatar.wantFriends,
-                command = self.__doToggleWantFriends
+        if option.kind == ERowKind.CHOICE:
+            return TTChoiceRow(
+                canvas,
+                text = option.label,
+                values = option.values,
+                valueLabels = option.valueLabels,
+                value = option.getValue(),
+                requiresRestart = option.requiresRestart,
+                command = lambda value, o = option: self.__optionChanged(o, value)
             )
 
-            if base.cr.isProductionServer():
-                self.exitButton = TTButton.TTButton(
-                    parent = self,
-                    buttonScale = 1.15,
-                    text = TTLocalizer.OptionsPageExitToontown,
-                    pos = (-0.45, 0, -0.53),
-                    command = self.__handleExitToToonSelectShowWithConfirm
-                )
-                self.toonselectButton = None
-            else:
-                if (base.isHosting or base.wantSinglePlayer):
-                    text = TTLocalizer.OptionsDisconnect
-                else:
-                    text = TTLocalizer.OptionsLeaveServer
-                self.exitButton = TTButton.TTButton(
-                    parent = self,
-                    buttonScale = 1.15,
-                    text = text,
-                    pos = (-0.45, 0, -0.53),
-                    command = self.__handleExitServerShowWithConfirm
-                )
-                self.toonselectButton = TTButton.TTButton(
-                    parent = self,
-                    buttonScale = 1.15,
-                    text = TTLocalizer.OptionsReturnToToonSelect,
-                    pos = (-0.45, 0, -0.33),
-                    command = self.__handleExitToToonSelectShowWithConfirm
-                )
+        if option.kind == ERowKind.SLIDER:
+            # Volumes are stored 0-1 and shown 0-100.
+            return TTSliderRow(
+                canvas,
+                text = option.label,
+                value = option.getValue() * 100,
+                command = lambda value, o = option: self.__optionChanged(o, value / 100)
+            )
 
-        # -- Gameplay
-
-        row = 0
-        # - Controls
-        self.controlsTitle = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text_size = TTLabel.TTLabel.MediumSize,
-            pos = (rightXBase - 0.08, 0, rightYBase + 0.1),
-            text = TTLocalizer.OptionsPageControls,
-            text_align = TextNode.ALeft
+        return TTToggleRow(
+            canvas,
+            text = option.label,
+            checked = option.getValue(),
+            requiresRestart = option.requiresRestart,
+            command = lambda value, o = option: self.__optionChanged(o, value)
         )
 
-        # Custom Controls
-        self.wantCustomControlsLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            text_size = TTLabel.TTLabel.NormalSize,
-            text = TTLocalizer.OptionsPageCustomControls,
-            text_align = TextNode.ALeft,
-            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row)
+    def __optionChanged(self, option, value):
+        messenger.send(EventGlobals.WakeUp)
+        option.setValue(value)
+
+        if option.requiresRestart:
+            self.requiresRestart = True
+            self.requiresRestartLabel.show()
+
+        self.__sideEffects(option.key, value)
+
+    def __sideEffects(self, key, value):
+        if key == SettingsGlobals.Music:
+            self.__setEnabled(self.rows.get(SettingsGlobals.MusicVolume), value)
+        elif key == SettingsGlobals.Sound:
+            self.__setEnabled(self.rows.get(SettingsGlobals.SoundVolume), value)
+        elif key == SettingsGlobals.WantCustomControls:
+            base.wantCustomControls = value
+            self.__setEnabled(self.configureControlsRow, value)
+            base.reloadControls()
+            if self.hasAvatar:
+                base.localAvatar.controlManager.reload()
+                base.localAvatar.chatMgr.reloadWASD()
+                base.localAvatar.controlManager.disable()
+            messenger.send('controlsRemapped')
+
+    def __setEnabled(self, row, enabled):
+        if row is None:
+            return
+        if enabled:
+            row.enable()
+        else:
+            row.disable()
+
+    # -- Video
+
+    def __loadVideoPane(self):
+        pane = self.panes[ECategory.VIDEO] = self.__makePane()
+        canvas = pane.getCanvas()
+        z = self.RowTop
+
+        base.getSmallestResolution()
+        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
+
+        displayHeading = TTOptionHeading(canvas, text = TTLocalizer.OptionsPageDisplay)
+        displayHeading.setPos(0, 0, z)
+        z -= displayHeading.Height
+
+        self.displayModeRow = TTChoiceRow(
+            canvas,
+            text = TTLocalizer.OptionsPageDisplayMode,
+            values = (False, True),
+            valueLabels = TTLocalizer.OptionsPageDisplayModeValues,
+            value = settings.get(SettingsGlobals.Fullscreen, False),
+            command = self.__videoOptionsChanged
         )
-        self.wantCustomControls = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked = base.wantCustomControls,
-            command = self.__doToggleWantCustomControls
+        self.displayModeRow.setPos(0, 0, z)
+        z -= self.displayModeRow.Height
+
+        self.resolutionRow = TTChoiceRow(
+            canvas,
+            text = TTLocalizer.OptionsPageResolutionLabel,
+            command = self.__videoOptionsChanged
         )
-        row += 1
-        self.configureControlsButton = TTButton.TTButton(
-            parent = self.rightFrame,
-            text = TTLocalizer.OptionsPageConfigure,
-            pos = (rightXBase + 0.2, 0.0, rightYBase - textRowHeight * row),
+        self.__refreshResolutions()
+        self.resolutionRow.setPos(0, 0, z)
+        z -= self.resolutionRow.Height
+
+        self.applyVideoRow = TTButtonRow(
+            canvas,
+            buttonText = TTLocalizer.OptionsPageApply,
+            disable = True,
+            command = self.__applyVideoChanges
+        )
+        self.applyVideoRow.setPos(0, 0, z)
+        z -= self.applyVideoRow.Height
+
+        rows, z = self.__addRows(pane, OptionsPageGlobals.VideoOptions, z)
+        self.rows.update(rows)
+        self.__fitPane(pane, z)
+
+    def __refreshResolutions(self):
+        labels = ['%s x %s' % tuple(size) for size in self.screenSizes]
+        self.resolutionRow.setValues(self.screenSizes, labels, self.__currentResolution())
+
+    def __currentResolution(self):
+        res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
+        if res in self.screenSizes:
+            return res
+
+        # Their resolution is not one we offer for this ratio, so work out a
+        # fresh set and fall back to the smallest of those.
+        newRes = base.getSmallestResolution()
+        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
+        return res if res in self.screenSizes else newRes
+
+    # -- Sound
+
+    def __loadSoundPane(self):
+        pane = self.panes[ECategory.SOUND] = self.__makePane()
+        rows, z = self.__addRows(pane, OptionsPageGlobals.SoundOptions, self.RowTop)
+        self.rows.update(rows)
+        self.__fitPane(pane, z)
+
+        self.__setEnabled(self.rows.get(SettingsGlobals.MusicVolume), base.musicActive)
+        self.__setEnabled(self.rows.get(SettingsGlobals.SoundVolume), base.sfxActive)
+
+    # -- Gameplay
+
+    def __loadGameplayPane(self):
+        pane = self.panes[ECategory.GAMEPLAY] = self.__makePane()
+        canvas = pane.getCanvas()
+
+        heading = TTOptionHeading(canvas, text = TTLocalizer.OptionsPageControls)
+        heading.setPos(0, 0, self.RowTop)
+        z = self.RowTop - heading.Height
+
+        rows, z = self.__addRows(pane, OptionsPageGlobals.CustomControlsOptions, z)
+        self.rows.update(rows)
+
+        self.configureControlsRow = TTButtonRow(
+            canvas,
+            buttonText = TTLocalizer.OptionsPageConfigure,
             disable = not base.wantCustomControls,
             command = self.__openKeyRemapDialog
         )
-        row += 1.5
-        self.doorInteractKeyLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text = TTLocalizer.OptionsPageDoorInteract,
-            text_align = TextNode.ALeft,
+        self.configureControlsRow.setPos(0, 0, z)
+        z -= self.configureControlsRow.Height
+
+        rows, z = self.__addRows(pane, OptionsPageGlobals.InteractionOptions, z)
+        self.rows.update(rows)
+
+        self.__fitPane(pane, z)
+
+    # -- Social
+
+    def __loadSocialPane(self):
+        pane = self.panes[ECategory.SOCIAL] = self.__makePane()
+        canvas = pane.getCanvas()
+        z = self.RowTop
+
+        if not self.hasAvatar:
+            self.noAvatarLabel = TTLabel.TTLabel(
+                parent = canvas,
+                text = TTLocalizer.OptionsPageNeedsAvatar,
+                text_wordwrap = 15,
+                pos = (-0.08, 0, z - 0.1)
+            )
+            self.exitButton = None
+            self.toonselectButton = None
+            self.__fitPane(pane, z - 0.3)
+            return
+
+        chatHeading = TTOptionHeading(canvas, text = TTLocalizer.OptionsPageChat)
+        chatHeading.setPos(0, 0, z)
+        z -= chatHeading.Height
+
+        self.whispersRow = TTToggleRow(
+            canvas,
+            text = TTLocalizer.OptionsPageAcceptingWhispers,
+            checked = base.localAvatar.wantWhispers,
+            command = self.__doToggleWantWhispers
         )
-        self.doorInteractKeyCheckbox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked = base.wantDoorInteract,
-            command = self.__doToggleDoorInteract
+        self.whispersRow.setPos(0, 0, z)
+        z -= self.whispersRow.Height
+
+        self.whispersAnyoneRow = TTToggleRow(
+            canvas,
+            text = TTLocalizer.OptionsPageFromStrangers,
+            checked = base.localAvatar.wantNonFriendWhispers,
+            disable = not base.localAvatar.wantWhispers,
+            command = self.__doToggleWantNonFriendWhispers
         )
-        row += 1.5
-        self.npcInteractKeyLabel = TTLabel.TTLabel(
-            parent = self.rightFrame,
-            pos = (rightXBase, 0, rightYBase - 0.0125 - textRowHeight * row),
-            text = TTLocalizer.OptionsPageNpcInteract,
-            text_align = TextNode.ALeft,
+        self.whispersAnyoneRow.setPos(0, 0, z)
+        z -= self.whispersAnyoneRow.Height
+
+        self.whispersFriendsRow = TTToggleRow(
+            canvas,
+            text = TTLocalizer.OptionsPageFromFriends,
+            checked = base.localAvatar.wantFriendWhispers,
+            disable = not base.localAvatar.wantWhispers,
+            command = self.__doToggleWantFriendWhispers
         )
-        self.npcInteractKeyCheckbox = TTCheckBox.TTCheckBox(
-            parent = self.rightFrame,
-            pos = (rightXBase - 0.05, 0, rightYBase - textRowHeight * row),
-            checked = base.wantNpcInteract,
-            command = self.__doToggleNpcInteract
+        self.whispersFriendsRow.setPos(0, 0, z)
+        z -= self.whispersFriendsRow.Height
+
+        self.speedChatStyleRow = TTChoiceRow(
+            canvas,
+            text = TTLocalizer.OptionsPageSpeedChatStyleLabel,
+            values = list(range(len(OptionsPageGlobals.speedChatStyles))),
+            valueLabels = [''] * len(OptionsPageGlobals.speedChatStyles),
+            value = 0,
+            command = self.__setSpeedChatStyle
         )
-        self.setOptionsState(self.VideoState)
+        self.speedChatStyleRow.setPos(0, 0, z)
+        self.speedChatStyleRow.valueLabel.hide()
+        self.speedChatZ = z + 0.04
+        z -= self.speedChatStyleRow.Height
+
+        self.speedChatStyleText = SpeedChat.SpeedChat(
+            name = 'OptionsPageStyleText',
+            structure = [2000],
+            backgroundModelName = 'phase_3/models/gui/ChatPanel',
+            guiModelName = 'phase_3.5/models/gui/speedChatGui'
+        )
+        self.speedChatStyleText.setScale(self.speed_chat_scale)
+        self.speedChatStyleText.reparentTo(canvas, DGG.FOREGROUND_SORT_INDEX)
+
+        friendsHeading = TTOptionHeading(canvas, text = TTLocalizer.OptionsPageFriends)
+        friendsHeading.setPos(0, 0, z)
+        z -= friendsHeading.Height
+
+        self.acceptingFriendsRow = TTToggleRow(
+            canvas,
+            text = TTLocalizer.OptionsPageAcceptingFriends,
+            checked = base.localAvatar.wantFriends,
+            command = self.__doToggleWantFriends
+        )
+        self.acceptingFriendsRow.setPos(0, 0, z)
+        z -= self.acceptingFriendsRow.Height
+
+        self.__fitPane(pane, z)
+
+        if base.cr.isProductionServer():
+            self.exitButton = TTButton.TTButton(
+                parent = self,
+                buttonScale = 1.15,
+                text = TTLocalizer.OptionsPageExitToontown,
+                pos = (0, 0, self.ButtonsZ),
+                command = self.__handleExitToToonSelectShowWithConfirm
+            )
+            self.toonselectButton = None
+        else:
+            if base.isHosting or base.wantSinglePlayer:
+                text = TTLocalizer.OptionsDisconnect
+            else:
+                text = TTLocalizer.OptionsLeaveServer
+            self.exitButton = TTButton.TTButton(
+                parent = self,
+                buttonScale = 1.15,
+                text = text,
+                pos = (0.28, 0, self.ButtonsZ),
+                command = self.__handleExitServerShowWithConfirm
+            )
+            self.toonselectButton = TTButton.TTButton(
+                parent = self,
+                buttonScale = 1.15,
+                text = TTLocalizer.OptionsReturnToToonSelect,
+                pos = (-0.28, 0, self.ButtonsZ),
+                command = self.__handleExitToToonSelectShowWithConfirm
+            )
+
+    # -- State
 
     def enter(self):
         self.show()
         taskMgr.remove(self.DisplaySettingsTaskName)
-        self.settingsChanged = 0
-        self.speedChatStyleText.enter()
-        self.speedChatStyleIndex = base.localAvatar.getSpeedChatStyleIndex()
-        self.updateSpeedChatStyle()
-        if self._parent.book.safeMode:
-            self.exitButton.hide()
-            if self.toonselectButton is not None:
-                self.toonselectButton.hide()
-        else:
-            self.exitButton.show()
-            if self.toonselectButton is not None:
-                self.toonselectButton.show()
+
+        if self.hasAvatar:
+            self.speedChatStyleText.enter()
+            self.speedChatStyleIndex = base.localAvatar.getSpeedChatStyleIndex()
+            self.speedChatStyleRow.setValue(self.speedChatStyleIndex)
+            self.updateSpeedChatStyle()
+
+        self.__updateExitButtons()
 
     def exit(self):
         self.ignore('confirmDone')
@@ -570,404 +450,130 @@ class OptionsTabPage(DirectFrame):
     def unload(self):
         self.writeDisplaySettings()
         taskMgr.remove(self.DisplaySettingsTaskName)
-        if self.displaySettings is not None:
-            self.ignore(self.displaySettings.doneEvent)
-            self.displaySettings.unload()
-        self.displaySettings = None
+
         if self.hasAvatar:
-            self.exitButton.destroy()
-            del self.exitButton
-            if self.toonselectButton is not None:
-                self.toonselectButton.destroy()
-            del self.toonselectButton
             self.speedChatStyleText.exit()
             self.speedChatStyleText.destroy()
             del self.speedChatStyleText
-        self.currentSizeIndex = None
-        self.leftFrame.destroy()
-        self.rightFrame.destroy()
+
+        for button in (self.exitButton, self.toonselectButton):
+            if button is not None:
+                button.destroy()
+        self.exitButton = None
+        self.toonselectButton = None
+
+        for pane in self.panes.values():
+            pane.destroy()
+        self.panes = {}
+        self.rows = {}
+
+        if self.tabBar is not None:
+            self.tabBar.destroy()
+            self.tabBar = None
+
+    def __updateExitButtons(self):
+        if not self.hasAvatar or self.exitButton is None:
+            return
+
+        safeMode = getattr(getattr(self._parent, 'book', None), 'safeMode', False)
+        visible = self.state == ECategory.SOCIAL and not safeMode
+        for button in (self.exitButton, self.toonselectButton):
+            if button is None:
+                continue
+            if visible:
+                button.show()
+            else:
+                button.hide()
 
     def setOptionsState(self, state):
         messenger.send(EventGlobals.WakeUp)
-        self.videoButton.setActive(0)
-        self.soundButton.setActive(0)
-        self.gameplayButton.setActive(0)
-        self.socialButton.setActive(0)
-        self.hideVideoGui()
-        self.hideSoundGui()
-        self.hideGameplayGui()
-        self.hideSocialGui()
+        self.state = state
 
-        if state == self.VideoState:
-            self.videoButton.setActive(1)
-            self.showVideoGui()
-        elif state == self.SoundState:
-            self.soundButton.setActive(1)
-            self.showSoundGui()
-        elif state == self.GameplayState:
-            self.gameplayButton.setActive(1)
-            self.showGameplayGui()
-        elif state == self.SocialState:
-            self.socialButton.setActive(1)
-            self.showSocialGui()
+        for key, pane in self.panes.items():
+            if key == state:
+                pane.show()
+            else:
+                pane.hide()
 
-    def showVideoGui(self):
-        self.videoTitle.show()
-        self.resolutionLabel.show()
-        self.resolutionLeftArrow.show()
-        self.resolutionRightArrow.show()
-        self.resolutionValueLabel.show()
-        self.fullscreenLabel.show()
-        self.windowSizeRG.show()
-        self.applyVideoButton.show()
-        self.windowLabel.show()
-        self.showFpsCheckBox.show()
-        self.vsyncCheckBox.show()
-        self.showFpsLabel.show()
-        self.vsyncLabel.show()
-        self.animationSmoothingLabel.show()
-        self.animationSmoothingCheckBox.show()
-        self.antiAliasingLabel.show()
-        self.antiAliasingCheckbox.show()
-        if SettingsGlobals.retinaModeAvailable():
-            self.retinaModeLabel.show()
-            self.retinaModeCheckbox.show()
-        if self.changedRetinaMode:
-            self.retinaModeRequiresRestartLabel.show()
-        if self.changedVsync:
-            self.vsyncRequiresRestartLabel.show()
-        if self.changedAnimationSmoothing:
-            self.animationSmoothingRequiresRestartLabel.show()
-        if self.changedAntiAliasing:
-            self.antiAliasingRequiresRestartLabel.show()
-        if self.requiresRestart:
+        if self.tabBar is not None:
+            self.tabBar.setActive(state)
+
+        if state == ECategory.VIDEO and self.requiresRestart:
             self.requiresRestartLabel.show()
-
-    def hideVideoGui(self):
-        self.videoTitle.hide()
-        self.resolutionLabel.hide()
-        self.resolutionLeftArrow.hide()
-        self.resolutionRightArrow.hide()
-        self.resolutionValueLabel.hide()
-        self.fullscreenLabel.hide()
-        self.windowSizeRG.hide()
-        self.windowLabel.hide()
-        self.applyVideoButton.hide()
-        self.showFpsCheckBox.hide()
-        self.vsyncCheckBox.hide()
-        self.showFpsLabel.hide()
-        self.vsyncLabel.hide()
-        self.animationSmoothingLabel.hide()
-        self.animationSmoothingCheckBox.hide()
-        self.antiAliasingLabel.hide()
-        self.antiAliasingCheckbox.hide()
-        self.retinaModeLabel.hide()
-        self.retinaModeCheckbox.hide()
-        self.retinaModeRequiresRestartLabel.hide()
-        self.requiresRestartLabel.hide()
-        self.vsyncRequiresRestartLabel.hide()
-        self.animationSmoothingRequiresRestartLabel.hide()
-        self.antiAliasingRequiresRestartLabel.hide()
-
-    def showSoundGui(self):
-        self.volumeTitle.show()
-        self.musicCheckBox.show()
-        self.musicLabel.show()
-        self.musicSlider.show()
-        self.soundCheckBox.show()
-        self.soundLabel.show()
-        self.soundSlider.show()
-        self.classicMusicCheckBox.show()
-        self.classicMusicLabel.show()
-        self.newFootstepsCheckBox.show()
-        self.newFootstepsLabel.show()
-
-    def hideSoundGui(self):
-        self.volumeTitle.hide()
-        self.musicCheckBox.hide()
-        self.musicLabel.hide()
-        self.musicSlider.hide()
-        self.soundCheckBox.hide()
-        self.soundLabel.hide()
-        self.soundSlider.hide()
-        self.classicMusicCheckBox.hide()
-        self.classicMusicLabel.hide()
-        self.newFootstepsCheckBox.hide()
-        self.newFootstepsLabel.hide()
-
-
-    def showGameplayGui(self):
-        self.controlsTitle.show()
-        self.wantCustomControlsLabel.show()
-        self.wantCustomControls.show()
-        self.configureControlsButton.show()
-        self.doorInteractKeyLabel.show()
-        self.doorInteractKeyCheckbox.show()
-        self.npcInteractKeyLabel.show()
-        self.npcInteractKeyCheckbox.show()
-
-    def hideGameplayGui(self):
-        self.controlsTitle.hide()
-        self.wantCustomControlsLabel.hide()
-        self.wantCustomControls.hide()
-        self.configureControlsButton.hide()
-        self.doorInteractKeyLabel.hide()
-        self.doorInteractKeyCheckbox.hide()
-        self.npcInteractKeyLabel.hide()
-        self.npcInteractKeyCheckbox.hide()
-
-    def showSocialGui(self):
-        rightXBase = -0.4
-        rightYBase = 0.4
-        self.chatTitle.show()
-        if not self.hasAvatar:
-            self.chatTitle['text'] = "You need to be in game to access these settings!"
-            self.chatTitle.setPos(0, 0, rightYBase + 0.1)
-        if self.hasAvatar:
-            self.friendsTitle.show()
-            self.whispersCheckBox.show()
-            self.whispersLabel.show()
-            self.whispersAnyoneCheckBox.show()
-            self.whispersAnyoneLabel.show()
-            self.whispersFriendsCheckBox.show()
-            self.whispersFriendsLabel.show()
-            self.acceptingFriendsLabel.show()
-            self.acceptingFriendsCheckBox.show()
-            self.speedChatStyleLabel.show()
-            self.speedChatStyleLeftArrow.show()
-            self.speedChatStyleRightArrow.show()
-            self.speedChatStyleText.show()
-
-    def hideSocialGui(self):
-        self.chatTitle.hide()
-        if self.hasAvatar:
-            self.friendsTitle.hide()
-            self.whispersCheckBox.hide()
-            self.whispersLabel.hide()
-            self.whispersAnyoneCheckBox.hide()
-            self.whispersAnyoneLabel.hide()
-            self.whispersFriendsCheckBox.hide()
-            self.whispersFriendsLabel.hide()
-            self.acceptingFriendsLabel.hide()
-            self.acceptingFriendsCheckBox.hide()
-            self.speedChatStyleLabel.hide()
-            self.speedChatStyleLeftArrow.hide()
-            self.speedChatStyleRightArrow.hide()
-            self.speedChatStyleText.hide()
-
-    def getMusicVolume(self):
-        # We want it as a value between 0-100
-        return settings.get(SettingsGlobals.MusicVolume, 1) * 100
-
-    def setMusicVolume(self, volume = None):
-        messenger.send(EventGlobals.WakeUp)
-        if volume is None:
-            volume = self.musicSlider.getValue()
         else:
-            self.musicSlider.setValue(volume)
-        # We store it as a value between 0 - 1
-        base.musicManager.setVolume(volume / 100)
-        settings[SettingsGlobals.MusicVolume] = volume / 100
+            self.requiresRestartLabel.hide()
 
-    def getSoundVolume(self):
-        # We want it as a value between 0-100
-        return settings.get(SettingsGlobals.SoundVolume, 1) * 100
+        self.__updateExitButtons()
 
-    def setSoundVolume(self, volume = None):
-        messenger.send(EventGlobals.WakeUp)
-        if volume is None:
-            volume = self.soundSlider.getValue()
-        else:
-            self.soundSlider.setValue(volume)
-        base.setSfxVolume(volume / 100)
-        settings[SettingsGlobals.SoundVolume] = volume / 100
+    # -- Social handlers
 
-    def __doToggleMusic(self):
-        messenger.send(EventGlobals.WakeUp)
-        if base.musicActive:
-            base.enableMusic(0)
-            settings[SettingsGlobals.Music] = False
-            self.musicSlider.disable()
-        else:
-            base.enableMusic(1)
-            settings[SettingsGlobals.Music] = True
-            self.musicSlider.enable()
-
-    def __doToggleClassicMusic(self):
-        messenger.send(EventGlobals.WakeUp)
-        if base.wantClassicMusic:
-            settings[SettingsGlobals.ClassicMusic] = False
-            base.wantClassicMusic = False
-        else:
-            settings[SettingsGlobals.ClassicMusic] = True
-            base.wantClassicMusic = True
-
-    def __doToggleNewFootsteps(self):
-        messenger.send(EventGlobals.WakeUp)
-        settings[SettingsGlobals.NewFootsteps] = not settings.get(SettingsGlobals.NewFootsteps, True)
-
-    def __doToggleVSync(self):
-        messenger.send(EventGlobals.WakeUp)
-        flag = not settings.get(SettingsGlobals.VSync, False)
-        settings[SettingsGlobals.VSync] = flag
-        self.vsyncRequiresRestartLabel.show()
-        self.requiresRestartLabel.show()
-        self.requiresRestart = True
-        self.changedVsync = True
-
-    def __doToggleShowFps(self):
-        messenger.send(EventGlobals.WakeUp)
-        if settings.get(SettingsGlobals.ShowFps, False):
-            settings[SettingsGlobals.ShowFps] = False
-            base.setFrameRateMeter(False)
-        else:
-            settings[SettingsGlobals.ShowFps] = True
-            base.setFrameRateMeter(True)
-
-    def __doToggleAnimationSmoothing(self):
-        messenger.send(EventGlobals.WakeUp)
-        flag = not settings.get(SettingsGlobals.AnimationSmoothing, True)
-        settings[SettingsGlobals.AnimationSmoothing] = flag
-        self.animationSmoothingRequiresRestartLabel.show()
-        self.requiresRestartLabel.show()
-        self.requiresRestart = True
-        self.changedAnimationSmoothing = True
-
-    def __doToggleAntiAliasing(self):
-        messenger.send(EventGlobals.WakeUp)
-        flag = not settings.get(SettingsGlobals.AntiAliasing, True)
-        settings[SettingsGlobals.AntiAliasing] = flag
-        self.antiAliasingRequiresRestartLabel.show()
-        self.requiresRestartLabel.show()
-        self.requiresRestart = True
-        self.changedAntiAliasing = True
-
-    def __doToggleRetinaMode(self):
-        messenger.send(EventGlobals.WakeUp)
-        flag = not settings.get(SettingsGlobals.RetinaMode, True)
-        settings[SettingsGlobals.RetinaMode] = flag
-        self.retinaModeRequiresRestartLabel.show()
-        self.requiresRestartLabel.show()
-        self.requiresRestart = True
-        self.changedRetinaMode = True
-
-    def __doToggleSfx(self):
-        messenger.send(EventGlobals.WakeUp)
-        if base.sfxActive:
-            base.enableSoundEffects(0)
-            settings[SettingsGlobals.Sound] = False
-            self.soundSlider.disable()
-        else:
-            base.enableSoundEffects(1)
-            settings[SettingsGlobals.Sound] = True
-            self.soundSlider.enable()
-
-    def __doToggleWantFriends(self):
-        messenger.send(EventGlobals.WakeUp)
-        wantFriends = settings.get(SettingsGlobals.WantFriends, {})
-        if base.localAvatar.wantFriends:
-            base.localAvatar.wantFriends = 0
-            wantFriends[str(base.localAvatar.doId)] = False
-        else:
-            base.localAvatar.wantFriends = 1
-            wantFriends[str(base.localAvatar.doId)] = True
-        settings[SettingsGlobals.WantFriends] = wantFriends
-
-    def __doToggleWantWhispers(self):
+    def __doToggleWantWhispers(self, value):
         messenger.send(EventGlobals.WakeUp)
         wantWhispers = settings.get(SettingsGlobals.WantWhispers, {})
-        if base.localAvatar.wantWhispers:
-            base.localAvatar.wantWhispers = False
-            wantWhispers[str(base.localAvatar.doId)] = False
-            self.whispersAnyoneCheckBox.disable()
-            self.whispersFriendsCheckBox.disable()
-        else:
-            base.localAvatar.wantWhispers = True
-            wantWhispers[str(base.localAvatar.doId)] = True
-            self.whispersAnyoneCheckBox.enable()
-            self.whispersFriendsCheckBox.enable()
+        base.localAvatar.wantWhispers = value
+        wantWhispers[str(base.localAvatar.doId)] = value
         settings[SettingsGlobals.WantWhispers] = wantWhispers
+        self.__setEnabled(self.whispersAnyoneRow, value)
+        self.__setEnabled(self.whispersFriendsRow, value)
 
-    def __doToggleWantNonFriendWhispers(self):
+    def __doToggleWantNonFriendWhispers(self, value):
         messenger.send(EventGlobals.WakeUp)
         wantNonFriendWhispers = settings.get(SettingsGlobals.WantNonFriendWhispers, {})
-        if base.localAvatar.wantNonFriendWhispers:
-            base.localAvatar.wantNonFriendWhispers = 0
-            wantNonFriendWhispers[str(base.localAvatar.doId)] = False
-        else:
-            base.localAvatar.wantNonFriendWhispers = 1
-            wantNonFriendWhispers[str(base.localAvatar.doId)] = True
+        base.localAvatar.wantNonFriendWhispers = value
+        wantNonFriendWhispers[str(base.localAvatar.doId)] = value
         settings[SettingsGlobals.WantNonFriendWhispers] = wantNonFriendWhispers
 
-    def __doToggleWantFriendWhispers(self):
+    def __doToggleWantFriendWhispers(self, value):
         messenger.send(EventGlobals.WakeUp)
         wantFriendWhispers = settings.get(SettingsGlobals.WantFriendWhispers, {})
-        if base.localAvatar.wantFriendWhispers:
-            base.localAvatar.wantFriendWhispers = False
-            wantFriendWhispers[str(base.localAvatar.doId)] = False
-        else:
-            base.localAvatar.wantFriendWhispers = True
-            wantFriendWhispers[str(base.localAvatar.doId)] = True
+        base.localAvatar.wantFriendWhispers = value
+        wantFriendWhispers[str(base.localAvatar.doId)] = value
         settings[SettingsGlobals.WantFriendWhispers] = wantFriendWhispers
 
-    def __doToggleWantCustomControls(self):
+    def __doToggleWantFriends(self, value):
         messenger.send(EventGlobals.WakeUp)
-        if base.wantCustomControls:
-            base.wantCustomControls = settings[SettingsGlobals.WantCustomControls] = False
-            self.configureControlsButton.disable()
-        else:
-            base.wantCustomControls = settings[SettingsGlobals.WantCustomControls] = True
-            self.configureControlsButton.enable()
+        wantFriends = settings.get(SettingsGlobals.WantFriends, {})
+        base.localAvatar.wantFriends = value
+        wantFriends[str(base.localAvatar.doId)] = value
+        settings[SettingsGlobals.WantFriends] = wantFriends
 
-        base.reloadControls()
-        if self.hasAvatar:
-            base.localAvatar.controlManager.reload()
-            base.localAvatar.chatMgr.reloadWASD()
-            base.localAvatar.controlManager.disable()
-        messenger.send('controlsRemapped')
+    def __setSpeedChatStyle(self, index):
+        self.speedChatStyleIndex = index
+        self.updateSpeedChatStyle()
 
-    def __doToggleDoorInteract(self):
-        messenger.send(EventGlobals.WakeUp)
-        if base.wantDoorInteract:
-            settings[SettingsGlobals.DoorInteract] = False
-            base.wantDoorInteract = False
-        else:
-            settings[SettingsGlobals.DoorInteract] = True
-            base.wantDoorInteract = True
-
-    def __doToggleNpcInteract(self):
-        messenger.send(EventGlobals.WakeUp)
-        if base.wantNpcInteract:
-            settings[SettingsGlobals.NPCInteract] = False
-            base.wantNpcInteract = False
-        else:
-            settings[SettingsGlobals.NPCInteract] = True
-            base.wantNpcInteract = True
-
-    def __doSpeedChatStyleLeft(self):
-        if self.speedChatStyleIndex > 0:
-            self.speedChatStyleIndex = self.speedChatStyleIndex - 1
-            self.updateSpeedChatStyle()
-
-    def __doSpeedChatStyleRight(self):
-        if self.speedChatStyleIndex < len(OptionsPageGlobals.speedChatStyles) - 1:
-            self.speedChatStyleIndex = self.speedChatStyleIndex + 1
-            self.updateSpeedChatStyle()
+    def updateSpeedChatStyle(self):
+        nameKey, arrowColor, rolloverColor, frameColor = OptionsPageGlobals.speedChatStyles[self.speedChatStyleIndex]
+        newSCColorScheme = SCColorScheme.SCColorScheme(
+            arrowColor = arrowColor,
+            rolloverColor = rolloverColor,
+            frameColor = frameColor
+        )
+        self.speedChatStyleText.setColorScheme(newSCColorScheme)
+        self.speedChatStyleText.clearMenu()
+        colorName = SCStaticTextTerminal.SCStaticTextTerminal(nameKey)
+        self.speedChatStyleText.append(colorName)
+        self.speedChatStyleText.finalize()
+        self.speedChatStyleText.setPos(
+            TTChoiceRow.ValueX - self.speedChatStyleText.getWidth() * self.speed_chat_scale / 2,
+            0,
+            self.speedChatZ
+        )
+        base.localAvatar.b_setSpeedChatStyleIndex(self.speedChatStyleIndex)
 
     def __openKeyRemapDialog(self):
         if base.wantCustomControls:
             self.customControlDialog = ControlRemapDialog.ControlRemap()
 
+    # -- Display mode and resolution
+
+    def __videoOptionsChanged(self, value = None):
+        messenger.send(EventGlobals.WakeUp)
+        self.applyVideoRow.enable()
+
     def __applyVideoChanges(self):
-        # Set fullscreen changes
-        fullscreen = False
-        if self.windowSizeRG.selectedButton.value == 'fullscreen':
-            fullscreen = True
+        fullscreen = self.displayModeRow.getValue()
+        res = self.resolutionRow.getValue()
 
-        # Set resolution changes
-        res = self.screenSizes[self.resIndex]
-
-        # Reload graphics pipe
         wp = WindowProperties()
         wp.setSize(res[0], res[1])
         wp.setFullscreen(fullscreen)
@@ -976,26 +582,20 @@ class OptionsTabPage(DirectFrame):
         taskMgr.doMethodLater(0.1, self.testResolution, 'testResolution-task', extraArgs = [res])
         # Revert after 15 seconds of inactivity
         taskMgr.doMethodLater(15, self.revertResolution, 'revertResolution-task', extraArgs = [])
-        # Disable apply video so, no need now
-        self.applyVideoButton.disable()
-
-    def __videoOptionsChanged(self):
-        self.applyVideoButton.enable()
+        self.applyVideoRow.disable()
 
     def revertResolution(self):
         if self.videoDialog:
             self.videoDialog.cleanup()
             self.videoDialog = None
         wp = WindowProperties()
-        wp.setFullscreen(settings['fullscreen'])
-        res = settings['res']
+        wp.setFullscreen(settings[SettingsGlobals.Fullscreen])
+        res = settings[SettingsGlobals.Resolution]
         wp.setSize(res[0], res[1])
         base.win.requestProperties(wp)
-        # Re-enable apply video button because we didn't apply changes
-        self.applyVideoButton.enable()
+        self.applyVideoRow.enable()
 
     def testResolution(self, res):
-        # Tests if the resolution code ran
         rejectedProperties = base.win.getRejectedProperties()
         failed = False
         if rejectedProperties.hasSize():
@@ -1011,20 +611,20 @@ class OptionsTabPage(DirectFrame):
             self.warning = TTDialog.TTGlobalDialog(
                 style = TTDialog.Acknowledge,
                 doneEvent = 'confirmWarning',
-                message = 'Failed to set new display mode: Invalid settings for monitor size.'
+                message = TTLocalizer.OptionsPageDisplayFailed
             )
             self.accept('confirmWarning', self.__handleWarningDone)
-            self.applyVideoButton.enable()
+            self.applyVideoRow.enable()
             if taskMgr.hasTaskNamed('revertResolution-task'):
                 taskMgr.remove('revertResolution-task')
                 self.revertResolution()
         else:
             if self.videoDialog:
-                self.videoDialog.cleaup()
+                self.videoDialog.cleanup()
             self.videoDialog = TTDialog.TTGlobalDialog(
                 style = TTDialog.TwoChoice,
                 doneEvent = 'confirmVideo',
-                message = 'Do you want to keep these settings? If you don\'t they will revert in (15) seconds.'
+                message = TTLocalizer.OptionsPageKeepDisplay
             )
             self.accept('confirmVideo', self.__handleVideoConfirmDone)
 
@@ -1035,110 +635,28 @@ class OptionsTabPage(DirectFrame):
         self.videoDialog = None
 
         if status == 'ok':
-            # Save the settings
-            settings['fullscreen'] = self.windowSizeRG.selectedButton.value == 'fullscreen'
-            settings['res'] = self.screenSizes[self.resIndex]
+            settings[SettingsGlobals.Fullscreen] = self.displayModeRow.getValue()
+            settings[SettingsGlobals.Resolution] = self.resolutionRow.getValue()
             if taskMgr.hasTaskNamed('revertResolution-task'):
                 taskMgr.remove('revertResolution-task')
         else:
-            print('cancelled change to window')
-            # Make the revert task trigger now
             if taskMgr.hasTaskNamed('revertResolution-task'):
                 taskMgr.remove('revertResolution-task')
                 self.revertResolution()
 
     def __handleWarningDone(self, e = None):
-        self.ignore('warningDone')
+        self.ignore('confirmWarning')
         self.warning.cleanup()
         self.warning = None
-
-    def __updateResolutionArrows(self):
-        if self.resIndex == 0:
-            self.resolutionLeftArrow['state'] = DGG.DISABLED
-        else:
-            self.resolutionLeftArrow['state'] = DGG.NORMAL
-        if self.resIndex + 1 >= len(self.screenSizes):
-            self.resolutionRightArrow['state'] = DGG.DISABLED
-        else:
-            self.resolutionRightArrow['state'] = DGG.NORMAL
-
-    def __handleLeftResolutionClicked(self):
-        messenger.send(EventGlobals.WakeUp)
-        if self.resIndex == 0:
-            return
-        else:
-            self.resIndex -= 1
-
-        self.__updateResolutionArrows()
-        self.__videoOptionsChanged()
-        self.resolutionValueLabel['text'] = '%s x %s' % tuple(self.screenSizes[self.resIndex])
-
-    def __handleRightResolutionClicked(self):
-        messenger.send(EventGlobals.WakeUp)
-        if self.resIndex + 1 >= len(self.screenSizes):
-            return
-        else:
-            self.resIndex += 1
-        self.__updateResolutionArrows()
-        self.__videoOptionsChanged()
-        self.resolutionValueLabel['text'] = '%s x %s' % tuple(self.screenSizes[self.resIndex])
-
-    def __handleFullscreenRadioClicked(self, value):
-        messenger.send(EventGlobals.WakeUp)
-        self.__videoOptionsChanged()
-
-    def getResIndex(self):
-        res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
-        if res not in self.screenSizes:
-            # The player's resolution is not in our screen sizes, this means they changed it to be something
-            # incompatible or our res detection couldn't find a resolution for their native ratio so we have invalid
-            # values for our self.screenSizes...
-            newRes = base.getSmallestResolution()
-            # Getting the new smallest resolution above will adapt
-            # base.calcRatio, so we must get a new set of
-            # screenSizes
-            self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
-            if res not in self.screenSizes:
-                # Our resolution is STILL not in these screen sizes, the user must be involved with this confusion
-                # so we will reset their res to the smallest resolution
-                res = newRes
-        return self.screenSizes.index(res)
-
-    def updateSpeedChatStyle(self):
-        nameKey, arrowColor, rolloverColor, frameColor = OptionsPageGlobals.speedChatStyles[self.speedChatStyleIndex]
-        newSCColorScheme = SCColorScheme.SCColorScheme(
-            arrowColor = arrowColor,
-            rolloverColor = rolloverColor,
-            frameColor = frameColor
-        )
-        self.speedChatStyleText.setColorScheme(newSCColorScheme)
-        self.speedChatStyleText.clearMenu()
-        colorName = SCStaticTextTerminal.SCStaticTextTerminal(nameKey)
-        self.speedChatStyleText.append(colorName)
-        self.speedChatStyleText.finalize()
-        self.speedChatStyleText.setPos(
-            0.445 -
-            self.speedChatStyleText.getWidth() *
-            self.speed_chat_scale /
-            2,
-            0,
-            self.speedChatStyleText.getPos()[2])
-        if self.speedChatStyleIndex > 0:
-            self.speedChatStyleLeftArrow.enable()
-        else:
-            self.speedChatStyleLeftArrow.disable()
-        if self.speedChatStyleIndex < len(OptionsPageGlobals.speedChatStyles) - 1:
-            self.speedChatStyleRightArrow.enable()
-        else:
-            self.speedChatStyleRightArrow.disable()
-        base.localAvatar.b_setSpeedChatStyleIndex(self.speedChatStyleIndex)
 
     def writeDisplaySettings(self, task = None):
         if not self.displaySettingsChanged:
             return
         taskMgr.remove(self.DisplaySettingsTaskName)
-        settings['res'] = (self.displaySettingsSize[0], self.displaySettingsSize[1])
-        settings['fullscreen'] = self.displaySettingsFullscreen
+        settings[SettingsGlobals.Resolution] = (self.displaySettingsSize[0], self.displaySettingsSize[1])
+        settings[SettingsGlobals.Fullscreen] = self.displaySettingsFullscreen
+
+    # -- Leaving
 
     def __handleExitServerShowWithConfirm(self):
         if base.isHosting:
@@ -1153,8 +671,7 @@ class OptionsTabPage(DirectFrame):
             style = TTDialog.TwoChoice
         )
         self.confirm.show()
-        self._parent.doneStatus = {'mode': 'exit',
-                                  'exitTo': 'disconnect'}
+        self._parent.doneStatus = {'mode': 'exit', 'exitTo': 'disconnect'}
         self.accept('confirmDone', self.__handleConfirm)
 
     def __handleExitToToonSelectShowWithConfirm(self):
@@ -1168,25 +685,14 @@ class OptionsTabPage(DirectFrame):
             message = message,
             style = TTDialog.TwoChoice)
         self.confirm.show()
-        self._parent.doneStatus = {'mode': 'exit',
-                                  'exitTo': 'closeShard'}
+        self._parent.doneStatus = {'mode': 'exit', 'exitTo': 'closeShard'}
         self.accept('confirmDone', self.__handleConfirm)
 
     def __handleConfirm(self):
         status = self.confirm.doneStatus
         self.ignore('confirmDone')
         self.confirm.cleanup()
-        del self.confirm
+        self.confirm = None
         if status == 'ok':
             base.cr._userLoggingOut = True
             messenger.send(self._parent.doneEvent)
-
-    def __back(self):
-        status = self.confirm.doneStatus
-        self.ignore('confirmDone')
-        self.confirm.cleanup()
-        del self.confirm
-        if status == 'ok':
-            base.cr._userLoggingOut = True
-            messenger.send(self._parent.doneEvent)
-            base.cr.loginFSM.request('mainMenu')
