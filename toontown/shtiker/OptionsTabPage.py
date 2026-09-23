@@ -601,7 +601,7 @@ class OptionsTabPage(DirectFrame):
         if rejectedProperties.hasSize():
             self.notify.warning('Failed to set properties, invalid resolution')
             failed = True
-        if rejectedProperties.getFullscreen():
+        if rejectedProperties.hasFullscreen():
             self.notify.warning('Failed to set fullscreen mode')
             failed = True
         base.win.clearRejectedProperties()
