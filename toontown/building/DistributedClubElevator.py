@@ -182,10 +182,10 @@ class DistributedClubElevator(DistributedElevatorFSM.DistributedElevatorFSM):
     def setFloor(self, floorNumber):
         if self.currentFloor >= 0:
             if self.bldg.floorIndicator[self.currentFloor]:
-                self.bldg.floorIndicator[self.currentFloor].setColor(LIGHT_OFF_COLOR)
+                self.bldg.floorIndicator[self.currentFloor].setColor(ElevatorConstants.LIGHT_OFF_COLOR)
         if floorNumber >= 0:
             if self.bldg.floorIndicator[floorNumber]:
-                self.bldg.floorIndicator[floorNumber].setColor(LIGHT_ON_COLOR)
+                self.bldg.floorIndicator[floorNumber].setColor(ElevatorConstants.LIGHT_ON_COLOR)
         self.currentFloor = floorNumber
 
     def handleEnterSphere(self, collEntry):

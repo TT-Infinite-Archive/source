@@ -1,4 +1,4 @@
-from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, DisplayRegion, Fog, GeomNode, LensNode, NodePath, PerspectiveLens, Point3, Quat, Texture, TransparencyAttrib, Vec3, Vec4
+from panda3d.core import Camera, BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, DisplayRegion, Fog, GeomNode, LensNode, NodePath, PerspectiveLens, Point3, Quat, Texture, TransparencyAttrib, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *

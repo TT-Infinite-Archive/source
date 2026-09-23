@@ -3,6 +3,7 @@ import math
 from direct.interval.IntervalGlobal import Sequence, Func, Parallel, ActorInterval, Wait, Parallel, LerpHprInterval, ProjectileInterval, LerpPosInterval
 from direct.directnotify import DirectNotifyGlobal
 from toontown.building import ElevatorConstants
+from toontown.hood import ZoneUtil
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.safezone import DistributedGolfKart

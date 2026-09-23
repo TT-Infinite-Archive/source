@@ -751,7 +751,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.notify.warning("Don't know who friend %s is." % doId)
             return
         if not ((isinstance(avatar, DistributedToon.DistributedToon) and avatar.__class__ is DistributedToon.DistributedToon) or isinstance(avatar, DistributedPet.DistributedPet)):
-            self.notify.warning('friendsNotify%s: invalid friend object %s' % (choice(source, '(%s)' % source, ''), doId))
+            self.notify.warning('friendsNotify%s: invalid friend object %s' % ('(%s)' % source if source else '', doId))
             return
         if base.wantPets:
             if avatar.isPet():
@@ -864,6 +864,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         messenger.send('friendsMapComplete')
 
     def handleGetFriendsListExtended(self, resp):
+        avatarHandleList = []
         for toon in resp:
             abort = 0
             doId = toon[0]
