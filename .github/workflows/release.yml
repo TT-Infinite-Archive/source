@@ -32,6 +32,8 @@ jobs:
       protocol: ${{ steps.protocol.outputs.value }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - id: version
         shell: bash
@@ -81,6 +83,36 @@ jobs:
           fi
 
           echo "value=$VALUE" >> "$GITHUB_OUTPUT"
+
+      # astrond carries the DC file, and its image is published once per
+      # protocol, so a DC change under an old protocol would never reach it.
+      - name: Check the DC file has not moved under this protocol
+        if: steps.version.outputs.revision != 'true'
+        shell: bash
+        env:
+          PROTOCOL: ${{ steps.protocol.outputs.value }}
+        run: |
+          set -euo pipefail
+
+          head=$(git rev-parse HEAD)
+
+          for tag in $(git tag --list 'tti-*-v*' --sort=-creatordate); do
+              case "$tag" in *[a-z]) continue ;; esac
+              [ "$(git rev-parse "$tag^{commit}")" = "$head" ] && continue
+
+              served=$(git show "$tag:config/distribution/live.prc" 2> /dev/null \
+                       | awk '$1 == "server-version" { print $2; exit }')
+
+              if [ "$served" = "$PROTOCOL" ]; then
+                  if ! git diff --quiet "$tag" HEAD -- astron/dclass; then
+                      echo "::error::astron/dclass has changed since $tag shipped" \
+                           "protocol $PROTOCOL. Bump server-version in" \
+                           "config/distribution/live.prc."
+                      exit 1
+                  fi
+                  break
+              fi
+          done
 
   protocol:
     name: Check this can ship as a revision
