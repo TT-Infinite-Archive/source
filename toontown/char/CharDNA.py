@@ -83,7 +83,7 @@ class CharDNA(AvatarDNA.AvatarDNA):
         if self.type == 'c':
             type = self.getCharName()
         else:
-            notify.error('Invalid DNA type: ', self.type)
+            notify.error('Invalid DNA type: %s' % self.type)
         return type
 
     def getCharName(self):
@@ -124,4 +124,4 @@ class CharDNA(AvatarDNA.AvatarDNA):
         elif self.name == 'jda':
             return 'jailbird_dale'
         else:
-            notify.error('unknown char type: ', self.name)
+            notify.error('unknown char type: %s' % self.name)

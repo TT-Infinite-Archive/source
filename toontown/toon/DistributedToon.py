@@ -2391,7 +2391,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         elif type == 'special':
             sfxIndex = 5
         else:
-            self.notify.error('unrecognized dialogue type: ', type)
+            self.notify.error('unrecognized dialogue type: %s' % type)
         if sfxIndex is not None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
             soundSequence = Sequence(Wait(delay), SoundInterval(dialogueArray[sfxIndex], node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
             self.soundSequenceList.append(soundSequence)

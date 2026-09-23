@@ -22,5 +22,5 @@ class AvatarDNA:
         notify.error('called makeFromNetString on avatarDNA parent class')
 
     def getType(self):
-        notify.error('Invalid DNA type: ', self.type)
+        notify.error('Invalid DNA type: %s' % self.type)
         return type

@@ -145,7 +145,7 @@ class Place(StateData.StateData, FriendsListManager.FriendsListManager):
             if toAvatar == localAvatar:
                 toAvatar.doTeleportResponse(fromAvatar, toAvatar, toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId(), fromAvatar.doId)
             else:
-                self.notify.warning('handleTeleportQuery toAvatar.doId != localAvatar.doId' % (toAvatar.doId, localAvatar.doId))
+                self.notify.warning('handleTeleportQuery toAvatar.doId %s != localAvatar.doId %s' % (toAvatar.doId, localAvatar.doId))
         else:
             fromAvatar.d_teleportResponse(toAvatar.doId, 1, toAvatar.defaultShard, base.cr.playGame.getPlaceId(), self.getZoneId())
 

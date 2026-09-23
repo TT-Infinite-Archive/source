@@ -749,7 +749,7 @@ class DeleteAvatarFSM(GetAvatarsFSM):
                 guildId = fields['setGuildId'][0]
 
             if guildId != 0:
-                self.notify.debug('Kill, tried to delete av %s in a guild %d' % self.avId, guildId)
+                self.notify.debug('Kill, tried to delete av %s in a guild %d' % (self.avId, guildId))
                 self.demand('Kill', 'Tried to delete an avatar that is in a guild!')
                 return
 

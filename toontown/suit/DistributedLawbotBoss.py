@@ -1917,7 +1917,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.notify.warning('returning from setTaunt, no attr state')
             gotError = True
         elif not self.state == 'BattleThree':
-            self.notify.warning('returning from setTaunt, not in battle three state, state=%s', self.state)
+            self.notify.warning('returning from setTaunt, not in battle three state, state=%s' % self.state)
             gotError = True
         if not hasattr(self, 'nametag'):
             self.notify.warning('returning from setTaunt, no attr nametag')

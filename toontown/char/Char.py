@@ -368,7 +368,7 @@ class Char(Avatar.Avatar):
         elif type == 'special':
             sfxIndex = 5
         else:
-            self.notify.error('unrecognized dialogue type: ', type)
+            self.notify.error('unrecognized dialogue type: %s' % type)
         if sfxIndex != None and sfxIndex < len(self.dialogueArray) and self.dialogueArray[sfxIndex] != None:
             return self.dialogueArray[sfxIndex]
         else:
