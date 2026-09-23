@@ -1,8 +1,10 @@
 from panda3d.core import ConfigVariableString, Filename
+from direct.directnotify import DirectNotifyGlobal
 import os
 import sys
 
 class ModuleList:
+    notify = DirectNotifyGlobal.directNotify.newCategory('ModuleList')
     serverDataFolder = ConfigVariableString('server-data-folder', '.').getValue()
 
     def __init__(self):
