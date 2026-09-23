@@ -1,4 +1,5 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableString, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
+from panda3d.core import ConfigVariableBool, ConfigVariableString, Filename, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
+from panda3d.direct import DCFile
 from direct.distributed.PyDatagram import *
 
 from otp.ai.AIZoneData import AIZoneDataStore
@@ -229,6 +230,32 @@ class ToontownAIRepository(ToontownInternalRepository):
         Notify.ptr().setOstreamPtr(self.nout, 0)
         Notifier.Notifier.streamWriter = StreamWriter(self.nout, False)
         self.nout.addStandardOutput()
+
+    def readDCFile(self, dcFileNames=None):
+        dcFile = DCFile()
+        if dcFileNames is None:
+            dcFile.readAll()
+        else:
+            for dcFileName in dcFileNames:
+                dcFile.read(Filename(dcFileName))
+
+        self.uberDogOnlyImports = set()
+        for n in range(dcFile.getNumImportModules()):
+            moduleSuffixes = dcFile.getImportModule(n).split('/')[1:]
+            for i in range(dcFile.getNumImportSymbols(n)):
+                symbol, *suffixes = dcFile.getImportSymbol(n, i).split('/')
+                suffixes += moduleSuffixes
+                if suffixes and 'AI' not in suffixes:
+                    self.uberDogOnlyImports.add(symbol)
+
+        ToontownInternalRepository.readDCFile(self, dcFileNames)
+
+    def importModule(self, dcImports, moduleName, importSymbols):
+        symbols = [symbol for symbol in importSymbols if symbol not in self.uberDogOnlyImports]
+        if importSymbols and not symbols:
+            return
+
+        ToontownInternalRepository.importModule(self, dcImports, moduleName, symbols)
 
     def createManagers(self):
         self.timeManager = TimeManagerAI(self)

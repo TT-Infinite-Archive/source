@@ -133,6 +133,11 @@ def dcName(name, suffix):
     return name
 
 
+def uberDogOnly(module, symbol):
+    suffixes = module.strip().split('/')[1:] + symbol.strip().split('/')[1:]
+    return suffixes and 'AI' not in suffixes
+
+
 def dcSeeds(suffixes, root=ROOT):
     text = (root / DC_FILE).read_text(errors='replace')
     lines = re.findall(r'^\s*from\s+(\S+)\s+import\s+([^;\n]+)', text, re.MULTILINE)
@@ -140,9 +145,14 @@ def dcSeeds(suffixes, root=ROOT):
 
     for suffix in suffixes:
         for module, symbols in lines:
+            symbols = [symbol for symbol in symbols.split(',')
+                       if suffix != 'AI' or not uberDogOnly(module, symbol)]
+            if not symbols:
+                continue
+
             module = dcName(module, suffix)
             names.append(module)
-            names += ['%s.%s' % (module, dcName(symbol, suffix)) for symbol in symbols.split(',')]
+            names += ['%s.%s' % (module, dcName(symbol, suffix)) for symbol in symbols]
 
     return [path for path in (modulePath(name, root) for name in names) if path is not None]
 
