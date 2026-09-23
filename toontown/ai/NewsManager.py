@@ -207,7 +207,6 @@ class NewsManager(DistributedObject.DistributedObject):
                     base.localAvatar.chatMgr.chatInputSpeedChat.addSellbotFieldOfficeMenu()
             elif holidayId == ToontownGlobals.IDES_OF_MARCH:
                 if hasattr(base, 'localAvatar') and base.localAvatar and hasattr(base.localAvatar, 'chatMgr') and base.localAvatar.chatMgr:
-                    self.setIdesOfMarchStart()
                     base.localAvatar.chatMgr.chatInputSpeedChat.addIdesOfMarchMenu()
             elif holidayId == ToontownGlobals.EXPANDED_CLOSETS:
                 self.setExpandedClosetsStart()
@@ -496,9 +495,6 @@ class NewsManager(DistributedObject.DistributedObject):
 
     def setKartingTicketsHolidayStart(self):
         base.localAvatar.setSystemMessage(0, TTLocalizer.KartingTicketsHolidayStart)
-
-    def setIdesOfMarchStart(self):
-        base.localAvatar.setSystemMessage(0, TTLocalizer.IdesOfMarchStart)
 
     def holidayNotify(self):
         for id in self.holidayIdList:
