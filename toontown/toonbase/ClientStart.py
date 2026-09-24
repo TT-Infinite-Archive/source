@@ -78,7 +78,7 @@ def retinaModeScale():
 
 resolution = tuple(settings.get(SettingsGlobals.Resolution, (800, 600)))
 
-if SettingsGlobals.retinaModeAvailable() and settings.get(SettingsGlobals.RetinaMode, True):
+if SettingsGlobals.retinaModeAvailable() and settings[SettingsGlobals.RetinaMode]:
     loadPrcFileData('Settings: retina-mode', 'dpi-aware #t')
     scale = retinaModeScale()
     resolution = (int(resolution[0] * scale), int(resolution[1] * scale))
@@ -102,7 +102,7 @@ loadPrcFileData('Settings: vsync',
 loadPrcFileData('Settings: animationSmoothing',
                 'interpolate-frames %s' % (1 if settings[SettingsGlobals.AnimationSmoothing] else 0))
 loadPrcFileData('Settings: Texture Quality',
-                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings[SettingsGlobals.TextureQuality]])
 loadPrcFileData('Settings: Texture Compression',
                 'compressed-textures #%s' % ('t' if settings[SettingsGlobals.CompressTextures] else 'f'))
 if settings[SettingsGlobals.ThreadedRender]:
@@ -116,10 +116,10 @@ if samples:
     loadPrcFileData('Settings: Anti Aliasing Amount',
                     'multisamples %d' % samples)
 loadPrcFileData('Settings: Anisotropic Filtering',
-                'texture-anisotropic-degree %d' % GraphicsSettings.anisotropicDegree())
+                'texture-anisotropic-degree %d' % settings[SettingsGlobals.AnisotropicFiltering])
 loadPrcFileData('Settings: Font Quality',
-                GraphicsSettings.fontConfig(GraphicsSettings.fontQuality()))
-frameRateLimit = GraphicsSettings.frameRateLimit()
+                GraphicsSettings.fontConfig(settings[SettingsGlobals.FontQuality]))
+frameRateLimit = settings[SettingsGlobals.FrameRateLimit]
 if frameRateLimit:
     loadPrcFileData('Settings: Frame Rate Limit',
                     'clock-mode limited')
@@ -161,7 +161,7 @@ ToonBase.ToonBase()
 if base.win is None:
     notify.error('Unable to open window; aborting.')
 
-GraphicsSettings.applyLodScale(GraphicsSettings.lodScale())
+GraphicsSettings.applyLodScale(settings[SettingsGlobals.LodDistance])
 
 launcher.setPandaErrorCode(0)
 

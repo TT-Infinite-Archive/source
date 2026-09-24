@@ -216,7 +216,7 @@ class OptionsTabPage(DirectFrame):
             text = TTLocalizer.OptionsPageDisplayMode,
             values = (False, True),
             valueLabels = TTLocalizer.OptionsPageDisplayModeValues,
-            value = settings.get(SettingsGlobals.Fullscreen, False),
+            value = settings[SettingsGlobals.Fullscreen],
             command = self.__videoOptionsChanged
         )
         self.displayModeRow.setPos(0, 0, z)

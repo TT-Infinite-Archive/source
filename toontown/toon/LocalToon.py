@@ -2117,7 +2117,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def __applyFootstepSfx(self, runLoopSfx, walkLoopSfx):
         # The Options toggle forces the default footsteps whatever the surface.
-        if not settings.get(SettingsGlobals.NewFootsteps, True):
+        if not settings[SettingsGlobals.NewFootsteps]:
             runLoopSfx, walkLoopSfx = self.__resolveFootstepSfx(None, None)
         self.updateRunSound(runLoopSfx)
         self.updateWalkSound(walkLoopSfx)

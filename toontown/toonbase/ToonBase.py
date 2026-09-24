@@ -57,7 +57,7 @@ class ToonBase(OTPBase.OTPBase):
 
         # Choose the best resolution if we're either fullscreen, or we don't
         # have a resolution defined in our settings:
-        fullscreen = settings.get('fullscreen', False)
+        fullscreen = settings[SettingsGlobals.Fullscreen]
         if 'res' not in settings and not fullscreen:
             # Choose the smallest resolution that matches that largest
             # ratio that contains resolutions that will fit our display in
@@ -116,8 +116,8 @@ class ToonBase(OTPBase.OTPBase):
         self.camLens.setMinFov(ToontownGlobals.DefaultCameraFov / (4. / 3.))
         self.camLens.setNearFar(ToontownGlobals.DefaultCameraNear,
                                 ToontownGlobals.DefaultCameraFar)
-        self.musicManager.setVolume(settings.get(SettingsGlobals.MusicVolume, 0.6))
-        self.setSfxVolume(settings.get(SettingsGlobals.SoundVolume, 0.6))
+        self.musicManager.setVolume(settings[SettingsGlobals.MusicVolume])
+        self.setSfxVolume(settings[SettingsGlobals.SoundVolume])
         self.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
         self.screenshotSfx = self.loader.loadSfx('phase_4/audio/sfx/Photo_shutter.ogg')
         tpm = TextPropertiesManager.getGlobalPtr()
@@ -261,16 +261,16 @@ class ToonBase(OTPBase.OTPBase):
             except ValueError:
                 self.notify.warning('Ignoring holiday id %r' % holidayId)
         
-        self.wantCustomControls = settings.get('want-custom-controls', False)
+        self.wantCustomControls = settings[SettingsGlobals.WantCustomControls]
 
         self.chatInputFocused = False
 
         self.reloadControls()
 
-        self.wantClassicMusic = settings.get('classic-music', False)
+        self.wantClassicMusic = settings[SettingsGlobals.ClassicMusic]
         
-        self.wantDoorInteract = settings.get('door-interaction-key')
-        self.wantNpcInteract = settings.get('npc-interaction-key')
+        self.wantDoorInteract = settings[SettingsGlobals.DoorInteract]
+        self.wantNpcInteract = settings[SettingsGlobals.NPCInteract]
         
         self.leakGraph = None
         if ConfigVariableBool('want-leak-graph-client', False).getValue():

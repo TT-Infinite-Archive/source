@@ -94,7 +94,7 @@ class LocalServerStarter(FSM):
 
         thread.start()
         self.threads.append(thread)
-        taskMgr.doMethodLater(settings.get(SettingsGlobals.ProcessFailback, 60), lambda task: self.__processFailed(self.process[2]), 'processFailed')
+        taskMgr.doMethodLater(settings[SettingsGlobals.ProcessFailback], lambda task: self.__processFailed(self.process[2]), 'processFailed')
     
     def __processStarted(self, name):
         taskMgr.remove('processFailed')

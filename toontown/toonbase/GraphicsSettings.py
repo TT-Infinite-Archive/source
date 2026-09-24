@@ -13,9 +13,9 @@ FontQualities = (40, 128, 256, 512)
 
 
 def antiAliasingSamples():
-    if not settings.get(SettingsGlobals.AntiAliasing, True):
+    if not settings[SettingsGlobals.AntiAliasing]:
         return 0
-    return min(settings.get(SettingsGlobals.AntiAliasingSamples, 4), MaxAntiAliasingSamples)
+    return min(settings[SettingsGlobals.AntiAliasingSamples], MaxAntiAliasingSamples)
 
 
 def setAntiAliasingSamples(samples):
@@ -24,19 +24,11 @@ def setAntiAliasingSamples(samples):
         settings[SettingsGlobals.AntiAliasingSamples] = samples
 
 
-def anisotropicDegree():
-    return settings.get(SettingsGlobals.AnisotropicFiltering, 16)
-
-
 def applyAnisotropicDegree(degree):
     loadPrcFileData('Settings: Anisotropic Filtering',
                     'texture-anisotropic-degree %d' % degree)
     for texture in TexturePool.findAllTextures():
         texture.setAnisotropicDegree(degree)
-
-
-def frameRateLimit():
-    return settings.get(SettingsGlobals.FrameRateLimit, 0)
 
 
 def applyFrameRateLimit(fps):
@@ -48,16 +40,8 @@ def applyFrameRateLimit(fps):
         clock.setMode(ClockObject.MNormal)
 
 
-def lodScale():
-    return settings.get(SettingsGlobals.LodDistance, 1.0)
-
-
 def applyLodScale(scale):
     base.cam.node().setLodScale(scale)
-
-
-def fontQuality():
-    return settings.get(SettingsGlobals.FontQuality, 128)
 
 
 def fontPageSize(quality):
