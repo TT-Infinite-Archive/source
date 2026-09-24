@@ -47,6 +47,7 @@ from toontown.fishing import FishTank
 from toontown.friends import FriendHandle
 from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.nametag import NametagGlobals
 from toontown.nametag.NametagGlobals import *
 from toontown.parties.InviteInfo import InviteInfo
@@ -1735,7 +1736,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             self.trophyStarSpeed = 0
         if hasattr(self, 'gmIcon') and self.gmIcon:
             return
-        if self.trophyScore >= ToontownGlobals.TrophyStarLevels[4]:
+        if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[4]:
             self.trophyStar = loader.loadModel('phase_3.5/models/gui/name_star')
             np = NodePath(self.nametag.getIcon())
             self.trophyStar.reparentTo(np)
@@ -1744,11 +1745,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.trophyStar.setZ(2.75)
             else:
                 self.trophyStar.setZ(2)
-            self.trophyStar.setColor(ToontownGlobals.TrophyStarColors[4])
+            self.trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[4])
             self.trophyStarSpeed = 15
-            if self.trophyScore >= ToontownGlobals.TrophyStarLevels[5]:
+            if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[5]:
                 taskMgr.add(self.__starSpin, self.uniqueName('starSpin'))
-        elif self.trophyScore >= ToontownGlobals.TrophyStarLevels[2]:
+        elif self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[2]:
             self.trophyStar = loader.loadModel('phase_3.5/models/gui/name_star')
             np = NodePath(self.nametag.getIcon())
             self.trophyStar.reparentTo(np)
@@ -1757,11 +1758,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.trophyStar.setZ(2.35)
             else:
                 self.trophyStar.setZ(1.6)
-            self.trophyStar.setColor(ToontownGlobals.TrophyStarColors[2])
+            self.trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[2])
             self.trophyStarSpeed = 10
-            if self.trophyScore >= ToontownGlobals.TrophyStarLevels[3]:
+            if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[3]:
                 taskMgr.add(self.__starSpin, self.uniqueName('starSpin'))
-        elif self.trophyScore >= ToontownGlobals.TrophyStarLevels[0]:
+        elif self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[0]:
             self.trophyStar = loader.loadModel('phase_3.5/models/gui/name_star')
             np = NodePath(self.nametag.getIcon())
             self.trophyStar.reparentTo(np)
@@ -1770,9 +1771,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.trophyStar.setZ(2.35)
             else:
                 self.trophyStar.setZ(1.6)
-            self.trophyStar.setColor(ToontownGlobals.TrophyStarColors[0])
+            self.trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[0])
             self.trophyStarSpeed = 8
-            if self.trophyScore >= ToontownGlobals.TrophyStarLevels[1]:
+            if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[1]:
                 taskMgr.add(self.__starSpin, self.uniqueName('starSpin'))
         return
 

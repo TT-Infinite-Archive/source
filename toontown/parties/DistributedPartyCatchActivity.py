@@ -13,6 +13,7 @@ from direct.interval.FunctionInterval import Wait, Func
 from toontown.toonbase import TTLocalizer
 from toontown.toon import Toon
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.minigame.Trajectory import Trajectory
 from toontown.minigame.OrthoDrive import OrthoDrive
 from toontown.minigame.OrthoWalk import OrthoWalk
@@ -152,7 +153,7 @@ class DistributedPartyCatchActivity(DistributedPartyActivity, DistributedPartyCa
         exitText.setText(TTLocalizer.PartyCatchActivityExit)
         exitText.setTextColor(0.0, 8.0, 0.0, 0.9)
         exitText.setAlign(exitText.ACenter)
-        exitText.setFont(ToontownGlobals.getBuildingNametagFont())
+        exitText.setFont(ToontownClientGlobals.getBuildingNametagFont())
         exitText.setShadowColor(0, 0, 0, 1)
         exitText.setBin('fixed')
         if TTLocalizer.BuildingNametagShadow:

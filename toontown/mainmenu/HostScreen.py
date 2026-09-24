@@ -8,6 +8,7 @@ from toontown.mainmenu import MainMenuGlobals
 from toontown.toonbase import ServerSettingsGlobals
 from direct.gui.DirectGui import DirectLabel
 from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toontowngui.TTCheckBox import TTCheckBox
 from direct.interval.FunctionInterval import Func, Wait
 from direct.interval.IntervalGlobal import LerpScaleInterval
@@ -148,7 +149,7 @@ class HostScreen(DirectFrame, FSM):
         self.hostScreenElements.append(self.hostExpMultLabel)
 
         self.label = DirectLabel(parent=self, relief=None, text=TTLocalizer.ServerSettings, text_fg=(0, 0, 0, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
+                                   text_font=ToontownClientGlobals.getToonFont(), text_scale=0.09, text_wordwrap=25,
                                    pos=(-0.57, 0, 0.48))
         self.hostScreenElements.append(self.label)
 

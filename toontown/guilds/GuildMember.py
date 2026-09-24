@@ -3,7 +3,7 @@ from direct.showbase.DirectObject import DirectObject
 
 from toontown.guilds.GuildGlobals import *
 from toontown.toon.ToonDNA import ToonDNA
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class GuildMember(DirectObject):
@@ -63,7 +63,7 @@ class GuildMember(DirectObject):
         return self.name
 
     def getFont(self):
-        return ToontownGlobals.getToonFont()
+        return ToontownClientGlobals.getToonFont()
 
     def getStyle(self):
         return self.style

@@ -1,6 +1,7 @@
 from panda3d.core import CompassEffect, ModelPool, NodePath, Texture, TexturePool, TransparencyAttrib, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import safeZoneCountMap, townCountMap
 from toontown.distributed.ToontownMsgTypes import *
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData

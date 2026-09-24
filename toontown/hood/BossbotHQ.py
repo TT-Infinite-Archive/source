@@ -1,6 +1,7 @@
 from panda3d.core import Fog
 from toontown.coghq.BossbotCogHQLoader import BossbotCogHQLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.hood.CogHood import CogHood
 from toontown.hood import ZoneUtil
@@ -22,8 +23,8 @@ class BossbotHQ(CogHood):
     def enter(self, requestStatus):
         CogHood.enter(self, requestStatus)
 
-        base.localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
-        base.camLens.setNearFar(ToontownGlobals.BossbotHQCameraNear, ToontownGlobals.BossbotHQCameraFar)
+        base.localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
+        base.camLens.setNearFar(ToontownClientGlobals.BossbotHQCameraNear, ToontownClientGlobals.BossbotHQCameraFar)
 
         self.setFog()
 

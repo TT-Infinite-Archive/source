@@ -3,7 +3,8 @@ from direct.gui.DirectGui import DirectLabel, DirectFrame, DirectButton, DirectS
 
 from toontown.toontowngui import ConfirmDialog
 from toontown.toonbase import EventGlobals, FontAwesomeGlobals
-from toontown.toonbase.ToontownGlobals import getInterfaceFont, getMinnieFont
+from toontown.toonbase.ToontownGlobals import getInterfaceFont
+from toontown.toonbase.ToontownClientGlobals import getFontAwesome, getMinnieFont
 from toontown.util import TTCardMaker
 from toontown.guilds.GuildGlobals import *
 from toontown.toonbase import TTLocalizer
@@ -123,7 +124,7 @@ class GuildPage(DirectFrame):
             text=FontAwesomeGlobals.FAEyeOpen,
             text_scale=0.05,
             text_pos=(0.0, -0.015, 0.0),
-            text_font=ToontownGlobals.getFontAwesome(),
+            text_font=getFontAwesome(),
             image=(upButton, downButton, rolloverButton),
             image_color=self.buttonColor,
             image_scale=(0.65, 0.75, 0.75),

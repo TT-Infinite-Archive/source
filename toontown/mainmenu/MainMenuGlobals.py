@@ -1,12 +1,13 @@
 from panda3d.core import TextNode, Vec4
 from direct.gui.DirectGui import DGG
 from toontown.toonbase import TTLocalizer, ToontownGlobals, ColorGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toontowngui.TTLabel import TTLabel
 
 
 LABEL_PROPERTIES = {
     'text_fg': ColorGlobals.CDefault,
-    'text_font': ToontownGlobals.getToonFont(),
+    'text_font': ToontownClientGlobals.getToonFont(),
     'text_size': TTLabel.GiantSize,
     'text_wordwrap': 25
 }

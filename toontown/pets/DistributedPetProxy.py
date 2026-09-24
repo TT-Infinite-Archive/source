@@ -3,7 +3,7 @@ from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from toontown.pets import PetTraits
 from toontown.pets import PetMood, PetTricks
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 import string
 
 class DistributedPetProxy(DistributedObject.DistributedObject):
@@ -97,7 +97,7 @@ class DistributedPetProxy(DistributedObject.DistributedObject):
         return self.petName
 
     def getFont(self):
-        return ToontownGlobals.getToonFont()
+        return ToontownClientGlobals.getToonFont()
 
     def setLastSeenTimestamp(self, timestamp):
         DistributedPetProxy.notify.debug('setLastSeenTimestamp: %s' % timestamp)

@@ -1,5 +1,6 @@
 from panda3d.core import ConfigVariableBool, TextEncoder, TextNode, VBase4, Vec4
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import getToonFont
 from direct.task.TaskManagerGlobal import *
 from direct.gui.DirectGui import *
 from toontown.distributed.ToontownMsgTypes import *

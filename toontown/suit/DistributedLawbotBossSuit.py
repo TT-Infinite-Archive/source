@@ -5,6 +5,7 @@ from direct.fsm import State
 from direct.directnotify import DirectNotifyGlobal
 from . import DistributedSuitBase
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.battle import MovieUtil
 
 class DistributedLawbotBossSuit(DistributedSuitBase.DistributedSuitBase):
@@ -86,7 +87,7 @@ class DistributedLawbotBossSuit(DistributedSuitBase.DistributedSuitBase):
         DistributedSuitBase.DistributedSuitBase.announceGenerate(self)
         self.notify.debug('DLBS.announceGenerate')
         colNode = self.find('**/distAvatarCollNode*')
-        colNode.setTag('pieCode', str(ToontownGlobals.PieCodeLawyer))
+        colNode.setTag('pieCode', str(ToontownClientGlobals.PieCodeLawyer))
         self.attackEvidenceA = self.getEvidence(True)
         self.attackEvidenceB = self.getEvidence(True)
         self.attackEvidence = self.attackEvidenceA

@@ -6,6 +6,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.racing import KartShopGlobals
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import ToontownClientGlobals
 import random
 import pickle
 
@@ -131,7 +132,7 @@ class DistributedLeaderBoard(DistributedObject.DistributedObject):
     def buildLeaderRow(self):
         row = hidden.attachNewNode('leaderRow')
         nameText = TextNode('nameText')
-        nameText.setFont(ToontownGlobals.getToonFont())
+        nameText.setFont(ToontownClientGlobals.getToonFont())
         nameText.setAlign(TextNode.ALeft)
         nameText.setTextColor(0.125, 0, 0.5, 1)
         nameText.setText('-')
@@ -140,7 +141,7 @@ class DistributedLeaderBoard(DistributedObject.DistributedObject):
         namePath.setScale(0.23)
         namePath.setDepthWrite(0)
         timeText = TextNode('timeText')
-        timeText.setFont(ToontownGlobals.getToonFont())
+        timeText.setFont(ToontownClientGlobals.getToonFont())
         timeText.setAlign(TextNode.ARight)
         timeText.setTextColor(0, 0, 0, 1)
         timeText.setText('-')

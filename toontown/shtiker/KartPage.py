@@ -10,6 +10,7 @@ from toontown.racing.Kart import Kart
 from toontown.racing import RaceGlobals
 from toontown.shtiker.ShtikerPage import ShtikerPage
 from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toonbase import ToontownClientGlobals
 if (__debug__):
     import pdb
 
@@ -201,7 +202,7 @@ class RacingRecordsUI(DirectFrame):
         for trackId in RaceGlobals.TrackIds:
             trackName = trackNameArray[trackId]
             trackNameDisplay = DirectLabel(parent=self, relief=None, text=trackName, text_align=TextNode.ALeft, text_scale=0.075, text_fg=(0.95, 0.95, 0.0, 1.0), text_shadow=(0, 0, 0, 1), text_pos=(-0.8, 0.5 - offset), text_font=ToontownGlobals.getSignFont())
-            bestTimeDisplay = DirectLabel(parent=self, relief=None, text=TTLocalizer.KartRace_Unraced, text_scale=0.06, text_fg=(0.0, 0.0, 0.0, 1.0), text_pos=(0.65, 0.5 - offset), text_font=ToontownGlobals.getToonFont())
+            bestTimeDisplay = DirectLabel(parent=self, relief=None, text=TTLocalizer.KartRace_Unraced, text_scale=0.06, text_fg=(0.0, 0.0, 0.0, 1.0), text_pos=(0.65, 0.5 - offset), text_font=ToontownClientGlobals.getToonFont())
             offset += 0.1
             self.timeDisplayList.append(bestTimeDisplay)
 

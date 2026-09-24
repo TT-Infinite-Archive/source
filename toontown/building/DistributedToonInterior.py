@@ -15,7 +15,7 @@ from toontown.hood import ZoneUtil
 from toontown.toon import ToonDNA
 from toontown.toon import ToonHead
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase.ToonBaseGlobal import *
 
 
@@ -179,7 +179,7 @@ class DistributedToonInterior(DistributedObject.DistributedObject):
             head.setScale(0.45, 0.02, 0.45)
         head.reparentTo(frame)
         nameText = TextNode('trophy')
-        nameText.setFont(ToontownGlobals.getToonFont())
+        nameText.setFont(ToontownClientGlobals.getToonFont())
         nameText.setAlign(TextNode.ACenter)
         nameText.setTextColor(0, 0, 0, 1)
         nameText.setWordwrap(5.36 * FrameScale)

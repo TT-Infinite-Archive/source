@@ -2,6 +2,7 @@ from panda3d.core import ConfigVariableBool, TextEncoder, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from . import CogHQLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.gui import DirectGui
 from toontown.toonbase import TTLocalizer
 from toontown.toon import Toon
@@ -83,7 +84,7 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
             top = self.geom.find('**/' + topStr)
             sign = top.find('**/' + signStr)
             locator = top.find('**/sign_origin')
-            signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[textId][-1]), font=ToontownGlobals.getSuitFont(), scale=TTLocalizer.BCHQLsignText, fg=(0, 0, 0, 1), parent=sign)
+            signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[textId][-1]), font=ToontownClientGlobals.getSuitFont(), scale=TTLocalizer.BCHQLsignText, fg=(0, 0, 0, 1), parent=sign)
             signText.setPosHpr(locator, 0, -0.1, -0.25, 0, 0, 0)
             signText.setDepthWrite(0)
 

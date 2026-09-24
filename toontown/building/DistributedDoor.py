@@ -11,6 +11,7 @@ from direct.task.Task import Task
 from toontown.distributed import DelayDelete
 from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.suit import Suit
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import ColorGlobals
@@ -124,7 +125,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         if self.nametag == None:
             self.nametag = NametagGroup()
             self.nametag.setNametag3d(None)
-            self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
+            self.nametag.setFont(ToontownClientGlobals.getBuildingNametagFont())
             if TTLocalizer.BuildingNametagShadow:
                 self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
             self.nametag.hideChat()

@@ -1,6 +1,6 @@
 from panda3d.core import CardMaker, TextNode
 from direct.gui.DirectGui import DirectFrame, DirectButton, OnscreenText, DGG
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.guilds import IconGlobals
 from toontown.util import TTCardMaker
 
@@ -24,7 +24,7 @@ class IconSelectionDialog(DirectFrame):
         arrow = matchingGameGui.find('**/minnieArrow')
 
         self.mainFrame = DirectFrame(self._parent, relief=None, image=background, image_color=color, image_scale=(0.0008, 1, 0.0008), scale=scale)
-        self.heading = OnscreenText(parent=self.mainFrame, text=self.text, scale=0.08, wordwrap=10, align=TextNode.ACenter, pos=(0.0, 0.5, 0.0), font=ToontownGlobals.getMinnieFont())
+        self.heading = OnscreenText(parent=self.mainFrame, text=self.text, scale=0.08, wordwrap=10, align=TextNode.ACenter, pos=(0.0, 0.5, 0.0), font=ToontownClientGlobals.getMinnieFont())
         self.previousPage = DirectButton(self.mainFrame, relief=None, geom=arrow, geom_scale=-0.4, pos=(-0.6, 0.0, -0.615), command=self.__handlePreviousPage)
         self.previousPage.bind(DGG.WITHIN, self.__handleEnter, extraArgs=[self.previousPage])
         self.previousPage.bind(DGG.WITHOUT, self.__handleExit, extraArgs=[self.previousPage])

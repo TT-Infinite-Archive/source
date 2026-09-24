@@ -8,6 +8,7 @@ from direct.distributed.ClockDelta import globalClockDelta
 from direct.showbase.PythonUtil import bound, lerp
 from direct.showbase.DirectObject import DirectObject
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase.ToontownTimer import ToontownTimer
 from . import PartyGlobals
@@ -133,7 +134,7 @@ class PartyCogActivity(DirectObject):
 
     def createDoorTimer(self, team):
         timer = ToontownTimer(useImage=False, highlightNearEnd=False)
-        timer['text_font'] = ToontownGlobals.getMinnieFont()
+        timer['text_font'] = ToontownClientGlobals.getMinnieFont()
         timer.setFontColor(PartyGlobals.CogActivityColors[team])
         timer.setScale(7.0)
         timer.setPos(0.2, -0.03, 0.0)

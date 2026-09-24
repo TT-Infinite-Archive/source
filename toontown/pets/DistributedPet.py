@@ -9,7 +9,7 @@ from direct.task import Task
 from otp.otpbase import OTPGlobals
 from toontown.pets import Pet, PetBase, PetTraits, PetConstants, PetManager, PetAvatarPanel
 from toontown.pets import PetMood, PetTricks
-from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.distributed import DelayDelete
 from toontown.distributed.DelayDeletable import DelayDeletable
@@ -346,7 +346,7 @@ class DistributedPet(DistributedSmoothNode.DistributedSmoothNode, Pet.Pet, PetBa
         return self.uniqueName('detectWater')
 
     def _detectWater(self, task):
-        showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
+        showWake, wakeWaterHeight = ToontownClientGlobals.getWakeInfo()
         self.inWater = 0
         if showWake:
             if self.getZ() <= wakeWaterHeight:

@@ -5,6 +5,7 @@ from direct.fsm import StateData
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TTDialog
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.suit import SuitDNA
 from toontown.suit import Suit
 from toontown.battle import SuitBattleGlobals
@@ -44,7 +45,7 @@ class SummonCogDialog(DirectFrame, StateData.StateData):
         self.head = Suit.attachSuitHead(self, self.suitName)
         z = self.head.getZ()
         self.head.setPos(-0.4, -0.1, z + 0.2)
-        self.suitLabel = DirectLabel(parent=self, relief=None, text=self.suitFullName, text_font=ToontownGlobals.getSuitFont(), pos=(-0.4, 0, 0), scale=0.07)
+        self.suitLabel = DirectLabel(parent=self, relief=None, text=self.suitFullName, text_font=ToontownClientGlobals.getSuitFont(), pos=(-0.4, 0, 0), scale=0.07)
         closeButtonImage = (gui.find('**/CloseBtn_UP'), gui.find('**/CloseBtn_DN'), gui.find('**/CloseBtn_Rllvr'))
         buttonImage = (guiButton.find('**/QuitBtn_UP'), guiButton.find('**/QuitBtn_DN'), guiButton.find('**/QuitBtn_RLVR'))
         disabledColor = Vec4(0.5, 0.5, 0.5, 1)

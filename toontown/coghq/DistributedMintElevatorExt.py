@@ -6,6 +6,7 @@ from toontown.building.ElevatorUtils import *
 from toontown.building import DistributedElevatorExt
 from toontown.building import DistributedElevator
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.gui import DirectGui
@@ -47,7 +48,7 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
         locator = geom.find('**/elevator_signorigin_%s' % originId)
         backgroundGeom = geom.find('**/ElevatorFrameFront_%d' % originId)
         backgroundGeom.node().setEffect(DecalEffect.make())
-        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[mintId][-1]), font=ToontownGlobals.getSuitFont(), scale=TTLocalizer.DMEEsignText, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
+        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[mintId][-1]), font=ToontownClientGlobals.getSuitFont(), scale=TTLocalizer.DMEEsignText, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
         signText.setPosHpr(locator, 0, 0, 0, 0, 0, 0)
         signText.setDepthWrite(0)
 

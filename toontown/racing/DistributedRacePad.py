@@ -9,6 +9,7 @@ from toontown.racing import RaceGlobals
 from toontown.toonbase.ToontownTimer import ToontownTimer
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.racing.KartShopGlobals import KartGlobals
 
 class DistributedRacePad(DistributedKartPad, FSM):
@@ -252,12 +253,12 @@ class DistributedRacePad(DistributedKartPad, FSM):
         trackTypeNodePath.setZ(-0.35)
         trackTypeNodePath.setScale(0.875)
         trackTypeNodePath.flattenLight()
-        self.depositNode, depositNodePath = self.getSignTextNodes('depositNode', ToontownGlobals.getToonFont())
+        self.depositNode, depositNodePath = self.getSignTextNodes('depositNode', ToontownClientGlobals.getToonFont())
         self.depositNode.setTextColor(0, 0, 0, 1)
         depositNodePath.setPos(4.0, -1.0, -2.0)
         depositNodePath.setScale(0.75)
         depositNodePath.flattenLight()
-        self.qualifyNode, qualifyNodePath = self.getSignTextNodes('qualifyNode', ToontownGlobals.getToonFont())
+        self.qualifyNode, qualifyNodePath = self.getSignTextNodes('qualifyNode', ToontownClientGlobals.getToonFont())
         self.qualifyNode.setTextColor(0, 0, 0, 1)
         qualifyNodePath.setPos(-4.0, 1.2, -2.0)
         qualifyNodePath.setScale(0.75)

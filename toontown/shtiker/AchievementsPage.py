@@ -2,7 +2,7 @@ from panda3d.core import LVecBase3
 from . import ShtikerPage
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 from toontown.achievements import AchievementsGlobals
 
@@ -37,7 +37,7 @@ class AchievementsPage(ShtikerPage.ShtikerPage):
             achievementFrame = DirectFrame(parent=self.scrollFrame.getCanvas(), image=DGG.getDefaultDialogGeom(), scale=(1.3, 0, 0.32),
                                            relief=None, pos=(start_pos.x, 1, start_pos.z - seperation.z * achievement),
                                            text=AchievementsGlobals.AchievementTitles[achievement], text_scale=(0.05, 0.13),
-                                           text_font=ToontownGlobals.getMinnieFont(), text_pos=(0, 0, 0))
+                                           text_font=ToontownClientGlobals.getMinnieFont(), text_pos=(0, 0, 0))
 
             self.achievements.append(achievementFrame)
 
@@ -66,7 +66,7 @@ class AchievementsPage(ShtikerPage.ShtikerPage):
             achievementFrame = DirectFrame(parent=self.scrollFrame.getCanvas(), image=DGG.getDefaultDialogGeom(), scale=(1.3, 0, 0.32),
                                            relief=None, pos=(start_pos.x, 1, start_pos.z - seperation.z * achievement),
                                            text=AchievementsGlobals.AchievementTitles[achievement], text_scale=(0.05, 0.13),
-                                           text_font=ToontownGlobals.getMinnieFont(), text_pos=(0, 0, 0))
+                                           text_font=ToontownClientGlobals.getMinnieFont(), text_pos=(0, 0, 0))
 
             self.achievements.append(achievementFrame)
 

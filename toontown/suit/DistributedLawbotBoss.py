@@ -33,6 +33,7 @@ from toontown.toon import Toon, ToonDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownTimer
 from direct.showbase import PythonUtil
 
@@ -97,7 +98,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- announceGenerate')
         DistributedBossCog.DistributedBossCog.announceGenerate(self)
         self.setName(TTLocalizer.LawbotBossName)
-        self.titleText = OnscreenText(TTLocalizer.LawbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
+        self.titleText = OnscreenText(TTLocalizer.LawbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownClientGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
         self.titleText.hide()
         nameInfo = TTLocalizer.BossCogNameWithDept % {'name': self.name,
          'dept': SuitDNA.getDeptFullname(self.style.dept)}
@@ -113,27 +114,27 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         for i in range(10):
             self.strafeSfx.append(loader.loadSfx('phase_3.5/audio/sfx/SA_shred.ogg'))
 
-        render.setTag('pieCode', str(ToontownGlobals.PieCodeNotBossCog))
+        render.setTag('pieCode', str(ToontownClientGlobals.PieCodeNotBossCog))
         insidesA = CollisionPolygon(Point3(4.0, -2.0, 5.0), Point3(-4.0, -2.0, 5.0), Point3(-4.0, -2.0, 0.5), Point3(4.0, -2.0, 0.5))
         insidesANode = CollisionNode('BossZap')
         insidesANode.addSolid(insidesA)
         insidesANode.setCollideMask(ToontownGlobals.PieBitmask | ToontownGlobals.WallBitmask)
         self.insidesANodePath = self.axle.attachNewNode(insidesANode)
-        self.insidesANodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossInsides))
+        self.insidesANodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossInsides))
         self.insidesANodePath.stash()
         insidesB = CollisionPolygon(Point3(-4.0, 2.0, 5.0), Point3(4.0, 2.0, 5.0), Point3(4.0, 2.0, 0.5), Point3(-4.0, 2.0, 0.5))
         insidesBNode = CollisionNode('BossZap')
         insidesBNode.addSolid(insidesB)
         insidesBNode.setCollideMask(ToontownGlobals.PieBitmask | ToontownGlobals.WallBitmask)
         self.insidesBNodePath = self.axle.attachNewNode(insidesBNode)
-        self.insidesBNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossInsides))
+        self.insidesBNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossInsides))
         self.insidesBNodePath.stash()
         target = CollisionTube(0, -1, 4, 0, -1, 9, 3.5)
         targetNode = CollisionNode('BossZap')
         targetNode.addSolid(target)
         targetNode.setCollideMask(ToontownGlobals.PieBitmask)
         self.targetNodePath = self.pelvis.attachNewNode(targetNode)
-        self.targetNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossCog))
+        self.targetNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossCog))
         shield = CollisionTube(0, 1, 4, 0, 1, 7, 3.5)
         shieldNode = CollisionNode('BossZap')
         shieldNode.addSolid(shield)
@@ -535,9 +536,9 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.defensePanNodePath = self.scaleNodePath.find('**/defensePan')
         self.prosecutionPanNodePath = self.scaleNodePath.find('**/prosecutionPan')
         self.defenseColNodePath = self.scaleNodePath.find('**/DefenseCol')
-        self.defenseColNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeDefensePan))
+        self.defenseColNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeDefensePan))
         self.prosecutionColNodePath = self.scaleNodePath.find('**/ProsecutionCol')
-        self.prosecutionColNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeProsecutionPan))
+        self.prosecutionColNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeProsecutionPan))
         self.standNodePath = self.scaleNodePath.find('**/scaleStand')
         self.scaleNodePath.setPosHpr(*ToontownGlobals.LawbotBossInjusticePosHpr)
         self.defenseLocator = self.scaleNodePath.find('**/DefenseLocator')
@@ -594,7 +595,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         defenseCollNode = CollisionNode('DefenseCol')
         defenseCollNode.addSolid(defenseTube)
         self.defenseColNodePath = self.defensePanNodePath.attachNewNode(defenseCollNode)
-        self.defenseColNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeDefensePan))
+        self.defenseColNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeDefensePan))
         prosecutionPanGeom = self.createBlock(0.5, 0.5, 0, -0.5, -0.5, -2, 1.0, 0, 0, 1.0)
         self.prosecutionPanNodePath = NodePath('prosecutionPan')
         self.prosecutionPanNodePath.attachNewNode(prosecutionPanGeom)
@@ -605,7 +606,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         prosecutionCollNode = CollisionNode(self.uniqueName('ProsecutionCol'))
         prosecutionCollNode.addSolid(prosecutionTube)
         self.prosecutionColNodePath = self.prosecutionPanNodePath.attachNewNode(prosecutionCollNode)
-        self.prosecutionColNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeProsecutionPan))
+        self.prosecutionColNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeProsecutionPan))
         standGeom = self.createBlock(0.25, 0.25, 0, -0.25, -0.25, 3)
         self.standNodePath = NodePath('scaleStand')
         self.standNodePath.attachNewNode(standGeom)
@@ -711,7 +712,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.reflectedMainDoor.stash()
         base.camera.reparentTo(self.elevatorModel)
         base.camera.setPosHpr(0, 30, 8, 180, 0, 0)
-        base.camLens.setMinFov(ToontownGlobals.CJElevatorFov/(4./3.))
+        base.camLens.setMinFov(ToontownClientGlobals.CJElevatorFov/(4./3.))
 
     def exitElevator(self):
         self.notify.debug('----- exitElevator')
@@ -725,7 +726,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.__showWitnessToon()
         self.controlToons()
         DistributedBossCog.DistributedBossCog.enterIntroduction(self)
-        base.camLens.setMinFov(ToontownGlobals.CJElevatorFov / (4. / 3.))
+        base.camLens.setMinFov(ToontownClientGlobals.CJElevatorFov / (4. / 3.))
         if not self.mainDoor.isEmpty():
             self.mainDoor.stash()
         if not self.reflectedMainDoor.isEmpty():
@@ -973,7 +974,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.accept('begin-pie', self.__foundPieButton)
         self.accept('enterDefenseCol', self.__enterDefenseCol)
         self.accept('enterProsecutionCol', self.__enterProsecutionCol)
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         taskMgr.doMethodLater(30, self.__howToGetPies, self.uniqueName('PieAdvice'))
         self.stickBossToFloor()
         self.setPosHpr(*ToontownGlobals.LawbotBossBattleThreePosHpr)
@@ -1008,7 +1009,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.ignore('enterProsecutionCol')
         self.__clearOnscreenMessage()
         taskMgr.remove(self.uniqueName('PieAdvice'))
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         if self.bossDamageMovie:
             self.bossDamageMovie.finish()
         self.bossDamageMovie = None
@@ -1029,7 +1030,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.accept('pieSplat', self.__finalPieSplat)
         self.accept('localPieSplat', self.__localPieSplat)
         self.accept('outOfPies', self.__outOfPies)
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.happy = 0
         self.raised = 0
         self.forward = 1
@@ -1044,7 +1045,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.ignore('outOfPies')
         self.__clearOnscreenMessage()
         taskMgr.remove(self.uniqueName('PieAdvice'))
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.setDizzy(0)
         self.battleThreeMusicTime = self.battleThreeMusic.getTime()
         self.battleThreeMusic.stop()
@@ -1055,7 +1056,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.reparentTo(render)
         self.setPosHpr(*ToontownGlobals.LawbotBossBattleThreePosHpr)
         self.loop('neutral')
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.clearChat()
         self.witnessToon.clearChat()
         self.controlToons()
@@ -1078,14 +1079,14 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- exitVictory')
         self.stopAnimate()
         self.unstash()
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.battleThreeMusicTime = self.battleThreeMusic.getTime()
         self.battleThreeMusic.stop()
 
     def enterDefeat(self):
         self.notify.debug('----- enterDefeat')
         self.cleanupIntervals()
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.reparentTo(render)
         self.clearChat()
         self.releaseToons(finalBattle=1)
@@ -1107,7 +1108,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- exitDefeat')
         self.stopAnimate()
         self.unstash()
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.battleThreeMusicTime = self.battleThreeMusic.getTime()
         self.battleThreeMusic.stop()
 
@@ -1242,33 +1243,33 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             taskMgr.doMethodLater(30, self.__howToThrowPies, self.uniqueName('PieAdvice'))
 
     def __pieSplat(self, toon, pieCode):
-        if pieCode == ToontownGlobals.PieCodeBossInsides:
+        if pieCode == ToontownClientGlobals.PieCodeBossInsides:
             if toon == localAvatar:
                 self.d_hitBossInsides()
             self.flashRed()
-        elif pieCode == ToontownGlobals.PieCodeBossCog:
+        elif pieCode == ToontownClientGlobals.PieCodeBossCog:
             if toon == localAvatar:
                 self.d_hitBoss(1)
             if self.dizzy:
                 self.flashRed()
                 self.doAnimate('hit', now=1)
-        elif pieCode == ToontownGlobals.PieCodeDefensePan:
+        elif pieCode == ToontownClientGlobals.PieCodeDefensePan:
             self.flashRed()
             self.flashPanBlue()
             base.playSfx(self.evidenceHitSfx, node=self.defensePanNodePath, volume=0.25)
             if toon == localAvatar:
                 self.d_hitBoss(self.panDamage)
-        elif pieCode == ToontownGlobals.PieCodeProsecutionPan:
+        elif pieCode == ToontownClientGlobals.PieCodeProsecutionPan:
             self.flashGreen()
             if toon == localAvatar:
                 pass
-        elif pieCode == ToontownGlobals.PieCodeLawyer:
+        elif pieCode == ToontownClientGlobals.PieCodeLawyer:
             pass
 
     def __localPieSplat(self, pieCode, entry):
-        if pieCode == ToontownGlobals.PieCodeLawyer:
+        if pieCode == ToontownClientGlobals.PieCodeLawyer:
             self.__lawyerGotHit(entry)
-        if pieCode != ToontownGlobals.PieCodeToon:
+        if pieCode != ToontownClientGlobals.PieCodeToon:
             return
         avatarDoId = entry.getIntoNodePath().getNetTag('avatarDoId')
         if avatarDoId == '':
@@ -1287,7 +1288,7 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 lawyer.sendUpdate('hitByToon', [])
 
     def __finalPieSplat(self, toon, pieCode):
-        if pieCode != ToontownGlobals.PieCodeDefensePan:
+        if pieCode != ToontownClientGlobals.PieCodeDefensePan:
             return
         self.sendUpdate('finalPieSplat', [])
         self.ignore('pieSplat')

@@ -3,6 +3,7 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
 from toontown.toonbase import ToontownGlobals, EventGlobals, VersionGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.uberdog.ClientServicesGlobals import generateLookupTable, encodeHexString
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
@@ -24,8 +25,8 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.username = username
         self.password = password
         self.loginDoneEvent = doneEvent
-        getIp = ToontownGlobals.getIp()
-        mac = ToontownGlobals.getMac()
+        getIp = ToontownClientGlobals.getIp()
+        mac = ToontownClientGlobals.getMac()
         self.notify.debug('Performing login: %s.' % [mac, getIp])
         self.sendUpdate('requestAuthToken', [mac, getIp])
 

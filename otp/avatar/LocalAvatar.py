@@ -21,6 +21,7 @@ from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLocalizer
 from toontown.chat.ChatGlobals import *
 from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.DistributedSmoothNode):
@@ -956,7 +957,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         # Spawn the reward text:
         rewardTextLine = OnscreenText(
             parent=base.a2dBottomRight, text=rewardText, scale=0.055,
-            align=TextNode.ACenter, font=ToontownGlobals.getMinnieFont(),
+            align=TextNode.ACenter, font=ToontownClientGlobals.getMinnieFont(),
             fg=(1, 1, 0, 1))
         rewardTextLine.setColorScale(Vec4(1, 1, 0, 0))
         self.rewardTextLines.append(rewardTextLine)

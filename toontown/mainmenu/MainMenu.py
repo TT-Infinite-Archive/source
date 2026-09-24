@@ -13,6 +13,7 @@ from toontown.mainmenu.PlayScreen import PlayScreen
 from toontown.toon.Toon import Toon
 from toontown.toon.ToonDNA import ToonDNA
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class MainMenu(DirectFrame, FSM):
@@ -51,7 +52,7 @@ class MainMenu(DirectFrame, FSM):
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             ToontownGlobals.getNametagFont(10)
         else:
-            ToontownGlobals.getMinnieFont()
+            ToontownClientGlobals.getMinnieFont()
 
 
     def destroy(self):

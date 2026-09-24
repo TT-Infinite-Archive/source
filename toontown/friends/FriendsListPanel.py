@@ -4,6 +4,7 @@ from direct.fsm import StateData
 from toontown.toon import ToonAvatarPanel
 from toontown.friends import ToontownFriendSecret
 from toontown.toonbase import ToontownGlobals, EventGlobals, TTLocalizer
+from toontown.toonbase import ToontownClientGlobals
 from otp.otpbase import OTPGlobals
 from toontown.guilds import GuildInviter
 FLPPets = 1
@@ -190,14 +191,14 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
             thing = playerId
         else:
             thing = avId
-        fg = ToontownGlobals.ColorNoChat
+        fg = ToontownClientGlobals.ColorNoChat
         if flags & ToontownGlobals.FriendChat:
-            fg = ToontownGlobals.ColorAvatar
+            fg = ToontownClientGlobals.ColorAvatar
         if playerId:
-            fg = ToontownGlobals.ColorPlayer
+            fg = ToontownClientGlobals.ColorPlayer
         if colorChoice:
             fg = colorChoice
-        fontChoice = ToontownGlobals.getToonFont()
+        fontChoice = ToontownClientGlobals.getToonFont()
         fontScale = 0.04
         bg = None
         if colorChoice and bold:
@@ -220,10 +221,10 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
 
         friendName = member.getName()
         
-        fg = ToontownGlobals.ColorAvatar
+        fg = ToontownClientGlobals.ColorAvatar
         if colorChoice:
             fg = colorChoice
-        fontChoice = ToontownGlobals.getToonFont()
+        fontChoice = ToontownClientGlobals.getToonFont()
         fontScale = 0.04
         bg = None
         if colorChoice and bold:
@@ -525,42 +526,42 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
 
         for friendPair in petFriends:
             if friendPair not in self.friends:
-                friendButton = self.makeFriendButton(friendPair, ToontownGlobals.ColorNoChat, 0)
+                friendButton = self.makeFriendButton(friendPair, ToontownClientGlobals.ColorNoChat, 0)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[friendPair] = friendButton
 
         for friendPair in freeChatDouble:
             if friendPair not in self.friends:
-                friendButton = self.makeFriendButton(friendPair, ToontownGlobals.ColorFreeChat, 1)
+                friendButton = self.makeFriendButton(friendPair, ToontownClientGlobals.ColorFreeChat, 1)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[friendPair] = friendButton
 
         for friendPair in freeChatOneRef:
             if friendPair not in self.friends:
-                friendButton = self.makeFriendButton(friendPair, ToontownGlobals.ColorFreeChat, 0)
+                friendButton = self.makeFriendButton(friendPair, ToontownClientGlobals.ColorFreeChat, 0)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[friendPair] = friendButton
 
         for friendPair in speedChatDouble:
             if friendPair not in self.friends:
-                friendButton = self.makeFriendButton(friendPair, ToontownGlobals.ColorSpeedChat, 1)
+                friendButton = self.makeFriendButton(friendPair, ToontownClientGlobals.ColorSpeedChat, 1)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[friendPair] = friendButton
 
         for friendPair in speedChatOneRef:
             if friendPair not in self.friends:
-                friendButton = self.makeFriendButton(friendPair, ToontownGlobals.ColorSpeedChat, 0)
+                friendButton = self.makeFriendButton(friendPair, ToontownClientGlobals.ColorSpeedChat, 0)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[friendPair] = friendButton
 
         for friendPair in offlineFriends:
             if friendPair not in self.friends:
-                friendButton = self.makeFriendButton(friendPair, ToontownGlobals.ColorNoChat, 0)
+                friendButton = self.makeFriendButton(friendPair, ToontownClientGlobals.ColorNoChat, 0)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[friendPair] = friendButton
@@ -573,9 +574,9 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                     continue
                 memberInfo = guild.getMember(guildMemberId)
                 if memberInfo.online:
-                    friendButton = self.makeGuildieButton(memberInfo, ToontownGlobals.ColorGuildMemberOnline, 0)
+                    friendButton = self.makeGuildieButton(memberInfo, ToontownClientGlobals.ColorGuildMemberOnline, 0)
                 else:
-                    friendButton = self.makeGuildieButton(memberInfo, ToontownGlobals.ColorGuildMember, 0)
+                    friendButton = self.makeGuildieButton(memberInfo, ToontownClientGlobals.ColorGuildMember, 0)
 
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
@@ -590,7 +591,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                 memberInfo = guild.getMember(guildMemberId)
                 if memberInfo is None:
                     continue
-                friendButton = self.makeGuildieButton(memberInfo, ToontownGlobals.ColorGuildMemberOnline, 0)
+                friendButton = self.makeGuildieButton(memberInfo, ToontownClientGlobals.ColorGuildMemberOnline, 0)
                 if friendButton:
                     self.scrollList.addItem(friendButton, refresh=0)
                     self.friends[guildMemberId] = friendButton

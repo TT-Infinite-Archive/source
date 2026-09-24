@@ -28,6 +28,7 @@ from toontown.toon import NPCToonFactory
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 OneBossCog = None
@@ -89,30 +90,30 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
 
         self.skyNode = self.cr.playGame.hood.loader.hood.sky
 
-        self.titleText = OnscreenText(TTLocalizer.SellbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
+        self.titleText = OnscreenText(TTLocalizer.SellbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownClientGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0, mayChange=1)
         self.titleText.hide()
 
-        render.setTag('pieCode', str(ToontownGlobals.PieCodeNotBossCog))
+        render.setTag('pieCode', str(ToontownClientGlobals.PieCodeNotBossCog))
         insidesA = CollisionPolygon(Point3(4.0, -2.0, 5.0), Point3(-4.0, -2.0, 5.0), Point3(-4.0, -2.0, 0.5), Point3(4.0, -2.0, 0.5))
         insidesANode = CollisionNode('BossZap')
         insidesANode.addSolid(insidesA)
         insidesANode.setCollideMask(ToontownGlobals.PieBitmask | ToontownGlobals.WallBitmask)
         self.insidesANodePath = self.axle.attachNewNode(insidesANode)
-        self.insidesANodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossInsides))
+        self.insidesANodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossInsides))
         self.insidesANodePath.stash()
         insidesB = CollisionPolygon(Point3(-4.0, 2.0, 5.0), Point3(4.0, 2.0, 5.0), Point3(4.0, 2.0, 0.5), Point3(-4.0, 2.0, 0.5))
         insidesBNode = CollisionNode('BossZap')
         insidesBNode.addSolid(insidesB)
         insidesBNode.setCollideMask(ToontownGlobals.PieBitmask | ToontownGlobals.WallBitmask)
         self.insidesBNodePath = self.axle.attachNewNode(insidesBNode)
-        self.insidesBNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossInsides))
+        self.insidesBNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossInsides))
         self.insidesBNodePath.stash()
         target = CollisionTube(0, -1, 4, 0, -1, 9, 3.5)
         targetNode = CollisionNode('BossZap')
         targetNode.addSolid(target)
         targetNode.setCollideMask(ToontownGlobals.PieBitmask)
         self.targetNodePath = self.pelvis.attachNewNode(targetNode)
-        self.targetNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossCog))
+        self.targetNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossCog))
         shield = CollisionTube(0, 1, 4, 0, 1, 7, 3.5)
         shieldNode = CollisionNode('BossZap')
         shieldNode.addSolid(shield)
@@ -290,7 +291,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
 
         base.camera.reparentTo(render)
         base.camera.setPosHpr(0, 25, 30, 0, 0, 0)
-        base.localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        base.localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
 
         # dooberTrack includes the doobers walking down the platform
         # and flying away.  Rather than adding it directly into the
@@ -513,7 +514,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         if hasLocalToon:
             seq += [Func(base.camera.reparentTo, render),
              Func(base.camera.setPosHpr, self.cage, 0, -50, 0, 0, 0, 0),
-             Func(localAvatar.setCameraFov, ToontownGlobals.CogHQCameraFov),
+             Func(localAvatar.setCameraFov, ToontownClientGlobals.CogHQCameraFov),
              Func(self.hide)]
         seq += [Wait(0.5),
          Parallel(self.cage.posInterval(1, self.cagePos[self.cageIndex + 1], blendType='easeInOut'), SoundInterval(self.cageLowerSfx, duration=1)),
@@ -795,7 +796,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.forward = 1
         self.doAnimate()
         self.cagedToon.removeActive()
-        base.camLens.setMinFov(ToontownGlobals.VPElevatorFov/(4./3.))
+        base.camLens.setMinFov(ToontownClientGlobals.VPElevatorFov/(4./3.))
 
     def exitElevator(self):
         DistributedBossCog.DistributedBossCog.exitElevator(self)
@@ -891,7 +892,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.setCageIndex(2)
         base.camera.reparentTo(render)
         base.camera.setPosHpr(self.cage, 0, -17, 3.3, 0, 0, 0)
-        (localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov),)
+        (localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov),)
         self.hide()
         self.acceptOnce('doneChatPage', self.__onToBattleTwo)
         self.cagedToon.setLocalPageChat(TTLocalizer.CagedToonPrepareBattleTwo, 1)
@@ -949,7 +950,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.setCageIndex(4)
         base.camera.reparentTo(render)
         base.camera.setPosHpr(self.cage, 0, -17, 3.3, 0, 0, 0)
-        (localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov),)
+        (localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov),)
         self.hide()
         self.acceptOnce('doneChatPage', self.__onToBattleThree)
         self.cagedToon.setLocalPageChat(TTLocalizer.CagedToonPrepareBattleThree, 1)
@@ -986,7 +987,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.accept('localPieSplat', self.__localPieSplat)
         self.accept('outOfPies', self.__outOfPies)
         self.accept('begin-pie', self.__foundPieButton)
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         taskMgr.doMethodLater(30, self.__howToGetPies, self.uniqueName('PieAdvice'))
         self.stickBossToFloor()
         self.bossDamageMovie = self.__makeBossDamageMovie()
@@ -1014,7 +1015,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.ignore('begin-pie')
         self.__clearOnscreenMessage()
         taskMgr.remove(self.uniqueName('PieAdvice'))
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.__removeCageShadow()
         self.bossDamageMovie.finish()
         self.bossDamageMovie = None
@@ -1040,7 +1041,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.accept('pieSplat', self.__finalPieSplat)
         self.accept('localPieSplat', self.__localPieSplat)
         self.accept('outOfPies', self.__outOfPies)
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.happy = 0
         self.raised = 0
         self.forward = 1
@@ -1055,7 +1056,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.ignore('outOfPies')
         self.__clearOnscreenMessage()
         taskMgr.remove(self.uniqueName('PieAdvice'))
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.__removeCageShadow()
         self.setDizzy(0)
         self.battleThreeMusicTime = self.battleThreeMusic.getTime()
@@ -1063,7 +1064,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
 
     def enterVictory(self):
         self.cleanupIntervals()
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.reparentTo(render)
         self.setPos(*ToontownGlobals.SellbotBossDeathPos)
         self.setHpr(*ToontownGlobals.SellbotBossBattleThreeHpr)
@@ -1095,12 +1096,12 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.stopAnimate()
         self.unstash()
         self.__removeCageShadow()
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.battleThreeMusicTime = self.battleThreeMusic.getTime()
         self.battleThreeMusic.stop()
 
     def enterReward(self):
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.cleanupIntervals()
         self.clearChat()
         self.cagedToon.clearChat()
@@ -1268,12 +1269,12 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
     def __pieSplat(self, toon, pieCode):
         if ConfigVariableBool('easy-vp', False).getValue():
             if not self.dizzy:
-                pieCode = ToontownGlobals.PieCodeBossInsides
-        if pieCode == ToontownGlobals.PieCodeBossInsides:
+                pieCode = ToontownClientGlobals.PieCodeBossInsides
+        if pieCode == ToontownClientGlobals.PieCodeBossInsides:
             if toon == localAvatar:
                 self.d_hitBossInsides()
             self.flashRed()
-        elif pieCode == ToontownGlobals.PieCodeBossCog:
+        elif pieCode == ToontownClientGlobals.PieCodeBossCog:
             if toon == localAvatar:
                 self.d_hitBoss(1)
             if self.dizzy:
@@ -1281,7 +1282,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
                 self.doAnimate('hit', now=1)
 
     def __localPieSplat(self, pieCode, entry):
-        if pieCode != ToontownGlobals.PieCodeToon:
+        if pieCode != ToontownClientGlobals.PieCodeToon:
             return
         avatarDoId = entry.getIntoNodePath().getNetTag('avatarDoId')
         if avatarDoId == '':
@@ -1292,7 +1293,7 @@ class DistributedSellbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.d_hitToon(doId)
 
     def __finalPieSplat(self, toon, pieCode):
-        if pieCode != ToontownGlobals.PieCodeBossCog:
+        if pieCode != ToontownClientGlobals.PieCodeBossCog:
             return
         self.sendUpdate('finalPieSplat', [])
         self.ignore('pieSplat')

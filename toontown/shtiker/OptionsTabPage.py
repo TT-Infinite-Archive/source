@@ -11,6 +11,7 @@ from toontown.toontowngui import TTLabel, TTButton, TTDialog
 from toontown.toontowngui.TTOptionRow import TTButtonRow, TTChoiceRow, TTOptionHeading, TTSliderRow, TTToggleRow
 from toontown.toontowngui.TTTabBar import TTTabBar
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, SettingsGlobals, ColorGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class OptionsTabPage(DirectFrame):
@@ -204,7 +205,7 @@ class OptionsTabPage(DirectFrame):
         z = self.RowTop
 
         base.getSmallestResolution()
-        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
+        self.screenSizes = list(ToontownClientGlobals.CommonDisplayResolutions[base.calcRatio])
 
         displayHeading = TTOptionHeading(canvas, text = TTLocalizer.OptionsPageDisplay)
         displayHeading.setPos(0, 0, z)

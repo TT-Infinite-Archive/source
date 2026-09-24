@@ -6,6 +6,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.gui import DirectGuiGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.parties.PartyInfo import PartyInfo
 from toontown.parties import PartyGlobals
 from toontown.ai.NewsManager import NewsManager
@@ -35,7 +36,7 @@ class CalendarGuiDay(DirectFrame):
         self.hostedPartiesToday = []
         self.yearlyHolidaysToday = []
         self.showMarkers = ConfigVariableBool('show-calendar-markers', False).getValue()
-        self.filter = ToontownGlobals.CalendarFilterShowAll
+        self.filter = ToontownClientGlobals.CalendarFilterShowAll
         self.load()
         self.createGuiObjects()
         self.update()
@@ -166,7 +167,7 @@ class CalendarGuiDay(DirectFrame):
         return
 
     def addWeeklyHolidays(self):
-        if not self.filter == ToontownGlobals.CalendarFilterShowAll and not self.filter == ToontownGlobals.CalendarFilterShowOnlyHolidays:
+        if not self.filter == ToontownClientGlobals.CalendarFilterShowAll and not self.filter == ToontownClientGlobals.CalendarFilterShowOnlyHolidays:
             return
         if base.cr.newsManager:
             holidays = base.cr.newsManager.getHolidaysForWeekday(self.myDate.weekday())
@@ -211,7 +212,7 @@ class CalendarGuiDay(DirectFrame):
 
     def collectTimedEvents(self):
         self.timedEvents = []
-        if self.filter == ToontownGlobals.CalendarFilterShowAll or self.filter == ToontownGlobals.CalendarFilterShowOnlyParties:
+        if self.filter == ToontownClientGlobals.CalendarFilterShowAll or self.filter == ToontownClientGlobals.CalendarFilterShowOnlyParties:
             for party in localAvatar.partiesInvitedTo:
                 if party.startTime.date() == self.myDate.date():
                     self.partiesInvitedToToday.append(party)
@@ -222,7 +223,7 @@ class CalendarGuiDay(DirectFrame):
                     self.hostedPartiesToday.append(party)
                     self.timedEvents.append((party.startTime.time(), party))
 
-        if base.cr.newsManager and (self.filter == ToontownGlobals.CalendarFilterShowAll or self.filter == ToontownGlobals.CalendarFilterShowOnlyHolidays):
+        if base.cr.newsManager and (self.filter == ToontownClientGlobals.CalendarFilterShowAll or self.filter == ToontownClientGlobals.CalendarFilterShowOnlyHolidays):
             yearlyHolidays = base.cr.newsManager.getYearlyHolidaysForDate(self.myDate)
             for holiday in yearlyHolidays:
                 holidayId = holiday[1]

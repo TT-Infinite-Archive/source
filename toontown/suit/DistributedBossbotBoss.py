@@ -29,6 +29,7 @@ from toontown.distributed import DelayDelete
 from toontown.nametag.NametagGlobals import *
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 OneBossCog = None
 TTL = TTLocalizer
@@ -87,15 +88,15 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         if OneBossCog != None:
             self.notify.warning('Multiple BossCogs visible.')
         OneBossCog = self
-        render.setTag('pieCode', str(ToontownGlobals.PieCodeNotBossCog))
+        render.setTag('pieCode', str(ToontownClientGlobals.PieCodeNotBossCog))
         self.setTag('attackCode', str(ToontownGlobals.BossCogGolfAttack))
         target = CollisionTube(0, -2, -2, 0, -1, 9, 4.0)
         targetNode = CollisionNode('BossZap')
         targetNode.addSolid(target)
         targetNode.setCollideMask(ToontownGlobals.PieBitmask)
         self.targetNodePath = self.pelvis.attachNewNode(targetNode)
-        self.targetNodePath.setTag('pieCode', str(ToontownGlobals.PieCodeBossCog))
-        self.axle.getParent().setTag('pieCode', str(ToontownGlobals.PieCodeBossCog))
+        self.targetNodePath.setTag('pieCode', str(ToontownClientGlobals.PieCodeBossCog))
+        self.axle.getParent().setTag('pieCode', str(ToontownClientGlobals.PieCodeBossCog))
         disk = loader.loadModel('phase_9/models/char/bossCog-gearCollide')
         disk.find('**/+CollisionNode').setName('BossZap')
         disk.reparentTo(self.pelvis)
@@ -138,7 +139,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.swingClubSfx = loader.loadSfx('phase_5/audio/sfx/SA_hardball.ogg')
         self.moveBossTaskName = 'CEOMoveTask'
 
-        self.titleText = OnscreenText(TTLocalizer.BossbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.8), scale=0.16, drawOrder=0, mayChange=1)
+        self.titleText = OnscreenText(TTLocalizer.BossbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1), font=ToontownClientGlobals.getSuitFont(), pos=(0, -0.8), scale=0.16, drawOrder=0, mayChange=1)
         self.titleText.hide()
         return
 
@@ -789,7 +790,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             if table is not None:
                 table.tableGroup.hide()
         self.loop('neutral')
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.clearChat()
         self.controlToons()
         self.setToonsToNeutral(self.involvedToons)
@@ -811,7 +812,7 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- exitVictory')
         self.stopAnimate()
         self.unstash()
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         self.phaseFourMusic.stop()
 
     def makeVictoryMovie(self):

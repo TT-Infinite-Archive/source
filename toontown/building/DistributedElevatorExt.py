@@ -13,7 +13,7 @@ from toontown.nametag import NametagGlobals
 from toontown.nametag.Nametag import Nametag
 from toontown.nametag.NametagGroup import NametagGroup
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class DistributedElevatorExt(DistributedElevator.DistributedElevator):
@@ -39,7 +39,7 @@ class DistributedElevatorExt(DistributedElevator.DistributedElevator):
     def setupNametag(self):
         if self.nametag == None:
             self.nametag = NametagGroup()
-            self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
+            self.nametag.setFont(ToontownClientGlobals.getBuildingNametagFont())
             if TTLocalizer.BuildingNametagShadow:
                 self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
             self.nametag.hideChat()

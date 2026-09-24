@@ -2,7 +2,7 @@ from panda3d.core import TextNode, VBase4
 from .BossCog import AnimList, GenericModel, ModelDict
 from toontown.battle.BattleProps import globalPropPool
 from toontown.suit import Suit
-from toontown.toonbase.ToontownGlobals import getBuildingNametagFont
+from toontown.toonbase.ToontownClientGlobals import getBuildingNametagFont
 from direct.gui.DirectGui import DirectWaitBar, DirectFrame, DGG
 from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence, Parallel, ActorInterval, Func, Wait

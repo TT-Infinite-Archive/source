@@ -3,7 +3,7 @@ import operator
 from direct.interval.IntervalGlobal import Func, Track
 from direct.task import Task
 from toontown.toonbase.TTLocalizerEnglish import BossLeaderboardLabel
-from toontown.toonbase.ToontownGlobals import getSuitFont
+from toontown.toonbase.ToontownClientGlobals import getSuitFont
 
 TEXT_HEIGHT = -0.05
 TEXT_GREEN = (0.0, 1.0, 0.0, 1.0)

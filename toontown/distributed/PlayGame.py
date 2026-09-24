@@ -7,6 +7,7 @@ from direct.fsm import State
 from direct.task.Task import Task
 from .ToontownMsgTypes import *
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood import TTHood
 from toontown.hood import DDHood
 from toontown.hood import MMHood
@@ -153,7 +154,7 @@ class PlayGame(StateData.StateData):
             dnaBulk.loadDNAFiles()
             self.dnaStore.storeFont('humanist', ToontownGlobals.getInterfaceFont())
             self.dnaStore.storeFont('mickey', ToontownGlobals.getSignFont())
-            self.dnaStore.storeFont('suit', ToontownGlobals.getSuitFont())
+            self.dnaStore.storeFont('suit', ToontownClientGlobals.getSuitFont())
 
     def unloadDnaStore(self):
         if hasattr(self, 'dnaStore'):
@@ -233,11 +234,11 @@ class PlayGame(StateData.StateData):
         ownerId = requestStatus.get('ownerId', avId)
         if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: NEIGHBORHOODS: Visit %s' % hoodName)
-        count = ToontownGlobals.hoodCountMap[canonicalHoodId]
+        count = ToontownClientGlobals.hoodCountMap[canonicalHoodId]
         if loaderName == 'safeZoneLoader':
-            count += ToontownGlobals.safeZoneCountMap[canonicalHoodId]
+            count += ToontownClientGlobals.safeZoneCountMap[canonicalHoodId]
         elif loaderName == 'townLoader':
-            count += ToontownGlobals.townCountMap[canonicalHoodId]
+            count += ToontownClientGlobals.townCountMap[canonicalHoodId]
         if not loader.inBulkBlock:
             if hoodId == ToontownGlobals.MyEstate:
                 if avId == -1:

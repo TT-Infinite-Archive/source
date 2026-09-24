@@ -1,6 +1,6 @@
 from direct.distributed.DistributedObject import DistributedObject
 from direct.directnotify.DirectNotifyGlobal import directNotify
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 class BanManager(DistributedObject):
     notify = directNotify.newCategory('BanManager')
@@ -10,6 +10,6 @@ class BanManager(DistributedObject):
         self.cr.banManager = self
 
     def requestUserInfo(self):
-        public_ip = ToontownGlobals.getIp()
-        mac_address = ToontownGlobals.getMac()
+        public_ip = ToontownClientGlobals.getIp()
+        mac_address = ToontownClientGlobals.getMac()
         self.sendUpdate('sendUserInfo', [mac_address, public_ip])

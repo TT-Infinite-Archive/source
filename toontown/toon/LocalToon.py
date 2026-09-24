@@ -55,16 +55,16 @@ from toontown.shtiker import CollectiblePage
 from toontown.toon import ElevatorNotifier
 from toontown.toon.ToonAvatarDetailPanel import preloadGagGui
 from toontown.toonbase import ToontownGlobals, SettingsGlobals, VersionGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TTDialog
 from toontown.toontowngui import NewsPageButtonManager
 from toontown.friends.FriendHandle import FriendHandle
 import sys
-from toontown.hood import ZoneUtil
 from toontown.suit import SuitGlobals
 
-WantNewsPage = ConfigVariableBool('want-news-page', ToontownGlobals.DefaultWantNewsPageSetting).getValue()
+WantNewsPage = ConfigVariableBool('want-news-page', ToontownClientGlobals.DefaultWantNewsPageSetting).getValue()
 if WantNewsPage:
     from toontown.shtiker import NewsPage
 AdjustmentForNewsButton = -0.275
@@ -100,7 +100,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             preloadGagGui()
             newScale = oldScale = 0.8
             if WantNewsPage:
-                newScale = oldScale * ToontownGlobals.NewsPageScaleAdjust
+                newScale = oldScale * ToontownClientGlobals.NewsPageScaleAdjust
             self.bFriendsList = DirectButton(image=(friendsButtonNormal, friendsButtonPressed, friendsButtonRollover), relief=None, pos=(-0.141, 0, -0.125), parent=base.a2dTopRight, scale=newScale, text=('', TTLocalizer.FriendsListLabel, TTLocalizer.FriendsListLabel), text_scale=0.09, text_fg=Vec4(1, 1, 1, 1), text_shadow=Vec4(0, 0, 0, 1), text_pos=(0, -0.18), text_font=ToontownGlobals.getInterfaceFont(), command=self.sendFriendsListEvent)
             self.bFriendsList.hide()
             self.friendsListButtonActive = 0
@@ -1181,7 +1181,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         newPos = (claraXPos, 1.0, -0.63)
         if WantNewsPage:
             claraXPos += AdjustmentForNewsButton
-            newScale = oldScale * ToontownGlobals.NewsPageScaleAdjust
+            newScale = oldScale * ToontownClientGlobals.NewsPageScaleAdjust
             newPos = (claraXPos - 0.1, 1.0, -0.63)
         self.__clarabelleButton = DirectButton(relief=None, image=circle, text='', text_fg=(1, 1, 1, 1), text_shadow=(0, 0, 0, 1), text_scale=0.1, text_pos=(-1.06, 1.06), text_font=ToontownGlobals.getInterfaceFont(), pos=newPos, scale=newScale, command=self.__handleClarabelleButton)
         self.__clarabelleButton.reparentTo(base.a2dTopRight, DGG.BACKGROUND_SORT_INDEX - 1)
@@ -2199,7 +2199,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         self.__trackFootstepSurface(collEntry)
 
     def setSpeed(self, forwardSpeed, rotateSpeed):
-        showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
+        showWake, wakeWaterHeight = ToontownClientGlobals.getWakeInfo()
         if wakeWaterHeight > self.getZ(render):
             runLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_runloop_water.ogg')
             walkLoopSfx = preloader.getSfx('phase_3.5/audio/sfx/AV_footstep_walkloop_water.ogg')
@@ -2257,7 +2257,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             if showWake and self.getZ(render) < wakeWaterHeight and abs(forwardSpeed) > ToontownGlobals.WalkCutOff:
                 currT = globalClock.getFrameTime()
                 deltaT = currT - self.lastWakeTime
-                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownGlobals.WakeRunDelta or deltaT > ToontownGlobals.WakeWalkDelta:
+                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownClientGlobals.WakeRunDelta or deltaT > ToontownClientGlobals.WakeWalkDelta:
                     self.getWake().createRipple(wakeWaterHeight, rate=1, startFrame=4)
                     self.lastWakeTime = currT
         return action

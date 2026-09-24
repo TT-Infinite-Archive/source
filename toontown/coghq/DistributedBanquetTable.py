@@ -12,6 +12,7 @@ from direct.task import Task
 from toontown.suit import Suit
 from toontown.suit import SuitDNA
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.coghq import BanquetTableBase
 from toontown.coghq import DinerStatusIndicator
@@ -887,7 +888,7 @@ class DistributedBanquetTable(DistributedObject.DistributedObject, FSM.FSM, Banq
             return
         tag = self.hitObject.getNetTag('pieCode')
         pieCode = int(tag)
-        if pieCode == ToontownGlobals.PieCodeBossCog:
+        if pieCode == ToontownClientGlobals.PieCodeBossCog:
             self.hitBossSoundInterval.start()
             self.sendUpdate('waterHitBoss', [self.index])
             if self.TugOfWarControls:

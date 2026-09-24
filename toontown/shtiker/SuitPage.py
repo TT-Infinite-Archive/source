@@ -4,6 +4,7 @@ from direct.task.Task import Task
 from . import SummonCogDialog
 from direct.gui.DirectGui import *
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.suit import SuitDNA
 from toontown.suit import Suit
@@ -250,7 +251,7 @@ class SuitPage(ShtikerPage.ShtikerPage):
             row = []
             color = PANEL_COLORS[dept]
             for type in range(0, SuitDNA.suitsPerDept):
-                panel = DirectLabel(parent=self.panelNode, pos=(xStart + type * xOffset, 0.0, yStart - dept * yOffset), relief=None, state=DGG.NORMAL, image=self.panelModel, image_scale=(1, 1, 1), image_color=color, text=TTLocalizer.SuitPageMystery, text_scale=0.045, text_fg=(0, 0, 0, 1), text_pos=(0, 0.185, 0), text_font=ToontownGlobals.getSuitFont(), text_wordwrap=7)
+                panel = DirectLabel(parent=self.panelNode, pos=(xStart + type * xOffset, 0.0, yStart - dept * yOffset), relief=None, state=DGG.NORMAL, image=self.panelModel, image_scale=(1, 1, 1), image_color=color, text=TTLocalizer.SuitPageMystery, text_scale=0.045, text_fg=(0, 0, 0, 1), text_pos=(0, 0.185, 0), text_font=ToontownClientGlobals.getSuitFont(), text_wordwrap=7)
                 panel.bind(DGG.ENTER, self.grow, extraArgs = [panel])
                 panel.bind(DGG.EXIT, self.shrink, extraArgs = [panel])
                 panel.scale = 0.6
@@ -272,7 +273,7 @@ class SuitPage(ShtikerPage.ShtikerPage):
             quota = str(COG_QUOTAS[0][index % SuitDNA.suitsPerDept])
         else:
             quota = str(COG_QUOTAS[1][index % SuitDNA.suitsPerDept])
-        quotaLabel = DirectLabel(parent=panel, pos=(0.0, 0.0, -0.215), relief=None, state=DGG.DISABLED, text=TTLocalizer.SuitPageQuota % (count, quota), text_scale=0.045, text_fg=(0, 0, 0, 1), text_font=ToontownGlobals.getSuitFont())
+        quotaLabel = DirectLabel(parent=panel, pos=(0.0, 0.0, -0.215), relief=None, state=DGG.DISABLED, text=TTLocalizer.SuitPageQuota % (count, quota), text_scale=0.045, text_fg=(0, 0, 0, 1), text_font=ToontownClientGlobals.getSuitFont())
         panel.quotaLabel = quotaLabel
         return
 
@@ -288,7 +289,7 @@ class SuitPage(ShtikerPage.ShtikerPage):
         panel.head = Suit.attachSuitHead(panel, suitName)
 
     def addCogRadarLabel(self, panel):
-        cogRadarLabel = DirectLabel(parent=panel, pos=(0.0, 0.0, -0.215), relief=None, state=DGG.DISABLED, text='', text_scale=0.05, text_fg=(0, 0, 0, 1), text_font=ToontownGlobals.getSuitFont())
+        cogRadarLabel = DirectLabel(parent=panel, pos=(0.0, 0.0, -0.215), relief=None, state=DGG.DISABLED, text='', text_scale=0.05, text_fg=(0, 0, 0, 1), text_font=ToontownClientGlobals.getSuitFont())
         panel.cogRadarLabel = cogRadarLabel
         return
 
@@ -323,7 +324,7 @@ class SuitPage(ShtikerPage.ShtikerPage):
     def addBuildingRadarLabel(self, button):
         gui = loader.loadModel('phase_3.5/models/gui/suit_detail_panel')
         zPos = BUILDING_RADAR_POS[self.radarButtons.index(button)]
-        buildingRadarLabel = DirectLabel(parent=button, relief=None, pos=(0.225, 0.0, zPos), state=DGG.DISABLED, image=gui.find('**/avatar_panel'), image_hpr=(0, 0, 90), image_scale=(0.05, 1, 0.1), image_pos=(0, 0, 0.015), text=TTLocalizer.SuitPageBuildingRadarP % '0', text_scale=0.05, text_fg=(1, 0, 0, 1), text_font=ToontownGlobals.getSuitFont())
+        buildingRadarLabel = DirectLabel(parent=button, relief=None, pos=(0.225, 0.0, zPos), state=DGG.DISABLED, image=gui.find('**/avatar_panel'), image_hpr=(0, 0, 90), image_scale=(0.05, 1, 0.1), image_pos=(0, 0, 0.015), text=TTLocalizer.SuitPageBuildingRadarP % '0', text_scale=0.05, text_fg=(1, 0, 0, 1), text_font=ToontownClientGlobals.getSuitFont())
         gui.removeNode()
         button.buildingRadarLabel = buildingRadarLabel
         return

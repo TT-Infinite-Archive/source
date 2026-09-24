@@ -3,6 +3,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import SpeedwayCameraFar
 from toontown.toonbase import TTLocalizer
 from toontown.parties import PartyGlobals
 from . import Fireworks

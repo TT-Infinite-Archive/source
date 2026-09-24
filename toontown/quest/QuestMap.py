@@ -6,6 +6,7 @@ from direct.task import Task
 from toontown.toon import NPCToons
 from toontown.hood import ZoneUtil
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.quest import Quests
 from toontown.suit import SuitPlannerBase
 from . import QuestMapGlobals
@@ -360,16 +361,16 @@ class QuestMap(DirectFrame):
 
     def toggleOnscreenHooks(self, task=None):
         if self.wantToggle:
-            self.accept(ToontownGlobals.MapHotkey, self.toggle)
+            self.accept(ToontownClientGlobals.MapHotkey, self.toggle)
         else:
-            self.accept(ToontownGlobals.MapHotkeyOn, self.show)
-            self.accept(ToontownGlobals.MapHotkeyOff, self.hide)
+            self.accept(ToontownClientGlobals.MapHotkeyOn, self.show)
+            self.accept(ToontownClientGlobals.MapHotkeyOff, self.hide)
         self.updateMap()
 
     def ignoreOnscreenHooks(self):
-        self.ignore(ToontownGlobals.MapHotkey)
-        self.ignore(ToontownGlobals.MapHotkeyOn)
-        self.ignore(ToontownGlobals.MapHotkeyOff)
+        self.ignore(ToontownClientGlobals.MapHotkey)
+        self.ignore(ToontownClientGlobals.MapHotkeyOn)
+        self.ignore(ToontownClientGlobals.MapHotkeyOff)
         self.obscureButton()
 
     def getSuitIcon(self, dept):

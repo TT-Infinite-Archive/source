@@ -3,6 +3,7 @@ from direct.actor import Actor
 from otp.avatar import Avatar
 from . import SuitDNA
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.battle import SuitBattleGlobals
 from toontown.nametag import NametagGlobals
 from direct.task.Task import Task
@@ -306,7 +307,7 @@ class Suit(Avatar.Avatar):
             self.Suit_initialized = 1
 
         Avatar.Avatar.__init__(self)
-        self.setFont(ToontownGlobals.getSuitFont())
+        self.setFont(ToontownClientGlobals.getSuitFont())
         self.setPlayerType(NametagGlobals.CCSuit)
         self.setPickable(1)
         self.leftHand = None

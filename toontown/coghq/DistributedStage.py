@@ -8,6 +8,7 @@ from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase import TTLocalizer
 from direct.gui import OnscreenText
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.coghq import DistributedStageRoom, StageLayout, StageRoom
 import random
 from direct.task.Task import Task
@@ -22,7 +23,7 @@ class DistributedStage(DistributedObject.DistributedObject):
     def __init__(self, cr):
         DistributedObject.DistributedObject.__init__(self, cr)
         self.titleColor = (1, 1, 1, 1)
-        self.titleText = OnscreenText.OnscreenText('', fg=self.titleColor, shadow=(0, 0, 0, 1), font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.1, drawOrder=0, mayChange=1)
+        self.titleText = OnscreenText.OnscreenText('', fg=self.titleColor, shadow=(0, 0, 0, 1), font=ToontownClientGlobals.getSuitFont(), pos=(0, -0.5), scale=0.1, drawOrder=0, mayChange=1)
         self.titleSequence = None
         self.pendingZoneChange = 0
         return

@@ -5,7 +5,7 @@ from direct.gui import DirectGuiGlobals
 from direct.directnotify import DirectNotifyGlobal
 from otp.otpbase import OTPLocalizer
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toontowngui import TTDialog
 from toontown.parties import PartyGlobals
 from toontown.parties import PartyUtils
@@ -154,7 +154,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
 
     def loadCalendarTab(self):
         self.calendarDisplay = self.attachNewNode('calendar')
-        self.toontownTimeLabel = DirectLabel(parent=self.calendarDisplay, pos=(0.175, 0, -0.69), text_align=TextNode.ARight, relief=None, text=TTLocalizer.EventsPageToontownTimeIs, text_scale=0.065, text_font=ToontownGlobals.getMinnieFont(), text_fg=(255 / 255.0,
+        self.toontownTimeLabel = DirectLabel(parent=self.calendarDisplay, pos=(0.175, 0, -0.69), text_align=TextNode.ARight, relief=None, text=TTLocalizer.EventsPageToontownTimeIs, text_scale=0.065, text_font=ToontownClientGlobals.getMinnieFont(), text_fg=(255 / 255.0,
          146 / 255.0,
          113 / 255.0,
          1), textMayChange=0)
@@ -173,7 +173,7 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.newsStatusLabel = DirectLabel(text=TTLocalizer.EventsPageNewsDownloading, relief=None, text_scale=0.1, text_wordwrap=13, parent=self.newsFrame, pos=(0, 0, 0.275))
         self.createArticleIndexList()
         titlePos = self.newsFrame.find('**/loc_toontimeTimes').getPos()
-        self.newsPaperTitle = DirectLabel(text=TTLocalizer.EventsPageNewsPaperTitle, relief=None, text_scale=(0.13, 0.25, 1), text_align=TextNode.ACenter, text_font=ToontownGlobals.getMinnieFont(), parent=self.newsFrame, pos=titlePos)
+        self.newsPaperTitle = DirectLabel(text=TTLocalizer.EventsPageNewsPaperTitle, relief=None, text_scale=(0.13, 0.25, 1), text_align=TextNode.ACenter, text_font=ToontownClientGlobals.getMinnieFont(), parent=self.newsFrame, pos=titlePos)
         subLeftPos = self.newsFrame.find('**/loc_subheaderLf').getPos()
         subRightPos = self.newsFrame.find('**/loc_subheaderRt').getPos()
         self.subLeft = DirectLabel(text=TTLocalizer.EventsPageNewsLeftSubtitle, relief=None, text_scale=0.05, text_align=TextNode.ALeft, parent=self.newsFrame, pos=subLeftPos)

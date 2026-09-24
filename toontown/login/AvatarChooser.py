@@ -1,5 +1,6 @@
 from panda3d.core import ConfigVariableInt, ModelPool, Texture, TexturePool, Vec3, Vec4
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from . import AvatarChoice
 from direct.fsm import ClassicFSM, State, StateData
 from toontown.launcher import DownloadForceAcknowledge
@@ -120,7 +121,7 @@ class AvatarChooser(StateData.StateData):
             pos=(1.45, 0, 0.9),
             text=TTLocalizer.HomeScreenLoggedIn,
             text_fg=ColorGlobals.CDefault,
-            text_font=ToontownGlobals.getToonFont(),
+            text_font=ToontownClientGlobals.getToonFont(),
             text_size=TTLabel.MediumSize,
             text_wordwrap=25
         )

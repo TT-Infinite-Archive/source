@@ -24,7 +24,7 @@ from toontown.collectibles import CollectibleInventoryGlobals
 from toontown.distributed import DelayDelete
 from toontown.effects import DustCloud
 from toontown.effects import Wake
-from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.nametag.NametagGlobals import *
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
@@ -421,7 +421,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.forceJumpIdle = False
         self.numPies = 0
         self.pieType = 0
-        self.pieThrowType = ToontownGlobals.PieThrowArc
+        self.pieThrowType = ToontownClientGlobals.PieThrowArc
         self.pieModel = None
         self.__pieModelType = None
         self.pieScale = 1.0
@@ -442,8 +442,8 @@ class Toon(Avatar.Avatar, ToonHead):
         self.jar = None
         self.suit = None
         self.goofy = None
-        self.setTag('pieCode', str(ToontownGlobals.PieCodeToon))
-        self.setFont(ToontownGlobals.getToonFont())
+        self.setTag('pieCode', str(ToontownClientGlobals.PieCodeToon))
+        self.setFont(ToontownClientGlobals.getToonFont())
         self.soundChatBubble = loader.loadSfx('phase_3/audio/sfx/GUI_balloon_popup.ogg')
         self.animFSM = ClassicFSM(
             'Toon', [
@@ -1372,11 +1372,11 @@ class Toon(Avatar.Avatar, ToonHead):
                         self.goofy.setPlayRate(rate, anim)
                 else:
                     self.suit.setPlayRate(rate, anim)
-            showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
+            showWake, wakeWaterHeight = ToontownClientGlobals.getWakeInfo()
             if showWake and self.getZ(render) < wakeWaterHeight and abs(forwardSpeed) > ToontownGlobals.WalkCutOff:
                 currT = globalClock.getFrameTime()
                 deltaT = currT - self.lastWakeTime
-                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownGlobals.WakeRunDelta or deltaT > ToontownGlobals.WakeWalkDelta:
+                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownClientGlobals.WakeRunDelta or deltaT > ToontownClientGlobals.WakeWalkDelta:
                     self.getWake().createRipple(wakeWaterHeight, rate=1, startFrame=4)
                     self.lastWakeTime = currT
         return action
@@ -2980,7 +2980,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.chatMgr.chatInputSpeedChat.addCogMenu(indices)
         self.suit.loop('neutral')
         self.isDisguised = 1
-        self.setFont(ToontownGlobals.getSuitFont())
+        self.setFont(ToontownClientGlobals.getSuitFont())
         if setDisplayName:
             if hasattr(base, 'idTags') and base.idTags:
                 name = self.getAvIdName()
@@ -3015,7 +3015,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.isDisguised = 0
         if self.wasGoofy:
             self.applyCheesyEffect(CollectibleInventoryGlobals.CheesyEffectGoofy)
-        self.setFont(ToontownGlobals.getToonFont())
+        self.setFont(ToontownClientGlobals.getToonFont())
         self.nametag.setWordWrap(None)
         if hasattr(base, 'idTags') and base.idTags:
             name = self.getAvIdName()
@@ -3084,14 +3084,14 @@ class Toon(Avatar.Avatar, ToonHead):
         if pieType == 'actor':
             animPie = ActorInterval(pie, pieName, startFrame=48)
         sound = loader.loadSfx('phase_3.5/audio/sfx/AA_pie_throw_only.ogg')
-        if throwType == ToontownGlobals.PieThrowArc:
+        if throwType == ToontownClientGlobals.PieThrowArc:
             t = power / 100.0
             dist = 100 - 70 * t
             time = 1 + 0.5 * t
             proj = ProjectileInterval(None, startPos=Point3(0, 0, 0),
                                       endPos=Point3(0, dist, 0), duration=time)
             relVel = proj.startVel
-        elif throwType == ToontownGlobals.PieThrowLinear:
+        elif throwType == ToontownClientGlobals.PieThrowLinear:
             magnitude = power / 2. + 25
 
             relVel = Vec3(0, 1, 0.25)
@@ -3114,7 +3114,7 @@ class Toon(Avatar.Avatar, ToonHead):
             splatName = 'dust'
         splat = BattleProps.globalPropPool.getProp(splatName)
         splat.setBillboardPointWorld(2)
-        color = ToontownGlobals.PieCodeColors.get(pieCode)
+        color = ToontownClientGlobals.PieCodeColors.get(pieCode)
         if color:
             splat.setColor(*color)
         vol = 1.0

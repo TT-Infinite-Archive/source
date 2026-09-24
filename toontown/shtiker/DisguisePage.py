@@ -7,6 +7,7 @@ from toontown.coghq import CogDisguiseGlobals
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 DeptColors = (
@@ -61,7 +62,7 @@ class DisguisePage(ShtikerPage.ShtikerPage):
                 parent=self.pageFrame, relief=None, geom=tabGeom,
                 geom_color=DeptColors[tabIndex - 1],
                 text=SuitDNA.suitDeptFullnames[dept],
-                text_font=ToontownGlobals.getSuitFont(), text_pos=textPos,
+                text_font=ToontownClientGlobals.getSuitFont(), text_pos=textPos,
                 text_roll=-90, text_scale=TTLocalizer.DPtab,
                 text_align=TextNode.ACenter, text1_fg=Vec4(1, 0, 0, 1),
                 text2_fg=Vec4(0.5, 0.4, 0.4, 1),
@@ -72,7 +73,7 @@ class DisguisePage(ShtikerPage.ShtikerPage):
 
         self.deptLabel = DirectLabel(
             parent=self.frame, text='',
-            text_font=ToontownGlobals.getSuitFont(),
+            text_font=ToontownClientGlobals.getSuitFont(),
             text_scale=TTLocalizer.DPdeptLabel, text_pos=(-0.1, 0.8))
         DirectFrame(parent=self.frame, relief=None, geom=gui.find('**/pipe_frame'))
         self.tube = DirectFrame(parent=self.frame, relief=None, geom=gui.find('**/tube'))
@@ -102,12 +103,12 @@ class DisguisePage(ShtikerPage.ShtikerPage):
             geom=gui.find('**/text_ready4promotion'), geom_pos=(0, 0.1, 0))
         self.cogName = DirectLabel(
             parent=self.frame, relief=None, text='',
-            text_font=ToontownGlobals.getSuitFont(),
+            text_font=ToontownClientGlobals.getSuitFont(),
             text_scale=TTLocalizer.DPcogName, text_align=TextNode.ACenter,
             pos=(-0.948, 0, -1.15))
         self.cogLevel = DirectLabel(
             parent=self.frame, relief=None, text='',
-            text_font=ToontownGlobals.getSuitFont(), text_scale=0.09,
+            text_font=ToontownClientGlobals.getSuitFont(), text_scale=0.09,
             text_align=TextNode.ACenter, pos=(-0.91, 0, -1.02))
         self.partFrame = DirectFrame(parent=self.frame, relief=None)
         self.parts = []
@@ -122,11 +123,11 @@ class DisguisePage(ShtikerPage.ShtikerPage):
                             geom=gui.find('**/robot_hole/' + PartNames[partNum])))
         self.cogPartRatio = DirectLabel(
             parent=self.frame, relief=None, text='',
-            text_font=ToontownGlobals.getSuitFont(), text_scale=0.08,
+            text_font=ToontownClientGlobals.getSuitFont(), text_scale=0.08,
             text_align=TextNode.ACenter, pos=(-0.91, 0, -0.82))
         self.cogMeritRatio = DirectLabel(
             parent=self.frame, relief=None, text='',
-            text_font=ToontownGlobals.getSuitFont(), text_scale=0.08,
+            text_font=ToontownClientGlobals.getSuitFont(), text_scale=0.08,
             text_align=TextNode.ACenter, pos=(0.45, 0, -0.36))
         meterFace = gui.find('**/meter_face_whole')
         meterFaceHalf = gui.find('**/meter_face_half')
@@ -147,7 +148,7 @@ class DisguisePage(ShtikerPage.ShtikerPage):
         self.promoteButton = DirectButton(
             parent=self.frame, relief=None, text='Promote',
             text_fg=(0.9, 0.9, 0.9, 1), text_pos=(0, -0.2),
-            text_font=ToontownGlobals.getSuitFont(),
+            text_font=ToontownClientGlobals.getSuitFont(),
             text_scale=0.6, image=(upButton, downButton, rolloverButton),
             image_color=(0.5, 0.5, 0.5, 1), image_scale=(20, 1, 11),
             pos=(0.94, 0, -1.125), scale=0.125,

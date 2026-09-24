@@ -24,6 +24,7 @@ from toontown.toon import NPCToonFactory
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 PAINTING_DICT = {'s': 'tt_m_ara_crg_paintingMoverShaker',
@@ -425,7 +426,7 @@ class DistributedCogdoInterior(DistributedObject.DistributedObject):
             SuitHs = self.BottomFloor_SuitHs
             SuitPositions = self.BottomFloor_SuitPositions
         if self.isBossFloor(self.currentFloor):
-            base.camLens.setMinFov(ToontownGlobals.CBElevatorFov/(4./3.))
+            base.camLens.setMinFov(ToontownClientGlobals.CBElevatorFov/(4./3.))
 
             self.barrelRoom.unload()
             self.floorModel = loader.loadModel('phase_5/models/cogdominium/tt_m_ara_crg_penthouse')

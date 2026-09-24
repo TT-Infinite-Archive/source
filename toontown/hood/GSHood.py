@@ -1,5 +1,6 @@
 from toontown.safezone.GSSafeZoneLoader import GSSafeZoneLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood.ToonHood import ToonHood
 
 
@@ -20,7 +21,7 @@ class GSHood(ToonHood):
         ToonHood.enter(self, requestStatus)
 
         base.localAvatar.chatMgr.chatInputSpeedChat.addKartRacingMenu()
-        base.camLens.setNearFar(ToontownGlobals.SpeedwayCameraNear, ToontownGlobals.SpeedwayCameraFar)
+        base.camLens.setNearFar(ToontownClientGlobals.SpeedwayCameraNear, ToontownClientGlobals.SpeedwayCameraFar)
 
     def exit(self):
         base.camLens.setNearFar(ToontownGlobals.DefaultCameraNear, ToontownGlobals.DefaultCameraFar)

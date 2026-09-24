@@ -78,11 +78,11 @@ def fontConfig(quality):
 
 def loadedFonts(textNodes):
     from otp.otpbase import OTPGlobals
-    from toontown.toonbase import ToontownGlobals
+    from toontown.toonbase import ToontownClientGlobals
 
     fonts = [TextNode.getDefaultFont(), OTPGlobals.InterfaceFont, OTPGlobals.SignFont, OTPGlobals.FancyFont,
-             ToontownGlobals.ToonFont, ToontownGlobals.BuildingNametagFont, ToontownGlobals.MinnieFont,
-             ToontownGlobals.SuitFont, ToontownGlobals.FontAwesome]
+             ToontownClientGlobals.ToonFont, ToontownClientGlobals.BuildingNametagFont, ToontownClientGlobals.MinnieFont,
+             ToontownClientGlobals.SuitFont, ToontownClientGlobals.FontAwesome]
     fonts.extend(OTPGlobals.NametagFonts.values())
     fonts.extend(nodePath.node().getFont() for nodePath in textNodes)
     return [font for font in fonts if isinstance(font, DynamicTextFont)]

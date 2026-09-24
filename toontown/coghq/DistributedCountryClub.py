@@ -11,6 +11,7 @@ from direct.interval.IntervalGlobal import *
 from otp.otpbase import OTPGlobals
 
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.coghq import CountryClubLayout
 from toontown.coghq import DistributedCountryClubRoom
@@ -120,7 +121,7 @@ class DistributedCountryClub(DistributedObject.DistributedObject):
                 signOrigin = room.getGeom().find('**/sign_origin')
                 floorName = TTLocalizer.CountryClubFloorNum2Name[floorNum + 1]
                 text = TextEncoder.upper(floorName)
-                font = ToontownGlobals.getSuitFont()
+                font = ToontownClientGlobals.getSuitFont()
                 scale = TTLocalizer.BCHQLsignText
                 fg = (0, 0, 0, 1)
                 signText = DirectGui.OnscreenText(

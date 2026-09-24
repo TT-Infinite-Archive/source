@@ -1,5 +1,6 @@
 from panda3d.core import TextEncoder, TextNode, Vec4
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import TrophyStarColors, TrophyStarLevels
 from direct.gui.DirectGui import *
 from direct.showbase import DirectObject
 from direct.fsm import ClassicFSM, State

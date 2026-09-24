@@ -5,6 +5,7 @@ from direct.gui.DirectGui import *
 from .DistributedNPCToonBase import *
 from toontown.chat.ChatGlobals import *
 from toontown.toonbase import TTLocalizer, ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.guilds.IconSelector import IconSelectionDialog
 from toontown.guilds import GuildGlobals
 from toontown.toon import GuildMasterGlobals
@@ -219,7 +220,7 @@ class DistributedNPCLowdenClear(DistributedNPCToonBase):
                                      scale=0.05,
                                      borderWidth=(0.0,0.0),
                                      frameColor=((1, 1, 1, 1), (1, 1, 1, 1), (0.5, 0.5, 0.5, 0.5)),
-                                     entryFont=ToontownGlobals.getToonFont(),
+                                     entryFont=ToontownClientGlobals.getToonFont(),
                                      width=10,
                                      numLines=1,
                                      focus=1,
@@ -238,7 +239,7 @@ class DistributedNPCLowdenClear(DistributedNPCToonBase):
                                          state=DGG.NORMAL,
                                          text=TTLocalizer.NameShopSubmitButton,
                                          text_scale=0.03,
-                                         text_font = ToontownGlobals.getToonFont(),
+                                         text_font = ToontownClientGlobals.getToonFont(),
                                          text_align=TextNode.ACenter,
                                          text_pos=(0.0, -0.01),
                                          text3_fg=(0.5, 0.5, 0.5, 0.75),
@@ -271,7 +272,7 @@ class DistributedNPCLowdenClear(DistributedNPCToonBase):
                                        text_scale=0.05,
                                        text_fg=(1, 0.1, 0.1, 1),
                                        text_shadow=(0, 0, 0, 1),
-                                       text_font=ToontownGlobals.getToonFont())
+                                       text_font=ToontownClientGlobals.getToonFont())
         self.costDisplay.hide()
 
         if base.cr.guildManager.guild is not None and base.cr.guildManager.guild.rejected:

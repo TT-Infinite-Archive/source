@@ -4,6 +4,7 @@ from datetime import timedelta, datetime
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectButton, DirectScrolledList, DGG
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.parties.CalendarGuiDay import CalendarGuiDay
 
 class CalendarGuiMonth(DirectFrame):
@@ -88,11 +89,11 @@ class CalendarGuiMonth(DirectFrame):
         self.yearLocator.setPos(self.monthLocator, 0, 0, -0.03)
 
     def createGuiObjects(self):
-        self.monthLabel = DirectLabel(parent=self.monthLocator, relief=None, text=TTLocalizer.Months[self.startDate.month], text_scale=0.075, text_font=ToontownGlobals.getMinnieFont(), text_fg=(40 / 255.0,
+        self.monthLabel = DirectLabel(parent=self.monthLocator, relief=None, text=TTLocalizer.Months[self.startDate.month], text_scale=0.075, text_font=ToontownClientGlobals.getMinnieFont(), text_fg=(40 / 255.0,
          140 / 255.0,
          246 / 255.0,
          1.0))
-        self.yearLabel = DirectLabel(parent=self.yearLocator, relief=None, text=str(self.startDate.year), text_scale=0.03, text_font=ToontownGlobals.getMinnieFont(), text_fg=(140 / 255.0,
+        self.yearLabel = DirectLabel(parent=self.yearLocator, relief=None, text=str(self.startDate.year), text_scale=0.03, text_font=ToontownClientGlobals.getMinnieFont(), text_fg=(140 / 255.0,
          140 / 255.0,
          246 / 255.0,
          1.0))

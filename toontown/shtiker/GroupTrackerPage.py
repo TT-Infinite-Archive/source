@@ -2,6 +2,7 @@ from panda3d.core import TextNode, Vec4
 from direct.gui.DirectGui import DirectLabel, DirectFrame, DirectButton, DirectScrolledList, DGG
 from toontown.building import GroupTrackerGlobals
 from toontown.toonbase import TTLocalizer, ToontownGlobals, EventGlobals, FontAwesomeGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood import ZoneUtil
 from toontown.toontowngui import WarningDialog, ConfirmDialog
 from direct.directnotify.DirectNotifyGlobal import directNotify
@@ -342,7 +343,7 @@ class GroupTrackerPage(DirectFrame):
             text=FontAwesomeGlobals.FAEyeClose,
             text_scale=0.05,
             text_pos=(0.0, -0.015, 0.0),
-            text_font=ToontownGlobals.getFontAwesome(),
+            text_font=ToontownClientGlobals.getFontAwesome(),
             image=(upButton, downButton, rolloverButton),
             image_color=(0.5, 0.6, 1, 1),
             image_scale=(0.6, 0.75, 0.75),
@@ -360,7 +361,7 @@ class GroupTrackerPage(DirectFrame):
             text=FontAwesomeGlobals.FAGift,
             text_scale=0.05,
             text_pos=(0.0, -0.015, 0.0),
-            text_font=ToontownGlobals.getFontAwesome(),
+            text_font=ToontownClientGlobals.getFontAwesome(),
             image=(upButton, downButton, rolloverButton),
             image_color=(0.5, 0.6, 1, 1),
             image_scale=(0.6, 0.75, 0.75),
@@ -494,7 +495,7 @@ class GroupTrackerPage(DirectFrame):
             if self.warning is None:
                 self.warning = WarningDialog.WarningDialog(self, TTLocalizer.GroupTrackerFullGroup, command=handleWarningClose)
             return
-        elif groupWidget.zoneId in ToontownGlobals.NoTeleportZones:
+        elif groupWidget.zoneId in ToontownClientGlobals.NoTeleportZones:
             # Can't have people teleporting in without suits
             if self.warning is None:
                 self.warning = WarningDialog.WarningDialog(self, TTLocalizer.GroupTrackerCannotTeleportThere, command=handleWarningClose)

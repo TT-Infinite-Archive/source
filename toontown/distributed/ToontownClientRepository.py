@@ -28,6 +28,7 @@ from otp.otpbase import OTPLauncherGlobals
 from otp.avatar.Avatar import teleportNotify
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import getMinnieFont
 from toontown.launcher.DownloadForceAcknowledge import *
 from toontown.distributed import DelayDelete
 from toontown.distributed.ShardTimeManager import ShardTimeManager

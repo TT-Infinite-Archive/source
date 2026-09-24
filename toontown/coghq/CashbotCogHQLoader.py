@@ -3,6 +3,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import StateData
 from . import CogHQLoader, MintInterior
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.gui import DirectGui
 from toontown.toonbase import TTLocalizer
 from toontown.toon import Toon
@@ -47,7 +48,7 @@ class CashbotCogHQLoader(CogHQLoader.CogHQLoader):
             locator = self.geom.find('**/sign_origin')
             backgroundGeom = self.geom.find('**/EntranceFrameFront')
             backgroundGeom.node().setEffect(DecalEffect.make())
-            signText = DirectGui.OnscreenText(text=TTLocalizer.DonaldsDreamland[-1], font=ToontownGlobals.getSuitFont(), scale=3, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
+            signText = DirectGui.OnscreenText(text=TTLocalizer.DonaldsDreamland[-1], font=ToontownClientGlobals.getSuitFont(), scale=3, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
             signText.setPosHpr(locator, 0, 0, 0, 0, 0, 0)
             signText.setDepthWrite(0)
             self.geom.flattenMedium()

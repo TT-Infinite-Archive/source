@@ -17,6 +17,7 @@ from toontown.nametag.NametagGlobals import *
 from toontown.suit.SuitDNA import *
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import getSuitFont
 from toontown.toonbase import TTLocalizer
 
 

@@ -1,6 +1,7 @@
 from panda3d.core import Point3
 from direct.gui.DirectGui import DirectFrame, DirectLabel
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.toonbase import ServerSettingsGlobals
 from direct.interval.FunctionInterval import Func, Wait
@@ -23,7 +24,7 @@ class HostStartScreen(DirectFrame):
             relief=None,
             text='',
             text_fg=(0, 0, 0, 1),
-            text_font=ToontownGlobals.getToonFont(),
+            text_font=ToontownClientGlobals.getToonFont(),
             text_scale=0.1,
             text_wordwrap=25,
         )

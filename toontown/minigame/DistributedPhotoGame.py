@@ -7,6 +7,7 @@ from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownTimer
 from direct.task.Task import Task
 import math
@@ -54,7 +55,7 @@ def toDegrees(angle):
 
 class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPhotoGame')
-    font = ToontownGlobals.getToonFont()
+    font = ToontownClientGlobals.getToonFont()
     LOCAL_PHOTO_MOVE_TASK = 'localPhotoMoveTask'
     FIRE_KEY = property(lambda self: base.JUMP)
     UP_KEY = property(lambda self: base.MOVE_UP)

@@ -22,6 +22,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownAccess
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownLoader
 from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
@@ -597,9 +598,9 @@ class ToonBase(OTPBase.OTPBase):
 
     def getShardPopLimits(self):
         return (
-            ConfigVariableInt('shard-low-pop', ToontownGlobals.LOW_POP).getValue(),
-            ConfigVariableInt('shard-mid-pop', ToontownGlobals.MID_POP).getValue(),
-            ConfigVariableInt('shard-high-pop', ToontownGlobals.HIGH_POP).getValue()
+            ConfigVariableInt('shard-low-pop', ToontownClientGlobals.LOW_POP).getValue(),
+            ConfigVariableInt('shard-mid-pop', ToontownClientGlobals.MID_POP).getValue(),
+            ConfigVariableInt('shard-high-pop', ToontownClientGlobals.HIGH_POP).getValue()
         )
 
     def playMusic(self, music, looping=0, interrupt=1, volume=None, time=0.0):
@@ -692,16 +693,16 @@ class ToonBase(OTPBase.OTPBase):
         if sys.platform == 'android':
             return (1920, 1080)
 
-        resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
+        resolutions = ToontownClientGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
         if len(resolutions) < 2:
-            ratios = list(ToontownGlobals.CommonDisplayResolutions.keys())
+            ratios = list(ToontownClientGlobals.CommonDisplayResolutions.keys())
             ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
 
             while ratios:
                 ratio = ratios.pop()
                 if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
                     self.calcRatio = ratio
-                    resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
+                    resolutions = ToontownClientGlobals.CommonDisplayResolutions[ratio]
                     if resolutions[0][0] >= (self.nativeWidth - 125):
                         continue
                     if resolutions[0][1] >= (self.nativeHeight - 125):
@@ -709,7 +710,7 @@ class ToonBase(OTPBase.OTPBase):
                     break
             else:
                 self.calcRatio = (4, 3)
-                resolutions = ToontownGlobals.CommonDisplayResolutions[self.calcRatio]
+                resolutions = ToontownClientGlobals.CommonDisplayResolutions[self.calcRatio]
 
         res = resolutions[0]
         return res

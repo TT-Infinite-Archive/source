@@ -6,6 +6,7 @@ from direct.interval.IntervalGlobal import LerpScaleInterval
 from direct.showbase.DirectObject import DirectObject
 
 from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class ClickToStart(DirectObject):
@@ -35,7 +36,7 @@ class ClickToStart(DirectObject):
             font = ToontownGlobals.getNametagFont(10)
         else:
             clickToStartText = TTLocalizer.ClickToStartLabel
-            font = ToontownGlobals.getMinnieFont()
+            font = ToontownClientGlobals.getMinnieFont()
         self.label = OnscreenText(
             clickToStartText, parent=base.a2dBottomCenter, font=font,
             fg=Vec4(1, 1, 1, 1), scale=0.1, align=TextNode.ACenter)
@@ -47,7 +48,7 @@ class ClickToStart(DirectObject):
 
         self.versionLabel = OnscreenText(
             '\x01white_shadow\x01%s\x02' % version, parent=base.a2dBottomRight,
-            font=ToontownGlobals.getMinnieFont(), fg=Vec4(0, 0, 0, 1),
+            font=ToontownClientGlobals.getMinnieFont(), fg=Vec4(0, 0, 0, 1),
             scale=0.06, align=TextNode.ARight)
         self.versionLabel.setPos(-0.025, 0.025)
 

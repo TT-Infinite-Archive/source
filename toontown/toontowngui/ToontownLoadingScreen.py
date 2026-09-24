@@ -1,6 +1,7 @@
 from panda3d.core import TextNode, Texture, TransparencyAttrib
 from direct.gui.DirectGui import *
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.hood import ZoneUtil
 import random
@@ -75,7 +76,7 @@ class ToontownLoadingScreen:
         self.waitBar['range'] = range
         self.title['text'] = label
         if ToontownGlobals.BossbotHQ <= zoneId <= ToontownGlobals.LawbotHQ:
-            self.title['text_font'] = ToontownGlobals.getSuitFont()
+            self.title['text_font'] = ToontownClientGlobals.getSuitFont()
         else:
             self.title['text_font'] = ToontownGlobals.getSignFont()
         loadingScreenTex = self.zone2picture.get(ZoneUtil.getBranchZone(zoneId), self.defaultTex)

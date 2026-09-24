@@ -7,6 +7,7 @@ from .ElevatorUtils import *
 from .SuitBuildingGlobals import *
 from direct.gui.DirectGui import *
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.distributed import DistributedObject
@@ -468,7 +469,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         buildingTitle += '\n%s' % SuitDNA.getDeptFullname(chr(self.track))
         textNode = TextNode('sign')
         textNode.setTextColor(1.0, 1.0, 1.0, 1.0)
-        textNode.setFont(ToontownGlobals.getSuitFont())
+        textNode.setFont(ToontownClientGlobals.getSuitFont())
         textNode.setAlign(TextNode.ACenter)
         textNode.setWordwrap(17.0)
         textNode.setText(buildingTitle)
@@ -568,7 +569,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
             buildingTitle += TTLocalizer.CogdominiumsExt
         textNode = TextNode('sign')
         textNode.setTextColor(1.0, 1.0, 1.0, 1.0)
-        textNode.setFont(ToontownGlobals.getSuitFont())
+        textNode.setFont(ToontownClientGlobals.getSuitFont())
         textNode.setAlign(TextNode.ACenter)
         textNode.setWordwrap(12.0)
         textNode.setText(buildingTitle)

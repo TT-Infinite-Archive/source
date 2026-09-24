@@ -11,6 +11,7 @@ from direct.showbase import PythonUtil
 from direct.task import Task
 from toontown.golf import GolfGlobals
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 
 class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
@@ -710,10 +711,10 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
          entry.getIntoNodePath(),
          flyBallCode,
          throwerId))
-        if flyBallCode == ToontownGlobals.PieCodeBossCog and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
+        if flyBallCode == ToontownClientGlobals.PieCodeBossCog and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
             self.lastHitSequenceNum = self.__flyBallSequenceNum
             self.boss.d_ballHitBoss(2)
-        elif flyBallCode == ToontownGlobals.PieCodeToon and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
+        elif flyBallCode == ToontownClientGlobals.PieCodeToon and self.avId == localAvatar.doId and self.lastHitSequenceNum != self.__flyBallSequenceNum:
             self.lastHitSequenceNum = self.__flyBallSequenceNum
             avatarDoId = entry.getIntoNodePath().getNetTag('avatarDoId')
             if avatarDoId == '':
@@ -729,18 +730,18 @@ class DistributedGolfSpot(DistributedObject.DistributedObject, FSM.FSM):
         splatName = 'dust'
         splat = BattleProps.globalPropPool.getProp(splatName)
         splat.setBillboardPointWorld(2)
-        color = ToontownGlobals.PieCodeColors.get(flyBallCode)
+        color = ToontownClientGlobals.PieCodeColors.get(flyBallCode)
         if color:
             splat.setColor(*color)
-        if flyBallCode == ToontownGlobals.PieCodeBossCog:
+        if flyBallCode == ToontownClientGlobals.PieCodeBossCog:
             self.notify.debug('changing color to %s' % self.ballColor)
             splat.setColor(self.ballColor)
         sound = loader.loadSfx('phase_11/audio/sfx/LB_evidence_miss.ogg')
         vol = 1.0
-        if flyBallCode == ToontownGlobals.PieCodeBossCog:
+        if flyBallCode == ToontownClientGlobals.PieCodeBossCog:
             sound = loader.loadSfx('phase_4/audio/sfx/Golf_Hit_Barrier_1.ogg')
         soundIval = SoundInterval(sound, node=splat, volume=vol)
-        if flyBallCode == ToontownGlobals.PieCodeBossCog and localAvatar.doId == throwerId:
+        if flyBallCode == ToontownClientGlobals.PieCodeBossCog and localAvatar.doId == throwerId:
             vol = 1.0
             soundIval = SoundInterval(sound, node=localAvatar, volume=vol)
         ival = Parallel(Func(splat.reparentTo, render), Func(splat.setPos, x, y, z), soundIval, Sequence(ActorInterval(splat, splatName), Func(splat.detachNode)))

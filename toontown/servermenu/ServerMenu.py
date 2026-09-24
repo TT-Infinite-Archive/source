@@ -10,6 +10,7 @@ from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.servermenu.ServerMenuHomeScreen import ServerMenuHomeScreen
 from toontown.servermenu.LoginScreen import LoginScreen
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
 from direct.interval.FunctionInterval import Func, Wait
@@ -45,7 +46,7 @@ class ServerMenu(DirectFrame, FSM):
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             ToontownGlobals.getNametagFont(10)
         else:
-            ToontownGlobals.getMinnieFont()
+            ToontownClientGlobals.getMinnieFont()
 
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter,
