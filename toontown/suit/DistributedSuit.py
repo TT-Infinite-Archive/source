@@ -125,6 +125,7 @@ class DistributedSuit(DistributedSuitBase.DistributedSuitBase, DelayDeletable):
                          'WalkFromStreet',
                          'ToSky',
                          'ToCogHQ',
+                         'FromCogHQ',
                          'Walk']),
          State.State('Battle',
                      self.enterBattle,
