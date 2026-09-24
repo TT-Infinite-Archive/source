@@ -66,7 +66,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     def setAvatars(self, avatars):
         avList = []
-        for avNum, avName, avDNA, avPosition, nameState, guildId, lastHoodId in avatars:
+        for avNum, avName, avDNA, avPosition, nameState, guildId, lastHoodId, hat, glasses, backpack, shoes in avatars:
             nameOpen = int(nameState == 1)
             names = [avName, '', '', '']
             if nameState == 2:  # PENDING
@@ -76,7 +76,8 @@ class ClientServicesManager(DistributedObjectGlobal):
             elif nameState == 4:  # REJECTED
                 names[3] = avName
             avList.append(PotentialAvatar(avNum, names, avDNA, avPosition, nameOpen, guildId=guildId,
-                                          lastHoodId=lastHoodId))
+                                          lastHoodId=lastHoodId, hat=hat, glasses=glasses, backpack=backpack,
+                                          shoes=shoes))
 
         self.cr.handleAvatarsList(avList)
 
@@ -89,6 +90,9 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     def sendDeleteAvatar(self, avId):
         self.sendUpdate('deleteAvatar', [avId])
+
+    def sendMoveAvatar(self, avId, index):
+        self.sendUpdate('moveAvatar', [avId, index])
 
     # No deleteAvatarResp; it just sends a setAvatars when the deed is done.
 

@@ -24,6 +24,7 @@ class OptionsTabPage(DirectFrame):
     RowTop = -0.06
     TabsZ = 0.64
     ButtonsZ = -0.62
+    ExitButtonX = PaneLeft + 0.21
     TrackWidth = 0.012
     ThumbWidth = 0.045
     ThumbLength = 0.15
@@ -66,8 +67,8 @@ class OptionsTabPage(DirectFrame):
 
         self.requiresRestartLabel = TTLabel.TTLabel(
             parent = self,
-            pos = (self.PaneLeft, 0.0, self.PaneBottom - 0.06),
-            text_align = TextNode.ALeft,
+            pos = (self.PaneRight, 0.0, self.PaneBottom - 0.06),
+            text_align = TextNode.ARight,
             text_fg = ColorGlobals.CRed,
             text_size = TTLabel.TTLabel.SmallSize,
             text = '* %s' % TTLocalizer.OptionsPageRequiresRestart
@@ -78,6 +79,16 @@ class OptionsTabPage(DirectFrame):
         self.__loadSoundPane()
         self.__loadGameplayPane()
         self.__loadSocialPane()
+
+        self.exitButton = None
+        if self.hasAvatar:
+            self.exitButton = TTButton.TTButton(
+                parent = self,
+                buttonScale = (1.4, 1.15, 1.15),
+                text = TTLocalizer.OptionsPageExitToontown,
+                pos = (self.ExitButtonX, 0, self.ButtonsZ),
+                command = self.__handleExitShowWithConfirm
+            )
 
         self.setOptionsState(ECategory.VIDEO)
 
@@ -297,8 +308,6 @@ class OptionsTabPage(DirectFrame):
                 text_wordwrap = 15,
                 pos = (-0.08, 0, z - 0.1)
             )
-            self.exitButton = None
-            self.toonselectButton = None
             self.__fitPane(pane, z - 0.3)
             return
 
@@ -372,35 +381,6 @@ class OptionsTabPage(DirectFrame):
 
         self.__fitPane(pane, z)
 
-        if base.cr.isProductionServer():
-            self.exitButton = TTButton.TTButton(
-                parent = self,
-                buttonScale = 1.15,
-                text = TTLocalizer.OptionsPageExitToontown,
-                pos = (0, 0, self.ButtonsZ),
-                command = self.__handleExitToToonSelectShowWithConfirm
-            )
-            self.toonselectButton = None
-        else:
-            if base.isHosting or base.wantSinglePlayer:
-                text = TTLocalizer.OptionsDisconnect
-            else:
-                text = TTLocalizer.OptionsLeaveServer
-            self.exitButton = TTButton.TTButton(
-                parent = self,
-                buttonScale = 1.15,
-                text = text,
-                pos = (0.28, 0, self.ButtonsZ),
-                command = self.__handleExitServerShowWithConfirm
-            )
-            self.toonselectButton = TTButton.TTButton(
-                parent = self,
-                buttonScale = 1.15,
-                text = TTLocalizer.OptionsReturnToToonSelect,
-                pos = (-0.28, 0, self.ButtonsZ),
-                command = self.__handleExitToToonSelectShowWithConfirm
-            )
-
     # -- State
 
     def enter(self):
@@ -412,7 +392,7 @@ class OptionsTabPage(DirectFrame):
             self.speedChatStyleRow.setValue(self.speedChatStyleIndex)
             self.updateSpeedChatStyle()
 
-        self.__updateExitButtons()
+        self.__updateExitButton()
 
     def exit(self):
         self.ignore('confirmDone')
@@ -426,11 +406,9 @@ class OptionsTabPage(DirectFrame):
             self.speedChatStyleText.destroy()
             del self.speedChatStyleText
 
-        for button in (self.exitButton, self.toonselectButton):
-            if button is not None:
-                button.destroy()
-        self.exitButton = None
-        self.toonselectButton = None
+        if self.exitButton is not None:
+            self.exitButton.destroy()
+            self.exitButton = None
 
         for pane in self.panes.values():
             pane.destroy()
@@ -441,19 +419,15 @@ class OptionsTabPage(DirectFrame):
             self.tabBar.destroy()
             self.tabBar = None
 
-    def __updateExitButtons(self):
-        if not self.hasAvatar or self.exitButton is None:
+    def __updateExitButton(self):
+        if self.exitButton is None:
             return
 
         safeMode = getattr(getattr(self._parent, 'book', None), 'safeMode', False)
-        visible = self.state == ECategory.SOCIAL and not safeMode
-        for button in (self.exitButton, self.toonselectButton):
-            if button is None:
-                continue
-            if visible:
-                button.show()
-            else:
-                button.hide()
+        if self.state == ECategory.VIDEO and not safeMode:
+            self.exitButton.show()
+        else:
+            self.exitButton.hide()
 
     def setOptionsState(self, state):
         messenger.send(EventGlobals.WakeUp)
@@ -473,7 +447,7 @@ class OptionsTabPage(DirectFrame):
         else:
             self.requiresRestartLabel.hide()
 
-        self.__updateExitButtons()
+        self.__updateExitButton()
 
     # -- Social handlers
 
@@ -621,31 +595,10 @@ class OptionsTabPage(DirectFrame):
 
     # -- Leaving
 
-    def __handleExitServerShowWithConfirm(self):
-        if base.isHosting:
-            message = TTLocalizer.LeaveServerHost
-        else:
-            message = TTLocalizer.LeaveServer
-        if base.wantSinglePlayer:
-            message = TTLocalizer.LeaveServerHostSP
+    def __handleExitShowWithConfirm(self):
         self.confirm = TTDialog.TTGlobalDialog(
             doneEvent = 'confirmDone',
-            message = message,
-            style = TTDialog.TwoChoice
-        )
-        self.confirm.show()
-        self._parent.doneStatus = {'mode': 'exit', 'exitTo': 'disconnect'}
-        self.accept('confirmDone', self.__handleConfirm)
-
-    def __handleExitToToonSelectShowWithConfirm(self):
-        if base.cr.isProductionServer():
-            # Live calls this button Exit Toontown, so it asks the way it used to.
-            message = TTLocalizer.OptionsPageExitConfirm
-        else:
-            message = TTLocalizer.PickAToonConfirm
-        self.confirm = TTDialog.TTGlobalDialog(
-            doneEvent = 'confirmDone',
-            message = message,
+            message = TTLocalizer.OptionsPageExitConfirm,
             style = TTDialog.TwoChoice)
         self.confirm.show()
         self._parent.doneStatus = {'mode': 'exit', 'exitTo': 'closeShard'}

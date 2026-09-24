@@ -244,6 +244,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'waitForAvatarList',
                       'waitForSetAvatarResponse',
                       'waitForDeleteAvatarResponse',
+                      'waitForMoveAvatarResponse',
                       'shutdown',
                       'serverMenu']),
             State('createAvatar',
@@ -256,6 +257,12 @@ class OTPClientRepository(ClientRepositoryBase):
             State('waitForDeleteAvatarResponse',
                   self.enterWaitForDeleteAvatarResponse,
                   self.exitWaitForDeleteAvatarResponse, [
+                      'noConnection',
+                      'chooseAvatar',
+                      'shutdown']),
+            State('waitForMoveAvatarResponse',
+                  self.enterWaitForMoveAvatarResponse,
+                  self.exitWaitForMoveAvatarResponse, [
                       'noConnection',
                       'chooseAvatar',
                       'shutdown']),
@@ -1248,6 +1255,13 @@ class OTPClientRepository(ClientRepositoryBase):
     def exitWaitForDeleteAvatarResponse(self):
         self.cleanupWaitingForDatabase()
 
+    def enterWaitForMoveAvatarResponse(self, potAv, index):
+        self.csm.sendMoveAvatar(potAv.id, index)
+        self.waitForDatabaseTimeout(requestName='WaitForMoveAvatarResponse')
+
+    def exitWaitForMoveAvatarResponse(self):
+        self.cleanupWaitingForDatabase()
+
     def enterRejectRemoveAvatar(self, reasonCode):
         self.notify.warning('Rejected removed avatar. (%s)' % (reasonCode,))
         self.handler = self.handleMessageType
@@ -1641,11 +1655,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.accept(self.gameDoneEvent, self.handleGameDone)
         base.transitions.noFade()
         self.playGame.load()
-        try:
-            loader.endBulkLoad('localAvatarPlayGame')
-        except:
-            pass
-
         self.playGame.enter(hoodId, zoneId, avId)
 
         def checkScale(task):

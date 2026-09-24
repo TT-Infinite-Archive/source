@@ -239,32 +239,33 @@ class PlayGame(StateData.StateData):
             count += ToontownClientGlobals.safeZoneCountMap[canonicalHoodId]
         elif loaderName == 'townLoader':
             count += ToontownClientGlobals.townCountMap[canonicalHoodId]
-        if not loader.inBulkBlock:
+        if not loader.inBulkBlock or loader.blockName == 'localAvatarPlayGame':
+            headingToHood = TTLocalizer.HeadingToHood % {'to': toHoodPhrase, 'hood': hoodName}
             if hoodId == ToontownGlobals.MyEstate:
+                tipCategory = TTLocalizer.TIP_ESTATE
                 if avId == -1:
-                    loader.beginBulkLoad('hood', TTLocalizer.HeadingToYourEstate, count, 1, TTLocalizer.TIP_ESTATE, zoneId)
+                    label = TTLocalizer.HeadingToYourEstate
                 else:
                     owner = base.cr.identifyAvatar(ownerId)
                     if owner == None:
                         friend = base.cr.identifyAvatar(avId)
                         if friend != None:
-                            avName = friend.getName()
-                            loader.beginBulkLoad('hood', TTLocalizer.HeadingToFriend % avName, count, 1, TTLocalizer.TIP_ESTATE, zoneId)
+                            label = TTLocalizer.HeadingToFriend % friend.getName()
                         else:
                             self.notify.warning("we can't perform this teleport")
                             return
                     else:
-                        avName = owner.getName()
-                        loader.beginBulkLoad('hood', TTLocalizer.HeadingToEstate % avName, count, 1, TTLocalizer.TIP_ESTATE, zoneId)
+                        label = TTLocalizer.HeadingToEstate % owner.getName()
             elif ZoneUtil.isCogHQZone(zoneId):
-                loader.beginBulkLoad('hood', TTLocalizer.HeadingToHood % {'to': toHoodPhrase,
-                 'hood': hoodName}, count, 1, TTLocalizer.TIP_COGHQ, zoneId)
+                label, tipCategory = headingToHood, TTLocalizer.TIP_COGHQ
             elif ZoneUtil.isGoofySpeedwayZone(zoneId):
-                loader.beginBulkLoad('hood', TTLocalizer.HeadingToHood % {'to': toHoodPhrase,
-                 'hood': hoodName}, count, 1, TTLocalizer.TIP_KARTING, zoneId)
+                label, tipCategory = headingToHood, TTLocalizer.TIP_KARTING
             else:
-                loader.beginBulkLoad('hood', TTLocalizer.HeadingToHood % {'to': toHoodPhrase,
-                 'hood': hoodName}, count, 1, TTLocalizer.TIP_GENERAL, zoneId)
+                label, tipCategory = headingToHood, TTLocalizer.TIP_GENERAL
+            if loader.inBulkBlock:
+                loader.continueBulkLoad('hood', label, count, zoneId)
+            else:
+                loader.beginBulkLoad('hood', label, count, 1, tipCategory, zoneId)
         if hoodId == ToontownGlobals.Tutorial:
             self.loadDnaStoreTutorial()
         else:

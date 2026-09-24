@@ -15,6 +15,7 @@ import hashlib
 
 from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
+from toontown.estate import HouseGlobals
 from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon import ToonDNA
 from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
@@ -712,8 +713,10 @@ class GetAvatarsFSM(AvatarOperationFSM):
             elif wishNameState == 'REJECTED':
                 nameState = 4
 
+            accessories = [list(fields.get(field, (0, 0, 0)))
+                           for field in ('setHat', 'setGlasses', 'setBackpack', 'setShoes')]
             potentialAvs.append([avId, name, fields['setDNAString'][0],
-                                 index, nameState, guildId, lastHoodId])
+                                 index, nameState, guildId, lastHoodId] + accessories)
 
         self.csm.syncToons(self.target)
         self.csm.sendUpdateToAccountId(self.target, 'setAvatars', [potentialAvs])
@@ -802,6 +805,67 @@ class DeleteAvatarFSM(GetAvatarsFSM):
         friendsManager = self.csm.air.getGlobalObject('TTIFriendsManager')
         friendsManager.clearList(self.avId)
         self.csm.air.writeServerEvent('avatarDeleted', self.avId, self.target)
+        self.demand('QueryAvatars')
+
+
+class MoveAvatarFSM(GetAvatarsFSM):
+    notify = directNotify.newCategory('MoveAvatarFSM')
+    POST_ACCOUNT_STATE = 'ProcessMove'
+    ESTATE_CLEANUP_DELAY = HouseGlobals.BOOT_GRACE_PERIOD + HouseGlobals.CLEANUP_DELAY_AFTER_BOOT + 3
+    SLOT_DEFAULTS = {'setSlot%dToonId': [0], 'setSlot%dItems': [[(255, 0, -1, -1, 0)]]}
+
+    def enterStart(self, avId, index):
+        self.avId = avId
+        self.index = index
+
+        # A departed owner's estate lingers on the AI and would save its old garden slots over ours.
+        delay = self.csm.account2unloadTime.get(self.target, 0) + self.ESTATE_CLEANUP_DELAY - time.time()
+        if delay > 0:
+            taskMgr.doMethodLater(delay, lambda task: GetAvatarsFSM.enterStart(self), 'moveAvatar-%d' % self.target)
+        else:
+            GetAvatarsFSM.enterStart(self)
+
+    def enterProcessMove(self):
+        if self.avId not in self.avList or not 0 <= self.index < len(self.avList):
+            self.demand('Kill', 'Tried to move an avatar not in the account!')
+            return
+
+        oldIndex = self.avList.index(self.avId)
+        self.avList[oldIndex], self.avList[self.index] = self.avList[self.index], self.avList[oldIndex]
+
+        estateId = self.account.get('ESTATE_ID', 0)
+        if estateId:
+            self.csm.air.dbInterface.queryObject(
+                self.csm.air.dbId, estateId,
+                lambda dclass, fields: self.__handleEstate(dclass, fields, estateId, oldIndex))
+        else:
+            self.__updateAccount()
+
+    def __handleEstate(self, dclass, fields, estateId, oldIndex):
+        if dclass == self.csm.air.dclassesByName['DistributedEstateAI']:
+            newFields = {}
+            for field, default in self.SLOT_DEFAULTS.items():
+                newFields[field % self.index] = fields.get(field % oldIndex, default)
+                newFields[field % oldIndex] = fields.get(field % self.index, default)
+
+            self.csm.air.dbInterface.updateObject(self.csm.air.dbId, estateId, dclass, newFields)
+
+        self.__updateAccount()
+
+    def __updateAccount(self):
+        self.csm.air.dbInterface.updateObject(
+            self.csm.air.dbId,
+            self.target,
+            self.csm.air.dclassesByName['AccountUD'],
+            {'ACCOUNT_AV_SET': self.avList},
+            callback=self.__handleMove)
+
+    def __handleMove(self, fields):
+        if fields:
+            self.demand('Kill', 'Database failed to move the avatar!')
+            return
+
+        self.csm.air.writeServerEvent('avatarMoved', self.avId, self.target, self.index)
         self.demand('QueryAvatars')
 
 
@@ -1204,6 +1268,8 @@ class UnloadAvatarFSM(OperationFSM):
         datagram.addUint32(self.avId)
         self.csm.air.send(datagram)
 
+        self.csm.account2unloadTime[self.target] = time.time()
+
         # Done!
         self.csm.air.writeServerEvent('avatarUnload', self.avId)
         self.demand('Off')
@@ -1232,6 +1298,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # of race conditions.
         self.connection2fsm = {}
         self.account2fsm = {}
+        self.account2unloadTime = {}
 
         # Keep track of timestamp of last request made by connection; this is to prevent
         # clients from doing certain requests too many times
@@ -1482,6 +1549,9 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def deleteAvatar(self, avId):
         self.runAccountFSM(DeleteAvatarFSM, avId)
+
+    def moveAvatar(self, avId, index):
+        self.runAccountFSM(MoveAvatarFSM, avId, index)
 
     def setNameTyped(self, avId, name):
         self.runAccountFSM(SetNameTypedFSM, avId, name)

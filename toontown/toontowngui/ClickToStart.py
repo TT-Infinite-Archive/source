@@ -28,7 +28,7 @@ class ClickToStart(DirectObject):
 
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.75, 1, 0.40), pos=(0, 0, -0.90))
+            scale=(0.80, 1, 0.40), pos=(0, 0, -0.90))
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
 
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
@@ -128,9 +128,9 @@ class ClickToStart(DirectObject):
             self.logoScaleTrack = None
 
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.85, 1, 0.45), Vec3(0.75, 1, 0.40),
+            LerpScaleInterval(self.logo, 4, Vec3(0.90, 1, 0.45), Vec3(0.80, 1, 0.40),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.75, 1, 0.40), Vec3(0.85, 1, 0.45),
+            LerpScaleInterval(self.logo, 4, Vec3(0.80, 1, 0.40), Vec3(0.90, 1, 0.45),
                               blendType='easeInOut')
         )
 

@@ -3782,6 +3782,10 @@ struct PotentialToon {
   uint8 aname;
   uint32 guildId;
   uint32 lastHoodId;
+  uint8[] avHat;
+  uint8[] avGlasses;
+  uint8[] avBackpack;
+  uint8[] avShoes;
 };
 
 dclass ClientServicesManager : DistributedObjectGlobal {
@@ -3811,6 +3815,7 @@ dclass ClientServicesManager : DistributedObjectGlobal {
   acknowledgeAvatarNameResp();
 
   deleteAvatar(uint32 avId) clsend;
+  moveAvatar(uint32 avId, uint8 index) clsend;
 
   chooseAvatar(uint32 avId, string platform, string build) clsend;
 

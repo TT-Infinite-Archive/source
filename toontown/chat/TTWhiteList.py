@@ -13,6 +13,7 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
     WhitelistStageDir = ConfigVariableString('whitelist-stage-dir', 'whitelist').getValue()
     WhitelistOverHttp = ConfigVariableBool('whitelist-over-http', False).getValue()
     WhitelistFileName = ConfigVariableString('whitelist-filename', 'twhitelist.dat').getValue()
+    localWords = None
 
     def __init__(self):
         self.redownloadingWhitelist = False
@@ -20,6 +21,11 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
         self.endRedownload = datetime.datetime.now()
         self.percentDownloaded = 0.0
         self.notify = DirectNotifyGlobal.directNotify.newCategory('TTWhiteList')
+        self.defaultWord = TTLocalizer.ChatGarblerDefault[0]
+        if TTWhiteList.localWords is not None and not self.WhitelistOverHttp:
+            self.words = TTWhiteList.localWords
+            self.numWords = len(self.words)
+            return
         vfs = VirtualFileSystem.getGlobalPtr()
         filename = Filename('twhitelist.dat')
         searchPath = DSearchPath()
@@ -32,9 +38,9 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
         data = vfs.readFile(filename, 1)
         lines = data.split(b'\n')
         WhiteList.__init__(self, lines)
+        TTWhiteList.localWords = self.words
         if self.WhitelistOverHttp:
             self.redownloadWhitelist()
-        self.defaultWord = TTLocalizer.ChatGarblerDefault[0]
 
     def unload(self):
         self.removeDownloadingTextTask()

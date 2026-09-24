@@ -124,6 +124,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.accept(ToontownClientRepository.SetZoneDoneEvent, self._handleEmuSetZoneDone)
         self._deletedSubShardDoIds = set()
         self.toonNameDict = {}
+        self.heldAvatarResponse = None
         self.gameFSM.addState(State.State('skipTutorialRequest', self.enterSkipTutorialRequest, self.exitSkipTutorialRequest, ['playGame', 'gameOff', 'tutorialQuestion']))
         state = self.gameFSM.getStateNamed('waitOnEnterResponses')
         state.addTransition('skipTutorialRequest')
@@ -232,6 +233,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         done = doneStatus['mode']
         if done == 'exit':
             self.loginFSM.request('shutdown')
+            return
         index = self.avChoice.getChoice()
         for av in avList:
             if av.position == index:
@@ -260,6 +262,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.loginFSM.request('createAvatar', [avList, index])
         elif done == 'delete':
             self.loginFSM.request('waitForDeleteAvatarResponse', [avatarChoice])
+        elif done == 'move':
+            self.loginFSM.request('waitForMoveAvatarResponse', [avatarChoice, doneStatus['index']])
 
     def __handleDownloadAck(self, avList, index, doneStatus):
         if doneStatus['mode'] == 'complete':
@@ -317,6 +321,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                     if i.position == avPosition:
                         newPotAv = i
 
+                dna = ToonDNA.ToonDNA()
+                dna.makeFromNetString(newPotAv.dna)
+                base.localAvatarStyle = dna
+                settings[SettingsGlobals.LastToon] = newPotAv.id
                 self.loginFSM.request('waitForSetAvatarResponse', [newPotAv])
             else:
                 self.loginFSM.request('chooseAvatar', [avList])
@@ -483,6 +491,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         taskMgr.remove('avatarRequestQueueTask')
         OTPClientRepository.OTPClientRepository.exitPlayingGame(self)
         if hasattr(base, 'localAvatar'):
+            if self._userLoggingOut:
+                AvatarChooser.AvatarChooser.teleportInAvatarId = base.localAvatar.getDoId()
             base.camera.reparentTo(render)
             base.camera.setPos(0, 0, 0)
             base.camera.setHpr(0, 0, 0)
@@ -910,7 +920,30 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             parentId = di.getUint32()
             zoneId = di.getUint32()
             dclassId = di.getUint16()
+            if AvatarChooser.AvatarChooser.handingOff:
+                # Building the toon would stutter Pick-A-Toon's teleport, so wait for it to finish.
+                self.heldAvatarResponse = [(doId, Datagram(di.getRemainingBytes()))]
+                self.acceptOnce('pickAToonTeleportDone', self.__handleHeldAvatarResponse)
+                return
             self.handleAvatarResponseMsg(doId, di)
+
+    def exitWaitForSetAvatarResponse(self):
+        self.ignore('pickAToonTeleportDone')
+        self.heldAvatarResponse = None
+        OTPClientRepository.OTPClientRepository.exitWaitForSetAvatarResponse(self)
+
+    def __handleHeldAvatarResponse(self):
+        (doId, generate), updates = self.heldAvatarResponse[0], self.heldAvatarResponse[1:]
+        self.heldAvatarResponse = None
+        self.handleAvatarResponseMsg(doId, DatagramIterator(generate))
+        for update in updates:
+            self.handleUpdateField(DatagramIterator(update))
+
+    def handleUpdateField(self, di):
+        if self.heldAvatarResponse and DatagramIterator(di).getUint32() == self.heldAvatarResponse[0][0]:
+            self.heldAvatarResponse.append(Datagram(di.getRemainingBytes()))
+            return
+        OTPClientRepository.OTPClientRepository.handleUpdateField(self, di)
 
     def getFirstBattle(self):
         from toontown.battle import DistributedBattleBase

@@ -51,15 +51,15 @@ class ServerMenu(DirectFrame, FSM):
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter,
             image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.8, 0.35, 0.45), pos=(0, 0, -0.6)
+            scale=(0.77, 0.35, 0.385), pos=(0, 0, -0.6)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
         self.serverMenuElements.append(self.logo)
 
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.725, 0.35, 0.40), Vec3(0.70, 0.35, 0.385),
+            LerpScaleInterval(self.logo, 4, Vec3(0.80, 0.35, 0.40), Vec3(0.77, 0.35, 0.385),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.385), Vec3(0.725, 0.35, 0.40),
+            LerpScaleInterval(self.logo, 4, Vec3(0.77, 0.35, 0.385), Vec3(0.80, 0.35, 0.40),
                               blendType='easeInOut')
         )
         self.logoScaleTrack.loop()
