@@ -37,15 +37,6 @@ def __showProp(prop, parent, pos, hpr = None, scale = None):
         prop.setScale(scale)
 
 
-def __animProp(prop, propName, propType = 'actor'):
-    if 'actor' == propType:
-        prop.play(propName)
-    elif 'model' == propType:
-        pass
-    else:
-        self.notify.error('No such propType as: %s' % propType)
-
-
 def __suitFacePoint(suit, zOffset = 0):
     pnt = suit.getPos()
     pnt.setZ(pnt[2] + suit.shoulderHeight + 0.3 + zOffset)
@@ -473,8 +464,6 @@ def doDefault(attack):
         attack['name'] = 'FingerWag'
         attack['animName'] = 'finger-wag'
         return doFingerWag(attack)
-    else:
-        self.notify.error('doDefault() - unsupported suit type: %s' % suitName)
     return None
 
 

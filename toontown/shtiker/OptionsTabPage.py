@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool, TextNode, WindowProperties
+from panda3d.core import TextNode, WindowProperties
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.gui.DirectGui import DirectFrame, DirectScrolledFrame, DGG
@@ -15,10 +15,6 @@ from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, Settin
 
 class OptionsTabPage(DirectFrame):
     notify = directNotify.newCategory('OptionsTabPage')
-    DisplaySettingsTaskName = 'save-display-settings'
-    DisplaySettingsDelay = 60
-    ChangeDisplaySettings = ConfigVariableBool('change-display-settings', True).getValue()
-    ChangeDisplayAPI = ConfigVariableBool('change-display-api', False).getValue()
     PaneLeft = -0.82
     PaneRight = 0.84
     CanvasRight = 0.72
@@ -38,9 +34,6 @@ class OptionsTabPage(DirectFrame):
         self.wantTabs = wantTabs
         self.tabBar = None
         self.state = None
-        self.displaySettingsChanged = 0
-        self.displaySettingsSize = (None, None)
-        self.displaySettingsFullscreen = None
         self.customControlDialog = None
 
         self.speed_chat_scale = 0.055
@@ -233,7 +226,8 @@ class OptionsTabPage(DirectFrame):
             text = TTLocalizer.OptionsPageResolutionLabel,
             command = self.__videoOptionsChanged
         )
-        self.__refreshResolutions()
+        self.resolutionRow.setValues(self.screenSizes, ['%s x %s' % tuple(size) for size in self.screenSizes],
+                                     tuple(settings.get(SettingsGlobals.Resolution, ())))
         self.resolutionRow.setPos(0, 0, z)
         z -= self.resolutionRow.Height
 
@@ -249,21 +243,6 @@ class OptionsTabPage(DirectFrame):
         rows, z = self.__addRows(pane, OptionsPageGlobals.VideoOptions, z)
         self.rows.update(rows)
         self.__fitPane(pane, z)
-
-    def __refreshResolutions(self):
-        labels = ['%s x %s' % tuple(size) for size in self.screenSizes]
-        self.resolutionRow.setValues(self.screenSizes, labels, self.__currentResolution())
-
-    def __currentResolution(self):
-        res = tuple(settings.get(SettingsGlobals.Resolution, base.getSmallestResolution()))
-        if res in self.screenSizes:
-            return res
-
-        # Their resolution is not one we offer for this ratio, so work out a
-        # fresh set and fall back to the smallest of those.
-        newRes = base.getSmallestResolution()
-        self.screenSizes = list(ToontownGlobals.CommonDisplayResolutions[base.calcRatio])
-        return res if res in self.screenSizes else newRes
 
     # -- Sound
 
@@ -425,7 +404,6 @@ class OptionsTabPage(DirectFrame):
 
     def enter(self):
         self.show()
-        taskMgr.remove(self.DisplaySettingsTaskName)
 
         if self.hasAvatar:
             self.speedChatStyleText.enter()
@@ -440,17 +418,8 @@ class OptionsTabPage(DirectFrame):
         self.hide()
         if self.hasAvatar:
             self.speedChatStyleText.exit()
-        if self.displaySettingsChanged:
-            taskMgr.doMethodLater(
-                self.DisplaySettingsDelay,
-                self.writeDisplaySettings,
-                self.DisplaySettingsTaskName
-            )
 
     def unload(self):
-        self.writeDisplaySettings()
-        taskMgr.remove(self.DisplaySettingsTaskName)
-
         if self.hasAvatar:
             self.speedChatStyleText.exit()
             self.speedChatStyleText.destroy()
@@ -648,13 +617,6 @@ class OptionsTabPage(DirectFrame):
         self.ignore('confirmWarning')
         self.warning.cleanup()
         self.warning = None
-
-    def writeDisplaySettings(self, task = None):
-        if not self.displaySettingsChanged:
-            return
-        taskMgr.remove(self.DisplaySettingsTaskName)
-        settings[SettingsGlobals.Resolution] = (self.displaySettingsSize[0], self.displaySettingsSize[1])
-        settings[SettingsGlobals.Fullscreen] = self.displaySettingsFullscreen
 
     # -- Leaving
 

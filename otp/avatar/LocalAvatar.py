@@ -990,35 +990,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         if self.rewardTextQueue:
             self.displayRewardText(self.rewardTextQueue[0], enqueue=False)
 
-    def displayWhisper(self, fromId, chatString, whisperType):
-        sender = None
-        sfx = self.soundWhisper
-        if whisperType == WTNormal or whisperType == WTQuickTalker:
-            if sender == None:
-                return
-            chatString = sender.getName() + ': ' + chatString
-        whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
-        if sender != None:
-            whisper.setClickable(sender.getName(), fromId)
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
-
-    def displayWhisperPlayer(self, fromId, chatString, whisperType):
-        sender = None
-        playerInfo = None
-        sfx = self.soundWhisper
-        playerInfo = base.cr.playerFriendsManager.playerId2Info.get(fromId, None)
-        if playerInfo == None:
-            return
-        senderName = playerInfo.playerName
-        if whisperType == WTNormal or whisperType == WTQuickTalker:
-            chatString = senderName + ': ' + chatString
-        whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
-        if sender != None:
-            whisper.setClickable(senderName, fromId)
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
-
     def setAnimMultiplier(self, value):
         self.animMultiplier = value
 
@@ -1223,7 +1194,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def startChat(self):
         self.chatMgr.start()
-        self.accept(OTPGlobals.WhisperIncomingEvent, self.handlePlayerFriendWhisper)
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
         self.accept(OTPGlobals.PrintCamPosHotkey, self.printCamPos)
         if self.__enableMarkerPlacement:
@@ -1231,7 +1201,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def stopChat(self):
         self.chatMgr.stop()
-        self.ignore(OTPGlobals.WhisperIncomingEvent)
         self.ignore(OTPGlobals.ThinkPosHotkey)
         self.ignore(OTPGlobals.PrintCamPosHotkey)
         if self.__enableMarkerPlacement:
@@ -1317,10 +1286,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def d_setParent(self, parentToken):
         DistributedSmoothNode.DistributedSmoothNode.d_setParent(self, parentToken)
-
-    def handlePlayerFriendWhisper(self, playerId, charMessage):
-        print('handlePlayerFriendWhisper')
-        self.displayWhisperPlayer(playerId, charMessage, WTNormal)
 
     def canChat(self):
         return 0

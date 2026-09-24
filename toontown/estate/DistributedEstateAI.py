@@ -1436,17 +1436,6 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
         self.setRentalType(rentalType)
         self.d_setRentalType(rentalType)
 
-    def giveCannonTime(self, seconds):
-        timeleft = 0
-        if self.rentalType == ToontownGlobals.RentalCannon:
-            timeleft = self.rentalTimeStamp - currentTime
-            if timeleft < 0:
-                timeleft = 0
-        currentTime = time.time()
-        newTime = currentTime + seconds + timeleft
-        self.b_setRentalTimeStamp(newTime)
-        self.makeCannonsUntil(newTime)
-
 
     def makeCannonsUntil(self, endTime):
         #print("makeing cannons until")
@@ -1519,10 +1508,6 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
         if box != None:
             box.b_setPosition(x,y,0)
             box.b_setH(heading)
-
-    def printPlanterPos(self, slot, index):
-        box = self.gardenBoxLispdb; t[slot][index]
-        print ("X %s Y%s Heading %s" % (box.getX(), box.getY, box.getH()))
 
     def getFlowers(self, avId):
         flowers = []

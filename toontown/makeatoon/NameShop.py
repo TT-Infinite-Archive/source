@@ -835,12 +835,6 @@ class NameShop(StateData.StateData):
     def exitDone(self):
         return None
 
-    def nameShopHandler(self, msgType, di):
-        self.notify.debug('nameShopHandler')
-        if msgType == CLIENT_CREATE_AVATAR_RESP:
-            self.handleCreateAvatarResponseMsg(di)
-        return None
-
     def checkNamePattern(self):
         self.notify.debug('checkNamePattern')
         base.cr.csm.sendSetNamePattern(self.avId,

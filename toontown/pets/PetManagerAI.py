@@ -242,28 +242,6 @@ class PetManagerAI(DirectObject.DirectObject):
             return Task.done
         return Task.cont
 
-    def getPetObject(self, petId, callback):
-        """get an instance of a pet
-        callback must accept (success, pet)
-        pet is undefined if !success
-
-        On success, pet MUST be instantiated with
-        DistributedObjectAI.generateWithRequiredAndId, using the
-        correct pet doId.
-        """
-        doneEvent = 'readPet-%s' % self._getNextSerialNum()
-        dbo = DatabaseObject.DatabaseObject(
-            self.air, petId, doneEvent=doneEvent)
-        pet = dbo.readPet()
-
-        def handlePetRead(dbo, retCode, callback=callback, pet=pet):
-            success = (retCode == 0)
-            if not success:
-                PetManagerAI.notify.warning('pet DB read failed')
-                pet = None
-            callback(success, pet)
-        self.acceptOnce(doneEvent, handlePetRead)
-
     def createNewPetObject(self, callback):
         """ creates a new pet object in the DB """
         # callback must accept (success, petId)
@@ -280,15 +258,6 @@ class PetManagerAI(DirectObject.DirectObject):
         self.air.dbInterface.createObject(self.air.dbId,
                                           self.air.dclassesByName['DistributedPetAI'],
                                           {}, handleCreateNewPet)
-
-    def deletePetObject(self, petId):
-        """ USE WITH CAUTION, this could delete any DB record (such as
-        Toons or Houses) """
-        assert petId != 0
-        PetManagerAI.notify.warning('deleting pet %s' % petId)
-        self.air.writeServerEvent('deletePetObject', petId, '')
-        dbo = DatabaseObject.DatabaseObject(self.air, petId)
-        dbo.deleteObject()
 
     def assignPetToToon(self, petId, toonId):
         # toon must be logged in
@@ -360,7 +329,6 @@ class PetManagerAI(DirectObject.DirectObject):
 
         self.air.writeServerEvent('deleteToonsPet', toonId, '%s' % curPetId)
         toon.b_setPetId(0)
-        # self.deletePetObject(curPetId)
         return 0
 
     def getAvailablePets(self, numDaysPetAvailable, numPetsPerDay):

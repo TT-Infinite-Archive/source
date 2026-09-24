@@ -1790,9 +1790,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             return None
         return None
 
-    def getRequestID(self):
-        return CLIENT_GET_AVATAR_DETAILS
-
     def announceBingo(self):
         self.setChatAbsolute(TTLocalizer.FishBingoBingo, CFSpeech | CFTimeout)
 

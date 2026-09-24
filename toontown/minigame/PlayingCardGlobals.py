@@ -1,6 +1,5 @@
 from panda3d.core import Vec4
 
-from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 
 # For dealing
@@ -34,15 +33,6 @@ DownColor = Vec4(1, 0.9, 0.9, 1)
 DisabledColor = Vec4(1, 1, 1, 0.5)
 
 CardColors = (UpColor, DownColor, RolloverColor, DisabledColor)
-
-
-def getCardName(value):
-    if value == Unknown:
-        return TTLocalizer.PlayingCardUnknown
-    else:
-        rank = value % MaxRank
-        suit = value // MaxRank
-        return TTLocalizer.getPlayingCardName(suit, rank)
 
 
 Styles = ['standard']

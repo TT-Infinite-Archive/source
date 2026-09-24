@@ -164,8 +164,6 @@ class DistributedCountryClub(DistributedObject.DistributedObject):
                     self.camEnterRoom(roomNum)
 
         self.accept('on-floor', handleCameraRayFloorCollision)
-        if bboard.has('countryClubRoom'):
-            self.warpToRoom(bboard.get('countryClubRoom'))
         firstSetZoneDoneEvent = self.cr.getNextSetZoneDoneEvent()
 
         def handleFirstSetZoneDone():

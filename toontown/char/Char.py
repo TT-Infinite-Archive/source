@@ -118,11 +118,6 @@ class Char(Avatar.Avatar):
         if newDNA.name != self.style.name:
             self.swapCharModel(newDNA)
 
-    def setDNAString(self, dnaString):
-        newDNA = CharDNA.CharDNA()
-        newDNA.makeFromNetString(dnaString)
-        self.setDNA(newDNA)
-
     def setDNA(self, dna):
         if self.style:
             self.updateCharDNA(dna)

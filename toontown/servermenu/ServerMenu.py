@@ -82,8 +82,6 @@ class ServerMenu(DirectFrame, FSM):
         for elements in self.serverMenuElements:
             elements.hide()
 
-        self.connectionSuccessfulSfx = loader.loadSfx('phase_3/audio/sfx/server_menu_connection_successful.ogg')
-
     def destroy(self):
         if self.logoScaleTrack is not None:
             self.logoScaleTrack.finish()

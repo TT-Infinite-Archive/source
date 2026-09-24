@@ -1,7 +1,5 @@
 import enum
 from panda3d.core import CardMaker, NodePath, Texture, Vec4
-if __name__ == '__main__':
-    from direct.directbase import DirectStart
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
 from direct.showbase import DirectObject, PythonUtil
@@ -876,22 +874,6 @@ class KartShopGuiMgr(
 
         return
 
-    def __popDialog(self):
-        if self.dialog != None:
-            if dlgName != None:
-                for d in self.dialogStack:
-                    if d == dlgName:
-                        self.dialogStack.remove(d)
-
-            else:
-                d = self.dialogStack.pop()
-                event = self.dialogEventDict.get(d)
-                eventType = event[0]
-                self.ignore(eventType)
-                if self.dialogStack:
-                    self.__doDialog(self.dialogStack[-1])
-        return
-
     def __doLastMenu(self):
         self.__doDialog(self.lastMenu)
 
@@ -993,34 +975,3 @@ class KartShopGuiMgr(
             if self.kartID != -1:
                 messenger.send(self.eventDict['buyKart'], [self.kartID])
             self.__doDialog(EMenu.BOUGHT_KART)
-        if __name__ == '__main__':
-
-            class Main(DirectObject.DirectObject):
-
-                def __init__(self):
-                    self.acceptOnce('1', self.__popupKartShopGui)
-                    self.accept(KartShopGlobals.EVENTDICT['buyAccessory'], self.__handleBuyAccessory)
-                    self.accept(KartShopGlobals.EVENTDICT['buyKart'], self.__handleBuyKart)
-
-                def __popupKartShopGui(self):
-                    if not hasattr(self, 'kartShopGui') or self.kartShopGui == None:
-                        self.acceptOnce(KartShopGlobals.EVENTDICT['guiDone'], self.__handleGuiDone)
-                        self.kartShopGui = KartShopGuiMgr(KartShopGlobals.EVENTDICT)
-                    return
-
-                def __handleGuiDone(self, args = []):
-                    if hasattr(self, 'kartShopGui') and self.kartShopGui != None:
-                        self.ignoreAll()
-                        self.kartShopGui.destroy()
-                        del self.kartShopGui
-                        self.acceptOnce('1', self.__popupKartShopGui)
-                    return
-
-                def __handleBuyAccessory(self, accID = -1):
-                    requestAddOwnedAccessory(self, accID)
-
-                def __handleBuyKart(self, kartID = -1):
-                    pass
-
-            m = Main()
-            run()

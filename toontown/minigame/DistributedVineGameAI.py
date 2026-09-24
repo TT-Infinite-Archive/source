@@ -198,12 +198,6 @@ class DistributedVineGameAI(DistributedMinigameAI):
             curTime = self.getCurrentGameTime()
             timeLeft = VineGameGlobals.GameDuration - curTime
             self.notify.debug('curTime =%s timeLeft = %s' % (curTime, timeLeft))
-            if avId not in self.scoreDict:
-                self.notify.warning('PROBLEM: avatar %s called claimTreasure(%s) but he is not in the scoreDict: %s. avIdList is: %s' % (avId,
-                 treasureNum,
-                 self.scoreDict,
-                 self.avIdList))
-                return
             addBonus = int(VineGameGlobals.BaseBonusOnEndVine[self.getSafezoneId()] + VineGameGlobals.BonusPerSecondLeft * timeLeft)
             self.notify.debug('addBOnus = %d' % addBonus)
             if addBonus < 0:

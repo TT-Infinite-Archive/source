@@ -761,63 +761,6 @@ class CatalogScreen(DirectFrame):
         self.clarabelle.setPosHprScale(-0.52, 6.13, -3.81, 85, 0.0, 0.0, 1.0, 1.0, 1.0)
         self.clarabelleFrame.setPosHprScale(-0.01, 0.0, -0.01, 0.0, 0.0, 0.0, 1.02, 1.0, 1.02)
 
-    def reload(self):
-        for panel in self.panelList + self.backPanelList + self.loyaltyPanelList + self.emblemPanelList:
-            panel.destroy()
-
-        def priceSort(a, b, type):
-            priceA = a.getPrice(type)
-            priceB = b.getPrice(type)
-            return priceB - priceA
-
-        self.pageIndex = -1
-        self.maxPageIndex = 0
-        self.numNewPages = 0
-        self.numBackPages = 5
-        self.numLoyaltyPages = 0
-        self.viewing = 'New'
-        self.panelList = []
-        self.backPanelList = []
-        self.loyaltyList = []
-        self.pageList = []
-        self.backPageList = []
-        self.loyaltyPanelList = []
-        self.loyaltyPageList = []
-        self.panelDict = {}
-        self.visiblePanels = []
-        itemList = base.localAvatar.monthlyCatalog + base.localAvatar.weeklyCatalog
-        itemList.sort(lambda a, b: priceSort(a, b, CatalogItem.CatalogTypeWeekly))
-        itemList.reverse()
-        for item in itemList:
-            if item.loyaltyRequirement() != 0:
-                self.loyaltyPanelList.append(CatalogItemPanel.CatalogItemPanel(parent=hidden, item=item, type=CatalogItem.CatalogTypeLoyalty, parentCatalogScreen=self))
-            else:
-                self.panelList.append(CatalogItemPanel.CatalogItemPanel(parent=hidden, item=item, type=CatalogItem.CatalogTypeWeekly))
-
-        itemList = base.localAvatar.backCatalog
-        itemList.sort(lambda a, b: priceSort(a, b, CatalogItem.CatalogTypeBackorder))
-        itemList.reverse()
-        for item in itemList:
-            if item.loyaltyRequirement() != 0:
-                self.loyaltyPanelList.append(CatalogItemPanel.CatalogItemPanel(parent=hidden, item=item, type=CatalogItem.CatalogTypeLoyalty, parentCatalogScreen=self))
-            else:
-                self.backPanelList.append(CatalogItemPanel.CatalogItemPanel(parent=hidden, item=item, type=CatalogItem.CatalogTypeBackorder))
-
-        numPages = self.packPages(self.panelList, self.pageList, 'new')
-        self.setNumNewPages(numPages)
-        numPages = self.packPages(self.backPanelList, self.backPageList, 'back')
-        self.setNumBackPages(numPages)
-        numPages = self.packPages(self.loyaltyPanelList, self.loyaltyPageList, 'loyalty')
-        self.setNumLoyaltyPages(numPages)
-        seriesNumber = (base.localAvatar.catalogScheduleCurrentWeek - 1) / ToontownGlobals.CatalogNumWeeksPerSeries + 1
-        self.catalogSeries['text'] = Localizer.CatalogSeriesLabel % seriesNumber
-        weekNumber = (base.localAvatar.catalogScheduleCurrentWeek - 1) % ToontownGlobals.CatalogNumWeeksPerSeries + 1
-        self.catalogNumber['text'] = '#%d' % weekNumber
-        self.enableBackorderCatalogButton()
-        self.setMaxPageIndex(self.numNewPages)
-        self.setPageIndex(-1)
-        self.showPageItems()
-
     def unload(self):
         taskMgr.remove('clearClarabelleChat')
         taskMgr.remove('postGoodbyeHangUp')

@@ -729,7 +729,7 @@ class DistributedPartyManagerUD(DistributedObjectGlobalUD):
                 xRadius = 60.0
                 yRadius = 80.0
                 for i in range(numActivities):
-                    activites.append((
+                    activities.append((
                         i,
                         PartyUtils.convertDistanceToPartyGrid(math.cos(i * circleStep) * xRadius, 0),
                         PartyUtils.convertDistanceToPartyGrid(math.sin(i * circleStep) * yRadius, 1),

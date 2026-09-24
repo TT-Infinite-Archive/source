@@ -6,9 +6,6 @@ class PlayingCardBase:
         self.faceUp = 1
         self.setValue(value)
 
-    def getCardName(self):
-        return PlayingCardGlobals.getCardName(self.value)
-
     def getRank(self):
         return self.rank
 

@@ -76,9 +76,6 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
     def setMintInteriorZone(self, zoneId):
         if self.localToonOnBoard:
             hoodId = self.cr.playGame.hood.hoodId
-            mintId = self.mintId
-            if bboard.has('mintIdOverride'):
-                mintId = bboard.get('mintIdOverride')
             doneStatus = {'loader': 'cogHQLoader',
              'where': 'mintInterior',
              'how': 'teleportIn',
@@ -92,9 +89,6 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
         if place:
             place.fsm.request('elevator', [self, 1])
             hoodId = self.cr.playGame.hood.hoodId
-            mintId = self.mintId
-            if bboard.has('mintIdOverride'):
-                mintId = bboard.get('mintIdOverride')
             doneStatus = {'loader': 'cogHQLoader',
              'where': 'mintInterior',
              'how': 'teleportIn',

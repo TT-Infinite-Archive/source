@@ -367,22 +367,6 @@ class InteractiveAnimatedProp(GenericAnimatedProp.GenericAnimatedProp, FSM.FSM):
         if not self.buildingsMakingMeSad:
             self.gotoIdle()
 
-    def calcWhichIdleAnim(self, animName):
-        result = 0
-        info = self.ZoneToIdles[self.hoodId]
-
-        for index, curInfo in enumerate(info):
-            if isinstance(curInfo, tuple):
-                if curInfo[0] == animName:
-                    result = index
-                    break
-            elif isinstance(curInfo, str):
-                if curInfo == animName:
-                    result = index
-                    breal
-
-        return result
-
     def enterBattleCheer(self):
         self.notify.debugStateCall(self)
         self.curIval = self.battleCheerInterval

@@ -846,25 +846,6 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         distance = math.sqrt(dx * dx + dy * dy + dz * dz)
         return distance
 
-    def getNextPoint(self, pointList, point):
-        pointIndex = 0
-        length = len(pointList)
-        found = 0
-        loop = 0
-        while not found and loop < length:
-            if pointList[index] == point:
-                found = 1
-            else:
-                index += 1
-                loop += 1
-
-        if not found:
-            return None
-        nextPointIndex = loop + 1
-        if nextPointIndex >= length:
-            nextPointIndex = 0
-        return pointList[nextPointIndex]
-
     def __createTripod(self):
         tripod = self.tripodModel.copyTo(hidden)
         swivel = tripod.find('**/cannon')

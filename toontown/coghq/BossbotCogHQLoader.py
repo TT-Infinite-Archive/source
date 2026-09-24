@@ -97,15 +97,6 @@ class BossbotCogHQLoader(CogHQLoader.CogHQLoader):
         CogHQLoader.CogHQLoader.unload(self)
         Toon.unloadSellbotHQAnims()
 
-    def enterStageInterior(self, requestStatus):
-        self.placeClass = StageInterior.StageInterior
-        self.stageId = requestStatus['stageId']
-        self.enterPlace(requestStatus)
-
-    def exitStageInterior(self):
-        self.exitPlace()
-        self.placeClass = None
-
     def getExteriorPlaceClass(self):
         self.notify.debug('getExteriorPlaceClass')
         return BossbotHQExterior.BossbotHQExterior

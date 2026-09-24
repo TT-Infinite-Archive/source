@@ -986,20 +986,17 @@ class BattleCalculatorAI:
             self.notify.warning('__allTargetsDead: suit ver. not implemented!')
         return allTargetsDead
 
-    def __clearLuredSuitsByAttack(self, toonId, kbBonusReq = 0, targetId = -1):
+    def __clearLuredSuitsByAttack(self, toonId, kbBonusReq = 0):
         if self.notify.getDebug():
             self.notify.debug('__clearLuredSuitsByAttack')
-        if targetId != -1 and self.__suitIsLured(t.getDoId()):
-            self.__removeLured(t.getDoId())
-        else:
-            tgtList = self.__createToonTargetList(toonId)
-            for t in tgtList:
-                if self.__suitIsLured(t.getDoId()) and (not kbBonusReq or self.__bonusExists(t, hp=0)):
-                    self.__removeLured(t.getDoId())
-                    if self.notify.getDebug():
-                        self.notify.debug('Suit %d stepping from lured spot' % t.getDoId())
-                else:
-                    self.notify.debug('Suit ' + str(t.getDoId()) + ' not found in currently lured suits')
+        tgtList = self.__createToonTargetList(toonId)
+        for t in tgtList:
+            if self.__suitIsLured(t.getDoId()) and (not kbBonusReq or self.__bonusExists(t, hp=0)):
+                self.__removeLured(t.getDoId())
+                if self.notify.getDebug():
+                    self.notify.debug('Suit %d stepping from lured spot' % t.getDoId())
+            else:
+                self.notify.debug('Suit ' + str(t.getDoId()) + ' not found in currently lured suits')
 
     def __clearLuredSuitsDelayed(self):
         if self.notify.getDebug():

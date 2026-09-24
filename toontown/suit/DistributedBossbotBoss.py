@@ -1,4 +1,4 @@
-from panda3d.core import BitMask32, BoundingSphere, CSDefault, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionPlane, CollisionSphere, CollisionTube, GeomNode, Mat3, NodePath, Plane, Point3, Texture, TextureStage, VBase3, VBase4, Vec2, Vec3, composeMatrix, decomposeMatrix
+from panda3d.core import BitMask32, BoundingSphere, CollideMask, CollisionHandler, CollisionHandlerEvent, CollisionNode, CollisionPlane, CollisionSphere, CollisionTube, GeomNode, NodePath, Plane, Point3, Texture, TextureStage, VBase3, VBase4, Vec2, Vec3, composeMatrix
 from direct.distributed.ClockDelta import globalClockDelta
 from toontown.effects import DustCloud
 from toontown.suit import Suit
@@ -1240,13 +1240,6 @@ class DistributedBossbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         distance = vector.length()
         self.distanceToTravel = distance
         self.notify.debug('self.distanceToTravel = %s' % self.distanceToTravel)
-        if toHpr == None:
-            mat = Mat3(0, 0, 0, 0, 0, 0, 0, 0, 0)
-            headsUp(mat, vector, CSDefault)
-            scale = VBase3(0, 0, 0)
-            shear = VBase3(0, 0, 0)
-            toHpr = VBase3(0, 0, 0)
-            decomposeMatrix(mat, scale, shear, toHpr, CSDefault)
         if fromHpr:
             newH = PythonUtil.fitDestAngle2Src(fromHpr[0], toHpr[0])
             toHpr = VBase3(newH, 0, 0)

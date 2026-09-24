@@ -378,19 +378,6 @@ class CogdoMazeGame(DirectObject):
         if Globals.BossShakeEnabled:
             self.shakeCamera(suit.suit, strength, Globals.BossMaxDistance)
 
-    def randomDrop(self, centerTX, centerTY, radius):
-        dropArray = []
-        for i in range(1, distance):
-            dropArray.append(i)
-            dropArray.append(-1 * i)
-
-        offsetTX = self.distGame.randomNumGen.choice(dropArray)
-        offsetTY = self.distGame.randomNumGen.choice(dropArray)
-        dropTX = sourceTX + offsetTX
-        dropTY = sourceTY + offsetTY
-        if self.maze.isWalkable(dropTX, dropTY):
-            self.generateDrop(dropTX, dropTY)
-
     def generateDrop(self, TX, TY):
         drop = self.maze.tile2world(TX, TY)
         ival = self.createDrop(drop[0], drop[1])

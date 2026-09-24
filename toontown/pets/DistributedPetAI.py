@@ -25,8 +25,6 @@ import random
 import time
 import string
 import copy
-if __debug__:
-    from direct.showbase.PythonUtil import StackTrace
 
 class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLookerAI.PetLookerAI, PetBase.PetBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPetAI')
@@ -546,23 +544,7 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
         taskMgr.remove(self.uniqueName('PetMovieComplete'))
         taskMgr.remove(self.getLockMoveTaskName())
         taskMgr.remove(self.getMoveTaskName())
-        if hasattr(self, 'zoneId'):
-            self.announceZoneChange(ToontownGlobals.QuietZone, self.zoneId)
-        else:
-            myDoId = 'No doId'
-            myTaskName = 'No task name'
-            myStackTrace = StackTrace().trace if __debug__ else 'No Trace'
-            myOldStackTrace = 'No Trace'
-            if hasattr(self, 'doId'):
-                myDoId = self.doId
-            if task:
-                myTaskName = task.name
-            if hasattr(self, 'destroyDoStackTrace'):
-                myOldStackTrace = self.destroyDoStackTrace.trace
-            simbase.air.writeServerEvent('Pet RequestDelete duplicate', myDoId, 'from task %s' % myTaskName)
-            simbase.air.writeServerEvent('Pet RequestDelete duplicate StackTrace', myDoId, '%s' % myStackTrace)
-            simbase.air.writeServerEvent('Pet RequestDelete duplicate OldStackTrace', myDoId, '%s' % myOldStackTrace)
-            DistributedPetAI.notify.warning('double requestDelete from task %s' % myTaskName)
+        self.announceZoneChange(ToontownGlobals.QuietZone, self.zoneId)
         self.setParent(ToontownGlobals.SPHidden)
         if hasattr(self, 'activated'):
             if self.activated:
@@ -608,18 +590,6 @@ class DistributedPetAI(DistributedSmoothNodeAI.DistributedSmoothNodeAI, PetLooke
             self._doDeleteCleanup()
         self.setHasRequestedDelete(False)
         DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
-
-    def patchDelete(self):
-        for funcName in self.__funcsToDelete:
-            del self.__dict__[funcName]
-
-        del self.gaitFSM
-        del self.unstickFSM
-        PetLookerAI.PetLookerAI.destroy(self)
-        self.doNotDeallocateChannel = True
-        self.zoneId = None
-        DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
-        self.ignoreAll()
 
     def createImpulses(self):
         self.createSphereImpulse()

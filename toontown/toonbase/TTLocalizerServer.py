@@ -6321,7 +6321,6 @@ GolfHoleNames = {
 InviteAcceptInvalidError = 'The invitation is no longer valid.'
 InviteAcceptAllOk = 'The host has been informed of your reply.'
 InviteRejectAllOk = 'The host has been informed that you declined the invitation.'
-PlayingCardUnknown = 'Card Name is unknown'
 
 # Buffs
 

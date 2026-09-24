@@ -1104,10 +1104,6 @@ class ObjectManager(NodePath, DirectObject):
         picker.scrollTo(selectedIndex)
         return picker
 
-    def reset():
-        self.destroy()
-        furnitureMenu.destroy()
-
     def showAtticPicker(self):
         if self.inRoomPicker:
             self.inRoomPicker.destroy()

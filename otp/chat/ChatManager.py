@@ -5,7 +5,6 @@ from direct.gui.DirectGui import *
 from direct.showbase import DirectObject
 
 from otp.login import LeaveToPayDialog
-from otp.login import PrivacyPolicyPanel
 from otp.login import SecretFriendsInfoPanel
 from otp.otpbase import OTPLocalizer
 from otp.chat.ChatGlobals import *
@@ -31,7 +30,6 @@ class ChatManager(DirectObject.DirectObject):
         self.noSecretChatWarning = None
         self.activateChatGui = None
         self.chatMoreInfo = None
-        self.chatPrivacyPolicy = None
         self.secretChatActivated = None
         self.problemActivatingChat = None
         self.leaveToPayDialog = None
@@ -54,7 +52,6 @@ class ChatManager(DirectObject.DirectObject):
          State.State('otherDialog', self.enterOtherDialog, self.exitOtherDialog),
          State.State('activateChat', self.enterActivateChat, self.exitActivateChat),
          State.State('chatMoreInfo', self.enterChatMoreInfo, self.exitChatMoreInfo),
-         State.State('chatPrivacyPolicy', self.enterChatPrivacyPolicy, self.exitChatPrivacyPolicy),
          State.State('secretChatActivated', self.enterSecretChatActivated, self.exitSecretChatActivated),
          State.State('problemActivatingChat', self.enterProblemActivatingChat, self.exitProblemActivatingChat),
          State.State('whiteListOpenChat', self.enterWhiteListOpenChat, self.exitWhiteListOpenChat),
@@ -99,9 +96,6 @@ class ChatManager(DirectObject.DirectObject):
         if self.chatMoreInfo:
             self.chatMoreInfo.destroy()
             self.chatMoreInfo = None
-        if self.chatPrivacyPolicy:
-            self.chatPrivacyPolicy.destroy()
-            self.chatPrivacyPolicy = None
         if self.secretChatActivated:
             self.secretChatActivated.destroy()
             self.secretChatActivated = None
@@ -467,19 +461,6 @@ class ChatManager(DirectObject.DirectObject):
         self.chatMoreInfo.hide()
         self.ignore('secretFriendsInfoDone')
 
-    def enterChatPrivacyPolicy(self):
-        if self.chatPrivacyPolicy == None:
-            self.chatPrivacyPolicy = PrivacyPolicyPanel.PrivacyPolicyPanel('privacyPolicyDone')
-        self.chatPrivacyPolicy.show()
-        self.accept('privacyPolicyDone', self.__privacyPolicyDone)
-        return
-
-    def exitChatPrivacyPolicy(self):
-        cleanupDialog('privacyPolicyDialog')
-        self.chatPrivacyPolicy = None
-        self.ignore('privacyPolicyDone')
-        return
-
     def enterSecretChatActivated(self):
         self.notify.error('called enterSecretChatActivated() on parent class')
 
@@ -502,9 +483,6 @@ class ChatManager(DirectObject.DirectObject):
         self.fsm.request('mainMenu')
 
     def __secretFriendsInfoDone(self):
-        self.fsm.request('activateChat')
-
-    def __privacyPolicyDone(self):
         self.fsm.request('activateChat')
 
     def acquireChatInputFocus(self):

@@ -71,9 +71,6 @@ want-resistance-dance #f
 # Cog battles:
 base-xp-multiplier 1.0
 
-# Animated Props
-zero-pause-mult 1.0
-
 # Interactive Props
 randomize-interactive-idles #t
 props-buff-battles #t

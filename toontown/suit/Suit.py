@@ -194,25 +194,6 @@ def loadSuits(level):
 def unloadSuits(level):
     unloadDialog(level)
 
-def loadSuitAnims(suit, flag = 1):
-    if suit in SuitDNA.suitHeadTypes:
-        try:
-            animList = eval(suit)
-        except NameError:
-            animList = ()
-
-    else:
-        print('Invalid suit name: ', suit)
-        return -1
-    for anim in animList:
-        phase = 'phase_' + str(anim[2])
-        filePrefix = ModelDict[bodyType][0]
-        animName = filePrefix + anim[1]
-        if flag:
-            loader.loadModel(animName)
-        else:
-            loader.unloadModel(animName)
-
 
 def loadDialog(level):
     global SuitDialogArray

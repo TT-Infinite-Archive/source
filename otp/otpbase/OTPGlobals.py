@@ -335,7 +335,6 @@ PlayerFriendRejectRemoveEvent = 'playerFriendRejectRemoveEvent'
 PlayerFriendNewSecretEvent = 'playerFriendNewSecretEvent'
 PlayerFriendRejectNewSecretEvent = 'playerFriendRejectNewSecretEvent'
 PlayerFriendRejectUseSecretEvent = 'playerFriendRejectUseSecretEvent'
-WhisperIncomingEvent = 'whisperIncomingEvent'
 AccessUnknown = 0
 AccessVelvetRope = 1
 AccessFull = 2

@@ -337,14 +337,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
         DistributedPlayerAI.DistributedPlayerAI.delete(self)
 
-    def deleteDummy(self):
-        if self.inventory:
-            self.inventory.unload()
-        del self.inventory
-        self.experience = None
-        taskName = self.uniqueName('next-catalog')
-        taskMgr.remove(taskName)
-
     def setPatchVersion(self, patchVersion):
         self.patchVersion = patchVersion
 
@@ -363,20 +355,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def disconnect(self):
         self.requestDelete()
-
-    def patchDelete(self):
-        del self.dna
-        if self.inventory:
-            self.inventory.unload()
-        del self.inventory
-        del self.experience
-        if simbase.wantPets:
-            PetLookerAI.PetLookerAI.destroy(self)
-        self.doNotDeallocateChannel = True
-        self.zoneId = None
-
-        DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
-        DistributedPlayerAI.DistributedPlayerAI.delete(self)
 
     def handleLogicalZoneChange(self, newZoneId, oldZoneId):
         DistributedAvatarAI.DistributedAvatarAI.handleLogicalZoneChange(self, newZoneId, oldZoneId)
@@ -1694,14 +1672,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             return 1
         else:
             self.notify.warning('addFishToTank: addFish failed')
-            return 0
-
-    def removeFishFromTankAtIndex(self, index):
-        if self.fishTank.removeFishAtIndex(index):
-            self.d_setFishTank(*self.fishTank.getNetLists())
-            return 1
-        else:
-            self.notify.warning('removeFishFromTank: cannot find fish')
             return 0
 
     def getFishingRod(self):

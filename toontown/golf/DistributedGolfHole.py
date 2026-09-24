@@ -1237,9 +1237,6 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         ballPos = Point3(b.getPosition()[0], b.getPosition()[1], b.getPosition()[2])
         self.ballFollow.setPos(ballPos)
 
-    def hitBall(self, ball, power, x, y):
-        self.performSwing(self, ball, power, x, y)
-
     def ballMovie2Client(self, cycleTime, avId, movie, spinMovie, ballInFrame, ballTouchedHoleFrame, ballFirstTouchedHoleFrame, commonObjectData):
         self.notify.debug('received Movie, number of frames %s %s ballInFrame=%d ballTouchedHoleFrame=%d ballFirstTouchedHoleFrame=%d' % (len(movie),
          len(spinMovie),
@@ -1569,65 +1566,6 @@ class DistributedGolfHole(DistributedPhysicsWorld.DistributedPhysicsWorld, FSM, 
         dirCam = Vec3(ballPos - pos)
         dirCam.normalize()
         self.cameraRay.set(pos, dirCam)
-
-    def performSwing(self, ball, power, dirX, dirY):
-        startTime = globalClock.getRealTime()
-        avId = base.localAvatar.doId
-        position = ball.getPosition()
-        x = position[0]
-        y = position[1]
-        z = position[2]
-        if avId not in self.golfCourse.drivingToons:
-            x = position[0]
-            y = position[1]
-            z = position[2]
-        self.swingTime = cycleTime
-        lift = 0
-        ball = self.ball
-        forceMove = 2500
-        if power > 50:
-            lift = 0
-        ball.enable()
-        ball.setPosition(x, y, z)
-        ball.setLinearVel(0.0, 0.0, 0.0)
-        ball.setAngularVel(0.0, 0.0, 0.0)
-        ball.addForce(Vec3(dirX * forceMove * power / 100.0, dirY * forceMove * power / 100.0, lift))
-        self.initRecord()
-        safety = 0
-        self.llv = None
-        self.record(ball)
-        while ball.isEnabled() and len(self.recording) < 2000:
-            self.preStep()
-            self.simulate()
-            self.postStep()
-            self.record(ball)
-            safety += 1
-
-        self.record(ball)
-        midTime = globalClock.getRealTime()
-        self.processRecording()
-        self.processAVRecording()
-        self.notify.debug('Recording End time %s cycle %s len %s avLen %s' % (self.timingSimTime,
-         self.getSimCycleTime(),
-         len(self.recording),
-         len(self.aVRecording)))
-        self.request('WaitPlayback')
-        length = len(self.recording) - 1
-        x = self.recording[length][1]
-        y = self.recording[length][2]
-        z = self.recording[length][3]
-        self.ballPos[avId] = Vec3(x, y, z)
-        endTime = globalClock.getRealTime()
-        diffTime = endTime - startTime
-        fpsTime = self.frame / diffTime
-        self.notify.debug('Time Start %s Mid %s End %s Diff %s Fps %s frames %s' % (startTime,
-         midTime,
-         endTime,
-         diffTime,
-         fpsTime,
-         self.frame))
-        self.ballMovie2Client(cycleTime, avId, self.recording, self.aVRecording, self.ballInHoleFrame, self.ballTouchedHoleFrame, self.ballFirstTouchedHoleFrame)
-        return
 
     def handleBallHitNonGrass(self, c0, c1):
         if not self.inPlayBack:

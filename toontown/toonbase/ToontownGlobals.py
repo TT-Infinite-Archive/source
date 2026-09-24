@@ -19,11 +19,6 @@ import struct, uuid, base64
 MapHotkeyOn = 'alt'
 MapHotkeyOff = 'alt-up'
 MapHotkey = 'alt'
-AccountDatabaseChannelId = 4008
-ToonDatabaseChannelId = 4021
-DoodleDatabaseChannelId = 4023
-DefaultDatabaseChannelId = AccountDatabaseChannelId
-DatabaseIdFromClassName = {'Account': AccountDatabaseChannelId}
 CogHQCameraFov = 60.0
 BossBattleCameraFov = 72.0
 MakeAToonCameraFov = 48.0
@@ -31,14 +26,12 @@ CogdoFov = 56.9
 VPElevatorFov = 53.0
 CFOElevatorFov = 43.0
 CJElevatorFov = 47.0
-CEOElevatorFov = 59.0
 CBElevatorFov = 42.0
 WantPromotion = 0
 PendingPromotion = 1
 CeilingBitmask = BitMask32(256)
 FloorEventBitmask = BitMask32(16)
 PieBitmask = BitMask32(256)
-PetBitmask = BitMask32(8)
 CatchGameBitmask = BitMask32(16)
 CashbotBossObjectBitmask = BitMask32(16)
 FurnitureSideBitmask = BitMask32(32)
@@ -48,8 +41,6 @@ PetLookatPetBitmask = BitMask32(256)
 PetLookatNonPetBitmask = BitMask32(512)
 BanquetTableBitmask = BitMask32(1024)
 FullPies = 65535
-CogHQCameraFar = 900.0
-CogHQCameraNear = 1.0
 CashbotHQCameraFar = 2000.0
 CashbotHQCameraNear = 1.0
 LawbotHQCameraFar = 3000.0
@@ -121,9 +112,7 @@ FM_DeletedItem = 3
 FM_RecoveredItem = 4
 SPDonaldsBoat = 3
 SPMinniesPiano = 4
-CEVirtual = 14
 MaxHpLimit = 145
-MaxCarryLimit = 80
 MaxQuestCarryLimit = 4
 GravityValue = 32.174
 MaxCogSuitLevel = 12 - 1
@@ -310,12 +299,6 @@ HQToSafezone = {
     LawbotHQ: TheBrrrgh,
     BossbotHQ: DonaldsDock
 }
-CogDeptNames = [
-    TTLocalizerServer.Bossbot,
-    TTLocalizerServer.Lawbot,
-    TTLocalizerServer.Cashbot,
-    TTLocalizerServer.Sellbot
-]
 HoodIdToName = {
     ToontownCentral: TTLocalizerServer.lToontownCentral,
     DonaldsDock: TTLocalizerServer.lDonaldsDock,
@@ -381,8 +364,6 @@ MintNumRooms = {
     CashbotMintIntC: 4 * (10,) + 10 * (11,) + 6 * (12,)
 }
 BossbotCountryClubCogLevel = 11
-BossbotCountryClubSkelecogLevel = 12
-BossbotCountryClubBossLevel = 12
 
 CountryClubNumRooms = {
     BossbotCountryClubIntA: (4,),
@@ -399,26 +380,11 @@ CountryClubCogBuckRewards = {
     BossbotCountryClubIntB: 14,
     BossbotCountryClubIntC: 20
 }
-LawbotStageCogLevel = 10
-LawbotStageSkelecogLevel = 11
-LawbotStageBossLevel = 12
-StageNumBattles = {
-    LawbotStageIntA: 0,
-    LawbotStageIntB: 0,
-    LawbotStageIntC: 0,
-    LawbotStageIntD: 0
-}
 StageNoticeRewards = {
     LawbotStageIntA: 75,
     LawbotStageIntB: 150,
     LawbotStageIntC: 225,
     LawbotStageIntD: 300
-}
-StageNumRooms = {
-    LawbotStageIntA: 2 * (6,) + 5 * (7,) + 5 * (8,) + 5 * (9,) + 3 * (10,),
-    LawbotStageIntB: 3 * (8,) + 6 * (9,) + 6 * (10,) + 5 * (11,),
-    LawbotStageIntC: 4 * (10,) + 10 * (11,) + 6 * (12,),
-    LawbotStageIntD: 4 * (10,) + 10 * (11,) + 6 * (12,)
 }
 FT_FullSuit = 'fullSuit'
 FT_Leg = 'leg'
@@ -466,13 +432,6 @@ HoodsWithWater = (
     OutdoorZone,
     MyEstate
 )
-BingoCardNames = {
-    'normal': 0,
-    'corners': 1,
-    'diagonal': 2,
-    'threeway': 3,
-    'blockout': 4
-}
 NoPreviousGameId = 0
 RaceGameId = 1
 CannonGameId = 2
@@ -513,7 +472,6 @@ MinigameNames = {
     'photo': PhotoGameId,
     'travel': TravelGameId
 }
-MinigameTemplateId = -1
 MinigameIDs = (
     RaceGameId,
     CannonGameId,
@@ -538,12 +496,6 @@ MinigamePlayerMatrix = {
     2: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, TagGameId, RingGameId, VineGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
     3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
     4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
-}
-MinigameReleaseDates = {
-    IceGameId: (2008, 8, 5),
-    PhotoGameId: (2008, 8, 13),
-    TwoDGameId: (2008, 8, 20),
-    CogThiefGameId: (2008, 8, 27)
 }
 KeyboardTimeout = 300
 phaseMap = {
@@ -711,7 +663,6 @@ PieCodeBossInsides = 4
 PieCodeDefensePan = 5
 PieCodeProsecutionPan = 6
 PieCodeLawyer = 7
-PieCodeInvasionSuit = 8
 PieCodeColors = {
     PieCodeBossCog: None,
     PieCodeNotBossCog: (0.8, 0.8, 0.8, 1),
@@ -981,19 +932,11 @@ CashbotBossCranePosHprs = [
     (87.4, -314.4, 0, -90, 0, 0)
 ]
 
-CashbotBossLaserFieldPosHprs = [
-    (82, -332, 0, -45, 0, 0),
-    (100, -280, 0, -135, 0, 0),
-    (164, -298, 0, 135, 0, 0),
-    (138.6, -355, 0, 45, 0, 0),
-]
-
 CashbotBossToMagnetTime = 0.2
 CashbotBossFromMagnetTime = 1
 CashbotBossSafeKnockImpact = 0.5
 CashbotBossSafeNewImpact = 0.0
 CashbotBossGoonImpact = 0.1
-CashbotBossKnockoutDamage = 15
 WakeRunDelta = 0.1
 WakeWalkDelta = 0.2
 NoItems = 0
@@ -1003,18 +946,6 @@ SuitInvasionBegin = 0
 SuitInvasionEnd = 1
 SuitInvasionUpdate = 2
 SuitInvasionBulletin = 3
-SkelecogInvasionBegin = 4
-SkelecogInvasionEnd = 5
-SkelecogInvasionBulletin = 6
-WaiterInvasionBegin = 7
-WaiterInvasionEnd = 8
-WaiterInvasionBulletin = 9
-V2InvasionBegin = 10
-V2InvasionEnd = 11
-V2InvasionBulletin = 12
-MegaInvasionBegin = 13
-MegaInvasionEnd = 14
-MegaInvasionBulletin = 15
 TOT_REWARD_JELLYBEAN_AMOUNT = 100
 TOT_REWARD_END_OFFSET_AMOUNT = 0
 LawbotBossMaxDamage = 2700
@@ -1141,30 +1072,6 @@ LawbotBossGavelHeadings = [(0,
   90),
  (0, -45, 45),
  (0, -45, 45)]
-LawbotBossCogRelBattleAPosHpr = (-25,
- -10,
- 0,
- 0,
- 0,
- 0)
-LawbotBossCogRelBattleBPosHpr = (-25,
- 10,
- 0,
- 0,
- 0,
- 0)
-LawbotBossCogAbsBattleAPosHpr = (-5,
- -2,
- 0,
- 0,
- 0,
- 0)
-LawbotBossCogAbsBattleBPosHpr = (-5,
- 0,
- 0,
- 0,
- 0,
- 0)
 LawbotBossWitnessStandPosHpr = (54,
  100,
  0,
@@ -1298,54 +1205,6 @@ LawbotBossDifficultySettings = [(38,
   4,
   1,
   0)]
-LawbotBossCannonPosHprs = [(-40,
-  -12,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  0,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  12,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  24,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  36,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  48,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  60,
-  0,
-  -90,
-  0,
-  0),
- (-40,
-  72,
-  0,
-  -90,
-  0,
-  0)]
 LawbotBossCannonPosA = (-80, -51.48, 0)
 LawbotBossCannonPosB = (-80, 70.73, 0)
 LawbotBossChairPosHprs = [(60,
@@ -1425,7 +1284,6 @@ LawbotBossChairRow1PosA = (59.3, -18.2, 14.05)
 LawbotBossChairRow2PosB = (75.1, 48, 28.2)
 LawbotBossChairRow2PosA = (75.1, -18.2, 28.2)
 LawbotBossCannonBallMax = 12
-LawbotBossJuryBoxStartPos = (94, -8, 5)
 LawbotBossJuryBoxRelativeEndPos = (30, 0, 12.645)
 LawbotBossJuryBoxMoveTime = 70
 LawbotBossJurorsForBalancedScale = 8
@@ -1445,12 +1303,6 @@ LawbotBossBonusDuration = 20
 LawbotBossBonusToonup = 10
 LawbotBossBonusWeightMultiplier = 2
 LawbotBossChanceToDoAreaAttack = 11
-LOW_POP_JP = 0
-MID_POP_JP = 100
-HIGH_POP_JP = 200
-LOW_POP_INTL = 399
-MID_POP_INTL = 499
-HIGH_POP_INTL = -1
 LOW_POP = 100
 MID_POP = 200
 HIGH_POP = -1
@@ -1462,7 +1314,6 @@ PinballTarget = 4
 PinballRoof = 5
 PinballHouse = 6
 PinballFence = 7
-PinballBridge = 8
 PinballStatuary = 9
 PinballScoring = [(100, 1),
  (150, 1),
@@ -1475,7 +1326,6 @@ PinballScoring = [(100, 1),
  (100, 1),
  (10, 1)]
 PinballCannonBumperInitialPos = (0, -20, 40)
-RentalCop = 0
 RentalCannon = 1
 RentalGameTable = 2
 GlitchKillerZones = [13300,
@@ -1489,10 +1339,6 @@ ColorPlayer = (0.3,
 ColorAvatar = (0.3,
  0.3,
  0.7,
- 1)
-ColorPet = (0.6,
- 0.4,
- 0.2,
  1)
 ColorFreeChat = (0.3,
  0.3,
@@ -1555,7 +1401,6 @@ BossbotElevCamPosHpr = (0,
 BossbotFoodModelScale = 0.75
 BossbotNumFoodToExplode = 3
 BossbotBossServingDuration = 300
-BossbotPrepareBattleThreeDuration = 20
 WaiterBattleAPosHpr = (20,
  -400,
  0,
@@ -1634,25 +1479,8 @@ MM = 3
 GS = 4
 DG = 5
 BR = 6
-OZ = 7
 DL = 8
 DefaultWantNewsPageSetting = 0
-gmMagicWordList = ['restock',
- 'restockUber',
- 'autoRestock',
- 'resistanceRestock',
- 'restockSummons',
- 'uberDrop',
- 'rich',
- 'maxBankMoney',
- 'toonUp',
- 'rod',
- 'cogPageFull',
- 'pinkSlips',
- 'Tickets',
- 'newSummons',
- 'who',
- 'who all']
 NewsPageScaleAdjust = 0.85
 
 class AnimPropType(enum.IntEnum):
@@ -1667,7 +1495,6 @@ class EmblemType(enum.IntEnum):
 
 NumEmblemTypes = 2
 MaxBankMoney = 50000
-DefaultBankItemId = 1350
 ToonAnimStates = set(['off',
  'neutral',
  'victory',
@@ -1715,10 +1542,8 @@ ToonAnimStates = set(['off',
 AV_FLAG_REASON_TOUCH = 1
 AV_FLAG_HISTORY_LEN = 500
 AV_TOUCH_CHECK_DELAY_AI = 3.0
-AV_TOUCH_CHECK_DELAY_CL = 1.0
 AV_TOUCH_CHECK_DIST = 2.0
 AV_TOUCH_CHECK_DIST_Z = 5.0
-AV_TOUCH_CHECK_TIMELIMIT_CL = 0.002
 AV_TOUCH_COUNT_LIMIT = 5
 AV_TOUCH_COUNT_TIME = 300
 BMovementSpeed = 0

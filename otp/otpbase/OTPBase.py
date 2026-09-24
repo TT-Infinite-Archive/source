@@ -1,5 +1,4 @@
-from panda3d.core import ColorWriteAttrib, ConfigVariableBool, ConfigVariableDouble, Filename, NodePath, TPLow, VBase4, Vec4, getModelPath
-import math
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, Filename, NodePath, TPLow, Vec4, getModelPath
 import re
 import time
 import tempfile
@@ -37,10 +36,6 @@ class OTPBase(ShowBase):
         self.fillShardsToIdealPop = ConfigVariableBool('fill-shards-to-ideal-pop', True).getValue()
         self.logPrivateInfo = ConfigVariableBool('log-private-info', __dev__).getValue()
         self.wantDynamicShadows = 1
-        self.stereoEnabled = False
-        self.enviroDR = None
-        self.enviroCam = None
-        self.pixelZoomSetup = False
         self.gameOptionsCode = ''
         self.locationCode = ''
         self.locationCodeChanged = time.time()
@@ -57,133 +52,6 @@ class OTPBase(ShowBase):
 
     def setTaskChainNetNonthreaded(self):
         taskMgr.setupTaskChain('net', numThreads=0, frameBudget=-1)
-
-    def toggleStereo(self):
-        self.stereoEnabled = not self.stereoEnabled
-        if self.stereoEnabled:
-            if not base.win.isStereo():
-                base.win.setRedBlueStereo(True, ColorWriteAttrib.CRed, ColorWriteAttrib.CGreen | ColorWriteAttrib.CBlue)
-        if self.wantEnviroDR:
-            self.setupEnviroCamera()
-            return
-        mainDR = base.camNode.getDisplayRegion(0)
-        if self.stereoEnabled:
-            if not mainDR.isStereo():
-                base.win.removeDisplayRegion(mainDR)
-                mainDR = base.win.makeStereoDisplayRegion()
-                mainDR.getRightEye().setClearDepthActive(True)
-                mainDR.setCamera(base.cam)
-        elif mainDR.isStereo():
-            base.win.removeDisplayRegion(mainDR)
-            mainDR = base.win.makeMonoDisplayRegion()
-            mainDR.setCamera(base.cam)
-
-    def setupEnviroCamera(self):
-        clearColor = VBase4(0, 0, 0, 1)
-        if self.enviroDR:
-            clearColor = self.enviroDR.getClearColor()
-            self.win.removeDisplayRegion(self.enviroDR)
-        if not self.enviroCam:
-            self.enviroCam = self.cam.attachNewNode(Camera('enviroCam'))
-        mainDR = self.camNode.getDisplayRegion(0)
-        if self.stereoEnabled:
-            self.enviroDR = self.win.makeStereoDisplayRegion()
-            if not mainDR.isStereo():
-                self.win.removeDisplayRegion(mainDR)
-                mainDR = self.win.makeStereoDisplayRegion()
-                mainDR.setCamera(self.cam)
-            ml = mainDR.getLeftEye()
-            mr = mainDR.getRightEye()
-            el = self.enviroDR.getLeftEye()
-            er = self.enviroDR.getRightEye()
-            el.setSort(-8)
-            ml.setSort(-6)
-            er.setSort(-4)
-            er.setClearDepthActive(True)
-            mr.setSort(-2)
-            mr.setClearDepthActive(False)
-        else:
-            self.enviroDR = self.win.makeMonoDisplayRegion()
-            if mainDR.isStereo():
-                self.win.removeDisplayRegion(mainDR)
-                mainDR = self.win.makeMonoDisplayRegion()
-                mainDR.setCamera(self.cam)
-            self.enviroDR.setSort(-10)
-        self.enviroDR.setClearColor(clearColor)
-        self.win.setClearColor(clearColor)
-        self.enviroDR.setCamera(self.enviroCam)
-        self.enviroCamNode = self.enviroCam.node()
-        self.enviroCamNode.setLens(self.cam.node().getLens())
-        self.enviroCamNode.setCameraMask(OTPRender.EnviroCameraBitmask)
-        render.hide(OTPRender.EnviroCameraBitmask)
-        self.camList.append(self.enviroCam)
-        self.backgroundDrawable = self.enviroDR
-        self.enviroDR.setTextureReloadPriority(-10)
-        if self.pixelZoomSetup:
-            self.setupAutoPixelZoom()
-
-    def setupAutoPixelZoom(self):
-        self.win.setPixelZoom(1)
-        self.enviroDR.setPixelZoom(1)
-        if not self.stereoEnabled:
-            self.enviroDR.setClearColorActive(True)
-            self.enviroDR.setClearDepthActive(True)
-            self.win.setClearColorActive(False)
-            self.win.setClearDepthActive(False)
-            self.backgroundDrawable = self.enviroDR
-        else:
-            self.enviroDR.setClearColorActive(False)
-            self.enviroDR.setClearDepthActive(False)
-            self.enviroDR.getRightEye().setClearDepthActive(True)
-            self.win.setClearColorActive(True)
-            self.win.setClearDepthActive(True)
-            self.backgroundDrawable = self.win
-        self.pixelZoomSetup = True
-        self.targetPixelZoom = 1.0
-        self.pixelZoomTask = None
-        self.pixelZoomCamHistory = 2.0
-        self.pixelZoomCamMovedList = []
-        self.pixelZoomStarted = None
-        self.enablePixelZoom(ConfigVariableBool('enable-pixel-zoom', True).getValue())
-
-    def enablePixelZoom(self, flag):
-        if not self.backgroundDrawable.supportsPixelZoom():
-            flag = False
-        self.pixelZoomEnabled = flag
-        taskMgr.remove('chasePixelZoom')
-        if flag:
-            taskMgr.add(self.__chasePixelZoom, 'chasePixelZoom', priority=-52)
-        else:
-            self.backgroundDrawable.setPixelZoom(1)
-
-    def __chasePixelZoom(self, task):
-        now = globalClock.getFrameTime()
-        pos = base.cam.getNetTransform().getPos()
-        prevPos = base.cam.getNetPrevTransform().getPos()
-        d2 = (pos - prevPos).lengthSquared()
-        if d2:
-            d = math.sqrt(d2)
-            self.pixelZoomCamMovedList.append((now, d))
-        while self.pixelZoomCamMovedList and self.pixelZoomCamMovedList[0][0] < now - self.pixelZoomCamHistory:
-            del self.pixelZoomCamMovedList[0]
-
-        dist = sum([pair[1] for pair in self.pixelZoomCamMovedList])
-        speed = dist / self.pixelZoomCamHistory
-        if speed < 5:
-            self.backgroundDrawable.setPixelZoom(4)
-            self.pixelZoomStart = None
-        elif speed > 10:
-            if self.pixelZoomStart == None:
-                self.pixelZoomStart = now
-            elapsed = now - self.pixelZoomStart
-            if elapsed > 10:
-                self.backgroundDrawable.setPixelZoom(16)
-            elif elapsed > 5:
-                self.backgroundDrawable.setPixelZoom(8)
-        return task.cont
-
-    def hasInjector(self):
-        return hasattr(builtins, 'injector')
 
     def getShardPopLimits(self):
         return (100, 200, -1)
@@ -238,7 +106,6 @@ class OTPBase(ShowBase):
         result = ShowBase.openMainWindow(self, *args, **kw)
         if result:
             self.wantEnviroDR = not self.win.getGsg().isHardware() or ConfigVariableBool('want-background-region', True).getValue()
-            self.backgroundDrawable = self.win
         return result
 
     def run(self):

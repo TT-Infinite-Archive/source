@@ -33,16 +33,13 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.setMode(self.mode)
         self.noTeleport = ConfigVariableBool('Parties-page-disable', False).getValue()
         self.isPrivate = True
-        self.gotRssFeed = False
         self.gotArticles = False
-        self.newsList = None
         self.articleTextList = None
         self.articleIndexList = None
         self.hostedPartyInfo = None
         self.downloadArticlesInProgress = False
 
     def load(self):
-        self.scrollButtonGui = loader.loadModel('phase_3.5/models/gui/friendslist_gui')
         self.hostingGui = preloader.getModel('phase_4/models/parties/schtickerbookHostingGUI')
         self.invitationGui = preloader.getModel('phase_4/models/parties/schtickerbookInvitationGUI')
         self.activityIconsModel = preloader.getModel('phase_4/models/parties/eventSignIcons')
@@ -427,7 +424,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         self.hostingDecorationList.removeAndDestroyAllItems()
 
     def unload(self):
-        self.scrollButtonGui.removeNode()
         del self.titleLabel
         self.hostingGuestList.removeAndDestroyAllItems()
         self.hostingGuestList.destroy()
@@ -456,8 +452,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         del self.cancelPartyResultGui
         self.ignore(self.confirmCancelPartyEvent)
         self.ignore(self.cancelPartyResultGuiEvent)
-        if hasattr(self, 'rssFeed') and self.rssFeed:
-            self.rssFeed = None
         if self.articleTextList:
             self.articleTextList.removeAndDestroyAllItems()
             self.articleTextList.destroy()
@@ -466,10 +460,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.articleIndexList.removeAndDestroyAllItems()
             self.articleIndexList.destroy()
             self.articleIndexList = None
-        if self.newsList:
-            self.newsList.removeAndDestroyAllItems()
-            self.newsList.destroy()
-            self.newsList = None
         self.avatar = None
         self.hostingCancelButton.destroy()
         del self.hostingCancelButton
@@ -583,8 +573,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.hostedPartyDisplay.hide()
             self.invitationDisplay.hide()
             self.calendarDisplay.hide()
-            if not self.gotRssFeed:
-                pass
             self.newsDisplay.show()
 
     def __setPublicPrivateButton(self):
@@ -735,28 +723,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
         if curArticleIndex in self.articleImages and curArticleIndex in self.articleText:
             self.displayArticle(self.articleImages[curArticleIndex], self.articleText[curArticleIndex])
 
-    def getRssFeed(self):
-        if self.gotRssFeed:
-            return
-        self.rssFeed = feedparser.parse('http://www.wdwinfo.com/news/rss.xml')
-        feedText = []
-
-        def addFeedText(unicodeText, textSize = 0.03, color = (0, 0, 0, 1), feedText = feedText):
-            feedText.append(DirectLabel(relief=None, text=unicodeText, text_scale=textSize, text_align=TextNode.ALeft, text_fg=color, textMayChange=0, pos=(0, 0, 0)))
-            return
-
-        addFeedText(self.rssFeed['channel']['title'], 0.06)
-        addFeedText(self.rssFeed['channel']['subtitle'], 0.04)
-        for entry in self.rssFeed['entries']:
-            addFeedText('')
-            addFeedText(entry['title'], 0.04, (0, 0, 1, 1))
-            (addFeedText(entry['updated'], 0.025),)
-            addFeedText(entry['summary'], 0.035)
-
-        self.feedText = feedText
-        self.createNewsList()
-        self.gotRssFeed = True
-
     def downloadArticles(self):
         if self.gotArticles:
             return
@@ -879,32 +845,6 @@ class EventsPage(ShtikerPage.ShtikerPage):
             self.articleTextList.decButton.show()
             self.articleTextList.incButton.show()
         playaLabel.destroy()
-
-    def createNewsList(self):
-        buttonOffSet = 0.045
-        if self.newsList:
-            self.newsList.removeAllItems()
-            self.newsList.destroy()
-        selectedIndex = 0
-        self.newsListXorigin = -0.02
-        self.newsListFrameSizeX = 1.55
-        self.newsListZorigin = -0.95
-        self.newsListFrameSizeZ = 1.02
-        self.newsArrowButtonScale = 1.3
-        self.newsItemFrameXorigin = -0.237
-        self.newsButtonXstart = self.newsItemFrameXorigin + 0.725
-        self.newsList = DirectScrolledList(parent=self.newsFrame, items=self.feedText, relief=None, pos=(-0.5, 0, 0.4), incButton_image=(self.scrollButtonGui.find('**/FndsLst_ScrollUp'),
-         self.scrollButtonGui.find('**/FndsLst_ScrollDN'),
-         self.scrollButtonGui.find('**/FndsLst_ScrollUp_Rllvr'),
-         self.scrollButtonGui.find('**/FndsLst_ScrollUp')), incButton_relief=None, incButton_scale=(self.newsArrowButtonScale, self.newsArrowButtonScale, -self.newsArrowButtonScale), incButton_pos=(self.newsButtonXstart, 0, self.newsListZorigin - buttonOffSet), incButton_image3_color=Vec4(1, 1, 1, 0.2), decButton_image=(self.scrollButtonGui.find('**/FndsLst_ScrollUp'),
-         self.scrollButtonGui.find('**/FndsLst_ScrollDN'),
-         self.scrollButtonGui.find('**/FndsLst_ScrollUp_Rllvr'),
-         self.scrollButtonGui.find('**/FndsLst_ScrollUp')), decButton_relief=None, decButton_scale=(self.newsArrowButtonScale, self.newsArrowButtonScale, self.newsArrowButtonScale), decButton_pos=(self.newsButtonXstart, 0, self.newsListZorigin + self.newsListFrameSizeZ + buttonOffSet), decButton_image3_color=Vec4(1, 1, 1, 0.2), itemFrame_pos=(self.newsItemFrameXorigin, 0, 0), itemFrame_scale=1.0, itemFrame_relief=DirectGuiGlobals.SUNKEN, itemFrame_frameSize=(self.newsListXorigin,
-         self.newsListXorigin + self.newsListFrameSizeX,
-         self.newsListZorigin,
-         self.newsListZorigin + self.newsListFrameSizeZ), itemFrame_frameColor=(0.82, 0.8, 0.75, 1), itemFrame_borderWidth=(0.01, 0.01), numItemsVisible=14)
-        self.newsList.scrollTo(selectedIndex)
-        return
 
     def downloadArticlesNonblocking(self):
         self.notify.info('Starting download of news articles.')

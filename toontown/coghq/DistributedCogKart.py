@@ -139,9 +139,6 @@ class DistributedCogKart(DistributedElevatorExt.DistributedElevatorExt):
     def setCountryClubInteriorZone(self, zoneId):
         if self.localToonOnBoard:
             hoodId = self.cr.playGame.hood.hoodId
-            countryClubId = self.countryClubId
-            if bboard.has('countryClubIdOverride'):
-                countryClubId = bboard.get('countryClubIdOverride')
             doneStatus = {'loader': 'cogHQLoader',
              'where': 'countryClubInterior',
              'how': 'teleportIn',
@@ -155,9 +152,6 @@ class DistributedCogKart(DistributedElevatorExt.DistributedElevatorExt):
         if place:
             place.fsm.request('elevator', [self, 1])
             hoodId = self.cr.playGame.hood.hoodId
-            countryClubId = self.countryClubId
-            if bboard.has('countryClubIdOverride'):
-                countryClubId = bboard.get('countryClubIdOverride')
             doneStatus = {'loader': 'cogHQLoader',
              'where': 'countryClubInterior',
              'how': 'teleportIn',

@@ -39,13 +39,6 @@ class FlowerBasket:
         self.flowerList.append(FlowerBase.FlowerBase(species, variety))
         return 1
 
-    def removeFishAtIndex(self, index):
-        if index >= len(self.flowerList):
-            return 0
-        else:
-            del self.flowerList[i]
-            return 1
-
     def generateRandomBasket(self):
         import random
         numFish = random.randint(1, 20)

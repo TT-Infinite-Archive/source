@@ -381,8 +381,6 @@ def __getWaypointList(paths):
         return __plutoWaypoints
     elif paths == __chipPaths:
         return __chipWaypoints
-    elif paths == __dalePaths:
-        return __chipWaypoints
 
 
 def getNodePos(node, paths):

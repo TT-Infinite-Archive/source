@@ -545,9 +545,6 @@ class DistributedTravelGame(DistributedMinigame):
         elif directionReason == TravelGameGlobals.ReasonRandom:
             reasonStr = TTLocalizer.TravelGameReasonRandom % {'dir': TTLocalizer.TravelGameDirections[directionToGo],
              'numVotes': directionTotals[directionToGo]}
-        elif directionReason == TravelGameGlobals.ReasonPlaceDecider:
-            reasonStr = TravelGameReasonPlace % {'name': 'TODO NAME',
-             'dir': TTLocalizer.TravelGameDirections[directionToGo]}
         self.resultsStr += reasonStr
         self.dialog = TTDialog.TTDialog(text=self.resultsStr, command=self.__cleanupDialog, style=TTDialog.NoButtons, pos=(0, 0, 1))
         self.dialog.hide()

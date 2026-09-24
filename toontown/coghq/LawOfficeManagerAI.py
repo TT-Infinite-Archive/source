@@ -4,7 +4,6 @@ from . import DistributedLawOfficeAI
 from . import DistributedStageAI
 from direct.directnotify import DirectNotifyGlobal
 from direct.showbase import DirectObject
-from toontown.coghq import StageLayout
 from toontown.toonbase import ToontownGlobals
 
 
@@ -28,28 +27,9 @@ class LawOfficeManagerAI(DirectObject.DirectObject):
         return 0
 
     def createLawOffice(self, StageId, entranceId, players):
-        for avId in players:
-            if bboard.has('StageId-%s' % avId):
-                StageId = bboard.get('StageId-%s' % avId)
-                break
         floor = 0
-        layoutIndex = None
-        for avId in players:
-            if bboard.has('stageRoom-%s' % avId):
-                roomId = bboard.get('stageRoom-%s' % avId)
-                for lt in StageId2Layouts[StageId]:
-                    for i in range(StageLayout.getNumFloors(lt)):
-                        layout = StageLayout.StageLayout(StageId, i, stageLayout = lt)
-                        if roomId in layout.getRoomIds():
-                            layoutIndex = lt
-                            floor = i
-                else:
-                    from toontown.coghq import StageRoomSpecs
-                    roomName = StageRoomSpecs.CashbotStageRoomId2RoomName[roomId]
-                    LawOfficeManagerAI.notify.warning('room %s (%s) not found in any floor of Stage %s' % (roomId, roomName, StageId))
         StageZone = self.air.allocateZone()
-        if layoutIndex is None:
-            layoutIndex = random.choice(StageId2Layouts[StageId])
+        layoutIndex = random.choice(StageId2Layouts[StageId])
         Stage = DistributedStageAI.DistributedStageAI(self.air, StageId, StageZone, floor, players, layoutIndex)
         Stage.generateWithRequired(StageZone)
         return StageZone

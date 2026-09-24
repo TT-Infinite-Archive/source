@@ -476,12 +476,6 @@ class DistributedFishingSpot(DistributedObject.DistributedObject):
         self.itemJellybean.hide()
         self.itemPackage.hide()
 
-    def __setItemLabel(self):
-        if self.pond.hasPondBingoManager():
-            self.itemLabel['text'] = str(itemName + '\n\n' + 'BINGO WILDCARD')
-        else:
-            self.itemLabel['text'] = itemName
-
     def __showJellybeanItem(self, amount):
         self.__makeGui()
         itemName = TTLocalizer.FishingJellybeanItem % amount

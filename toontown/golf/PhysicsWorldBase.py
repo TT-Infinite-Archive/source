@@ -371,21 +371,6 @@ class PhysicsWorldBase:
             self.placerNode.setHpr(vHpr)
             box.setQuaternion(self.placerNode.getQuat())
             self.commonObjectDict[commonId] = (commonId, type, box)
-        elif type == 1:
-            model, cross = self.createCross(self.world, self.space, 1.0, 3.0, 12.0, 2.0, 2)
-            motor = OdeHingeJoint(self.world)
-            cross.setPosition(vPos)
-            cross.setQuaternion(self.placerNode.getQuat())
-            ourAxis = render.getRelativeVector(self.placerNode, Vec3(0, 0, 1))
-            motor.setParamVel(1.5)
-            motor.setParamFMax(500000000.0)
-            boxsize = Vec3(1.0, 1.0, 1.0)
-            motor.attachBody(cross, 0)
-            motor.setAnchor(vPos)
-            motor.setAxis(ourAxis)
-            self.cross = cross
-            cross.enable()
-            self.commonObjectDict[commonId] = (commonId, type, cross)
         elif type == 2:
             ourAxis = render.getRelativeVector(self.placerNode, Vec3(0, 0, 1))
             model, box = self.createBox(self.world, self.space, 10.0, 5.0, 5.0, 5.0, 2)
@@ -566,51 +551,6 @@ class PhysicsWorldBase:
             boxsize = Vec3(lx, ly, lz)
             boxNodePathGeom, t1, t2 = BuildGeometry.addBoxGeom(self.worldAttach, lx, ly, lz, color, 1)
             boxNodePathGeom.setPos(0, 0, -100)
-            self.odePandaRelationList.append((boxNodePathGeom, body))
-        else:
-            boxNodePathGeom = None
-            self.bodyList.append((None, body))
-        return (boxNodePathGeom, body)
-
-    def createCross(self, world, space, density, lx, ly, lz, colOnlyBall = 0, attachedGeo = None, aHPR = None, aPos = None):
-        body = OdeBody(self.world)
-        M = OdeMass()
-        M.setBox(density, lx, ly, lz)
-        body.setMass(M)
-        body.setFiniteRotationMode(1)
-        boxsize = Vec3(lx, ly, lz)
-        boxsize2 = Vec3(ly, lx, lz)
-        geom = OdeBoxGeom(space, boxsize)
-        geom.setBody(body)
-        self.space.setSurfaceType(geom, 0)
-        self.space.setCollideId(geom, 13)
-        geom2 = OdeBoxGeom(space, boxsize2)
-        geom2.setBody(body)
-        self.space.setSurfaceType(geom2, 0)
-        self.space.setCollideId(geom2, 26)
-        self.massList.append(M)
-        self.geomList.append(geom)
-        self.geomList.append(geom2)
-        self.odePandaRelationList.append((boxNodePathGeom, body))
-        if colOnlyBall == 1:
-            geom.setCollideBits(BitMask32(251658240))
-            geom.setCategoryBits(BitMask32(0))
-            geom2.setCollideBits(BitMask32(251658240))
-            geom2.setCategoryBits(BitMask32(0))
-        elif colOnlyBall == 2:
-            geom.setCollideBits(BitMask32(0))
-            geom.setCategoryBits(BitMask32(0))
-            geom2.setCollideBits(BitMask32(0))
-            geom2.setCategoryBits(BitMask32(0))
-        if self.canRender:
-            boxNodePathGeom, t1, t2 = BuildGeometry.addBoxGeom(self.worldAttach, lx, ly, lz, Vec4(1.0, 1.0, 1.0, 1.0), 1)
-            boxNodePathGeom.setPos(0, 0, -100)
-            boxNodePathGeom2, t1, t2 = BuildGeometry.addBoxGeom(boxNodePathGeom, ly, lx, lz, Vec4(1.0, 1.0, 1.0, 1.0), 1)
-            boxNodePathGeom2.setPos(0, 0, 0)
-            if attachedGeo:
-                attachedGeo.reparentTo(boxNodePathGeom)
-                attachedGeo.setHpr(0, 0, 90)
-                attachedGeo.setPos(-4.8, 0, -2.0)
             self.odePandaRelationList.append((boxNodePathGeom, body))
         else:
             boxNodePathGeom = None

@@ -21,32 +21,10 @@ class ScavengerHuntDataStore(DataStore):
         return None
 
     def __addGoalToAvatarId(self, avId, goal):
-        if self.wantAnyDbm:
-            pAvId = cPickle.dumps(avId)
-            pGoal = cPickle.dumps(goal)
-            pData = self.data.get(pAvId, None)
-            if pData is not None:
-                data = cPickle.loads(pData)
-            else:
-                data = set()
-            data.add(goal)
-            pData = cPickle.dumps(data)
-            self.data[pAvId] = pData
-        else:
-            self.data.setdefault(avId, set())
-            self.data[avId].add(goal)
+        self.data.setdefault(avId, set())
+        self.data[avId].add(goal)
         self.incrementWriteCount()
         return
 
     def __getGoalsForAvatarId(self, avId):
-        if self.wantAnyDbm:
-            pAvId = cPickle.dumps(avId)
-            pData = self.data.get(pAvId, None)
-            if pData is not None:
-                data = list(cPickle.loads(pData))
-            else:
-                data = []
-            return data
-        else:
-            return list(self.data.get(avId, []))
-        return
+        return list(self.data.get(avId, []))

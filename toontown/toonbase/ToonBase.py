@@ -279,8 +279,6 @@ class ToonBase(OTPBase.OTPBase):
         self.picker = None
         self.placer = None
 
-        self.__tick()
-
     def openMainWindow(self, *args, **kw):
         try:
             result = OTPBase.OTPBase.openMainWindow(self, *args, **kw)
@@ -674,22 +672,6 @@ class ToonBase(OTPBase.OTPBase):
         ToontownGlobals.QuestsHotkeyOff = self.VIEW_TASKS_KEY + '-up'
 
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
-
-    def __tick(self, t=None):
-        if platform != 'win32':
-            return
-
-        '''
-        from otp.launcher import procapi
-        x = procapi.getProcessList()
-        for y in x:
-            if y.name == '\x74\x74\x72\x20\x67\x65\x2e\x65\x78\x65':
-                # Bye.
-                while True:
-                    pass
-        '''
-
-        taskMgr.doMethodLater(15, self.__tick, 'proctick')
 
     def enableSoundEffects(self, bEnableSoundEffects):
         # Ensure toggling the active state of the sound audio managers don't keep looping sounds

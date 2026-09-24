@@ -122,8 +122,6 @@ class DistributedStage(DistributedObject.DistributedObject):
                     print()
 
         self.accept('on-floor', handleCameraRayFloorCollision)
-        if bboard.has('stageRoom'):
-            self.warpToRoom(bboard.get('stageRoom'))
         firstSetZoneDoneEvent = self.cr.getNextSetZoneDoneEvent()
 
         def handleFirstSetZoneDone():

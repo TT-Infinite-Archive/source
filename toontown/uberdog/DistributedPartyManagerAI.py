@@ -797,19 +797,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             self.notify.warning("checkHostedParties could not find toon %d " % hostId)
         return result
 
-    def getAvEnterEvent(self):
-        return 'avatarEnterParty'
-
-    def getAvExitEvent(self, avId=None):
-        # listen for all exits or a particular exit
-        # event args:
-        #  if avId given: none
-        #  if avId not given: avId, hostId, zoneId
-        if avId is None:
-            return 'avatarExitParty'
-        else:
-            return 'avatarExitParty-%s' % avId
-
     def __enterParty(self, avId, hostId):
         # Tasks that should always get called when entering a party
 
@@ -882,7 +869,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
                 # We have the host do this as host already has access to guest list.
                 av.sendUpdate("announcePartyStarted", [self.hostAvIdToPartiesRunning[hostId].partyInfo.partyId])
 
-        messenger.send(self.getAvEnterEvent(), [avId, hostId, zoneId])
         # Tell the uberdog about the new count
         self.air.sendUpdateToDoId(
             "DistributedPartyManager",
@@ -890,14 +876,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             OtpDoGlobals.OTP_DO_ID_TOONTOWN_PARTY_MANAGER,
             [hostId],
         )
-
-    def announceToonExitPartyZone(self, avId, hostId, zoneId):
-        """ announce to the rest of the system that a toon is exiting
-        a party """
-        EstateManagerAI.notify.debug('announceToonExitPartyZone: %s %s %s' %
-                                     (avId, hostId, zoneId))
-        messenger.send(self.getAvExitEvent(avId))
-        messenger.send(self.getAvExitEvent(), [avId, hostId, zoneId])
 
     # Return a running distributed party based on the Zone id:
     def getRunningPartyFromZoneId(self, zoneId):

@@ -19,9 +19,7 @@ from direct.task import Task
 from toontown.ai.HolidayInfoOncely import *
 from toontown.ai.HolidayInfoDaily import *
 from toontown.ai.HolidayInfoWeekly import *
-from toontown.ai.HolidayInfoMonthly import *
 from toontown.ai.HolidayInfoYearly import *
-from toontown.ai.HolidayInfoRelatively import *
 from toontown.ai import HolidayRepeaterAI
 from toontown.effects import FireworkManagerAI
 from toontown.fishing import BingoNightHolidayAI
@@ -2552,11 +2550,6 @@ class HolidayManagerAI:
                         firstStartTime = holidayInfo.tupleList[0][0]
                         lastEndTime = holidayInfo.tupleList[-1][-1]
                         self.air.newsManager.addOncelyCalendarHoliday(key, firstStartTime, lastEndTime)
-                elif isinstance (holidayInfo, HolidayInfo_Relatively):
-                    # we can have multiple start times and end times, just pick the bookends
-                    firstStartTime = holidayInfo.tupleList[0][0]
-                    lastEndTime = holidayInfo.tupleList[-1][-1]
-                    self.air.newsManager.addRelativelyCalendarHoliday(key, firstStartTime, lastEndTime)
 
         self.air.newsManager.sendWeeklyCalendarHolidays()
         self.air.newsManager.sendYearlyCalendarHolidays()

@@ -51,9 +51,6 @@ class NewsManager(DistributedObject.DistributedObject):
         self.population = population
         messenger.send('newPopulation', [population])
 
-    def getPopulation(self):
-        return population
-
     def sendSystemMessage(self, message, style):
         base.localAvatar.setSystemMessage(style, message)
 

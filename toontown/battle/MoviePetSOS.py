@@ -84,13 +84,6 @@ def __teleportOut(attack, pet):
     return Sequence(a, c)
 
 
-def __doPet(attack, level, hp):
-    track = __doSprinkle(attack, 'suits', hp)
-    pbpText = attack['playByPlayText']
-    pbpTrack = pbpText.getShowInterval(TTLocalizer.MovieNPCSOSCogsMiss, track.getDuration())
-    return (track, pbpTrack)
-
-
 def __healJuggle(heal):
     petProxyId = heal['petId']
     pet = Pet.Pet()

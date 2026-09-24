@@ -142,9 +142,6 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
     def displayWhisper(self, fromId, chatString, whisperType):
         print('Whisper type %s from %s: %s' % (whisperType, fromId, chatString))
 
-    def displayWhisperPlayer(self, playerId, chatString, whisperType):
-        print('WhisperPlayer type %s from %s: %s' % (whisperType, playerId, chatString))
-
     def whisperSCTo(self, msgIndex, sendToId, toPlayer):
         messenger.send('wakeup')
         base.cr.ttiFriendsManager.d_whisperSCTo(sendToId, msgIndex)
