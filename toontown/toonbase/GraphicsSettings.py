@@ -1,6 +1,6 @@
 import sys
 
-from panda3d.core import ClockObject, ConfigVariableBool, DynamicTextFont, TextNode, TexturePool, loadPrcFileData
+from panda3d.core import ClockObject, ConfigVariableBool, DynamicTextFont, SamplerState, TextNode, TexturePool, loadPrcFileData
 
 from toontown.toonbase import SettingsGlobals
 
@@ -10,6 +10,7 @@ AnisotropicDegrees = (1, 2, 4, 8, 16)
 FrameRateLimits = (0, 30, 60, 120, 144, 240)
 LodScales = (2.0, 1.0, 0.5)
 FontQualities = (40, 128, 256, 512)
+FontLodBias = -0.75
 
 
 def antiAliasingSamples():
@@ -93,6 +94,28 @@ def applyFontQuality(quality):
     # next time it is built.
     for nodePath in textNodes:
         nodePath.node().forceUpdate()
+
+    applyFontLodBias(loadedFonts(textNodes))
+
+
+# Font pages are created as new letters are drawn, and Panda has no config
+# variable for the LOD bias, so new pages are picked up as they appear.
+def applyFontLodBias(fonts):
+    for font in fonts:
+        for page in font.getPages():
+            sampler = SamplerState(page.getDefaultSampler())
+            if sampler.getLodBias() != FontLodBias:
+                sampler.setLodBias(FontLodBias)
+                page.setDefaultSampler(sampler)
+
+
+def fontLodBiasTask(task):
+    applyFontLodBias(loadedFonts([]))
+    return task.again
+
+
+def startFontLodBias():
+    taskMgr.doMethodLater(1.0, fontLodBiasTask, 'fontLodBias')
 
 
 def applyVSync(enabled):
