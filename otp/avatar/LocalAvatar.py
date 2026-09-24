@@ -62,6 +62,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.lockedDown = 0
         self.isPageUp = 0
         self.isPageDown = 0
+        self.isSprinting = 0
+        self.sprintForwardHeld = False
+        self.sprintLastTap = 0.0
         self.soundRun = None
         self.soundWalk = None
         self.sleepFlag = 0
@@ -433,6 +436,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.avatarControlsEnabled = 1
         self.setupAnimationEvents()
         self.controlManager.enable()
+        self.startSprintWatch()
 
     def disableAvatarControls(self):
         if not self.avatarControlsEnabled and not self.controlManager.isEnabled:
@@ -440,13 +444,63 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.avatarControlsEnabled = 0
         self.ignoreAnimationEvents()
         self.controlManager.disable()
+        self.stopSprintWatch()
         self.clearPageUpDown()
 
     def setWalkSpeedNormal(self):
         self.controlManager.setSpeeds(OTPGlobals.ToonForwardSpeed, OTPGlobals.ToonJumpForce, OTPGlobals.ToonReverseSpeed, OTPGlobals.ToonRotateSpeed)
 
     def setWalkSpeedSlow(self):
+        self.stopSprint()
         self.controlManager.setSpeeds(OTPGlobals.ToonForwardSlowSpeed, OTPGlobals.ToonJumpSlowForce, OTPGlobals.ToonReverseSlowSpeed, OTPGlobals.ToonRotateSlowSpeed)
+
+    def startSprintWatch(self):
+        taskMgr.remove(self.taskName('sprintWatch'))
+        self.sprintForwardHeld = inputState.isSet('forward')
+        self.sprintLastTap = 0.0
+        taskMgr.add(self.__sprintWatch, self.taskName('sprintWatch'))
+
+    def stopSprintWatch(self):
+        taskMgr.remove(self.taskName('sprintWatch'))
+        self.stopSprint(snap=True)
+
+    def __sprintWatch(self, task):
+        forward = inputState.isSet('forward')
+        if forward and not self.sprintForwardHeld:
+            now = globalClock.getFrameTime()
+            if now - self.sprintLastTap <= OTPGlobals.ToonSprintTapWindow and self.hp > 0:
+                self.startSprint()
+            self.sprintLastTap = now
+        elif self.sprintForwardHeld and not forward:
+            self.stopSprint()
+        self.sprintForwardHeld = forward
+        return Task.cont
+
+    def startSprint(self):
+        if self.isSprinting:
+            return
+        self.isSprinting = 1
+        self.controlManager.setSprinting(True)
+        if not (self.isPageDown or self.isPageUp):
+            self.lerpCameraFov(self.getWalkCameraFov(), OTPGlobals.ToonSprintFovLerpTime)
+
+    def stopSprint(self, snap=False):
+        if not self.isSprinting:
+            return
+        self.isSprinting = 0
+        self.controlManager.setSprinting(False)
+        if self.isPageDown or self.isPageUp:
+            return
+        if snap:
+            taskMgr.remove('cam-fov-lerp-play')
+            base.camLens.setMinFov(self.fov/(4./3.))
+        else:
+            self.lerpCameraFov(self.fov, OTPGlobals.ToonSprintFovLerpTime)
+
+    def getWalkCameraFov(self):
+        if self.isSprinting:
+            return self.fov + OTPGlobals.ToonSprintFovBoost
+        return self.fov
 
     def pageUp(self):
         if not self.avatarControlsEnabled:
@@ -474,7 +528,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def clearPageUpDown(self):
         if self.isPageDown or self.isPageUp:
-            self.lerpCameraFov(self.fov, 0.6)
+            self.lerpCameraFov(self.getWalkCameraFov(), 0.6)
             self.isPageDown = 0
             self.isPageUp = 0
             self.setCameraPositionByIndex(self.cameraIndex)
@@ -874,7 +928,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def lerpCameraFov(self, fov, time):
         taskMgr.remove('cam-fov-lerp-play')
-        oldFov = base.camLens.getHfov()
+        oldFov = base.camLens.getMinFov() * (4./3.)
         if abs(fov - oldFov) > 0.1:
 
             def setCamFov(fov):
@@ -886,7 +940,8 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def setCameraFov(self, fov):
         self.fov = fov
         if not (self.isPageDown or self.isPageUp):
-            base.camLens.setMinFov(self.fov/(4./3.))
+            taskMgr.remove('cam-fov-lerp-play')
+            base.camLens.setMinFov(self.getWalkCameraFov()/(4./3.))
 
     def gotoNode(self, node, eyeHeight = 3):
         possiblePoints = (Point3(3, 6, 0),

@@ -1,5 +1,6 @@
 from direct.controls import ControlManager
 from direct.showbase.InputStateGlobal import inputState
+from otp.otpbase import OTPGlobals
 
 # This is the new class for Toontown's ControlManager
 
@@ -21,6 +22,8 @@ class ToontownControlManager(ControlManager.ControlManager):
         self.forceTokens = None
         self.istWASD = []
         self.istNormal = []
+        self.sprinting = False
+        self.baseSpeeds = None
         if enable:
             self.enable()
 
@@ -67,6 +70,19 @@ class ToontownControlManager(ControlManager.ControlManager):
 
         if self.currentControls:
             self.currentControls.enableAvatarControls()
+
+    def setSpeeds(self, forwardSpeed, jumpForce, reverseSpeed, rotateSpeed, strafeLeft=0, strafeRight=0):
+        self.baseSpeeds = (forwardSpeed, jumpForce, reverseSpeed, rotateSpeed)
+        if self.sprinting:
+            forwardSpeed *= OTPGlobals.ToonSprintSpeed / OTPGlobals.ToonForwardSpeed
+        ControlManager.ControlManager.setSpeeds(self, forwardSpeed, jumpForce, reverseSpeed, rotateSpeed)
+
+    def setSprinting(self, sprinting):
+        if sprinting == self.sprinting:
+            return
+        self.sprinting = sprinting
+        if self.baseSpeeds:
+            self.setSpeeds(*self.baseSpeeds)
 
     def setWASDTurn(self, turn):
         # This probably needs to be cleaned up, I don't think Toontown uses slide anywhere
