@@ -89,7 +89,7 @@ class GuildLeaderboard(DirectFrame):
     def updateEntries(self):
         taskMgr.remove('leaderboardTimedOutTask')
         self.setStatusMessage('')
-        self.entryList.removeAllItems()
+        self.entryList.removeAndDestroyAllItems()
         entries = base.cr.guildManager.leaderboardRankEntries
         if len(entries) == 0:
             self.setStatusMessage(TTLocalizer.GuildLeaderboardNoEntries)
@@ -98,7 +98,6 @@ class GuildLeaderboard(DirectFrame):
             name = entry[1]
             points = entry[2]
             thisEntry = LeaderboardEntry(self, id, index + 1, name, points, index, self.entryList)
-            self.entries.append(thisEntry)
             self.entryList.addItem(thisEntry)
 
     def timedOutTask(self, task=None):
@@ -119,12 +118,6 @@ class GuildLeaderboard(DirectFrame):
 
 class LeaderboardEntry(DirectButton):
     def __init__(self, parent, doId, rank, name, points, index, listObject):
-        self._parent = parent
-        self.doId = doId
-        self.rank = rank
-        self.name = name
-        self.points = points
-
         frameColor = (0.5, 0.6, 1, 0.2)
         textScale = (0.04, 0.06)
         textColor = (0, 0, 0, 1)
@@ -135,6 +128,11 @@ class LeaderboardEntry(DirectButton):
         listFrameSize = listObject['frameSize']
 
         DirectButton.__init__(self, listObject, relief=None, frameSize=listFrameSize)
+        self._parent = parent
+        self.doId = doId
+        self.rank = rank
+        self.name = name
+        self.points = points
         self.mainFrame = DirectFrame(self, relief=DGG.SUNKEN, pos=(0.0, 0.0, 0.49), borderWidth=(0.001, 0.001), frameSize=(listFrameSize[0], listFrameSize[1], -0.05, 0.05), frameColor=frameColor)
         self.rankLabel = DirectLabel(self.mainFrame, relief=None, pos=(-0.6, 0.0, -0.025), text=str(rank)+'.', text_fg=(0.0, 0.4, 1.0, 1.0), text_scale=(0.06, 0.08), text_align=TextNode.ACenter, text_font=ToontownClientGlobals.getMinnieFont())
         self.nameLabel = DirectLabel(self.mainFrame, relief=None, pos=(-0.525, 0.0, -0.01), text=name, text_fg=textColor, text_scale=textScale, text_align=TextNode.ABoxedLeft)
