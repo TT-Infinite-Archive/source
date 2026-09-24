@@ -143,6 +143,6 @@ class DistributedDataStoreManagerUD(DistributedObjectGlobalUD):
         year = time.localtime()[0]
         for file in os.listdir(self.serverDataFolder):
             if file.find('UDStoreBak')>-1 and file.find(str(year))==-1:
-                os.remove(file)
-                uber.air.writeServerEvent('Uberdog data store Info', 0 \
+                os.remove(os.path.join(self.serverDataFolder, file))
+                self.air.writeServerEvent('Uberdog data store Info', 0 \
                                                     , 'Removing backup file: %s ' %file)

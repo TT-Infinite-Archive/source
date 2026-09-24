@@ -29,13 +29,13 @@ class DataStore:
 
     def readDataFromFile(self):
         try:
-            file = open(self.filepath + '.bu', 'r')
+            file = open(self.filepath + '.bu', 'rb')
             self.notify.debug('Opening backup pickle data file at %s.' % (self.filepath + '.bu',))
             if os.path.exists(self.filepath):
                 os.remove(self.filepath)
         except IOError:
             try:
-                file = open(self.filepath, 'r')
+                file = open(self.filepath, 'rb')
                 self.notify.debug('Opening old pickle data file at %s..' % (self.filepath,))
             except IOError:
                 file = None
@@ -55,7 +55,7 @@ class DataStore:
                 backuppath = self.filepath + '.bu'
                 if os.path.exists(self.filepath):
                     os.rename(self.filepath, backuppath)
-                outfile = open(self.filepath, 'w')
+                outfile = open(self.filepath, 'wb')
                 pickle.dump(self.data, outfile)
                 outfile.close()
                 if os.path.exists(backuppath):
