@@ -1711,7 +1711,7 @@ class RecoverItemQuest(LocationBasedQuest):
 
     def getCompletionStatus(self, av, questDesc, npc = None):
         questId, fromNpcId, toNpcId, rewardId, toonProgress = questDesc
-        forwardProgress = toonProgress & pow(2, 16) - 1
+        forwardProgress = int(toonProgress) & pow(2, 16) - 1
         questComplete = forwardProgress >= self.getNumItems()
         return getCompleteStatusWithNpc(questComplete, toNpcId, npc)
 
