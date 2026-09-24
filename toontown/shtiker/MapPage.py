@@ -5,8 +5,10 @@ from direct.showbase import PythonUtil
 from toontown.hood import ZoneUtil
 from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
+from toontown.toontowngui.TTLabel import fitText
 
 class MapPage(ShtikerPage.ShtikerPage):
+    SafeZoneTextWidth = 0.47
 
     def __init__(self):
         ShtikerPage.ShtikerPage.__init__(self)
@@ -21,19 +23,19 @@ class MapPage(ShtikerPage.ShtikerPage):
             if hood not in [ToontownGlobals.GolfZone, ToontownGlobals.FunnyFarm]:
                 self.allZones.append(hood)
 
-        self.cloudScaleList = (((0.55, 0, 0.4), (0.35, 0, 0.25)),
+        self.cloudScaleList = (((0.55, 1, 0.4), (0.35, 1, 0.25)),
          (),
-         ((0.45, 0, 0.45), (0.5, 0, 0.4)),
-         ((0.7, 0, 0.45),),
-         ((0.55, 0, 0.4),),
-         ((0.6, 0, 0.4), (0.5332, 0, 0.32)),
-         ((0.7, 0, 0.45), (0.7, 0, 0.45)),
-         ((0.7998, 0, 0.39),),
-         ((0.5, 0, 0.4),),
-         ((-0.45, 0, 0.4),),
-         ((-0.45, 0, 0.35),),
-         ((0.5, 0, 0.35),),
-         ((0.5, 0, 0.35),))
+         ((0.45, 1, 0.45), (0.5, 1, 0.4)),
+         ((0.7, 1, 0.45),),
+         ((0.55, 1, 0.4),),
+         ((0.6, 1, 0.4), (0.5332, 1, 0.32)),
+         ((0.7, 1, 0.45), (0.7, 1, 0.45)),
+         ((0.7998, 1, 0.39),),
+         ((0.5, 1, 0.4),),
+         ((-0.45, 1, 0.4),),
+         ((-0.45, 1, 0.35),),
+         ((0.5, 1, 0.35),),
+         ((0.5, 1, 0.35),))
         self.cloudPosList = (((0.575, 0.0, -0.04), (0.45, 0.0, -0.25)),
          (),
          ((0.375, 0.0, 0.4), (0.5625, 0.0, 0.2)),
@@ -75,7 +77,6 @@ class MapPage(ShtikerPage.ShtikerPage):
             text=TTLocalizer.MapPageBackToPlayground,
             text_scale=TTLocalizer.MPsafeZoneButton,
             text_pos=(0, -0.02),
-            textMayChange=0,
             command=self.backToSafeZone)
         self.goHomeButton = DirectButton(
             parent=self.map,
@@ -161,6 +162,8 @@ class MapPage(ShtikerPage.ShtikerPage):
             self.safeZoneButton['text'] = TTLocalizer.MapPageBackToCogHQ
         else:
             self.safeZoneButton['text'] = TTLocalizer.MapPageBackToPlayground
+        self.safeZoneButton['text_scale'] = TTLocalizer.MPsafeZoneButton
+        fitText(self.safeZoneButton, self.SafeZoneTextWidth)
         if zone and ZoneUtil.isPlayground(zone) or self.book.safeMode:
             self.safeZoneButton.hide()
         else:
