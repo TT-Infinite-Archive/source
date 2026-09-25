@@ -103,11 +103,10 @@ if settings[SettingsGlobals.ThreadedRender]:
     loadPrcFileData('Settings: Experimental Threaded Rendering',
                     'threading-model Cull/Draw')
     notify.warning("Experimental Threaded Rendering is enabled! The game may crash randomly! You have been warned!")
-if settings[SettingsGlobals.AntiAliasing]:
-    loadPrcFileData('Settings: Anti Aliasing',
-                    'framebuffer-multisample 1')
-    loadPrcFileData('Settings: Anti Aliasing Amount',
-                    'multisamples %s' % 4)
+loadPrcFileData('Settings: Anti Aliasing',
+                'framebuffer-multisample %s' % ('1' if settings[SettingsGlobals.AntiAliasing] else '0')) 
+loadPrcFileData('Settings: Anti Aliasing Amount',
+                    'multisamples %s' % ('4' if settings[SettingsGlobals.AntiAliasing] else '0'))
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
 
