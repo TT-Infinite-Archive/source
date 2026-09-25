@@ -144,7 +144,8 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         taskMgr.remove('posCamera')
         self.disableAvatarControls()
         self.stopTrackAnimToSpeed()
-        self.stopUpdateSmartCamera()
+        if self._smartCamEnabled:
+            self.stopUpdateSmartCamera()
         self.shutdownSmartCamera()
         self.deleteCollisions()
         self.controlManager.delete()
