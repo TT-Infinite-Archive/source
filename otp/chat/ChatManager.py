@@ -493,6 +493,8 @@ class ChatManager(DirectObject.DirectObject):
         if not base.wantCustomControls:
             # The classic keymap has nothing bound to a key you can type.
             return
+        if base.chatInputFocused:
+            return
         base.chatInputFocused = True
         base.localAvatar.controlManager.disableWASD()
         messenger.send(ChatInputFocusEvent)
