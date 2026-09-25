@@ -36,7 +36,6 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
 from toontown.toonbase import ToontownClientGlobals
 
-from toontown.debug.DebugTools import timeFunc
 
 OneBossCog = None
 
@@ -83,7 +82,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.bulkLoader = BulkLoader.BulkLoader(ModelAssets)
         return
 
-    @timeFunc
     def announceGenerate(self):
         DistributedBossCog.DistributedBossCog.announceGenerate(self)
         self.bulkLoader.load()
@@ -1101,7 +1099,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.clearInterval(intervalName)
         NametagGlobals.setWant2dNametags(True)
 
-    @timeFunc
     def enterBattleThree(self):
         DistributedBossCog.DistributedBossCog.enterBattleThree(self)
         self.clearChat()
