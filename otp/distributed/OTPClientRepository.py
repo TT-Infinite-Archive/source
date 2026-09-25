@@ -997,6 +997,8 @@ class OTPClientRepository(ClientRepositoryBase):
     def enterShutdown(self, errorCode = None):
         self.handler = self.handleMessageType
         self.sendDisconnect()
+        if base.isHosting:
+            self.localServerStarter.demand('Off')
         self.notify.info('Exiting cleanly')
         base.exitShow(errorCode)
 
