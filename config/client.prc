@@ -21,6 +21,9 @@ preferences-path preferences.json
 # Content packs:
 content-packs-path contentpacks
 
+# Input:
+inactivity-timeout 300
+
 # Performance:
 sync-video #f
 gl-check-errors #f

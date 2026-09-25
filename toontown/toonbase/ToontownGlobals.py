@@ -416,7 +416,6 @@ MinigamePlayerMatrix = {
     3: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
     4: (CannonGameId, MazeGameId, TugOfWarGameId, PatternGameId, RaceGameId, TagGameId, VineGameId, RingGameId, IceGameId, CogThiefGameId, TwoDGameId, DivingGameId, PairingGameId, CatchGameId, TargetGameId, PhotoGameId),
 }
-KeyboardTimeout = 300
 phaseMap = {
     Tutorial: 4,
     ToontownCentral: 4,

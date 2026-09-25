@@ -173,7 +173,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantMods = ConfigVariableBool('want-mods', False).getValue()
         self.wantServerBrowser = ConfigVariableBool('want-server-browser', False).getValue()
         self.wantTrolleyTTC = ConfigVariableBool('want-ttc-trolley', False).getValue()
-        self.inactivityTimeout = ConfigVariableDouble('inactivity-timeout', ToontownGlobals.KeyboardTimeout).getValue()
+        self.inactivityTimeout = ConfigVariableDouble('inactivity-timeout').getValue()
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)
             self.mouseWatcherNode.setInactivityTimeout(self.inactivityTimeout)
