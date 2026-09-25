@@ -1,4 +1,4 @@
-from panda3d.core import Character, CharacterJoint, CharacterJointEffect, ConfigVariable, ConfigVariableInt, ConfigVariableString, GeomNode, LODNode, ModelNode, Texture
+from panda3d.core import Character, CharacterJoint, CharacterJointEffect, ConfigVariable, ConfigVariableString, GeomNode, LODNode, ModelNode, Texture
 import random
 from otp.avatar import Avatar
 from toontown.nametag import NametagGlobals
@@ -132,15 +132,9 @@ class Char(Avatar.Avatar):
 
     def setLODs(self):
         self.setLODNode()
-        levelOneIn = ConfigVariableInt('lod1-in', 500).getValue()
-        levelOneOut = ConfigVariableInt('lod1-out', 1).getValue()
-        levelTwoIn = ConfigVariableInt('lod2-in', 1000).getValue()
-        levelTwoOut = ConfigVariableInt('lod2-out', 500).getValue()
-        levelThreeIn = ConfigVariableInt('lod3-in', 1280).getValue()
-        levelThreeOut = ConfigVariableInt('lod3-out', 1000).getValue()
-        self.addLOD(LODModelDict[self.style.name][0], levelOneIn, levelOneOut)
-        self.addLOD(LODModelDict[self.style.name][1], levelTwoIn, levelTwoOut)
-        self.addLOD(LODModelDict[self.style.name][2], levelThreeIn, levelThreeOut)
+        self.addLOD(LODModelDict[self.style.name][0], 500, 1)
+        self.addLOD(LODModelDict[self.style.name][1], 1000, 500)
+        self.addLOD(LODModelDict[self.style.name][2], 1280, 1000)
 
     def generateChar(self):
         dna = self.style

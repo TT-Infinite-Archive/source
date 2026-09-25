@@ -1,5 +1,5 @@
 from panda3d.physics import ActorNode
-from panda3d.core import ConfigVariableInt, FadeLODNode, GeomNode, LODNode, NodePath, Point3, Texture
+from panda3d.core import FadeLODNode, GeomNode, LODNode, NodePath, Point3, Texture
 from direct.directnotify import DirectNotifyGlobal
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
@@ -60,13 +60,13 @@ class Kart(NodePath, ShadowCaster.ShadowCaster):
         self.pitchNode = {}
         self.toonNode = {}
         self.rotateNode = self.attachNewNode('rotate')
-        levelIn = [ConfigVariableInt('lod1-in', 30).getValue(), ConfigVariableInt('lod2-in', 80).getValue(), ConfigVariableInt('lod2-in', 200).getValue()]
-        levelOut = [ConfigVariableInt('lod1-out', 0).getValue(), ConfigVariableInt('lod2-out', 30).getValue(), ConfigVariableInt('lod2-out', 80).getValue()]
+        levelIn = [30, 80, 200]
+        levelOut = [0, 30, 80]
         lodRequired = 3
         if forGui:
             lodRequired = 1
-            levelIn[0] = ConfigVariableInt('lod1-in', 2500).getValue()
-            levelIn[1] = ConfigVariableInt('lod1-out', 0).getValue()
+            levelIn[0] = 2500
+            levelIn[1] = 0
         self.toonSeat = NodePath('toonSeat')
         for level in range(lodRequired):
             self.__createLODKart(level)
