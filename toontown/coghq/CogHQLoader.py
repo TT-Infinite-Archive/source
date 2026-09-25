@@ -34,7 +34,8 @@ class CogHQLoader(StateData.StateData):
         self.townBattle = TownBattle.TownBattle(self.townBattleDoneEvent)
         self.townBattle.load()
         Suit.loadSuits(3)
-        self.loadPlaceGeom(zoneId)
+        if not ZoneUtil.isDynamicZone(zoneId):
+            self.loadPlaceGeom(zoneId)
 
     def loadPlaceGeom(self, zoneId):
         pass
@@ -104,7 +105,8 @@ class CogHQLoader(StateData.StateData):
         if status.get('shardId') == None and self.isInThisHq(status):
             self.unloadPlaceGeom()
             zoneId = status['zoneId']
-            self.loadPlaceGeom(zoneId)
+            if not ZoneUtil.isDynamicZone(zoneId):
+                self.loadPlaceGeom(zoneId)
             self.fsm.request('quietZone', [status])
         else:
             self.doneStatus = status
