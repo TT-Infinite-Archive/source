@@ -16,7 +16,6 @@ server-version dev
 generate-global-object 4688 CentralLogger
 generate-global-object 4665 ClientServicesManager
 generate-global-object 4681 ChatAgent
-generate-global-object 4501 FriendManager
 generate-global-object 4686 AvatarFriendsManager
 generate-global-object 4687 PlayerFriendsManager
 generate-global-object 4666 TTIFriendsManager
