@@ -123,7 +123,7 @@ class DistributedCogThiefGame(DistributedMinigame):
         toonSD.load()
         self.loadCogs()
         self.toonHitTracks = {}
-        self.toonPieTracks = {}
+        self.toonPieTracks = []
         self.sndOof = loader.loadSfx('phase_4/audio/sfx/MG_cannon_hit_dirt.ogg')
         self.sndRewardTick = loader.loadSfx('phase_3.5/audio/sfx/tick_counter.ogg')
         self.sndPerfect = loader.loadSfx('phase_4/audio/sfx/ring_perfect.ogg')
@@ -312,12 +312,11 @@ class DistributedCogThiefGame(DistributedMinigame):
                 ival.finish()
 
         self.toonHitTracks = {}
-        for key in self.toonPieTracks:
-            ival = self.toonPieTracks[key]
+        for ival in self.toonPieTracks:
             if ival.isPlaying():
                 ival.finish()
 
-        self.toonPieTracks = {}
+        self.toonPieTracks = []
         for key in self.cogInfo:
             cogThief = self.cogInfo[key]['suit']
             cogThief.cleanup()
@@ -704,6 +703,8 @@ class DistributedCogThiefGame(DistributedMinigame):
                 self.accept('pieHit-' + collSphereName, self.handlePieHitting)
 
             def matchRunningAnim(toon = toon):
+                if toon.isEmpty():
+                    return
                 toon.playingAnim = None
                 toon.setSpeed(toon.forwardSpeed, toon.rotateSpeed)
                 return
@@ -714,7 +715,8 @@ class DistributedCogThiefGame(DistributedMinigame):
             if elapsedTime < 16.0 / 24.0:
                 elapsedTime = 16.0 / 24.0
             pieTrack.start(elapsedTime)
-            self.toonPieTracks[avId] = pieTrack
+            self.toonPieTracks = [ival for ival in self.toonPieTracks if ival.isPlaying()]
+            self.toonPieTracks.append(pieTrack)
 
     def getTossPieInterval(self, toon, x, y, z, h, p, r, power, beginFlyIval = Sequence()):
         from toontown.toonbase import ToontownBattleGlobals
