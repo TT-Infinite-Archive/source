@@ -1,6 +1,7 @@
 from panda3d.core import DecalEffect
 from direct.directnotify import DirectNotifyGlobal
 from toontown.building import DistributedBuilding
+from toontown.dna import DNAUtil
 
 class DistributedAnimBuilding(DistributedBuilding.DistributedBuilding):
 
@@ -24,6 +25,7 @@ class DistributedAnimBuilding(DistributedBuilding.DistributedBuilding):
                 if not sign.isEmpty():
                     sign.setDepthWrite(1, 1)
                     sign.setEffect(DecalEffect.make())
+                    DNAUtil.biasDecals(sign)
                     sign_joint = curNode.find('**/sign_origin_joint')
                     allSignJoints = curNode.findAllMatches('**/sign_origin_joint')
                     num = allSignJoints.getNumPaths()

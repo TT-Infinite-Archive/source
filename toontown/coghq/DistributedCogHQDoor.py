@@ -12,6 +12,8 @@ from toontown.toonbase import TTLocalizer
 
 
 class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
+    SwingAngles = {(ToontownGlobals.LawbotOfficeExt, DoorTypes.INT_COGHQ): 70}
+
     def __init__(self, cr):
         DistributedDoor.DistributedDoor.__init__(self, cr)
         self.openSfx = loader.loadSfx('phase_9/audio/sfx/CHQ_door_open.ogg')
@@ -19,6 +21,10 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
 
     def wantsNametag(self):
         return 0
+
+    def doPostAnnounceGenerate(self):
+        self.swingAngle = self.SwingAngles.get((ZoneUtil.getCanonicalZoneId(self.zoneId), self.doorType), self.swingAngle)
+        DistributedDoor.DistributedDoor.doPostAnnounceGenerate(self)
 
     def getRequestStatus(self):
         zoneId = self.otherZoneId
@@ -45,9 +51,9 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
         otherNP = self.getDoorNodePath()
         trackName = 'doorClose-%d' % self.doId
         if self.rightSwing:
-            h = 100
+            h = self.swingAngle
         else:
-            h = -100
+            h = -self.swingAngle
         self.finishDoorTrack()
         self.doorTrack = Parallel(Sequence(LerpHprInterval(nodePath=rightDoor, duration=1.0, hpr=VBase3(0, 0, 0), startHpr=VBase3(h, 0, 0), other=otherNP, blendType='easeInOut'), Func(doorFrameHoleRight.hide), Func(self.hideIfHasFlat, rightDoor)), Sequence(Wait(0.5), SoundInterval(self.closeSfx, node=rightDoor)), name=trackName)
         self.doorTrack.start(ts)
@@ -63,9 +69,9 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
         if ZoneUtil.isInterior(self.zoneId):
             doorFrameHoleLeft.setColor(1.0, 1.0, 1.0, 1.0)
         if self.leftSwing:
-            h = -100
+            h = -self.swingAngle
         else:
-            h = 100
+            h = self.swingAngle
         leftDoor = self.findDoorNode('leftDoor')
         if not leftDoor.isEmpty():
             otherNP = self.getDoorNodePath()

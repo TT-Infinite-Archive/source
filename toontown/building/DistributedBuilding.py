@@ -17,6 +17,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.distributed import DelayDelete
 from toontown.toon import TTEmote
 from otp.avatar import Emote
+from toontown.dna import DNAUtil
 from toontown.hood import ZoneUtil
 
 FO_DICT = {'s': 'tt_m_ara_cbe_fieldOfficeMoverShaker',
@@ -489,6 +490,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         suitBuildingNP.setName('sb' + str(self.block) + ':_landmark__DNARoot')
         suitBuildingNP.setPosHprScale(nodePath, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
         suitBuildingNP.flattenMedium()
+        DNAUtil.biasDecals(suitBuildingNP)
         self.loadElevator(suitBuildingNP)
         return suitBuildingNP
 
@@ -588,6 +590,7 @@ class DistributedBuilding(DistributedObject.DistributedObject):
         suitBuildingNP.setName('cb' + str(self.block) + ':_landmark__DNARoot')
         suitBuildingNP.setPosHprScale(nodePath, 15.463, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0)
         suitBuildingNP.flattenMedium()
+        DNAUtil.biasDecals(suitBuildingNP)
         suitBuildingNP.setColorScale(0.6, 0.6, 0.6, 1.0)
         self.loadElevator(suitBuildingNP, cogdo=True)
         return suitBuildingNP

@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableBool
+from panda3d.core import ConfigVariableBool, ModelNode
 from . import CogHQLoader
 from . import LawbotHQBossBattle
 from . import LawbotHQExterior
@@ -67,6 +67,8 @@ class LawbotCogHQLoader(CogHQLoader.CogHQLoader):
             self.geom = loader.loadModel(self.factoryExteriorModelPath)
             ug = self.geom.find('**/underground')
             ug.setBin('ground', -10)
+            for leaf in self.geom.findAllMatches('**/door_*/+ModelNode'):
+                leaf.node().setPreserveTransform(ModelNode.PTLocal)
             self.geom.flattenMedium()
         elif zoneId == ToontownGlobals.LawbotLobby:
             if ConfigVariableBool('want-qa-regression', False).getValue():

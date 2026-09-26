@@ -6,6 +6,7 @@ from toontown.minigame import TwoDSection
 from toontown.minigame import TwoDSpawnPointMgr
 from toontown.minigame import TwoDBlock
 from direct.gui import DirectGui
+from toontown.dna import DNAUtil
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownClientGlobals
 
@@ -87,6 +88,7 @@ class TwoDSectionMgr(DirectObject):
         sdSign.node().setEffect(DecalEffect.make())
         sdText = DirectGui.OnscreenText(text=TTLocalizer.TwoDGameElevatorExit, font=ToontownClientGlobals.getSuitFont(), pos=(0, -0.34), scale=0.15, mayChange=False, parent=sdSign)
         sdText.setDepthWrite(0)
+        DNAUtil.biasDecals(sdSign)
         self.sectionNPList.append(self.endSectionNP)
         endSectionInfo = ('end',
          [],

@@ -9,6 +9,7 @@ from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
+from toontown.dna import DNAUtil
 from toontown.dna.DNAParser import DNADoor
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
 
@@ -27,6 +28,7 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.generate(self)
         self.interior = loader.loadModel('phase_3.5/models/modules/HQ_interior')
         self.interior.reparentTo(render)
+        DNAUtil.biasDecals(self.interior)
         self.interior.find('**/cream').hide()
         self.interior.find('**/crashed_piano').hide()
         floorCollisions = self.interior.find('**/floor collisions')

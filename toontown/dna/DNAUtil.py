@@ -1,4 +1,12 @@
-from panda3d.core import LVector4f
+from panda3d.core import DecalEffect, DepthBiasAttrib, LVector4f
+
+DecalBias = DepthBiasAttrib.make(0, -4, 0)
+
+def biasDecals(nodePath):
+    for node in nodePath.findAllMatches('**'):
+        if node.node().getEffect(DecalEffect.getClassType()):
+            for child in node.getChildren():
+                child.setAttrib(DecalBias)
 
 def dgiExtractString8(dgi):
     return dgi.extractBytes(dgi.getUint8()).decode('utf-8')

@@ -9,6 +9,7 @@ from direct.gui.DirectGuiGlobals import NO_FADE_SORT_INDEX
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.interval.IntervalGlobal import EventInterval, Func, LerpFunc, LerpHprInterval, LerpPosInterval, Parallel, Sequence
 
+from toontown.dna import DNAUtil
 from toontown.estate import HouseGlobals
 from toontown.hood import SkyUtil
 from toontown.launcher import DownloadForceAcknowledge
@@ -298,6 +299,7 @@ class AvatarChooser(StateData.StateData):
         leftHole.setColor((0, 0, 0, 1), 0)
         rightHole.setColor((0, 0, 0, 1), 0)
         doorNP.flattenMedium()
+        DNAUtil.biasDecals(doorNP)
 
     def __setupHouseName(self, house, av):
         houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(av.name)

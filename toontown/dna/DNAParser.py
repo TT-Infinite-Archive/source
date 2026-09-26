@@ -1,6 +1,7 @@
 from direct.stdpy import threading
 
 from . import DNALoader
+from . import DNAUtil
 from .DNAStorage import DNAStorage
 from .DNASuitPoint import DNASuitPoint
 from .DNAGroup import DNAGroup
@@ -43,6 +44,7 @@ def loadDNAFile(dnaStorage, file):
             file = '/' + file
     node = dnaLoader.loadDNAFile(dnaStorage, file)
     dnaLoader.destroy()
+    DNAUtil.biasDecals(node)
     if node.node().getNumChildren() > 0:
         return node.node()
     return None

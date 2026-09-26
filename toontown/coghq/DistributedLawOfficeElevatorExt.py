@@ -5,6 +5,7 @@ from toontown.building.ElevatorConstants import *
 from toontown.building.ElevatorUtils import *
 from toontown.building import DistributedElevatorExt
 from toontown.building import DistributedElevator
+from toontown.dna import DNAUtil
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownClientGlobals
 from direct.fsm import ClassicFSM
@@ -46,6 +47,7 @@ class DistributedLawOfficeElevatorExt(DistributedElevatorExt.DistributedElevator
         signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[self.intZoneId][-1]), font=ToontownClientGlobals.getSuitFont(), scale=2, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
         signText.setPosHpr(locator, 0, 0, 0, 0, 0, 0)
         signText.setDepthWrite(0)
+        DNAUtil.biasDecals(backgroundGeom)
 
     def setupElevator(self):
         self.elevatorModel = loader.loadModel('phase_10/models/cogHQ/mintElevator')
