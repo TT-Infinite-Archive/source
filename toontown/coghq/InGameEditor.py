@@ -634,7 +634,7 @@ class InGameEditor(AppShell):
         widg = Entry(frame, textvariable=text)
         widg.bind('<Return>', handleReturn)
         widg.pack(side=LEFT, fill=X, expand=1)
-        if attribName is 'parentEntId':
+        if attribName == 'parentEntId':
             buttonText = 'Reparent To'
         else:
             buttonText = 'Select Entity'

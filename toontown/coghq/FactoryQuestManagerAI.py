@@ -62,10 +62,10 @@ class FactoryQuestManagerAI:
     def incrementQuestProgress(self, questId):
         # Tries to increment progress for questId given
         if self.quest is None:
-            print('quest is none')
+            self.notify.debug('No active quest to progress')
             return
         if self.questId != questId:
-            print('quest id does not match')
+            self.notify.debug('Quest %s is not the active quest %s' % (questId, self.questId))
             return
 
         self.progress += 1

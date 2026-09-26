@@ -49,7 +49,7 @@ class DistributedMeritTreasureAI(DistributedTreasureAI):
             self.notify.warning('Tried to make toon %s whose not in factory grab a treasure.' % grabberId)
             return
 
-        self.requestGrab(grabberId)
+        self.treasurePlanner.grabAttempt(grabberId, self.doId)
 
 
 

@@ -16,6 +16,7 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         self.cage = None
         self.cageDoor = None
         self.toon = None
+        self.collNode = None
 
         self.sphereRadius = 4.5
         self.npcId = 0
@@ -24,8 +25,11 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         DistributedObject.DistributedObject.generate(self)
 
     def delete(self):
+        if self.animTrack is not None:
+            self.animTrack.pause()
+            self.animTrack = None
         if self.toon is not None:
-            self.toon.removeNode()
+            self.toon.delete()
             self.toon = None
         if self.cage is not None:
             self.cage.removeNode()
@@ -33,10 +37,6 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         if self.cageDoor is not None:
             self.cageDoor.removeNode()
             self.cageDoor = None
-        if self.animTrack is not None:
-            if self.animTrack.isPlaying():
-                self.animTrack.finish()
-            self.animTrack = None
         if self.collNode is not None:
             self.collNode.clearSolids()
 

@@ -115,7 +115,7 @@ class DistributedFactorySuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
 
     def requestTreasure(self, pos, grabberId=0):
         if self.treasureId:
-            self.notify.warning('Suit %s tried to make a treasure, but he already generated a treasure.' % self.doId)
+            self.notify.debug('Suit %s already generated a treasure.' % self.doId)
             return
         if self.inSellbotFactory():
             factory = self.air.doId2do.get(self.levelDoId)
