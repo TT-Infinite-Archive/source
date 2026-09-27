@@ -48,6 +48,9 @@ want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
 
+# Classic characters:
+want-classic-chars #f
+
 # Trolley minigames:
 want-photo-game #f
 want-travel-game #f

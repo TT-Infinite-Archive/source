@@ -23,10 +23,11 @@ class TTHoodDataAI(HoodDataAI.HoodDataAI):
         self.addDistObj(trolley)
         self.trolley = trolley
 
-        self.classicChar = DistributedMickeyAI.DistributedMickeyAI(self.air)
-        self.classicChar.generateWithRequired(self.zoneId)
-        self.classicChar.start()
-        self.addDistObj(self.classicChar)
+        if self.air.wantClassicChars:
+            self.classicChar = DistributedMickeyAI.DistributedMickeyAI(self.air)
+            self.classicChar.generateWithRequired(self.zoneId)
+            self.classicChar.start()
+            self.addDistObj(self.classicChar)
 
         messenger.send("TTHoodSpawned", [self])
 

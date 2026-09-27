@@ -22,7 +22,8 @@ class BRHoodDataAI(HoodDataAI.HoodDataAI):
         trolley.start()
         self.addDistObj(trolley)
 
-        self.classicChar = DistributedPlutoAI.DistributedPlutoAI(self.air)
-        self.classicChar.generateWithRequired(self.zoneId)
-        self.classicChar.start()
-        self.addDistObj(self.classicChar)
+        if self.air.wantClassicChars:
+            self.classicChar = DistributedPlutoAI.DistributedPlutoAI(self.air)
+            self.classicChar.generateWithRequired(self.zoneId)
+            self.classicChar.start()
+            self.addDistObj(self.classicChar)

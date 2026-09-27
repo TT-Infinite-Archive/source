@@ -47,6 +47,9 @@ class CostumeManagerAI(HolidayBaseAI.HolidayBaseAI, DirectObject.DirectObject):
     #  and classicChar class.
     ######################################################
     def start(self):
+        if not self.air.wantClassicChars:
+            return
+
         if(self.holidayId == ToontownGlobals.HALLOWEEN_COSTUMES) or (self.holidayId == ToontownGlobals.SPOOKY_COSTUMES):
             self.accept("TTHoodSpawned", self.__welcomeValleySpawned)
             self.accept("TTHoodDestroyed", self.__welcomeValleyDestroyed)
@@ -137,6 +140,9 @@ class CostumeManagerAI(HolidayBaseAI.HolidayBaseAI, DirectObject.DirectObject):
         self.notify.debug("GoingToStop")
         self.stopForever = stopForever
         self.runningState = 0
+        if not self.hoods:
+            simbase.air.holidayManager.delayedEnd(self.holidayId, stopForever)
+            return
         if(self.holidayId in [ToontownGlobals.HALLOWEEN_COSTUMES, ToontownGlobals.APRIL_FOOLS_COSTUMES, ToontownGlobals.SPOOKY_COSTUMES]):
             self.ignore("TTHoodSpawned")
             self.ignore("GSHoodSpawned")

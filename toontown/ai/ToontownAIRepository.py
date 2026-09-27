@@ -210,6 +210,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantTrackClsends = ConfigVariableBool('want-track-clsends', False).getValue()
         self.wantHalloween = ConfigVariableBool('want-halloween', False).getValue()
         self.wantChristmas = ConfigVariableBool('want-christmas', False).getValue()
+        self.wantClassicChars = ConfigVariableBool('want-classic-chars', True).getValue()
         self.wantFireworks = ConfigVariableBool('want-fireworks', False).getValue()
         self.leakGraph = None
         self.cogSuitMessageSent = False

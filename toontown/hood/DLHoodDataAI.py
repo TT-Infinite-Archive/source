@@ -22,7 +22,8 @@ class DLHoodDataAI(HoodDataAI.HoodDataAI):
         trolley.start()
         self.addDistObj(trolley)
 
-        self.classicChar = DistributedDonaldAI.DistributedDonaldAI(self.air)
-        self.classicChar.generateWithRequired(self.zoneId)
-        self.classicChar.start()
-        self.addDistObj(self.classicChar)
+        if self.air.wantClassicChars:
+            self.classicChar = DistributedDonaldAI.DistributedDonaldAI(self.air)
+            self.classicChar.generateWithRequired(self.zoneId)
+            self.classicChar.start()
+            self.addDistObj(self.classicChar)

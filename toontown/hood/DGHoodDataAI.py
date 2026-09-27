@@ -23,10 +23,11 @@ class DGHoodDataAI(HoodDataAI.HoodDataAI):
         trolley.start()
         self.addDistObj(trolley)
 
-        self.classicChar = DistributedDaisyAI.DistributedDaisyAI(self.air)
-        self.classicChar.generateWithRequired(self.zoneId)
-        self.classicChar.start()
-        self.addDistObj(self.classicChar)
+        if self.air.wantClassicChars:
+            self.classicChar = DistributedDaisyAI.DistributedDaisyAI(self.air)
+            self.classicChar.generateWithRequired(self.zoneId)
+            self.classicChar.start()
+            self.addDistObj(self.classicChar)
 
         flower = DistributedDGFlowerAI.DistributedDGFlowerAI(self.air)
         flower.generateWithRequired(self.zoneId)
