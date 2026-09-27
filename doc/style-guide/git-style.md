@@ -1,20 +1,38 @@
 Git Style Guidelines
 ====================
-For Git, we try to follow a general pattern for commit messages and branch naming to make things organized and neat.
+For Git, we follow a set pattern for commit messages and branch names to keep the history organized and readable.
 - - -
 ## Commit Messages ##
-All commit messages should:
-* Start with a capital letter.
-* Never end in puncuation.
-* Be in the present tense.
-* Have a title less than 100 characters.
-* End in a new line.
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-If a description is provided in the commit message, it should be separated from the title by a blank line. If the commit addresses an issue, its issue number should be referenced at the end of the commit message's description.
+```
+type(scope): summary
+```
 
-Whenever possible, commit messages should be prefixed with the directory name of which the commit modified the most, followed by a colon and a space.
+The **type** is one of:
 
-For example: ```toon: ``` or ```tools: ``` or ```ai: ```
+| Type       | Use it for                                        |
+| ---------- | ------------------------------------------------- |
+| `feat`     | A new feature or gameplay change                  |
+| `fix`      | A bug fix                                         |
+| `perf`     | A performance improvement                         |
+| `refactor` | A code change that doesn't change behavior        |
+| `chore`    | Tooling, CI, dependencies, config and cleanup     |
+| `docs`     | Documentation only                                |
+
+The release notes are built from these types, so choose the one that matches the change.
+
+The **scope** is the area of the game or repository the commit touches most, such as `parties`, `toon`, `coghq`, `ai`, `uberdog`, `launcher`, `docker` or `workflows`. Leave it out if no single area fits.
+
+The **summary** should:
+* Be entirely lower case, except for names and identifiers.
+* Be in the present tense and imperative mood ("add", not "added" or "adds").
+* Never end in punctuation.
+* Keep the whole title under 100 characters.
+
+If you add a description, separate it from the title with a blank line and explain *why* the change was made. If the commit addresses an issue, reference it at the end of the description, e.g. `Fixes #42`.
+
+For example: ```fix(minigames): finish every cog thief pie track on cleanup``` or ```feat(parties): add the dance floor to the party catalog```
 
 ## Branch Naming ##
 All branch names should:

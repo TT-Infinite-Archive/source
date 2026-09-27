@@ -1,0 +1,50 @@
+name: Bug report
+description: Something in the game or the code isn't working right.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are for code problems only. If you need help installing, logging in or starting the game, ask on [Discord](https://discord.toontown.io) instead.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What went wrong, and what did you expect to happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to Toontown Central
+        2. Board the trolley
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Game version
+      description: Shown in the launcher, or the commit hash if you run from source.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Not platform-specific
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste the relevant part of your log file, if you have one.
+      render: text

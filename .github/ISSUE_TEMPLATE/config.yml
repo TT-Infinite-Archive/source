@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Help installing or playing the game
+    url: https://discord.toontown.io
+    about: Ask on Discord. Issues here are for code problems only.
+  - name: Report a security vulnerability
+    url: mailto:support@toontown.io
+    about: Please report exploits privately by email. Don't open a public issue.
