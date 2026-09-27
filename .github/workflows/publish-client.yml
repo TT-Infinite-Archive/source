@@ -49,23 +49,9 @@ jobs:
 
       - name: Check out the build tools
         id: tools
-        shell: bash
-        env:
-          BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
-        run: |
-          echo "::add-mask::$BUILD_TOOLS_TOKEN"
-
-          auth=$(printf 'oauth2:%s' "$BUILD_TOOLS_TOKEN" | base64 | tr -d '\n')
-          echo "::add-mask::$auth"
-
-          git init -q tools
-          git -C tools remote add origin \
-            https://git.toontown.io/toontown-infinite/build-tools.git
-          git -C tools -c http.extraheader="Authorization: Basic $auth" \
-            fetch -q --depth 1 origin HEAD
-          git -C tools checkout -q FETCH_HEAD
-
-          echo "sha=$(git -C tools rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
 
       - name: Check out the art
         uses: actions/checkout@v5
@@ -93,7 +79,18 @@ jobs:
 
           if aws s3 cp "s3://$BUCKET/$INDEX/resources-$key.json" recorded.json \
                   --only-show-errors 2> /dev/null; then
-              echo "hit=true" >> "$GITHUB_OUTPUT"
+              # The sweep may have taken the blobs of a pack no kept release uses:
+              missing=$(jq -r '.files[].sha256' recorded.json | sort -u | while read -r sha; do
+                  aws s3api head-object --bucket "$BUCKET" --key "$PREFIX/blob/$sha" \
+                      > /dev/null 2>&1 || echo "$sha"
+              done)
+
+              if [ -n "$missing" ]; then
+                  echo "::warning::The recorded resource pack lost $(echo "$missing" | wc -l) blob(s) to the sweep; rebuilding it."
+                  echo "hit=false" >> "$GITHUB_OUTPUT"
+              else
+                  echo "hit=true" >> "$GITHUB_OUTPUT"
+              fi
           else
               echo "hit=false" >> "$GITHUB_OUTPUT"
           fi
@@ -104,10 +101,16 @@ jobs:
           python-version: "3.14"
           cache: pip
 
+      - name: Fetch Panda3D
+        if: steps.pack.outputs.hit != 'true'
+        uses: ./.github/actions/panda3d
+        with:
+          target: linux-x64
+
       - name: Pack the phase multifiles
         if: steps.pack.outputs.hit != 'true'
         run: |
-          pip install --disable-pip-version-check -r requirements.txt
+          pip install --disable-pip-version-check wheels/*.whl -r requirements.txt
           python tools/pack_client_resources.py art build/client/resources
 
       - name: Describe them
@@ -161,162 +164,46 @@ jobs:
           echo "The art has not moved since the last pack; reused it." \
               >> "$GITHUB_STEP_SUMMARY"
 
-  client:
-    name: Build ${{ matrix.part }} ${{ matrix.target }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        target: [mac-arm64, mac-x64, win-x64, linux-x64]
-        # The client and the host add-on share no build state, so they compile together:
-        part: [client, host]
-        include:
-          - target: mac-arm64
-            os: macos-latest
-          # going away in August 2027
-          - target: mac-x64
-            os: macos-26-intel
-          - target: win-x64
-            os: windows-2025
-          - target: linux-x64
-            os: ubuntu-latest
-
-    env:
-      # Nuitka caches the compiled C here:
-      NUITKA_CACHE_DIR: ${{ github.workspace }}/.nuitka-cache
-      CCACHE_MAXSIZE: 1G
-      CLCACHE_OBJECT_CACHE_SIZE: "1000000000"
-
+  game:
+    name: Pack the game
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
       - name: Check out the build tools
-        shell: bash
-        env:
-          BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
-        run: |
-          echo "::add-mask::$BUILD_TOOLS_TOKEN"
-
-          auth=$(printf 'oauth2:%s' "$BUILD_TOOLS_TOKEN" | base64 | tr -d '\n')
-          echo "::add-mask::$auth"
-
-          git init -q tools
-          git -C tools remote add origin \
-            https://git.toontown.io/toontown-infinite/build-tools.git
-          git -C tools -c http.extraheader="Authorization: Basic $auth" \
-            fetch -q --depth 1 origin HEAD
-          git -C tools checkout -q FETCH_HEAD
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
-          cache: pip
 
-      - name: Reuse the last build's compiled C
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/.nuitka-cache
-          key: nuitka-${{ matrix.target }}-${{ matrix.part }}-${{ hashFiles('requirements*.txt') }}-${{ github.sha }}
-          restore-keys: |
-            nuitka-${{ matrix.target }}-${{ matrix.part }}-${{ hashFiles('requirements*.txt') }}-
-            nuitka-${{ matrix.target }}-${{ hashFiles('requirements*.txt') }}-
-
-      - name: Ensure the AWS CLI is present
-        if: runner.os == 'macOS'
-        run: command -v aws || brew install awscli
-
-      - name: Report the macOS deployment target
-        if: runner.os == 'macOS'
-        run: python -c "import sysconfig; print(sysconfig.get_config_var('MACOSX_DEPLOYMENT_TARGET'))"
-
-      - name: Ensure ccache is present
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          command -v ccache ||
-              if [ "$RUNNER_OS" = "macOS" ]; then
-                  brew install ccache
-              else
-                  sudo apt-get update && sudo apt-get install -y ccache
-              fi
-
-      # The Panda3D the client needs is not on PyPI, so it is built here and
-      # kept by pin:
-      - name: Read the Panda3D pin
-        id: panda
-        shell: bash
-        run: echo "rev=$(python scripts/build_panda3d.py --print-pin)" >> "$GITHUB_OUTPUT"
-
-      - name: Reuse the built Panda3D wheel
-        id: panda-cache
-        uses: actions/cache@v4
-        with:
-          path: wheels
-          key: panda3d-${{ matrix.target }}-${{ steps.panda.outputs.rev }}-${{ hashFiles('scripts/build_panda3d.py') }}
-
-      - name: Build Panda3D
-        if: steps.panda-cache.outputs.cache-hit != 'true'
-        shell: bash
-        run: |
-          python scripts/build_panda3d.py --install-deps
-          python scripts/build_panda3d.py --output wheels
-
-      - name: Install Panda3D
-        shell: bash
-        run: |
-          if [ -z "$(ls wheels/*.whl 2>/dev/null)" ]; then
-              echo "::error::No Panda3D wheel for pin ${{ steps.panda.outputs.rev }}."
-              exit 1
-          fi
-
-          pip install --disable-pip-version-check wheels/*.whl
-
-      - name: Install dependencies
-        run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
-
-      - name: Compile the ${{ matrix.part }}
+      - name: Pack
         env:
           BUILD_VERSION: tti-${{ inputs.channel }}-v${{ inputs.version }}
-        run: python tools/build_client.py --target ${{ matrix.part }}
+        run: python tools/pack_game.py
 
       - name: Describe it
         shell: bash
         run: |
-          if [ "${{ matrix.part }}" = "client" ]; then
-              TREE=build/client/install
-              SECTION="${{ matrix.target }}"
-          else
-              TREE=build/client/host
-              SECTION="host-${{ matrix.target }}"
-          fi
+          set -euo pipefail
 
-          if [ ! -d "$TREE" ]; then
-              echo "::error::${{ matrix.part }} produced no $TREE for ${{ matrix.target }}."
-              exit 1
-          fi
+          for tree in build/game/*/; do
+              section=$(basename "$tree")
 
-          python tools/build_manifest.py \
-              --tree "$TREE" \
-              --section "$SECTION" \
-              --version ${{ inputs.version }} \
-              --manifest "build/manifest/$SECTION.json" \
-              --blobs build/blobs
-
-      - name: Keep the compilation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuitka-report-${{ matrix.part }}-${{ matrix.target }}
-          path: build/client/report-*.xml
-          if-no-files-found: ignore
+              python tools/build_manifest.py \
+                  --tree "$tree" \
+                  --section "$section" \
+                  --version ${{ inputs.version }} \
+                  --manifest "build/manifest/$section.json" \
+                  --blobs build/blobs
+          done
 
       - name: Upload
         shell: bash
         run: |
-          if [ ! -d build/manifest ]; then
-              echo "::error::No manifest to upload for ${{ matrix.part }} ${{ matrix.target }}."
-              exit 1
-          fi
+          set -euo pipefail
 
           aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
               --cache-control "public, max-age=31536000, immutable"
@@ -327,10 +214,185 @@ jobs:
                   --cache-control "no-cache" --content-type application/json
           done
 
+  # Python, Panda3D and the libraries the game imports. Rebuilt only when its
+  # key moves, which is rare, so most releases reuse the last one:
+  engine:
+    name: Engine ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: mac-arm64
+            os: macos-latest
+          - target: mac-x64
+            os: macos-26-intel
+          - target: win-x64
+            os: windows-2025
+          - target: linux-x64
+            os: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check out the build tools
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      # The Panda3D the engine needs is not on PyPI, so it is built once per
+      # pin and kept:
+      - name: Fetch Panda3D
+        uses: ./.github/actions/panda3d
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Install Panda3D
+        shell: bash
+        run: |
+          if [ -z "$(ls wheels/*.whl 2>/dev/null)" ]; then
+              echo "::error::No Panda3D wheel for ${{ matrix.target }}."
+              exit 1
+          fi
+
+          pip install --disable-pip-version-check wheels/*.whl
+
+      - name: Install dependencies
+        run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
+
+      # Nuitka rewrites the library paths of what it bundles:
+      - name: Ensure patchelf is present
+        if: runner.os == 'Linux'
+        run: command -v patchelf || (sudo apt-get update && sudo apt-get install -y patchelf)
+
+      - name: Look for an identical engine
+        id: engine
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          key=$(python tools/build_engine.py --print-key)
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+          echo "Engine key \`$key\`." >> "$GITHUB_STEP_SUMMARY"
+
+          if aws s3 cp "s3://$BUCKET/$INDEX/engine-${{ matrix.target }}-$key.json" recorded.json \
+                  --only-show-errors 2> /dev/null; then
+              # The sweep may have taken the blobs of a pack no kept release uses:
+              missing=$(jq -r '.files[].sha256' recorded.json | sort -u | while read -r sha; do
+                  aws s3api head-object --bucket "$BUCKET" --key "$PREFIX/blob/$sha" \
+                      > /dev/null 2>&1 || echo "$sha"
+              done)
+
+              if [ -n "$missing" ]; then
+                  echo "::warning::The recorded engine lost $(echo "$missing" | wc -l) blob(s) to the sweep; rebuilding it."
+                  echo "hit=false" >> "$GITHUB_OUTPUT"
+              else
+                  echo "hit=true" >> "$GITHUB_OUTPUT"
+              fi
+          else
+              echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build it
+        if: steps.engine.outputs.hit != 'true'
+        run: python tools/build_engine.py
+
+      - name: Describe it
+        if: steps.engine.outputs.hit != 'true'
+        run: |
+          python tools/build_manifest.py \
+              --tree build/engine/install \
+              --section engine-${{ matrix.target }} \
+              --version ${{ inputs.version }} \
+              --manifest build/manifest/engine-${{ matrix.target }}.json \
+              --blobs build/blobs
+
+      - name: Keep the compilation report
+        if: always() && steps.engine.outputs.hit != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuitka-report-engine-${{ matrix.target }}
+          path: build/engine/report-engine.xml
+          if-no-files-found: ignore
+
+      - name: Upload it
+        if: steps.engine.outputs.hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
+              --cache-control "public, max-age=31536000, immutable"
+
+          manifest=build/manifest/engine-${{ matrix.target }}.json
+
+          aws s3 cp "$manifest" \
+              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/$(basename "$manifest")" \
+              --cache-control "no-cache" --content-type application/json
+          aws s3 cp "$manifest" \
+              "s3://$BUCKET/$INDEX/engine-${{ matrix.target }}-${{ steps.engine.outputs.key }}.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          echo "Built a new engine." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reuse the recorded engine
+        if: steps.engine.outputs.hit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          jq --arg v "${{ inputs.version }}" '.version = $v' \
+              recorded.json > engine.json
+
+          aws s3 cp engine.json \
+              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/engine-${{ matrix.target }}.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          echo "Nothing the engine carries has moved; reused it." >> "$GITHUB_STEP_SUMMARY"
+
+  # The launchers already installed read one section per platform:
+  legacy:
+    name: Compose the manifests installed launchers read
+    needs: [game, engine]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check out the build tools
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Compose
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          release="s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}"
+
+          aws s3 sync "$release/" manifests/ --only-show-errors
+          python tools/legacy_manifests.py --manifests manifests --version ${{ inputs.version }}
+
+          for target in mac-arm64 mac-x64 win-x64 linux-x64; do
+              for section in "$target" "host-$target"; do
+                  aws s3 cp "manifests/$section.json" "$release/$section.json" \
+                      --cache-control "no-cache" --content-type application/json
+              done
+          done
+
   publish:
     name: Publish the release
     if: inputs.promote
-    needs: [resources, client]
+    needs: [resources, game, engine, legacy]
     runs-on: ubuntu-latest
     steps:
       - name: Point latest.json at tti-${{ inputs.channel }}-v${{ inputs.version }}
@@ -342,8 +404,6 @@ jobs:
           aws s3 cp latest.json "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/latest.json" \
               --cache-control "no-cache" --content-type application/json
 
-          # Live is mirrored to the unprefixed path, where the launchers
-          # already installed look. The manifests go first:
           if [ "${{ inputs.channel }}" = live ]; then
               aws s3 sync "s3://$BUCKET/$PREFIX/live/${{ inputs.version }}/" \
                   "s3://$BUCKET/$PREFIX/${{ inputs.version }}/" \

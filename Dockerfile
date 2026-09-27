@@ -1,14 +1,17 @@
-# Use Debian (not Alpine) because Panda3D only offers manylinux2014 (glibc) wheels
+# Use Debian (not Alpine) because the Panda3D wheel is built against glibc
 # Debian also lets us use apt to install Infisical CLI in the runtime image
 FROM python:3.14-slim AS deps
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY requirements.txt ./
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+# The pinned Panda3D the client and the host add-on run too. It is not on PyPI;
+# CI puts it in wheels/, and scripts/build_panda3d.py makes it anywhere else
+COPY wheels/ ./wheels/
+RUN wheel=$(ls wheels/panda3d-*linux*_$(uname -m).whl 2> /dev/null | head -1) \
+    && if [ -z "$wheel" ]; then \
+        echo "No Panda3D wheel for linux $(uname -m) in wheels/." >&2; exit 1; \
+    fi \
+    && pip install --no-cache-dir --prefix=/install "$wheel" -r requirements.txt
 
 
 FROM python:3.14-slim AS runtime
@@ -25,26 +28,28 @@ ARG TZ=America/Los_Angeles
 ENV TZ=${TZ}
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 
+RUN useradd --system --create-home --uid 10001 tti && chown tti /app
+
 COPY --from=deps /install /usr/local
 
-COPY toontown ./toontown
-COPY otp ./otp
-COPY config ./config
-COPY astron/dclass ./astron/dclass
-COPY docker/entrypoint.sh docker/container.prc ./docker/
-
+# Rarely changes, so it sits below the code and stays cached
 COPY build/resources /resources
+
+COPY --chown=tti toontown ./toontown
+COPY --chown=tti otp ./otp
+COPY --chown=tti config ./config
+COPY --chown=tti astron/dclass ./astron/dclass
+COPY --chown=tti docker/entrypoint.sh docker/container.prc ./docker/
 
 ARG BUILD_VERSION=dev
 RUN sed -i "s/^build-version BUILD_VERSION$/build-version ${BUILD_VERSION}/" \
         config/distribution/live.prc \
-    && grep -qx "build-version ${BUILD_VERSION}" config/distribution/live.prc
+    && grep -qx "build-version ${BUILD_VERSION}" config/distribution/live.prc \
+    && install -d -o tti astron/databases
 
 # Unbuffered so the district's log reaches `docker logs` as it happens
 ENV PYTHONUNBUFFERED=1
 
-RUN useradd --system --create-home --uid 10001 tti \
-    && mkdir -p astron/databases && chown -R tti /app
 USER tti
 
 ENTRYPOINT ["./docker/entrypoint.sh"]

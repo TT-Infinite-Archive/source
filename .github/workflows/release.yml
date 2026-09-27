@@ -3,7 +3,6 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
       - "tti-*-v*"
   workflow_dispatch:
     inputs:
@@ -134,6 +133,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check out the build tools
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+
       - name: Compare against what ${{ needs.version.outputs.channel }} is serving
         shell: bash
         run: |
@@ -178,7 +182,7 @@ jobs:
               exit 0
           fi
 
-          if python3 scripts/release_scope.py --base "$base" --head HEAD \
+          if python3 tools/release_scope.py --base "$base" --head HEAD \
                   | tee scope.txt; then
               cat scope.txt >> "$GITHUB_STEP_SUMMARY"
               exit 0
@@ -219,17 +223,16 @@ jobs:
   deploy:
     name: Deploy
     needs: [version, server, client]
-    if: >-
-      needs.version.outputs.channel == 'live'
-      && needs.version.outputs.revision != 'true'
+    if: needs.version.outputs.revision != 'true'
     uses: ./.github/workflows/deploy.yml
     with:
       tag: tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
       astron_tag: ${{ needs.version.outputs.protocol }}
+      channel: ${{ needs.version.outputs.channel }}
     secrets: inherit
 
   # Last, so the launcher only offers the new client once there is a server
-  # that will accept it. On qa there is no deploy to wait for.
+  # that will accept it.
   promote:
     name: Promote tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
     needs: [version, server, client, deploy]

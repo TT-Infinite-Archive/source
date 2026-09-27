@@ -13,11 +13,14 @@ if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
 elif getattr(sys, 'frozen', False):
-    # The server is its own binary, and an optional download. A player who
-    # only joins other people's servers never receives it
+    # The engine runs the server too, from game/server.zip, an optional download.
+    # Installs from before the engine carry their own server binary
     ServerBinary = os.path.join(
         ToontownGlobals.CurrentDirectory, 'bin', 'server',
         'Toontown Infinite Server' + ('.exe' if sys.platform == 'win32' else ''))
+
+    if not os.path.isfile(ServerBinary):
+        ServerBinary = sys.executable
 
     UberdogTarget = [ServerBinary, '--uberdog']
     AITarget = [ServerBinary, '--ai']
@@ -27,7 +30,7 @@ else:
     AITarget = [PythonPath, '-m', 'toontown.ai.ServiceStart']
 
 # astrond is committed per platform rather than built, so the name carries the
-# platform with it. This has to match what build_client.py packages.
+# platform with it. This has to match what pack_game.py packages.
 AstronBinary = 'astrond-%s%s%s' % (
     sys.platform,
     '-%s' % platform.machine() if sys.platform == 'darwin' else '',

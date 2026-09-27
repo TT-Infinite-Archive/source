@@ -1,0 +1,51 @@
+name: Panda3D
+description: >-
+  Puts the pinned Panda3D wheel for this runner in wheels/. It is built the
+  first time a pin is seen and kept in the bucket, where every workflow and
+  every tag can reach it.
+
+inputs:
+  target:
+    description: The platform the wheel is for, e.g. linux-x64.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Ensure the AWS CLI is present
+      if: runner.os == 'macOS'
+      shell: bash
+      run: command -v aws || brew install awscli
+
+    - name: Look for the wheel
+      id: wheel
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        pin=$(python scripts/build_panda3d.py --print-pin)
+        script=$(python -c "import hashlib; print(hashlib.sha256(open('scripts/build_panda3d.py', 'rb').read()).hexdigest()[:16])")
+
+        key="panda3d/${{ inputs.target }}-${ImageOS:-unknown}-${pin:0:12}-$script"
+        echo "key=$key" >> "$GITHUB_OUTPUT"
+
+        mkdir -p wheels
+        aws s3 cp "s3://$BUCKET/$INDEX/$key/" wheels/ --recursive --only-show-errors || true
+
+        if ls wheels/*.whl > /dev/null 2>&1; then
+            echo "hit=true" >> "$GITHUB_OUTPUT"
+        else
+            echo "hit=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Build it
+      if: steps.wheel.outputs.hit != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        python scripts/build_panda3d.py --install-deps
+        python scripts/build_panda3d.py --output wheels
+
+        aws s3 cp wheels/ "s3://$BUCKET/$INDEX/${{ steps.wheel.outputs.key }}/" \
+            --recursive --exclude "*" --include "*.whl"

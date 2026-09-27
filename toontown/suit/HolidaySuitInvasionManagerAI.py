@@ -28,7 +28,7 @@ class HolidaySuitInvasionManagerAI(HolidayBaseAI.HolidayBaseAI):
             skeleton = 0
         elif (self.holidayId == ToontownGlobals.SKELECOG_INVASION):
             # any cog will do
-            import SuitDNA
+            from . import SuitDNA
             import random
             cogType = random.choice(SuitDNA.suitHeadTypes)
             # Max the number so they will not run out
@@ -42,7 +42,7 @@ class HolidaySuitInvasionManagerAI(HolidayBaseAI.HolidayBaseAI):
             skeleton = 0
         elif (self.holidayId == ToontownGlobals.BOSSCOG_INVASION):
             # any cog will do
-            import SuitDNA
+            from . import SuitDNA
             import random
             cogType = SuitDNA.getRandomSuitByDept('c')
             # Max the number so they will not run out

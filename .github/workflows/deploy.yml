@@ -1,4 +1,4 @@
-name: Deploy to production
+name: Deploy
 
 on:
   workflow_call:
@@ -9,12 +9,20 @@ on:
       astron_tag:
         required: false
         type: string
+      channel:
+        default: live
+        type: string
   workflow_dispatch:
     inputs:
       tag:
-        description: "Image tag to deploy (e.g. 1.0.0). Rolling back is this workflow with the previous tag."
+        description: "Image tag to deploy (e.g. tti-live-v1.2.0). Rolling back is this workflow with the previous tag."
         required: true
         type: string
+      channel:
+        description: "Which server it goes to."
+        default: live
+        type: choice
+        options: [live, qa]
       astron_tag:
         description: "Astron's tag, which is the protocol version (e.g. tti-live-p1). Blank reads it from this branch's live.prc."
         required: false
@@ -22,8 +30,10 @@ on:
 
 jobs:
   deploy:
-    name: Deploy
-    runs-on: self-hosted
+    name: Deploy to ${{ inputs.channel }}
+    # Each channel's server runs its own runner
+    runs-on: [self-hosted, "${{ inputs.channel }}"]
+    environment: ${{ inputs.channel }}
     steps:
       - uses: actions/checkout@v5
 

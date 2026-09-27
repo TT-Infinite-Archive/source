@@ -316,7 +316,7 @@ class DistributedEstateAI(DistributedObjectAI.DistributedObjectAI):
 
         if self.fireworksEnabled:
             pos = (29.7, -1.77, 10.93)
-            import DistributedFireworksCannonAI
+            from . import DistributedFireworksCannonAI
             self.estateFireworks = DistributedFireworksCannonAI.DistributedFireworksCannonAI(self.air, *pos)
             self.estateFireworks.generateWithRequired(self.zoneId)
 

@@ -1,8 +1,8 @@
-Panda3D>=1.10.16,<1.12
+# Not on PyPI: scripts/build_panda3d.py builds the pinned Panda3D everything runs
+Panda3D>=1.11,<1.12
 panda3d_astron==1.1.0
 pymongo==4.17.0
 dnspython==2.8.0
 PyYAML==6.0.3
 semidbm==0.5.1
 websocket-client==1.9.0
-zstd==1.5.7.2
