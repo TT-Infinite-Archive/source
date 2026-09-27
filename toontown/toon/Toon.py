@@ -188,7 +188,7 @@ def preload():
             preloader.loadModel('phase_3' + fileRoot + lodName + '.bam')
 
     if __debug__:
-        filenames = os.listdir('../resources/phase_3.5/audio/sfx')
+        filenames = os.listdir('resources/phase_3.5/audio/sfx')
     else:
         filenames = []
         vfl = vfs.scanDirectory(Filename('/phase_3.5/audio/sfx'))

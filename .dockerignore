@@ -23,6 +23,7 @@ astron/logs
 astron/dev.yml
 
 doc
+resources
 **/__pycache__
 *.pyc
 

@@ -14,10 +14,7 @@ class ZoneManagerAI(DistributedObjectGlobalAI):
 
         self.zoneData = {}
 
-        if __debug__:
-            self.mountPoint = '../resources'
-        else:
-            self.mountPoint = 'resources'
+        self.mountPoint = 'resources'
 
     def announceGenerate(self):
         DistributedObjectGlobalAI.announceGenerate(self)

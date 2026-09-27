@@ -49,10 +49,7 @@ class ZoneManager(DistributedObjectGlobal):
 
     def requestZoneData(self, zone):
         self.currentRequestedZone = zone
-        if __debug__:
-            location = os.path.join('..', 'resources', 'zone_%d.mf' % zone)
-        else:
-            location = os.path.join('resources', 'zone_%d.mf' % zone)
+        location = os.path.join('resources', 'zone_%d.mf' % zone)
         if not os.path.exists(location):
             self.sendUpdate('requestZoneData', [zone, ''])
         else:
@@ -70,20 +67,14 @@ class ZoneManager(DistributedObjectGlobal):
     def setZoneOutdated(self, zone):
         if zone in self.completedZones:
             self.completedZones.remove(zone)
-            if __debug__:
-                location = os.path.join('..', 'resources', 'zone_%d.mf' % zone)
-            else:
-                location = os.path.join('resources', 'zone_%d.mf' % zone)
+            location = os.path.join('resources', 'zone_%d.mf' % zone)
             if os.path.exists(location):
                 os.remove(location)
 
     def setBlobId(self, blobId, mode, filesize):
         if mode == ZoneManager.COMPLETED:
             self.notify.debug('Zone %s is completed. Mounting...' % self.currentRequestedZone)
-            if __debug__:
-                filename = os.path.join('..', 'resources', 'zone_%d.mf' % self.currentRequestedZone)
-            else:
-                filename = os.path.join('resources', 'zone_%d.mf' % self.currentRequestedZone)
+            filename = os.path.join('resources', 'zone_%d.mf' % self.currentRequestedZone)
             self.mountFile(filename)
             self.setZoneComplete(self.currentRequestedZone)
             self.notify.debug('Completed zones: %s' % self.completedZones)
@@ -104,10 +95,7 @@ class ZoneManager(DistributedObjectGlobal):
 
     def __handleBlobGenerated(self, blob):
         if blob.isComplete():
-            if __debug__:
-                filename = os.path.join('..', 'resources', 'zone_%d.mf' % self.currentRequestedZone)
-            else:
-                filename = os.path.join('resources', 'zone_%d.mf' % self.currentRequestedZone)
+            filename = os.path.join('resources', 'zone_%d.mf' % self.currentRequestedZone)
             self.mountFile(filename)
             self.setZoneComplete(self.currentRequestedZone)
             blob.sendAck()
@@ -122,10 +110,7 @@ class ZoneManager(DistributedObjectGlobal):
 
     def __handleBlobDone(self, zone, blob):
         self.notify.debug("Zone blob done.")
-        if __debug__:
-            filename = os.path.join('..', 'resources', 'zone_%d.mf' % zone)
-        else:
-            filename = os.path.join('resources', 'zone_%d.mf' % zone)
+        filename = os.path.join('resources', 'zone_%d.mf' % zone)
         if not blob or not zone:
             return
 

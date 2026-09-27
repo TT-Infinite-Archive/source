@@ -14,12 +14,14 @@ A good bug report says what you did, what you expected and what actually happene
 
 - **Python 3.14**
 - **MongoDB**, with `mongod` on your `PATH`
-- The [resources](https://github.com/TT-Infinite-Archive/resources) repository, checked out next to this one:
-  ```
-  tti/
-  ├── resources/
-  └── source/     ← this repository
-  ```
+
+The art lives in the [resources](https://github.com/TT-Infinite-Archive/resources) repository, pinned here as a submodule at `resources/`. Clone with it:
+
+```sh
+git clone --recursive https://github.com/TT-Infinite-Archive/source.git
+```
+
+In an existing clone, or after a pull that moves the pin, run `git submodule update --init`.
 
 
 

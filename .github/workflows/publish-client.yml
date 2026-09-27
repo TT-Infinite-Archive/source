@@ -46,6 +46,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - name: Check out the build tools
         id: tools
@@ -53,20 +55,13 @@ jobs:
         with:
           token: ${{ secrets.BUILD_TOOLS_TOKEN }}
 
-      - name: Check out the art
-        uses: actions/checkout@v5
-        with:
-          repository: TT-Infinite-Archive/resources
-          path: art
-          fetch-depth: 1
-
       - name: Look for an identical resource pack
         id: pack
         shell: bash
         run: |
           set -euo pipefail
 
-          art=$(git -C art rev-parse HEAD)
+          art=$(git -C resources rev-parse HEAD)
           key=$(printf '%s\n' \
                   "$PACK_FORMAT" \
                   "$art" \
@@ -111,7 +106,7 @@ jobs:
         if: steps.pack.outputs.hit != 'true'
         run: |
           pip install --disable-pip-version-check wheels/*.whl -r requirements.txt
-          python tools/pack_client_resources.py art build/client/resources
+          python tools/pack_client_resources.py resources build/client/resources
 
       - name: Describe them
         if: steps.pack.outputs.hit != 'true'
