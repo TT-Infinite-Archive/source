@@ -587,7 +587,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             else:
                 print(':%s: setTalk: %r, %r, %r' % (localTimestamp, fromAV, avatarName, newText))
 
-        base.talkAssistant.receiveOpenTalk(fromAV, avatarName, fromAC, None, newText)
+        base.talkAssistant.receiveOpenTalk(fromAV, self.getName(), fromAC, None, newText)
 
     def isAvFriend(self, avId):
         return base.cr.isFriend(avId) or base.cr.playerFriendsManager.isAvatarOwnerPlayerFriend(avId)

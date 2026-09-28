@@ -4,6 +4,7 @@ from direct.task import Task
 from direct.distributed.DistributedObjectGlobalUD import \
     DistributedObjectGlobalUD
 
+from otp.chat.ChatGlobals import Modifiers
 from toontown.chat.TTWhiteList import TTWhiteList
 from toontown.chat.TTBlacklist import SEQUENCES, containsBadWord
 from toontown.web.ChatLog import GUILD_CHANNEL, chatLogOf, kindForChannel
@@ -59,9 +60,15 @@ class ChatAgentUD(DistributedObjectGlobalUD):
             # Check if this account is muted.
             return
 
-        self.air.writeServerEvent('chat-said', senderId, message, message)
+        if not 0 <= channel < len(Modifiers):
+            self.air.writeServerEvent('suspicious', senderId, 'chatMessage on channel %d' % channel)
+            return
 
+        self.air.writeServerEvent('chat-said', senderId, message)
+
+        # The client's own idea of its name is ignored
         chatLog = chatLogOf(self.air)
+        name = chatLog.toonNameFor(senderId) if chatLog is not None else ''
         if chatLog is not None:
             event = chatLog.record(
                 kindForChannel(channel), senderId, name, accountId, message)
