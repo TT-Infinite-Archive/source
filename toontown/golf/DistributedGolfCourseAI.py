@@ -100,6 +100,7 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
 
     def delete(self):
         self.notify.debug('GOLF COURSE: delete: deleting AI GolfCourse object')
+        taskMgr.doMethodLater(30, self.air.deallocateZone, 'freeZone-%s' % self.zoneId, extraArgs=[self.zoneId])
         if hasattr(self, 'rewardBarrier'):
             self.rewardBarrier.cleanup()
             del self.rewardBarrier
@@ -204,9 +205,8 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
         if hasattr(self, 'rewardBarrier'):
             if self.rewardBarrier:
                 self.rewardBarrier.clear(avId)
-        if hasattr(self, '__barrier'):
-            if self.__barrier:
-                self.__.clear(avId)
+        if self.__barrier:
+            self.__barrier.clear(avId)
 
     def startNextHole(self):
         self.notify.debugStateCall(self)
@@ -269,14 +269,14 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
         self.notify.debug('GOLF COURSE: setAvatarJoined: avatar id joined: ' + str(avId))
         self.avStateDict[avId] = JOINED
         self.notify.debug('GOLF COURSE: setAvatarJoined: new states: ' + str(self.avStateDict))
-        if hasattr(self, '_DistributedGolfCourseAI__barrier') and self.__barrier:
+        if self.__barrier:
             self.__barrier.clear(avId)
         else:
             self.notify.warning('setAvatarJoined avId=%d but barrier is invalid' % avId)
 
     def exitFrameworkWaitClientsJoin(self):
         self.__barrier.cleanup()
-        del self.__barrier
+        self.__barrier = None
 
     def enterWaitReadyCourse(self):
         self.notify.debug('GOLF COURSE: enterWaitReadyCourse')
@@ -340,7 +340,7 @@ class DistributedGolfCourseAI(DistributedObjectAI.DistributedObjectAI, FSM):
 
     def exitWaitReadyHole(self):
         self.notify.debugStateCall(self)
-        if hasattr(self, '__barrier'):
+        if self.__barrier:
             self.__barrier.cleanup()
             self.__barrier = None
         return

@@ -423,6 +423,9 @@ class DistributedGolfHoleAI(DistributedPhysicsWorldAI.DistributedPhysicsWorldAI,
 
     def setAvatarTee(self, chosenTee):
         golferId = self.air.getAvatarIdFromSender()
+        if self.state != 'WaitTee' or golferId != self.activeGolferId or not 0 <= chosenTee < len(self.teePositions):
+            self.air.writeServerEvent('suspicious', golferId, 'setAvatarTee %s out of turn or range' % chosenTee)
+            return
         self.teeChosen[golferId] = chosenTee
         self.ballPos[golferId] = self.teePositions[chosenTee]
         self.sendUpdate('setAvatarFinalTee', [golferId, chosenTee])
