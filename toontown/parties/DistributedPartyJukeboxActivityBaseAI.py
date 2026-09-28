@@ -38,8 +38,8 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
         self.timeoutTask = None
 
         # listen for fireworks show starting and stopping
-        self.accept( PartyGlobals.FireworksStartedEvent, self.__handleFireworksStarted )
-        self.accept( PartyGlobals.FireworksFinishedEvent, self.__handleFireworksFinished )
+        self.accept( '%s-%s' % (PartyGlobals.FireworksStartedEvent, self.partyDoId), self.__handleFireworksStarted )
+        self.accept( '%s-%s' % (PartyGlobals.FireworksFinishedEvent, self.partyDoId), self.__handleFireworksFinished )
 
         # this ensure the first song we hear is one of the new ones
         self.randomSongPhase = 13
@@ -47,6 +47,7 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
     def delete(self):
         self.ignoreAll()
         self.__stopTimeout()
+        self.__stopTimerForNextSong()
         DistributedPartyActivityAI.delete(self)
 
     def generate(self):
@@ -143,7 +144,9 @@ class DistributedPartyJukeboxActivityBaseAI(DistributedPartyActivityAI):
     def moveHostSongToTopRequest(self):
         self.notify.debug("moveHostSongToTopRequest")
         senderId = self.air.getAvatarIdFromSender()
-        # TODO: Check to see if senderId is in fact party host
+        party = self.air.doId2do.get(self.partyDoId)
+        if party is None or senderId != party.partyInfo.hostId:
+            return
         if senderId in self.toonIdQueue:
             self.b_moveHostSongToTop(senderId)
 

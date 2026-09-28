@@ -94,7 +94,7 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
 
     def startActive(self):
         DistributedPartyFireworksActivityAI.notify.debug("startActive")
-        messenger.send( PartyGlobals.FireworksStartedEvent )
+        messenger.send( '%s-%s' % (PartyGlobals.FireworksStartedEvent, self.partyDoId) )
         showStartTimestamp = ClockDelta.globalClockDelta.getRealNetworkTime()
         # put clients into this state
         self.sendUpdate(
@@ -115,7 +115,7 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
 
     def finishActive(self):
         DistributedPartyFireworksActivityAI.notify.debug("finishActive")
-        messenger.send( PartyGlobals.FireworksFinishedEvent )
+        messenger.send( '%s-%s' % (PartyGlobals.FireworksFinishedEvent, self.partyDoId) )
         # clean up doMethodLater
         taskMgr.removeTasksMatching(self.taskName("waitForShowComplete"))
 

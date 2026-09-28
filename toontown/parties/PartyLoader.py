@@ -7,7 +7,7 @@ from direct.fsm import ClassicFSM, State
 from toontown.toonbase.ToontownGlobals import *
 from toontown.safezone import SafeZoneLoader
 from toontown.parties import Party
-from toontown.parties.PartyGlobals import FireworksStartedEvent, FireworksFinishedEvent
+from toontown.parties.PartyGlobals import FireworksStartedEvent, FireworksFinishedEvent, NumPartyClouds
 
 class PartyLoader(SafeZoneLoader.SafeZoneLoader):
     notify = DirectNotifyGlobal.directNotify.newCategory('PartyLoader')
@@ -241,7 +241,7 @@ class PartyLoader(SafeZoneLoader.SafeZoneLoader):
         self.cloudOrigin = self.geom.attachNewNode('cloudOrigin')
         self.cloudOrigin.setZ(30)
         self.loadSkyCollision()
-        self.numClouds = 12
+        self.numClouds = NumPartyClouds
         for i in range(self.numClouds):
             self.loadCloud(i, 50, 0)
 

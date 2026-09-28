@@ -26,6 +26,7 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
         # map of flying toon doIds to firing cannons doIds
         self.flyingToons = {}
         self.flyingToonCloudsHit = {}
+        self.cloudsHitThisFlight = {}
         self.toonIdsToJellybeanRewards = {}
 
         # Map of cloudNumber to rgb info
@@ -59,6 +60,7 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
         self.cannons.clear()
         self.flyingToons.clear()
         self.flyingToonCloudsHit.clear()
+        self.cloudsHitThisFlight.clear()
         self.toonIdsToJellybeanRewards.clear()
         DistributedPartyActivityAI.delete(self)
 
@@ -75,6 +77,7 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
             if toonId and not toonId in self.flyingToons:
                 self.flyingToons[toonId] = cannon.doId
                 self.flyingToonCloudsHit[toonId] = 0
+                self.cloudsHitThisFlight[toonId] = set()
                 self.toonIdsToJellybeanRewards[toonId] = 0
                 self._addToon(toonId)
                 # we override toonId2Join times and start it from the time he entered the cannon
@@ -120,6 +123,7 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
             self.ignore(self.air.getAvatarExitEvent(toonId))
             del self.flyingToons[toonId]
             del self.flyingToonCloudsHit[toonId]
+            self.cloudsHitThisFlight.pop(toonId, None)
             self._removeToon(toonId)
             if toonId in self.toonIdsToJellybeanRewards:
                 del self.toonIdsToJellybeanRewards[toonId]
@@ -146,6 +150,13 @@ class DistributedPartyCannonActivityAI(DistributedPartyActivityAI):
     def requestCloudHit(self, cloudNumber, r, g, b):
         self.notify.debug("requestCloudHit %d (%d, %d, %d)" % (cloudNumber, r, g, b))
         senderId = self.air.getAvatarIdFromSender()
+        # Each of the party's clouds pays once a flight
+        if not 0 <= cloudNumber < PartyGlobals.NumPartyClouds:
+            return
+        hit = self.cloudsHitThisFlight.get(senderId)
+        if hit is None or cloudNumber in hit:
+            return
+        hit.add(cloudNumber)
 
         if senderId in self.flyingToonCloudsHit:
             self.flyingToonCloudsHit[senderId] += 1

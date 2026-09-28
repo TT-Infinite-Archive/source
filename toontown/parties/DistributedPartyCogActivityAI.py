@@ -14,10 +14,6 @@ from . import PartyGlobals, PartyCogUtils
 class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
     notify = directNotify.newCategory("DistributedPartyCogActivityAI")
 
-    cogDistances = [0, 0, 0] # [cog0, cog1, cog2] goes from -1.0 to 1.0
-    score = [0, 0] # [leftTeam, rightTeam]
-    toonScore = {}
-
     highScore = ("", 0) # toonName (in case the toon disconnects), score
 
     def __init__(self, air, doId, x, y ,h):
@@ -35,6 +31,9 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
             )
 
         self.cogHeadStartZ = PartyGlobals.CogPinataHeadZ
+        self.cogDistances = [0, 0, 0] # [cog0, cog1, cog2] goes from -1.0 to 1.0
+        self.score = [0, 0] # [leftTeam, rightTeam]
+        self.toonScore = {}
 
 #===============================================================================
 # Distributed
@@ -45,6 +44,12 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
         # Count it only if it's the active state. It may be a very delayed hit, sadly.
         if not self.isState("Active"):
             return
+
+        senderId = self.air.getAvatarIdFromSender()
+        team = self.getTeam(toonId)
+        if toonId != senderId or team is None:
+            return
+        direction = clamp(direction, -1, 1)
 
         assert(self.notify.debugStateCall(self))
 
@@ -65,7 +70,7 @@ class DistributedPartyCogActivityAI(DistributedPartyTeamActivityAI):
 
         self._addToToonScore(toonId, points)
 
-        advantage = self.advantage[self.getTeam(toonId)]
+        advantage = self.advantage[team]
 
         self._updateCogDistance(hitCogNum, direction, advantage, hitHead)
         self.d_broadcastSetCogDistances()

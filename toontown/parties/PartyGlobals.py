@@ -597,6 +597,7 @@ FireworksGlobalYOffset = -20.0
 FireworksPostLaunchDelay = 5.0
 RocketSoundDelay = 2.0
 RocketDirectionDelay = 2.0
+NumPartyClouds = 12
 FireworksStartedEvent = 'PartyFireworksStarted'
 FireworksFinishedEvent = 'PartyFireworksFinished'
 FireworksTransitionToDisabledDelay = 3.0
