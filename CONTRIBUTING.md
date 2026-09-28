@@ -73,7 +73,7 @@ Host settings such as the district name, port, XP multiplier and enabled zones a
 
 ## Branches
 
-Only `[master](https://github.com/TT-Infinite-Archive/source/tree/master)` is actively maintained. The other branches come from the original development and are kept exactly as they were. They haven't been updated for modern Python or Panda3D. You're welcome to repair one and open a pull request.
+Only [master](https://github.com/TT-Infinite-Archive/source/tree/master) is actively maintained. The other branches come from the original development and are kept exactly as they were. They haven't been updated for modern Python or Panda3D. You're welcome to repair one and open a pull request.
 
 ## Pull requests
 
@@ -81,4 +81,3 @@ Only `[master](https://github.com/TT-Infinite-Archive/source/tree/master)` is ac
 - Write commit messages in [Conventional Commits](https://www.conventionalcommits.org/) style: `type(scope): lowercase summary`, e.g. `fix(minigames): stop the trolley from leaving without toons`.
 - Follow the [Python style guide](doc/style-guide/python-style.md).
 - Keep each pull request to one change, and explain what it fixes and how you tested it.
-
