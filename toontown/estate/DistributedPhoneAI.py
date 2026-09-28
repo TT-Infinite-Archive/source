@@ -227,17 +227,16 @@ class DistributedPhoneAI(DistributedFurnitureItemAI.DistributedFurnitureItemAI):
             #in this case we can send the response immediately
             self.sendUpdateToAvatarId(sAvId, "requestGiftPurchaseResponse", [context, retcode])
 
-        elif self.air.catalogManager.payForGiftItem(self.av, item, retcode):
-            # The user is requesting purchase of one particular item.in this case we have to wait for the purchase to go through
-            # which involves waiting for a query from the database: intancing the gift receiver on the local machine
-
-            self.checkAvatarThenGift(targetDoID, sAvId, item, context)
-            #simbase.air.deliveryManager.sendRequestPurchaseGift(item, targetDoID, sAvId, context, self)
-
-            #can't return immediately must what for the query to go through
         else:
-            retcode = ToontownGlobals.P_NotEnoughMoney
-            self.sendUpdateToAvatarId(sAvId, "requestGiftPurchaseResponse", [context, retcode])
+            price = self.air.catalogManager.payForGiftItem(self.av, item, retcode)
+            if price is None:
+                retcode = ToontownGlobals.P_NotEnoughMoney
+                self.sendUpdateToAvatarId(sAvId, "requestGiftPurchaseResponse", [context, retcode])
+                return
+
+            # Paid for now, and refunded if the gift can't be delivered
+            self.air.catalogManager.pendingGifts[(sAvId, context)] = price
+            self.checkAvatarThenGift(targetDoID, sAvId, item, context)
 
     def checkAvatarThenGift(self, targetDoID, sAvId, item, context):
         # Requests a particular avatar.  The avatar will be requested
@@ -255,6 +254,8 @@ class DistributedPhoneAI(DistributedFurnitureItemAI.DistributedFurnitureItemAI):
             simbase.air.deliveryManager.sendRequestPurchaseGift(item, targetDoID, sAvId, context, self)
         else:
             self.air.writeServerEvent('suspicious', sAvId, 'Attempted to buy a gift for %s which is not a toon' % (targetDoID))
+            self.air.catalogManager.giftPurchaseResult(sAvId, context, ToontownGlobals.P_NotAGift)
+            self.sendUpdateToAvatarId(sAvId, "requestGiftPurchaseResponse", [context, ToontownGlobals.P_NotAGift])
 
 
 

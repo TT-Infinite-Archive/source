@@ -15,6 +15,7 @@ FIELD_DELIVERY_SCHEDULE = 3
 FIELD_MAILBOX_CONTENTS = 4
 FIELD_CATALOG = 5
 FIELD_DNA = 6
+SCHEDULE_STORE = CatalogItem.Customization | CatalogItem.DeliveryDate
 
 
 class GiftUD:
@@ -87,12 +88,14 @@ class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
         RetrieveAvatarInfoFSM(self, toId, fromId, data, self.handleAvatarInfoResp).start()
 
     def handleAvatarInfoResp(self, success, avInfo, toId, fromId, data):
+        blob, phoneId, context, sender = data
         if not success:
+            self.__sendPurchaseResponse(fromId, phoneId, sender, context, ToontownGlobals.P_NotAGift)
+            self.air.sendNetEvent('giftPurchaseResult', [fromId, context, ToontownGlobals.P_NotAGift])
             return
 
         gifteeInfo = avInfo[toId]
-        blob, phoneId, context, sender = data
-        item = CatalogItem.getItem(blob)
+        item = CatalogItem.getItem(blob, store=CatalogItem.Customization)
         item.deliveryDate = int(time.time() / 60) + item.getDeliveryTime()
         item.giftTag = fromId
 
@@ -102,12 +105,13 @@ class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
         retCode = ToontownGlobals.P_ItemAvailable
         if self.isMailboxFull(gifteeInfo):
             retCode = ToontownGlobals.P_MailboxFull
-        elif self.isMailboxFull(gifteeInfo):
+        elif self.isGiftOrderFull(gifteeInfo):
             retCode = ToontownGlobals.P_OnOrderListFull
         elif self.reachedPurchaseLimit(item, gifteeInfo):
             retCode = ToontownGlobals.P_ReachedPurchaseLimit
 
         self.__sendPurchaseResponse(fromId, phoneId, sender, context, retCode)
+        self.air.sendNetEvent('giftPurchaseResult', [fromId, context, retCode])
 
         if retCode == ToontownGlobals.P_ItemAvailable:
             gifteeSchedule.append(item)
@@ -138,9 +142,9 @@ class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
         if limit == 0:
             return False
 
-        mailboxContents = CatalogItemList(avInfo[FIELD_MAILBOX_CONTENTS])
-        onOrder = CatalogItemList(avInfo[FIELD_DELIVERY_SCHEDULE])
-        onGiftOrder = CatalogItemList(avInfo[FIELD_GIFT_SCHEDULE])
+        mailboxContents = CatalogItemList(avInfo[FIELD_MAILBOX_CONTENTS], store=CatalogItem.Customization)
+        onOrder = CatalogItemList(avInfo[FIELD_DELIVERY_SCHEDULE], store=SCHEDULE_STORE)
+        onGiftOrder = CatalogItemList(avInfo[FIELD_GIFT_SCHEDULE], store=SCHEDULE_STORE)
         if mailboxContents.count(item) >= limit:
             return True
         if onOrder.count(item) >= limit:
@@ -150,15 +154,15 @@ class DistributedDeliveryManagerUD(DistributedObjectGlobalUD):
         return False
 
     def isMailboxFull(self, avInfo):
-        onOrder = CatalogItemList(avInfo[FIELD_DELIVERY_SCHEDULE])
-        mailboxContents = CatalogItemList(avInfo[FIELD_MAILBOX_CONTENTS])
+        onOrder = CatalogItemList(avInfo[FIELD_DELIVERY_SCHEDULE], store=SCHEDULE_STORE)
+        mailboxContents = CatalogItemList(avInfo[FIELD_MAILBOX_CONTENTS], store=CatalogItem.Customization)
         if len(mailboxContents) + len(onOrder) >= ToontownGlobals.MaxMailboxContents:
             return True
         return False
 
     def isGiftOrderFull(self, avInfo):
-        onGiftOrder = CatalogItemList(avInfo[FIELD_GIFT_SCHEDULE])
-        mailboxContents = CatalogItemList(avInfo[FIELD_MAILBOX_CONTENTS])
+        onGiftOrder = CatalogItemList(avInfo[FIELD_GIFT_SCHEDULE], store=SCHEDULE_STORE)
+        mailboxContents = CatalogItemList(avInfo[FIELD_MAILBOX_CONTENTS], store=CatalogItem.Customization)
         if len(mailboxContents) + len(onGiftOrder) >= ToontownGlobals.MaxMailboxContents:
             return True
         return False
@@ -253,7 +257,7 @@ class DeliverGiftFSM(FSM):
         if hasattr(self.gift, 'id'):
             self.mgr.deliverydb.delete_one({'_id': self.gift.id})
         if self.gift in self.mgr.gifts:
-            self.mgr.remove(self.gift)
+            self.mgr.gifts.remove(self.gift)
         self.demand('Off')
 
     def enterOff(self):
@@ -283,14 +287,19 @@ class RetrieveAvatarInfoFSM(FSM):
         self.handleRetrieveAvatar(avId, document['fields'])
 
     def handleRetrieveAvatar(self, avId, fields):
+        # Astron stores each field as {'_0': arg, '_1': arg, ...}
+        def value(name, default=b''):
+            return fields.get(name, {}).get('_0', default)
+
+        catalog = fields.get('setCatalog', {})
         self.avInfo[avId] = (
-            fields['setName'],
-            fields['setMoney'],
-            fields['setGiftSchedule'],
-            fields['setDeliverySchedule'],
-            fields['setMailboxContents'],
-            fields['setCatalog'],
-            fields['setDNAString']
+            value('setName', ''),
+            value('setMoney', 0),
+            bytes(value('setGiftSchedule')),
+            bytes(value('setDeliverySchedule')),
+            bytes(value('setMailboxContents')),
+            tuple(bytes(catalog.get('_%d' % i, b'')) for i in range(3)),
+            bytes(value('setDNAString'))
         )
 
         if self.fromId is not None and self.fromId not in list(self.avInfo.keys()):
@@ -303,7 +312,7 @@ class RetrieveAvatarInfoFSM(FSM):
         self.demand('Off')
 
     def enterError(self):
-        self.callback(False, None, None, None, None)
+        self.callback(False, None, self.toId, self.fromId, self.data)
         self.demand('Off')
 
     def enterOff(self):
