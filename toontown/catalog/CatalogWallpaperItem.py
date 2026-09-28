@@ -621,9 +621,7 @@ class CatalogWallpaperItem(CatalogSurfaceItem):
         return WallpaperTypes[self.patternIndex][WTTextureName]
 
     def compareTo(self, other):
-        if self.patternIndex != other.patternIndex:
-            return self.patternIndex == other.patternIndex
-        return self.colorIndex == other.colorIndex
+        return self.patternIndex // 100 == other.patternIndex // 100
 
     def getHashContents(self):
         return self.patternIndex - self.patternIndex % 100

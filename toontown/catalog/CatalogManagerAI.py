@@ -199,19 +199,14 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
 
         retcode = None
 
-        if item in avatar.monthlyCatalog:
-            catalogType = CatalogItem.CatalogTypeMonthly
-        elif item in avatar.weeklyCatalog:
-            catalogType = CatalogItem.CatalogTypeWeekly
-        elif item in avatar.backCatalog:
-            catalogType = CatalogItem.CatalogTypeBackorder
-        else:
+        catalogType, offered = self.matchOffered(avatar, item)
+        if offered is None:
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not in catalog')
             self.notify.warning(f"Avatar {avatar.doId} attempted to purchase {item}, not on catalog.")
             self.notify.warning(f"Avatar {avatar.doId} weekly: {avatar.weeklyCatalog}")
             return ToontownGlobals.P_NotInCatalog
 
-        price = item.getPrice(catalogType)
+        price = offered.getPrice(catalogType)
         if price > avatar.getTotalMoney():
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not enough money')
             self.notify.warning(f"Avatar {avatar.doId} attempted to purchase {item}, not enough money.")
@@ -235,6 +230,23 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
             self.deductMoney(avatar, price, item)
 
         return retcode
+
+    def matchOffered(self, avatar, item):
+        for catalogType, catalog in ((CatalogItem.CatalogTypeMonthly, avatar.monthlyCatalog),
+                                     (CatalogItem.CatalogTypeWeekly, avatar.weeklyCatalog),
+                                     (CatalogItem.CatalogTypeBackorder, avatar.backCatalog)):
+            for offered in catalog:
+                if offered == item:
+                    # The client's copy only picks among what was offered. Its
+                    # price and terms come from ours
+                    item.saleItem = offered.saleItem
+                    item.specialEventId = offered.specialEventId
+                    if offered.isRental():
+                        item.cost = offered.cost
+                        item.duration = offered.duration
+                    return catalogType, offered
+
+        return None, None
 
     def deductMoney(self, avatar, price, item):
         bankPrice = min(avatar.getBankMoney(), price)
@@ -287,20 +299,15 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
 
     def payForGiftItem(self, avatar, item, retcode):
         self.notify.debug("in pay for Gift Item")
-        if item in avatar.monthlyCatalog:
-            catalogType = CatalogItem.CatalogTypeMonthly
-        elif item in avatar.weeklyCatalog:
-            catalogType = CatalogItem.CatalogTypeWeekly
-        elif item in avatar.backCatalog:
-            catalogType = CatalogItem.CatalogTypeBackorder
-        else:
+        catalogType, offered = self.matchOffered(avatar, item)
+        if offered is None:
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not in catalog')
             self.notify.warning("Avatar %s attempted to purchase %s, not on catalog." % (avatar.doId, item))
             self.notify.warning(f"Avatar {avatar.doId} weekly: {avatar.weeklyCatalog}")
             retcode = ToontownGlobals.P_NotInCatalog
             return 0
 
-        price = item.getPrice(catalogType)
+        price = offered.getPrice(catalogType)
         if price > avatar.getTotalMoney():
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not enough money')
             self.notify.warning(f"Avatar {avatar.doId} attempted to purchase {item}, not enough money.")

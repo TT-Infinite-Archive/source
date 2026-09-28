@@ -120,6 +120,19 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
          ClockDelta.globalClockDelta.getRealNetworkTime()])
         self.sendClearMovie(None)
 
+    def withClothesFrom(self, blob, which):
+        # A tailor changes clothes, so the rest of the toon stays as it came in
+        chosen = ToonDNA.ToonDNA()
+        chosen.makeFromNetString(blob)
+        dna = ToonDNA.ToonDNA()
+        dna.makeFromNetString(self.customerDNA.makeNetString())
+        if which & ClosetGlobals.SHIRT:
+            dna.topTex, dna.topTexColor = chosen.topTex, chosen.topTexColor
+            dna.sleeveTex, dna.sleeveTexColor = chosen.sleeveTex, chosen.sleeveTexColor
+        if which & ClosetGlobals.SHORTS:
+            dna.botTex, dna.botTexColor = chosen.botTex, chosen.botTexColor
+        return dna.makeNetString()
+
     def setDNA(self, blob, finished, which):
         avId = self.air.getAvatarIdFromSender()
         if avId != self.customerId:
@@ -130,6 +143,12 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
         testDNA = ToonDNA.ToonDNA()
         if not testDNA.isValidNetString(blob):
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA: invalid dna: %s' % blob)
+            return
+        if not self.customerDNA:
+            return
+        blob = self.withClothesFrom(blob, which if finished == 2 else ClosetGlobals.SHIRT | ClosetGlobals.SHORTS)
+        if not testDNA.isValidNetString(blob):
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA: clothes do not fit the toon')
             return
         if avId in self.air.doId2do:
             av = self.air.doId2do.get(avId)

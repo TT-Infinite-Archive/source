@@ -88,6 +88,8 @@ class DistributedFishingPondAI(DistributedObjectAI.DistributedObjectAI):
         # See if the target bites
         if (not target):
             self.air.writeServerEvent('suspicious', targetId, 'FishingPondAI.hitTarget unknown target')
+        elif not spot.takeCast():
+            self.air.writeServerEvent('suspicious', avId, 'FishingPondAI.hitTarget without a cast')
         elif target.isHungry():
             self.notify.debug("hitTarget: targetId: %s is hungry" % (targetId))
             code, item = self.air.fishManager.recordCatch(avId, self.area, self.zoneId)

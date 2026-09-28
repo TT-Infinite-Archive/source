@@ -111,7 +111,7 @@ class DistributedLawbotBossSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
     def __prosecutionHeal(self, extraArg):
         self.notify.debug('__prosecutionHeal extraArg %s' % extraArg)
         if self.boss:
-            self.boss.healBoss(ToontownGlobals.LawbotBossLawyerHeal)
+            self.boss.applyBossHeal(ToontownGlobals.LawbotBossLawyerHeal)
 
     def d_doProsecute(self):
         self.notify.debug('d_doProsecute')

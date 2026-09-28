@@ -20,7 +20,20 @@ class DistributedGardenPlotAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
         #beside Clarabelle tells you what beans to plant it with anyway.
 
     def plantFlower(self, species, variety):
-        self.notify.info(f'planting flower species={species} variety={variety}') 
+        # Statues go through plantStatuary, which spends the special they need
+        if GardenGlobals.PlantAttributes.get(species, {}).get('plantType') == GardenGlobals.STATUARY_TYPE:
+            self.air.writeServerEvent('suspicious', self.air.getAvatarIdFromSender(), 'plantFlower with statuary %s' % species)
+            return
+        self.plantItem(species, variety)
+
+    def isEstateOwner(self, senderId):
+        if senderId != simbase.air.estateMgr.zone2owner.get(self.zoneId):
+            self.notify.warning("how did this happen, planting in a plot you don't own")
+            return False
+        return True
+
+    def plantItem(self, species, variety):
+        self.notify.info(f'planting flower species={species} variety={variety}')
         senderId = self.air.getAvatarIdFromSender()
 
         zoneId = self.zoneId
@@ -32,6 +45,11 @@ class DistributedGardenPlotAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
 
         if not species in GardenGlobals.PlantAttributes:
             self.air.writeServerEvent('suspicious', senderId, 'Planting a species %s that does not exist.' % (species))
+            return
+
+        if variety >= len(GardenGlobals.PlantAttributes[species]['varieties']) and \
+                GardenGlobals.PlantAttributes[species]['plantType'] != GardenGlobals.STATUARY_TYPE:
+            self.air.writeServerEvent('suspicious', senderId, 'Planting a variety %s that does not exist.' % (variety))
             return
 
         if estateOwnerDoId:
@@ -86,7 +104,7 @@ class DistributedGardenPlotAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
 
         senderId = self.air.getAvatarIdFromSender()
         toon = simbase.air.doId2do.get(senderId)
-        toon.removeGardenItem(special, 1)
+        return bool(toon) and toon.removeGardenItem(special, 1)
 
 
     def doGardenAccelerator(self):
@@ -105,20 +123,19 @@ class DistributedGardenPlotAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
 
     def plantStatuary(self, species):
         self.notify.info(f'planting item species={species}')
-        if species == GardenGlobals.GardenAcceleratorSpecies:
-            self.doGardenAccelerator()
-        else:
-            self.plantFlower(species, 0)
-
-        self.burnSpecial(species)
+        self.plantToonStatuary(species, 0)
 
     def plantToonStatuary(self, species, variety = 0):
+        if not self.isEstateOwner(self.air.getAvatarIdFromSender()):
+            return
+        if not self.burnSpecial(species):
+            self.air.writeServerEvent('suspicious', self.air.getAvatarIdFromSender(), 'planting statuary %s without its special' % species)
+            return
+
         if species == GardenGlobals.GardenAcceleratorSpecies:
             self.doGardenAccelerator()
         else:
-            self.plantFlower(species, variety)
-
-        self.burnSpecial(species)
+            self.plantItem(species, variety)
 
     def plantGagTree(self, gagTrack, gagLevel):
         self.notify.info("Planting GagTree: %s %s" % (gagTrack, gagLevel))

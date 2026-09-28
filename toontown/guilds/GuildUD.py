@@ -660,7 +660,14 @@ class GuildUD:
         role = self.roleId2Role.get(roleId, None)
         if role is None:
             return
-        
+
+        # Nobody hands out a role at or above their own; the owner moves on
+        # through transferOwnership
+        if not senderRole.overpowers(role):
+            self.mgr.sendUpdateToAvatarId(senderId, 'guildError', [GUILD_BAD_PERMISSIONS_ERROR])
+            self.notify.warning('Avatar %d trying to raise member %d to role %d.' % (senderId, avId, roleId))
+            return
+
         # Set the member's role to the new one
         targetIndex = self.getMemberIndex(target)
         if targetIndex is None:

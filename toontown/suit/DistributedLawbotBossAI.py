@@ -82,13 +82,17 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
     def magicWordHit(self, damage, avId):
         if self.attackCode != ToontownGlobals.BossCogDizzyNow:
             self.hitBossInsides()
-        self.hitBoss(damage)
+        self.applyBossHit(avId, damage)
 
     def hitBoss(self, bossDamage):
         avId = self.air.getAvatarIdFromSender()
         if not self.validate(avId, avId in self.involvedToons, 'hitBoss from unknown avatar'):
             return
-        self.validate(avId, bossDamage == 1, 'invalid bossDamage %s' % bossDamage)
+        if not self.validate(avId, bossDamage == 1, 'invalid bossDamage %s' % bossDamage):
+            return
+        self.applyBossHit(avId, bossDamage)
+
+    def applyBossHit(self, avId, bossDamage):
         if bossDamage < 1:
             return
         currState = self.getCurrentOrNextState()
@@ -108,8 +112,12 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
             self.__recordHit()
 
     def healBoss(self, bossHeal):
-        bossDamage = -bossHeal
+        # Only the lawyers heal the boss, through applyBossHeal
         avId = self.air.getAvatarIdFromSender()
+        self.air.writeServerEvent('suspicious', avId, 'DistributedLawbotBossAI.healBoss from a client')
+
+    def applyBossHeal(self, bossHeal):
+        bossDamage = -bossHeal
         currState = self.getCurrentOrNextState()
         if currState != 'BattleThree':
             return

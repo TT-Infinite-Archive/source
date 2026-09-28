@@ -24,6 +24,8 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedBossbotBossAI')
     maxToonLevels = 77
     toonUpLevels = [1, 2, 3, 4]
+    # A belt brings each of its toonups back round about once a minute
+    toonupCooldown = 55
 
     def __init__(self, air):
         if simbase.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
@@ -61,7 +63,7 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         self.numGolfAreaAttacks = 0
         self.numToonupGranted = 0
         self.totalLaffHealed = 0
-        self.toonupsGranted = []
+        self.toonupsGranted = {}
         self.doneOvertimeOneAttack = False
         self.doneOvertimeTwoAttack = False
         self.overtimeOneTime = ConfigVariableInt('overtime-one-time', 1200).getValue()
@@ -864,29 +866,29 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
             self.sendUpdate('toonGotHealed', [toonId])
 
     def requestGetToonup(self, beltIndex, toonupIndex, toonupNum):
-        grantRequest = False
         avId = self.air.getAvatarIdFromSender()
-        if self.state != 'BattleFour':
-            grantRequest = False
-        elif (beltIndex, toonupNum) not in self.toonupsGranted:
-            toon = simbase.air.doId2do.get(avId)
-            if toon:
-                grantRequest = True
-        if grantRequest:
-            self.toonupsGranted.insert(0, (beltIndex, toonupNum))
-            if len(self.toonupsGranted) > 8:
-                self.toonupsGranted = self.toonupsGranted[0:8]
-            self.sendUpdate('toonGotToonup', [avId,
-             beltIndex,
-             toonupIndex,
-             toonupNum])
-            if toonupIndex < len(self.toonUpLevels):
-                self.healToon(toon, self.toonUpLevels[toonupIndex])
-                self.numToonupGranted += 1
-                self.totalLaffHealed += self.toonUpLevels[toonupIndex]
-            else:
-                self.notify.warning('requestGetToonup this should not happen')
-                self.healToon(toon, 1)
+        if self.state != 'BattleFour' or avId not in self.involvedToons:
+            return
+        if not 0 <= beltIndex < len(self.foodBelts) or not 0 <= toonupIndex < len(self.toonUpLevels):
+            self.air.writeServerEvent('suspicious', avId, 'requestGetToonup belt %s toonup %s' % (beltIndex, toonupIndex))
+            return
+        toon = simbase.air.doId2do.get(avId)
+        if not toon:
+            return
+
+        now = globalClock.getRealTime()
+        slot = (beltIndex, toonupIndex)
+        if now - self.toonupsGranted.get(slot, -self.toonupCooldown) < self.toonupCooldown:
+            return
+        self.toonupsGranted[slot] = now
+
+        self.sendUpdate('toonGotToonup', [avId,
+         beltIndex,
+         toonupIndex,
+         toonupNum])
+        self.healToon(toon, self.toonUpLevels[toonupIndex])
+        self.numToonupGranted += 1
+        self.totalLaffHealed += self.toonUpLevels[toonupIndex]
 
     def toonLeftTable(self, tableIndex):
         if self.movingToTable and self.tableDest == tableIndex:

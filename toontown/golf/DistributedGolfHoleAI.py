@@ -156,10 +156,11 @@ class DistributedGolfHoleAI(DistributedPhysicsWorldAI.DistributedPhysicsWorldAI,
 
     def ballInHole(self, golferId = None):
         self.notify.debug('ballInHole')
-        if golferId:
-            avId = golferId
-        else:
-            avId = self.air.getAvatarIdFromSender()
+        # Our own physics decides when a ball drops, never the client
+        if not golferId:
+            self.air.writeServerEvent('suspicious', self.air.getAvatarIdFromSender(), 'DistributedGolfHoleAI.ballInHole from a client')
+            return
+        avId = golferId
         self.golfCourse.setBallIn(avId)
         if self.golfCourse.isCurHoleDone():
             self.notify.debug('ballInHole doing nothing')

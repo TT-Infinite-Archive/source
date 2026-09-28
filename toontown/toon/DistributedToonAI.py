@@ -2082,6 +2082,14 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 #simbase.air.banManager.ban(self.doId, self.DISLid, commentStr)
 
     def setTeleportOverride(self, flag):
+        # Only the client's globalTeleport magic word sends this, so it gets
+        # the same gate that word would have here
+        senderId = self.air.getAvatarIdFromSender()
+        required = max(self.air.magicWordManager.minimumAccess,
+                       spellbook.requiredAccessFor('globalTeleport', CATEGORY_USER.defaultAccess))
+        if senderId != self.doId or not self.air.wantCheats or self.getAdminAccess() < required:
+            self.air.writeServerEvent('suspicious', senderId, 'setTeleportOverride on %s' % self.doId)
+            return
         self.teleportOverride = flag
         self.b_setHoodsVisited([1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000])
 
@@ -2548,9 +2556,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         return self.money + self.bankMoney
 
     def b_setBankMoney(self, money):
-        bankMoney = min(money, ToontownGlobals.MaxBankMoney)
-        self.setBankMoney(bankMoney)
-        self.d_setBankMoney(bankMoney)
+        # The bank lives on the account, so this is what saves it
+        self.air.bankManager.setMoney(self.doId, money)
 
     def d_setBankMoney(self, money):
         self.sendUpdate('setBankMoney', [money])
@@ -3534,9 +3541,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                     self.gardenSpecials.append((index, newCount))
                 self.gardenSpecials.sort()
                 self.b_setGardenSpecials(self.gardenSpecials)
-                return
+                return True
 
         self.notify.warning("removing garden item %d that toon doesn't have" % index)
+        return False
 
     def b_setFlowerCollection(self, speciesList, varietyList):
         self.setFlowerCollection(speciesList, varietyList)
@@ -4799,28 +4807,8 @@ def bank(command, value):
     command = command.lower()
     target = spellbook.getTarget()
     if command == 'transfer':
-        if value == 0:
+        if value == 0 or not simbase.air.bankMgr.transferMoneyForAv(value, target):
             return 'Invalid bank transfer.'
-        bankMoney = target.getBankMoney()
-        maxBankMoney = ToontownGlobals.MaxBankMoney
-        money = target.getMoney()
-        maxMoney = target.getMaxMoney()
-        if value > 0:
-            maxDeposit = money
-            maxDeposit = min(maxDeposit, maxBankMoney - money)
-            deposit = min(value, maxDeposit)
-            bankMoney += deposit
-            money -= deposit
-            target.b_setBankMoney(bankMoney)
-            target.b_setMoney(money)
-        else:
-            maxWithdrawl = maxMoney - money
-            maxWithdrawl = min(maxWithdrawl, bankMoney)
-            withdrawl = min(value, maxWithdrawl)
-            bankMoney -= withdrawl
-            money += withdrawl
-            target.b_setBankMoney(bankMoney)
-            target.b_setMoney(money)
         return 'Bank transfer successful!'
     else:
         return 'Invalid command!'
