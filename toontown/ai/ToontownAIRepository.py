@@ -79,6 +79,7 @@ from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.safezone import DistributedPartyGateAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
 from toontown.distributed.ShardTimeManagerAI import ShardTimeManagerAI
+import gc
 import signal
 import threading
 
@@ -715,6 +716,10 @@ class ToontownAIRepository(ToontownInternalRepository):
             self.distributedDistrict.b_setAvailable(1)
         self.notify.info('Done.')
         Readiness.markReady()
+
+        # ServiceStart turns the collector off for startup
+        gc.enable()
+        gc.collect()
 
         if ConfigVariableBool('want-leak-graph-ai', False).getValue():
             self.leakGraph = LeakGraph(f'tti-ai-process-{self.ourChannel}')
