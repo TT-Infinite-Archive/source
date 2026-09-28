@@ -5,7 +5,6 @@ from direct.distributed.DistributedObjectGlobalUD import \
     DistributedObjectGlobalUD
 
 from toontown.chat.TTWhiteList import TTWhiteList
-from otp.distributed import OtpDoGlobals
 from toontown.chat.TTBlacklist import SEQUENCES, containsBadWord
 from toontown.web.ChatLog import GUILD_CHANNEL, chatLogOf, kindForChannel
 import time
@@ -36,7 +35,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
 
         self.mutedDict = {}
 
-    def checkBadNames(self, toonName, nameCheck=False):
+    def checkBadNames(self, toonName):
         isBadName = self.detectBadWords(toonName)
         sequenceChecks = self.lookForSequences(toonName.split(' '))
         for check in sequenceChecks:
@@ -44,10 +43,7 @@ class ChatAgentUD(DistributedObjectGlobalUD):
                 isBadName = True
                 break
 
-        if nameCheck:
-            return isBadName
-
-        simbase.air.sendNetEvent('badNameResponse', [isBadName], channels=[OtpDoGlobals.MESSENGER_CHANNEL_AI])
+        return isBadName
 
     def chatMessage(self, message, name, channel):
         senderId = self.air.getAvatarIdFromSender()

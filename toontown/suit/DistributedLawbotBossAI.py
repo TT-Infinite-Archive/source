@@ -111,11 +111,6 @@ class DistributedLawbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM
         else:
             self.__recordHit()
 
-    def healBoss(self, bossHeal):
-        # Only the lawyers heal the boss, through applyBossHeal
-        avId = self.air.getAvatarIdFromSender()
-        self.air.writeServerEvent('suspicious', avId, 'DistributedLawbotBossAI.healBoss from a client')
-
     def applyBossHeal(self, bossHeal):
         bossDamage = -bossHeal
         currState = self.getCurrentOrNextState()

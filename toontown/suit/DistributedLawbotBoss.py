@@ -199,10 +199,6 @@ class DistributedLawbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.notify.debug('----- d_hitBoss')
         self.sendUpdate('hitBoss', [bossDamage])
 
-    def d_healBoss(self, bossHeal):
-        self.notify.debug('----- d_bossHeal')
-        self.sendUpdate('healBoss', [bossHeal])
-
     def d_hitBossInsides(self):
         self.notify.debug('----- d_hitBossInsides')
         self.sendUpdate('hitBossInsides', [])

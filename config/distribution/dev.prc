@@ -26,7 +26,6 @@ generate-global-object 4691 DistributedPartyManager
 generate-global-object 4695 TTCodeRedemptionMgr
 generate-global-object 4701 GuildManager
 generate-global-object 4478 GlobalGroupTracker
-# generate-global-object 4950 ZoneManager
 
 # DC file:
 dc-file astron/dclass/vanilla.dc

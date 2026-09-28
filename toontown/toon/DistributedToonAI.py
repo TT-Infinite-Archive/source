@@ -12,7 +12,6 @@ import re
 
 from . import Experience
 from . import InventoryBase
-from . import ModuleListAI
 from .NPCToons import npcFriends
 from . import ToonDNA
 from otp.ai.AIBaseGlobal import *
@@ -214,7 +213,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.hostedParties = []
         self.partiesInvitedTo = []
         self.partyReplyInfoBases = []
-        self.modulelist = ModuleListAI.ModuleList()
         self._dbCheckDoLater = None
         self.teleportOverride = 0
         self._gmDisabled = False
@@ -3035,10 +3033,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 self.air.writeServerEvent('suspicious', self.doId, 'attempt to update to dna value  %s in the invalid field %s' % (fieldValue, dnaField))
                 return
             if dnaField == EKartDNA.BODY_TYPE:
-                if fieldValue not in list(KartDict.keys()) and fieldValue != InvalidEntry:
-                    self.air.writeServerEvent('suspicious', self.doId, 'attempt to update kart body to invalid body %s.' % fieldValue)
-                    return
-                self.b_setKartBodyType(fieldValue)
+                # Karts are bought from the clerk, never switched here
+                self.air.writeServerEvent('suspicious', self.doId, 'attempt to update kart body to %s.' % fieldValue)
+                return
             else:
                 accFields = [EKartDNA.EB_TYPE,
                  EKartDNA.SP_TYPE,
@@ -4224,31 +4221,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 self.ban('invalid name: %s' % self.name)
             else:
                 self.air.writeServerEvent('suspicious', self.doId, '$ found in toon name')
-
-    def setModuleInfo(self, info):
-        avId = self.air.getAvatarIdFromSender()
-        key = 'outrageous'
-        self.moduleWhitelist = self.modulelist.loadWhitelistFile()
-        self.moduleBlacklist = self.modulelist.loadBlacklistFile()
-        for obfuscatedModule in info:
-            module = ''
-            p = 0
-            for ch in obfuscatedModule:
-                ic = ord(ch) ^ ord(key[p])
-                p += 1
-                if p >= len(key):
-                    p = 0
-                module += chr(ic)
-
-            if module not in self.moduleWhitelist:
-                if module in self.moduleBlacklist:
-                    self.air.writeServerEvent('suspicious', avId, 'Black List module %s loaded into process.' % module)
-                    if ConfigVariableBool('want-ban-blacklist-module', False).getValue():
-                        commentStr = 'User has blacklist module: %s attached to their game process' % module
-                        dislId = self.DISLid
-                        #simbase.air.banManager.ban(self.doId, dislId, commentStr)
-                else:
-                    self.air.writeServerEvent('suspicious', avId, 'Unknown module %s loaded into process.' % module)
 
     def teleportResponseToAI(self, toAvId, available, shardId, hoodId, zoneId, fromAvId):
         if not self.WantTpTrack:

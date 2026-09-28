@@ -1907,10 +1907,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             self.notify.debug('requestKartDNAFieldUpdate - dnaField %s, fieldValue %s' % (dnaField, fieldValue))
             self.sendUpdate('updateKartDNAField', [dnaField, fieldValue])
 
-        def requestAddOwnedAccessory(self, accessoryId):
-            self.notify.debug('requestAddOwnedAccessor - purchased accessory %s' % accessoryId)
-            self.sendUpdate('addOwnedAccessory', [accessoryId])
-
         def requestRemoveOwnedAccessory(self, accessoryId):
             self.notify.debug('requestRemoveOwnedAccessor - removed accessory %s' % accessoryId)
             self.sendUpdate('removeOwnedAccessory', [accessoryId])

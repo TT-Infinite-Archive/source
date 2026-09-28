@@ -1,14 +1,10 @@
 import time
-from panda3d.core import ConfigVariableBool, ConfigVariableList, ConfigVariableString, MultiplexStream, Notify, StreamWriter
+from panda3d.core import ConfigVariableBool, ConfigVariableList, MultiplexStream, Notify, StreamWriter
 
 from otp.distributed.DistributedDirectoryAI import DistributedDirectoryAI
 from toontown.distributed.ToontownInternalRepository import \
     ToontownInternalRepository
 from otp.distributed import OtpDoGlobals
-
-if ConfigVariableBool('want-rpc-server', False).getValue():
-    from toontown.rpc.ToontownRPCServer import ToontownRPCServer
-    from toontown.rpc.ToontownRPCHandler import ToontownRPCHandler
 
 if ConfigVariableBool('want-game-gateway', False).getValue():
     from toontown.web.GameGateway import GameGateway
@@ -43,13 +39,6 @@ class ToontownUberRepository(ToontownInternalRepository):
         if ConfigVariableBool('generate-root-object', False).getValue():
             rootObj = DistributedDirectoryAI(self)
             rootObj.generateWithRequiredAndId(self.getGameDoId(), 0, 0)
-
-        if ConfigVariableBool('want-rpc-server', False).getValue():
-            endpoint = ConfigVariableString(
-                'rpc-server-endpoint', 'http://localhost:8080/').getValue()
-            self.rpcServer = ToontownRPCServer(
-                endpoint, ToontownRPCHandler(self))
-            self.rpcServer.start(useTaskChain=True)
 
         self.toontownTimeManager = ToontownTimeManager(time.time(), time.time(), globalClock.getRealTime())
 

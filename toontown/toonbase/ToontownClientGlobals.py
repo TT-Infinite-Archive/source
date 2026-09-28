@@ -1,6 +1,3 @@
-import random
-import sys
-import uuid
 from panda3d.core import Vec4
 from toontown.hood import ZoneUtil
 from toontown.toonbase import TTLocalizer
@@ -36,25 +33,6 @@ BuildingNametagFont = None
 MinnieFont = None
 SuitFont = None
 FontAwesome = None
-
-
-def getMac():
-    if sys.platform == 'android':
-        if 'uuid' in settings and isinstance(settings['uuid'], int):
-            uid = settings['uuid']
-        else:
-            uid = random.SystemRandom().getrandbits(50)
-            settings['uuid'] = uid
-    else:
-        uid = uuid.getnode()
-
-    return ':'.join(('%012X' % uid)[i:i+2] for i in range(0, 12, 2))
-
-
-def getIp():
-    import socket
-    hostname = socket.gethostname()
-    return socket.gethostbyname(hostname)
 
 
 def getToonFont():

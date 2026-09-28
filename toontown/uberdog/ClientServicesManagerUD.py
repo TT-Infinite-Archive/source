@@ -934,7 +934,7 @@ class SetNameTypedFSM(AvatarOperationFSM):
 
     def enterJudgeName(self):
         chatAgent = self.csm.air.getGlobalObject('ChatAgent')
-        if chatAgent.checkBadNames(self.name, nameCheck=True):
+        if chatAgent.checkBadNames(self.name):
             # Caught by our own filter, so nobody needs to read it.
             self.__respond(0)
             return
@@ -1463,7 +1463,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.account2fsm[sender] = fsmtype(self, sender)
         self.account2fsm[sender].request('Start', *args)
 
-    def requestAuthToken(self, mac_addr, ip_addr):
+    def requestAuthToken(self):
         sender = self.air.getMsgSender()
 
         authToken = ''.join([hex(random.randint(0, 254)) for _ in range(25)])

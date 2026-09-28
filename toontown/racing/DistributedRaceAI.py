@@ -2,7 +2,6 @@ import random
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from . import DistributedGagAI
-from . import DistributedProjectileAI
 from . import Racer
 from . import RaceGlobals
 from direct.distributed.ClockDelta import *
@@ -448,12 +447,6 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
 
         self.sendUpdate("shootPiejectile", [avId, targetId, type])
 
-    def d_makePie(self, avId, x, y, z):
-        # gag=DistributedGagAI.DistributedGagAI(simbase.air, avId, self, 3, x, y, z, 1)
-        gag = DistributedProjectileAI.DistributedProjectileAI(simbase.air, self, avId)
-        self.thrownGags.append(gag)
-        gag.generateWithRequired(self.zoneId)
-
     def endRace(self, avIds):
         if hasattr(self, "raceDoneFunc"):
             self.raceDoneFunc(self, False)
@@ -532,7 +525,6 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
                 if (racer.gagType == 3):
                     self.d_dropAnvil(avId)
                 if (racer.gagType == 4):
-                    # self.d_makePie(avId, x, y, z)
                     self.d_launchPie(avId)
                 racer.hasGag = False
                 racer.gagType = 0

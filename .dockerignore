@@ -17,7 +17,6 @@ preferences
 preferences.json
 server-settings.json
 bookmarks.json
-banned_players.txt
 astron/data
 astron/logs
 astron/dev.yml

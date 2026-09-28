@@ -264,7 +264,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.timeManager.generateWithRequired(2)
         self.magicWordManager = MagicWordManagerAI(self)
         self.magicWordManager.generateWithRequired(2)
-        #self.zoneManager = self.generateGlobalObject(OTP_DO_ID_ZONE_MANAGER, 'ZoneManager')
         self.crashLogManager = CrashLogManagerAI(self)
         self.newsManager = NewsManagerAI(self)
         self.newsManager.generateWithRequired(2)

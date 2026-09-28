@@ -522,7 +522,6 @@ class ToonBase(OTPBase.OTPBase):
             return
 
         self.ttAccess = ToontownAccess.ToontownAccess()
-        self.ttAccess.initModuleInfo()
 
     def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
