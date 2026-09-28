@@ -469,7 +469,7 @@ class DistributedBossbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
             return
         if bossDamage > 3:
             self.air.writeServerEvent('suspicious', avId, 'Bossbot: Toon sent an attack over 3 damage!')
-            self.air.banManager.ban(avId, 0, 'hacking')
+            self.air.kickAvatar(avId, 'Your game sent something it should not have.')
             return
         if bossDamage < 1:
             self.air.writeServerEvent('suspicious', avId, 'Bossbot: Toon sent an attack less than 1 damage!')

@@ -6,8 +6,8 @@ from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.MagicWordGlobal import spellbook
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
 from otp.ai.TimeManagerAI import TimeManagerAI
-from otp.ai import BanManagerAI
 from otp.distributed.OtpDoGlobals import *
+from otp.otpbase import OTPGlobals
 from otp.friends.FriendManagerAI import FriendManagerAI
 from otp.ai.CrashLogManagerAI import CrashLogManagerAI
 from toontown.ai.ToontownAIMsgTypes import CONTROL_ADD_POST_REMOVE, CONTROL_MESSAGE, PARTY_MANAGER_UD_TO_ALL_AI
@@ -275,8 +275,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.friendManager = FriendManagerAI(self)
         self.friendManager.generateWithRequired(2)
         self.questManager = QuestManagerAI(self)
-        self.banManager = BanManagerAI.BanManagerAI(self)
-        self.banManager.generateWithRequired(2)
         self.achievementsManager = AchievementsManagerAI(self)
         self.suitInvasionManager = SuitInvasionManagerAI(self)
         self.trophyMgr = DistributedTrophyMgrAI(self)
@@ -781,6 +779,10 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def getAvatarExitEvent(self, avId: int) -> str:
         return f'distObjDelete-{avId}'
+
+    def kickAvatar(self, avId, reason):
+        # The channel the client agent opens for the avatar a client plays
+        self.eject(avId + (1001 << 32), OTPGlobals.BootKicked, reason)
 
     def trueUniqueName(self, name):
         return self.uniqueName(name)

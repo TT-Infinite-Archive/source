@@ -343,4 +343,7 @@ AccessUnknown = 0
 AccessVelvetRope = 1
 AccessFull = 2
 AccessInvalid = 3
-
+# Eject codes whose text the client shows as is. A ban also stops it
+# offering to reconnect
+BootKicked = 155
+BootBanned = 156

@@ -15,6 +15,7 @@ import hashlib
 
 from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
+from otp.otpbase import OTPGlobals
 from toontown.estate import HouseGlobals
 from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon import ToonDNA
@@ -79,6 +80,12 @@ class AccountDB:
         combinedPassword = password + salt + pepper
         return hashlib.sha512(combinedPassword.encode('utf-8')).hexdigest()
 
+    def banReason(self, accountId):
+        return None
+
+    def ban(self, accountId, reason, days):
+        return False
+
 
 class LocalAccountDB(AccountDB):
     notify = directNotify.newCategory('LocalAccountDB')
@@ -87,6 +94,20 @@ class LocalAccountDB(AccountDB):
         AccountDB.__init__(self, csm)
         self.accessLevel = accessLevel
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
+        self.bans = self.csm.air.mongodb.bans
+
+    def banReason(self, accountId):
+        ban = self.bans.find_one({'_id': accountId})
+        if not ban or (ban.get('expires') and ban['expires'] <= time.time()):
+            return None
+        return ban.get('reason') or 'This account has been banned.'
+
+    def ban(self, accountId, reason, days):
+        expires = time.time() + days * 86400 if days else None
+        self.bans.replace_one({'_id': accountId},
+                              {'_id': accountId, 'reason': reason, 'expires': expires},
+                              upsert=True)
+        return True
 
     def lookupUserId(self, userId):
         document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
@@ -330,8 +351,16 @@ class LoginAccountFSM(OperationFSM):
         if not result.get('success'):
             self.csm.sendUpdateToChannel(self.target, 'loginError', [result['error']])
             self.demand('Off')
-        else:
-            self.demand('RetrieveAccount')
+            return
+
+        banReason = self.csm.accountDB.banReason(self.accountId)
+        if banReason:
+            self.csm.air.writeServerEvent('bannedAccountLogin', self.target, self.accountId)
+            self.csm.killConnection(self.target, banReason, OTPGlobals.BootBanned)
+            self.demand('Off')
+            return
+
+        self.demand('RetrieveAccount')
 
     def enterRetrieveAccount(self):
         self.csm.air.dbInterface.queryObject(
@@ -1324,6 +1353,9 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         else:
             self.notify.error('Invalid accountdb-type: ' + accountdbType)
 
+        # From the ban magic word on a district
+        self.accept('banAccount', self.banAccount)
+
         self.serverFlags = dict(WEBSITE_FLAGS)
         self.refreshServerFlags()
 
@@ -1381,13 +1413,13 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         self.connection2Timestamp[connId] = now
 
-    def killConnection(self, connId, reason):
+    def killConnection(self, connId, reason, code=122):
         datagram = PyDatagram()
         datagram.addServerHeader(
             connId,
             self.air.ourChannel,
             CLIENTAGENT_EJECT)
-        datagram.addUint16(122)
+        datagram.addUint16(code)
         datagram.addString(reason)
         self.air.send(datagram)
 
@@ -1400,8 +1432,14 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         self.killConnection(connId, 'An operation is already underway: ' + fsm.name)
 
-    def killAccount(self, accountId, reason):
-        self.killConnection(self.GetAccountConnectionChannel(accountId), reason)
+    def killAccount(self, accountId, reason, code=122):
+        self.killConnection(self.GetAccountConnectionChannel(accountId), reason, code)
+
+    def banAccount(self, accountId, reason, days):
+        # Only a server with no website bans here; see AccountDB.ban
+        if self.accountDB.ban(accountId, reason, days):
+            self.air.writeServerEvent('accountBanned', accountId, reason, days)
+            self.killAccount(accountId, reason, OTPGlobals.BootBanned)
 
     def killAccountFSM(self, accountId):
         fsm = self.account2fsm.get(accountId)
@@ -1427,21 +1465,6 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def requestAuthToken(self, mac_addr, ip_addr):
         sender = self.air.getMsgSender()
-
-        self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr])
-        self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
-
-    def handleResponse(self, sender, isBanned, banLength):
-        if isBanned:
-            datagram = PyDatagram()
-            datagram.addServerHeader(
-                sender,
-                self.air.ourChannel,
-                CLIENTAGENT_EJECT)
-            datagram.addUint16(156)
-            datagram.addString(banLength)
-            self.air.send(datagram)
-            return
 
         authToken = ''.join([hex(random.randint(0, 254)) for _ in range(25)])
 

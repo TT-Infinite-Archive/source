@@ -4,6 +4,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 
 from otp.distributed import OtpDoGlobals
+from otp.otpbase import OTPGlobals
 from toontown.web.ChatLog import ChatLog
 from toontown.web.GatewaySocket import openSocket
 from toontown.web.ToonRoster import ToonRoster
@@ -37,6 +38,7 @@ class GameGateway(DirectObject):
             'approveGuildName': lambda args, done: self.decideGuildName(args, done, True),
             'denyGuildName': lambda args, done: self.decideGuildName(args, done, False),
             'claimLegacyAccount': self.claimLegacyAccount,
+            'kickAccount': self.kickAccount,
         }
 
         self.socket = socket if socket is not None else openSocket(onCommand=self.apply)
@@ -157,6 +159,12 @@ class GameGateway(DirectObject):
             done(True, {})
 
         guildManager.callWhenLoaded(apply)
+
+    def kickAccount(self, args, done):
+        accountId = self.air.csm.accountDB.accountIdForUser(str(args['userId']))
+        if accountId:
+            self.air.csm.killAccount(accountId, str(args['reason']), OTPGlobals.BootBanned)
+        done(True, {'online': bool(accountId)})
 
     def claimLegacyAccount(self, args, done):
         """
