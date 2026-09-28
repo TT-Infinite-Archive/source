@@ -1,10 +1,11 @@
 import collections
 import socket
+import traceback
 import urllib.parse
 
 from panda3d_astron.repository import AstronInternalRepository, msgpack_encode
 from direct.distributed.PyDatagram import PyDatagram
-from panda3d.core import loadPrcFile
+from panda3d.core import ConfigVariableInt, loadPrcFile
 from panda3d.direct import DCPacker
 
 from toontown.toonbase import EventGlobals
@@ -37,6 +38,7 @@ class ToontownInternalRepository(AstronInternalRepository):
         self.dbAstronCursor = self.mongodb.astron
 
         self.netMessenger = ToontownNetMessengerAI(self)
+        self.senderExceptions = collections.Counter()
 
     def setEventLogHost(self, host, port=7197):
         self.eventSocket = None
@@ -147,6 +149,30 @@ class ToontownInternalRepository(AstronInternalRepository):
     def addExitEvent(self, message, sentArgs=[]):
         dg = self.netMessenger.prepare(message, sentArgs)
         self.addPostRemove(dg)
+
+    def readerPollOnce(self):
+        try:
+            return AstronInternalRepository.readerPollOnce(self)
+        except Exception:
+            self.handleDatagramException()
+            return 1
+
+    def handleDatagramException(self):
+        sender = self.getMsgSender()
+        avId = self.getAvatarIdFromSender()
+        accountId = self.getAccountIdFromSender()
+        info = traceback.format_exc()
+
+        self.notify.warning('Exception handling a message from %d:\n%s' % (sender, info))
+        self.writeServerEvent('datagram-exception', avId, accountId, info)
+
+        if not accountId:
+            return
+
+        self.senderExceptions[sender] += 1
+        if self.senderExceptions[sender] >= ConfigVariableInt('max-client-exceptions', 5).getValue():
+            del self.senderExceptions[sender]
+            self.eject(sender, 122, 'Too many errors handling your messages.')
 
     def handleDatagram(self, di):
         msgType = self.getMsgType()
