@@ -110,6 +110,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug('requestDelete: %s' % self.doId)
         self.ignoreAll()
         self.ignoreBarrier("waitingForExit")
+        taskMgr.removeTasksMatching("remakeGag-%s-*" % self.doId)
         for i in self.thrownGags:
             i.requestDelete()
         del self.thrownGags
@@ -139,6 +140,8 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
 
     def delete(self):
         self.notify.debug('delete: %s' % self.doId)
+        # Late kart removals still land in this zone for a few seconds
+        taskMgr.doMethodLater(30, self.air.deallocateZone, 'freeZone-%s' % self.zoneId, extraArgs=[self.zoneId])
         DistributedObjectAI.DistributedObjectAI.delete(self)
         del self.raceDoneFunc
         del self.racerFinishedFunc
@@ -470,7 +473,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
             self.racers[avId].exited = True
 
             # Make them invincible in the eyes of the anvil dropper
-            taskMgr.remove("make %s invincible" % id)
+            taskMgr.remove("make %s invincible" % avId)
             self.racers[avId].anvilTarget = True
 
             raceDone = True
@@ -508,7 +511,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
                 return
             if self.gagList[slot] == index:
                 self.gagList[slot] = None
-                taskMgr.doMethodLater(5, self.d_genGag, "remakeGag-" + str(slot), extraArgs=[slot])
+                taskMgr.doMethodLater(5, self.d_genGag, "remakeGag-%s-%s" % (self.doId, slot), extraArgs=[slot])
                 self.racers[avId].hasGag = True
                 self.racers[avId].gagType = type
 
@@ -545,7 +548,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
                 me.finished = True
 
                 # Make them invincible in the eyes of the anvil dropper
-                taskMgr.remove("make %s invincible" % id)
+                taskMgr.remove("make %s invincible" % avId)
                 me.anvilTarget = True
 
                 # see if anyone's close
@@ -616,7 +619,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
             taskMgr.doMethodLater(10, self.removeObject, "removeKart-%s" % racer.kart.doId, extraArgs=[racer.kart])
 
             # Make them invincible in the eyes of the anvil dropper
-            taskMgr.remove("make %s invincible" % id)
+            taskMgr.remove("make %s invincible" % avId)
             self.racers[avId].anvilTarget = True
 
             self.checkForEndOfRace()
