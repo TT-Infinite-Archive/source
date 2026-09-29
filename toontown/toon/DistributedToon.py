@@ -482,13 +482,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
     def d_updateGMNameTag(self):
         self.refreshName()
 
-    def updateGMNameTag(self, tagString, color, state):
-        try:
-            str(tagString, 'utf-8')
-        except UnicodeDecodeError:
-            self.sendUpdate('logSuspiciousEvent', ['invalid GM name tag: %s from %s' % (tagString, self.doId)])
-            return
-
     def refreshName(self):
         return
         self.notify.debug('Refreshing GM Nametag String: %s Color: %s State: %s' % (self.gmNameTagString, self.gmNameTagColor, self.gmNameTagEnabled))

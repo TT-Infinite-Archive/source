@@ -70,7 +70,7 @@ class GuildManagerAI(DistributedObjectGlobalAI):
             
             for avId in involvedToons:
                 self.notify.debug('Handling Avatar %d defeating boss with %s' % (avId, repr(involvedToonIds)))
-                contributionPoints = guildPoints / guildMemberCount
+                contributionPoints = guildPoints // guildMemberCount
                 
                 # Alert the UD of this toon's contribution points
                 self.d_handleContributionPoints(avId, contributionPoints)

@@ -42,8 +42,8 @@ def getWateringCanPower(wateringCan, wateringCanSkill):
                 gardenNotify.warning("this shouldn't happen wateringCanSkill %d >= skill %d" % (wateringCanSkill, skill))
             wateringCanSkill = skill - 1
         if curWateringCan == wateringCan:
-            skillPtPerBox = skill / curBoxes
-            numBoxes += 1 + int(wateringCanSkill) / int(skillPtPerBox)
+            skillPtPerBox = skill // curBoxes
+            numBoxes += 1 + int(wateringCanSkill) // int(skillPtPerBox)
         else:
             numBoxes += curBoxes
 

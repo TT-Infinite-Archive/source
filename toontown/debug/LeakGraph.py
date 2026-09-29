@@ -83,7 +83,7 @@ class LeakGraph(threading.Thread):
                 )
                 lines.append(line)
             except Exception as e:
-                self.notify.warning(e.message)
+                self.notify.warning(str(e))
         data = graph_objs.Data(lines)
         layout = graph_objs.Layout(
             title=self.name,

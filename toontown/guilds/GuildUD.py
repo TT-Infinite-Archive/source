@@ -195,7 +195,7 @@ class GuildUD:
         gained = self.questInst.progress - prevProgress
         if gained > 0:
             # Get how much a guild member would get for doing this
-            cpReward = GuildQuestGlobals.GuildQuestDict[self.questInst.questId][2] * gained / len(avIds)
+            cpReward = GuildQuestGlobals.GuildQuestDict[self.questInst.questId][2] * gained // len(avIds)
 
             # This quest progressed, lets add contribution for the members
             for avId in avIds:

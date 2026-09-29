@@ -28,12 +28,11 @@ class MagicWordManagerAI(DistributedObjectAI):
             self.air.writeServerEvent('suspicious', invokerId, 'Attempted to issue magic word: %s' % word)
             return
 
-        if ' ' in word:
-            cheat = word[0:word.index(' ')]  # Remove arguments from word
-        else:
-            cheat = word
+        if not word.split():
+            return
+        cheat = word.split()[0].lower()  # Remove arguments from word
 
-        if not self.wantCheats and cheat not in NON_CHEATS:
+        if not self.wantCheats and cheat not in [name.lower() for name in NON_CHEATS]:
             self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', ['Cheats are disabled on this server. Only magic words that allow for moderation are enabled.'])
             return
 
