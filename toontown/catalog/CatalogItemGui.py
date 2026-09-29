@@ -63,6 +63,7 @@ def getEmotePicture(item, avatar):
     name = 'emote-item-%s' % item.sequenceNumber
     CatalogEmoteItem.sequenceNumber += 1
     if track != None:
+        track.clearToInitial()
         track = Sequence(Sequence(track, duration=0), Wait(duration + 2), name=name)
     else:
         track = Sequence(Func(Emote.globalEmote.doEmote, toon, item.emoteIndex), Wait(duration + 4), name=name)
@@ -80,6 +81,7 @@ def changeEmoteIval(item, volume):
     name = 'emote-item-%s' % item.sequenceNumber
     CatalogEmoteItem.sequenceNumber += 1
     if track != None:
+        track.clearToInitial()
         track = Sequence(Sequence(track, duration=0), Wait(duration + 2), name=name)
     else:
         track = Sequence(Func(Emote.globalEmote.doEmote, item.pictureToon, item.emoteIndex), Wait(duration + 4), name=name)
