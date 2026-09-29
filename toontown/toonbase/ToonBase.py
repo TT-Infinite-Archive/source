@@ -1,5 +1,4 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, URLSpec, VBase4, VirtualFileSystem, WindowProperties
-import fractions
 import os
 import random
 import sys
@@ -43,26 +42,19 @@ class ToonBase(OTPBase.OTPBase):
         self.wantSinglePlayer = None
 
         # Get the native display info:
-        if sys.platform != 'android':
-            zoom = self.pipe.getDisplayZoom() or 1.0
-            self.nativeWidth = int(self.pipe.getDisplayWidth() / zoom)
-            self.nativeHeight = int(self.pipe.getDisplayHeight() / zoom)
-            ratio = float(self.nativeWidth) / float(self.nativeHeight)
-            fraction = fractions.Fraction(ratio).limit_denominator()
-            self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
-        else:
-            self.nativeRatio = (16, 9)
+        self.resolutionScale = 1.0
+        if sys.platform == 'darwin':
+            self.resolutionScale = self.pipe.getDisplayZoom() or 1.0
 
-        self.calcRatio = self.nativeRatio
+        if sys.platform != 'android':
+            self.nativeWidth = int(self.pipe.getDisplayWidth() / self.resolutionScale)
+            self.nativeHeight = int(self.pipe.getDisplayHeight() / self.resolutionScale)
 
         # Choose the best resolution if we're either fullscreen, or we don't
         # have a resolution defined in our settings:
         fullscreen = settings[SettingsGlobals.Fullscreen]
         if 'res' not in settings and not fullscreen:
-            # Choose the smallest resolution that matches that largest
-            # ratio that contains resolutions that will fit our display in
-            # windowed mode:
-            res = self.getSmallestResolution()
+            res = self.getDefaultResolution()
 
             # Store our result
             settings['res'] = res
@@ -70,7 +62,7 @@ class ToonBase(OTPBase.OTPBase):
             # Reload the graphics pipe:
             properties = WindowProperties()
 
-            properties.setSize(res[0], res[1])
+            properties.setSize(*self.getWindowSize(res))
             properties.setFullscreen(fullscreen)
             properties.setParentWindow(0)
 
@@ -306,7 +298,8 @@ class ToonBase(OTPBase.OTPBase):
             searchPath.appendDirectory(Filename('/resources/phase_3/etc'))
         searchPath.appendDirectory(Filename('/phase_3/etc'))
 
-        for filename in ['toonmono.cur', 'icon.ico']:
+        cursor = 'toonmono.png' if sys.platform == 'darwin' else 'toonmono.cur'
+        for filename in [cursor, 'icon.ico']:
             p3filename = Filename(filename)
             found = vfs.resolveFilename(p3filename, searchPath)
             if not found:
@@ -317,7 +310,7 @@ class ToonBase(OTPBase.OTPBase):
 
         wp = WindowProperties()
         wp.setCursorFilename(
-            Filename.fromOsSpecific(os.path.join(self.tempDir, 'toonmono.cur')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, cursor)))
         wp.setIconFilename(
             Filename.fromOsSpecific(os.path.join(self.tempDir, 'icon.ico')))
         self.win.requestProperties(wp)
@@ -686,31 +679,29 @@ class ToonBase(OTPBase.OTPBase):
             if self.sfxManagerIsValidList[i]:
                 self.sfxManagerList[i].stopAllSounds()
 
-    def getSmallestResolution(self):
+    def getResolutions(self):
+        if sys.platform == 'android':
+            return [(1920, 1080)]
+
+        native = (self.nativeWidth, self.nativeHeight)
+        resolutions = {res for sizes in ToontownClientGlobals.CommonDisplayResolutions.values()
+                       for res in sizes if res[0] <= native[0] and res[1] <= native[1]}
+        resolutions.add(native)
+        return sorted(resolutions)
+
+    def getDefaultResolution(self):
         if sys.platform == 'android':
             return (1920, 1080)
 
-        resolutions = ToontownClientGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
-        if len(resolutions) < 2:
-            ratios = list(ToontownClientGlobals.CommonDisplayResolutions.keys())
-            ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
+        fitting = [res for res in self.getResolutions()
+                   if res[0] <= self.nativeWidth - 125 and res[1] <= self.nativeHeight - 125]
+        if not fitting:
+            return (800, 600)
 
-            while ratios:
-                ratio = ratios.pop()
-                if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
-                    self.calcRatio = ratio
-                    resolutions = ToontownClientGlobals.CommonDisplayResolutions[ratio]
-                    if resolutions[0][0] >= (self.nativeWidth - 125):
-                        continue
-                    if resolutions[0][1] >= (self.nativeHeight - 125):
-                        continue
-                    break
-            else:
-                self.calcRatio = (4, 3)
-                resolutions = ToontownClientGlobals.CommonDisplayResolutions[self.calcRatio]
+        return max(fitting, key=lambda res: res[0] * res[1])
 
-        res = resolutions[0]
-        return res
+    def getWindowSize(self, res):
+        return (int(res[0] * self.resolutionScale), int(res[1] * self.resolutionScale))
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])

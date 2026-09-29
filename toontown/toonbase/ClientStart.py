@@ -85,6 +85,9 @@ if SettingsGlobals.retinaModeAvailable() and settings[SettingsGlobals.RetinaMode
     notify.info('Retina Mode: display zoom %.1fx, rendering at %dx%d'
                 % (scale, resolution[0], resolution[1]))
 
+if sys.platform == 'darwin':
+    loadPrcFileData('Cursor', 'cursor-filename phase_3/etc/toonmono.png')
+
 loadPrcFileData('Settings: res', 'win-size %d %d' % resolution)
 loadPrcFileData('Settings: fullscreen',
                 'fullscreen #%s' % ('t' if settings[SettingsGlobals.Fullscreen] else 'f'))

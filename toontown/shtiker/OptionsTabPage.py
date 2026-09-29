@@ -11,7 +11,6 @@ from toontown.toontowngui import TTLabel, TTButton, TTDialog
 from toontown.toontowngui.TTOptionRow import TTButtonRow, TTChoiceRow, TTOptionHeading, TTSliderRow, TTToggleRow
 from toontown.toontowngui.TTTabBar import TTTabBar
 from toontown.toonbase import ToontownGlobals, TTLocalizer, EventGlobals, SettingsGlobals, ColorGlobals
-from toontown.toonbase import ToontownClientGlobals
 
 
 class OptionsTabPage(DirectFrame):
@@ -215,8 +214,7 @@ class OptionsTabPage(DirectFrame):
         canvas = pane.getCanvas()
         z = self.RowTop
 
-        base.getSmallestResolution()
-        self.screenSizes = list(ToontownClientGlobals.CommonDisplayResolutions[base.calcRatio])
+        self.screenSizes = base.getResolutions()
 
         displayHeading = TTOptionHeading(canvas, text = TTLocalizer.OptionsPageDisplay)
         displayHeading.setPos(0, 0, z)
@@ -519,7 +517,7 @@ class OptionsTabPage(DirectFrame):
         res = self.resolutionRow.getValue()
 
         wp = WindowProperties()
-        wp.setSize(res[0], res[1])
+        wp.setSize(*base.getWindowSize(res))
         wp.setFullscreen(fullscreen)
         base.win.requestProperties(wp)
         # Test the resolution and ask the user if they want to keep it
@@ -535,7 +533,7 @@ class OptionsTabPage(DirectFrame):
         wp = WindowProperties()
         wp.setFullscreen(settings[SettingsGlobals.Fullscreen])
         res = settings[SettingsGlobals.Resolution]
-        wp.setSize(res[0], res[1])
+        wp.setSize(*base.getWindowSize(res))
         base.win.requestProperties(wp)
         self.applyVideoRow.enable()
 
