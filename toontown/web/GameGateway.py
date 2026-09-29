@@ -7,6 +7,7 @@ from otp.distributed import OtpDoGlobals
 from otp.otpbase import OTPGlobals
 from toontown.web.ChatLog import ChatLog
 from toontown.web.GatewaySocket import openSocket
+from toontown.web.ReportLog import ReportLog
 from toontown.web.ToonRoster import ToonRoster
 
 NOT_PENDING = 'The Toon is no longer awaiting a name.'
@@ -47,6 +48,7 @@ class GameGateway(DirectObject):
 
         self.chatLog = ChatLog(air, self.socket)
         self.toonRoster = ToonRoster(air, self.socket)
+        self.reportLog = ReportLog(air, self.socket, self.chatLog)
 
         if self.socket is None:
             self.notify.warning('No gateway; name review will not reach the game.')
