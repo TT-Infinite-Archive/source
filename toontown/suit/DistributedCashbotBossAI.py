@@ -787,7 +787,7 @@ class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
             toon = self.air.doId2do.get(toonId)
             if toon is not None:
                 amount = self.battleDifficulty
-                for i in range(0, amount):
+                for i in range(0, int(amount)):
                     if i >= len(self.rewardIds):
                         # We haven't predefined a reward here, so get a random one
                         toon.addResistanceMessage(ResistanceChat.getRandomId())

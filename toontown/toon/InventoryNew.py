@@ -296,18 +296,20 @@ class InventoryNew(InventoryBase.InventoryBase, DirectFrame):
         propBonus = self.checkPropBonus(track)
         damageBonusStr = ''
         damageBonus = 0
-        if self.propAndOrganicBonusStack:
-            if propBonus:
-                damageBonus += getDamageBonus(damage)
-            if organicBonus:
-                damageBonus += getDamageBonus(damage)
-            if damageBonus:
-                damageBonusStr = TTLocalizer.InventoryDamageBonus % damageBonus
-        else:
-            if propBonus or organicBonus:
-                damageBonus += getDamageBonus(damage)
-            if damageBonus:
-                damageBonusStr = TTLocalizer.InventoryDamageBonus % damageBonus
+        # Avoid erroneously displaying a "damage" bonus.
+        if track != LURE_TRACK:
+            if self.propAndOrganicBonusStack:
+                if propBonus:
+                    damageBonus += getDamageBonus(damage)
+                if organicBonus:
+                    damageBonus += getDamageBonus(damage)
+                if damageBonus:
+                    damageBonusStr = TTLocalizer.InventoryDamageBonus % damageBonus
+            else:
+                if propBonus or organicBonus:
+                    damageBonus += getDamageBonus(damage)
+                if damageBonus:
+                    damageBonusStr = TTLocalizer.InventoryDamageBonus % damageBonus
         accString = AvTrackAccStrings[track]
         if (organicBonus or propBonus) and track == LURE_TRACK:
             accString = TTLocalizer.BattleGlobalLureAccMedium
