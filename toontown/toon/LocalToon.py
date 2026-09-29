@@ -1225,7 +1225,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
 
     def __startMoveFurniture(self):
         self.oldPos = self.getPos()
-        if ConfigVariableDouble('want-qa-regression', False).getValue():
+        if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: ESTATE:  Furniture Placement')
         if self.cr.furnitureManager != None:
             self.cr.furnitureManager.d_suggestDirector(self.doId)
