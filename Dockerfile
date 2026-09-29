@@ -33,7 +33,7 @@ RUN useradd --system --create-home --uid 10001 tti && chown tti /app
 COPY --from=deps /install /usr/local
 
 # Rarely changes, so it sits below the code and stays cached
-COPY build/resources /resources
+COPY build/resources ./resources
 
 COPY --chown=tti toontown ./toontown
 COPY --chown=tti otp ./otp
