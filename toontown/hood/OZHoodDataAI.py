@@ -32,16 +32,17 @@ class OZHoodDataAI(HoodDataAI.HoodDataAI):
     def startup(self):
         HoodDataAI.HoodDataAI.startup(self)
 
-        chip = DistributedChipAI.DistributedChipAI(self.air)
-        chip.generateWithRequired(self.zoneId)
-        chip.start()
-        self.addDistObj(chip)
+        if self.air.wantClassicChars:
+            chip = DistributedChipAI.DistributedChipAI(self.air)
+            chip.generateWithRequired(self.zoneId)
+            chip.start()
+            self.addDistObj(chip)
 
-        dale = DistributedDaleAI.DistributedDaleAI(self.air, chip.doId)
-        dale.generateWithRequired(self.zoneId)
-        dale.start()
-        self.addDistObj(dale)
-        chip.setDaleId(dale.doId)
+            dale = DistributedDaleAI.DistributedDaleAI(self.air, chip.doId)
+            dale.generateWithRequired(self.zoneId)
+            dale.start()
+            self.addDistObj(dale)
+            chip.setDaleId(dale.doId)
 
         self.timer = DistributedTimerAI.DistributedTimerAI(self.air)
         self.timer.generateWithRequired(self.zoneId)

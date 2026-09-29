@@ -298,6 +298,9 @@ class TrueFriendOperation(OperationFSM):
 # -- FriendsManager --
 class TTIFriendsManagerUD(DistributedObjectGlobalUD):
     notify = directNotify.newCategory('TTIFriendsManagerUD')
+    SECRET_LIFETIME = 2 * 24 * 60 * 60
+    SECRET_ATTEMPT_DELAY = 2
+    MAX_IGNORED = 100
 
     def announceGenerate(self):
         DistributedObjectGlobalUD.announceGenerate(self)
@@ -307,6 +310,8 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
         self.whisperRequests = {}
         self.operations = []
         self.secret2avId = {}
+        self.avId2secret = {}
+        self.secretAttempts = {}
         self.avId2IgnoredList = {}
         self.avId2ChatMode = {}
         self.delayTime = 1.0
@@ -567,19 +572,36 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
             secret += random.choice(allowed)
             if i == 2:
                 secret += ' '
-        self.secret2avId[secret] = avId
+        # One live code per Toon, and none outlives SECRET_LIFETIME
+        now = time.time()
+        self.secret2avId.pop(self.avId2secret.pop(avId, None), None)
+        for oldSecret, (owner, issued) in list(self.secret2avId.items()):
+            if now - issued > self.SECRET_LIFETIME:
+                del self.secret2avId[oldSecret]
+                self.avId2secret.pop(owner, None)
+        self.secret2avId[secret] = (avId, now)
+        self.avId2secret[avId] = secret
         self.sendUpdateToAvatarId(avId, 'requestSecretResponse', [1, secret])
 
     def submitSecret(self, secret):        
         requester = self.air.getAvatarIdFromSender()
-        owner = self.secret2avId.get(secret)
-        
+
         if not ConfigVariableBool('want-true-friends', True).getValue():
             self.sendUpdateToAvatarId(requester, 'submitSecretResponse', [0, 0])
             return
 
+        now = time.time()
+        if now - self.secretAttempts.get(requester, 0) < self.SECRET_ATTEMPT_DELAY:
+            self.sendUpdateToAvatarId(requester, 'submitSecretResponse', [0, 0])
+            return
+        self.secretAttempts[requester] = now
+
+        owner, issued = self.secret2avId.get(secret, (0, 0))
+        if owner and now - issued > self.SECRET_LIFETIME:
+            owner = 0
         if secret in self.secret2avId:
             del self.secret2avId[secret]
+            self.avId2secret.pop(owner, None)
 
         if not owner:
             self.sendUpdateToAvatarId(requester, 'submitSecretResponse', [0, 0])
@@ -615,18 +637,16 @@ class TTIFriendsManagerUD(DistributedObjectGlobalUD):
     # -- Ignore List --
     def addIgnore(self, ignoredAvId):
         requester = self.air.getAvatarIdFromSender()
-        if not self.avId2IgnoredList[requester]:
-            self.avId2IgnoredList[int(requester)] = []
-        self.avId2IgnoredList.append(ignoredAvId)
+        ignored = self.avId2IgnoredList.setdefault(requester, [])
+        if ignoredAvId not in ignored and len(ignored) < self.MAX_IGNORED:
+            ignored.append(ignoredAvId)
 
     def removeIgnore(self, ignoredAvId):
         requester = self.air.getAvatarIdFromSender()
-        if requester in self.avId2IgnoredList:
-            if ignoredAvId in self.avId2IgnoredList[requester]:
-                del self.avId2IgnoredList[requester][ignoredAvId]
+        ignored = self.avId2IgnoredList.get(requester)
+        if ignored and ignoredAvId in ignored:
+            ignored.remove(ignoredAvId)
 
     def requestIgnoreList(self):
         avId = self.air.getAvatarIdFromSender()
-        if avId not in self.avId2IgnoredList:
-            return
-        self.sendUpdateToAvatarId(avId, 'ignoreList', self.avId2IgnoredList[avId])
+        self.sendUpdateToAvatarId(avId, 'ignoreList', [self.avId2IgnoredList.get(avId, [])])

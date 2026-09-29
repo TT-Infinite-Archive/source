@@ -2,11 +2,10 @@ import random
 from direct.distributed import DistributedObjectAI
 from direct.directnotify import DirectNotifyGlobal
 from . import DistributedGagAI
-from . import DistributedProjectileAI
 from . import Racer
 from . import RaceGlobals
 from direct.distributed.ClockDelta import *
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
@@ -111,6 +110,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug('requestDelete: %s' % self.doId)
         self.ignoreAll()
         self.ignoreBarrier("waitingForExit")
+        taskMgr.removeTasksMatching("remakeGag-%s-*" % self.doId)
         for i in self.thrownGags:
             i.requestDelete()
         del self.thrownGags
@@ -140,6 +140,8 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
 
     def delete(self):
         self.notify.debug('delete: %s' % self.doId)
+        # Late kart removals still land in this zone for a few seconds
+        taskMgr.doMethodLater(30, self.air.deallocateZone, 'freeZone-%s' % self.zoneId, extraArgs=[self.zoneId])
         DistributedObjectAI.DistributedObjectAI.delete(self)
         del self.raceDoneFunc
         del self.racerFinishedFunc
@@ -448,12 +450,6 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
 
         self.sendUpdate("shootPiejectile", [avId, targetId, type])
 
-    def d_makePie(self, avId, x, y, z):
-        # gag=DistributedGagAI.DistributedGagAI(simbase.air, avId, self, 3, x, y, z, 1)
-        gag = DistributedProjectileAI.DistributedProjectileAI(simbase.air, self, avId)
-        self.thrownGags.append(gag)
-        gag.generateWithRequired(self.zoneId)
-
     def endRace(self, avIds):
         if hasattr(self, "raceDoneFunc"):
             self.raceDoneFunc(self, False)
@@ -477,7 +473,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
             self.racers[avId].exited = True
 
             # Make them invincible in the eyes of the anvil dropper
-            taskMgr.remove("make %s invincible" % id)
+            taskMgr.remove("make %s invincible" % avId)
             self.racers[avId].anvilTarget = True
 
             raceDone = True
@@ -515,7 +511,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
                 return
             if self.gagList[slot] == index:
                 self.gagList[slot] = None
-                taskMgr.doMethodLater(5, self.d_genGag, "remakeGag-" + str(slot), extraArgs=[slot])
+                taskMgr.doMethodLater(5, self.d_genGag, "remakeGag-%s-%s" % (self.doId, slot), extraArgs=[slot])
                 self.racers[avId].hasGag = True
                 self.racers[avId].gagType = type
 
@@ -532,7 +528,6 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
                 if (racer.gagType == 3):
                     self.d_dropAnvil(avId)
                 if (racer.gagType == 4):
-                    # self.d_makePie(avId, x, y, z)
                     self.d_launchPie(avId)
                 racer.hasGag = False
                 racer.gagType = 0
@@ -553,7 +548,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
                 me.finished = True
 
                 # Make them invincible in the eyes of the anvil dropper
-                taskMgr.remove("make %s invincible" % id)
+                taskMgr.remove("make %s invincible" % avId)
                 me.anvilTarget = True
 
                 # see if anyone's close
@@ -624,7 +619,7 @@ class DistributedRaceAI(DistributedObjectAI.DistributedObjectAI):
             taskMgr.doMethodLater(10, self.removeObject, "removeKart-%s" % racer.kart.doId, extraArgs=[racer.kart])
 
             # Make them invincible in the eyes of the anvil dropper
-            taskMgr.remove("make %s invincible" % id)
+            taskMgr.remove("make %s invincible" % avId)
             self.racers[avId].anvilTarget = True
 
             self.checkForEndOfRace()

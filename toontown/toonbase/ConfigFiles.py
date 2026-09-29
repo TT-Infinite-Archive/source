@@ -6,6 +6,7 @@ import sys
 
 
 GENERAL = 'config/general.prc'
+CLIENT = 'config/client.prc'
 SERVER = 'config/server.prc'
 LIVE = 'live'
 DEV = 'dev'
@@ -17,11 +18,12 @@ def distribution(name):
 
 
 def client(name=LIVE):
-    return (GENERAL, distribution(name))
+    return (GENERAL, CLIENT, distribution(name))
 
 
 def server(name=LIVE, role=None):
-    return client(name) + (SERVER, distribution('%s-server' % (role or name)))
+    return (GENERAL, distribution(name),
+            SERVER, distribution('%s-server' % (role or name)))
 
 
 # What a --distribution may be. `host` is not a distribution. it is

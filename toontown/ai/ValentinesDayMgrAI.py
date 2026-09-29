@@ -1,5 +1,5 @@
 from direct.directnotify import DirectNotifyGlobal
-from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toonbase import ToontownGlobals, TTLocalizerServer as TTLocalizer
 from toontown.ai import HolidayBaseAI
 
 class ValentinesDayMgrAI(HolidayBaseAI.HolidayBaseAI):

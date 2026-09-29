@@ -4,7 +4,7 @@ from direct.gui.DirectGui import DirectFrame, DirectButton, DirectLabel
 from direct.gui.DirectGui import DirectScrolledListItem, DirectScrolledList
 from direct.gui import DirectGuiGlobals
 from toontown.toonbase import TTLocalizer
-from toontown.parties import PartyUtils
+from toontown.toonbase import ToontownTimer
 
 class JukeboxGui(DirectObject):
     notify = directNotify.newCategory('JukeboxGui')
@@ -25,7 +25,7 @@ class JukeboxGui(DirectObject):
         if self.isLoaded():
             return
         guiNode = loader.loadModel('phase_13/models/parties/jukeboxGUI')
-        self._timerGui = PartyUtils.getNewToontownTimer()
+        self._timerGui = ToontownTimer.getNewToontownTimer()
         self._windowFrame = DirectFrame(image=guiNode.find('**/background'), relief=None, pos=(0, 0, 0), scale=0.7)
         self._songFrame = DirectFrame(image=guiNode.find('**/songTitle_background'), parent=self._windowFrame, relief=None)
         self._currentlyPlayingLabel = self.__createLabel(guiNode, 'currentlyPlaying', parent=self._windowFrame, text=TTLocalizer.JukeboxCurrentlyPlayingNothing, scale=TTLocalizer.JGcurrentlyPlayingLabel)

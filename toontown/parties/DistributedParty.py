@@ -8,6 +8,7 @@ from direct.interval.IntervalGlobal import *
 from direct.gui.DirectGui import DirectLabel
 from direct.gui import OnscreenText
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.parties.PartyInfo import PartyInfo
 from toontown.toonbase import TTLocalizer
 from toontown.toon import Toon
@@ -215,7 +216,7 @@ class DistributedParty(DistributedObject.DistributedObject):
         b = 23.0 / 255.0
         nameText.setTextColor(r, g, b, 1)
         nameText.setAlign(nameText.ACenter)
-        nameText.setFont(ToontownGlobals.getBuildingNametagFont())
+        nameText.setFont(ToontownClientGlobals.getBuildingNametagFont())
         nameText.setShadowColor(0, 0, 0, 1)
         nameText.setBin('fixed')
         if TTLocalizer.BuildingNametagShadow:
@@ -292,7 +293,7 @@ class DistributedParty(DistributedObject.DistributedObject):
         self.partyClockModel.stash()
 
     def getTimer(self, parent):
-        timeFont = ToontownGlobals.getMinnieFont()
+        timeFont = ToontownClientGlobals.getMinnieFont()
         timer = {}
         timer['minute'] = DirectLabel(parent=parent, pos=TTLocalizer.DPtimerMinutePos, relief=None, text='59', text_align=TextNode.ACenter, text_font=timeFont, text_fg=(0.7, 0.3, 0.3, 1.0), scale=TTLocalizer.DPtimerMinute)
         timer['colon'] = DirectLabel(parent=parent, pos=TTLocalizer.DPtimerColonPos, relief=None, text=':', text_align=TextNode.ACenter, text_font=timeFont, text_fg=(0.7, 0.3, 0.3, 1.0), scale=TTLocalizer.DPtimerColon)

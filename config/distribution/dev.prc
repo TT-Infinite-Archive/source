@@ -1,16 +1,13 @@
 # What the development distribution changes.
 #
-# general.prc loads first and holds everything the game does the same way
-# everywhere, so this file is a diff against it.
+# general.prc, and client.prc on the client, load first and hold everything the
+# game does the same way everywhere, so this file is a diff against them.
 
 # Distribution:
 distribution dev
 
-# Audio:
-audio-library-name p3openal_audio
-
 # Art assets:
-model-path ../resources
+model-path resources
 
 # Server:
 server-version dev
@@ -19,7 +16,6 @@ server-version dev
 generate-global-object 4688 CentralLogger
 generate-global-object 4665 ClientServicesManager
 generate-global-object 4681 ChatAgent
-generate-global-object 4501 FriendManager
 generate-global-object 4686 AvatarFriendsManager
 generate-global-object 4687 PlayerFriendsManager
 generate-global-object 4666 TTIFriendsManager
@@ -30,7 +26,6 @@ generate-global-object 4691 DistributedPartyManager
 generate-global-object 4695 TTCodeRedemptionMgr
 generate-global-object 4701 GuildManager
 generate-global-object 4478 GlobalGroupTracker
-# generate-global-object 4950 ZoneManager
 
 # DC file:
 dc-file astron/dclass/vanilla.dc

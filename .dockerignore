@@ -17,11 +17,14 @@ preferences
 preferences.json
 server-settings.json
 bookmarks.json
-banned_players.txt
 astron/data
 astron/logs
 astron/dev.yml
 
 doc
+resources
 **/__pycache__
 *.pyc
+
+# Only the client loads it:
+config/client.prc

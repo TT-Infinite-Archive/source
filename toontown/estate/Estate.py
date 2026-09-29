@@ -2,7 +2,6 @@ from panda3d.core import ConfigVariableBool, Fog, TransparencyAttrib, Vec4
 from direct.interval.IntervalGlobal import *
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
-from toontown.toonbase.HolidayGlobals import APRIL_FOOLS_COSTUMES
 from direct.gui.DirectGui import *
 from direct.distributed.ClockDelta import *
 from toontown.hood import Place
@@ -16,7 +15,6 @@ from toontown.hood import SkyUtil
 from toontown.pets import PetTutorial
 from otp.distributed.TelemetryLimiter import RotationLimitToH, TLGatherAllAvs, TLNull
 from toontown.estate import HouseGlobals
-from direct.controls.GravityWalker import GravityWalker
 
 class Estate(Place.Place):
     notify = DirectNotifyGlobal.directNotify.newCategory('Estate')
@@ -136,25 +134,14 @@ class Estate(Place.Place):
             self.loader.enterAnimatedProps(i)
 
         self.loader.geom.reparentTo(render)
-        if newsManager and newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
-            self.startAprilFoolsControls()
         self.accept('doorDoneEvent', self.handleDoorDoneEvent)
         self.accept('DistributedDoor_doorTrigger', self.handleDoorTrigger)
         self.fsm.request(requestStatus['how'], [requestStatus])
-
-    def startAprilFoolsControls(self):
-        if isinstance(base.localAvatar.controlManager.currentControls, GravityWalker):
-            base.localAvatar.controlManager.currentControls.setGravity(32.174 * 0.75)
-
-    def stopAprilFoolsControls(self):
-        if isinstance(base.localAvatar.controlManager.currentControls, GravityWalker):
-            base.localAvatar.controlManager.currentControls.setGravity(32.174 * 2.0)
 
     def exit(self):
         if self.cameraSubmerged:
             self.__emergeCamera()
         base.localAvatar.stopChat()
-        self.stopAprilFoolsControls()
         self._telemLimiter.destroy()
         del self._telemLimiter
         if hasattr(self, 'fsm'):
@@ -379,8 +366,6 @@ class Estate(Place.Place):
         if hasattr(self, 'walkStateData'):
             self.walkStateData.fsm.request('walking')
         self.toonSubmerged = 0
-        if base.cr.newsManager and base.cr.newsManager.isHolidayRunning(APRIL_FOOLS_COSTUMES):
-            self.startAprilFoolsControls()
 
     def __setUnderwaterFog(self):
         if base.wantFog:

@@ -2,7 +2,7 @@ from panda3d.core import NodePath, TextNode
 import time
 from direct.interval.IntervalGlobal import Func, Sequence, Track, LerpScaleInterval
 from direct.task import Task
-from toontown.toonbase.ToontownGlobals import getBuildingNametagFont
+from toontown.toonbase.ToontownClientGlobals import getBuildingNametagFont
 
 TEXT_GREEN = (0.0, 1.0, 0.0, 1.0)
 TEXT_WHITE = (1.0, 1.0, 1.0, 1.0)

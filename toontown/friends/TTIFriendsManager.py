@@ -11,7 +11,7 @@ import zlib
 class TTIFriendsManager(DistributedObjectGlobal):
     def __init__(self, cr):
         DistributedObjectGlobal.__init__(self, cr)
-        self.ignoreList = []
+        self.ignored = []
 
     def d_removeFriend(self, friendId):
         self.sendUpdate('removeFriend', [friendId])
@@ -190,9 +190,9 @@ class TTIFriendsManager(DistributedObjectGlobal):
         base.localAvatar.setSleepAutoReply(fromId)
 
     def addIgnore(self, ignoredAvId):
-        if ignoredAvId in self.ignoreList:
+        if ignoredAvId in self.ignored:
             return
-        self.ignoreList.append(ignoredAvId)
+        self.ignored.append(ignoredAvId)
         messenger.send('ignoreListChanged')
 
     def d_addIgnore(self, ignoredAvId):
@@ -203,8 +203,8 @@ class TTIFriendsManager(DistributedObjectGlobal):
         self.d_addIgnore(ignoredAvId)
 
     def removeIgnore(self, ignoredAvId):
-        if ignoredAvId in self.ignoreList:
-            self.ignoreList.remove(ignoredAvId)
+        if ignoredAvId in self.ignored:
+            self.ignored.remove(ignoredAvId)
             messenger.send('ignoreListChanged')
 
     def d_removeIgnore(self, ignoredAvId):
@@ -215,13 +215,13 @@ class TTIFriendsManager(DistributedObjectGlobal):
         self.d_removeIgnore(ignoredAvId)
 
     def checkIgnored(self, avId):
-        return avId in self.ignoreList
+        return avId in self.ignored
 
     def d_requestIgnoreList(self):
         self.sendUpdate('requestIgnoreList', [])
 
     def ignoreList(self, resp):
-        self.ignoreList = resp
+        self.ignored = resp
         messenger.send('ignoreListChanged')
 
     def denyWhisper(self, timestamp):

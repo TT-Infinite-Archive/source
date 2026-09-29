@@ -936,7 +936,7 @@ def quests(command, arg0=0, arg1=0):
         currentQuestIds.append(currQuests[i])
 
     pocketSize = invoker.getQuestCarryLimit()
-    carrying = len(currQuests) / 5
+    carrying = len(currQuests) // 5
     canCarry = False
 
     if (carrying < pocketSize):

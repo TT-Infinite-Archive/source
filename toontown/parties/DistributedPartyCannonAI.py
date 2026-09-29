@@ -108,6 +108,8 @@ class DistributedPartyCannonAI(DistributedObjectAI.DistributedObjectAI):
     # Distributed (aisend clrecv)
     def setCannonPosition(self, zRot, angle):
         avId = self.air.getAvatarIdFromSender()
+        if avId != self.toonInsideAvId:
+            return
         # a client is sending a position update for their cannon
         #self.notify.debug("setCannonPosition: %d: zRot = %d, angle = %d" % (avId, zRot, angle))
         self.rotation = zRot
@@ -149,7 +151,7 @@ class DistributedPartyCannonAI(DistributedObjectAI.DistributedObjectAI):
     def setFired(self):
         assert(self.notify.debug("%s setFired" % self.doId))
         senderId = self.air.getAvatarIdFromSender()
-        if self.lit:
+        if self.lit and senderId == self.toonInsideAvId:
             self.ignore(self.air.getAvatarExitEvent(senderId))
             self.ignore("bootAvFromParty-%d" % senderId)
             self.notify.debug("sending PartyGlobals.CANNON_MOVIE_CLEAR for %d" % self.toonInsideAvId)
@@ -161,6 +163,8 @@ class DistributedPartyCannonAI(DistributedObjectAI.DistributedObjectAI):
     # Distributed (clsend airecv)
     def setLanded(self, avId):
         assert(self.notify.debug("%s setLanded" % self.doId))
+        if avId != self.air.getAvatarIdFromSender():
+            return
         self.ignore(self.air.getAvatarExitEvent(avId))
         self.ignore("bootAvFromParty-%d" % avId)
         self.notify.debug("%d sending PartyGlobals.CANNON_MOVIE_LANDED for %d" % (self.doId,avId))

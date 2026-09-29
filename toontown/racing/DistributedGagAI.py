@@ -34,5 +34,8 @@ class DistributedGagAI(DistributedObjectAI):
         return self.type
 
     def hitSomebody(self, avId, time):
-        self.race.thrownGags.remove(self)
+        thrownGags = getattr(self.race, 'thrownGags', None)
+        if not thrownGags or self not in thrownGags:
+            return
+        thrownGags.remove(self)
         self.requestDelete()

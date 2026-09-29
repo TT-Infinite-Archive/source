@@ -217,9 +217,6 @@ class NewsPageButtonManager(FSM.FSM):
         del self.closeNewsHover
         return
 
-    def exitOff(self):
-        self.notify.warning('Should not get here. NewsPageButtonManager.exitOff')
-
     def simulateEscapeKeyPress(self):
         if self.goingToNewsPageFrom3dWorld:
             self.__handleGoto3dWorldButton()

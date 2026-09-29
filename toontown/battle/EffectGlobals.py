@@ -1,5 +1,5 @@
 from toontown.battle.Effect import Effect, HealEffect
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 PicnicHeal = 1
 

@@ -34,7 +34,7 @@ class DistributedSillyMeterMgr(DistributedPhaseEventMgr.DistributedPhaseEventMgr
         if len(self.holidayDates) > 0:
             startHolidayDate = self.holidayDates[self.curPhase]
             if self.curPhase + 1 >= len(self.holidayDates):
-                self.notify.error('No end date for phase %' % self.curPhase)
+                self.notify.error('No end date for phase %s' % self.curPhase)
                 return -1
             else:
                 endHolidayDate = self.holidayDates[self.curPhase + 1]
@@ -42,7 +42,7 @@ class DistributedSillyMeterMgr(DistributedPhaseEventMgr.DistributedPhaseEventMgr
             endHolidayTime = time.mktime(endHolidayDate.timetuple())
             holidayDuration = endHolidayTime - startHolidayTime
             if holidayDuration < 0:
-                self.notify.error('Duration not set for phase %' % self.curPhase)
+                self.notify.error('Duration not set for phase %s' % self.curPhase)
                 return -1
             else:
                 return holidayDuration

@@ -302,9 +302,6 @@ class TownBattle(StateData.StateData):
             return 1
         return 0
 
-    def updateLaffMeter(self, toonNum, hp):
-        self.toonPanels[toonNum].updateLaffMeter(hp)
-
     def enterOff(self):
         if self.isLoaded:
             for toonPanel in self.toonPanels:

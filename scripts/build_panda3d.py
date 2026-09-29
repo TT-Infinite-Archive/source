@@ -26,29 +26,30 @@ WINDOWS_TOOLS = ('https://www.panda3d.org/download/panda3d-1.10.16/'
 WINDOWS_SDK = '10'
 MSVC_VERSION = '14.3'
 DEBIAN_PACKAGES = (
-    'build-essential', 'cmake', 'git', 'ca-certificates', 'pkg-config',
+    'build-essential', 'cmake', 'git', 'ca-certificates', 'pkg-config', 'nasm',
     'python3-dev', 'patchelf', 'libgl1-mesa-dev', 'libx11-dev', 'libxrandr-dev',
-    'libxcursor-dev', 'libfreetype-dev', 'libharfbuzz-dev', 'libvorbis-dev',
-    'libopus-dev', 'libopenal-dev', 'libode-dev', 'libssl-dev', 'libjpeg-dev',
-    'libpng-dev', 'libtiff-dev', 'libeigen3-dev', 'libavcodec-dev',
-    'libavformat-dev', 'libavutil-dev', 'libswscale-dev', 'libswresample-dev',
+    'libxcursor-dev',
+    # Headers only, so the static OpenAL can reach the player's sound server:
+    'libasound2-dev', 'libpulse-dev',
 )
 ARCHITECTURES = {'amd64': 'x86_64', 'x64': 'x86_64', 'aarch64': 'arm64'}
 THIRDPARTY = (
     'ZLIB', 'PNG', 'JPEG', 'TIFF', 'FREETYPE', 'HARFBUZZ', 'VORBIS', 'OPUS',
-    'OPENAL', 'ODE', 'OPENSSL', 'FFMPEG', 'EIGEN',
+    'OPENAL', 'ODE', 'OPENSSL', 'EIGEN',
 )
 # Renderers, toolkits and formats the client never reaches:
 EXCLUDE = (
     'contrib', 'skel', 'speedtree', 'gles', 'gles2', 'egl', 'nvidiacg',
     'openexr', 'artoolkit', 'opencv', 'assimp', 'vrpn', 'fcollada',
     'bullet', 'fmodex', 'squish',
+    # Every sound is .ogg or .wav, which Panda3D decodes itself:
+    'ffmpeg',
 )
 if sys.platform != 'linux':
     EXCLUDE += ('x11',)
 # Imported by the game:
 REQUIRED_MODULES = ('core', 'direct', 'physics', 'ode')
-REQUIRED_LIBRARIES = ('openal_audio', 'ffmpeg', 'pandaode', 'pandaphysics')
+REQUIRED_LIBRARIES = ('openal_audio', 'pandaode', 'pandaphysics')
 
 def run(command, **kwargs):
     print('+ %s' % ' '.join(str(c) for c in command), flush=True)
@@ -61,6 +62,12 @@ def capture(command):
 def hostArch():
     machine = platform.machine().lower()
     return ARCHITECTURES.get(machine, machine)
+
+def thirdpartyDirectory(arch):
+    if sys.platform == 'darwin':
+        return 'darwin-libs-a'
+
+    return 'linux-libs-%s' % {'x86_64': 'x64'}.get(arch, arch)
 
 def defaultJobs():
     cores = os.cpu_count() or 4
@@ -146,24 +153,41 @@ class Build:
             self.windowsDependencies()
             return
 
-        if sys.platform != 'darwin':
+        if sys.platform not in ('darwin', 'linux'):
             return
 
         self.clone(THIRDPARTY_REPO, self.thirdparty, THIRDPARTY_REV)
+
+        # libtiff picks up a system JBIG when one is installed, which
+        # makepanda never links
+        lists = self.thirdparty / 'CMakeLists.txt'
+        rules = lists.read_text()
+
+        if rules.count('-Dlzma=OFF') != 1:
+            sys.exit('Could not find the libtiff options in %s.' % lists)
+
+        lists.write_text(rules.replace('-Dlzma=OFF', '-Dlzma=OFF -Djbig=OFF'))
+
         build = self.thirdparty / 'build'
         build.mkdir(parents=True, exist_ok=True)
 
         enabled = ['-DBUILD_%s=ON' % package for package in THIRDPARTY]
-        run(['cmake', '..',
-             '-DDISABLE_ALL=ON',
-             '-DCMAKE_OSX_ARCHITECTURES=%s' % self.arch,
-             '-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' % MACOS_DEPLOYMENT_TARGET,
-             '-DCMAKE_OSX_SYSROOT=%s' % capture(
-                 ['xcrun', '--show-sdk-path']).strip(),
-             *enabled], cwd=build)
+        target = []
+
+        if sys.platform == 'darwin':
+            target = [
+                '-DCMAKE_OSX_ARCHITECTURES=%s' % self.arch,
+                '-DCMAKE_OSX_DEPLOYMENT_TARGET=%s' % MACOS_DEPLOYMENT_TARGET,
+                '-DCMAKE_OSX_SYSROOT=%s' % capture(
+                    ['xcrun', '--show-sdk-path']).strip(),
+            ]
+
+        run(['cmake', '..', '-DDISABLE_ALL=ON', *target, *enabled], cwd=build)
         run(['make', '-j', str(self.jobs)], cwd=build)
 
-        libraries = self.thirdparty / 'darwin-libs-a'
+        # Linked statically, so the Linux client does not lean on whatever
+        # the player's distribution happens to have installed
+        libraries = self.thirdparty / thirdpartyDirectory(self.arch)
         missing = [p for p in THIRDPARTY
                    if not (libraries / p.lower()).is_dir()]
 
@@ -173,7 +197,7 @@ class Build:
 
         staged = self.source / 'thirdparty'
         staged.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(libraries), str(staged / 'darwin-libs-a'))
+        shutil.move(str(libraries), str(staged / libraries.name))
 
     def windowsDependencies(self):
         archive = self.work / 'tools-win64.zip'

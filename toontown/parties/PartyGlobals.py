@@ -1,7 +1,7 @@
 import enum
 from panda3d.core import BitMask32, Point3, VBase4
 from direct.showbase import PythonUtil
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 KICK_TO_PLAYGROUND_EVENT = 'parties_kickToPlayground'
 MaxSetInvites = 1000
 MaxSetPartiesInvitedTo = 100
@@ -597,6 +597,7 @@ FireworksGlobalYOffset = -20.0
 FireworksPostLaunchDelay = 5.0
 RocketSoundDelay = 2.0
 RocketDirectionDelay = 2.0
+NumPartyClouds = 12
 FireworksStartedEvent = 'PartyFireworksStarted'
 FireworksFinishedEvent = 'PartyFireworksFinished'
 FireworksTransitionToDisabledDelay = 3.0

@@ -6,6 +6,7 @@ from direct.task import Task
 from toontown.toontowngui import TTDialog
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.effects import Splash, DustCloud, Wake
 from toontown.minigame import Trajectory
@@ -870,7 +871,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
 
     def __hitWater(self, avatar, pos, collisionEntry, extraArgs = []):
         hitP = avatar.getPos(render)
-        if hitP[2] > ToontownGlobals.EstateWakeWaterHeight:
+        if hitP[2] > ToontownClientGlobals.EstateWakeWaterHeight:
             self.notify.debug('we hit the ground before we hit water')
             self.__hitGround(avatar, pos, extraArgs)
             return
@@ -878,7 +879,7 @@ class DistributedPartyCannonActivity(DistributedPartyActivity):
         hitP = avatar.getPos(render)
         avatar.loop('neutral')
         self.splash.setPos(hitP)
-        self.splash.setZ(ToontownGlobals.EstateWakeWaterHeight)
+        self.splash.setZ(ToontownClientGlobals.EstateWakeWaterHeight)
         self.splash.setScale(2)
         self.splash.play()
         base.playSfx(self.sndHitWater)

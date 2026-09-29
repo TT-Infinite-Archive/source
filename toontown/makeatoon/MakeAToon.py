@@ -22,6 +22,7 @@ from toontown.toon import ToonDNA
 
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import SettingsGlobals, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase.ColorGlobals import CToontownBlue
 
 class MakeAToon(StateData.StateData):
@@ -95,7 +96,7 @@ class MakeAToon(StateData.StateData):
         if ConfigVariableBool('want-qa-regression', False).getValue():
             self.notify.info('QA-REGRESSION: MAKEATOON: Starting Make A Toon')
         base.transitions.fadeOut(1)
-        base.camLens.setMinFov(ToontownGlobals.MakeAToonCameraFov/(4./3.))
+        base.camLens.setMinFov(ToontownClientGlobals.MakeAToonCameraFov/(4./3.))
         base.playMusic(self.music, looping=1, volume=self.musicVolume)
         base.camera.setPosHpr(-5.7, -12.3501, 2.15, -24.8499, 2.73, 0)
         if self.warp:

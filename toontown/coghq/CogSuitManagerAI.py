@@ -23,7 +23,7 @@ class CogSuitManagerAI:
 
         if CogDisguiseGlobals.isSuitComplete(av.getCogParts(), suitIndex):
             zoneId = ToontownGlobals.dept2cogHQ(suitTrack)
-            toon.addTeleportAccess(zoneId)
+            av.addTeleportAccess(zoneId)
 
         return partsRecovered
 

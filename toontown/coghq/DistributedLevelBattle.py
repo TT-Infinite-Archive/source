@@ -49,7 +49,7 @@ class DistributedLevelBattle(DistributedBattle.DistributedBattle):
 
         level = base.cr.doId2do.get(self.levelDoId)
         if level is None:
-            self.notify.warning('level %s not in doId2do yet, battle %s will be mispositioned.' % self.levelDoId, self.doId)
+            self.notify.warning('level %s not in doId2do yet, battle %s will be mispositioned.' % (self.levelDoId, self.doId))
             self.levelRequest = self.cr.relatedObjectMgr.requestObjects([self.levelDoId], doPlacement)
             return
 

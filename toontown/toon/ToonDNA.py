@@ -2570,7 +2570,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             notify.error('undefined avatar')
             return
 
-        notify.error('unknown avatar type: ', self.type)
+        notify.error('unknown avatar type: %s' % self.type)
 
     @staticmethod
     def isValidNetString(string):
@@ -2666,7 +2666,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
 
         self.type = dgi.getFixedString(1)
         if self.type != 't':
-            notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: %s' % self.type)
 
         headIndex = dgi.getUint8()
         torsoIndex = dgi.getUint8()
@@ -2922,7 +2922,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
         if self.type == 't':
             type = self.getAnimal()
         else:
-            notify.error('Invalid DNA type: ', self.type)
+            notify.error('Invalid DNA type: %s' % self.type)
         return type
 
     def getAnimal(self):
@@ -2954,7 +2954,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             return 'pig'
 
         else:
-            notify.error('unknown headStyle: ', self.head[0])
+            notify.error('unknown headStyle: %s' % self.head[0])
 
     def getHeadSize(self):
         if self.head[1] == 'l':
@@ -2964,7 +2964,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             return 'short'
 
         else:
-            notify.error('unknown head size: ', self.head[1])
+            notify.error('unknown head size: %s' % self.head[1])
 
     def getMuzzleSize(self):
         if self.head[2] == 'l':
@@ -2974,7 +2974,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             return 'short'
 
         else:
-            notify.error('unknown muzzle size: ', self.head[2])
+            notify.error('unknown muzzle size: %s' % self.head[2])
 
     def getTorsoSize(self):
         if self.torso[0] == 'l':
@@ -2987,7 +2987,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             return 'short'
 
         else:
-            notify.error('unknown torso size: ', self.torso[0])
+            notify.error('unknown torso size: %s' % self.torso[0])
 
     def getLegSize(self):
         if self.legs == 'l':
@@ -3000,7 +3000,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             return 'short'
 
         else:
-            notify.error('unknown leg size: ', self.legs)
+            notify.error('unknown leg size: %s' % self.legs)
 
     def getGender(self):
         return self.gender
@@ -3016,7 +3016,7 @@ class ToonDNA(AvatarDNA.AvatarDNA):
             return 'dress'
 
         else:
-            notify.error('unknown clothing type: ', self.torso[1])
+            notify.error('unknown clothing type: %s' % self.torso[1])
 
     def getArmColor(self):
         if self.colorDNA:

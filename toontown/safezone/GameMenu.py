@@ -6,6 +6,7 @@ from direct.gui.DirectGui import *
 from toontown.toonbase import TTLocalizer
 
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class GameMenu(DirectFrame):
@@ -91,7 +92,7 @@ class GameMenu(DirectFrame):
             scale=0.15,
             fg=Vec4(1, 1, 1, 1),
             align=TextNode.ACenter,
-            font=ToontownGlobals.getMinnieFont(),
+            font=ToontownClientGlobals.getMinnieFont(),
             wordwrap=7,
             shadow=(0, 0, 0, 0.8),
             shadowOffset=(-0.1, -0.1),
@@ -103,7 +104,7 @@ class GameMenu(DirectFrame):
             scale=0.15,
             fg=Vec4(1, 1, 1, 1),
             align=TextNode.ACenter,
-            font=ToontownGlobals.getMinnieFont(),
+            font=ToontownClientGlobals.getMinnieFont(),
             wordwrap=7,
             shadow=(0, 0, 0, 0.8),
             shadowOffset=(0.1, -0.1),
@@ -114,7 +115,7 @@ class GameMenu(DirectFrame):
             scale=0.15,
             fg=Vec4(1, 1, 1, 1),
             align=TextNode.ACenter,
-            font=ToontownGlobals.getMinnieFont(),
+            font=ToontownClientGlobals.getMinnieFont(),
             wordwrap=8,
             shadow=(0, 0, 0, 0.8),
             shadowOffset=(-0.1, -0.1),

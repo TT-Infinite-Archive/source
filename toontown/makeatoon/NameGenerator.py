@@ -2,7 +2,7 @@ from panda3d.core import DSearchPath, Filename, StreamReader, TextNode
 import random
 import copy
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 import os
 from direct.showbase import AppRunnerGlobal
 from direct.directnotify import DirectNotifyGlobal
@@ -38,7 +38,7 @@ class NameGenerator:
         self.nameDictionary = {}
         searchPath = DSearchPath()
         if __debug__:
-            searchPath.appendDirectory(Filename('../resources/phase_3/etc'))
+            searchPath.appendDirectory(Filename('resources/phase_3/etc'))
         searchPath.appendDirectory(Filename('/phase_3/etc'))
         filename = Filename(TTLocalizer.NameShopNameMaster)
         found = vfs.resolveFilename(filename, searchPath)

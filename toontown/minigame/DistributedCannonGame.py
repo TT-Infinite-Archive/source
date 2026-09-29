@@ -9,6 +9,7 @@ from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownTimer
 from direct.task.Task import Task
 from . import Trajectory
@@ -45,7 +46,7 @@ WHISTLE_SPEED = INITIAL_VELOCITY * 0.55
 
 class DistributedCannonGame(DistributedMinigame):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedMinigame')
-    font = ToontownGlobals.getToonFont()
+    font = ToontownClientGlobals.getToonFont()
     LOCAL_CANNON_MOVE_TASK = 'localCannonMoveTask'
     REWARD_COUNTDOWN_TASK = 'cannonGameRewardCountdown'
     HIT_GROUND = 0

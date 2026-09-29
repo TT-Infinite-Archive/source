@@ -2,7 +2,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
 from toontown.golf import GolfGlobals
 from toontown.guilds import GuildGlobals, GuildQuestGlobals
-from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toonbase import ToontownGlobals, TTLocalizerServer as TTLocalizer
 from toontown.toon import GuildMasterGlobals
 from otp.ai.MagicWordGlobal import *
 
@@ -70,7 +70,7 @@ class GuildManagerAI(DistributedObjectGlobalAI):
             
             for avId in involvedToons:
                 self.notify.debug('Handling Avatar %d defeating boss with %s' % (avId, repr(involvedToonIds)))
-                contributionPoints = guildPoints / guildMemberCount
+                contributionPoints = guildPoints // guildMemberCount
                 
                 # Alert the UD of this toon's contribution points
                 self.d_handleContributionPoints(avId, contributionPoints)

@@ -305,15 +305,9 @@ def checkName(name, otherCheckFuncs = [], font = None):
      allCaps,
      mixedCase,
      repeatedChars] + otherCheckFuncs
-    symmetricChecks = []
     notify.info('checking name "%s"...' % name)
     for check in checks:
         problem = check(name[:])
-        if not problem and check in symmetricChecks:
-            nName = name[:]
-            bName.reverse()
-            problem = check(bName)
-            print('problem = %s' % problem)
         if problem:
             return problem
 

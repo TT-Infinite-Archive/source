@@ -6,6 +6,7 @@ from . import ToonHead
 from . import ToonDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toon import LaughingManGlobals
 
@@ -110,7 +111,7 @@ class NPCFriendCard(DirectFrame):
             self.sosCountInfoScale = 0.4
             self.sosCountInfo2PosZ = -2.0
             self.sosCountInfo2Scale = 0.55
-        self.sosTypeInfo = DirectLabel(parent=self.front, relief=None, text='', text_font=ToontownGlobals.getMinnieFont(), text_fg=self.normalTextColor, text_scale=textScale, text_align=TextNode.ACenter, text_wordwrap=textWordWrap, pos=(0, 0, textPosZ))
+        self.sosTypeInfo = DirectLabel(parent=self.front, relief=None, text='', text_font=ToontownClientGlobals.getMinnieFont(), text_fg=self.normalTextColor, text_scale=textScale, text_align=TextNode.ACenter, text_wordwrap=textWordWrap, pos=(0, 0, textPosZ))
         self.NPCHead = None
         self.NPCName = DirectLabel(parent=self.front, relief=None, text='', text_fg=self.normalTextColor, text_scale=nameScale, text_align=TextNode.ACenter, text_wordwrap=8.0, pos=(0, 0, namePosZ))
         buttonModels = loader.loadModel('phase_3.5/models/gui/inventory_gui')

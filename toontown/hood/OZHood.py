@@ -2,6 +2,7 @@ from panda3d.core import Fog, Vec4
 
 from toontown.safezone.OZSafeZoneLoader import OZSafeZoneLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood.ToonHood import ToonHood
 from toontown.toonbase.ContentPacksManager import ContentPackError
 
@@ -38,7 +39,7 @@ class OZHood(ToonHood):
     def enter(self, requestStatus):
         ToonHood.enter(self, requestStatus)
 
-        base.camLens.setNearFar(ToontownGlobals.SpeedwayCameraNear, ToontownGlobals.SpeedwayCameraFar)
+        base.camLens.setNearFar(ToontownClientGlobals.SpeedwayCameraNear, ToontownClientGlobals.SpeedwayCameraFar)
 
     def exit(self):
         base.camLens.setNearFar(ToontownGlobals.DefaultCameraNear, ToontownGlobals.DefaultCameraFar)

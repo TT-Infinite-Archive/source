@@ -145,8 +145,9 @@ class SuitPlannerInteriorAI:
         return lvlList
 
     def __setupSuitInfo(self, suit, bldgTrack, suitLevel, suitType):
-        suitName, skeleton = simbase.air.suitInvasionManager.getInvadingCog()
-        if suitName and self.respectInvasions:
+        suitName, skeleton = (simbase.air.suitInvasionManager.getInvadingCog()
+                              if self.respectInvasions else (None, 0))
+        if suitName:
             suitType = SuitDNA.getSuitType(suitName)
             bldgTrack = SuitDNA.getSuitDept(suitName)
             suitLevel = min(max(suitLevel, suitType), suitType + 4)
@@ -169,18 +170,6 @@ class SuitPlannerInteriorAI:
                 newSuit.b_setBuff(SuitBuffGlobals.SuitBuffLoveStruck)
         newSuit.node().setName('suit-%s' % newSuit.doId)
         return newSuit
-
-    def myPrint(self):
-        self.notify.info('Generated suits for building: ')
-        for currInfo in suitInfos:
-            whichSuitInfo = suitInfos.index(currInfo) + 1
-            self.notify.debug(' Floor ' + str(whichSuitInfo) + ' has ' + str(len(currInfo[0])) + ' active suits.')
-            for currActive in range(len(currInfo[0])):
-                self.notify.debug('  Active suit ' + str(currActive + 1) + ' is of type ' + str(currInfo[0][currActive][0]) + ' and of track ' + str(currInfo[0][currActive][1]) + ' and of level ' + str(currInfo[0][currActive][2]))
-
-            self.notify.debug(' Floor ' + str(whichSuitInfo) + ' has ' + str(len(currInfo[1])) + ' reserve suits.')
-            for currReserve in range(len(currInfo[1])):
-                self.notify.debug('  Reserve suit ' + str(currReserve + 1) + ' is of type ' + str(currInfo[1][currReserve][0]) + ' and of track ' + str(currInfo[1][currReserve][1]) + ' and of lvel ' + str(currInfo[1][currReserve][2]) + ' and has ' + str(currInfo[1][currReserve][3]) + '% join restriction.')
 
     def genFloorSuits(self, floor):
         suitHandles = {}

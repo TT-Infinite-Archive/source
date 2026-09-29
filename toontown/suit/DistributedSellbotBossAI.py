@@ -9,7 +9,7 @@ from direct.fsm import FSM
 from otp.ai.AIBaseGlobal import *
 from toontown.battle import BattleExperienceAI
 from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from otp.ai.MagicWordGlobal import *
 
@@ -53,7 +53,7 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         self.validate(avId, bossDamage == 1, 'invalid bossDamage %s' % bossDamage)
         if bossDamage > 1:
             simbase.air.writeServerEvent('suspicious', avId, 'Toon sent an attack over 1 damage!')
-            simbase.air.banManager.ban(avId, 0, 'hacking')
+            simbase.air.kickAvatar(avId, 'Your game sent something it should not have.')
             return
         if bossDamage < 1:
             simbase.air.writeServerEvent('suspicious', avId, 'Toon sent an attack less than 1 damage!')
@@ -84,7 +84,8 @@ class DistributedSellbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FS
         avId = self.air.getAvatarIdFromSender()
         if avId == toonId:
             simbase.air.writeServerEvent('suspicious', avId, 'Toon tried to heal their self!')
-            simbase.air.banManager.ban(avId, 0, 'hacking')
+            simbase.air.kickAvatar(avId, 'Your game sent something it should not have.')
+            return
         if not self.validate(avId, avId != toonId, 'hitToon on self'):
             return
         if avId not in self.involvedToons or toonId not in self.involvedToons:

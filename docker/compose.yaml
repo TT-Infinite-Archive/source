@@ -25,7 +25,7 @@ x-game: &game
 
 services:
   astrond:
-    image: ${REGISTRY:-ghcr.io/tt-infinite-archive/source}-astron:${TAG:-latest}
+    image: ${REGISTRY:-ghcr.io/tt-infinite-archive/source}-astron:${ASTRON_TAG:-latest}
     container_name: tti-astrond
     restart: always
     networks: [ttiserver]
@@ -61,6 +61,12 @@ services:
     environment:
       <<: *game-env
       INFISICAL_PATH: /districts/nuttyboro
+      # How long a drain waits for Toons to reach a safe moment and move off.
+      DRAIN_GRACE_SECONDS: ${DRAIN_GRACE_SECONDS:-180}
+      # Off while this is the only district
+      WANT_DRAIN_ON_STOP: "${WANT_DRAIN_ON_STOP:-#f}"
+    # Docker SIGKILLs at the end of this window, drain or no drain
+    stop_grace_period: 200s
     command: [ai]
 
   mongo:

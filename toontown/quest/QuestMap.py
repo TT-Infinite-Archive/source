@@ -6,9 +6,15 @@ from direct.task import Task
 from toontown.toon import NPCToons
 from toontown.hood import ZoneUtil
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.quest import Quests
 from toontown.suit import SuitPlannerBase
 from . import QuestMapGlobals
+
+MarkerPulseRate = math.tau
+CogMarkerPulseRate = math.tau / 2
+ArrowPingPeriod = 0.5
+
 class QuestMap(DirectFrame):
     notify = DirectNotifyGlobal.directNotify.newCategory('QuestMap')
 
@@ -242,13 +248,13 @@ class QuestMap(DirectFrame):
         i = 0
         for buildingMarker in self.buildingMarkers:
             if not buildingMarker.isEmpty():
-                buildingMarker.setScale((math.sin(task.time * 16.0 + i * math.pi / 3.0) + 1) * 0.005 + 0.04)
+                buildingMarker.setScale((math.sin(task.time * MarkerPulseRate + i * math.pi / 3.0) + 1) * 0.005 + 0.04)
                 i += 1
 
         i = 0
         for cogMarker in self.cogMarkers:
             if not cogMarker.isEmpty():
-                cogMarker.setScale((math.sin(task.time * 16.0 + i * math.pi / 3.0) + 1) * 0.005 + 0.04)
+                cogMarker.setScale((math.sin(task.time * CogMarkerPulseRate + i * math.pi / 3.0) + 1) * 0.005 + 0.04)
                 i += 1
 
         return Task.cont
@@ -257,9 +263,10 @@ class QuestMap(DirectFrame):
         if self.av:
             hoodId = ZoneUtil.getCanonicalHoodId(self.av.getLocation()[1])
             zoneId = ZoneUtil.getCanonicalBranchZone(self.av.getLocation()[1])
-            try:
-                mapsGeom = loader.loadModel('phase_4/models/questmap/%s_maps' % ToontownGlobals.dnaMap[hoodId])
-            except:
+            mapsGeom = None
+            if hoodId in ToontownGlobals.dnaMap:
+                mapsGeom = loader.loadModel('phase_4/models/questmap/%s_maps' % ToontownGlobals.dnaMap[hoodId], okMissing=True)
+            if mapsGeom is None:
                 self.stop()
                 return
             mapImage = mapsGeom.find('**/%s_%s_english' % (ToontownGlobals.dnaMap[hoodId], zoneId))
@@ -276,6 +283,7 @@ class QuestMap(DirectFrame):
                 self.zoneId = zoneId
                 self.updateQuestInfo()
                 self.updateCogInfo()
+                taskMgr.remove('questMapUpdate')
                 taskMgr.add(self.update, 'questMapUpdate')
             else:
                 self.stop()
@@ -293,11 +301,11 @@ class QuestMap(DirectFrame):
                 relX, relY = self.transformAvPos(self.av.getPos())
                 self.marker.setPos(relX, 0, relY)
                 self.marker.setHpr(0, 0, -180 - self.av.getH())
-            self.marker['geom_scale'] = 1.4 * task.time % 0.5 * 10 + 1
+            self.marker['geom_scale'] = task.time % ArrowPingPeriod / ArrowPingPeriod * 5 + 1
             self.marker['geom_color'] = (1,
              1,
              1,
-             0.8 - 1.4 * task.time % 0.5 * 2 / 0.8 + 0.2)
+             0.8 - task.time % ArrowPingPeriod / ArrowPingPeriod / 0.8 + 0.2)
         if task.time < 1:
             return Task.cont
         else:
@@ -360,16 +368,16 @@ class QuestMap(DirectFrame):
 
     def toggleOnscreenHooks(self, task=None):
         if self.wantToggle:
-            self.accept(ToontownGlobals.MapHotkey, self.toggle)
+            self.accept(ToontownClientGlobals.MapHotkey, self.toggle)
         else:
-            self.accept(ToontownGlobals.MapHotkeyOn, self.show)
-            self.accept(ToontownGlobals.MapHotkeyOff, self.hide)
+            self.accept(ToontownClientGlobals.MapHotkeyOn, self.show)
+            self.accept(ToontownClientGlobals.MapHotkeyOff, self.hide)
         self.updateMap()
 
     def ignoreOnscreenHooks(self):
-        self.ignore(ToontownGlobals.MapHotkey)
-        self.ignore(ToontownGlobals.MapHotkeyOn)
-        self.ignore(ToontownGlobals.MapHotkeyOff)
+        self.ignore(ToontownClientGlobals.MapHotkey)
+        self.ignore(ToontownClientGlobals.MapHotkeyOn)
+        self.ignore(ToontownClientGlobals.MapHotkeyOff)
         self.obscureButton()
 
     def getSuitIcon(self, dept):

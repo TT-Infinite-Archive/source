@@ -28,20 +28,6 @@ class BossbotHQDataAI(HoodDataAI.HoodDataAI):
         """Start the BossbotHQ zone."""
         HoodDataAI.HoodDataAI.startup(self)
 
-        # TODO: define these in a more modular way
-        def makeOfficeElevator(index, antiShuffle=0, minLaff=0):
-            destZone = (
-                ToontownGlobals.LawbotStageIntA,
-                ToontownGlobals.LawbotStageIntB,
-                ToontownGlobals.LawbotStageIntC,
-                ToontownGlobals.LawbotStageIntD,)[index]
-            elev = DistributedLawOfficeElevatorExtAI.DistributedLawOfficeElevatorExtAI(self.air,
-                                                                                       self.air.lawMgr,
-                                                                                       destZone, index, antiShuffle=0,
-                                                                                       minLaff=minLaff)  # antiShufflePOI
-            elev.generateWithRequired(ToontownGlobals.LawbotOfficeExt)
-            self.addDistObj(elev)
-
         # Lobby elevator
         self.lobbyMgr = LobbyManagerAI.LobbyManagerAI(self.air, DistributedBossbotBossAI.DistributedBossbotBossAI)
         self.lobbyMgr.generateWithRequired(ToontownGlobals.BossbotLobby)

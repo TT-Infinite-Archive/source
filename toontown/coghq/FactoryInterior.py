@@ -59,7 +59,7 @@ class FactoryInterior(BattlePlace.BattlePlace):
           'quietZone',
           'WaitForBattle']),
          State.State('DFA', self.enterDFA, self.exitDFA, ['DFAReject', 'teleportOut']),
-         State.State('DFAReject', self.enterDFAReject, self.exitDFAReject, ['walkteleportOut']),
+         State.State('DFAReject', self.enterDFAReject, self.exitDFAReject, ['walk', 'teleportOut']),
          State.State('died', self.enterDied, self.exitDied, ['teleportOut']),
          State.State('FLA', self.enterFLA, self.exitFLA, ['quietZone']),
          State.State('quietZone', self.enterQuietZone, self.exitQuietZone, ['teleportIn']),

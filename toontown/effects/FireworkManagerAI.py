@@ -2,7 +2,6 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.task import Task
 from . import DistributedFireworkShowAI
 from toontown.ai import HolidayBaseAI
-from . import FireworkShow
 from toontown.toonbase.ToontownGlobals import DonaldsDock, ToontownCentral, \
     TheBrrrgh, MinniesMelodyland, DaisyGardens, OutdoorZone, GoofySpeedway, DonaldsDreamland
 import time

@@ -324,6 +324,18 @@ class NPCMoviePlayer(DirectObject.DirectObject):
                 chapterList = []
                 self.currentEvent = nextEvent
                 continue
+            elif command == 'TELEPORT_IN':
+                if uponTimeout:
+                    self.notify.error('TELEPORT_IN not allowed in an UPON_TIMEOUT')
+                avatarName = line[1]
+                avatar = self.getVar(avatarName)
+                nextEvent = avatar.uniqueName('questTeleportInDone')
+                iList.append(Func(self.acceptOnce, nextEvent, self.playNextChapter, [nextEvent]))
+                iList.append(self.parseTeleportIn(line, nextEvent))
+                self.closePreviousChapter(iList)
+                chapterList = []
+                self.currentEvent = nextEvent
+                continue
             elif command == 'CC_CHAT_CONFIRM':
                 if uponTimeout:
                     self.notify.error('CC_CHAT_CONFIRM not allowed in an UPON_TIMEOUT')
@@ -635,6 +647,26 @@ class NPCMoviePlayer(DirectObject.DirectObject):
         return Sequence(Func(self.toon.attachCamera), Func(self.toon.startTrackAnimToSpeed),
                         Func(self.toon.collisionsOn), Func(self.toon.enableAvatarControls),
                         Func(self.toon.startUpdateSmartCamera))
+
+    def parseTeleportIn(self, line, doneEvent):
+        token, avatarName = line
+        avatar = self.getVar(avatarName)
+        smartCamStarted = []
+
+        def teleportIn():
+            if avatar == base.localAvatar and not avatar._smartCamEnabled:
+                avatar.startUpdateSmartCamera()
+                smartCamStarted.append(True)
+            avatar.b_setAnimState('TeleportIn', 1, teleportInDone)
+
+        def teleportInDone():
+            if smartCamStarted:
+                smartCamStarted.pop()
+                avatar.stopUpdateSmartCamera()
+            avatar.b_setAnimState('neutral', 1)
+            messenger.send(doneEvent)
+
+        return Func(teleportIn)
 
     def parseDebug(self, line):
         token, str = line
@@ -1165,7 +1197,7 @@ class NPCMoviePlayer(DirectObject.DirectObject):
 # Look for the script file and read it in
 searchPath = DSearchPath()
 if __debug__:
-    searchPath.appendDirectory(Filename('../resources/phase_3/etc'))
+    searchPath.appendDirectory(Filename('resources/phase_3/etc'))
 searchPath.appendDirectory(Filename('/phase_3/etc'))
 scriptFile = Filename('QuestScripts.txt')
 found = vfs.resolveFilename(scriptFile, searchPath)

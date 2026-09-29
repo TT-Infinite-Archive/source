@@ -1,8 +1,8 @@
 from panda3d.core import CardMaker, TextNode, Vec4
 from direct.gui.DirectGui import DirectFrame, DirectLabel, DirectScrolledList, DGG, DirectButton
-from toontown.collectibles import CollectibleGlobals
-from toontown.collectibles.CollectibleInventoryGlobals import DefaultItems
-from toontown.toonbase import TTLocalizer, EventGlobals
+from toontown.collectibles import CollectibleGlobals, CollectibleItemGui
+from toontown.collectibles.CollectibleInventoryGlobals import CICategoryCheesyEffect, DefaultItems
+from toontown.toonbase import TTLocalizer, EventGlobals, ToontownGlobals
 from toontown.shtiker import ShtikerPage
 from toontown.util import TTCardMaker
 
@@ -383,6 +383,10 @@ class CategoryItemsDisplay(DirectFrame):
             return
         if inventory.isEquipped(item.category, item.id):
             return
+        if item.category == CICategoryCheesyEffect and base.cr.newsManager \
+                and base.cr.newsManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
+            base.localAvatar.setSystemMessage(0, TTLocalizer.CollectiblePageAprilToons)
+            return
 
         base.localAvatar.d_requestEquipCollectibleItem(item.category, item.id)
 
@@ -456,7 +460,7 @@ class ItemDialog(DirectButton):
         self.mainButton.bind(DGG.WITHOUT, self.__handleExit)
 
         if item is not None:
-            self.icon = item.getButtonIcon()
+            self.icon = CollectibleItemGui.getButtonIcon(item)
             if self.icon is not None:
                 pos = self.icon.getPos()
                 self.icon.reparentTo(self.mainButton)

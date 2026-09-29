@@ -15,10 +15,12 @@ import hashlib
 
 from otp.ai.MagicWordGlobal import *
 from otp.distributed import OtpDoGlobals
+from otp.otpbase import OTPGlobals
+from toontown.estate import HouseGlobals
 from toontown.makeatoon.NameGenerator import NameGenerator
 from toontown.toon import ToonDNA
-from toontown.toonbase import TTLocalizer, ToontownGlobals
-from toontown.uberdog.ClientServicesManager import generateLookupTable, encodeHexString
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
+from toontown.uberdog.ClientServicesGlobals import generateLookupTable, encodeHexString
 from toontown.web.AccountServiceClient import AccountServiceClient
 
 
@@ -78,6 +80,12 @@ class AccountDB:
         combinedPassword = password + salt + pepper
         return hashlib.sha512(combinedPassword.encode('utf-8')).hexdigest()
 
+    def banReason(self, accountId):
+        return None
+
+    def ban(self, accountId, reason, days):
+        return False
+
 
 class LocalAccountDB(AccountDB):
     notify = directNotify.newCategory('LocalAccountDB')
@@ -86,6 +94,20 @@ class LocalAccountDB(AccountDB):
         AccountDB.__init__(self, csm)
         self.accessLevel = accessLevel
         self.csm.air.dbAstronCursor.objects.create_index([('fields.ACCOUNT_ID', 1)])
+        self.bans = self.csm.air.mongodb.bans
+
+    def banReason(self, accountId):
+        ban = self.bans.find_one({'_id': accountId})
+        if not ban or (ban.get('expires') and ban['expires'] <= time.time()):
+            return None
+        return ban.get('reason') or 'This account has been banned.'
+
+    def ban(self, accountId, reason, days):
+        expires = time.time() + days * 86400 if days else None
+        self.bans.replace_one({'_id': accountId},
+                              {'_id': accountId, 'reason': reason, 'expires': expires},
+                              upsert=True)
+        return True
 
     def lookupUserId(self, userId):
         document = self.csm.air.dbAstronCursor.objects.find_one({'fields.ACCOUNT_ID': userId})
@@ -140,6 +162,7 @@ class WebAccountDB(AccountDB):
     notify = directNotify.newCategory('WebAccountDB')
 
     VERIFY_PATH = 'api/game/verify-token'
+    RECONNECT_PATH = 'api/game/reconnect-token'
     NAME_PATH = 'api/game/name-submission'
     GUILD_NAME_PATH = 'api/game/guild-name-submission'
 
@@ -171,6 +194,12 @@ class WebAccountDB(AccountDB):
             lambda response: self.handleVerify(response, callback),
             lambda status: self.handleVerifyFailure(status, callback))
 
+    def reconnectToken(self, userId, callback):
+        self.service.post(
+            self.RECONNECT_PATH, {'userId': str(userId)},
+            lambda response: callback(response.get('token')),
+            lambda status: callback(None))
+
     def handleVerify(self, response, callback):
         userId = response.get('userId')
 
@@ -189,7 +218,8 @@ class WebAccountDB(AccountDB):
             'accessLevel': response.get('accessLevel', 0),
             'accountId': self.accountIdForUser(userId),
             'banned': bool(response.get('banned')),
-            'banReason': response.get('banReason')
+            'banReason': response.get('banReason'),
+            'reconnectToken': response.get('reconnectToken')
         })
 
     def submitNameRequest(self, userId, avId, name, callback, errback):
@@ -321,8 +351,16 @@ class LoginAccountFSM(OperationFSM):
         if not result.get('success'):
             self.csm.sendUpdateToChannel(self.target, 'loginError', [result['error']])
             self.demand('Off')
-        else:
-            self.demand('RetrieveAccount')
+            return
+
+        banReason = self.csm.accountDB.banReason(self.accountId)
+        if banReason:
+            self.csm.air.writeServerEvent('bannedAccountLogin', self.target, self.accountId)
+            self.csm.killConnection(self.target, banReason, OTPGlobals.BootBanned)
+            self.demand('Off')
+            return
+
+        self.demand('RetrieveAccount')
 
     def enterRetrieveAccount(self):
         self.csm.air.dbInterface.queryObject(
@@ -446,6 +484,15 @@ class LoginAccountFSM(OperationFSM):
         self.csm.sendUpdateToChannel(
             self.target, 'acceptLogin',
             [int(time.time()), self.csm.encodedServerFlags()])
+
+        # The launch token they arrived with has been spent, so they leave with
+        # the one that gets them back in after a dropped connection.
+        token = getattr(self, 'reconnectToken', None)
+
+        if token:
+            self.csm.sendUpdateToChannel(
+                self.target, 'setReconnectToken', [token])
+
         self.demand('Off')
 
     def __hashedPassword(self, salt):
@@ -486,6 +533,7 @@ class LoginTokenFSM(LoginAccountFSM):
                         or 'This account has been banned.')
             return
 
+        self.reconnectToken = result.get('reconnectToken')
         self.username = result.get('username', '')
         self.userId = result.get('userId', 0)
         self.accountId = result.get('accountId', 0)
@@ -694,8 +742,10 @@ class GetAvatarsFSM(AvatarOperationFSM):
             elif wishNameState == 'REJECTED':
                 nameState = 4
 
+            accessories = [list(fields.get(field, (0, 0, 0)))
+                           for field in ('setHat', 'setGlasses', 'setBackpack', 'setShoes')]
             potentialAvs.append([avId, name, fields['setDNAString'][0],
-                                 index, nameState, guildId, lastHoodId])
+                                 index, nameState, guildId, lastHoodId] + accessories)
 
         self.csm.syncToons(self.target)
         self.csm.sendUpdateToAccountId(self.target, 'setAvatars', [potentialAvs])
@@ -731,7 +781,7 @@ class DeleteAvatarFSM(GetAvatarsFSM):
                 guildId = fields['setGuildId'][0]
 
             if guildId != 0:
-                self.notify.debug('Kill, tried to delete av %s in a guild %d' % self.avId, guildId)
+                self.notify.debug('Kill, tried to delete av %s in a guild %d' % (self.avId, guildId))
                 self.demand('Kill', 'Tried to delete an avatar that is in a guild!')
                 return
 
@@ -787,6 +837,67 @@ class DeleteAvatarFSM(GetAvatarsFSM):
         self.demand('QueryAvatars')
 
 
+class MoveAvatarFSM(GetAvatarsFSM):
+    notify = directNotify.newCategory('MoveAvatarFSM')
+    POST_ACCOUNT_STATE = 'ProcessMove'
+    ESTATE_CLEANUP_DELAY = HouseGlobals.BOOT_GRACE_PERIOD + HouseGlobals.CLEANUP_DELAY_AFTER_BOOT + 3
+    SLOT_DEFAULTS = {'setSlot%dToonId': [0], 'setSlot%dItems': [[(255, 0, -1, -1, 0)]]}
+
+    def enterStart(self, avId, index):
+        self.avId = avId
+        self.index = index
+
+        # A departed owner's estate lingers on the AI and would save its old garden slots over ours.
+        delay = self.csm.account2unloadTime.get(self.target, 0) + self.ESTATE_CLEANUP_DELAY - time.time()
+        if delay > 0:
+            taskMgr.doMethodLater(delay, lambda task: GetAvatarsFSM.enterStart(self), 'moveAvatar-%d' % self.target)
+        else:
+            GetAvatarsFSM.enterStart(self)
+
+    def enterProcessMove(self):
+        if self.avId not in self.avList or not 0 <= self.index < len(self.avList):
+            self.demand('Kill', 'Tried to move an avatar not in the account!')
+            return
+
+        oldIndex = self.avList.index(self.avId)
+        self.avList[oldIndex], self.avList[self.index] = self.avList[self.index], self.avList[oldIndex]
+
+        estateId = self.account.get('ESTATE_ID', 0)
+        if estateId:
+            self.csm.air.dbInterface.queryObject(
+                self.csm.air.dbId, estateId,
+                lambda dclass, fields: self.__handleEstate(dclass, fields, estateId, oldIndex))
+        else:
+            self.__updateAccount()
+
+    def __handleEstate(self, dclass, fields, estateId, oldIndex):
+        if dclass == self.csm.air.dclassesByName['DistributedEstateAI']:
+            newFields = {}
+            for field, default in self.SLOT_DEFAULTS.items():
+                newFields[field % self.index] = fields.get(field % oldIndex, default)
+                newFields[field % oldIndex] = fields.get(field % self.index, default)
+
+            self.csm.air.dbInterface.updateObject(self.csm.air.dbId, estateId, dclass, newFields)
+
+        self.__updateAccount()
+
+    def __updateAccount(self):
+        self.csm.air.dbInterface.updateObject(
+            self.csm.air.dbId,
+            self.target,
+            self.csm.air.dclassesByName['AccountUD'],
+            {'ACCOUNT_AV_SET': self.avList},
+            callback=self.__handleMove)
+
+    def __handleMove(self, fields):
+        if fields:
+            self.demand('Kill', 'Database failed to move the avatar!')
+            return
+
+        self.csm.air.writeServerEvent('avatarMoved', self.avId, self.target, self.index)
+        self.demand('QueryAvatars')
+
+
 class SetNameTypedFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('SetNameTypedFSM')
     POST_ACCOUNT_STATE = 'RetrieveAvatar'
@@ -823,7 +934,7 @@ class SetNameTypedFSM(AvatarOperationFSM):
 
     def enterJudgeName(self):
         chatAgent = self.csm.air.getGlobalObject('ChatAgent')
-        if chatAgent.checkBadNames(self.name, nameCheck=True):
+        if chatAgent.checkBadNames(self.name):
             # Caught by our own filter, so nobody needs to read it.
             self.__respond(0)
             return
@@ -988,9 +1099,10 @@ class LoadAvatarFSM(AvatarOperationFSM):
     notify = directNotify.newCategory('LoadAvatarFSM')
     POST_ACCOUNT_STATE = 'GetTargetAvatar'
 
-    def enterStart(self, avId, platform):
+    def enterStart(self, avId, platform, build):
         self.avId = avId
         self.platform = platform
+        self.build = build
         self.demand('RetrieveAccount')
 
     def enterGetTargetAvatar(self):
@@ -1082,7 +1194,8 @@ class LoadAvatarFSM(AvatarOperationFSM):
             {'setAdminAccess': [self.account.get('ACCESS_LEVEL', 100)],
              'setBankMoney': [self.account.get('MONEY', 0)],
              'setChatMode': [self.account.get('CHAT_MODE', 1)],
-             'setPlatform': [self.platform]})
+             'setPlatform': [self.platform],
+             'setBuild': [self.build]})
 
         # Let the TTIFriendsManager know about the account's chat mode.
         friendsManager = self.csm.air.getGlobalObject('TTIFriendsManager')
@@ -1184,6 +1297,8 @@ class UnloadAvatarFSM(OperationFSM):
         datagram.addUint32(self.avId)
         self.csm.air.send(datagram)
 
+        self.csm.account2unloadTime[self.target] = time.time()
+
         # Done!
         self.csm.air.writeServerEvent('avatarUnload', self.avId)
         self.demand('Off')
@@ -1193,6 +1308,10 @@ class UnloadAvatarFSM(OperationFSM):
 class ClientServicesManagerUD(DistributedObjectGlobalUD):
     notify = directNotify.newCategory('ClientServicesManagerUD')
     REQUEST_DELAY = 5 # Time in seconds before another request can be made for limited requests
+    # A client refreshes its reconnect token roughly hourly, so anything
+    # more often than this is a retry rather than a new session.
+    RECONNECT_REQUEST_DELAY = 300
+    AUTH_TOKEN_LIFETIME = 60
 
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
@@ -1209,10 +1328,12 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # of race conditions.
         self.connection2fsm = {}
         self.account2fsm = {}
+        self.account2unloadTime = {}
 
         # Keep track of timestamp of last request made by connection; this is to prevent
         # clients from doing certain requests too many times
         self.connection2Timestamp = {}
+        self.reconnectRequests = {}
 
         # For processing name patterns.
         self.nameGenerator = NameGenerator()
@@ -1232,6 +1353,9 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             self.accountDB = WebAccountDB(self)
         else:
             self.notify.error('Invalid accountdb-type: ' + accountdbType)
+
+        # From the ban magic word on a district
+        self.accept('banAccount', self.banAccount)
 
         self.serverFlags = dict(WEBSITE_FLAGS)
         self.refreshServerFlags()
@@ -1290,13 +1414,13 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         self.connection2Timestamp[connId] = now
 
-    def killConnection(self, connId, reason):
+    def killConnection(self, connId, reason, code=122):
         datagram = PyDatagram()
         datagram.addServerHeader(
             connId,
             self.air.ourChannel,
             CLIENTAGENT_EJECT)
-        datagram.addUint16(122)
+        datagram.addUint16(code)
         datagram.addString(reason)
         self.air.send(datagram)
 
@@ -1309,8 +1433,14 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
         self.killConnection(connId, 'An operation is already underway: ' + fsm.name)
 
-    def killAccount(self, accountId, reason):
-        self.killConnection(self.GetAccountConnectionChannel(accountId), reason)
+    def killAccount(self, accountId, reason, code=122):
+        self.killConnection(self.GetAccountConnectionChannel(accountId), reason, code)
+
+    def banAccount(self, accountId, reason, days):
+        # Only a server with no website bans here; see AccountDB.ban
+        if self.accountDB.ban(accountId, reason, days):
+            self.air.writeServerEvent('accountBanned', accountId, reason, days)
+            self.killAccount(accountId, reason, OTPGlobals.BootBanned)
 
     def killAccountFSM(self, accountId):
         fsm = self.account2fsm.get(accountId)
@@ -1325,7 +1455,8 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         sender = self.air.getAccountIdFromSender()
 
         if not sender:
-            self.killAccount(sender, 'Client is not logged in.')
+            self.killConnection(self.air.getMsgSender(), 'Client is not logged in.')
+            return
 
         if sender in self.account2fsm:
             self.killAccountFSM(sender)
@@ -1334,28 +1465,22 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.account2fsm[sender] = fsmtype(self, sender)
         self.account2fsm[sender].request('Start', *args)
 
-    def requestAuthToken(self, mac_addr, ip_addr):
+    def requestAuthToken(self):
         sender = self.air.getMsgSender()
 
-        self.air.sendNetEvent('banCheck', [sender, mac_addr, ip_addr])
-        self.acceptOnce('banCheckResponse-%s' % sender, self.handleResponse)
-
-    def handleResponse(self, sender, isBanned, banLength):
-        if isBanned:
-            datagram = PyDatagram()
-            datagram.addServerHeader(
-                sender,
-                self.air.ourChannel,
-                CLIENTAGENT_EJECT)
-            datagram.addUint16(156)
-            datagram.addString(banLength)
-            self.air.send(datagram)
+        if isinstance(self.accountDB, WebAccountDB):
+            self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID])
             return
+
+        now = time.time()
+        for otherId, (token, stamp) in list(self.authTokens.items()):
+            if now - stamp > self.AUTH_TOKEN_LIFETIME:
+                del self.authTokens[otherId]
 
         authToken = ''.join([hex(random.randint(0, 254)) for _ in range(25)])
 
         lookupTable = generateLookupTable(authToken[::2])
-        self.authTokens[sender] = encodeHexString(lookupTable, authToken)
+        self.authTokens[sender] = (encodeHexString(lookupTable, authToken), now)
         del lookupTable
 
         self.sendUpdateToChannel(sender, 'receiveAuthToken', [authToken])
@@ -1365,7 +1490,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         sender = self.air.getMsgSender()
 
         # Time to check this login to see if its authentic
-        if authToken == self.authTokens.get(sender):
+        if authToken == self.authTokens.get(sender, (None, 0))[0]:
             # This login is authentic!
             del self.authTokens[sender]
         else:
@@ -1393,6 +1518,10 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def loginToken(self, token):
         sender = self.air.getMsgSender()
 
+        if not isinstance(self.accountDB, WebAccountDB):
+            self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID])
+            return
+
         if sender >> 32:
             self.killConnection(sender, 'Client is already logged in.')
             return
@@ -1412,6 +1541,43 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         self.connection2fsm[sender] = LoginTokenFSM(self, sender)
         self.connection2fsm[sender].request('Start', token)
 
+    def requestReconnectToken(self):
+        sender = self.air.getMsgSender()
+        accountId = sender >> 32
+
+        if not accountId:
+            return
+
+        now = time.time()
+        cutoff = now - self.RECONNECT_REQUEST_DELAY
+
+        if self.reconnectRequests.get(accountId, 0) > cutoff:
+            return
+
+        self.reconnectRequests = {
+            account: seen for account, seen in self.reconnectRequests.items()
+            if seen > cutoff}
+        self.reconnectRequests[accountId] = now
+
+        mint = getattr(self.accountDB, 'reconnectToken', None)
+
+        if mint is None:
+            return
+
+        def gotAccount(dclass, fields):
+            if dclass != self.air.dclassesByName['AccountUD']:
+                return
+
+            userId = fields.get('ACCOUNT_ID')
+
+            if not userId:
+                return
+
+            mint(userId, lambda token: token and self.sendUpdateToChannel(
+                sender, 'setReconnectToken', [token]))
+
+        self.air.dbInterface.queryObject(self.air.dbId, accountId, gotAccount)
+
     def requestAvatars(self):
         self.notify.debug('Received avatar list request from %d' % (self.air.getMsgSender()))
         self.runAccountFSM(GetAvatarsFSM)
@@ -1421,6 +1587,9 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def deleteAvatar(self, avId):
         self.runAccountFSM(DeleteAvatarFSM, avId)
+
+    def moveAvatar(self, avId, index):
+        self.runAccountFSM(MoveAvatarFSM, avId, index)
 
     def setNameTyped(self, avId, name):
         self.runAccountFSM(SetNameTypedFSM, avId, name)
@@ -1432,7 +1601,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def acknowledgeAvatarName(self, avId):
         self.runAccountFSM(AcknowledgeNameFSM, avId)
 
-    def chooseAvatar(self, avId, platform):
+    def chooseAvatar(self, avId, platform, build):
         currentAvId = self.air.getAvatarIdFromSender()
         accountId = self.air.getAccountIdFromSender()
         if currentAvId and avId:
@@ -1444,7 +1613,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             return
 
         if avId:
-            self.runAccountFSM(LoadAvatarFSM, avId, platform)
+            self.runAccountFSM(LoadAvatarFSM, avId, platform, build)
             chatAgent = self.air.getGlobalObject('ChatAgent')
             chatAgent.checkMuted(accountId)
         else:

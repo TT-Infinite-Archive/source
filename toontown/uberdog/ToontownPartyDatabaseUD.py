@@ -32,13 +32,14 @@ class ToontownPartyDatabaseUD:
         Returns a unique identifier for a new party.
 
         Note: Toontown Online does not appear to have any form of ID Recycling
-              Hence, this is purely incremental for now.
+              Hence, this is purely incremental for now. IDs start at 1, as
+              the protocol uses 0 for no party.
         """
         result = self.globals.find_one_and_update({'_id': 'GLOBALS'},
                                                   {'$inc': {'nextPartyId': 1}},
                                                   upsert=True,
                                                   return_document=ReturnDocument.AFTER)
-        return result['nextPartyId'] - 1
+        return result['nextPartyId']
 
     # === Database Retrieval ===
 
@@ -68,6 +69,10 @@ class ToontownPartyDatabaseUD:
         Retrieves all parties of the host that can start.
         """
         results = self.objects.find({'hostId': hostId, 'statusId': EPartyStatus.CAN_START})
+        return tuple(results)
+
+    def getPartiesOfStatus(self, status: EPartyStatus) -> tuple[dict[str, Any], ...]:
+        results = self.objects.find({'statusId': status})
         return tuple(results)
 
     def getPartiesAvailableToStart(self, thresholdTime: datetime) -> tuple[dict[str, Any], ...]:

@@ -33,7 +33,7 @@ from toontown.chat import ToonChatGarbler
 from toontown.chat.ChatGlobals import *
 from toontown.chat.WhisperPopup import *
 from toontown.coghq import CogDisguiseGlobals
-from toontown.collectibles import Stats, CollectibleInventory, CollectibleInventoryGlobals, CollectibleGlobals
+from toontown.collectibles import Stats, CollectibleInventory, CollectibleInventoryGlobals, CollectibleGlobals, CollectibleItemGui
 from toontown.distributed import DelayDelete
 from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.effects.ScavengerHuntEffects import *
@@ -47,6 +47,7 @@ from toontown.fishing import FishTank
 from toontown.friends import FriendHandle
 from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.nametag import NametagGlobals
 from toontown.nametag.NametagGlobals import *
 from toontown.parties.InviteInfo import InviteInfo
@@ -481,13 +482,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
     def d_updateGMNameTag(self):
         self.refreshName()
 
-    def updateGMNameTag(self, tagString, color, state):
-        try:
-            str(tagString, 'utf-8')
-        except UnicodeDecodeError:
-            self.sendUpdate('logSuspiciousEvent', ['invalid GM name tag: %s from %s' % (tagString, self.doId)])
-            return
-
     def refreshName(self):
         return
         self.notify.debug('Refreshing GM Nametag String: %s Color: %s State: %s' % (self.gmNameTagString, self.gmNameTagColor, self.gmNameTagEnabled))
@@ -586,7 +580,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             else:
                 print(':%s: setTalk: %r, %r, %r' % (localTimestamp, fromAV, avatarName, newText))
 
-        base.talkAssistant.receiveOpenTalk(fromAV, avatarName, fromAC, None, newText)
+        base.talkAssistant.receiveOpenTalk(fromAV, self.getName(), fromAC, None, newText)
 
     def isAvFriend(self, avId):
         return base.cr.isFriend(avId) or base.cr.playerFriendsManager.isAvatarOwnerPlayerFriend(avId)
@@ -1201,7 +1195,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             return
         if not self.collectibleInventory.isObtained(category, effectId):
             return
-        particle = CollectibleGlobals.getItem(category, effectId).loadFile()
+        particle = CollectibleItemGui.loadFile(CollectibleGlobals.getItem(category, effectId))
         if particle is None:
             if self.particleEffect is not None:
                 self.particleEffect.cleanup()
@@ -1735,7 +1729,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
             self.trophyStarSpeed = 0
         if hasattr(self, 'gmIcon') and self.gmIcon:
             return
-        if self.trophyScore >= ToontownGlobals.TrophyStarLevels[4]:
+        if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[4]:
             self.trophyStar = loader.loadModel('phase_3.5/models/gui/name_star')
             np = NodePath(self.nametag.getIcon())
             self.trophyStar.reparentTo(np)
@@ -1744,11 +1738,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.trophyStar.setZ(2.75)
             else:
                 self.trophyStar.setZ(2)
-            self.trophyStar.setColor(ToontownGlobals.TrophyStarColors[4])
+            self.trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[4])
             self.trophyStarSpeed = 15
-            if self.trophyScore >= ToontownGlobals.TrophyStarLevels[5]:
+            if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[5]:
                 taskMgr.add(self.__starSpin, self.uniqueName('starSpin'))
-        elif self.trophyScore >= ToontownGlobals.TrophyStarLevels[2]:
+        elif self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[2]:
             self.trophyStar = loader.loadModel('phase_3.5/models/gui/name_star')
             np = NodePath(self.nametag.getIcon())
             self.trophyStar.reparentTo(np)
@@ -1757,11 +1751,11 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.trophyStar.setZ(2.35)
             else:
                 self.trophyStar.setZ(1.6)
-            self.trophyStar.setColor(ToontownGlobals.TrophyStarColors[2])
+            self.trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[2])
             self.trophyStarSpeed = 10
-            if self.trophyScore >= ToontownGlobals.TrophyStarLevels[3]:
+            if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[3]:
                 taskMgr.add(self.__starSpin, self.uniqueName('starSpin'))
-        elif self.trophyScore >= ToontownGlobals.TrophyStarLevels[0]:
+        elif self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[0]:
             self.trophyStar = loader.loadModel('phase_3.5/models/gui/name_star')
             np = NodePath(self.nametag.getIcon())
             self.trophyStar.reparentTo(np)
@@ -1770,9 +1764,9 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
                 self.trophyStar.setZ(2.35)
             else:
                 self.trophyStar.setZ(1.6)
-            self.trophyStar.setColor(ToontownGlobals.TrophyStarColors[0])
+            self.trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[0])
             self.trophyStarSpeed = 8
-            if self.trophyScore >= ToontownGlobals.TrophyStarLevels[1]:
+            if self.trophyScore >= ToontownClientGlobals.TrophyStarLevels[1]:
                 taskMgr.add(self.__starSpin, self.uniqueName('starSpin'))
         return
 
@@ -1789,9 +1783,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         else:
             return None
         return None
-
-    def getRequestID(self):
-        return CLIENT_GET_AVATAR_DETAILS
 
     def announceBingo(self):
         self.setChatAbsolute(TTLocalizer.FishBingoBingo, CFSpeech | CFTimeout)
@@ -1908,10 +1899,6 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         def requestKartDNAFieldUpdate(self, dnaField, fieldValue):
             self.notify.debug('requestKartDNAFieldUpdate - dnaField %s, fieldValue %s' % (dnaField, fieldValue))
             self.sendUpdate('updateKartDNAField', [dnaField, fieldValue])
-
-        def requestAddOwnedAccessory(self, accessoryId):
-            self.notify.debug('requestAddOwnedAccessor - purchased accessory %s' % accessoryId)
-            self.sendUpdate('addOwnedAccessory', [accessoryId])
 
         def requestRemoveOwnedAccessory(self, accessoryId):
             self.notify.debug('requestRemoveOwnedAccessor - removed accessory %s' % accessoryId)
@@ -2391,7 +2378,7 @@ class DistributedToon(DistributedPlayer.DistributedPlayer, Toon.Toon, Distribute
         elif type == 'special':
             sfxIndex = 5
         else:
-            self.notify.error('unrecognized dialogue type: ', type)
+            self.notify.error('unrecognized dialogue type: %s' % type)
         if sfxIndex is not None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
             soundSequence = Sequence(Wait(delay), SoundInterval(dialogueArray[sfxIndex], node=None, listenerNode=base.localAvatar, loop=0, volume=1.0))
             self.soundSequenceList.append(soundSequence)

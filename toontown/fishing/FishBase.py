@@ -1,6 +1,6 @@
 from panda3d.core import ConfigVariableBool
 from . import FishGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 
 class FishBase:

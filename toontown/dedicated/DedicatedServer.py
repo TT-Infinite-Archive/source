@@ -1,10 +1,8 @@
 from panda3d.direct import DCFile
-from panda3d.core import StringStream
 import atexit
 import copy
 import shutil
 import tempfile
-import builtins
 import yaml
 import os
 
@@ -12,7 +10,7 @@ from direct.directnotify.DirectNotifyGlobal import *
 from direct.fsm.FSM import FSM
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 
 
 class DedicatedServer(FSM):
@@ -163,19 +161,13 @@ class DedicatedServer(FSM):
             # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 
-        if hasattr(builtins, 'dcData'):
-            dcFileNames = [StringStream(dcData)]
-
         if dcFileNames is None:
             readResult = dcFile.readAll()
             if not readResult:
                 self.notify.error('Could not read DC file.')
         else:
             for dcFileName in dcFileNames:
-                if isinstance(dcFileName, StringStream):
-                    readResult = dcFile.read(dcFileName, 'DC stream')
-                else:
-                    readResult = dcFile.read(dcFileName)
+                readResult = dcFile.read(dcFileName)
                 if not readResult:
                     self.notify.error('Could not read DC file.')
 

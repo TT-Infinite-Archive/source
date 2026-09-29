@@ -13,8 +13,10 @@ SETTINGS = {
     'ACCOUNT_SERVICE_URL': 'account-service-url',
     'ASTRON_CONNECT': 'air-connect',
     'CHANNEL_ALLOCATION': 'air-channel-allocation',
+    'DRAIN_GRACE_SECONDS': 'drain-grace-seconds',
     'EVENTLOG_HOST': 'eventlog-host',
     'MONGODB_URL': 'mongodb-url',
+    'WANT_DRAIN_ON_STOP': 'want-drain-on-stop',
 }
 
 def load():

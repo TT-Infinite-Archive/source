@@ -14,6 +14,9 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
     notify = directNotify.newCategory("DistributedPartyTugOfWarActivityAI")
 
     MaxAbsGlobalOffset = 32
+    # Well past what matching the target rate for a whole game builds up to
+    MaxForce = 50.0
+    MaxKeyRate = 30
 
     def __init__(self, air, partyDoId, x, y, h):
         DistributedPartyTeamActivityAI.__init__(
@@ -84,6 +87,8 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
     # clsend airecv
     def reportKeyRateForce(self, keyRate, force):
         toonId = self.air.getAvatarIdFromSender()
+        keyRate = min(max(keyRate, 0), self.MaxKeyRate)
+        force = min(max(force, 0.0), self.MaxForce)
         self.toonIdsToKeyRates[toonId] = keyRate
         # sometimes the game has cleaned up and we get an old update from a client
         if toonId in self.toonIdsToTeams:
@@ -126,11 +131,12 @@ class DistributedPartyTugOfWarActivityAI(DistributedPartyTeamActivityAI):
 
 
     def reportFallIn(self, losingTeam):
-        self.notify.debug("reportFallIn( losingTeam=%s )" % PartyGlobals.ETeamActivityTeam(losingTeam).name)
-
         if losingTeam not in PartyGlobals.ETeamActivityTeam:
             self.notify.warning("Got an invalid losingTeam value %d" %losingTeam)
             return
+        if self.air.getAvatarIdFromSender() not in self.toonIdsToTeams:
+            return
+        self.notify.debug("reportFallIn( losingTeam=%s )" % PartyGlobals.ETeamActivityTeam(losingTeam).name)
 
         # if the losing team has already been reported and this report doesn't match
         if (self.losingTeam != PartyGlobals.TeamActivityNeitherTeam) and (losingTeam != self.losingTeam):

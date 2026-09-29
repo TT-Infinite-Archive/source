@@ -34,8 +34,8 @@ from toontown.nametag.NametagGlobals import *
 from toontown.toon import Toon, ToonDNA
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownClientGlobals
 
-from toontown.debug.DebugTools import timeFunc
 
 OneBossCog = None
 
@@ -82,7 +82,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.bulkLoader = BulkLoader.BulkLoader(ModelAssets)
         return
 
-    @timeFunc
     def announceGenerate(self):
         DistributedBossCog.DistributedBossCog.announceGenerate(self)
         self.bulkLoader.load()
@@ -98,7 +97,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.eyes = self.bulkLoader.getModel('phase_10/models/cogHQ/CashBotBossEyes.bam')
         self.setName(TTLocalizer.CashbotBossName)
         self.titleText = OnscreenText(TTLocalizer.CashbotBossArea, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1),
-                                      font=ToontownGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0,
+                                      font=ToontownClientGlobals.getSuitFont(), pos=(0, -0.5), scale=0.16, drawOrder=0,
                                       mayChange=1)
         self.titleText.hide()
         nameInfo = TTLocalizer.BossCogNameWithDept % {'name': self.name,
@@ -948,7 +947,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.endVault.stash()
         self.midVault.unstash()
         self.__showResistanceToon(True)
-        base.camLens.setMinFov(ToontownGlobals.CFOElevatorFov / (4. / 3.))
+        base.camLens.setMinFov(ToontownClientGlobals.CFOElevatorFov / (4. / 3.))
 
     def exitElevator(self):
         DistributedBossCog.DistributedBossCog.exitElevator(self)
@@ -1100,7 +1099,6 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.clearInterval(intervalName)
         NametagGlobals.setWant2dNametags(True)
 
-    @timeFunc
     def enterBattleThree(self):
         DistributedBossCog.DistributedBossCog.enterBattleThree(self)
         self.clearChat()
@@ -1116,7 +1114,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.evWalls.unstash()
         self.midVault.stash()
         self.__hideResistanceToon()
-        localAvatar.setCameraFov(ToontownGlobals.BossBattleCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.BossBattleCameraFov)
         self.generateHealthBar()
         self.updateHealthBar()
 
@@ -1134,7 +1132,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         self.cleanupAttacks()
         self.setDizzy(0)
         self.removeHealthBar()
-        localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
+        localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
         if self.newState != 'Victory':
             self.battleThreeMusic.stop()
         taskMgr.remove(self.uniqueName('physics'))

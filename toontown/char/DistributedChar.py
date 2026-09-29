@@ -19,9 +19,6 @@ class DistributedChar(DistributedAvatar.DistributedAvatar, Char.Char):
             Char.Char.delete(self)
             DistributedAvatar.DistributedAvatar.delete(self)
 
-    def setDNAString(self, dnaString):
-        Char.Char.setDNAString(self, dnaString)
-
     def setDNA(self, dna):
         Char.Char.setDNA(self, dna)
 

@@ -6,12 +6,14 @@
 #
 #-------------------------------------------------------------------------------
 
+import random
+
 # Panda imports
 from direct.distributed import ClockDelta
 from direct.task import Task
 
 # Toontown imports
-from toontown.effects.FireworkShow import FireworkShow
+from toontown.effects.FireworkShowGlobals import getShowDuration
 
 # parties imports
 from . import PartyGlobals
@@ -41,6 +43,7 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
         )
         self.eventId = eventId
         self.showStyle = showStyle
+        self.songId = random.randint(0, 1)
         self.activityFSM = FireworksActivityFSM(self)
 
     def generate(self):
@@ -54,6 +57,9 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
     def getShowStyle(self):
         DistributedPartyFireworksActivityAI.notify.debug("getShowStyle")
         return self.showStyle
+
+    def getSongId(self):
+        return self.songId
 
     def toonJoinRequest(self):
         """
@@ -88,7 +94,7 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
 
     def startActive(self):
         DistributedPartyFireworksActivityAI.notify.debug("startActive")
-        messenger.send( PartyGlobals.FireworksStartedEvent )
+        messenger.send( '%s-%s' % (PartyGlobals.FireworksStartedEvent, self.partyDoId) )
         showStartTimestamp = ClockDelta.globalClockDelta.getRealNetworkTime()
         # put clients into this state
         self.sendUpdate(
@@ -99,19 +105,17 @@ class DistributedPartyFireworksActivityAI(DistributedPartyActivityAI):
             ]
         )
         # setup to transition to Disabled after the show is over
-        throwAwayShow = FireworkShow()
-        showDuration = throwAwayShow.getShowDuration( self.eventId)
+        showDuration = getShowDuration(self.eventId)
         showDuration += 20.0
         taskMgr.doMethodLater(
             PartyGlobals.FireworksPostLaunchDelay + showDuration + PartyGlobals.FireworksTransitionToDisabledDelay,
             self.showComplete,
             self.taskName("waitForShowComplete"),
         )
-        del throwAwayShow
 
     def finishActive(self):
         DistributedPartyFireworksActivityAI.notify.debug("finishActive")
-        messenger.send( PartyGlobals.FireworksFinishedEvent )
+        messenger.send( '%s-%s' % (PartyGlobals.FireworksFinishedEvent, self.partyDoId) )
         # clean up doMethodLater
         taskMgr.removeTasksMatching(self.taskName("waitForShowComplete"))
 

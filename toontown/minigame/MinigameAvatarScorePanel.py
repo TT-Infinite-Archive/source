@@ -1,4 +1,5 @@
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 from direct.gui.DirectGui import *
 from toontown.toon import LaffMeter
 

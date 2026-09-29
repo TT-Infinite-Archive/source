@@ -2,7 +2,7 @@ from panda3d.core import TextNode
 from toontown.achievements import AchievementsGlobals
 from direct.interval.IntervalGlobal import *
 from direct.interval.LerpInterval import *
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.gui.DirectGui import *
 
 class AchievementGui():
@@ -40,14 +40,14 @@ class AchievementGui():
         
         self.image = OnscreenGeom(geom=imageNode, parent=self.frame)
 
-        self.title = OnscreenText(text='You earned an Achievement!', scale=(0.06, 0.11), font=ToontownGlobals.getMinnieFont(),
+        self.title = OnscreenText(text='You earned an Achievement!', scale=(0.06, 0.11), font=ToontownClientGlobals.getMinnieFont(),
                                   parent=self.frame, pos=(0, 0.33), align=TextNode.ACenter)
         
         self.achievementName = OnscreenText(text=AchievementsGlobals.AchievementTitles[self.currentShowingAward], scale=(0.06, 0.09),
-                                            font=ToontownGlobals.getMinnieFont(), parent=self.frame, align=TextNode.ACenter, pos=(0, 0.2))
+                                            font=ToontownClientGlobals.getMinnieFont(), parent=self.frame, align=TextNode.ACenter, pos=(0, 0.2))
         
         self.details = OnscreenText(text=AchievementsGlobals.AchievementDesc[self.currentShowingAward], scale=(0.04, 0.07),
-                                    font=ToontownGlobals.getMinnieFont(), parent=self.frame, align=TextNode.ACenter, pos=(0, -0.4))
+                                    font=ToontownClientGlobals.getMinnieFont(), parent=self.frame, align=TextNode.ACenter, pos=(0, -0.4))
         
     def frameSequence(self):
         self.seq = Sequence()

@@ -13,6 +13,7 @@ class DistributedFishingSpotAI(DistributedObjectAI.DistributedObjectAI):
         self.notify.debug("init")
         self.posHpr = (x, y, z, h, p, r)
         self.avId = 0
+        self.castPending = False
         self.timeoutTask = None
         self.pond = pond
         self.wantTimeouts = ConfigVariableBool("want-fishing-timeouts", True).getValue()
@@ -43,6 +44,7 @@ class DistributedFishingSpotAI(DistributedObjectAI.DistributedObjectAI):
 
         if self.avId == 0:
             self.avId = avId
+            self.castPending = False
             # Tell the pond we are here
             self.pond.addAvSpot(avId, self)
             self.acceptOnce(self.air.getAvatarExitEvent(self.avId),
@@ -98,6 +100,7 @@ class DistributedFishingSpotAI(DistributedObjectAI.DistributedObjectAI):
 
         self.air.writeServerEvent("fished_cast", avId, "%s|%s" %(av.getFishingRod(), castCost))
         av.b_setMoney(money - castCost)
+        self.castPending = True
         self.d_setMovie(FishGlobals.CastMovie, power=power, h=heading)
         self.__startTimeout(FishGlobals.CastTimeout)
 
@@ -164,6 +167,11 @@ class DistributedFishingSpotAI(DistributedObjectAI.DistributedObjectAI):
         # Tell the pond we are leaving
         self.cleanupAvatar()
         self.d_setOccupied(0)
+
+    def takeCast(self):
+        # Each paid cast can land one catch
+        pending, self.castPending = self.castPending, False
+        return pending
 
     def hitTarget(self, code, item):
         self.notify.debug("hitTarget: code: %s item: %s" % (code, item))

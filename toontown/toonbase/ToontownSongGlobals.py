@@ -1,5 +1,5 @@
 from toontown.toonbase.ToontownSong import ToontownSong
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 THEME = 1
 THEME_HALLOWEEN = 2

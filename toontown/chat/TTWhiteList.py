@@ -5,7 +5,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.showbase import AppRunnerGlobal
 from otp.chat.WhiteList import WhiteList
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
     RedownloadTaskName = 'RedownloadWhitelistTask'
@@ -13,6 +13,7 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
     WhitelistStageDir = ConfigVariableString('whitelist-stage-dir', 'whitelist').getValue()
     WhitelistOverHttp = ConfigVariableBool('whitelist-over-http', False).getValue()
     WhitelistFileName = ConfigVariableString('whitelist-filename', 'twhitelist.dat').getValue()
+    localWords = None
 
     def __init__(self):
         self.redownloadingWhitelist = False
@@ -20,21 +21,26 @@ class TTWhiteList(WhiteList, DistributedObject.DistributedObject):
         self.endRedownload = datetime.datetime.now()
         self.percentDownloaded = 0.0
         self.notify = DirectNotifyGlobal.directNotify.newCategory('TTWhiteList')
+        self.defaultWord = TTLocalizer.ChatGarblerDefault[0]
+        if TTWhiteList.localWords is not None and not self.WhitelistOverHttp:
+            self.words = TTWhiteList.localWords
+            self.numWords = len(self.words)
+            return
         vfs = VirtualFileSystem.getGlobalPtr()
         filename = Filename('twhitelist.dat')
         searchPath = DSearchPath()
         searchPath.appendDirectory(Filename('/phase_4/etc'))
         if __debug__:
-            searchPath.appendDirectory(Filename('../resources/phase_4/etc'))
+            searchPath.appendDirectory(Filename('resources/phase_4/etc'))
         found = vfs.resolveFilename(filename, searchPath)
         if not found:
             self.notify.info("Couldn't find whitelist data file!")
         data = vfs.readFile(filename, 1)
         lines = data.split(b'\n')
         WhiteList.__init__(self, lines)
+        TTWhiteList.localWords = self.words
         if self.WhitelistOverHttp:
             self.redownloadWhitelist()
-        self.defaultWord = TTLocalizer.ChatGarblerDefault[0]
 
     def unload(self):
         self.removeDownloadingTextTask()

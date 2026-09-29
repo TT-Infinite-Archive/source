@@ -1,5 +1,5 @@
 from .DistributedNPCToonBaseAI import *
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.task import Task
 from toontown.fishing import FishGlobals
 from toontown.pets import PetUtil, PetDNA, PetConstants

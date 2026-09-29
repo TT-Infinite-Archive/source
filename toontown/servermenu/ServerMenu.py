@@ -10,6 +10,7 @@ from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.servermenu.ServerMenuHomeScreen import ServerMenuHomeScreen
 from toontown.servermenu.LoginScreen import LoginScreen
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.toontowngui.LocalServerStarter import LocalServerStarter
 from direct.interval.FunctionInterval import Func, Wait
@@ -45,20 +46,20 @@ class ServerMenu(DirectFrame, FSM):
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             ToontownGlobals.getNametagFont(10)
         else:
-            ToontownGlobals.getMinnieFont()
+            ToontownClientGlobals.getMinnieFont()
 
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter,
             image='phase_3/maps/toontown_infinite_logo.png',
-            scale=(0.8, 0.35, 0.45), pos=(0, 0, -0.6)
+            scale=(0.77, 0.35, 0.385), pos=(0, 0, -0.6)
         )
         self.logo.setTransparency(TransparencyAttrib.MAlpha)
         self.serverMenuElements.append(self.logo)
 
         self.logoScaleTrack = Sequence(
-            LerpScaleInterval(self.logo, 4, Vec3(0.725, 0.35, 0.40), Vec3(0.70, 0.35, 0.385),
+            LerpScaleInterval(self.logo, 4, Vec3(0.80, 0.35, 0.40), Vec3(0.77, 0.35, 0.385),
                               blendType='easeInOut'),
-            LerpScaleInterval(self.logo, 4, Vec3(0.70, 0.35, 0.385), Vec3(0.725, 0.35, 0.40),
+            LerpScaleInterval(self.logo, 4, Vec3(0.77, 0.35, 0.385), Vec3(0.80, 0.35, 0.40),
                               blendType='easeInOut')
         )
         self.logoScaleTrack.loop()
@@ -81,8 +82,6 @@ class ServerMenu(DirectFrame, FSM):
 
         for elements in self.serverMenuElements:
             elements.hide()
-
-        self.connectionSuccessfulSfx = loader.loadSfx('phase_3/audio/sfx/server_menu_connection_successful.ogg')
 
     def destroy(self):
         if self.logoScaleTrack is not None:

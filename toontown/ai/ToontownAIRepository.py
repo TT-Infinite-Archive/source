@@ -1,12 +1,13 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableString, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
+from panda3d.core import ConfigVariableBool, ConfigVariableString, Filename, MultiplexStream, Notify, StreamWriter, UniqueIdAllocator
+from panda3d.direct import DCFile
 from direct.distributed.PyDatagram import *
 
 from otp.ai.AIZoneData import AIZoneDataStore
 from otp.ai.MagicWordGlobal import spellbook
 from otp.ai.MagicWordManagerAI import MagicWordManagerAI
 from otp.ai.TimeManagerAI import TimeManagerAI
-from otp.ai import BanManagerAI
 from otp.distributed.OtpDoGlobals import *
+from otp.otpbase import OTPGlobals
 from otp.friends.FriendManagerAI import FriendManagerAI
 from otp.ai.CrashLogManagerAI import CrashLogManagerAI
 from toontown.ai.ToontownAIMsgTypes import CONTROL_ADD_POST_REMOVE, CONTROL_MESSAGE, PARTY_MANAGER_UD_TO_ALL_AI
@@ -14,6 +15,7 @@ from toontown.ai.AchievementsManagerAI import AchievementsManagerAI
 from toontown.fishing.FishManagerAI import FishManagerAI
 from toontown.ai.HolidayManagerAI import HolidayManagerAI
 from toontown.ai.NewsManagerAI import NewsManagerAI
+from toontown.ai.ShardDrainer import ShardDrainer
 from toontown.quest.QuestManagerAI import QuestManagerAI
 from toontown.ai import BankManagerAI
 from toontown.battle.BehaviorManagerAI import BehaviorManagerAI
@@ -40,6 +42,7 @@ from toontown.estate.DistributedBankMgrAI import DistributedBankMgrAI
 from toontown.fishing import DistributedFishingPondAI
 from toontown.safezone import DistributedFishingSpotAI
 from toontown.server.StatusReporting import FileSink, GatewaySink, StatusReporter
+from toontown.toon.DistributedToonAI import DistributedToonAI
 from toontown.hood import BRHoodDataAI
 from toontown.hood import BossbotHQDataAI
 from toontown.hood import CashbotHQDataAI
@@ -76,6 +79,8 @@ from toontown.uberdog.DistributedPartyManagerAI import DistributedPartyManagerAI
 from toontown.safezone import DistributedPartyGateAI
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
 from toontown.distributed.ShardTimeManagerAI import ShardTimeManagerAI
+import gc
+import signal
 import threading
 
 if ConfigVariableBool('want-leak-graph-ai', False).getValue():
@@ -161,6 +166,11 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         self.statusReporter = StatusReporter(self)
 
+        # Closing this district down without dropping the Toons in it. Armed in
+        # handleConnected, once there is something to drain.
+        self.drainer = ShardDrainer(self)
+        self.drainRequested = False
+
         self.notify.setInfo(True)  # Our AI repository should always log info.
         self.hoods = []
         self.cogHeadquarters = []
@@ -201,6 +211,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.wantTrackClsends = ConfigVariableBool('want-track-clsends', False).getValue()
         self.wantHalloween = ConfigVariableBool('want-halloween', False).getValue()
         self.wantChristmas = ConfigVariableBool('want-christmas', False).getValue()
+        self.wantClassicChars = ConfigVariableBool('want-classic-chars', True).getValue()
         self.wantFireworks = ConfigVariableBool('want-fireworks', False).getValue()
         self.leakGraph = None
         self.cogSuitMessageSent = False
@@ -222,12 +233,37 @@ class ToontownAIRepository(ToontownInternalRepository):
         Notifier.Notifier.streamWriter = StreamWriter(self.nout, False)
         self.nout.addStandardOutput()
 
+    def readDCFile(self, dcFileNames=None):
+        dcFile = DCFile()
+        if dcFileNames is None:
+            dcFile.readAll()
+        else:
+            for dcFileName in dcFileNames:
+                dcFile.read(Filename(dcFileName))
+
+        self.uberDogOnlyImports = set()
+        for n in range(dcFile.getNumImportModules()):
+            moduleSuffixes = dcFile.getImportModule(n).split('/')[1:]
+            for i in range(dcFile.getNumImportSymbols(n)):
+                symbol, *suffixes = dcFile.getImportSymbol(n, i).split('/')
+                suffixes += moduleSuffixes
+                if suffixes and 'AI' not in suffixes:
+                    self.uberDogOnlyImports.add(symbol)
+
+        ToontownInternalRepository.readDCFile(self, dcFileNames)
+
+    def importModule(self, dcImports, moduleName, importSymbols):
+        symbols = [symbol for symbol in importSymbols if symbol not in self.uberDogOnlyImports]
+        if importSymbols and not symbols:
+            return
+
+        ToontownInternalRepository.importModule(self, dcImports, moduleName, symbols)
+
     def createManagers(self):
         self.timeManager = TimeManagerAI(self)
         self.timeManager.generateWithRequired(2)
         self.magicWordManager = MagicWordManagerAI(self)
         self.magicWordManager.generateWithRequired(2)
-        #self.zoneManager = self.generateGlobalObject(OTP_DO_ID_ZONE_MANAGER, 'ZoneManager')
         self.crashLogManager = CrashLogManagerAI(self)
         self.newsManager = NewsManagerAI(self)
         self.newsManager.generateWithRequired(2)
@@ -238,8 +274,6 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.friendManager = FriendManagerAI(self)
         self.friendManager.generateWithRequired(2)
         self.questManager = QuestManagerAI(self)
-        self.banManager = BanManagerAI.BanManagerAI(self)
-        self.banManager.generateWithRequired(2)
         self.achievementsManager = AchievementsManagerAI(self)
         self.suitInvasionManager = SuitInvasionManagerAI(self)
         self.trophyMgr = DistributedTrophyMgrAI(self)
@@ -341,6 +375,7 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         self.startGateway()
         self.startStatusFile()
+        self.startDrainWatch()
 
         if ConfigVariableBool('want-threaded-ai-start', False).getValue():
             threading.Thread(target=self.startDistrict).start()
@@ -358,6 +393,36 @@ class ToontownAIRepository(ToontownInternalRepository):
 
         self.statusReporter.add(FileSink(self, path))
         self.notify.info('Writing host status to %s' % path)
+
+    def startDrainWatch(self):
+        if not ConfigVariableBool('want-drain-on-stop', True).getValue():
+            return
+
+        try:
+            signal.signal(signal.SIGTERM, self.handleTerm)
+        except ValueError:
+            self.notify.warning('Could not take SIGTERM; stops will not drain.')
+            return
+
+        taskMgr.doMethodLater(1, self.__drainWatch, 'ToontownAIRepository-drain-watch')
+
+    def handleTerm(self, signum, frame):
+        self.drainRequested = True
+
+    def __drainWatch(self, task):
+        if not self.drainRequested or self.drainer.isDraining():
+            return task.again
+
+        self.drainRequested = False
+
+        error = self.drainer.start('Asked to stop.')
+
+        if error:
+            self.notify.info('Stopping without a drain: %s' % error)
+            taskMgr.stop()
+            return task.done
+
+        return task.done
 
     def startGateway(self):
         """
@@ -399,10 +464,56 @@ class ToontownAIRepository(ToontownInternalRepository):
                 commandId, op == 'startHoliday', commandArgs)
         elif op == 'setXpMultiplier':
             self.handleXpMultiplierCommand(commandId, commandArgs)
+        elif op == 'drain':
+            self.handleDrainCommand(commandId, commandArgs)
+        elif op == 'announce':
+            self.handleAnnounceCommand(commandId, commandArgs)
         else:
             self.notify.warning('Ignoring an unknown gateway op: %s' % op)
             self.gateway.sendResult(
                 commandId, False, {'error': 'Unknown op: %s' % op})
+
+    def playerToons(self):
+        return [do for do in list(self.doId2do.values())
+                if isinstance(do, DistributedToonAI) and do.isPlayerControlled()]
+
+    def handleAnnounceCommand(self, commandId, commandArgs):
+        """
+        Whispers a message to the Toons in this district.
+        """
+        message = (commandArgs.get('message') or '').strip()
+
+        if not message:
+            self.gateway.sendResult(
+                commandId, False, {'error': 'There is no message to send.'})
+            return
+
+        build = (commandArgs.get('build') or '').strip()
+        toons = self.playerToons()
+        online = len(toons)
+
+        if build:
+            toons = [av for av in toons if av.getBuild() != build]
+
+        for av in toons:
+            av.d_setSystemMessage(0, message)
+
+        self.gateway.sendResult(
+            commandId, True, {'told': len(toons), 'online': online})
+
+    def handleDrainCommand(self, commandId, commandArgs):
+        """
+        Closes this district off and ends the process once it is empty.
+        """
+        error = self.drainer.start(
+            commandArgs.get('reason') or 'Requested from the website.')
+
+        if error:
+            self.gateway.sendResult(commandId, False, {'error': error})
+            return
+
+        self.gateway.sendResult(
+            commandId, True, {'population': len(self.playerToons())})
 
     @staticmethod
     def parseXpMultiplier(value):
@@ -595,10 +706,17 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.holidayManager = HolidayManagerAI(self)
         self.startConfiguredHolidays()
 
-        self.notify.info('Making district available...')
-        self.distributedDistrict.b_setAvailable(1)
+        if self.drainer.isDraining():
+            self.notify.info('Asked to drain while starting up; staying closed.')
+        else:
+            self.notify.info('Making district available...')
+            self.distributedDistrict.b_setAvailable(1)
         self.notify.info('Done.')
         Readiness.markReady()
+
+        # ServiceStart turns the collector off for startup
+        gc.enable()
+        gc.collect()
 
         if ConfigVariableBool('want-leak-graph-ai', False).getValue():
             self.leakGraph = LeakGraph(f'tti-ai-process-{self.ourChannel}')
@@ -660,6 +778,10 @@ class ToontownAIRepository(ToontownInternalRepository):
 
     def getAvatarExitEvent(self, avId: int) -> str:
         return f'distObjDelete-{avId}'
+
+    def kickAvatar(self, avId, reason):
+        # The channel the client agent opens for the avatar a client plays
+        self.eject(avId + (1001 << 32), OTPGlobals.BootKicked, reason)
 
     def trueUniqueName(self, name):
         return self.uniqueName(name)

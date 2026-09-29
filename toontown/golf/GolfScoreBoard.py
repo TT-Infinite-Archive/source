@@ -1,5 +1,6 @@
 from panda3d.core import LineSegs, TextNode
 from toontown.toonbase.ToonBaseGlobal import *
+from toontown.toonbase import ToontownClientGlobals
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.IntervalGlobal import *
 from direct.task import Task
@@ -56,13 +57,13 @@ class GolfScoreBoard:
         guiModel.removeNode()
         title = GolfGlobals.getCourseName(self.golfCourse.courseId) + ' - ' + GolfGlobals.getHoleName(self.golfCourse.holeIds[self.golfCourse.curHoleIndex])
         self.titleLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(0, 0, holeTop + 0.1), text_align=TextNode.ACenter, text=title, text_scale=TTLocalizer.GSBtitleLabel, text_font=ToontownGlobals.getSignFont(), text_fg=(0, 0.5, 0.125, 1))
-        self.playaLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart - 0.23, 0, holeTop), text_align=TextNode.ACenter, text=TTLocalizer.GolfHole, text_font=ToontownGlobals.getMinnieFont(), text_scale=0.05)
+        self.playaLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart - 0.23, 0, holeTop), text_align=TextNode.ACenter, text=TTLocalizer.GolfHole, text_font=ToontownClientGlobals.getMinnieFont(), text_scale=0.05)
         for holeLIndex in range(self.golfCourse.numHoles):
             holeLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart + 0.055 + horzOffset * holeLIndex, 0, holeTop), text_align=TextNode.ACenter, text='%s' % (holeLIndex + 1), text_scale=0.05)
             self.holeLabels.append(holeLabel)
 
-        self.totalLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart + 0.1 + horzOffset * 9.5, 0, holeTop), text_align=TextNode.ACenter, text=TTLocalizer.GolfTotal, text_font=ToontownGlobals.getMinnieFont(), text_scale=0.05)
-        self.parTitleLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart - 0.23, 0, holeTop - 0.1), text_align=TextNode.ACenter, text=TTLocalizer.GolfPar, text_font=ToontownGlobals.getMinnieFont(), text_scale=0.05)
+        self.totalLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart + 0.1 + horzOffset * 9.5, 0, holeTop), text_align=TextNode.ACenter, text=TTLocalizer.GolfTotal, text_font=ToontownClientGlobals.getMinnieFont(), text_scale=0.05)
+        self.parTitleLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart - 0.23, 0, holeTop - 0.1), text_align=TextNode.ACenter, text=TTLocalizer.GolfPar, text_font=ToontownClientGlobals.getMinnieFont(), text_scale=0.05)
         for parHoleIndex in range(self.golfCourse.numHoles):
             parLabel = DirectLabel(parent=self.scoreboard, relief=None, pos=(self.lineVStart + 0.055 + horzOffset * parHoleIndex, 0, holeTop - 0.1), text_align=TextNode.ACenter, text='%s' % GolfGlobals.HoleInfo[self.golfCourse.holeIds[parHoleIndex]]['par'], text_scale=0.05, text_wordwrap=10)
             totPar = totPar + GolfGlobals.HoleInfo[self.golfCourse.holeIds[parHoleIndex]]['par']

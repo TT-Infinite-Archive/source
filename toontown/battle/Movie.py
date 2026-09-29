@@ -29,9 +29,9 @@ from toontown.chat.ChatGlobals import *
 from toontown.distributed import DelayDelete
 from toontown.toon import NPCToons
 from toontown.toon import Toon
-from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownBattleGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TTDialog
 from toontown.nametag import NametagGlobals
 

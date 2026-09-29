@@ -25,11 +25,16 @@ WORKDIR /astron
 COPY astron/dclass /astron/dclass
 COPY docker/astron/astrond.yml /astron/config/astrond.yml
 
-# A silent no-op here leaves astrond gating on the literal string
-# SERVER_VERSION and every client is rejected at connect time.
-ARG SERVER_VERSION=dev
-RUN sed -i "s/\"SERVER_VERSION\"/\"${SERVER_VERSION}\"/" /astron/config/astrond.yml \
-    && grep -q "version: \"${SERVER_VERSION}\"" /astron/config/astrond.yml
+# A silent no-op here would leave
+# astrond gating on the literal string SERVER_VERSION, so the grep guards it.
+COPY config/distribution/live.prc /tmp/live.prc
+RUN protocol=$(awk '$1 == "server-version" { print $2; exit }' /tmp/live.prc) \
+    && [ -n "$protocol" ] \
+    && sed -i "s/\"SERVER_VERSION\"/\"${protocol}\"/" /astron/config/astrond.yml \
+    && grep -q "version: \"${protocol}\"" /astron/config/astrond.yml \
+    && rm /tmp/live.prc
+
+ARG BUILD_VERSION=dev
 
 RUN useradd --system --create-home --uid 10002 astron \
     && mkdir -p /astron/logs && chown -R astron /astron
@@ -40,3 +45,4 @@ CMD ["--loglevel", "info", "/astron/config/astrond.yml"]
 
 LABEL org.opencontainers.image.title="TTI Astron"
 LABEL org.opencontainers.image.description="Astron message director for the TTI game server."
+LABEL org.opencontainers.image.version="${BUILD_VERSION}"

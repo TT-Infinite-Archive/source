@@ -1,6 +1,7 @@
 from toontown.safezone.DLSafeZoneLoader import DLSafeZoneLoader
 from toontown.town.DLTownLoader import DLTownLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood.ToonHood import ToonHood
 
 
@@ -25,7 +26,7 @@ class DLHood(ToonHood):
     def enter(self, requestStatus):
         ToonHood.enter(self, requestStatus)
 
-        base.camLens.setNearFar(ToontownGlobals.DreamlandCameraNear, ToontownGlobals.DreamlandCameraFar)
+        base.camLens.setNearFar(ToontownClientGlobals.DreamlandCameraNear, ToontownClientGlobals.DreamlandCameraFar)
 
     def exit(self):
         base.camLens.setNearFar(ToontownGlobals.DefaultCameraNear, ToontownGlobals.DefaultCameraFar)

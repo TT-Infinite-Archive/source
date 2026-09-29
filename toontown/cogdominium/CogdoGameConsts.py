@@ -12,6 +12,6 @@ LaffPenalty = 50
 PenthouseElevatorInPath = '**/elevatorIN_node'
 PenthouseElevatorOutPath = '**/elevatorOUT_node'
 
-from toontown.toonbase import TTLocalizer
-WaitingForOtherPlayers = TTLocalizer.MinigameWaitingForOtherPlayers
-PleaseWait = TTLocalizer.MinigamePleaseWait
+from toontown.toonbase import TTLocalizerServer
+WaitingForOtherPlayers = TTLocalizerServer.MinigameWaitingForOtherPlayers
+PleaseWait = TTLocalizerServer.MinigamePleaseWait

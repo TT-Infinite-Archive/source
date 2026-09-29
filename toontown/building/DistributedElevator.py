@@ -9,6 +9,7 @@ from direct.fsm import ClassicFSM, State
 from direct.distributed import DistributedObject
 from direct.fsm import State
 from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.task.Task import Task
 from toontown.distributed import DelayDelete
 from toontown.hood import ZoneUtil
@@ -475,7 +476,7 @@ class DistributedElevator(DistributedObject.DistributedObject):
             elevator = self.elevatorFSM
             del self.elevatorFSM
             elevator.signalDone(doneStatus)
-            base.camLens.setMinFov(ToontownGlobals.CBElevatorFov/(4./3.))
+            base.camLens.setMinFov(ToontownClientGlobals.CBElevatorFov/(4./3.))
         return
 
     def getElevatorModel(self):

@@ -2,7 +2,7 @@ from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobal
 from direct.directnotify import DirectNotifyGlobal
 from toontown.building.GroupTrackerGlobals import SPECIAL_GROUPS, JELLYBEAN_FEST, GROUP_TYPE_JELLYBEAN
 from toontown.chat.ResistanceChat import getMenuName
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 
 
 class GlobalGroupTrackerAI(DistributedObjectGlobalAI):

@@ -7,6 +7,7 @@ class DistributedDistrictAI(DistributedObjectAI):
 
     name = 'District'
     available = 0
+    draining = 0
 
     def setName(self, name):
         self.name = name
@@ -33,3 +34,16 @@ class DistributedDistrictAI(DistributedObjectAI):
 
     def getAvailable(self):
         return self.available
+
+    def setDraining(self, draining):
+        self.draining = draining
+
+    def d_setDraining(self, draining):
+        self.sendUpdate('setDraining', [draining])
+
+    def b_setDraining(self, draining):
+        self.setDraining(draining)
+        self.d_setDraining(draining)
+
+    def getDraining(self):
+        return self.draining

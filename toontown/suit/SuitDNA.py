@@ -1,7 +1,7 @@
 from panda3d.core import Datagram, DatagramIterator, VBase4
 import random
 from direct.directnotify.DirectNotifyGlobal import *
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer
 import random
 from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator
@@ -77,14 +77,14 @@ suitDepts = [
     'm',
     's'
 ]
-suitDeptFullnames = {'c': TTLocalizer.Bossbot,
- 'l': TTLocalizer.Lawbot,
- 'm': TTLocalizer.Cashbot,
- 's': TTLocalizer.Sellbot}
-suitDeptFullnamesP = {'c': TTLocalizer.BossbotP,
- 'l': TTLocalizer.LawbotP,
- 'm': TTLocalizer.CashbotP,
- 's': TTLocalizer.SellbotP}
+suitDeptFullnames = {'c': TTLocalizerServer.Bossbot,
+ 'l': TTLocalizerServer.Lawbot,
+ 'm': TTLocalizerServer.Cashbot,
+ 's': TTLocalizerServer.Sellbot}
+suitDeptFullnamesP = {'c': TTLocalizerServer.BossbotP,
+ 'l': TTLocalizerServer.LawbotP,
+ 'm': TTLocalizerServer.CashbotP,
+ 's': TTLocalizerServer.SellbotP}
 
 corpPolyColor = VBase4(0.95, 0.75, 0.75, 1.0)
 legalPolyColor = VBase4(0.75, 0.75, 0.95, 1.0)
@@ -205,7 +205,7 @@ class SuitDNA(AvatarDNA.AvatarDNA):
         elif self.type == 'u':
             notify.error('undefined avatar')
         else:
-            notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: %s' % self.type)
         return dg.getMessage()
 
     def makeFromNetString(self, string):
@@ -219,7 +219,7 @@ class SuitDNA(AvatarDNA.AvatarDNA):
         elif self.type == 'b':
             self.dept = dgi.getFixedString(1)
         else:
-            notify.error('unknown avatar type: ', self.type)
+            notify.error('unknown avatar type: %s' % self.type)
         return None
 
     def __defaultGoon(self):
@@ -276,7 +276,7 @@ class SuitDNA(AvatarDNA.AvatarDNA):
             if name in goonTypes:
                 self.name = name
             else:
-                notify.error('unknown goon type: ', name)
+                notify.error('unknown goon type: %s' % name)
         return
 
     def getType(self):
@@ -285,5 +285,5 @@ class SuitDNA(AvatarDNA.AvatarDNA):
         elif self.type == 'b':
             type = 'boss'
         else:
-            notify.error('Invalid DNA type: ', self.type)
+            notify.error('Invalid DNA type: %s' % self.type)
         return type

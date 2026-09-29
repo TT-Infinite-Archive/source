@@ -1,4 +1,4 @@
-from toontown.toonbase.TTLocalizer import FactoryQuestDescriptions, FactoryQuestNames, FactoryQuestProgressString
+from toontown.toonbase.TTLocalizerServer import FactoryQuestDescriptions, FactoryQuestNames, FactoryQuestProgressString
 import random
 
 class FactoryQuest:

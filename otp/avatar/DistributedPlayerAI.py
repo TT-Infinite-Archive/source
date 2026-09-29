@@ -7,21 +7,20 @@ from otp.ai.MagicWordGlobal import *
 from otp.avatar import DistributedAvatarAI
 from otp.avatar import PlayerBase
 from otp.distributed import OtpDoGlobals
-from otp.distributed.ClsendTracker import ClsendTracker
-from otp.otpbase import OTPLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
 
 
-class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.PlayerBase, ClsendTracker):
+class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.PlayerBase):
     def __init__(self, air):
         DistributedAvatarAI.DistributedAvatarAI.__init__(self, air)
         PlayerBase.PlayerBase.__init__(self)
-        ClsendTracker.__init__(self)
         self.friendsList = []
         self.DISLname = ''
         self.DISLid = 0
         self.adminAccess = 0
         self.chatMode = 0
         self.platform = ''
+        self.build = ''
 
     if __dev__:
 
@@ -31,7 +30,6 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
     def announceGenerate(self):
         DistributedAvatarAI.DistributedAvatarAI.announceGenerate(self)
-        ClsendTracker.announceGenerate(self)
         self._doPlayerEnter()
 
     def _announceArrival(self):
@@ -49,7 +47,6 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         if __dev__:
             del self._sentExitServerEvent
         self._doPlayerExit()
-        ClsendTracker.destroy(self)
         if __dev__:
             GarbageReport.checkForGarbageLeaks()
         DistributedAvatarAI.DistributedAvatarAI.delete(self)
@@ -155,6 +152,19 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
     
     def getPlatform(self):
         return self.platform
+
+    def setBuild(self, build):
+        self.build = build
+
+    def d_setBuild(self, build):
+        self.sendUpdate('setBuild', [build])
+
+    def b_setBuild(self, build):
+        self.setBuild(build)
+        self.d_setBuild(build)
+
+    def getBuild(self):
+        return self.build
 
     def extendFriendsList(self, friendId, friendCode):
         for i in range(len(self.friendsList)):

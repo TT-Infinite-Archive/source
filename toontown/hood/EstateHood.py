@@ -1,6 +1,7 @@
 from panda3d.core import CompassEffect, NodePath, TransparencyAttrib, Vec4
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.distributed.ToontownMsgTypes import *
 from direct.fsm import ClassicFSM, State
 from toontown.minigame import Purchase

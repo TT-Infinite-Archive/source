@@ -1,31 +1,10 @@
-# Window settings:
-window-title Toontown Infinite
-win-origin -2 -2
-icon-filename phase_3/etc/icon.ico
-cursor-filename phase_3/etc/toonmono.cur
-
-# Audio:
+# Audio (client.prc turns it on for the client):
 audio-library-name null
-
-# Graphics:
-# aux-display pandagl
-load-display pandagl
-aux-display p3tinydisplay
-text-pixels-per-unit 128
 
 # Models:
 model-cache-models #f
 model-cache-textures #f
 default-model-extension .bam
-
-# Textures:
-texture-anisotropic-degree 16
-
-# Preferences:
-preferences-path preferences.json
-
-# Content packs:
-content-packs-path contentpacks
 
 # Backups:
 backups-filepath backups/
@@ -35,8 +14,6 @@ backups-extension .json
 server-timezone PST/PDT/-8
 
 # Performance:
-sync-video #f
-gl-check-errors #f
 garbage-collect-states #t
 support-threads #t
 loader-num-threads 35
@@ -71,6 +48,9 @@ want-goofy-speedway #t
 want-outdoor-zone #t
 want-golf-zone #t
 
+# Classic characters:
+want-classic-chars #f
+
 # Trolley minigames:
 want-photo-game #f
 want-travel-game #f
@@ -93,9 +73,6 @@ want-resistance-dance #f
 
 # Cog battles:
 base-xp-multiplier 1.0
-
-# Animated Props
-zero-pause-mult 1.0
 
 # Interactive Props
 randomize-interactive-idles #t
@@ -136,8 +113,3 @@ want-connection-warmup #t
 
 # Toon patches:
 toon-patch-version 0
-
-# Intel:
-stencil-bits 1
-depth-bits 24
-allow-incomplete-render #f

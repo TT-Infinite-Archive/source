@@ -19,7 +19,7 @@
 from panda3d.core import ConfigVariableBool, ConfigVariableDouble
 from direct.distributed import ClockDelta
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivityAI
 from toontown.parties.activityFSMs import TeamActivityAIFSM
@@ -162,7 +162,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         """
         self.notify.debug("_removeToonFromTeam")
         
-        if type(team) != type(1):
+        if not isinstance(team, int):
             self.notify.warning("Tried to remove toonId=%s from %s, but team is not an integer" % (toonId, str(team)))
         elif not toonId in self.toonIds[team]:
             self.notify.warning("Tried to remove toonId=%s from %s when it was not on that team. Ignoring request." % (toonId, self.getTeamName(team)))
@@ -434,7 +434,7 @@ class DistributedPartyTeamActivityAI(DistributedPartyActivityAI):
         state = self.activityFSM.getCurrentOrNextState()
         
         if not self._canSwitchTeams:
-            self.writeServerEvent(
+            self.air.writeServerEvent(
                 'suspicious',
                 senderId,
                 "Trying to switch teams when the team activity does not allow it.")

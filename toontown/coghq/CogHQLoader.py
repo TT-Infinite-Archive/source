@@ -4,6 +4,7 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.fsm import StateData
+from toontown.dna import DNAUtil
 from toontown.hood import QuietZoneState
 from toontown.hood import ZoneUtil
 from toontown.suit import Suit
@@ -34,10 +35,12 @@ class CogHQLoader(StateData.StateData):
         self.townBattle = TownBattle.TownBattle(self.townBattleDoneEvent)
         self.townBattle.load()
         Suit.loadSuits(3)
-        self.loadPlaceGeom(zoneId)
+        if not ZoneUtil.isDynamicZone(zoneId):
+            self.loadPlaceGeom(zoneId)
 
     def loadPlaceGeom(self, zoneId):
-        pass
+        if self.geom:
+            DNAUtil.biasDecals(self.geom)
 
     def unloadPlaceGeom(self):
         pass
@@ -104,7 +107,8 @@ class CogHQLoader(StateData.StateData):
         if status.get('shardId') == None and self.isInThisHq(status):
             self.unloadPlaceGeom()
             zoneId = status['zoneId']
-            self.loadPlaceGeom(zoneId)
+            if not ZoneUtil.isDynamicZone(zoneId):
+                self.loadPlaceGeom(zoneId)
             self.fsm.request('quietZone', [status])
         else:
             self.doneStatus = status

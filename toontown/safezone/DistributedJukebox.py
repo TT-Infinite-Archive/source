@@ -6,6 +6,7 @@ from direct.distributed.DistributedObject import DistributedObject
 
 from toontown.safezone import JukeboxGlobals
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toontowngui.JukeboxGui import JukeboxGui
 from toontown.util.VolumeInterval import VolumeInterval
 from direct.filter.CommonFilters import CommonFilters
@@ -63,7 +64,7 @@ class DistributedJukebox(DistributedObject):
         self.sign.reparentTo(self.jukebox)
         self.signText = TextNode('%s-textNode' % self.getDoId())
         self.signText.setText('')
-        self.signText.setFont(ToontownGlobals.ToonFont)
+        self.signText.setFont(ToontownClientGlobals.ToonFont)
         self.signText.setTextColor(0.0, 0.0, 0.0, 1.0)
         self.signText.setAlign(TextNode.ACenter)
         self.signText.setWordwrap(12)

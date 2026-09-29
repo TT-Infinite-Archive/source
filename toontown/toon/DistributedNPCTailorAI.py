@@ -3,7 +3,6 @@ from otp.ai.AIBaseGlobal import *
 from .DistributedNPCToonBaseAI import *
 from . import ToonDNA
 from direct.task.Task import Task
-from toontown.ai import DatabaseObject
 from toontown.estate import ClosetGlobals
 
 class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
@@ -66,7 +65,7 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
         DistributedNPCToonBaseAI.avatarEnter(self)
 
     def isClosetAlmostFull(self, av):
-        numClothes = len(av.clothesTopsList) / 4 + len(av.clothesBottomsList) / 2
+        numClothes = len(av.clothesTopsList) // 4 + len(av.clothesBottomsList) // 2
         if numClothes >= av.maxClothes - 1:
             return 1
         return 0
@@ -121,6 +120,19 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
          ClockDelta.globalClockDelta.getRealNetworkTime()])
         self.sendClearMovie(None)
 
+    def withClothesFrom(self, blob, which):
+        # A tailor changes clothes, so the rest of the toon stays as it came in
+        chosen = ToonDNA.ToonDNA()
+        chosen.makeFromNetString(blob)
+        dna = ToonDNA.ToonDNA()
+        dna.makeFromNetString(self.customerDNA.makeNetString())
+        if which & ClosetGlobals.SHIRT:
+            dna.topTex, dna.topTexColor = chosen.topTex, chosen.topTexColor
+            dna.sleeveTex, dna.sleeveTexColor = chosen.sleeveTex, chosen.sleeveTexColor
+        if which & ClosetGlobals.SHORTS:
+            dna.botTex, dna.botTexColor = chosen.botTex, chosen.botTexColor
+        return dna.makeNetString()
+
     def setDNA(self, blob, finished, which):
         avId = self.air.getAvatarIdFromSender()
         if avId != self.customerId:
@@ -131,6 +143,12 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
         testDNA = ToonDNA.ToonDNA()
         if not testDNA.isValidNetString(blob):
             self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA: invalid dna: %s' % blob)
+            return
+        if not self.customerDNA:
+            return
+        blob = self.withClothesFrom(blob, which if finished == 2 else ClosetGlobals.SHIRT | ClosetGlobals.SHORTS)
+        if not testDNA.isValidNetString(blob):
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCTailorAI.setDNA: clothes do not fit the toon')
             return
         if avId in self.air.doId2do:
             av = self.air.doId2do.get(avId)
@@ -180,14 +198,16 @@ class DistributedNPCTailorAI(DistributedNPCToonBaseAI):
     def __handleUnexpectedExit(self, avId):
         self.notify.warning('avatar:' + str(avId) + ' has exited unexpectedly')
         if self.customerId == avId:
-            toon = self.air.doId2do.get(avId)
-            if toon == None:
-                toon = DistributedToonAI.DistributedToonAI(self.air)
-                toon.doId = avId
             if self.customerDNA:
-                toon.b_setDNAString(self.customerDNA.makeNetString())
-                db = DatabaseObject.DatabaseObject(self.air, avId)
-                db.storeObject(toon, ['setDNAString'])
+                toon = self.air.doId2do.get(avId)
+                if toon is not None:
+                    toon.b_setDNAString(self.customerDNA.makeNetString())
+                else:
+                    self.air.dbInterface.updateObject(
+                        self.air.dbId, avId,
+                        self.air.dclassesByName['DistributedToonAI'],
+                        {'setDNAString': (self.customerDNA.makeNetString(),)}
+                    )
         else:
             self.notify.warning('invalid customer avId: %s, customerId: %s ' % (avId, self.customerId))
         if self.busy == avId:

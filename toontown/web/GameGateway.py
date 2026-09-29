@@ -4,8 +4,11 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.DirectObject import DirectObject
 
 from otp.distributed import OtpDoGlobals
+from otp.otpbase import OTPGlobals
+from toontown.web.AccountPurge import AccountPurge
 from toontown.web.ChatLog import ChatLog
 from toontown.web.GatewaySocket import openSocket
+from toontown.web.ReportLog import ReportLog
 from toontown.web.ToonRoster import ToonRoster
 
 NOT_PENDING = 'The Toon is no longer awaiting a name.'
@@ -37,6 +40,8 @@ class GameGateway(DirectObject):
             'approveGuildName': lambda args, done: self.decideGuildName(args, done, True),
             'denyGuildName': lambda args, done: self.decideGuildName(args, done, False),
             'claimLegacyAccount': self.claimLegacyAccount,
+            'kickAccount': self.kickAccount,
+            'deleteAccount': self.deleteAccount,
         }
 
         self.socket = socket if socket is not None else openSocket(onCommand=self.apply)
@@ -45,6 +50,7 @@ class GameGateway(DirectObject):
 
         self.chatLog = ChatLog(air, self.socket)
         self.toonRoster = ToonRoster(air, self.socket)
+        self.reportLog = ReportLog(air, self.socket, self.chatLog)
 
         if self.socket is None:
             self.notify.warning('No gateway; name review will not reach the game.')
@@ -157,6 +163,18 @@ class GameGateway(DirectObject):
             done(True, {})
 
         guildManager.callWhenLoaded(apply)
+
+    def kickAccount(self, args, done):
+        accountId = self.air.csm.accountDB.accountIdForUser(str(args['userId']))
+        if accountId:
+            self.air.csm.killAccount(accountId, str(args['reason']), OTPGlobals.BootBanned)
+        done(True, {'online': bool(accountId)})
+
+    def deleteAccount(self, args, done):
+        """
+        Permanently deletes a website user's game data.
+        """
+        AccountPurge(self.air, str(args['userId']), done).start()
 
     def claimLegacyAccount(self, args, done):
         """

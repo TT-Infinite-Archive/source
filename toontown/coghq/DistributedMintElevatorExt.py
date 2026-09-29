@@ -5,7 +5,9 @@ from toontown.building.ElevatorConstants import *
 from toontown.building.ElevatorUtils import *
 from toontown.building import DistributedElevatorExt
 from toontown.building import DistributedElevator
+from toontown.dna import DNAUtil
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.gui import DirectGui
@@ -47,9 +49,10 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
         locator = geom.find('**/elevator_signorigin_%s' % originId)
         backgroundGeom = geom.find('**/ElevatorFrameFront_%d' % originId)
         backgroundGeom.node().setEffect(DecalEffect.make())
-        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[mintId][-1]), font=ToontownGlobals.getSuitFont(), scale=TTLocalizer.DMEEsignText, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
+        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.GlobalStreetNames[mintId][-1]), font=ToontownClientGlobals.getSuitFont(), scale=TTLocalizer.DMEEsignText, fg=(0.87, 0.87, 0.87, 1), mayChange=False, parent=backgroundGeom)
         signText.setPosHpr(locator, 0, 0, 0, 0, 0, 0)
         signText.setDepthWrite(0)
+        DNAUtil.biasDecals(backgroundGeom)
 
     def setupElevator(self):
         self.elevatorModel = loader.loadModel('phase_10/models/cogHQ/mintElevator')
@@ -76,9 +79,6 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
     def setMintInteriorZone(self, zoneId):
         if self.localToonOnBoard:
             hoodId = self.cr.playGame.hood.hoodId
-            mintId = self.mintId
-            if bboard.has('mintIdOverride'):
-                mintId = bboard.get('mintIdOverride')
             doneStatus = {'loader': 'cogHQLoader',
              'where': 'mintInterior',
              'how': 'teleportIn',
@@ -92,9 +92,6 @@ class DistributedMintElevatorExt(DistributedElevatorExt.DistributedElevatorExt):
         if place:
             place.fsm.request('elevator', [self, 1])
             hoodId = self.cr.playGame.hood.hoodId
-            mintId = self.mintId
-            if bboard.has('mintIdOverride'):
-                mintId = bboard.get('mintIdOverride')
             doneStatus = {'loader': 'cogHQLoader',
              'where': 'mintInterior',
              'how': 'teleportIn',

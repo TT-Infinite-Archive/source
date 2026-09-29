@@ -1,5 +1,6 @@
 from toontown.coghq.CashbotCogHQLoader import CashbotCogHQLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.hood.CogHood import CogHood
 from toontown.hood import ZoneUtil
@@ -15,8 +16,8 @@ class CashbotHQ(CogHood):
     def enter(self, requestStatus):
         CogHood.enter(self, requestStatus)
 
-        base.localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
-        base.camLens.setNearFar(ToontownGlobals.CashbotHQCameraNear, ToontownGlobals.CashbotHQCameraFar)
+        base.localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
+        base.camLens.setNearFar(ToontownClientGlobals.CashbotHQCameraNear, ToontownClientGlobals.CashbotHQCameraFar)
 
     def spawnTitleText(self, zoneId, floorNum=None):
         if ZoneUtil.isMintInteriorZone(zoneId):

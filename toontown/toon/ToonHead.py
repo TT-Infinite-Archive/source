@@ -576,7 +576,8 @@ class ToonHead(Actor.Actor):
             mode = -2
         if self.hasLOD():
             for lodName in self.getLODNames():
-                self.drawInFront('eyes*', 'head-front*', mode, lodName=lodName)
+                if not self.getLOD(lodName).find('**/head-front*').isEmpty():
+                    self.drawInFront('eyes*', 'head-front*', mode, lodName=lodName)
                 if ConfigVariableBool('want-new-anims', True).getValue():
                     if not self.find('**/joint_pupil*').isEmpty():
                         self.drawInFront('joint_pupil*', 'eyes*', -1, lodName=lodName)

@@ -154,18 +154,7 @@ class NewsManagerAI(DistributedObjectAI.DistributedObjectAI):
         """Force a send of the oncely calendar holidays."""
         self.sendUpdate("setOncelyCalendarHolidays", [self.oncelyCalendarHolidays])
 
-    def addRelativelyCalendarHoliday(self, holidayId, firstStartTime, lastEndTime):
-        """Add a new oncely holiday."""
-        # Note the holiday can have breaks in it.  e.g. no bloodsucker invasion
-        # happens between 3 and 6 pm on halloween, however for simplicity
-        # we just note the first time it will happen, and the last end time for it
-        self.relativelyCalendarHolidays.append((holidayId, firstStartTime, lastEndTime))
-
     def getRelativelyCalendarHolidays(self):
         """Return our list of Relatively calendar holidays."""
         return self.relativelyCalendarHolidays
-
-    def sendRelativelyCalendarHolidays(self):
-        """Force a send of the Relatively calendar holidays."""
-        self.sendUpdate("setRelativelyCalendarHolidays", [self.relativelyCalendarHolidays])
 

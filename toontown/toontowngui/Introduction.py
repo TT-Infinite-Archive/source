@@ -7,6 +7,7 @@ from direct.fsm.FSM import FSM
 
 from toontown.toontowngui.ToontownUnlockTimer import ToontownUnlockTimer
 from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class Introduction(FSM, DirectObject):
@@ -19,7 +20,7 @@ class Introduction(FSM, DirectObject):
         if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
             font = ToontownGlobals.getNametagFont(10)
         else:
-            font = ToontownGlobals.getMinnieFont()
+            font = ToontownClientGlobals.getMinnieFont()
         self.label = OnscreenText(
             '', parent=hidden, font=font, fg=Vec4(1, 1, 1, 1), scale=0.06,
             align=TextNode.ACenter, wordwrap=35)

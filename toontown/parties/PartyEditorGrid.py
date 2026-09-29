@@ -343,8 +343,8 @@ class PartyEditorGrid:
 
     def checkGridSquareForAvailability(self, gridSquare, size):
         xOffsetLow, xOffsetHigh, yOffset = self.getXYOffsets(size)
-        for y in range(int(gridSquare.y - size[1] / 2), int(gridSquare.y + size[1] / 2) + yOffset):
-            for x in range(int(gridSquare.x - size[0] / 2) + xOffsetLow, int(gridSquare.x + size[0] / 2) + xOffsetHigh):
+        for y in range(int(gridSquare.y - size[1] // 2), int(gridSquare.y + size[1] // 2) + yOffset):
+            for x in range(int(gridSquare.x - size[0] // 2) + xOffsetLow, int(gridSquare.x + size[0] // 2) + xOffsetHigh):
                 testGridSquare = self.getGridSquare(x, y)
                 if testGridSquare is None:
                     return False
@@ -383,8 +383,8 @@ class PartyEditorGrid:
 
     def registerNewElement(self, gridElement, centerGridSquare, size):
         xOffsetLow, xOffsetHigh, yOffset = self.getXYOffsets(size)
-        for y in range(int(centerGridSquare.y - size[1] / 2), int(centerGridSquare.y + size[1] / 2) + yOffset):
-            for x in range(int(centerGridSquare.x - size[0] / 2) + xOffsetLow, int(centerGridSquare.x + size[0] / 2) + xOffsetHigh):
+        for y in range(int(centerGridSquare.y - size[1] // 2), int(centerGridSquare.y + size[1] // 2) + yOffset):
+            for x in range(int(centerGridSquare.x - size[0] // 2) + xOffsetLow, int(centerGridSquare.x + size[0] // 2) + xOffsetHigh):
                 testGridSquare = self.getGridSquare(x, y)
                 if testGridSquare is None:
                     return False
@@ -399,8 +399,8 @@ class PartyEditorGrid:
 
     def removeElement(self, centerGridSquare, size):
         xOffsetLow, xOffsetHigh, yOffset = self.getXYOffsets(size)
-        for y in range(int(centerGridSquare.y - size[1] / 2), int(centerGridSquare.y + size[1] / 2) + yOffset):
-            for x in range(int(centerGridSquare.x - size[0] / 2) + xOffsetLow, int(centerGridSquare.x + size[0] / 2) + xOffsetHigh):
+        for y in range(int(centerGridSquare.y - size[1] // 2), int(centerGridSquare.y + size[1] // 2) + yOffset):
+            for x in range(int(centerGridSquare.x - size[0] // 2) + xOffsetLow, int(centerGridSquare.x + size[0] // 2) + xOffsetHigh):
                 testGridSquare = self.getGridSquare(x, y)
                 if testGridSquare is None:
                     return False

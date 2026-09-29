@@ -7,7 +7,7 @@ from direct.task import Task
 import random
 from . import CharStateDatasAI
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DistributedPlutoAI(DistributedCCharBaseAI.DistributedCCharBaseAI):

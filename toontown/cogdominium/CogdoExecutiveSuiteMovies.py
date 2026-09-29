@@ -9,7 +9,7 @@ from toontown.toonbase.ToontownGlobals import *
 from toontown.toonbase import TTLocalizer
 from toontown.suit import Suit, SuitDNA
 from toontown.toon import Toon, ToonHead, ToonDNA
-from .CogdoUtil import CogdoGameMovie
+from .CogdoGameMovie import CogdoGameMovie
 from . import CogdoUtil
 
 class CogdoExecutiveSuiteIntro(CogdoGameMovie):

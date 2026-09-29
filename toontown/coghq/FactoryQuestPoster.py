@@ -1,5 +1,5 @@
 from panda3d.core import CardMaker, NodePath, Texture, TransparencyAttrib, VBase4
-from toontown.toonbase.ToontownGlobals import getSuitFont
+from toontown.toonbase.ToontownClientGlobals import getSuitFont
 from direct.gui.DirectGui import DirectWaitBar, DirectFrame, DGG, OnscreenText
 from toontown.toonbase import TTLocalizer
 from toontown.coghq import FactoryQuestGlobals

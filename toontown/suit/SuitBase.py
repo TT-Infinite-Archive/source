@@ -4,7 +4,7 @@ from . import SuitTimings
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import *
 from toontown.battle import SuitBattleGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer
 
 
 TIME_BUFFER_PER_WPT = 0.25
@@ -48,7 +48,7 @@ class SuitBase:
 
     def setLevel(self, level):
         self.level = level
-        nameWLevel = TTLocalizer.SuitBaseNameWithLevel % {'name': self.name,
+        nameWLevel = TTLocalizerServer.SuitBaseNameWithLevel % {'name': self.name,
          'dept': self.getStyleDept(),
          'level': self.getActualLevel()}
         self.setDisplayName(nameWLevel)

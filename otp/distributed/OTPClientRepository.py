@@ -1,5 +1,3 @@
-import builtins
-import enum
 import gc
 import json
 import os
@@ -9,7 +7,7 @@ import types
 import hashlib
 import yaml
 from panda3d.direct import CConnectionRepository
-from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, HTTPClient, MemoryUsage, NodePath, Notify, StringStream, hashPrcVariables, ostream
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Datagram, DatagramIterator, HTTPClient, MemoryUsage, NodePath, Notify, hashPrcVariables, ostream
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from direct.distributed import DistributedSmoothNode
@@ -31,14 +29,11 @@ from otp.avatar.DistributedPlayer import DistributedPlayer
 from otp.distributed import OtpDoGlobals
 from otp.distributed.OtpDoGlobals import *
 from otp.distributed.TelemetryLimiter import TelemetryLimiter
-from otp.login import HTTPUtil
 from otp.login import LoginTTIAccount
-from otp.login.CreateAccountScreen import CreateAccountScreen
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLauncherGlobals
 from otp.otpbase import OTPLocalizer
 from otp.otpgui import OTPDialog
-from otp.uberdog import OtpAvatarManager
 from toontown.chat.ChatGlobals import *
 from toontown.mainmenu.MainMenu import MainMenu
 from toontown.server import ServerGlobals
@@ -51,16 +46,12 @@ if not __debug__:
         return lambda method: method
 
 
-class EWishNameResult(enum.IntEnum):
-    FAILURE = 0
-    PENDING_APPROVAL = 1
-    APPROVED = 2
-    REJECTED = 3
-
 class OTPClientRepository(ClientRepositoryBase):
     notify = directNotify.newCategory('OTPClientRepository')
     avatarLimit = 6
     whiteListChatEnabled = 1 # TODO: Have server set this on localAvatar on login.
+    TOKEN_REFRESH_SECONDS = 45 * 60
+    TOKEN_REFRESH_TASK = 'OTPClientRepository-token-refresh'
 
     def __init__(self, serverVersion, launcher = None, playGame = None):
         ClientRepositoryBase.__init__(self)
@@ -70,7 +61,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.__currentAvId = 0
         self.productName = ConfigVariableString('product-name', 'DisneyOnline-US').getValue()
         self.createAvatarClass = None
-        self.systemMessageSfx = None
         self.blue = None
         base.isLoggingOut = None
 
@@ -178,29 +168,13 @@ class OTPClientRepository(ClientRepositoryBase):
                       'noConnection',
                       'serverMenu',
                       'waitForGameList',
-                      'failedToConnect',
-                      'failedToGetServerConstants']),
-            State('createAccount',
-                  self.enterCreateAccount,
-                  self.exitCreateAccount, [
-                      'noConnection',
-                      'waitForGameList',
-                      'serverMenu',
-                      'reject',
-                      'failedToConnect',
-                      'shutdown']),
+                      'failedToConnect']),
             State('failedToConnect',
                   self.enterFailedToConnect,
                   self.exitFailedToConnect, [
                       'connect',
                       'mainMenu',
                       'shutdown']),
-            State('failedToGetServerConstants',
-                  self.enterFailedToGetServerConstants,
-                  self.exitFailedToGetServerConstants, [
-                      'connect',
-                      'shutdown',
-                      'noConnection']),
             State('shutdown',
                   self.enterShutdown,
                   self.exitShutdown, [
@@ -269,6 +243,7 @@ class OTPClientRepository(ClientRepositoryBase):
                       'waitForAvatarList',
                       'waitForSetAvatarResponse',
                       'waitForDeleteAvatarResponse',
+                      'waitForMoveAvatarResponse',
                       'shutdown',
                       'serverMenu']),
             State('createAvatar',
@@ -281,6 +256,12 @@ class OTPClientRepository(ClientRepositoryBase):
             State('waitForDeleteAvatarResponse',
                   self.enterWaitForDeleteAvatarResponse,
                   self.exitWaitForDeleteAvatarResponse, [
+                      'noConnection',
+                      'chooseAvatar',
+                      'shutdown']),
+            State('waitForMoveAvatarResponse',
+                  self.enterWaitForMoveAvatarResponse,
+                  self.exitWaitForMoveAvatarResponse, [
                       'noConnection',
                       'chooseAvatar',
                       'shutdown']),
@@ -320,7 +301,6 @@ class OTPClientRepository(ClientRepositoryBase):
                       'gameOff',
                       'noConnection',
                       'waitForGameList',
-                      'createAccount',
                       'reject',
                       'mainMenu',
                       'shutdown'])],
@@ -388,9 +368,6 @@ class OTPClientRepository(ClientRepositoryBase):
             # If we were given a single string, make it a list.
             dcFileNames = [dcFileNames]
 
-        if hasattr(builtins, 'dcData'):
-            dcFileNames = [StringStream(dcData)]
-
         dcImports = {}
         if dcFileNames is None:
             readResult = dcFile.readAll()
@@ -398,10 +375,7 @@ class OTPClientRepository(ClientRepositoryBase):
                 self.notify.error('Could not read DC file.')
         else:
             for dcFileName in dcFileNames:
-                if isinstance(dcFileName, StringStream):
-                    readResult = dcFile.read(dcFileName, 'DC stream')
-                else:
-                    readResult = dcFile.read(dcFileName)
+                readResult = dcFile.read(dcFileName)
                 if not readResult:
                     self.notify.error('Could not read DC file.')
 
@@ -603,15 +577,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.connectingBox.cleanup()
         del self.connectingBox
 
-    def handleSystemMessage(self, di):
-        message = ClientRepositoryBase.handleSystemMessage(self, di)
-        whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)
-        whisper.manage(base.marginManager)
-        if not self.systemMessageSfx:
-            self.systemMessageSfx = loader.loadSfx('phase_3/audio/sfx/clock03.ogg')
-        if self.systemMessageSfx:
-            base.playSfx(self.systemMessageSfx)
-
     def getConnectedEvent(self):
         return 'OTPClientRepository-connected'
 
@@ -669,6 +634,29 @@ class OTPClientRepository(ClientRepositoryBase):
 
         if self.isProductionServer():
             spellbook.useLiveAccess()
+
+    def setReconnectToken(self, token):
+        """
+        Replaces the launch token, which is spent the moment it is redeemed.
+
+        Without this a dropped connection has nothing left to log in with, and
+        the retry the player is offered cannot succeed.
+        """
+        if not token:
+            return
+
+        self.playToken = token
+
+        taskMgr.remove(self.TOKEN_REFRESH_TASK)
+        taskMgr.doMethodLater(
+            self.TOKEN_REFRESH_SECONDS, self.__refreshToken, self.TOKEN_REFRESH_TASK)
+
+    def __refreshToken(self, task):
+        if self.isConnected():
+            self.csm.requestReconnectToken()
+
+        # A refresh that went nowhere gets another go before the token lapses.
+        return task.again
 
     def isLauncherSession(self):
         """
@@ -960,8 +948,6 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('parentPassword')
         elif mode == 'freeTimeExpired':
             self.loginFSM.request('freeTimeInform')
-        elif mode == 'createAccount':
-            self.loginFSM.request('createAccount', [{'back': 'serverMenu', 'backArgs': []}])
         elif mode == 'reject':
             self.loginFSM.request('reject')
         elif mode == 'quit':
@@ -970,41 +956,6 @@ class OTPClientRepository(ClientRepositoryBase):
             self.loginFSM.request('failedToConnect', [-1, '?'])
         else:
             self.notify.error('Invalid doneStatus mode from ClientServicesManager: ' + str(mode))
-
-    def enterCreateAccount(self, createAccountDoneData={'back': 'serverMenu', 'backArgs': []}):
-        self.createAccountDoneData = createAccountDoneData
-        self.createAccountDoneEvent = 'createAccountDone'
-        self.createAccountScreen = None
-        self.createAccountScreen = CreateAccountScreen(self, self.createAccountDoneEvent)
-        self.accept(self.createAccountDoneEvent, self.__handleCreateAccountDone)
-        self.createAccountScreen.load()
-        self.createAccountScreen.enter()
-        return
-
-    def __handleCreateAccountDone(self, doneStatus):
-        mode = doneStatus['mode']
-        if mode == 'success':
-            self.loginFSM.request('waitForGameList')
-        elif mode == 'reject':
-            self.loginFSM.request('reject')
-        elif mode == 'cancel':
-            self.loginFSM.request(self.createAccountDoneData['back'], self.createAccountDoneData['backArgs'])
-        elif mode == 'failure':
-            self.loginFSM.request(self.createAccountDoneData['back'], self.createAccountDoneData['backArgs'])
-        elif mode == 'quit':
-            self.loginFSM.request('shutdown')
-        else:
-            self.notify.error('Invalid doneStatus mode from CreateAccountScreen: ' + str(mode))
-
-    def exitCreateAccount(self):
-        if self.createAccountScreen:
-            self.createAccountScreen.exit()
-            self.createAccountScreen.unload()
-            self.createAccountScreen = None
-            self.renderFrame()
-        self.ignore(self.createAccountDoneEvent)
-        del self.createAccountDoneEvent
-        self.handler = None
 
     def enterFailedToConnect(self, statusCode, statusString):
         base.playSfx(self.failureSfx)
@@ -1042,50 +993,11 @@ class OTPClientRepository(ClientRepositoryBase):
         self.failedToConnectBox.cleanup()
         del self.failedToConnectBox
 
-    def enterFailedToGetServerConstants(self, e):
-        self.handler = self.handleMessageType
-        messenger.send('connectionIssue')
-        statusCode = 0
-        if isinstance(e, HTTPUtil.ConnectionError):
-            statusCode = e.statusCode
-            self.notify.warning('Got status code %s from connection to %s.' % (statusCode, url.cStr()))
-        else:
-            self.notify.warning("Didn't get status code from connection to %s." % url.cStr())
-        if statusCode == 1403 or statusCode == 1400:
-            message = OTPLocalizer.CRServerConstantsProxyNoPort % (url.cStr(), url.getPort())
-            style = OTPDialog.CancelOnly
-        elif statusCode == 1405:
-            message = OTPLocalizer.CRServerConstantsProxyNoCONNECT % url.cStr()
-            style = OTPDialog.CancelOnly
-        else:
-            message = OTPLocalizer.CRServerConstantsTryAgain % url.cStr()
-            style = OTPDialog.TwoChoice
-        dialogClass = OTPGlobals.getGlobalDialogClass()
-        self.failedToGetConstantsBox = dialogClass(message=message, doneEvent='failedToGetConstantsAck', text_wordwrap=18, style=style)
-        self.failedToGetConstantsBox.show()
-        self.accept('failedToGetConstantsAck', self.__handleFailedToGetConstantsAck)
-        self.notify.warning('Failed to get account server constants. Notifying user.')
-
-    def __handleFailedToGetConstantsAck(self):
-        doneStatus = self.failedToGetConstantsBox.doneStatus
-        if doneStatus == 'ok':
-            self.loginFSM.request('connect', [self.serverList])
-            messenger.send('connectionRetrying')
-        elif doneStatus == 'cancel':
-            self.loginFSM.request('shutdown')
-        else:
-            self.notify.error('Unrecognized doneStatus: ' + str(doneStatus))
-
-    def exitFailedToGetServerConstants(self):
-        self.handler = None
-        self.ignore('failedToGetConstantsAck')
-        self.failedToGetConstantsBox.cleanup()
-        del self.failedToGetConstantsBox
-        return
-
     def enterShutdown(self, errorCode = None):
         self.handler = self.handleMessageType
         self.sendDisconnect()
+        if base.isHosting:
+            self.localServerStarter.demand('Off')
         self.notify.info('Exiting cleanly')
         base.exitShow(errorCode)
 
@@ -1307,11 +1219,9 @@ class OTPClientRepository(ClientRepositoryBase):
     def _requestAvatarList(self):
         self.csm.requestAvatars()
         self.waitForDatabaseTimeout(requestName='WaitForAvatarList')
-        self.acceptOnce(OtpAvatarManager.OtpAvatarManager.OnlineEvent, self._requestAvatarList)
 
     def exitWaitForAvatarList(self):
         self.cleanupWaitingForDatabase()
-        self.ignore(OtpAvatarManager.OtpAvatarManager.OnlineEvent)
         self.handler = None
 
     def handleAvatarsList(self, avatars):
@@ -1342,6 +1252,13 @@ class OTPClientRepository(ClientRepositoryBase):
         self.waitForDatabaseTimeout(requestName='WaitForDeleteAvatarResponse')
 
     def exitWaitForDeleteAvatarResponse(self):
+        self.cleanupWaitingForDatabase()
+
+    def enterWaitForMoveAvatarResponse(self, potAv, index):
+        self.csm.sendMoveAvatar(potAv.id, index)
+        self.waitForDatabaseTimeout(requestName='WaitForMoveAvatarResponse')
+
+    def exitWaitForMoveAvatarResponse(self):
         self.cleanupWaitingForDatabase()
 
     def enterRejectRemoveAvatar(self, reasonCode):
@@ -1737,11 +1654,6 @@ class OTPClientRepository(ClientRepositoryBase):
         self.accept(self.gameDoneEvent, self.handleGameDone)
         base.transitions.noFade()
         self.playGame.load()
-        try:
-            loader.endBulkLoad('localAvatarPlayGame')
-        except:
-            pass
-
         self.playGame.enter(hoodId, zoneId, avId)
 
         def checkScale(task):
@@ -1965,9 +1877,9 @@ class OTPClientRepository(ClientRepositoryBase):
     def listActiveShards(self):
         _list = []
         for s in list(self.activeDistrictMap.values()):
-            if s.available:
+            if s.available or s.draining:
                 _list.append((s.doId, s.name, s.avatarCount, s.newAvatarCount,
-                              s.invasionStatus, s.timeZone))
+                              s.invasionStatus, s.timeZone, s.draining))
 
         return _list
 
@@ -2136,47 +2048,6 @@ class OTPClientRepository(ClientRepositoryBase):
                 self.handleObjectLocation(di)
         else:
             self.handleObjectLocation(di)
-
-    def sendWishName(self, avId, name):
-        datagram = PyDatagram()
-        datagram.addUint16(CLIENT_SET_WISHNAME)
-        datagram.addUint32(avId)
-        datagram.addString(name)
-        self.send(datagram)
-
-    def sendWishNameAnonymous(self, name):
-        self.sendWishName(0, name)
-
-    def getWishNameResultMsg(self):
-        return 'OTPCR.wishNameResult'
-
-    def gotWishnameResponse(self, di):
-        avId = di.getUint32()
-        returnCode = di.getUint16()
-        pendingName = ''
-        approvedName = ''
-        rejectedName = ''
-        if returnCode == 0:
-            pendingName = di.getString()
-            approvedName = di.getString()
-            rejectedName = di.getString()
-        if approvedName:
-            name = approvedName
-        elif pendingName:
-            name = pendingName
-        elif rejectedName:
-            name = rejectedName
-        else:
-            name = ''
-        if returnCode:
-            result = EWishNameResult.FAILURE
-        elif rejectedName:
-            result = EWishNameResult.REJECTED
-        elif pendingName:
-            result = EWishNameResult.PENDING_APPROVAL
-        elif approvedName:
-            result = EWishNameResult.APPROVED
-        messenger.send(self.getWishNameResultMsg(), [result, avId, name])
 
     def replayDeferredGenerate(self, msgType, extra):
         if msgType == CLIENT_DONE_INTEREST_RESP:

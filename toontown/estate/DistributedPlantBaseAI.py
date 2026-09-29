@@ -92,8 +92,9 @@ class DistributedPlantBaseAI(DistributedLawnDecorAI.DistributedLawnDecorAI):
         toon = simbase.air.doId2do.get(senderId)
         if not toon:
             return
-        if hasattr(self, 'skillUp') and self.skillUp:
-            #print ("!!!watering skill up!!!!!!!!")
+        if getattr(self, 'skillUp', 0) and self.lastMovie == GardenGlobals.MOVIE_WATER and \
+                self.lastMovieAvId == senderId:
+            self.skillUp = 0
             toon.b_setWateringCanSkill(toon.wateringCanSkill+1)
         else:
             # this non-update is used to free the avatar

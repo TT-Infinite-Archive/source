@@ -11,6 +11,7 @@ from direct.task.Task import Task
 from toontown.distributed import DelayDelete
 from toontown.distributed.DelayDeletable import DelayDeletable
 from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.suit import Suit
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase import ColorGlobals
@@ -64,6 +65,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             DoorTypes.INT_KS: 0,
         }
         self.doorX = 1.5
+        self.swingAngle = 100
 
     def leaveDoor(self, collEntry = None):
         self.ignore(base.INTERACT_KEY)
@@ -124,7 +126,7 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         if self.nametag == None:
             self.nametag = NametagGroup()
             self.nametag.setNametag3d(None)
-            self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
+            self.nametag.setFont(ToontownClientGlobals.getBuildingNametagFont())
             if TTLocalizer.BuildingNametagShadow:
                 self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
             self.nametag.hideChat()
@@ -366,7 +368,8 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                         self.enterText.setColorScale(VBase4(1, 1, 1, 0))
                         self.colorSeq = Sequence(
                             LerpColorScaleInterval(self.enterText, .4, VBase4(1, 1, 1, 1), blendType = 'easeInOut'),
-                            LerpColorScaleInterval(self.enterText, .4, VBase4(.8, .8, .8, .8), blendType = 'easeInOut')).loop()
+                            LerpColorScaleInterval(self.enterText, .4, VBase4(.8, .8, .8, .8), blendType = 'easeInOut'))
+                        self.colorSeq.loop()
                 else:
                     self.enterDoor()
             else:
@@ -552,9 +555,9 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         otherNP = self.getDoorNodePath()
         trackName = 'doorClose-%d' % self.doId
         if self.rightSwing:
-            h = 100
+            h = self.swingAngle
         else:
-            h = -100
+            h = -self.swingAngle
         self.finishDoorTrack()
         self.doorTrack = Sequence(LerpHprInterval(nodePath = rightDoor, duration = 1.0, hpr = VBase3(0, 0, 0), startHpr = VBase3(h, 0, 0), other = otherNP, blendType = 'easeInOut'), Func(doorFrameHoleRight.hide), Func(self.hideIfHasFlat, rightDoor), SoundInterval(self.closeSfx, node = rightDoor), name = trackName)
         self.doorTrack.start(ts)
@@ -583,9 +586,9 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
         otherNP = self.getDoorNodePath()
         trackName = 'doorOpen-%d' % self.doId
         if self.rightSwing:
-            h = 100
+            h = self.swingAngle
         else:
-            h = -100
+            h = -self.swingAngle
         self.finishDoorTrack()
         self.doorTrack = Parallel(SoundInterval(self.openSfx, node = rightDoor), Sequence(HprInterval(rightDoor, VBase3(0, 0, 0), other = otherNP), Wait(0.4), Func(rightDoor.show), Func(doorFrameHoleRight.show), LerpHprInterval(nodePath = rightDoor, duration = 0.6, hpr = VBase3(h, 0, 0), startHpr = VBase3(0, 0, 0), other = otherNP, blendType = 'easeInOut')), name = trackName)
         self.doorTrack.start(ts)
@@ -622,9 +625,9 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             self.notify.warning('enterOpening(): did not find flatDoors')
             return
         if self.leftSwing:
-            h = -100
+            h = -self.swingAngle
         else:
-            h = 100
+            h = self.swingAngle
         leftDoor = self.findDoorNode('leftDoor')
         if not leftDoor.isEmpty():
             otherNP = self.getDoorNodePath()
@@ -649,9 +652,9 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
             return
         leftDoor = self.findDoorNode('leftDoor')
         if self.leftSwing:
-            h = -100
+            h = -self.swingAngle
         else:
-            h = 100
+            h = self.swingAngle
         if not leftDoor.isEmpty():
             otherNP = self.getDoorNodePath()
             trackName = 'doorDoorExitTrack-%d' % self.doId

@@ -138,10 +138,10 @@ class DistributedTugOfWarGameAI(DistributedMinigameAI):
             self.gameFSM.request('sendGoSignal')
 
     def sendNewAvIdList(self, newAvIdList):
-        for avId in newAvIdList:
-            if avId not in self.scoreDict:
-                self.notify.debug('invalid avId in new list from %s' % self.air.getAvatarIdFromSender())
-                return
+        # The clients may only reorder the players, never change who they are
+        if self.air.getAvatarIdFromSender() not in self.avIdList or sorted(newAvIdList) != sorted(self.avIdList):
+            self.notify.debug('invalid new avId list from %s' % self.air.getAvatarIdFromSender())
+            return
 
         if not self.switched:
             self.switched = 1
@@ -215,7 +215,7 @@ class DistributedTugOfWarGameAI(DistributedMinigameAI):
             self.notify.warning('Avatar %s sent reportCurrentKeyRate too early %s' % (avId, self.side))
             return
         self.keyRateDict[avId] = keyRate
-        self.forceDict[self.side[avId]][avId] = force
+        self.forceDict[self.side[avId]][avId] = min(max(force, 0.0), 50.0)
         self.sendUpdate('remoteKeyRateUpdate', [avId, self.keyRateDict[avId]])
         self.howManyReported += 1
         if self.howManyReported == self.numPlayers:
@@ -226,6 +226,8 @@ class DistributedTugOfWarGameAI(DistributedMinigameAI):
                 self.sendUpdate('sendSuitPosition', [self.suitOffset])
 
     def reportEndOfContest(self, index):
+        if self.air.getAvatarIdFromSender() not in self.avIdList or self.gameFSM.getCurrentState().getName() != 'waitForResults':
+            return
         if index not in [0, 1]:
             self.notify.warning('Got a bad index %s ' % index)
             return

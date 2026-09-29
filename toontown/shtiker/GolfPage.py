@@ -7,6 +7,7 @@ from direct.task import Task
 from toontown.fishing.FishPhoto import DirectRegion
 from toontown.shtiker.ShtikerPage import ShtikerPage
 from toontown.toonbase import ToontownGlobals, TTLocalizer
+from toontown.toonbase import ToontownClientGlobals
 from toontown.golf import GolfGlobals
 if (__debug__):
     import pdb
@@ -145,7 +146,7 @@ class GolfingRecordsUI(DirectFrame):
             courseName = GolfGlobals.getCourseName(courseId)
             frame = DirectFrame(parent=self.scrollList, relief=None)
             courseNameDisplay = DirectLabel(parent=frame, relief=None, pos=(-0.475, 0, 0.05), text=courseName, text_align=TextNode.ALeft, text_scale=0.075, text_fg=(0.85, 0.64, 0.13, 1.0), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getSignFont())
-            bestScoreDisplay = DirectLabel(parent=frame, relief=None, pos=(0.9, 0, 0.05), text=TTLocalizer.KartRace_Unraced, text_scale=0.06, text_fg=(0.0, 0.0, 0.0, 1.0), text_font=ToontownGlobals.getToonFont())
+            bestScoreDisplay = DirectLabel(parent=frame, relief=None, pos=(0.9, 0, 0.05), text=TTLocalizer.KartRace_Unraced, text_scale=0.06, text_fg=(0.0, 0.0, 0.0, 1.0), text_font=ToontownClientGlobals.getToonFont())
             self.bestDisplayList.append(bestScoreDisplay)
             self.scrollList.addItem(frame)
 
@@ -153,7 +154,7 @@ class GolfingRecordsUI(DirectFrame):
             holeName = GolfGlobals.getHoleName(holeId)
             frame = DirectFrame(parent=self.scrollList, relief=None)
             holeNameDisplay = DirectLabel(parent=frame, relief=None, pos=(-0.475, 0, 0.05), text=holeName, text_align=TextNode.ALeft, text_scale=0.075, text_fg=(0.95, 0.95, 0.0, 1.0), text_shadow=(0, 0, 0, 1), text_font=ToontownGlobals.getSignFont())
-            bestScoreDisplay = DirectLabel(parent=frame, relief=None, pos=(0.9, 0, 0.05), text=TTLocalizer.KartRace_Unraced, text_scale=0.06, text_fg=(0.0, 0.0, 0.0, 1.0), text_font=ToontownGlobals.getToonFont())
+            bestScoreDisplay = DirectLabel(parent=frame, relief=None, pos=(0.9, 0, 0.05), text=TTLocalizer.KartRace_Unraced, text_scale=0.06, text_fg=(0.0, 0.0, 0.0, 1.0), text_font=ToontownClientGlobals.getToonFont())
             self.bestDisplayList.append(bestScoreDisplay)
             self.scrollList.addItem(frame)
 

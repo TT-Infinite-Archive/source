@@ -9,7 +9,7 @@ class OperationFSM(FSM):
         self.bankMgr = bankMgr
 
     def enterOff(self):
-        if self.target:
+        if self.bankMgr.avId2fsm.get(self.target) is self:
             del self.bankMgr.avId2fsm[self.target]
 
 
@@ -29,7 +29,8 @@ class BankRetrieveFSM(OperationFSM):
                 self.demand('Off')
                 return
 
-            av.b_setBankMoney(money)
+            av.setBankMoney(money)
+            av.d_setBankMoney(money)
             self.demand('Off')
 
     def enterOff(self):
@@ -57,7 +58,8 @@ class BankUpdateFSM(OperationFSM):
             self.demand('Off')
             return
 
-        av.b_setBankMoney(money)
+        av.setBankMoney(money)
+        av.d_setBankMoney(money)
         self.demand('Off')
 
 

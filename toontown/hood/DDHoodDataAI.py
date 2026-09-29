@@ -28,7 +28,8 @@ class DDHoodDataAI(HoodDataAI.HoodDataAI):
         boat.start()
         self.addDistObj(boat)
 
-        self.classicChar = DistributedDonaldDockAI.DistributedDonaldDockAI(self.air)
-        self.classicChar.generateWithRequired(self.zoneId)
-        self.classicChar.start()
-        self.addDistObj(self.classicChar)
+        if self.air.wantClassicChars:
+            self.classicChar = DistributedDonaldDockAI.DistributedDonaldDockAI(self.air)
+            self.classicChar.generateWithRequired(self.zoneId)
+            self.classicChar.start()
+            self.addDistObj(self.classicChar)

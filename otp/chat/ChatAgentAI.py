@@ -1,7 +1,7 @@
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
 from direct.directnotify import DirectNotifyGlobal
 from otp.ai.MagicWordGlobal import *
-from toontown.toonbase.TTLocalizer import MutedMessage
+from toontown.toonbase.TTLocalizerServer import MutedMessage
 from time import time
 
 

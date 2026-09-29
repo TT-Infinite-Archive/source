@@ -16,7 +16,6 @@ from direct.showbase.InputStateGlobal import inputState
 from otp.avatar import Avatar
 from otp.avatar import DistributedAvatar
 from otp.friends import FriendManager
-from otp.login import HTTPUtil
 from otp.distributed import OTPClientRepository
 from otp.distributed import PotentialAvatar
 from otp.distributed import PotentialShard
@@ -29,9 +28,11 @@ from otp.otpbase import OTPLauncherGlobals
 from otp.avatar.Avatar import teleportNotify
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import getMinnieFont
 from toontown.launcher.DownloadForceAcknowledge import *
 from toontown.distributed import DelayDelete
 from toontown.distributed.ShardTimeManager import ShardTimeManager
+from toontown.distributed.ShardDrainWatcher import ShardDrainWatcher
 from toontown.friends import FriendHandle
 from toontown.friends import FriendsListPanel
 from toontown.friends import ToontownFriendSecret
@@ -87,10 +88,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.inGameNewsMgr = None
         self.whitelistMgr = None
 
-        #self.zoneManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_ZONE_MANAGER, 'ZoneManager')
 
         self.toontownTimeManager = ToontownTimeManager.ToontownTimeManager()
         self.shardTimeManager = ShardTimeManager(self)
+        self.shardDrainWatcher = ShardDrainWatcher(self)
 
         self.csm = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_CLIENT_SERVICES_MANAGER, 'ClientServicesManager')
         self.avatarFriendsManager = self.generateGlobalObject(OtpDoGlobals.OTP_DO_ID_AVATAR_FRIENDS_MANAGER, 'AvatarFriendsManager')
@@ -122,6 +123,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self.accept(ToontownClientRepository.SetZoneDoneEvent, self._handleEmuSetZoneDone)
         self._deletedSubShardDoIds = set()
         self.toonNameDict = {}
+        self.heldAvatarResponse = None
         self.gameFSM.addState(State.State('skipTutorialRequest', self.enterSkipTutorialRequest, self.exitSkipTutorialRequest, ['playGame', 'gameOff', 'tutorialQuestion']))
         state = self.gameFSM.getStateNamed('waitOnEnterResponses')
         state.addTransition('skipTutorialRequest')
@@ -230,6 +232,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         done = doneStatus['mode']
         if done == 'exit':
             self.loginFSM.request('shutdown')
+            return
         index = self.avChoice.getChoice()
         for av in avList:
             if av.position == index:
@@ -258,6 +261,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.loginFSM.request('createAvatar', [avList, index])
         elif done == 'delete':
             self.loginFSM.request('waitForDeleteAvatarResponse', [avatarChoice])
+        elif done == 'move':
+            self.loginFSM.request('waitForMoveAvatarResponse', [avatarChoice, doneStatus['index']])
 
     def __handleDownloadAck(self, avList, index, doneStatus):
         if doneStatus['mode'] == 'complete':
@@ -315,6 +320,10 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
                     if i.position == avPosition:
                         newPotAv = i
 
+                dna = ToonDNA.ToonDNA()
+                dna.makeFromNetString(newPotAv.dna)
+                base.localAvatarStyle = dna
+                settings[SettingsGlobals.LastToon] = newPotAv.id
                 self.loginFSM.request('waitForSetAvatarResponse', [newPotAv])
             else:
                 self.loginFSM.request('chooseAvatar', [avList])
@@ -481,6 +490,8 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         taskMgr.remove('avatarRequestQueueTask')
         OTPClientRepository.OTPClientRepository.exitPlayingGame(self)
         if hasattr(base, 'localAvatar'):
+            if self._userLoggingOut:
+                AvatarChooser.AvatarChooser.teleportInAvatarId = base.localAvatar.getDoId()
             base.camera.reparentTo(render)
             base.camera.setPos(0, 0, 0)
             base.camera.setHpr(0, 0, 0)
@@ -571,16 +582,14 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self._removeLocalAvFromStateServer()
 
     def handleCloseShard(self, msgType, di):
-        if msgType == CLIENT_ENTER_OBJECT_REQUIRED:
-            parentId = di.getUint32()
-            if self._doIdIsOnCurrentShard(parentId):
-                return
-        elif msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
-            parentId = di.getUint32()
+        if msgType in (CLIENT_ENTER_OBJECT_REQUIRED, CLIENT_ENTER_OBJECT_REQUIRED_OTHER):
+            di2 = PyDatagramIterator(di)
+            di2.getUint32()
+            parentId = di2.getUint32()
             if self._doIdIsOnCurrentShard(parentId):
                 return
         elif msgType == CLIENT_OBJECT_SET_FIELD:
-            doId = di.getUint32()
+            doId = PyDatagramIterator(di).getUint32()
             if self._doIdIsOnCurrentShard(doId):
                 return
         self.handleMessageType(msgType, di)
@@ -614,7 +623,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             else:
                 self.notify.info('dumpAllSubShardObjects: defaultShard is %s' % localAvatar.defaultShard)
 
-            ignoredClasses = ('MagicWordManager', 'TimeManager', 'BanManager', 'DistributedDistrict', 'FriendManager', 'NewsManager', 'ToontownMagicWordManager', 'WelcomeValleyManager', 'DistributedTrophyMgr', 'CatalogManager', 'DistributedBankMgr', 'EstateManager', 'RaceManager', 'SafeZoneManager', 'DeleteManager', 'TutorialManager', 'ToontownDistrict', 'DistributedDeliveryManager', 'DistributedPartyManager', 'AvatarFriendsManager', 'InGameNewsMgr', 'WhitelistMgr', 'TTCodeRedemptionMgr')
+            ignoredClasses = ('MagicWordManager', 'TimeManager', 'DistributedDistrict', 'FriendManager', 'NewsManager', 'ToontownMagicWordManager', 'WelcomeValleyManager', 'DistributedTrophyMgr', 'CatalogManager', 'DistributedBankMgr', 'EstateManager', 'RaceManager', 'SafeZoneManager', 'DeleteManager', 'TutorialManager', 'ToontownDistrict', 'DistributedDeliveryManager', 'DistributedPartyManager', 'AvatarFriendsManager', 'TTCodeRedemptionMgr')
         messenger.send('clientCleanup')
         for avId, pad in list(self.__queryAvatarMap.items()):
             pad.delayDelete.destroy()
@@ -749,7 +758,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             self.notify.warning("Don't know who friend %s is." % doId)
             return
         if not ((isinstance(avatar, DistributedToon.DistributedToon) and avatar.__class__ is DistributedToon.DistributedToon) or isinstance(avatar, DistributedPet.DistributedPet)):
-            self.notify.warning('friendsNotify%s: invalid friend object %s' % (choice(source, '(%s)' % source, ''), doId))
+            self.notify.warning('friendsNotify%s: invalid friend object %s' % ('(%s)' % source if source else '', doId))
             return
         if base.wantPets:
             if avatar.isPet():
@@ -862,6 +871,7 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         messenger.send('friendsMapComplete')
 
     def handleGetFriendsListExtended(self, resp):
+        avatarHandleList = []
         for toon in resp:
             abort = 0
             doId = toon[0]
@@ -907,7 +917,30 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
             parentId = di.getUint32()
             zoneId = di.getUint32()
             dclassId = di.getUint16()
+            if AvatarChooser.AvatarChooser.handingOff:
+                # Building the toon would stutter Pick-A-Toon's teleport, so wait for it to finish.
+                self.heldAvatarResponse = [(doId, Datagram(di.getRemainingBytes()))]
+                self.acceptOnce('pickAToonTeleportDone', self.__handleHeldAvatarResponse)
+                return
             self.handleAvatarResponseMsg(doId, di)
+
+    def exitWaitForSetAvatarResponse(self):
+        self.ignore('pickAToonTeleportDone')
+        self.heldAvatarResponse = None
+        OTPClientRepository.OTPClientRepository.exitWaitForSetAvatarResponse(self)
+
+    def __handleHeldAvatarResponse(self):
+        (doId, generate), updates = self.heldAvatarResponse[0], self.heldAvatarResponse[1:]
+        self.heldAvatarResponse = None
+        self.handleAvatarResponseMsg(doId, DatagramIterator(generate))
+        for update in updates:
+            self.handleUpdateField(DatagramIterator(update))
+
+    def handleUpdateField(self, di):
+        if self.heldAvatarResponse and DatagramIterator(di).getUint32() == self.heldAvatarResponse[0][0]:
+            self.heldAvatarResponse.append(Datagram(di.getRemainingBytes()))
+            return
+        OTPClientRepository.OTPClientRepository.handleUpdateField(self, di)
 
     def getFirstBattle(self):
         from toontown.battle import DistributedBattleBase

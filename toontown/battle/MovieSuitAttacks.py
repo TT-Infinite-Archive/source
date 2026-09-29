@@ -15,9 +15,10 @@ from toontown.chat.ChatGlobals import *
 from toontown.nametag import NametagGlobals
 from toontown.nametag.NametagGlobals import *
 from toontown.suit.SuitDNA import *
-from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase.ToontownClientGlobals import getSuitFont
+from toontown.toonbase import TTLocalizer
 
 
 notify = DirectNotifyGlobal.directNotify.newCategory('MovieSuitAttacks')
@@ -35,15 +36,6 @@ def __showProp(prop, parent, pos, hpr = None, scale = None):
         prop.setHpr(hpr)
     if scale:
         prop.setScale(scale)
-
-
-def __animProp(prop, propName, propType = 'actor'):
-    if 'actor' == propType:
-        prop.play(propName)
-    elif 'model' == propType:
-        pass
-    else:
-        self.notify.error('No such propType as: %s' % propType)
 
 
 def __suitFacePoint(suit, zOffset = 0):
@@ -473,8 +465,6 @@ def doDefault(attack):
         attack['name'] = 'FingerWag'
         attack['animName'] = 'finger-wag'
         return doFingerWag(attack)
-    else:
-        self.notify.error('doDefault() - unsupported suit type: %s' % suitName)
     return None
 
 

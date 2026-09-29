@@ -503,7 +503,7 @@ class GuildManagerUD(DistributedObjectGlobalUD):
             return True
 
         chatAgent = self.air.getGlobalObject('ChatAgent')
-        return bool(chatAgent.checkBadNames(guildName, nameCheck=True))
+        return bool(chatAgent.checkBadNames(guildName))
 
     # Name Review
     def submitName(self, guild, avId):

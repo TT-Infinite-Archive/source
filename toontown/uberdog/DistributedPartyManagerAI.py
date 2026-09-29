@@ -2,6 +2,7 @@ import sys
 import time
 import decimal
 
+from panda3d.core import ConfigVariableDouble
 from direct.showbase.PythonUtil import Functor
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
 from direct.distributed.DistributedObjectGlobalAI import DistributedObjectGlobalAI
@@ -9,7 +10,6 @@ from otp.distributed import OtpDoGlobals
 from toontown.parties import PartyGlobals
 from toontown.parties.DistributedPartyAI import DistributedPartyAI
 from toontown.parties.PartyInfo import PartyInfoAI
-from toontown.ai import RepairAvatars
 from toontown.toonbase import ToontownGlobals
 
 
@@ -797,19 +797,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             self.notify.warning("checkHostedParties could not find toon %d " % hostId)
         return result
 
-    def getAvEnterEvent(self):
-        return 'avatarEnterParty'
-
-    def getAvExitEvent(self, avId=None):
-        # listen for all exits or a particular exit
-        # event args:
-        #  if avId given: none
-        #  if avId not given: avId, hostId, zoneId
-        if avId is None:
-            return 'avatarExitParty'
-        else:
-            return 'avatarExitParty-%s' % avId
-
     def __enterParty(self, avId, hostId):
         # Tasks that should always get called when entering a party
 
@@ -882,7 +869,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
                 # We have the host do this as host already has access to guest list.
                 av.sendUpdate("announcePartyStarted", [self.hostAvIdToPartiesRunning[hostId].partyInfo.partyId])
 
-        messenger.send(self.getAvEnterEvent(), [avId, hostId, zoneId])
         # Tell the uberdog about the new count
         self.air.sendUpdateToDoId(
             "DistributedPartyManager",
@@ -890,14 +876,6 @@ class DistributedPartyManagerAI(DistributedObjectAI):
             OtpDoGlobals.OTP_DO_ID_TOONTOWN_PARTY_MANAGER,
             [hostId],
         )
-
-    def announceToonExitPartyZone(self, avId, hostId, zoneId):
-        """ announce to the rest of the system that a toon is exiting
-        a party """
-        EstateManagerAI.notify.debug('announceToonExitPartyZone: %s %s %s' %
-                                     (avId, hostId, zoneId))
-        messenger.send(self.getAvExitEvent(avId))
-        messenger.send(self.getAvExitEvent(), [avId, hostId, zoneId])
 
     # Return a running distributed party based on the Zone id:
     def getRunningPartyFromZoneId(self, zoneId):
@@ -1024,7 +1002,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         # closing the window).  We need to handle that gracefully.
         if not partyInfo.hostId in self.avIdToPartyZoneId:
             self.notify.warning(
-                "Party Zone info was requested, but the guest left before it could be recived: %d" % estateId)
+                "Party Zone info was requested, but the guest left before it could be recived: %d" % partyInfo.hostId)
             return
 
         # create the DistributedPartyAI object for this hostId
@@ -1370,7 +1348,7 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         # now start up new tasks to end the party right now
         taskMgr.doMethodLater(0.1, self.__setPartyEnded, "DistributedPartyManagerAI_PartyEnding_%d" % partyZoneId,
                               [hostId, partyZoneId])
-        kickDelay = simbase.config.GetInt("party-kick-delay", PartyGlobals.DelayBeforeAutoKick)
+        kickDelay = ConfigVariableDouble("party-kick-delay", PartyGlobals.DelayBeforeAutoKick).getValue()
         taskMgr.doMethodLater(0.1 + kickDelay, self.__bootGuests,
                               "DistributedPartyManagerAI_BootGuests_%d" % partyZoneId, [hostId, partyZoneId])
         taskMgr.doMethodLater(0.1 + kickDelay + 10.0, self.__cleanupParty,
@@ -1382,45 +1360,42 @@ class DistributedPartyManagerAI(DistributedObjectAI):
         """Deduct the cost of the party from an offline toon."""
         # it's possible for someone to alt f4 out in between the time it takes for
         # the uberdog to respond to AI that buying the party was a success
-        ag = RepairAvatars.AvatarGetter(self.air)
-        event = 'gotOfflineToon-%s' % toonId
-        ag.getAvatar(toonId, fields=['setName', 'setMaxHp',
-                                     'setMaxMoney',
-                                     'setMaxBankMoney',
-                                     'setMoney',
-                                     'setBankMoney'],
-                     event=event)
-        self.acceptOnce(event, Functor(self.gotOfflineToon, cost=cost, toonId=toonId))
+        def gotOfflineToon(dclass, fields):
+            if dclass != self.air.dclassesByName['DistributedToonAI']:
+                self.notify.warning("gotOfflineToon - toon %s not found. buying a party for free! cost=%s"
+                                    % (toonId, cost))
+                self.air.writeServerEvent('suspicious', toonId,
+                                          "gotOfflineToon - toon %s not found. buying a party for free! cost=%s"
+                                          % (toonId, cost))
+                return
 
-    def gotOfflineToon(self, toon, cost, toonId):
-        """Handle a response to our request to get an offline toon, deduct the money from him."""
-        if toon is None:
-            # prevent mem leak
-            self.notify.warning("gotOfflineToon - toon %s not found. buying a party for free!cost=%s"
-                                % (toonId, cost))
-            self.air.writeServerEvent('suspicious', toonId,
-                                      "gotOfflineToon - toon %s not found. buying a party for free!cost=%s"
-                                      % (toonId, cost))
-            return
+            money = fields['setMoney'][0]
+            accountId = fields['setDISLid'][0]
 
-        totalMoney = toon.getTotalMoney()
-        result = toon.takeMoney(cost, bUseBank=True)
-        if result:
-            newTotalMoney = toon.getTotalMoney()
-            self.notify.info("gotOfflineToon - deducting %s from offline toon %s newTotalMoney=%s"
-                             % (cost, toonId, newTotalMoney))
-        else:
-            self.notify.warning(
-                "gotOfflineToon - Host %s got away with buying a party he can't afford! totalMoney=%s cost=%s"
-                % (toonId, totalMoney, cost))
-            self.air.writeServerEvent('suspicious', toonId,
-                                      "gotOfflineToon - Host %s got away with buying a party he can't afford! totalMoney=%s cost=%s"
-                                      % (toonId, totalMoney, cost))
+            self.notify.info("gotOfflineToon - deducting %s from offline toon %s money=%s"
+                             % (cost, toonId, money))
+            self.air.dbInterface.updateObject(
+                self.air.dbId, toonId, dclass, {'setMoney': (max(0, money - cost),)})
 
-        # takeMoney is doing a b_setMoney, so that gets written into the otp database
-        # db = DatabaseObject.DatabaseObject(self.air, toon.doId)
-        # db.storeObject(toon, ["setMoney", "setBankMoney"])
+            if money < cost:
+                self.air.dbInterface.queryObject(
+                    self.air.dbId, accountId,
+                    lambda dclass, fields: gotOfflineAccount(dclass, fields, accountId, cost - money))
 
-        # prevent mem leak
-        # as far as I can tell we don't need this, ~aigarbage reports 0 cycles
-        # toon.patchDelete()
+        def gotOfflineAccount(dclass, fields, accountId, owed):
+            if dclass != self.air.dclassesByName['AccountAI']:
+                bankMoney = 0
+            else:
+                bankMoney = fields['MONEY']
+                self.air.dbInterface.updateObject(
+                    self.air.dbId, accountId, dclass, {'MONEY': max(0, bankMoney - owed)})
+
+            if bankMoney < owed:
+                self.notify.warning(
+                    "gotOfflineToon - Host %s got away with buying a party he can't afford! bankMoney=%s owed=%s"
+                    % (toonId, bankMoney, owed))
+                self.air.writeServerEvent('suspicious', toonId,
+                                          "gotOfflineToon - Host %s got away with buying a party he can't afford! bankMoney=%s owed=%s"
+                                          % (toonId, bankMoney, owed))
+
+        self.air.dbInterface.queryObject(self.air.dbId, toonId, gotOfflineToon)

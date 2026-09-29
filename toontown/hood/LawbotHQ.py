@@ -1,5 +1,6 @@
 from toontown.coghq.LawbotCogHQLoader import LawbotCogHQLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood.CogHood import CogHood
 
 
@@ -17,5 +18,5 @@ class LawbotHQ(CogHood):
     def enter(self, requestStatus):
         CogHood.enter(self, requestStatus)
 
-        base.localAvatar.setCameraFov(ToontownGlobals.CogHQCameraFov)
-        base.camLens.setNearFar(ToontownGlobals.LawbotHQCameraNear, ToontownGlobals.LawbotHQCameraFar)
+        base.localAvatar.setCameraFov(ToontownClientGlobals.CogHQCameraFov)
+        base.camLens.setNearFar(ToontownClientGlobals.LawbotHQCameraNear, ToontownClientGlobals.LawbotHQCameraFar)

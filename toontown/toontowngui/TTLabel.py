@@ -33,3 +33,16 @@ class TTLabel(DirectLabel):
         self.defineoptions(kw, optiondefs)
         DirectLabel.__init__(self, parent)
         self.initialiseoptions(TTLabel)
+
+
+def fitText(label, width):
+    node = label.component('text0').textNode
+    scale = label['text_scale']
+    if not isinstance(scale, (int, float)):
+        scale = scale[0]
+    actual = node.getWidth() * scale
+    if actual > width:
+        scale = scale * width / actual
+        label['text_scale'] = scale
+        actual = width
+    return actual

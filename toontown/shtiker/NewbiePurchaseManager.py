@@ -1,6 +1,6 @@
 from . import PurchaseManager
 from toontown.quest import QuestParser
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 
 class NewbiePurchaseManager(PurchaseManager.PurchaseManager):
 
@@ -13,7 +13,7 @@ class NewbiePurchaseManager(PurchaseManager.PurchaseManager):
     def announceGenerate(self):
         PurchaseManager.PurchaseManager.announceGenerate(self)
         if self.hasLocalToon:
-            self.npc = NPCToons.createLocalNPC(2011)
+            self.npc = NPCToonFactory.createLocalNPC(2011)
             self.npc.addActive()
 
             def getDoId():

@@ -1,6 +1,6 @@
 from toontown.toonbase.ToontownGlobals import SellbotFactoryExt, SellbotLobby, CashbotHQ, CashbotLobby,\
     LawbotOfficeExt, LawbotLobby, BossbotHQ, BossbotLobby
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer
 
 # Indexes
 
@@ -129,6 +129,6 @@ INFORM_COMING = 0
 INFORM_NOT_COMING = 1
 
 INFORM_CODE_TO_STRING = {
-    INFORM_COMING: TTLocalizer.GroupTrackerInformComing,
-    INFORM_NOT_COMING: TTLocalizer.GroupTrackerInformNotComing
+    INFORM_COMING: TTLocalizerServer.GroupTrackerInformComing,
+    INFORM_NOT_COMING: TTLocalizerServer.GroupTrackerInformNotComing
 }

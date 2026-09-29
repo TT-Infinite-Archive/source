@@ -14,7 +14,7 @@ from . import MovieNPCSOS
 from . import MovieUtil
 from toontown.chat.ChatGlobals import *
 from toontown.effects import Splash
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase.ToontownBattleGlobals import AvPropDamage
 
@@ -173,7 +173,7 @@ def __healJoke(heal, hasInteractivePropHealBonus):
     npcId = 0
     if 'npcId' in heal:
         npcId = heal['npcId']
-        toon = NPCToons.createLocalNPC(npcId)
+        toon = NPCToonFactory.createLocalNPC(npcId)
         if toon == None:
             return
     else:
@@ -285,7 +285,7 @@ def __healDance(heal, hasInteractivePropHealBonus):
     npcId = 0
     if 'npcId' in heal:
         npcId = heal['npcId']
-        toon = NPCToons.createLocalNPC(npcId)
+        toon = NPCToonFactory.createLocalNPC(npcId)
         if toon == None:
             return
     else:
@@ -368,7 +368,7 @@ def __healJuggle(heal, hasInteractivePropHealBonus):
     npcId = 0
     if 'npcId' in heal:
         npcId = heal['npcId']
-        toon = NPCToons.createLocalNPC(npcId)
+        toon = NPCToonFactory.createLocalNPC(npcId)
         if toon == None:
             return
     else:
@@ -416,7 +416,7 @@ def __healDive(heal, hasInteractivePropHealBonus):
     npcId = 0
     if 'npcId' in heal:
         npcId = heal['npcId']
-        toon = NPCToons.createLocalNPC(npcId)
+        toon = NPCToonFactory.createLocalNPC(npcId)
         if toon == None:
             return
     else:

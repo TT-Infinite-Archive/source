@@ -10,7 +10,7 @@ from toontown.distributed import DelayDelete
 from toontown.nametag.NametagGlobals import *
 from toontown.nametag.NametagGroup import NametagGroup
 from toontown.toonbase import TTLocalizer
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class DistributedKnockKnockDoor(DistributedAnimatedProp.DistributedAnimatedProp):
@@ -76,7 +76,7 @@ class DistributedKnockKnockDoor(DistributedAnimatedProp.DistributedAnimatedProp)
             return
         self.nametag = NametagGroup()
         self.nametag.setAvatar(doorNP)
-        toonFont = ToontownGlobals.getToonFont()
+        toonFont = ToontownClientGlobals.getToonFont()
         self.nametag.setFont(toonFont)
         self.nametag.setChatFont(toonFont)
         self.nametag.setText(doorName)

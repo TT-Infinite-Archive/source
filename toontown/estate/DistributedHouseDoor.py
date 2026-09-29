@@ -94,9 +94,9 @@ class DistributedHouseDoor(DistributedDoor.DistributedDoor):
         otherNP = self.getDoorNodePath()
         trackName = 'doorClose-%d' % self.doId
         if self.rightSwing:
-            h = 100
+            h = self.swingAngle
         else:
-            h = -100
+            h = -self.swingAngle
         self.finishDoorTrack()
         if self.isInterior():
             messenger.send('releaseDirector')

@@ -1,7 +1,7 @@
 from direct.directnotify import DirectNotifyGlobal
 import random
 
-from otp.otpbase import OTPLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
 
 
 notify = DirectNotifyGlobal.directNotify.newCategory('SuitDialog')

@@ -1,4 +1,4 @@
-from panda3d.core import ConfigVariableInt
+from panda3d.core import ConfigVariableInt, ConfigVariableString
 
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.DistributedObjectAI import DistributedObjectAI
@@ -28,12 +28,11 @@ class MagicWordManagerAI(DistributedObjectAI):
             self.air.writeServerEvent('suspicious', invokerId, 'Attempted to issue magic word: %s' % word)
             return
 
-        if ' ' in word:
-            cheat = word[0:word.index(' ')]  # Remove arguments from word
-        else:
-            cheat = word
+        if not word.split():
+            return
+        cheat = word.split()[0].lower()  # Remove arguments from word
 
-        if not self.wantCheats and cheat not in NON_CHEATS:
+        if not self.wantCheats and cheat not in [name.lower() for name in NON_CHEATS]:
             self.sendUpdateToAvatarId(invokerId, 'sendMagicWordResponse', ['Cheats are disabled on this server. Only magic words that allow for moderation are enabled.'])
             return
 
@@ -96,3 +95,28 @@ def words():
         return "You are chopped liver"
     else:
         return wordString
+
+
+@magicWord(category=CATEGORY_MODERATOR, types=[str])
+def kick(reason='No reason specified'):
+    """
+    Kick the target from the game server.
+    """
+    target = spellbook.getTarget()
+    if target == spellbook.getInvoker():
+        return "You can't kick yourself!"
+    simbase.air.kickAvatar(target.doId, 'You were kicked by a moderator for the following reason: %s' % reason)
+    return "Kicked %s from the game server!" % target.getName()
+
+
+@magicWord(category=CATEGORY_MODERATOR, types=[int, str])
+def ban(days, reason):
+    target = spellbook.getTarget()
+    if target == spellbook.getInvoker():
+        return "You can't ban yourself!"
+    if ConfigVariableString('accountdb-type', 'developer').getValue() == 'production':
+        return "Accounts are banned from the website's staff tools, which sign them out of the game too."
+    if days < 0:
+        return 'Ban for 0 days (for good) or more.'
+    simbase.air.sendNetEvent('banAccount', [target.getDISLid(), reason, days])
+    return "Banned %s's account!" % target.getName()

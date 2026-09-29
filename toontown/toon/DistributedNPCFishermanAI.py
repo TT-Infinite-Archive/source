@@ -1,6 +1,6 @@
 from otp.ai.AIBaseGlobal import *
 from .DistributedNPCToonBaseAI import *
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.fishing import FishGlobals
 from direct.task import Task
 

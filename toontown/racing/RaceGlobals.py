@@ -376,6 +376,10 @@ def getDefaultRecordTime(trackId):
     return TrackDict[trackId][2]
 
 
+def getMinimumLapTime(trackId):
+    return getDefaultRecordTime(trackId) / 3 * 0.4
+
+
 Daily = 0
 Weekly = 1
 AllTime = 2

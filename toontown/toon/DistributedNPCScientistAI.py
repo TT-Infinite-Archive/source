@@ -1,5 +1,5 @@
 from . import DistributedNPCToonBaseAI
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
 from direct.fsm import ClassicFSM, State
 from direct.task.Task import Task
 

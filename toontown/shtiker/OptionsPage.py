@@ -1,30 +1,41 @@
-from direct.gui.DirectGui import DGG, DirectLabel
+from direct.gui.DirectGui import DirectLabel
 from direct.directnotify.DirectNotifyGlobal import directNotify
 
 from . import ShtikerPage
 from toontown.shtiker.OptionsTabPage import OptionsTabPage
 from toontown.shtiker.CodesTabPage import CodesTabPage
-from toontown.shtiker.OptionsPageGUI import OptionTab
+from toontown.shtiker.OptionsPageGlobals import ECategory
 from toontown.shtiker import OptionsPageGlobals
 from toontown.toonbase import TTLocalizer
+from toontown.toontowngui.TTTabBar import TTTabBar
 
 
 class OptionsPage(ShtikerPage.ShtikerPage):
     notify = directNotify.newCategory('OptionsPage')
 
+    TabsZ = 0.77
+
+    Titles = {
+        ECategory.VIDEO: TTLocalizer.OptionsPageVideo,
+        ECategory.SOUND: TTLocalizer.OptionsPageSound,
+        ECategory.GAMEPLAY: TTLocalizer.OptionsPageGameplay,
+        ECategory.SOCIAL: TTLocalizer.OptionsPageSocial,
+        ECategory.CODES: TTLocalizer.CdrPageTitle
+    }
+
     def __init__(self):
         ShtikerPage.ShtikerPage.__init__(self)
 
+        self.mode = None
         self.optionsTabPage = None
         self.codesTabPage = None
         self.title = None
-        self.optionsTab = None
-        self.codesTab = None
+        self.tabBar = None
 
     def load(self):
         ShtikerPage.ShtikerPage.load(self)
 
-        self.optionsTabPage = OptionsTabPage(self)
+        self.optionsTabPage = OptionsTabPage(self, wantTabs = False)
         self.optionsTabPage.hide()
         self.codesTabPage = CodesTabPage(self)
         self.codesTabPage.hide()
@@ -33,22 +44,19 @@ class OptionsPage(ShtikerPage.ShtikerPage):
             parent=self, relief=None, text=TTLocalizer.OptionsPageTitle,
             text_scale=0.12, pos=(0, 0, 0.61))
 
-        self.optionsTab = OptionTab(
-            parent=self, tabType=1, text=TTLocalizer.OptionsPageTitle, text_scale=TTLocalizer.OPoptionsTab,
-            text_pos=(0.01, 0.0, 0.0), image_pos=(0.55, 1, -0.91), pos=(-0.4, 0, 0.77),
-            command=self.setMode, extraArgs=[OptionsPageGlobals.EPageMode.OPTIONS])
-
-        self.codesTab = OptionTab(
-            parent=self, text=TTLocalizer.OptionsPageCodesTab, text_scale=TTLocalizer.OPoptionsTab,
-            text_pos=(-0.035, 0.0, 0.0), image_pos=(0.12, 1, -0.91), pos=(0.2, 0, 0.77),
-            command=self.setMode, extraArgs=[OptionsPageGlobals.EPageMode.CODES])
+        self.tabBar = TTTabBar(
+            self,
+            tabs=OptionsPageGlobals.Categories + ((ECategory.CODES, TTLocalizer.OptionsPageCodesTab),),
+            pos=(0, 0, self.TabsZ),
+            command=self.setMode)
 
     def enter(self):
-        self.setMode(OptionsPageGlobals.EPageMode.OPTIONS, updateAnyways=1)
+        self.setMode(ECategory.VIDEO, updateAnyways=1)
 
         ShtikerPage.ShtikerPage.enter(self)
 
     def exit(self):
+        self.mode = None
         self.optionsTabPage.exit()
         self.codesTabPage.exit()
 
@@ -67,13 +75,9 @@ class OptionsPage(ShtikerPage.ShtikerPage):
             self.title.destroy()
             self.title = None
 
-        if self.optionsTab is not None:
-            self.optionsTab.destroy()
-            self.optionsTab = None
-
-        if self.codesTab is not None:
-            self.codesTab.destroy()
-            self.codesTab = None
+        if self.tabBar is not None:
+            self.tabBar.destroy()
+            self.tabBar = None
 
         ShtikerPage.ShtikerPage.unload(self)
 
@@ -84,19 +88,18 @@ class OptionsPage(ShtikerPage.ShtikerPage):
             if self.mode == mode:
                 return
 
+        previous = self.mode
         self.mode = mode
+        self.title['text'] = self.Titles[mode]
+        self.tabBar.setActive(mode)
 
-        if mode == OptionsPageGlobals.EPageMode.OPTIONS:
-            self.title['text'] = TTLocalizer.OptionsPageTitle
-            self.optionsTab['state'] = DGG.DISABLED
-            self.optionsTabPage.enter()
-            self.codesTab['state'] = DGG.NORMAL
-            self.codesTabPage.exit()
-        elif mode == OptionsPageGlobals.EPageMode.CODES:
-            self.title['text'] = TTLocalizer.CdrPageTitle
-            self.optionsTab['state'] = DGG.NORMAL
-            self.optionsTabPage.exit()
-            self.codesTab['state'] = DGG.DISABLED
+        if mode == ECategory.CODES:
+            if previous is not None:
+                self.optionsTabPage.exit()
             self.codesTabPage.enter()
         else:
-            self.notify.warning('Invalid mode for options page %s' % mode)
+            if previous == ECategory.CODES:
+                self.codesTabPage.exit()
+            if previous is None or previous == ECategory.CODES:
+                self.optionsTabPage.enter()
+            self.optionsTabPage.setOptionsState(mode)

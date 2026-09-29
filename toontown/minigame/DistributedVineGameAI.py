@@ -167,8 +167,8 @@ class DistributedVineGameAI(DistributedMinigameAI):
         self.notify.debug('setNewVine')
         if not self._playing():
             return
-        if avId not in self.avIdList:
-            self.air.writeServerEvent('suspicious', avId, 'VineGameAI.setNewVine: invalid avId')
+        if avId not in self.avIdList or avId != self.air.getAvatarIdFromSender() or not 0 <= vineIndex < VineGameGlobals.NumVines:
+            self.air.writeServerEvent('suspicious', avId, 'VineGameAI.setNewVine: invalid avId or vine %s' % vineIndex)
             return
         oldVineIndex = self.toonInfo[avId][0]
         debugStr = 'setNewVine doId=%s avId=%d vineIndex=%s oldVineIndex=%s' % (self.doId,
@@ -194,16 +194,10 @@ class DistributedVineGameAI(DistributedMinigameAI):
                 self.gameOver()
 
     def checkForEndVine(self, avId):
-        if self.toonInfo[avId][0] == VineGameGlobals.NumVines - 1:
+        if self.toonInfo[avId][0] == VineGameGlobals.NumVines - 1 and self.finishedTimeLeft.get(avId) == -1:
             curTime = self.getCurrentGameTime()
             timeLeft = VineGameGlobals.GameDuration - curTime
             self.notify.debug('curTime =%s timeLeft = %s' % (curTime, timeLeft))
-            if avId not in self.scoreDict:
-                self.notify.warning('PROBLEM: avatar %s called claimTreasure(%s) but he is not in the scoreDict: %s. avIdList is: %s' % (avId,
-                 treasureNum,
-                 self.scoreDict,
-                 self.avIdList))
-                return
             addBonus = int(VineGameGlobals.BaseBonusOnEndVine[self.getSafezoneId()] + VineGameGlobals.BonusPerSecondLeft * timeLeft)
             self.notify.debug('addBOnus = %d' % addBonus)
             if addBonus < 0:

@@ -16,6 +16,7 @@ class CharNeutralState(StateData.StateData):
         StateData.StateData.__init__(self, doneEvent)
         self.__doneEvent = doneEvent
         self.character = character
+        self.load()
 
     def enter(self, startTrack=None, playRate=None):
         StateData.StateData.enter(self)
@@ -55,9 +56,9 @@ class CharWalkState(StateData.StateData):
         self.offsetX = 0
         self.offsetY = 0
         self.oldOffsetX = 0
-        self.olfOffsetY = 0
+        self.oldOffsetY = 0
         self.walkTrack = None
-        return
+        self.load()
 
     def enter(self, startTrack=None, playRate=None):
         StateData.StateData.enter(self)

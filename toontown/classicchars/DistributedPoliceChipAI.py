@@ -4,7 +4,7 @@ from toontown.classicchars import DistributedChipAI
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM, State
 from . import DistributedCCharBaseAI
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DistributedPoliceChipAI(DistributedChipAI.DistributedChipAI):

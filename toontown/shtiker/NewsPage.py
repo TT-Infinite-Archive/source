@@ -1,21 +1,12 @@
-from panda3d.core import ConfigVariableBool
 from direct.fsm import StateData
 from direct.gui.DirectGui import DirectFrame
 from direct.gui.DirectGui import DGG
 from direct.gui.DirectGui import DirectLabel
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase import ToontownGlobals
+from toontown.shtiker import DirectNewsFrame
 from toontown.shtiker import ShtikerPage
 from toontown.toonbase import TTLocalizer
-UseDirectNewsFrame = ConfigVariableBool('use-direct-news-frame', True).getValue()
-HaveNewsFrame = True
-if UseDirectNewsFrame:
-    from toontown.shtiker import DirectNewsFrame
-else:
-    try:
-        from toontown.shtiker import InGameNewsFrame
-    except:
-        HaveNewsFrame = False
 
 class NewsPage(ShtikerPage.ShtikerPage):
     notify = DirectNotifyGlobal.directNotify.newCategory('NewsPage')
@@ -25,22 +16,16 @@ class NewsPage(ShtikerPage.ShtikerPage):
 
     def load(self):
         self.noNewsLabel = DirectLabel(parent=self, relief=None, text=TTLocalizer.NewsPageImportError, text_scale=0.12)
-        if HaveNewsFrame:
-            if UseDirectNewsFrame:
-                import datetime
-                start = datetime.datetime.now()
-                self.newsFrame = DirectNewsFrame.DirectNewsFrame(parent=self)
-                ending = datetime.datetime.now()
-                self.notify.info('time to load news = %s' % str(ending - start))
-            else:
-                self.newsFrame = InGameNewsFrame.InGameNewsFrame(parent=self)
-                self.newsFrame.activate()
+        import datetime
+        start = datetime.datetime.now()
+        self.newsFrame = DirectNewsFrame.DirectNewsFrame(parent=self)
+        ending = datetime.datetime.now()
+        self.notify.info('time to load news = %s' % str(ending - start))
         return
 
     def unload(self):
-        if HaveNewsFrame:
-            self.newsFrame.unload()
-            del self.newsFrame
+        self.newsFrame.unload()
+        del self.newsFrame
 
     def clearPage(self):
         pass
@@ -51,15 +36,14 @@ class NewsPage(ShtikerPage.ShtikerPage):
     def enter(self):
         self.updatePage()
         ShtikerPage.ShtikerPage.enter(self)
-        if HaveNewsFrame:
-            if self.book:
-                self.book.prevArrow.hide()
-                self.book.disableAllPageTabs()
-            self.newsFrame.activate()
-            base.setCellsActive(base.leftCells, 0)
-            base.setCellsActive([base.rightCells[1]], 0)
-            localAvatar.book.bookCloseButton.hide()
-            localAvatar.setLastTimeReadNews(base.cr.toontownTimeManager.getCurServerDateTime())
+        if self.book:
+            self.book.prevArrow.hide()
+            self.book.disableAllPageTabs()
+        self.newsFrame.activate()
+        base.setCellsActive(base.leftCells, 0)
+        base.setCellsActive([base.rightCells[1]], 0)
+        localAvatar.book.bookCloseButton.hide()
+        localAvatar.setLastTimeReadNews(base.cr.toontownTimeManager.getCurServerDateTime())
 
     def exit(self):
         self.clearPage()
@@ -67,17 +51,13 @@ class NewsPage(ShtikerPage.ShtikerPage):
             self.book.prevArrow.show()
             self.book.enableAllPageTabs()
         ShtikerPage.ShtikerPage.exit(self)
-        if HaveNewsFrame:
-            self.newsFrame.deactivate()
-            base.setCellsActive(base.leftCells, 1)
-            base.setCellsActive([base.rightCells[1]], 1)
-            if localAvatar.book.shouldBookButtonBeHidden():
-                localAvatar.book.bookCloseButton.hide()
-            else:
-                localAvatar.book.bookCloseButton.show()
+        self.newsFrame.deactivate()
+        base.setCellsActive(base.leftCells, 1)
+        base.setCellsActive([base.rightCells[1]], 1)
+        if localAvatar.book.shouldBookButtonBeHidden():
+            localAvatar.book.bookCloseButton.hide()
+        else:
+            localAvatar.book.bookCloseButton.show()
 
     def doSnapshot(self):
-        if HaveNewsFrame:
-            return self.newsFrame.doSnapshot()
-        else:
-            return 'No News Frame'
+        return self.newsFrame.doSnapshot()

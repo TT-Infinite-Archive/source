@@ -45,17 +45,19 @@ class Spellbook:
         self.accessDefault = LIVE_DEFAULT_ACCESS
 
     def requiredAccess(self, word):
+        return self.requiredAccessFor(word.name, word.access)
+
+    def requiredAccessFor(self, name, access):
         if self.accessDefault is None:
-            return word.access
-        name = word.name.lower()
-        override = self.accessOverrides.get(name)
+            return access
+        override = self.accessOverrides.get(name.lower())
         if override is None:
             override = self.accessDefault
-            if name not in self._defaulted:
-                self._defaulted.add(name)
+            if name.lower() not in self._defaulted:
+                self._defaulted.add(name.lower())
                 _notify.warning('Magic word %r is not in the live table; '
-                                'holding it at %d.' % (word.name, override))
-        return max(word.access, override)
+                                'holding it at %d.' % (name, override))
+        return max(access, override)
 
     def process(self, invoker, target, incantation):
         self.currentInvoker = invoker
@@ -108,7 +110,7 @@ class Spellbook:
         return self.currentInvoker.getAdminAccess()
 
     def getTargets(self, word):
-        if word == "":
+        if not word.split():
             return
         word = self.words.get(word.split()[0].lower())
         if word is None:

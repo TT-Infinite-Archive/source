@@ -1,8 +1,8 @@
 from panda3d.core import Datagram
 from . import CatalogGardenItem
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
-from otp.otpbase import OTPLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
 from direct.interval.IntervalGlobal import *
 from toontown.estate import GardenGlobals
 
@@ -16,17 +16,6 @@ class CatalogToonStatueItem(CatalogGardenItem.CatalogGardenItem):
 
     def needsCustomize(self):
         return self.endPoseIndex - self.startPoseIndex > 0
-
-    def getPicture(self, avatar):
-        from toontown.estate import DistributedToonStatuary
-        toonStatuary = DistributedToonStatuary.DistributedToonStatuary(None)
-        toonStatuary.setupStoneToon(base.localAvatar.style)
-        toonStatuary.poseToonFromSpecialsIndex(self.gardenIndex)
-        toonStatuary.toon.setZ(0)
-        model, ival = self.makeFrameModel(toonStatuary.toon, 1)
-        self.pictureToonStatue = toonStatuary
-        self.hasPicture = True
-        return (model, ival)
 
     def cleanupPicture(self):
         self.pictureToonStatue.deleteToon()

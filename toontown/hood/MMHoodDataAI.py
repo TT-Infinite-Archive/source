@@ -23,10 +23,11 @@ class MMHoodDataAI(HoodDataAI.HoodDataAI):
         trolley.start()
         self.addDistObj(trolley)
 
-        self.classicChar = DistributedMinnieAI.DistributedMinnieAI(self.air)
-        self.classicChar.generateWithRequired(self.zoneId)
-        self.classicChar.start()
-        self.addDistObj(self.classicChar)
+        if self.air.wantClassicChars:
+            self.classicChar = DistributedMinnieAI.DistributedMinnieAI(self.air)
+            self.classicChar.generateWithRequired(self.zoneId)
+            self.classicChar.start()
+            self.addDistObj(self.classicChar)
 
         # Piano is not compatible with the fishing pond that is there now
         # Perhaps we can work that out later

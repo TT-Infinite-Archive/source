@@ -2,19 +2,12 @@ from direct.distributed.DistributedObjectGlobal import DistributedObjectGlobal
 
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.chat.ChatGlobals import WTSystem
-from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownGlobals, EventGlobals, VersionGlobals
+from toontown.uberdog.ClientServicesGlobals import generateLookupTable, encodeHexString
 
 from otp.distributed.PotentialAvatar import PotentialAvatar
 from otp.otpbase import OTPGlobals
 import sys
-
-
-def generateLookupTable(key):
-    return [hex(ord(str(key)[i % len(str(key))]) & ord(key[4]) & i) for i in range(255)]
-
-
-def encodeHexString(lookupTable, hexString):
-    return ''.join(lookupTable[int('0x%s' % i, 16)] for i in hexString.split('0x')[1:])
 
 
 class ClientServicesManager(DistributedObjectGlobal):
@@ -31,10 +24,8 @@ class ClientServicesManager(DistributedObjectGlobal):
         self.username = username
         self.password = password
         self.loginDoneEvent = doneEvent
-        getIp = ToontownGlobals.getIp()
-        mac = ToontownGlobals.getMac()
-        self.notify.debug('Performing login: %s.' % [mac, getIp])
-        self.sendUpdate('requestAuthToken', [mac, getIp])
+        self.notify.debug('Performing login.')
+        self.sendUpdate('requestAuthToken', [])
 
     def performTokenLogin(self, doneEvent, token):
         self.loginDoneEvent = doneEvent
@@ -53,6 +44,12 @@ class ClientServicesManager(DistributedObjectGlobal):
         messenger.send(self.loginDoneEvent, [{'mode': 'success', 'timestamp': timestamp}])
         self.loginDoneEvent = None
 
+    def requestReconnectToken(self):
+        self.sendUpdate('requestReconnectToken', [])
+
+    def setReconnectToken(self, token):
+        self.cr.setReconnectToken(token)
+
     def loginError(self, errorCode):
         self.notify.debug('Login Error %s' % errorCode)
         messenger.send(EventGlobals.LoginError, [errorCode])
@@ -66,7 +63,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     def setAvatars(self, avatars):
         avList = []
-        for avNum, avName, avDNA, avPosition, nameState, guildId, lastHoodId in avatars:
+        for avNum, avName, avDNA, avPosition, nameState, guildId, lastHoodId, hat, glasses, backpack, shoes in avatars:
             nameOpen = int(nameState == 1)
             names = [avName, '', '', '']
             if nameState == 2:  # PENDING
@@ -76,7 +73,8 @@ class ClientServicesManager(DistributedObjectGlobal):
             elif nameState == 4:  # REJECTED
                 names[3] = avName
             avList.append(PotentialAvatar(avNum, names, avDNA, avPosition, nameOpen, guildId=guildId,
-                                          lastHoodId=lastHoodId))
+                                          lastHoodId=lastHoodId, hat=hat, glasses=glasses, backpack=backpack,
+                                          shoes=shoes))
 
         self.cr.handleAvatarsList(avList)
 
@@ -89,6 +87,9 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     def sendDeleteAvatar(self, avId):
         self.sendUpdate('deleteAvatar', [avId])
+
+    def sendMoveAvatar(self, avId, index):
+        self.sendUpdate('moveAvatar', [avId, index])
 
     # No deleteAvatarResp; it just sends a setAvatars when the deed is done.
 
@@ -116,7 +117,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     # --- AVATAR CHOICE ---
     def sendChooseAvatar(self, avId):
-        self.sendUpdate('chooseAvatar', [avId, sys.platform])
+        self.sendUpdate('chooseAvatar', [avId, sys.platform, VersionGlobals.build()])
 
     def systemMessage(self, message):
         whisper = WhisperPopup(message, OTPGlobals.getInterfaceFont(), WTSystem)

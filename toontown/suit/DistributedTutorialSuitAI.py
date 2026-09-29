@@ -2,6 +2,7 @@ from panda3d.core import Point3, Vec3
 from direct.directnotify import DirectNotifyGlobal
 from toontown.battle import SuitBattleGlobals
 from . import DistributedSuitBaseAI
+from . import SuitDialog
 
 
 class DistributedTutorialSuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):

@@ -10,48 +10,58 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Needs no secrets, so it runs on pull requests from forks too
+  compile:
+    name: Python compiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Compile
+        run: python -m compileall -q otp toontown scripts
+
   server:
     name: Game server image
     if: >-
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    env:
+      BUCKET: ttiwebsite
+      INDEX: release-index
+      AWS_DEFAULT_REGION: auto
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
     steps:
       - uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - name: Check out the build tools
-        shell: bash
-        env:
-          BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
-        run: |
-          echo "::add-mask::$BUILD_TOOLS_TOKEN"
-
-          auth=$(printf 'oauth2:%s' "$BUILD_TOOLS_TOKEN" | base64 | tr -d '\n')
-          echo "::add-mask::$auth"
-
-          git init -q tools
-          git -C tools remote add origin \
-            https://git.toontown.io/toontown-infinite/build-tools.git
-          git -C tools -c http.extraheader="Authorization: Basic $auth" \
-            fetch -q --depth 1 origin HEAD
-          git -C tools checkout -q FETCH_HEAD
-
-      - name: Check out the resources
-        uses: actions/checkout@v5
+        uses: ./.github/actions/build-tools
         with:
-          repository: TT-Infinite-Archive/resources
-          path: art
-          fetch-depth: 1
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
           cache: pip
 
+      - name: Fetch Panda3D
+        uses: ./.github/actions/panda3d
+        with:
+          target: linux-x64
+
       - name: Assemble server resources
         run: |
-          pip install --disable-pip-version-check -r requirements.txt
-          tools/build-server-resources.sh art build/resources
+          pip install --disable-pip-version-check wheels/*.whl -r requirements.txt
+          python tools/pack_server_resources.py resources build/resources
 
       - uses: docker/setup-buildx-action@v4
 
@@ -63,7 +73,7 @@ jobs:
           push: false
           load: true
           tags: tti-server:check
-          build-args: SERVER_VERSION=check
+          build-args: BUILD_VERSION=check
           cache-from: type=gha,scope=server
           cache-to: type=gha,scope=server,mode=max
 
@@ -75,7 +85,7 @@ jobs:
           push: false
           load: true
           tags: tti-astron:check
-          build-args: SERVER_VERSION=check
+          build-args: BUILD_VERSION=check
           cache-from: type=gha,scope=astron
           cache-to: type=gha,scope=astron,mode=max
 

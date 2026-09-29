@@ -168,13 +168,6 @@ class InventoryBase(DirectObject.DirectObject):
         else:
             return 0
 
-    def getTrackAndLevel(self, propName):
-        for track in range(0, len(Tracks)):
-            if AvProps[track].count(propName):
-                return (tracks, AvProps[track].index(propName))
-
-        return (-1, -1)
-
     def calcTotalProps(self):
         self.totalProps = 0
         for track in range(0, len(Tracks)):

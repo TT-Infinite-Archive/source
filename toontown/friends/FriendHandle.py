@@ -1,5 +1,6 @@
 from otp.avatar.Avatar import teleportNotify
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 import copy
 from toontown.chat import ToonChatGarbler
 
@@ -33,7 +34,7 @@ class FriendHandle:
         return self.name
 
     def getFont(self):
-        return ToontownGlobals.getToonFont()
+        return ToontownClientGlobals.getToonFont()
 
     def getStyle(self):
         return self.style

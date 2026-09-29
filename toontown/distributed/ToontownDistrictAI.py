@@ -25,6 +25,7 @@ class ToontownDistrictAI(DistributedDistrictAI):
         # Add a post remove shard status update in-case we go down:
         status = {
             'available': False,
+            'draining': False,
             'name': self.name,
             'created': self.created
         }
@@ -34,6 +35,7 @@ class ToontownDistrictAI(DistributedDistrictAI):
         # Send a shard status update with the information we have:
         status = {
             'available': bool(self.available),
+            'draining': bool(self.draining),
             'name': self.name,
             'created': self.created
         }
@@ -47,6 +49,12 @@ class ToontownDistrictAI(DistributedDistrictAI):
 
     def setAvailable(self, available):
         DistributedDistrictAI.setAvailable(self, available)
+
+        # Send a shard status update with the information we have:
+        self.handleShardStatusQuery()
+
+    def setDraining(self, draining):
+        DistributedDistrictAI.setDraining(self, draining)
 
         # Send a shard status update with the information we have:
         self.handleShardStatusQuery()

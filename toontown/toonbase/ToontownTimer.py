@@ -12,3 +12,11 @@ class ToontownTimer(OTPTimer):
             ToontownTimer.ClockImage = model.find('**/alarm_clock')
             model.removeNode()
         return ToontownTimer.ClockImage
+
+
+def getNewToontownTimer():
+    timer = ToontownTimer()
+    timer.hide()
+    timer.posInTopRightCorner()
+    timer.setColor(1, 1, 1, 0.75)
+    return timer

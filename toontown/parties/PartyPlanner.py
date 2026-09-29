@@ -26,6 +26,7 @@ from toontown.parties.ScrolledFriendList import ScrolledFriendList
 from toontown.toon import ToonHead
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toontowngui import TTDialog
 from toontown.toontowngui.TeaserPanel import TeaserPanel
 from toontown.nametag import NametagGlobals
@@ -529,14 +530,14 @@ class PartyPlanner(DirectFrame, FSM):
         self.elementPriceNode = TextNode('ElementPrice')
         self.elementPriceNode.setAlign(TextNode.ALeft)
         self.elementPriceNode.setTextColor(0.0, 0.0, 0.0, 1.0)
-        self.elementPriceNode.setFont(ToontownGlobals.getToonFont())
+        self.elementPriceNode.setFont(ToontownClientGlobals.getToonFont())
         self.elementPrice = page.attachNewNode(self.elementPriceNode)
         self.elementPrice.setScale(TTLocalizer.PPelementPriceNode)
         self.elementPrice.setPos(self.gui.find('**/step_05_activityPrice_text_locator').getPos() + Point3(-0.02, 0.0, 0.04))
         self.elementDescriptionNode = TextNode('ElementDescription')
         self.elementDescriptionNode.setAlign(TextNode.ACenter)
         self.elementDescriptionNode.setWordwrap(8)
-        self.elementDescriptionNode.setFont(ToontownGlobals.getToonFont())
+        self.elementDescriptionNode.setFont(ToontownClientGlobals.getToonFont())
         self.elementDescriptionNode.setTextColor(0.0, 0.0, 0.0, 1.0)
         self.elementDescription = page.attachNewNode(self.elementDescriptionNode)
         self.elementDescription.setScale(TTLocalizer.PPelementDescription)

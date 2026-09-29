@@ -3,6 +3,7 @@ from direct.actor import Actor
 from otp.avatar import Avatar
 from . import SuitDNA
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.battle import SuitBattleGlobals
 from toontown.nametag import NametagGlobals
 from direct.task.Task import Task
@@ -194,25 +195,6 @@ def loadSuits(level):
 def unloadSuits(level):
     unloadDialog(level)
 
-def loadSuitAnims(suit, flag = 1):
-    if suit in SuitDNA.suitHeadTypes:
-        try:
-            animList = eval(suit)
-        except NameError:
-            animList = ()
-
-    else:
-        print('Invalid suit name: ', suit)
-        return -1
-    for anim in animList:
-        phase = 'phase_' + str(anim[2])
-        filePrefix = ModelDict[bodyType][0]
-        animName = filePrefix + anim[1]
-        if flag:
-            loader.loadModel(animName)
-        else:
-            loader.unloadModel(animName)
-
 
 def loadDialog(level):
     global SuitDialogArray
@@ -325,7 +307,7 @@ class Suit(Avatar.Avatar):
             self.Suit_initialized = 1
 
         Avatar.Avatar.__init__(self)
-        self.setFont(ToontownGlobals.getSuitFont())
+        self.setFont(ToontownClientGlobals.getSuitFont())
         self.setPlayerType(NametagGlobals.CCSuit)
         self.setPickable(1)
         self.leftHand = None

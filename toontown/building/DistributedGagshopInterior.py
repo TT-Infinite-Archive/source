@@ -5,6 +5,7 @@ from otp.util import random
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from . import ToonInteriorColors
+from toontown.dna import DNAUtil
 from toontown.dna.DNAParser import DNADoor
 from toontown.hood import ZoneUtil
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
@@ -73,6 +74,7 @@ class DistributedGagshopInterior(DistributedObject.DistributedObject):
         self.randomGenerator.seed(self.zoneId)
         self.interior = loader.loadModel('phase_4/models/modules/gagShop_interior')
         self.interior.reparentTo(render)
+        DNAUtil.biasDecals(self.interior)
         hoodId = ZoneUtil.getCanonicalHoodId(self.zoneId)
         self.colors = ToonInteriorColors.colors[hoodId]
         self.replaceRandomInModel(self.interior)

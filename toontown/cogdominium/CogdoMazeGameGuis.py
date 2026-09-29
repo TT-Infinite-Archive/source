@@ -4,7 +4,7 @@ from direct.gui.DirectGui import DirectFrame, DGG
 from direct.task.Task import Task
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.FunctionInterval import Wait, Func
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownIntervals
 from toontown.minigame.MazeMapGui import MazeMapGui
@@ -125,7 +125,7 @@ class CogdoMazeBossCodeFrame(DirectFrame):
         self._bg.hide()
         self._bossIcon.setBin('fixed', 2)
         self._bg.setBin('fixed', 3)
-        self._label = DirectLabel(parent=self._bg, relief=None, scale=Globals.BossCodeFrameLabelScale, text=code, pos=(0, 0, -0.03), text_align=TextNode.ACenter, text_fg=Globals.BossCodeFrameLabelNormalColor, text_shadow=(0, 0, 0, 0), text_font=ToontownGlobals.getSuitFont())
+        self._label = DirectLabel(parent=self._bg, relief=None, scale=Globals.BossCodeFrameLabelScale, text=code, pos=(0, 0, -0.03), text_align=TextNode.ACenter, text_fg=Globals.BossCodeFrameLabelNormalColor, text_shadow=(0, 0, 0, 0), text_font=ToontownClientGlobals.getSuitFont())
         return
 
     def destroy(self):
@@ -181,7 +181,7 @@ class CogdoMazeBossGui(DirectFrame):
         self._model.reparentTo(self)
         self._model.find('**/frame').setBin('fixed', 1)
         titleLabelPos = self._model.find('**/title_label_loc').getPos()
-        self._titleLabel = DirectLabel(parent=self, relief=None, scale=Globals.BossGuiTitleLabelScale, text=TTLocalizer.CogdoMazeGameBossGuiTitle.upper(), pos=titleLabelPos, text_align=TextNode.ACenter, text_fg=(0, 0, 0, 1), text_shadow=(0, 0, 0, 0), text_font=ToontownGlobals.getSuitFont())
+        self._titleLabel = DirectLabel(parent=self, relief=None, scale=Globals.BossGuiTitleLabelScale, text=TTLocalizer.CogdoMazeGameBossGuiTitle.upper(), pos=titleLabelPos, text_align=TextNode.ACenter, text_fg=(0, 0, 0, 1), text_shadow=(0, 0, 0, 0), text_font=ToontownClientGlobals.getSuitFont())
         self._titleLabel.setBin('fixed', 1)
         bossCard = self._model.find('**/bossCard')
         self._openDoor = self._model.find('**/doorOpen')

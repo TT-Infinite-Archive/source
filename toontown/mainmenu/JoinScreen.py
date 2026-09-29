@@ -11,6 +11,7 @@ from toontown.mainmenu import MainMenuGlobals
 from toontown.makeatoon.MakeAToonGUI import MATShuffleButton
 from toontown.serverbrowser.BookmarkManager import BookmarkManager
 from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase.DirectScrolledList import DirectScrolledList
 from toontown.toontowngui import TTDialog
 from toontown.toontowngui import TTTooltip
@@ -89,15 +90,15 @@ class JoinScreen(DirectFrame, FSM):
         self.bookmarksButton.hide()
         
         self.ipConnectLabel = DirectLabel(parent=self, relief=None, text='Join a server by entering an IP Address.', pos=(0, 0, 0.5), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
+                                   text_font=ToontownClientGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
         self.ipConnectLabel.hide()
 
         self.bookmarksLabel = DirectLabel(parent=self, relief=None, text='View your bookmarked servers.', pos=(0, 0, -0.3), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
+                                   text_font=ToontownClientGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
         self.bookmarksLabel.hide()
 
         self.ipConnectLabel2 = DirectLabel(parent=self, relief=None, text='Enter an IP Address', pos=(0, 0, 0.3), text_fg=(1, 1, 1, 1),
-                                   text_font=ToontownGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
+                                   text_font=ToontownClientGlobals.getToonFont(), text_scale=0.12, text_wordwrap=25)
         self.ipConnectLabel2.hide()
 
         self.enterPosInterval = camera.posInterval(1.3, Point3(CAMENDPOS), startPos=Point3(CAMSTARTPOS), blendType = 'easeIn')
@@ -420,15 +421,15 @@ class JoinScreen(DirectFrame, FSM):
             self.bookmarkInfoDialog.setPos(-0.8, 0, 0)
 
             infoTitle = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (0, 0, 0.5),
-                                    text_align = TextNode.ACenter, text_font = ToontownGlobals.getToonFont(),
+                                    text_align = TextNode.ACenter, text_font = ToontownClientGlobals.getToonFont(),
                                     text_scale = 0.1, text_wordwrap = 25, text = "Bookmark Information")
             nameLabel = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (-.5, 0, 0.2),
                                     text_fg = (0, 0, 0, 1), text_align = TextNode.ALeft,
-                                    text_font = ToontownGlobals.getToonFont(), text_scale = 0.06,
+                                    text_font = ToontownClientGlobals.getToonFont(), text_scale = 0.06,
                                     text_wordwrap = 25, text = "\1candidate_inactive\1Name:\2 %s" %name)
             addressLabel = DirectLabel(relief = None, parent = self.bookmarkInfoDialog, pos = (-.5, 0, 0.1),
                                        text_fg = (0, 0, 0, 1), text_align = TextNode.ALeft,
-                                       text_font = ToontownGlobals.getToonFont(), text_scale = 0.06,
+                                       text_font = ToontownClientGlobals.getToonFont(), text_scale = 0.06,
                                        text_wordwrap = 25, text = "\1candidate_inactive\1Address:\2 %s" %address)
             connectButton = MATShuffleButton(parent = self.bookmarkInfoDialog, pos=(0, 0, -0.3), text="Connect", wantArrows=False,
             image_scale=buttonScale, image2_scale=buttonScale_clickhover,

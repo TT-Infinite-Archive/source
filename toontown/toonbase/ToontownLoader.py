@@ -7,6 +7,7 @@ from toontown.dna.DNAParser import *
 
 class ToontownLoader(Loader.Loader):
     TickPeriod = 0.2
+    FramePeriod = 1.0 / 30
 
     def __init__(self, base):
         Loader.Loader.__init__(self, base)
@@ -28,11 +29,17 @@ class ToontownLoader(Loader.Loader):
         if self.inBulkBlock:
             Loader.Loader.notify.warning("Tried to start a block ('%s'), but am already in a block ('%s')" % (name, self.blockName))
             return None
-        self.inBulkBlock = 1
-        self._lastTickT = globalClock.getRealTime()
         self.blockName = name
         self.loadingScreen.begin(range, label, gui, tipCategory, zoneId)
+        self._lastTickT = globalClock.getRealTime()
+        self._lastFrameT = self._lastTickT
+        self.inBulkBlock = 1
         return None
+
+    def continueBulkLoad(self, name, label, range, zoneId):
+        Loader.Loader.notify.info("continuing bulk load of block '%s' as '%s'" % (self.blockName, name))
+        self.blockName = name
+        self.loadingScreen.extend(range, label, zoneId)
 
     def endBulkLoad(self, name):
         if not self.inBulkBlock:
@@ -67,6 +74,9 @@ class ToontownLoader(Loader.Loader):
                     base.cr.considerHeartbeat()
                 except:
                     pass
+            if now - self._lastFrameT > self.FramePeriod:
+                self._lastFrameT = now
+                self.loadingScreen.renderFrame()
 
     def loadModel(self, *args, **kw):
         ret = Loader.Loader.loadModel(self, *args, **kw)

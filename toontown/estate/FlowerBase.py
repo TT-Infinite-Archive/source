@@ -1,5 +1,5 @@
 from . import GardenGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from direct.directnotify import DirectNotifyGlobal
 
 class FlowerBase:

@@ -5,9 +5,11 @@ from . import ToonInteriorColors
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedObject
 from direct.task.Task import Task
-from toontown.toonbase import TTLocalizer
 from toontown.toonbase.ToonBaseGlobal import *
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import ToontownClientGlobals
+from toontown.toonbase import TTLocalizer
+from toontown.dna import DNAUtil
 from toontown.dna.DNAParser import DNADoor
 from toontown.toon.DistributedNPCToonBase import DistributedNPCToonBase
 
@@ -26,6 +28,7 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
         DistributedObject.DistributedObject.generate(self)
         self.interior = loader.loadModel('phase_3.5/models/modules/HQ_interior')
         self.interior.reparentTo(render)
+        DNAUtil.biasDecals(self.interior)
         self.interior.find('**/cream').hide()
         self.interior.find('**/crashed_piano').hide()
         floorCollisions = self.interior.find('**/floor collisions')
@@ -105,7 +108,7 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
     def buildLeaderRow(self):
         row = hidden.attachNewNode('leaderRow')
         nameText = TextNode('nameText')
-        nameText.setFont(ToontownGlobals.getToonFont())
+        nameText.setFont(ToontownClientGlobals.getToonFont())
         nameText.setAlign(TextNode.ALeft)
         nameText.setTextColor(1, 1, 1, 0.7)
         nameText.setText('-')
@@ -113,7 +116,7 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
         namePath.setPos(*TTLocalizer.DHQInamePathPos)
         namePath.setScale(TTLocalizer.DHQInamePath)
         scoreText = TextNode('scoreText')
-        scoreText.setFont(ToontownGlobals.getToonFont())
+        scoreText.setFont(ToontownClientGlobals.getToonFont())
         scoreText.setAlign(TextNode.ARight)
         scoreText.setTextColor(1, 1, 0.1, 0.7)
         scoreText.setText('-')
@@ -184,27 +187,27 @@ class DistributedHQInterior(DistributedObject.DistributedObject):
 
     def updateTrophyStar(self, trophyStar, score):
         scale = 0.8
-        if score >= ToontownGlobals.TrophyStarLevels[4]:
+        if score >= ToontownClientGlobals.TrophyStarLevels[4]:
             trophyStar.show()
             trophyStar.setScale(scale)
-            trophyStar.setColor(ToontownGlobals.TrophyStarColors[4])
-            if score >= ToontownGlobals.TrophyStarLevels[5]:
+            trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[4])
+            if score >= ToontownClientGlobals.TrophyStarLevels[5]:
                 task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
                 task.trophyStarSpeed = 15
                 task.trophyStar = trophyStar
-        elif score >= ToontownGlobals.TrophyStarLevels[2]:
+        elif score >= ToontownClientGlobals.TrophyStarLevels[2]:
             trophyStar.show()
             trophyStar.setScale(0.75 * scale)
-            trophyStar.setColor(ToontownGlobals.TrophyStarColors[2])
-            if score >= ToontownGlobals.TrophyStarLevels[3]:
+            trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[2])
+            if score >= ToontownClientGlobals.TrophyStarLevels[3]:
                 task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
                 task.trophyStarSpeed = 10
                 task.trophyStar = trophyStar
-        elif score >= ToontownGlobals.TrophyStarLevels[0]:
+        elif score >= ToontownClientGlobals.TrophyStarLevels[0]:
             trophyStar.show()
             trophyStar.setScale(0.75 * scale)
-            trophyStar.setColor(ToontownGlobals.TrophyStarColors[0])
-            if score >= ToontownGlobals.TrophyStarLevels[1]:
+            trophyStar.setColor(ToontownClientGlobals.TrophyStarColors[0])
+            if score >= ToontownClientGlobals.TrophyStarLevels[1]:
                 task = taskMgr.add(self.__starSpin, self.uniqueName('starSpinHQ'))
                 task.trophyStarSpeed = 8
                 task.trophyStar = trophyStar

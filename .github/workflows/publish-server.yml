@@ -28,6 +28,14 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      BUCKET: ttiwebsite
+      INDEX: release-index
+      AWS_DEFAULT_REGION: auto
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
     strategy:
       fail-fast: false
       matrix:
@@ -43,31 +51,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          submodules: ${{ matrix.resources }}
 
       - name: Check out the build tools
-        shell: bash
-        env:
-          BUILD_TOOLS_TOKEN: ${{ secrets.BUILD_TOOLS_TOKEN }}
-        run: |
-          echo "::add-mask::$BUILD_TOOLS_TOKEN"
-
-          auth=$(printf 'oauth2:%s' "$BUILD_TOOLS_TOKEN" | base64 | tr -d '\n')
-          echo "::add-mask::$auth"
-
-          git init -q tools
-          git -C tools remote add origin \
-            https://git.toontown.io/toontown-infinite/build-tools.git
-          git -C tools -c http.extraheader="Authorization: Basic $auth" \
-            fetch -q --depth 1 origin HEAD
-          git -C tools checkout -q FETCH_HEAD
-
-      - name: Check out the resources
-        if: matrix.resources
-        uses: actions/checkout@v5
+        uses: ./.github/actions/build-tools
         with:
-          repository: TT-Infinite-Archive/resources
-          path: art
-          fetch-depth: 1
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
 
       - uses: actions/setup-python@v6
         if: matrix.resources
@@ -75,11 +65,17 @@ jobs:
           python-version: "3.14"
           cache: pip
 
+      - name: Fetch Panda3D
+        if: matrix.resources
+        uses: ./.github/actions/panda3d
+        with:
+          target: linux-x64
+
       - name: Assemble server resources
         if: matrix.resources
         run: |
-          pip install --disable-pip-version-check -r requirements.txt
-          tools/build-server-resources.sh art build/resources
+          pip install --disable-pip-version-check wheels/*.whl -r requirements.txt
+          python tools/pack_server_resources.py resources build/resources
 
       - uses: docker/setup-buildx-action@v4
 
@@ -89,15 +85,40 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Read the protocol version
+        id: protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          value=$(awk '$1 == "server-version" { print $2; exit }' \
+                  config/distribution/live.prc)
+
+          if [ -z "$value" ]; then
+              echo "::error::config/distribution/live.prc names no server-version."
+              exit 1
+          fi
+
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+
       - name: Name the image
         id: image
         shell: bash
         run: |
+          set -euo pipefail
+
           repo="ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.image }}"
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ matrix.image }}" = astron ]; then
+              version="${{ steps.protocol.outputs.value }}"
+          else
+              version="tti-${{ inputs.channel }}-v${{ inputs.version }}"
+          fi
 
           {
               echo "tags<<TAGS"
-              echo "$repo:tti-${{ inputs.channel }}-v${{ inputs.version }}"
+              echo "$repo:$version"
               # :latest is whatever is live:
               if [ "${{ inputs.channel }}" = live ]; then
                   echo "$repo:latest"
@@ -105,13 +126,29 @@ jobs:
               echo TAGS
           } >> "$GITHUB_OUTPUT"
 
+      - name: Look for an astron image on this protocol
+        id: existing
+        if: matrix.image == 'astron'
+        shell: bash
+        run: |
+          tag="${{ steps.image.outputs.repo }}:${{ steps.protocol.outputs.value }}"
+
+          if docker buildx imagetools inspect "$tag" > /dev/null 2>&1; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "Protocol \`${{ steps.protocol.outputs.value }}\` is already published; keeping it." \
+                  >> "$GITHUB_STEP_SUMMARY"
+          else
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: docker/build-push-action@v7
+        if: steps.existing.outputs.skip != 'true'
         with:
           context: .
           file: ${{ matrix.file }}
           push: true
           build-args: |
-            SERVER_VERSION=tti-${{ inputs.channel }}-v${{ inputs.version }}
+            BUILD_VERSION=tti-${{ inputs.channel }}-v${{ inputs.version }}
           tags: ${{ steps.image.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,scope=${{ matrix.image }},mode=max

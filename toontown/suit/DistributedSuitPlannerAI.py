@@ -298,8 +298,9 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
                     buildingHeight = self.pendingBuildingHeights[0]
                     del self.pendingBuildingHeights[0]
                     self.pendingBuildingHeights.append(buildingHeight)
-        if suitName is None:
-            suitName, skelecog = self.air.suitInvasionManager.getInvadingCog()
+        invading = suitName is None and self.air.suitInvasionManager.getInvading()
+        if invading:
+            suitName, skelecog = self.air.suitInvasionManager.getCogType()
         if (suitType is None) and (suitName is not None):
             suitType = SuitDNA.getSuitType(suitName)
             suitTrack = SuitDNA.getSuitDept(suitName)
@@ -329,6 +330,9 @@ class DistributedSuitPlannerAI(DistributedObjectAI.DistributedObjectAI, SuitPlan
         if newSuit.attemptingTakeover:
             self.numAttemptingTakeover += 1
         newSuit.initializeBuffs()
+        if invading:
+            # Only a Cog that made it onto the street costs the invasion one
+            self.air.suitInvasionManager.spendInvadingCog()
         return newSuit
 
     def countNumNeededBuildings(self):

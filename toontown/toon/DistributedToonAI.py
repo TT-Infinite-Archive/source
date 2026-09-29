@@ -12,7 +12,6 @@ import re
 
 from . import Experience
 from . import InventoryBase
-from . import ModuleListAI
 from .NPCToons import npcFriends
 from . import ToonDNA
 from otp.ai.AIBaseGlobal import *
@@ -21,7 +20,7 @@ from otp.distributed import OtpDoGlobals
 from otp.avatar import DistributedAvatarAI
 from otp.avatar import DistributedPlayerAI
 from otp.otpbase import OTPGlobals
-from otp.otpbase import OTPLocalizer
+from otp.otpbase import OTPLocalizerServer as OTPLocalizer
 from toontown.achievements import Achievements
 from toontown.battle import SuitBattleGlobals
 from toontown.building import GroupTrackerGlobals
@@ -32,6 +31,7 @@ from toontown.chat import ResistanceChat
 from toontown.coghq import CogDisguiseGlobals
 from toontown.collectibles import StatsAI, CollectibleInventoryGlobals, CollectibleInventoryAI
 from toontown.estate import FlowerBasket, FlowerCollection, GardenGlobals
+from toontown.estate.DistributedGagTreeAI import DistributedGagTreeAI
 from toontown.fishing import FishCollection, FishTank
 from toontown.golf import GolfGlobals
 from toontown.hood import ZoneUtil
@@ -46,12 +46,12 @@ from toontown.racing import RaceGlobals
 from toontown.shtiker import CogPageGlobals
 from toontown.suit import SuitDNA
 from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownAccessAI
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase.ToontownGlobals import *
-from toontown.toonbase.TTLocalizerEnglish import SuitNameDropper
+from toontown.toonbase.TTLocalizerServer import SuitNameDropper
 from functools import reduce
 
 
@@ -213,7 +213,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.hostedParties = []
         self.partiesInvitedTo = []
         self.partyReplyInfoBases = []
-        self.modulelist = ModuleListAI.ModuleList()
         self._dbCheckDoLater = None
         self.teleportOverride = 0
         self._gmDisabled = False
@@ -336,14 +335,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
         DistributedPlayerAI.DistributedPlayerAI.delete(self)
 
-    def deleteDummy(self):
-        if self.inventory:
-            self.inventory.unload()
-        del self.inventory
-        self.experience = None
-        taskName = self.uniqueName('next-catalog')
-        taskMgr.remove(taskName)
-
     def setPatchVersion(self, patchVersion):
         self.patchVersion = patchVersion
 
@@ -362,20 +353,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
 
     def disconnect(self):
         self.requestDelete()
-
-    def patchDelete(self):
-        del self.dna
-        if self.inventory:
-            self.inventory.unload()
-        del self.inventory
-        del self.experience
-        if simbase.wantPets:
-            PetLookerAI.PetLookerAI.destroy(self)
-        self.doNotDeallocateChannel = True
-        self.zoneId = None
-
-        DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
-        DistributedPlayerAI.DistributedPlayerAI.delete(self)
 
     def handleLogicalZoneChange(self, newZoneId, oldZoneId):
         DistributedAvatarAI.DistributedAvatarAI.handleLogicalZoneChange(self, newZoneId, oldZoneId)
@@ -798,7 +775,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         return self.maxAccessories
 
     def isTrunkFull(self, extraAccessories = 0):
-        numAccessories = (len(self.hatList) + len(self.glassesList) + len(self.backpackList) + len(self.shoesList)) / 3
+        numAccessories = (len(self.hatList) + len(self.glassesList) + len(self.backpackList) + len(self.shoesList)) // 3
         return numAccessories + extraAccessories >= self.maxAccessories
 
     def d_setHatList(self, clothesList):
@@ -1015,7 +992,7 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         return self.maxClothes
 
     def isClosetFull(self, extraClothes = 0):
-        numClothes = len(self.clothesTopsList) / 4 + len(self.clothesBottomsList) / 2
+        numClothes = len(self.clothesTopsList) // 4 + len(self.clothesBottomsList) // 2
         return numClothes + extraClothes >= self.maxClothes
 
     def d_setClothesTopsList(self, clothesList):
@@ -1673,6 +1650,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self.sendUpdate('setCheesyEffectInventory', [inventoryList])
 
     def requestEquipCollectibleItem(self, categoryId, itemId):
+        if categoryId == CollectibleInventoryGlobals.CICategoryCheesyEffect \
+                and self.air.holidayManager.isHolidayRunning(ToontownGlobals.APRIL_FOOLS_COSTUMES):
+            return
+
         self.air.ciManager.handleEquipItem(self.doId, categoryId, itemId)
 
     def makeRandomFishTank(self):
@@ -1689,14 +1670,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             return 1
         else:
             self.notify.warning('addFishToTank: addFish failed')
-            return 0
-
-    def removeFishFromTankAtIndex(self, index):
-        if self.fishTank.removeFishAtIndex(index):
-            self.d_setFishTank(*self.fishTank.getNetLists())
-            return 1
-        else:
-            self.notify.warning('removeFishFromTank: cannot find fish')
             return 0
 
     def getFishingRod(self):
@@ -1856,15 +1829,15 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def getMaxCarry(self):
         return self.maxCarry
 
-    def b_setCheesyEffect(self, effect, hoodId, expireTime):
-        self.setCheesyEffect(effect, hoodId, expireTime)
+    def b_setCheesyEffect(self, effect, hoodId, expireTime, syncCollectible=True):
+        self.setCheesyEffect(effect, hoodId, expireTime, syncCollectible)
         self.d_setCheesyEffect(effect, hoodId, expireTime)
 
     def d_setCheesyEffect(self, effect, hoodId, expireTime):
         self.sendUpdate('setCheesyEffect', [effect, hoodId, expireTime])
 
-    def setCheesyEffect(self, effect, hoodId, expireTime):
-        if self.collectibleInventory is not None:
+    def setCheesyEffect(self, effect, hoodId, expireTime, syncCollectible=True):
+        if syncCollectible and self.collectibleInventory is not None:
             # TODO: Remove this when we port cheesy effects completely
             # If the toon obtains a cheesy effect another way, we need to react
             if self.collectibleInventory.isObtained(CollectibleInventoryGlobals.CICategoryCheesyEffect, effect):
@@ -1905,8 +1878,15 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def getCheesyEffect(self):
         return (self.savedCheesyEffect, self.savedCheesyHoodId, self.savedCheesyExpireTime)
 
+    def getEquippedCheesyEffect(self):
+        if self.collectibleInventory is None:
+            return ToontownGlobals.CENormal
+
+        equipped = self.collectibleInventory.getEquipped(CollectibleInventoryGlobals.CICategoryCheesyEffect)
+        return ToontownGlobals.CENormal if equipped is None else equipped
+
     def __undoCheesyEffect(self, task):
-        self.b_setCheesyEffect(ToontownGlobals.CENormal, 0, 0)
+        self.b_setCheesyEffect(self.getEquippedCheesyEffect(), 0, 0)
         return Task.cont
 
     def b_setTrackAccess(self, trackArray):
@@ -2100,6 +2080,14 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 #simbase.air.banManager.ban(self.doId, self.DISLid, commentStr)
 
     def setTeleportOverride(self, flag):
+        # Only the client's globalTeleport magic word sends this, so it gets
+        # the same gate that word would have here
+        senderId = self.air.getAvatarIdFromSender()
+        required = max(self.air.magicWordManager.minimumAccess,
+                       spellbook.requiredAccessFor('globalTeleport', CATEGORY_USER.defaultAccess))
+        if senderId != self.doId or not self.air.wantCheats or self.getAdminAccess() < required:
+            self.air.writeServerEvent('suspicious', senderId, 'setTeleportOverride on %s' % self.doId)
+            return
         self.teleportOverride = flag
         self.b_setHoodsVisited([1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000])
 
@@ -2566,9 +2554,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         return self.money + self.bankMoney
 
     def b_setBankMoney(self, money):
-        bankMoney = min(money, ToontownGlobals.MaxBankMoney)
-        self.setBankMoney(bankMoney)
-        self.d_setBankMoney(bankMoney)
+        # The bank lives on the account, so this is what saves it
+        self.air.bankManager.setMoney(self.doId, money)
 
     def d_setBankMoney(self, money):
         self.sendUpdate('setBankMoney', [money])
@@ -3046,10 +3033,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 self.air.writeServerEvent('suspicious', self.doId, 'attempt to update to dna value  %s in the invalid field %s' % (fieldValue, dnaField))
                 return
             if dnaField == EKartDNA.BODY_TYPE:
-                if fieldValue not in list(KartDict.keys()) and fieldValue != InvalidEntry:
-                    self.air.writeServerEvent('suspicious', self.doId, 'attempt to update kart body to invalid body %s.' % fieldValue)
-                    return
-                self.b_setKartBodyType(fieldValue)
+                # Karts are bought from the clerk, never switched here
+                self.air.writeServerEvent('suspicious', self.doId, 'attempt to update kart body to %s.' % fieldValue)
+                return
             else:
                 accFields = [EKartDNA.EB_TYPE,
                  EKartDNA.SP_TYPE,
@@ -3552,9 +3538,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                     self.gardenSpecials.append((index, newCount))
                 self.gardenSpecials.sort()
                 self.b_setGardenSpecials(self.gardenSpecials)
-                return
+                return True
 
         self.notify.warning("removing garden item %d that toon doesn't have" % index)
+        return False
 
     def b_setFlowerCollection(self, speciesList, varietyList):
         self.setFlowerCollection(speciesList, varietyList)
@@ -4235,31 +4222,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
             else:
                 self.air.writeServerEvent('suspicious', self.doId, '$ found in toon name')
 
-    def setModuleInfo(self, info):
-        avId = self.air.getAvatarIdFromSender()
-        key = 'outrageous'
-        self.moduleWhitelist = self.modulelist.loadWhitelistFile()
-        self.moduleBlacklist = self.modulelist.loadBlacklistFile()
-        for obfuscatedModule in info:
-            module = ''
-            p = 0
-            for ch in obfuscatedModule:
-                ic = ord(ch) ^ ord(key[p])
-                p += 1
-                if p >= len(key):
-                    p = 0
-                module += chr(ic)
-
-            if module not in self.moduleWhitelist:
-                if module in self.moduleBlacklist:
-                    self.air.writeServerEvent('suspicious', avId, 'Black List module %s loaded into process.' % module)
-                    if ConfigVariableBool('want-ban-blacklist-module', False).getValue():
-                        commentStr = 'User has blacklist module: %s attached to their game process' % module
-                        dislId = self.DISLid
-                        #simbase.air.banManager.ban(self.doId, dislId, commentStr)
-                else:
-                    self.air.writeServerEvent('suspicious', avId, 'Unknown module %s loaded into process.' % module)
-
     def teleportResponseToAI(self, toAvId, available, shardId, hoodId, zoneId, fromAvId):
         if not self.WantTpTrack:
             return
@@ -4817,28 +4779,8 @@ def bank(command, value):
     command = command.lower()
     target = spellbook.getTarget()
     if command == 'transfer':
-        if value == 0:
+        if value == 0 or not simbase.air.bankMgr.transferMoneyForAv(value, target):
             return 'Invalid bank transfer.'
-        bankMoney = target.getBankMoney()
-        maxBankMoney = ToontownGlobals.MaxBankMoney
-        money = target.getMoney()
-        maxMoney = target.getMaxMoney()
-        if value > 0:
-            maxDeposit = money
-            maxDeposit = min(maxDeposit, maxBankMoney - money)
-            deposit = min(value, maxDeposit)
-            bankMoney += deposit
-            money -= deposit
-            target.b_setBankMoney(bankMoney)
-            target.b_setMoney(money)
-        else:
-            maxWithdrawl = maxMoney - money
-            maxWithdrawl = min(maxWithdrawl, bankMoney)
-            withdrawl = min(value, maxWithdrawl)
-            bankMoney -= withdrawl
-            money += withdrawl
-            target.b_setBankMoney(bankMoney)
-            target.b_setMoney(money)
         return 'Bank transfer successful!'
     else:
         return 'Invalid command!'
@@ -5486,19 +5428,20 @@ def shovelSkill(value):
 @magicWord(category=CATEGORY_USER, types=[])
 def maxTrees():
     invoker = spellbook.getInvoker()
-    estate = simbase.air.estateMgr.toon2estate.get(invoker)
+    estateMgr = simbase.air.estateMgr
+    estate = estateMgr.estate.get(estateMgr.getOwnerFromZone(invoker.zoneId))
     if not estate:
         return 'Unable to locate estate.'
-    for house in estate.houses:
-        if hasattr(house, 'gardenManager') and house.avatarId == invoker.doId:
-            for plot in house.gardenManager.plots:
-                if hasattr(plot, 'growthLevel'):
-                    plot.growthLevel = plot.getGrowthThresholds()[2]
-                    plot.d_setGrowthLevel(plot.growthLevel)
-                    timePassed = plot.growthLevel * GardenGlobals.GROWTH_INTERVAL
-                    plot.timestamp = int(time.time()) - timePassed
-                    house.gardenManager.updateGardenData()
-                    return 'Successfully maxed tree growth!'
+    for slot, garden in enumerate(estate.gardenTable):
+        if estate.getToonId(slot) != invoker.doId:
+            continue
+        trees = [plant for plant in garden if isinstance(plant, DistributedGagTreeAI)]
+        if not trees:
+            break
+        for tree in trees:
+            tree.b_setGrowthLevel(tree.growthThresholds[2], False)
+        estate.d_setItems(slot, estate.getItems(slot))
+        return 'Successfully maxed tree growth!'
     return 'Failed to max tree growth.'
 
 

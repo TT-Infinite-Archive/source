@@ -4,7 +4,7 @@ from direct.gui.DirectGui import *
 from direct.distributed.ClockDelta import *
 from toontown.minigame.OrthoWalk import *
 from string import *
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from direct.distributed import DistributedObject
 from direct.directnotify import DirectNotifyGlobal
 from direct.fsm import ClassicFSM
@@ -152,7 +152,7 @@ class DistributedHouse(DistributedObject.DistributedObject):
         b = self.randomGenerator.random()
         nameText.setTextColor(r, g, b, 1)
         nameText.setAlign(nameText.ACenter)
-        nameText.setFont(ToontownGlobals.getBuildingNametagFont())
+        nameText.setFont(ToontownClientGlobals.getBuildingNametagFont())
         nameText.setShadowColor(0, 0, 0, 1)
         nameText.setBin('fixed')
         if TTLocalizer.BuildingNametagShadow:
@@ -192,7 +192,7 @@ class DistributedHouse(DistributedObject.DistributedObject):
         matText = TextNode('matText')
         matText.setTextColor(color[0], color[1], color[2], 1)
         matText.setAlign(matText.ACenter)
-        matText.setFont(ToontownGlobals.getBuildingNametagFont())
+        matText.setFont(ToontownClientGlobals.getBuildingNametagFont())
         matText.setShadowColor(0, 0, 0, 1)
         matText.setBin('fixed')
         if TTLocalizer.BuildingNametagShadow:
@@ -228,7 +228,7 @@ class DistributedHouse(DistributedObject.DistributedObject):
             houseName = TTLocalizer.AvatarsHouse % TTLocalizer.GetPossesive(self.name)
         self.nametag = NametagGroup()
         self.nametag.setNametag3d(None)
-        self.nametag.setFont(ToontownGlobals.getBuildingNametagFont())
+        self.nametag.setFont(ToontownClientGlobals.getBuildingNametagFont())
         if TTLocalizer.BuildingNametagShadow:
             self.nametag.setShadow(*TTLocalizer.BuildingNametagShadow)
         self.nametag.hideChat()
@@ -344,7 +344,7 @@ class DistributedHouse(DistributedObject.DistributedObject):
         b = self.randomGenerator.random()
         nameText.setTextColor(r, g, b, 1)
         nameText.setAlign(nameText.ACenter)
-        nameText.setFont(ToontownGlobals.getBuildingNametagFont())
+        nameText.setFont(ToontownClientGlobals.getBuildingNametagFont())
         nameText.setShadowColor(0, 0, 0, 1)
         nameText.setBin('fixed')
         if TTLocalizer.BuildingNametagShadow:

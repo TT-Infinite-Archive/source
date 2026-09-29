@@ -22,7 +22,7 @@ class ContentPacksManager:
         self.path = path
 
         if __debug__:
-            self.mountPoint = '../resources'
+            self.mountPoint = 'resources'
         else:
             self.mountPoint = '/'
 

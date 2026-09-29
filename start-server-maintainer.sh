@@ -12,7 +12,7 @@ set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGS="$ROOT/logs"
-mkdir -p "$LOGS" "$ROOT/astron/logs"
+mkdir -p "$LOGS" "$ROOT/astron/logs" "$ROOT/astron/data"
 
 # Secrets reach a server process as environment variables. Infisical hands it over:
 #
@@ -135,10 +135,10 @@ PIDS=()
 cleanup() {
     echo
     echo "Shutting down..."
-    for pid in "${PIDS[@]}"; do
-        kill "$pid" 2>/dev/null || true
+    for ((i = ${#PIDS[@]} - 1; i >= 0; i--)); do
+        kill "${PIDS[i]}" 2>/dev/null || true
+        wait "${PIDS[i]}" 2>/dev/null || true
     done
-    wait 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 

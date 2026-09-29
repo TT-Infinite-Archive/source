@@ -3,12 +3,14 @@ from direct.directnotify import DirectNotifyGlobal
 from direct.gui import DirectGui
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
+from toontown.dna import DNAUtil
 from toontown.hood import ZoneUtil
 from toontown.launcher import DownloadForceAcknowledge
 from toontown.safezone.SafeZoneLoader import SafeZoneLoader
 from toontown.safezone.GZPlayground import GZPlayground
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 import random
 
 
@@ -45,9 +47,10 @@ class GZSafeZoneLoader(SafeZoneLoader):
         sign = top.find('**/Sign_5')
         sign.node().setEffect(DecalEffect.make())
         locator = top.find('**/sign_origin')
-        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.BossbotHQ[-1]), font=ToontownGlobals.getSuitFont(), scale=TTLocalizer.GZSZLsignText, fg=(0, 0, 0, 1), mayChange=False, parent=sign)
+        signText = DirectGui.OnscreenText(text=TextEncoder.upper(TTLocalizer.BossbotHQ[-1]), font=ToontownClientGlobals.getSuitFont(), scale=TTLocalizer.GZSZLsignText, fg=(0, 0, 0, 1), mayChange=False, parent=sign)
         signText.setPosHpr(locator, 0, 0, -0.3, 0, 0, 0)
         signText.setDepthWrite(0)
+        DNAUtil.biasDecals(sign)
 
     def exitPlayground(self):
         taskMgr.remove('titleText')

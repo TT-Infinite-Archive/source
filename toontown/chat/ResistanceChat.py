@@ -2,7 +2,7 @@ from panda3d.core import ConfigVariableBool, GeomNode, NodePath, VBase4
 import random
 from direct.interval.IntervalGlobal import *
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownBattleGlobals
 
 

@@ -9,6 +9,7 @@ from toontown.chat import ChatGlobals
 from toontown.chat.WhisperPopup import WhisperPopup
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
+from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals, SettingsGlobals, EventGlobals
 from toontown.toonbase import ServerSettingsGlobals
 
@@ -93,7 +94,7 @@ class LocalServerStarter(FSM):
 
         thread.start()
         self.threads.append(thread)
-        taskMgr.doMethodLater(settings.get(SettingsGlobals.ProcessFailback, 60), lambda task: self.__processFailed(self.process[2]), 'processFailed')
+        taskMgr.doMethodLater(settings[SettingsGlobals.ProcessFailback], lambda task: self.__processFailed(self.process[2]), 'processFailed')
     
     def __processStarted(self, name):
         taskMgr.remove('processFailed')

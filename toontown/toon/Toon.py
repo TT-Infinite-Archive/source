@@ -18,13 +18,13 @@ from otp.avatar import Emote
 from otp.avatar.Avatar import teleportNotify
 from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLocalizer
-from toontown.battle import SuitBattleGlobals, BattleProps
+from toontown.battle import SuitBattleGlobals
 from toontown.chat.ChatGlobals import *
 from toontown.collectibles import CollectibleInventoryGlobals
 from toontown.distributed import DelayDelete
 from toontown.effects import DustCloud
 from toontown.effects import Wake
-from toontown.hood import ZoneUtil
+from toontown.toonbase import ToontownClientGlobals
 from toontown.nametag.NametagGlobals import *
 from toontown.suit import SuitDNA
 from toontown.toonbase import TTLocalizer
@@ -188,7 +188,7 @@ def preload():
             preloader.loadModel('phase_3' + fileRoot + lodName + '.bam')
 
     if __debug__:
-        filenames = os.listdir('../resources/phase_3.5/audio/sfx')
+        filenames = os.listdir('resources/phase_3.5/audio/sfx')
     else:
         filenames = []
         vfl = vfs.scanDirectory(Filename('/phase_3.5/audio/sfx'))
@@ -198,12 +198,6 @@ def preload():
         if filename.startswith('AV_footstep_'):
             preloader.loadSfx('phase_3.5/audio/sfx/' + filename)
 
-
-def loadBasicAnims():
-    loadPhaseAnims()
-
-def unloadBasicAnims():
-    loadPhaseAnims(0)
 
 def loadTutorialBattleAnims():
     loadPhaseAnims('phase_3.5')
@@ -260,8 +254,6 @@ def loadPhaseAnims(phaseStr = 'phase_3', loadFlag = 1):
         animList = Phase10AnimList
     elif phaseStr == 'phase_12':
         animList = Phase12AnimList
-    else:
-        self.notify.error('Unknown phase string %s' % phaseStr)
     for key in list(LegDict.keys()):
         for anim in animList:
             if loadFlag:
@@ -429,11 +421,8 @@ class Toon(Avatar.Avatar, ToonHead):
         self.forceJumpIdle = False
         self.numPies = 0
         self.pieType = 0
-        self.pieThrowType = ToontownGlobals.PieThrowArc
+        self.pieThrowType = ToontownClientGlobals.PieThrowArc
         self.pieModel = None
-        self.propellerActor = None
-        self.propellerInSound = None
-        self.propellerOutSound = None
         self.__pieModelType = None
         self.pieScale = 1.0
         self.hatNodes = []
@@ -453,8 +442,8 @@ class Toon(Avatar.Avatar, ToonHead):
         self.jar = None
         self.suit = None
         self.goofy = None
-        self.setTag('pieCode', str(ToontownGlobals.PieCodeToon))
-        self.setFont(ToontownGlobals.getToonFont())
+        self.setTag('pieCode', str(ToontownClientGlobals.PieCodeToon))
+        self.setFont(ToontownClientGlobals.getToonFont())
         self.soundChatBubble = loader.loadSfx('phase_3/audio/sfx/GUI_balloon_popup.ogg')
         self.animFSM = ClassicFSM(
             'Toon', [
@@ -625,15 +614,9 @@ class Toon(Avatar.Avatar, ToonHead):
 
     def setLODs(self):
         self.setLODNode()
-        levelOneIn = ConfigVariableInt('lod1-in', 600).getValue()
-        levelOneOut = ConfigVariableInt('lod1-out', 0).getValue()
-        levelTwoIn = ConfigVariableInt('lod2-in', 800).getValue()
-        levelTwoOut = ConfigVariableInt('lod2-out', 600).getValue()
-        levelThreeIn = ConfigVariableInt('lod3-in', 1280).getValue()
-        levelThreeOut = ConfigVariableInt('lod3-out', 800).getValue()
-        self.addLOD(1000, levelOneIn, levelOneOut)
-        self.addLOD(500, levelTwoIn, levelTwoOut)
-        self.addLOD(250, levelThreeIn, levelThreeOut)
+        self.addLOD(1000, 600, 0)
+        self.addLOD(500, 800, 600)
+        self.addLOD(250, 1280, 800)
 
     def generateToon(self):
         self.setLODs()
@@ -1007,7 +990,7 @@ class Toon(Avatar.Avatar, ToonHead):
 
         return swappedTorso
 
-    def generateHat(self, fromRTM = False):
+    def generateHat(self):
         hat = self.getHat()
         if hat[0] >= len(ToonDNA.HatModels):
             self.sendLogSuspiciousEvent('tried to put a wrong hat idx %d' % hat[0])
@@ -1032,8 +1015,6 @@ class Toon(Avatar.Avatar, ToonHead):
                         tex.setMinfilter(Texture.FTLinearMipmapLinear)
                         tex.setMagfilter(Texture.FTLinear)
                         hatGeom.setTexture(tex, 1)
-                if fromRTM:
-                    reload(AccessoryGlobals)
                 transOffset = None
                 if AccessoryGlobals.ExtendedHatTransTable.get(hat[0]):
                     transOffset = AccessoryGlobals.ExtendedHatTransTable[hat[0]].get(self.style.head[:2])
@@ -1052,7 +1033,7 @@ class Toon(Avatar.Avatar, ToonHead):
 
         return
 
-    def generateGlasses(self, fromRTM = False):
+    def generateGlasses(self):
         glasses = self.getGlasses()
         if glasses[0] >= len(ToonDNA.GlassesModels):
             self.sendLogSuspiciousEvent('tried to put a wrong glasses idx %d' % glasses[0])
@@ -1077,8 +1058,6 @@ class Toon(Avatar.Avatar, ToonHead):
                         tex.setMinfilter(Texture.FTLinearMipmapLinear)
                         tex.setMagfilter(Texture.FTLinear)
                         glassesGeom.setTexture(tex, 1)
-                if fromRTM:
-                    reload(AccessoryGlobals)
                 transOffset = None
                 if AccessoryGlobals.ExtendedGlassesTransTable.get(glasses[0]):
                     transOffset = AccessoryGlobals.ExtendedGlassesTransTable[glasses[0]].get(self.style.head[:2])
@@ -1097,7 +1076,7 @@ class Toon(Avatar.Avatar, ToonHead):
 
         return
 
-    def generateBackpack(self, fromRTM = False):
+    def generateBackpack(self):
         backpack = self.getBackpack()
         if backpack[0] >= len(ToonDNA.BackpackModels):
             self.sendLogSuspiciousEvent('tried to put a wrong backpack idx %d' % backpack[0])
@@ -1119,8 +1098,6 @@ class Toon(Avatar.Avatar, ToonHead):
                         tex.setMinfilter(Texture.FTLinearMipmapLinear)
                         tex.setMagfilter(Texture.FTLinear)
                         geom.setTexture(tex, 1)
-                if fromRTM:
-                    reload(AccessoryGlobals)
                 transOffset = None
                 if AccessoryGlobals.ExtendedBackpackTransTable.get(backpack[0]):
                     transOffset = AccessoryGlobals.ExtendedBackpackTransTable[backpack[0]].get(self.style.torso[:1])
@@ -1173,23 +1150,23 @@ class Toon(Avatar.Avatar, ToonHead):
         self.generateBackpack()
         self.generateShoes()
 
-    def setHat(self, hatIdx, textureIdx, colorIdx, fromRTM = False):
+    def setHat(self, hatIdx, textureIdx, colorIdx):
         self.hat = (hatIdx, textureIdx, colorIdx)
-        self.generateHat(fromRTM=fromRTM)
+        self.generateHat()
 
     def getHat(self):
         return self.hat
 
-    def setGlasses(self, glassesIdx, textureIdx, colorIdx, fromRTM = False):
+    def setGlasses(self, glassesIdx, textureIdx, colorIdx):
         self.glasses = (glassesIdx, textureIdx, colorIdx)
-        self.generateGlasses(fromRTM=fromRTM)
+        self.generateGlasses()
 
     def getGlasses(self):
         return self.glasses
 
-    def setBackpack(self, backpackIdx, textureIdx, colorIdx, fromRTM = False):
+    def setBackpack(self, backpackIdx, textureIdx, colorIdx):
         self.backpack = (backpackIdx, textureIdx, colorIdx)
-        self.generateBackpack(fromRTM=fromRTM)
+        self.generateBackpack()
 
     def getBackpack(self):
         return self.backpack
@@ -1389,11 +1366,11 @@ class Toon(Avatar.Avatar, ToonHead):
                         self.goofy.setPlayRate(rate, anim)
                 else:
                     self.suit.setPlayRate(rate, anim)
-            showWake, wakeWaterHeight = ZoneUtil.getWakeInfo()
+            showWake, wakeWaterHeight = ToontownClientGlobals.getWakeInfo()
             if showWake and self.getZ(render) < wakeWaterHeight and abs(forwardSpeed) > ToontownGlobals.WalkCutOff:
                 currT = globalClock.getFrameTime()
                 deltaT = currT - self.lastWakeTime
-                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownGlobals.WakeRunDelta or deltaT > ToontownGlobals.WakeWalkDelta:
+                if action == OTPGlobals.RUN_INDEX and deltaT > ToontownClientGlobals.WakeRunDelta or deltaT > ToontownClientGlobals.WakeWalkDelta:
                     self.getWake().createRipple(wakeWaterHeight, rate=1, startFrame=4)
                     self.lastWakeTime = currT
         return action
@@ -1798,110 +1775,6 @@ class Toon(Avatar.Avatar, ToonHead):
         if not self.soundTeleport:
             self.soundTeleport = loader.loadSfx('phase_3.5/audio/sfx/AV_teleport.ogg')
         return self.soundTeleport
-
-    def attachPropeller(self):
-        if self.propellerActor is None:
-            self.propellerActor = BattleProps.globalPropPool.getProp('propeller')
-        if self.propellerInSound is None:
-            self.propellerInSound = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_in.ogg')
-        if self.propellerOutSound is None:
-            self.propellerOutSound = loader.loadSfx('phase_5/audio/sfx/ENC_propeller_out.ogg')
-        self.ls()
-        head = self.find('**/joint_head')
-        self.propellerActor.reparentTo(head)
-
-    def cleanupPropeller(self):
-        if self.propellerActor is not None:
-            self.propellerActor.cleanup()
-            self.propellerActor.removeNode()
-            self.propellerActor = None
-        if self.propellerInSound is not None:
-            self.propellerInSound = None
-        if self.propellerOutSound is not None:
-            self.propellerOutSound = None
-
-    def getFlyTrack(self, flyIn, autoFinishTrack=1):
-        toonPos = self.getPos()
-        skyOffset = 10
-        flyDuration = 5
-        if flyIn:
-            endPos = toonPos
-            startPos = (toonPos[0], toonPos[1], toonPos[2] + skyOffset)
-        else:
-            endPos = (toonPos[0], toonPos[1], toonPos[2] + skyOffset)
-            startPos = toonPos
-
-        self.attachPropeller()
-
-        if flyIn:
-            # Moves the avatar from startPos to endPos over flyDuration
-            lerpPosTrack = Sequence(
-                self.posInterval(flyDuration, endPos, startPos=startPos),
-                Wait(flyDuration)
-            )
-            # Fades in the avatar
-            fadeInTrack = Sequence(
-                Func(self.setTransparency, 1),
-                self.colorScaleInterval(1, colorScale=VBase4(1, 1, 1, 1), startColorScale=VBase4(1, 1, 1, 0)),
-                Func(self.clearColorScale),
-                Func(self.clearTransparency)
-            )
-            # Creates a shadow that grows
-            shadowScale = self.dropShadow.getScale()
-            shadowTrack = Sequence(
-                Func(self.dropShadow.reparentTo, render),
-                Func(self.dropShadow.setPos, endPos),
-                self.dropShadow.scaleInterval(flyDuration, self.scale, startScale=Vec3(0.01, 0.01, 1.0)),
-                Func(self.dropShadow.reparentTo, self.getShadowJoint()), Func(self.dropShadow.setPos, 0, 0, 0),
-                Func(self.dropShadow.setScale, shadowScale)
-            )
-            # Poses the actor for the sequence
-            animTrack = Sequence(
-                Func(self.pose, 'landing', 0),
-                Wait(flyDuration),
-                ActorInterval(self, 'landing', duration=flyDuration + 1.0)
-            )
-            # Makes the propeller spin and make noise
-            propellerTrack = Parallel(
-                SoundInterval(self.propellerInSound, duration=flyDuration, node=self),
-                Sequence(
-                    ActorInterval(self.propellerActor, 'propeller', constrainedLoop=1, duration=flyDuration, startTime=0.0, endTime=1.0),
-                    ActorInterval(self.propellerActor, 'propeller', duration=1.0, startTime=1.0),
-                    Func(self.cleanupPropeller)
-                )
-            )
-            return Parallel(lerpPosTrack, shadowTrack, fadeInTrack, animTrack, propellerTrack, name=self.taskName('trackName'))
-        else:
-            lerpPosTrack = Sequence(
-                Wait(1.0),
-                LerpPosInterval(self, flyDuration, endPos, startPos=startPos)
-            )
-            shadowTrack = Sequence(
-                Func(self.dropShadow.reparentTo, render),
-                Func(self.dropShadow.setPos, startPos),
-                self.dropShadow.scaleInterval(flyDuration, Vec3(0.01, 0.01, 1.0), startScale=self.scale),
-                Func(self.dropShadow.reparentTo, self.getShadowJoint()), Func(self.dropShadow.setPos, 0, 0, 0)
-            )
-            fadeOutTrack = Sequence(
-                Func(self.setTransparency, 1),
-                self.colorScaleInterval(1, colorScale=VBase4(1, 1, 1, 0), startColorScale=VBase4(1, 1, 1, 1)),
-                Func(self.clearColorScale),
-                Func(self.clearTransparency),
-                Func(self.reparentTo, hidden)
-            )
-            actInt = ActorInterval(self, 'landing', loop=0, startTime=1.0, endTime=0.0)
-            propellerTrack = Parallel(
-                SoundInterval(
-                    self.propOutSound,
-                    duration=waitTime + dur, node=self),
-                Sequence(
-                    Func(self.prop.show),
-                    ActorInterval(self.prop, 'propeller', endTime=1.0, startTime=0.0),
-                    ActorInterval(self.prop, 'propeller', constrainedLoop=1, duration=flyDuration - 1.0, startTime=3.0, endTime=0.0),
-                    Func(self.detachPropeller)
-                )
-            )
-            return Parallel(ParallelEndTogether(lerpPosTrack, shadowTrack, fadeOutTrack), actInt, propellerTrack, name=self.taskName('trackName'))
 
     def getTeleportOutTrack(self, autoFinishTrack=1):
 
@@ -3101,7 +2974,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.chatMgr.chatInputSpeedChat.addCogMenu(indices)
         self.suit.loop('neutral')
         self.isDisguised = 1
-        self.setFont(ToontownGlobals.getSuitFont())
+        self.setFont(ToontownClientGlobals.getSuitFont())
         if setDisplayName:
             if hasattr(base, 'idTags') and base.idTags:
                 name = self.getAvIdName()
@@ -3136,7 +3009,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.isDisguised = 0
         if self.wasGoofy:
             self.applyCheesyEffect(CollectibleInventoryGlobals.CheesyEffectGoofy)
-        self.setFont(ToontownGlobals.getToonFont())
+        self.setFont(ToontownClientGlobals.getToonFont())
         self.nametag.setWordWrap(None)
         if hasattr(base, 'idTags') and base.idTags:
             name = self.getAvIdName()
@@ -3205,14 +3078,14 @@ class Toon(Avatar.Avatar, ToonHead):
         if pieType == 'actor':
             animPie = ActorInterval(pie, pieName, startFrame=48)
         sound = loader.loadSfx('phase_3.5/audio/sfx/AA_pie_throw_only.ogg')
-        if throwType == ToontownGlobals.PieThrowArc:
+        if throwType == ToontownClientGlobals.PieThrowArc:
             t = power / 100.0
             dist = 100 - 70 * t
             time = 1 + 0.5 * t
             proj = ProjectileInterval(None, startPos=Point3(0, 0, 0),
                                       endPos=Point3(0, dist, 0), duration=time)
             relVel = proj.startVel
-        elif throwType == ToontownGlobals.PieThrowLinear:
+        elif throwType == ToontownClientGlobals.PieThrowLinear:
             magnitude = power / 2. + 25
 
             relVel = Vec3(0, 1, 0.25)
@@ -3235,7 +3108,7 @@ class Toon(Avatar.Avatar, ToonHead):
             splatName = 'dust'
         splat = BattleProps.globalPropPool.getProp(splatName)
         splat.setBillboardPointWorld(2)
-        color = ToontownGlobals.PieCodeColors.get(pieCode)
+        color = ToontownClientGlobals.PieCodeColors.get(pieCode)
         if color:
             splat.setColor(*color)
         vol = 1.0

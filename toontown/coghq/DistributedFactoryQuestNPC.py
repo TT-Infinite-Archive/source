@@ -1,8 +1,9 @@
 from panda3d.core import CollideMask, CollisionNode, CollisionSphere, NodePath, Point3, VBase3
 from toontown.toonbase.ToontownGlobals import *
+from toontown.toonbase import TTLocalizer
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 from toontown.chat.ChatGlobals import CFSpeech
 
 
@@ -15,6 +16,7 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         self.cage = None
         self.cageDoor = None
         self.toon = None
+        self.collNode = None
 
         self.sphereRadius = 4.5
         self.npcId = 0
@@ -23,8 +25,11 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         DistributedObject.DistributedObject.generate(self)
 
     def delete(self):
+        if self.animTrack is not None:
+            self.animTrack.pause()
+            self.animTrack = None
         if self.toon is not None:
-            self.toon.removeNode()
+            self.toon.delete()
             self.toon = None
         if self.cage is not None:
             self.cage.removeNode()
@@ -32,10 +37,6 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         if self.cageDoor is not None:
             self.cageDoor.removeNode()
             self.cageDoor = None
-        if self.animTrack is not None:
-            if self.animTrack.isPlaying():
-                self.animTrack.finish()
-            self.animTrack = None
         if self.collNode is not None:
             self.collNode.clearSolids()
 
@@ -68,7 +69,7 @@ class DistributedFactoryQuestNPC(DistributedObject.DistributedObject, NodePath):
         self.cage.setScale(1.0)
 
         self.cageDoor = sellbotRoom.find('**/cage_door')
-        self.toon = NPCToons.createLocalNPC(self.npcId)
+        self.toon = NPCToonFactory.createLocalNPC(self.npcId)
         self.toon.setHpr(180, 0.0, 0.0)
 
         self.cage.reparentTo(self)

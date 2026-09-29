@@ -1,6 +1,7 @@
 from direct.stdpy import threading
 
 from . import DNALoader
+from . import DNAUtil
 from .DNAStorage import DNAStorage
 from .DNASuitPoint import DNASuitPoint
 from .DNAGroup import DNAGroup
@@ -26,7 +27,7 @@ def loadDNABulk(dnaStorage, file):
     dnaLoader = DNALoader.DNALoader()
     if file[0] != '/':
         if __debug__:
-            file = '../resources/' + file
+            file = 'resources/' + file
         else:
             file = '/' + file
     dnaLoader.loadDNAFileAI(dnaStorage, file)
@@ -38,11 +39,12 @@ def loadDNAFile(dnaStorage, file):
     dnaLoader = DNALoader.DNALoader()
     if file[0] != '/':
         if __debug__:
-            file = '../resources/' + file
+            file = 'resources/' + file
         else:
             file = '/' + file
     node = dnaLoader.loadDNAFile(dnaStorage, file)
     dnaLoader.destroy()
+    DNAUtil.biasDecals(node)
     if node.node().getNumChildren() > 0:
         return node.node()
     return None
@@ -52,7 +54,7 @@ def loadDNAFileAI(dnaStorage, file):
     dnaLoader = DNALoader.DNALoader()
     if not file.startswith('tmp/') and not file.startswith('resources/tmp/'):
         if __debug__:
-            file = '../resources/' + file
+            file = 'resources/' + file
         else:
             file = '/' + file
     data = dnaLoader.loadDNAFileAI(dnaStorage, file)

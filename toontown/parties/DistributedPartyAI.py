@@ -215,6 +215,9 @@ class DistributedPartyAI(DistributedObjectAI):
     def unload(self):
         self.notify.debug("unload")
 
+    def enteredParty(self):
+        self.avIdEnteredParty(self.air.getAvatarIdFromSender())
+
     def avIdEnteredParty(self, avId):
         senderId = self.air.getAvatarIdFromSender()
         if senderId != avId:
@@ -228,7 +231,7 @@ class DistributedPartyAI(DistributedObjectAI):
                 if toonName:
                     self.b_setHostName(toonName)
 
-        self.sendUpdate("setAvIdsAtParty", [self.air.partyManager.zoneIdToGuestAvIds[self.zoneId]])
+        self.sendUpdate("setAvIdsAtParty", [self.air.partyManager.zoneIdToGuestAvIds.get(self.zoneId, [])])
         totalMoney = -1
         av = simbase.air.doId2do.get(avId)
         if av:
@@ -251,7 +254,7 @@ class DistributedPartyAI(DistributedObjectAI):
 
     def setHostName(self, newName):
         """Set the hostname on the AI only."""
-        self.hostName = self.hostName
+        self.hostName = newName
 
     def b_setHostName(self, newName):
         """Set the hostname on the ai and client"""

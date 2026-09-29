@@ -105,13 +105,6 @@ class RewardPanel(DirectFrame):
     def getNextExpValueUber(self, curSkill, trackIndex):
         return ToontownBattleGlobals.UberSkill
 
-    def getNextMeritValue(self, curMerits, toon, dept):
-        totalMerits = CogDisguiseGlobals.getTotalMerits(toon, dept)
-        retVal = totalMerits
-        if curMerits > totalMerits:
-            retVal = amount
-        return retVal
-
     def initItemFrame(self, toon):
         self.endTrackFrame.hide()
         self.gagExpFrame.hide()

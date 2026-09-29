@@ -1,4 +1,4 @@
-from toontown.toonbase import TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer, ToontownGlobals
 from toontown.guilds import IconGlobals
 
 # Limits
@@ -93,15 +93,15 @@ GUILD_PERMISSION_SPEND_GUILD_POINTS = 6
 GUILD_PERMISSION_MODIFY_MEMBER_ROLE = 7
 
 GUILD_PERMISSION_TO_STRING = {
-    GUILD_PERMISSION_MODIFY_ROLES: TTLocalizer.GuildPermissionModifyRoles,
-    GUILD_PERMISSION_TOGGLE_PLAYGROUND_VISIBILITY: TTLocalizer.GuildPermissionTogglePlaygroundVisibility,
-    GUILD_PERMISSION_EDIT_ICON: TTLocalizer.GuildPermissionEditIcon,
+    GUILD_PERMISSION_MODIFY_ROLES: TTLocalizerServer.GuildPermissionModifyRoles,
+    GUILD_PERMISSION_TOGGLE_PLAYGROUND_VISIBILITY: TTLocalizerServer.GuildPermissionTogglePlaygroundVisibility,
+    GUILD_PERMISSION_EDIT_ICON: TTLocalizerServer.GuildPermissionEditIcon,
     
-    GUILD_PERMISSION_INVITE_MEMBERS: TTLocalizer.GuildPermissionInviteMembers,
-    GUILD_PERMISSION_KICK_MEMBERS: TTLocalizer.GuildPermissionKickMembers,
-    GUILD_PERMISSION_EDIT_PLAYGROUND: TTLocalizer.GuildPermissionEditPlayground,
-    GUILD_PERMISSION_SPEND_GUILD_POINTS: TTLocalizer.GuildPermissionSpendGuildPoints,
-    GUILD_PERMISSION_MODIFY_MEMBER_ROLE: TTLocalizer.GuildPermissionModifyMemberRole
+    GUILD_PERMISSION_INVITE_MEMBERS: TTLocalizerServer.GuildPermissionInviteMembers,
+    GUILD_PERMISSION_KICK_MEMBERS: TTLocalizerServer.GuildPermissionKickMembers,
+    GUILD_PERMISSION_EDIT_PLAYGROUND: TTLocalizerServer.GuildPermissionEditPlayground,
+    GUILD_PERMISSION_SPEND_GUILD_POINTS: TTLocalizerServer.GuildPermissionSpendGuildPoints,
+    GUILD_PERMISSION_MODIFY_MEMBER_ROLE: TTLocalizerServer.GuildPermissionModifyMemberRole
 }
 
 # Guild Roles
@@ -121,7 +121,7 @@ GUILD_ROLE_DEFAULT_OWNER = [
     GUILD_ROLE_ID_OWNER,
     
     # Name
-    TTLocalizer.GuildRoleOwner, 
+    TTLocalizerServer.GuildRoleOwner, 
     
     # Sorting
     0,
@@ -147,7 +147,7 @@ GUILD_ROLE_DEFAULT_ADMIN = [
     GUILD_ROLE_ID_ADMIN, 
     
     # Name
-    TTLocalizer.GuildRoleAdmin, 
+    TTLocalizerServer.GuildRoleAdmin, 
     
     # Sorting
     1,
@@ -166,7 +166,7 @@ GUILD_ROLE_DEFAULT_MEMBER = [
     GUILD_ROLE_ID_MEMBER,
     
     # Name
-    TTLocalizer.GuildRoleMember,
+    TTLocalizerServer.GuildRoleMember,
     
     # Sorting
     2,
@@ -196,18 +196,18 @@ GUILD_TARGET_NO_GUILD_ERROR = 11
 GUILD_CANT_PROCESS_ERROR = 12
 
 GUILD_ERRORS_TO_STRING = {
-    GUILD_ALREADY_IN_GUILD_ERROR: TTLocalizer.GuildAlreadyInGuildError,
-    GUILD_NOT_ENOUGH_JB: TTLocalizer.GuildNotEnoughJB,
-    GUILD_BAD_NAME_ERROR: TTLocalizer.GuildBadNameError,
-    GUILD_NAME_TAKEN_ERROR: TTLocalizer.GuildNameTakenError,
-    GUILD_FULL_OF_MEMBERS: TTLocalizer.GuildFullOfMembers,
-    GUILD_CANT_LEAVE_ERROR: TTLocalizer.GuildCantLeaveError,
-    GUILD_FATAL_ERROR: TTLocalizer.GuildFatalError,
-    GUILD_NO_GUILD_ERROR: TTLocalizer.GuildNoGuildError,
-    GUILD_BAD_PERMISSIONS_ERROR: TTLocalizer.GuildBadPermissionsError,
-    GUILD_TARGET_BUSY_ERROR: TTLocalizer.GuildTargetBusyError,
-    GUILD_TARGET_NO_GUILD_ERROR: TTLocalizer.GuildTargetNoGuildError,
-    GUILD_CANT_PROCESS_ERROR: TTLocalizer.GuildCantProcessError
+    GUILD_ALREADY_IN_GUILD_ERROR: TTLocalizerServer.GuildAlreadyInGuildError,
+    GUILD_NOT_ENOUGH_JB: TTLocalizerServer.GuildNotEnoughJB,
+    GUILD_BAD_NAME_ERROR: TTLocalizerServer.GuildBadNameError,
+    GUILD_NAME_TAKEN_ERROR: TTLocalizerServer.GuildNameTakenError,
+    GUILD_FULL_OF_MEMBERS: TTLocalizerServer.GuildFullOfMembers,
+    GUILD_CANT_LEAVE_ERROR: TTLocalizerServer.GuildCantLeaveError,
+    GUILD_FATAL_ERROR: TTLocalizerServer.GuildFatalError,
+    GUILD_NO_GUILD_ERROR: TTLocalizerServer.GuildNoGuildError,
+    GUILD_BAD_PERMISSIONS_ERROR: TTLocalizerServer.GuildBadPermissionsError,
+    GUILD_TARGET_BUSY_ERROR: TTLocalizerServer.GuildTargetBusyError,
+    GUILD_TARGET_NO_GUILD_ERROR: TTLocalizerServer.GuildTargetNoGuildError,
+    GUILD_CANT_PROCESS_ERROR: TTLocalizerServer.GuildCantProcessError
 }
 
 # Guild Invite Responses

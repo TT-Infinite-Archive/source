@@ -9,6 +9,7 @@ from toontown.toonbase import ToontownGlobals
 from direct.directnotify import DirectNotifyGlobal
 from direct.task import Task
 from toontown.catalog import CatalogFurnitureItem
+from toontown.catalog import CatalogItemGui
 from toontown.catalog import CatalogItemTypes
 from direct.showbase import PythonUtil
 from toontown.toontowngui import TTDialog
@@ -82,7 +83,7 @@ class FurnitureItemPanel(DirectButton):
     def load(self):
         panelWidth = 7
         panelCenter = 0
-        self.picture, self.ival = self.item.getPicture(base.localAvatar)
+        self.picture, self.ival = CatalogItemGui.getPicture(self.item, base.localAvatar)
         if self.picture:
             self.picture.reparentTo(self)
             self.picture.setScale(0.14)
@@ -1103,10 +1104,6 @@ class ObjectManager(NodePath, DirectObject):
         picker.scrollTo(selectedIndex)
         return picker
 
-    def reset():
-        self.destroy()
-        furnitureMenu.destroy()
-
     def showAtticPicker(self):
         if self.inRoomPicker:
             self.inRoomPicker.destroy()
@@ -1460,7 +1457,7 @@ class ObjectManager(NodePath, DirectObject):
         self.okButton['command'] = okFunc
         self.cancelButton['command'] = cancelFunc
         self.verifyFrame.show()
-        self.itemPanel, self.itemIval = item.getPicture(base.localAvatar)
+        self.itemPanel, self.itemIval = CatalogItemGui.getPicture(item, base.localAvatar)
         if self.itemPanel:
             self.itemPanel.reparentTo(self.verifyFrame, -1)
             self.itemPanel.setPos(0, 0, 0.05)

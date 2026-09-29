@@ -86,13 +86,11 @@ class DistributedMint(DistributedObject.DistributedObject):
                 try:
                     roomNum = int(name[prefixLen:])
                 except:
-                    DistributedLevel.notify.warning('Invalid zone floor collision node: %s' % name)
+                    self.notify.warning('Invalid zone floor collision node: %s' % name)
                 else:
                     self.camEnterRoom(roomNum)
 
         self.accept('on-floor', handleCameraRayFloorCollision)
-        if bboard.has('mintRoom'):
-            self.warpToRoom(bboard.get('mintRoom'))
         firstSetZoneDoneEvent = self.cr.getNextSetZoneDoneEvent()
 
         def handleFirstSetZoneDone():

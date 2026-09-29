@@ -4,7 +4,7 @@ from direct.task.Timer import *
 import math
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toon import NPCToons
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer
 TOON_ID_COL = 0
 TOON_TRACK_COL = 1
 TOON_LVL_COL = 2
@@ -58,9 +58,9 @@ REWARD_TIMEOUT = 120
 FLOOR_REWARD_TIMEOUT = 4
 BUILDING_REWARD_TIMEOUT = 300
 try:
-    CLIENT_INPUT_TIMEOUT = ConfigVariableDouble('battle-input-timeout', TTLocalizer.BBbattleInputTimeout).getValue()
+    CLIENT_INPUT_TIMEOUT = ConfigVariableDouble('battle-input-timeout', TTLocalizerServer.BBbattleInputTimeout).getValue()
 except:
-    CLIENT_INPUT_TIMEOUT = ConfigVariableDouble('battle-input-timeout', TTLocalizer.BBbattleInputTimeout).getValue()
+    CLIENT_INPUT_TIMEOUT = ConfigVariableDouble('battle-input-timeout', TTLocalizerServer.BBbattleInputTimeout).getValue()
 
 def levelAffectsGroup(track, level):
     return attackAffectsGroup(track, level)
@@ -156,7 +156,7 @@ def findToonAttack(toons, attacks, track):
 
 SERVER_BUFFER_TIME = 2.0
 SERVER_INPUT_TIMEOUT = CLIENT_INPUT_TIMEOUT + SERVER_BUFFER_TIME
-MAX_JOIN_T = TTLocalizer.BBbattleInputTimeout
+MAX_JOIN_T = TTLocalizerServer.BBbattleInputTimeout
 FACEOFF_TAUNT_T = 3.5
 FACEOFF_LOOK_AT_PROP_T = 6
 ELEVATOR_T = 4.0

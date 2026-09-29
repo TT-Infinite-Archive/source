@@ -192,8 +192,8 @@ class DistributedGoon(DistributedCrushableEntity.DistributedCrushableEntity, Goo
             del self.attackSound
             del self.collapseSound
             del self.recoverSound
-            DistributedCrushableEntity.DistributedCrushableEntity.delete(self)
             Goon.Goon.delete(self)
+            DistributedCrushableEntity.DistributedCrushableEntity.delete(self)
 
     def enterOff(self, *args):
         self.nametag.setNametag2d(None)

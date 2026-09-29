@@ -1,4 +1,4 @@
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.pets import PetMood, PetTraits, PetDetail
 
 class PetHandle:
@@ -36,7 +36,7 @@ class PetHandle:
         return self.style
 
     def getFont(self):
-        return ToontownGlobals.getToonFont()
+        return ToontownClientGlobals.getToonFont()
 
     def setLastSeenTimestamp(self, timestamp):
         self.lastSeenTimestamp = timestamp

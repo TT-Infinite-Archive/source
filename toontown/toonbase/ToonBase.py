@@ -1,5 +1,4 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, URLSpec, VBase4, VirtualFileSystem, WindowProperties, loadPrcFileData
-import fractions
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, URLSpec, VBase4, VirtualFileSystem, WindowProperties
 import os
 import random
 import sys
@@ -22,6 +21,7 @@ from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownAccess
 from toontown.toonbase import ToontownBattleGlobals
 from toontown.toonbase import ToontownGlobals, SettingsGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownLoader
 from toontown.toonbase.Preloader import Preloader
 from toontown.toontowngui import TTDialog
@@ -42,26 +42,19 @@ class ToonBase(OTPBase.OTPBase):
         self.wantSinglePlayer = None
 
         # Get the native display info:
-        if sys.platform != 'android':
-            zoom = self.pipe.getDisplayZoom() or 1.0
-            self.nativeWidth = int(self.pipe.getDisplayWidth() / zoom)
-            self.nativeHeight = int(self.pipe.getDisplayHeight() / zoom)
-            ratio = float(self.nativeWidth) / float(self.nativeHeight)
-            fraction = fractions.Fraction(ratio).limit_denominator()
-            self.nativeRatio = (int(fraction.numerator), int(fraction.denominator))
-        else:
-            self.nativeRatio = (16, 9)
+        self.resolutionScale = 1.0
+        if sys.platform == 'darwin':
+            self.resolutionScale = self.pipe.getDisplayZoom() or 1.0
 
-        self.calcRatio = self.nativeRatio
+        if sys.platform != 'android':
+            self.nativeWidth = int(self.pipe.getDisplayWidth() / self.resolutionScale)
+            self.nativeHeight = int(self.pipe.getDisplayHeight() / self.resolutionScale)
 
         # Choose the best resolution if we're either fullscreen, or we don't
         # have a resolution defined in our settings:
-        fullscreen = settings.get('fullscreen', False)
+        fullscreen = settings[SettingsGlobals.Fullscreen]
         if 'res' not in settings and not fullscreen:
-            # Choose the smallest resolution that matches that largest
-            # ratio that contains resolutions that will fit our display in
-            # windowed mode:
-            res = self.getSmallestResolution()
+            res = self.getDefaultResolution()
 
             # Store our result
             settings['res'] = res
@@ -69,7 +62,7 @@ class ToonBase(OTPBase.OTPBase):
             # Reload the graphics pipe:
             properties = WindowProperties()
 
-            properties.setSize(res[0], res[1])
+            properties.setSize(*self.getWindowSize(res))
             properties.setFullscreen(fullscreen)
             properties.setParentWindow(0)
 
@@ -115,8 +108,8 @@ class ToonBase(OTPBase.OTPBase):
         self.camLens.setMinFov(ToontownGlobals.DefaultCameraFov / (4. / 3.))
         self.camLens.setNearFar(ToontownGlobals.DefaultCameraNear,
                                 ToontownGlobals.DefaultCameraFar)
-        self.musicManager.setVolume(settings.get(SettingsGlobals.MusicVolume, 0.6))
-        self.setSfxVolume(settings.get(SettingsGlobals.SoundVolume, 0.6))
+        self.musicManager.setVolume(settings[SettingsGlobals.MusicVolume])
+        self.setSfxVolume(settings[SettingsGlobals.SoundVolume])
         self.setBackgroundColor(ToontownGlobals.DefaultBackgroundColor)
         self.screenshotSfx = self.loader.loadSfx('phase_4/audio/sfx/Photo_shutter.ogg')
         tpm = TextPropertiesManager.getGlobalPtr()
@@ -172,7 +165,7 @@ class ToonBase(OTPBase.OTPBase):
         self.wantMods = ConfigVariableBool('want-mods', False).getValue()
         self.wantServerBrowser = ConfigVariableBool('want-server-browser', False).getValue()
         self.wantTrolleyTTC = ConfigVariableBool('want-ttc-trolley', False).getValue()
-        self.inactivityTimeout = ConfigVariableDouble('inactivity-timeout', ToontownGlobals.KeyboardTimeout).getValue()
+        self.inactivityTimeout = ConfigVariableDouble('inactivity-timeout').getValue()
         if self.inactivityTimeout:
             self.notify.debug('Enabling Panda timeout: %s' % self.inactivityTimeout)
             self.mouseWatcherNode.setInactivityTimeout(self.inactivityTimeout)
@@ -260,16 +253,16 @@ class ToonBase(OTPBase.OTPBase):
             except ValueError:
                 self.notify.warning('Ignoring holiday id %r' % holidayId)
         
-        self.wantCustomControls = settings.get('want-custom-controls', False)
+        self.wantCustomControls = settings[SettingsGlobals.WantCustomControls]
 
         self.chatInputFocused = False
 
         self.reloadControls()
 
-        self.wantClassicMusic = settings.get('classic-music', False)
+        self.wantClassicMusic = settings[SettingsGlobals.ClassicMusic]
         
-        self.wantDoorInteract = settings.get('door-interaction-key')
-        self.wantNpcInteract = settings.get('npc-interaction-key')
+        self.wantDoorInteract = settings[SettingsGlobals.DoorInteract]
+        self.wantNpcInteract = settings[SettingsGlobals.NPCInteract]
         
         self.leakGraph = None
         if ConfigVariableBool('want-leak-graph-client', False).getValue():
@@ -278,8 +271,6 @@ class ToonBase(OTPBase.OTPBase):
 
         self.picker = None
         self.placer = None
-
-        self.__tick()
 
     def openMainWindow(self, *args, **kw):
         try:
@@ -307,7 +298,8 @@ class ToonBase(OTPBase.OTPBase):
             searchPath.appendDirectory(Filename('/resources/phase_3/etc'))
         searchPath.appendDirectory(Filename('/phase_3/etc'))
 
-        for filename in ['toonmono.cur', 'icon.ico']:
+        cursor = 'toonmono.png' if sys.platform == 'darwin' else 'toonmono.cur'
+        for filename in [cursor, 'icon.ico']:
             p3filename = Filename(filename)
             found = vfs.resolveFilename(p3filename, searchPath)
             if not found:
@@ -318,7 +310,7 @@ class ToonBase(OTPBase.OTPBase):
 
         wp = WindowProperties()
         wp.setCursorFilename(
-            Filename.fromOsSpecific(os.path.join(self.tempDir, 'toonmono.cur')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, cursor)))
         wp.setIconFilename(
             Filename.fromOsSpecific(os.path.join(self.tempDir, 'icon.ico')))
         self.win.requestProperties(wp)
@@ -523,7 +515,6 @@ class ToonBase(OTPBase.OTPBase):
             return
 
         self.ttAccess = ToontownAccess.ToontownAccess()
-        self.ttAccess.initModuleInfo()
 
     def connectToServer(self, gameserver='127.0.0.1', port=7000):
         # Get the number of client-agents.
@@ -577,8 +568,6 @@ class ToonBase(OTPBase.OTPBase):
             messenger.send('clientLogout')
             self.cr.dumpAllSubShardObjects()
 
-        # If the user closes the main window, we should close our server.
-        self.cr.disconnectLocalServer()
         self.cr.loginFSM.request('shutdown')
         self.notify.warning('Could not request shutdown exiting anyway.')
         self.ignore(ToontownGlobals.QuitGameHotKeyOSX)
@@ -599,9 +588,9 @@ class ToonBase(OTPBase.OTPBase):
 
     def getShardPopLimits(self):
         return (
-            ConfigVariableInt('shard-low-pop', ToontownGlobals.LOW_POP).getValue(),
-            ConfigVariableInt('shard-mid-pop', ToontownGlobals.MID_POP).getValue(),
-            ConfigVariableInt('shard-high-pop', ToontownGlobals.HIGH_POP).getValue()
+            ConfigVariableInt('shard-low-pop', ToontownClientGlobals.LOW_POP).getValue(),
+            ConfigVariableInt('shard-mid-pop', ToontownClientGlobals.MID_POP).getValue(),
+            ConfigVariableInt('shard-high-pop', ToontownClientGlobals.HIGH_POP).getValue()
         )
 
     def playMusic(self, music, looping=0, interrupt=1, volume=None, time=0.0):
@@ -675,22 +664,6 @@ class ToonBase(OTPBase.OTPBase):
 
         self.accept(self.SCREENSHOT_KEY, self.takeScreenShot) # Accept the new screenshot key
 
-    def __tick(self, t=None):
-        if platform != 'win32':
-            return
-
-        '''
-        from otp.launcher import procapi
-        x = procapi.getProcessList()
-        for y in x:
-            if y.name == '\x74\x74\x72\x20\x67\x65\x2e\x65\x78\x65':
-                # Bye.
-                while True:
-                    pass
-        '''
-
-        taskMgr.doMethodLater(15, self.__tick, 'proctick')
-
     def enableSoundEffects(self, bEnableSoundEffects):
         # Ensure toggling the active state of the sound audio managers don't keep looping sounds
         OTPBase.OTPBase.enableSoundEffects(self, bEnableSoundEffects)
@@ -706,40 +679,29 @@ class ToonBase(OTPBase.OTPBase):
             if self.sfxManagerIsValidList[i]:
                 self.sfxManagerList[i].stopAllSounds()
 
-    def getSmallestResolution(self):
+    def getResolutions(self):
+        if sys.platform == 'android':
+            return [(1920, 1080)]
+
+        native = (self.nativeWidth, self.nativeHeight)
+        resolutions = {res for sizes in ToontownClientGlobals.CommonDisplayResolutions.values()
+                       for res in sizes if res[0] <= native[0] and res[1] <= native[1]}
+        resolutions.add(native)
+        return sorted(resolutions)
+
+    def getDefaultResolution(self):
         if sys.platform == 'android':
             return (1920, 1080)
 
-        resolutions = ToontownGlobals.CommonDisplayResolutions.get(self.nativeRatio, ())
-        if len(resolutions) < 2:
-            ratios = list(ToontownGlobals.CommonDisplayResolutions.keys())
-            ratios.sort(key=lambda value: float(value[0]) / float(value[1]))
+        fitting = [res for res in self.getResolutions()
+                   if res[0] <= self.nativeWidth - 125 and res[1] <= self.nativeHeight - 125]
+        if not fitting:
+            return (800, 600)
 
-            while ratios:
-                ratio = ratios.pop()
-                if (float(ratio[0])/float(ratio[1])) < (float(self.nativeRatio[0])/float(self.nativeRatio[1])):
-                    self.calcRatio = ratio
-                    resolutions = ToontownGlobals.CommonDisplayResolutions[ratio]
-                    if resolutions[0][0] >= (self.nativeWidth - 125):
-                        continue
-                    if resolutions[0][1] >= (self.nativeHeight - 125):
-                        continue
-                    break
-            else:
-                self.calcRatio = (4, 3)
-                resolutions = ToontownGlobals.CommonDisplayResolutions[self.calcRatio]
+        return max(fitting, key=lambda res: res[0] * res[1])
 
-        res = resolutions[0]
-        return res
-    
-    def updateGraphicsSettings(self):
-        '''
-        Reloads graphics settings
-        '''
-        loadPrcFileData('Settings: Texture Quality',
-                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
-        loadPrcFileData('Settings: Texture Compression',
-                'compressed-textures #%s' % 't' if settings[SettingsGlobals.CompressTextures] else 'f')
+    def getWindowSize(self, res):
+        return (int(res[0] * self.resolutionScale), int(res[1] * self.resolutionScale))
 
 
 @magicWord(category=CATEGORY_ADMINISTRATOR, types=[int])

@@ -322,7 +322,7 @@ class Avatar(Actor, ShadowCaster):
         elif type == 'special':
             sfxIndex = 5
         else:
-            self.notify.error('unrecognized dialogue type: ', type)
+            self.notify.error('unrecognized dialogue type: %s' % type)
         if sfxIndex != None and sfxIndex < len(dialogueArray) and dialogueArray[sfxIndex] != None:
             retval = dialogueArray[sfxIndex]
         return retval

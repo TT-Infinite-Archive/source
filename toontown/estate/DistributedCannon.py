@@ -19,6 +19,7 @@ from toontown.nametag.NametagFloat3d import NametagFloat3d
 from toontown.toon import ToonHead
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownGlobals
 from toontown.toonbase import ToontownTimer
 from toontown.toonbase.ToonBaseGlobal import *
@@ -55,7 +56,7 @@ WHISTLE_SPEED = INITIAL_VELOCITY * 0.35
 
 class DistributedCannon(DistributedObject.DistributedObject):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedCannon')
-    font = ToontownGlobals.getToonFont()
+    font = ToontownClientGlobals.getToonFont()
     LOCAL_CANNON_MOVE_TASK = 'localCannonMoveTask'
     REWARD_COUNTDOWN_TASK = 'cannonGameRewardCountdown'
     HIT_GROUND = 0
@@ -1154,7 +1155,7 @@ class DistributedCannon(DistributedObject.DistributedObject):
 
     def __hitWater(self, avatar, pos, collisionEntry, extraArgs = []):
         hitP = avatar.getPos(render)
-        if hitP[2] > ToontownGlobals.EstateWakeWaterHeight:
+        if hitP[2] > ToontownClientGlobals.EstateWakeWaterHeight:
             self.notify.debug('we hit the ground before we hit water')
             self.__hitGround(avatar, pos, extraArgs)
             return
@@ -1163,7 +1164,7 @@ class DistributedCannon(DistributedObject.DistributedObject):
         hitP = avatar.getPos(render)
         avatar.loop('neutral')
         self.splash.setPos(hitP)
-        self.splash.setZ(ToontownGlobals.EstateWakeWaterHeight)
+        self.splash.setZ(ToontownClientGlobals.EstateWakeWaterHeight)
         self.splash.setScale(2)
         self.splash.play()
         base.playSfx(self.sndHitWater)

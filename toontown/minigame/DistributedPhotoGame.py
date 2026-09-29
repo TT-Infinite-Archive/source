@@ -1,4 +1,4 @@
-from panda3d.core import BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, DisplayRegion, Fog, GeomNode, LensNode, NodePath, PerspectiveLens, Point3, Quat, Texture, TransparencyAttrib, Vec3, Vec4
+from panda3d.core import Camera, BitMask32, CollideMask, CollisionHandler, CollisionHandlerQueue, CollisionNode, CollisionRay, CollisionSphere, CollisionTraverser, ConfigVariable, ConfigVariableBool, DisplayRegion, Fog, GeomNode, LensNode, NodePath, PerspectiveLens, Point3, Quat, Texture, TransparencyAttrib, Vec3, Vec4
 from direct.directnotify import DirectNotifyGlobal
 from toontown.toonbase.ToonBaseGlobal import *
 from .DistributedMinigame import *
@@ -7,6 +7,7 @@ from direct.interval.IntervalGlobal import *
 from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.toonbase import ToontownTimer
 from direct.task.Task import Task
 import math
@@ -54,7 +55,7 @@ def toDegrees(angle):
 
 class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPhotoGame')
-    font = ToontownGlobals.getToonFont()
+    font = ToontownClientGlobals.getToonFont()
     LOCAL_PHOTO_MOVE_TASK = 'localPhotoMoveTask'
     FIRE_KEY = property(lambda self: base.JUMP)
     UP_KEY = property(lambda self: base.MOVE_UP)
@@ -845,25 +846,6 @@ class DistributedPhotoGame(DistributedMinigame, PhotoGameBase.PhotoGameBase):
         dz = point1[2] - point2[2]
         distance = math.sqrt(dx * dx + dy * dy + dz * dz)
         return distance
-
-    def getNextPoint(self, pointList, point):
-        pointIndex = 0
-        length = len(pointList)
-        found = 0
-        loop = 0
-        while not found and loop < length:
-            if pointList[index] == point:
-                found = 1
-            else:
-                index += 1
-                loop += 1
-
-        if not found:
-            return None
-        nextPointIndex = loop + 1
-        if nextPointIndex >= length:
-            nextPointIndex = 0
-        return pointList[nextPointIndex]
 
     def __createTripod(self):
         tripod = self.tripodModel.copyTo(hidden)

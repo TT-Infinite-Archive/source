@@ -1,5 +1,6 @@
 from toontown.safezone.GZSafeZoneLoader import GZSafeZoneLoader
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.hood.ToonHood import ToonHood
 
 
@@ -17,7 +18,7 @@ class GZHood(ToonHood):
         ToonHood.enter(self, requestStatus)
 
         base.localAvatar.chatMgr.chatInputSpeedChat.addGolfMenu()
-        base.camLens.setNearFar(ToontownGlobals.SpeedwayCameraNear, ToontownGlobals.SpeedwayCameraFar)
+        base.camLens.setNearFar(ToontownClientGlobals.SpeedwayCameraNear, ToontownClientGlobals.SpeedwayCameraFar)
 
     def exit(self):
         base.camLens.setNearFar(ToontownGlobals.DefaultCameraNear, ToontownGlobals.DefaultCameraFar)

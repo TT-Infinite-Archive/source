@@ -2,8 +2,7 @@ from panda3d.core import Datagram
 from . import CatalogItem
 from toontown.collectibles.CollectibleInventoryGlobals import CICategoryNametag
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
-from direct.gui.DirectGui import *
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class CatalogNametagItem(CatalogItem.CatalogItem):
@@ -49,13 +48,6 @@ class CatalogNametagItem(CatalogItem.CatalogItem):
         if simbase.air.wantCollectibles:
             simbase.air.ciManager.handleItemObtained(avatar.doId, CICategoryNametag, self.nametagStyle)
         return ToontownGlobals.P_ItemAvailable
-
-    def getPicture(self, avatar):
-        frame = self.makeFrame()
-        inFont = ToontownGlobals.getNametagFont(self.nametagStyle)
-        DirectLabel(parent=frame, relief=None, pos=(0, 0, 0.24), scale=0.5, text=base.localAvatar.getName(), text_fg=(1.0, 1.0, 1.0, 1), text_shadow=(0, 0, 0, 1), text_font=inFont, text_wordwrap=9)
-        self.hasPicture = True
-        return (frame, None)
 
     def output(self, store=-1):
         return 'CatalogNametagItem(%s%s)' % (self.nametagStyle, self.formatOptionalData(store))

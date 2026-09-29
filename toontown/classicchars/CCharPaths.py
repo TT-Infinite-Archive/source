@@ -1,6 +1,6 @@
 from panda3d.core import Point3, Vec3
 import copy
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 __mickeyPaths = {'a': (Point3(17, -17, 4.025), ('b', 'e')),
                  'b': (Point3(17.5, 7.6, 4.025), ('c', 'e')),
@@ -380,8 +380,6 @@ def __getWaypointList(paths):
     elif paths == __plutoPaths:
         return __plutoWaypoints
     elif paths == __chipPaths:
-        return __chipWaypoints
-    elif paths == __dalePaths:
         return __chipWaypoints
 
 

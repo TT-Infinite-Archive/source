@@ -1,7 +1,7 @@
 import math
 from panda3d.core import Point3, Vec3
 from .ToontownGlobals import *
-from . import TTLocalizer
+from . import TTLocalizerServer
 BattleCamFaceOffFov = 30.0
 BattleCamFaceOffPos = Point3(0, -10, 4)
 BattleCamDefaultPos = Point3(0, -8.6, 16.5)
@@ -12,8 +12,8 @@ BattleCamJoinPos = Point3(0, -12, 13)
 BattleCamJoinHpr = Vec3(0, -45, 0)
 SkipMovie = 0
 BaseHp = 15
-Tracks = TTLocalizer.BattleGlobalTracks
-NPCTracks = TTLocalizer.BattleGlobalNPCTracks
+Tracks = TTLocalizerServer.BattleGlobalTracks
+NPCTracks = TTLocalizerServer.BattleGlobalNPCTracks
 TrackColors = ((211 / 255.0, 148 / 255.0, 255 / 255.0),
  (249 / 255.0, 255 / 255.0, 93 / 255.0),
  (79 / 255.0, 190 / 255.0, 76 / 255.0),
@@ -563,9 +563,9 @@ AvPropsNew = (('inventory_feather',
   'inventory_safe_box',
   'inventory_piano',
   'inventory_ship'))
-AvPropStrings = TTLocalizer.BattleGlobalAvPropStrings
-AvPropStringsSingular = TTLocalizer.BattleGlobalAvPropStringsSingular
-AvPropStringsPlural = TTLocalizer.BattleGlobalAvPropStringsPlural
+AvPropStrings = TTLocalizerServer.BattleGlobalAvPropStrings
+AvPropStringsSingular = TTLocalizerServer.BattleGlobalAvPropStringsSingular
+AvPropStringsPlural = TTLocalizerServer.BattleGlobalAvPropStringsPlural
 AvPropAccuracy = ((70,
   70,
   70,
@@ -622,7 +622,7 @@ AvLureBonusAccuracy = (60,
  80,
  80,
  100)
-AvTrackAccStrings = TTLocalizer.BattleGlobalAvTrackAccStrings
+AvTrackAccStrings = TTLocalizerServer.BattleGlobalAvTrackAccStrings
 AvPropDamage = ((((8, 10), (Levels[0][0], Levels[0][1])),
   ((15, 18), (Levels[0][1], Levels[0][2])),
   ((25, 30), (Levels[0][2], Levels[0][3])),

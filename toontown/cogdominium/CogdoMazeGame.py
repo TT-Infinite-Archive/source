@@ -3,7 +3,7 @@ from direct.showbase.DirectObject import DirectObject
 from direct.showbase.PythonUtil import Functor
 from direct.showbase.RandomNumGen import RandomNumGen
 from direct.task.Task import Task
-from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.minigame.MazeSuit import MazeSuit
 from .CogdoGameGatherable import CogdoMemo
 from .CogdoMazePlayer import CogdoMazePlayer
@@ -171,7 +171,7 @@ class CogdoMazeGame(DirectObject):
         self._movie.end()
         self._movie.unload()
         del self._movie
-        base.camLens.setMinFov(ToontownGlobals.CogdoFov/(4./3.))
+        base.camLens.setMinFov(ToontownClientGlobals.CogdoFov/(4./3.))
         for player in self.players:
             self.placePlayer(player)
             if player.toon is localAvatar:
@@ -377,19 +377,6 @@ class CogdoMazeGame(DirectObject):
     def handleBossShake(self, suit, strength):
         if Globals.BossShakeEnabled:
             self.shakeCamera(suit.suit, strength, Globals.BossMaxDistance)
-
-    def randomDrop(self, centerTX, centerTY, radius):
-        dropArray = []
-        for i in range(1, distance):
-            dropArray.append(i)
-            dropArray.append(-1 * i)
-
-        offsetTX = self.distGame.randomNumGen.choice(dropArray)
-        offsetTY = self.distGame.randomNumGen.choice(dropArray)
-        dropTX = sourceTX + offsetTX
-        dropTY = sourceTY + offsetTY
-        if self.maze.isWalkable(dropTX, dropTY):
-            self.generateDrop(dropTX, dropTY)
 
     def generateDrop(self, TX, TY):
         drop = self.maze.tile2world(TX, TY)

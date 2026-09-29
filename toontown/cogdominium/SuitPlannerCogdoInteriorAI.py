@@ -114,8 +114,9 @@ class SuitPlannerCogdoInteriorAI:
         return lvlList
 
     def __setupSuitInfo(self, suit, bldgTrack, suitLevel, suitType):
-        suitName, skeleton = simbase.air.suitInvasionManager.getInvadingCog()
-        if suitName and self.respectInvasions:
+        suitName, skeleton = (simbase.air.suitInvasionManager.getInvadingCog()
+                              if self.respectInvasions else (None, 0))
+        if suitName:
             suitType = SuitDNA.getSuitType(suitName)
             bldgTrack = SuitDNA.getSuitDept(suitName)
             suitLevel = min(max(suitLevel, suitType), suitType + 4)

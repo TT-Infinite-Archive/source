@@ -25,16 +25,16 @@ class DistributedNPCBankerAI(DistributedNPCToonBaseAI):
         DistributedNPCToonBaseAI.avatarEnter(self)
 
     def transferMoney(self, transactionAmount):
-        av = self.air.doId2do.get(self.busy)
+        avId = self.air.getAvatarIdFromSender()
+        if avId != self.busy:
+            self.air.writeServerEvent('suspicious', avId, 'DistributedNPCBankerAI.transferMoney while not at the banker')
+            return
+
+        av = self.air.doId2do.get(avId)
         if not av:
             return
 
-        money = min(av.getMoney() - transactionAmount, 10000)
-        av.b_setMoney(money)
-
-        if transactionAmount != 0:
-            self.air.bankManager.setMoney(self.busy,
-                av.getBankMoney() + transactionAmount)
+        self.air.bankMgr.transferMoneyForAv(transactionAmount, av)
 
         self.clearTasks()
         self.sendDoneMovie()

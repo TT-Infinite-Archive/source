@@ -193,7 +193,7 @@ class DistributedCogThiefGameAI(DistributedMinigameAI.DistributedMinigameAI):
          pos[2]])
 
     def hitBySuit(self, avId, timestamp, suitNum, x, y, z):
-        if suitNum >= self.getNumCogs():
+        if avId != self.air.getAvatarIdFromSender() or not 0 <= suitNum < self.getNumCogs():
             self.notify.warning('hitBySuit, possible hacker avId=%s' % avId)
             return
         barrelIndex = self.cogInfo[suitNum]['barrel']
@@ -263,10 +263,10 @@ class DistributedCogThiefGameAI(DistributedMinigameAI.DistributedMinigameAI):
         return self.barrelInfo[barrelIndex]['carriedBy']
 
     def cogHitBarrel(self, clientStamp, cogIndex, barrelIndex, x, y, z):
-        if cogIndex >= self.getNumCogs():
+        if not 0 <= cogIndex < self.getNumCogs():
             self.notify.warning('cogHitBarrel, possible hacker cogIndex=%s' % cogIndex)
             return
-        if barrelIndex >= CTGG.NumBarrels:
+        if not 0 <= barrelIndex < CTGG.NumBarrels:
             self.notify.warning('cogHitBarrel, possible hacker barrelIndex=%s' % barrelIndex)
             return
         if self.isCogCarryingABarrel(cogIndex):
@@ -313,7 +313,7 @@ class DistributedCogThiefGameAI(DistributedMinigameAI.DistributedMinigameAI):
          cogPos[2]])
 
     def pieHitSuit(self, avId, timestamp, suitNum, x, y, z):
-        if suitNum >= self.getNumCogs():
+        if avId != self.air.getAvatarIdFromSender() or not 0 <= suitNum < self.getNumCogs():
             self.notify.warning('hitBySuit, possible hacker avId=%s' % avId)
             return
         barrelIndex = self.cogInfo[suitNum]['barrel']

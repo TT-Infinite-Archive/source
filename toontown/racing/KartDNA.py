@@ -1,7 +1,7 @@
 import enum
 from panda3d.core import Point3, VBase4
 from direct.directnotify import DirectNotifyGlobal
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer
 from .KartShopGlobals import *
 if (__debug__):
     import pdb
@@ -39,7 +39,7 @@ class EAccInfo(enum.IntEnum):
 
 
 InvalidEntry = -1
-kNames = TTLocalizer.KartDNA_KartNames
+kNames = TTLocalizerServer.KartDNA_KartNames
 KartDict = {0: (kNames[0],
      'phase_6/models/karting/Kart1_Final',
      100,
@@ -64,7 +64,7 @@ KartDict = {0: (kNames[0],
      'phase_6/models/karting/Kart3_Final_LOD2',
      'phase_6/models/karting/Kart3_Final_LOD3',
      (Point3(1.25, 4.0, 1.0), Point3(1.25, -3.0, 2.5)))}
-aNames = TTLocalizer.KartDNA_AccNames
+aNames = TTLocalizerServer.KartDNA_AccNames
 AccessoryDict = {0: (aNames[1000],
      'phase_6/models/karting/accessory_frontMiddle_0',
      200,
@@ -646,4 +646,4 @@ def getAccName(accID):
     try:
         return AccessoryDict[accID][EAccInfo.NAME]
     except:
-        return TTLocalizer.KartShtikerDefault
+        return TTLocalizerServer.KartShtikerDefault

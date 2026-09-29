@@ -114,7 +114,7 @@ class DistributedIceGameAI(DistributedMinigameAI.DistributedMinigameAI):
         if self.curRound == 0:
             self.takenTreasuresTable = [0] * self.numTreasures
             self.takenPenaltiesTable = [0] * self.numPenalties
-        taskMgr.doMethodLater(IceGameGlobals.InputTimeout, self.waitClientsChoicesTimeout, self.taskName('endingPositionsTimeout'))
+        taskMgr.doMethodLater(IceGameGlobals.InputTimeout, self.endingPositionsTimeout, self.taskName('endingPositionsTimeout'))
         self.avatarEndingPositions = {}
 
     def exitWaitEndingPositions(self):
@@ -274,6 +274,9 @@ class DistributedIceGameAI(DistributedMinigameAI.DistributedMinigameAI):
             return
         self.notify.debug('got endingPositions from client %s' % positions)
         avId = self.air.getAvatarIdFromSender()
+        if avId not in self.avIdList or len(positions) != len(self.avIdList):
+            self.air.writeServerEvent('suspicious', avId, 'IceGame endingPositions with %d positions' % len(positions))
+            return
         self.avatarEndingPositions[avId] = positions
         if self.allAvatarsSentEndingPositions():
             self.gameFSM.request('processEndingPositions')

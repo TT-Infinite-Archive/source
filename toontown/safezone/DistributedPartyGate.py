@@ -16,6 +16,7 @@ from direct.gui import DirectLabel
 from toontown.toontowngui import TTDialog
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from toontown.parties.ServerTimeGui import ServerTimeGui
 from toontown.parties.PublicPartyGui import PublicPartyGui
 from toontown.parties import PartyGlobals
@@ -81,7 +82,7 @@ class DistributedPartyGate(DistributedObject.DistributedObject):
         if partyGate.isEmpty():
             self.notify.warning('Could not find partyGate_grp in loader.geom')
             return
-        gateFont = ToontownGlobals.getMinnieFont()
+        gateFont = ToontownClientGlobals.getMinnieFont()
         leftSign = partyGate.find("**/signTextL_locatorBack")
         signScale = 0.35
         wordWrap = 8

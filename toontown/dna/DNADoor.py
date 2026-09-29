@@ -57,6 +57,7 @@ class DNADoor(DNAGroup.DNAGroup):
             dnaStore.storeBlockDoor(block, doorOrigin)
 
         doorNodePath.flattenMedium()
+        DNAUtil.biasDecals(doorNodePath)
 
     def makeFromDGI(self, dgi):
         DNAGroup.DNAGroup.makeFromDGI(self, dgi)

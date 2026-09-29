@@ -217,26 +217,3 @@ def overrideOff():
     tutorialDict = None
     return
 
-
-def getWakeInfo(hoodId=None, zoneId=None):
-    wakeWaterHeight = 0
-    showWake = 0
-    try:
-        if hoodId is None:
-            hoodId = base.cr.playGame.getPlaceId()
-        if zoneId is None:
-            zoneId = base.cr.playGame.getPlace().getZoneId()
-        canonicalZoneId = getCanonicalZoneId(zoneId)
-        if canonicalZoneId in ZoneIdToWakeHeight:
-            wakeWaterHeight = ZoneIdToWakeHeight[canonicalZoneId]
-            showWake = 1
-        elif hoodId == MyEstate:
-            wakeWaterHeight = EstateWakeWaterHeight
-            showWake = 1
-        else:
-            showWake = 0
-            wakeWaterHeight = -9999
-    except AttributeError:
-        pass
-
-    return (showWake, wakeWaterHeight)

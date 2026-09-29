@@ -11,6 +11,7 @@ from otp.avatar import Avatar
 from toontown.battle import BattleParticles, BattleProps
 from toontown.nametag import NametagGlobals
 from toontown.toonbase import SettingsGlobals, ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 from . import Suit
 from . import SuitDNA
@@ -32,7 +33,7 @@ class BossCog(Avatar.Avatar):
 
     def __init__(self):
         Avatar.Avatar.__init__(self)
-        self.setFont(ToontownGlobals.getSuitFont())
+        self.setFont(ToontownClientGlobals.getSuitFont())
         self.setPlayerType(NametagGlobals.CCSuit)
         self.setPickable(0)
         self.doorA = None

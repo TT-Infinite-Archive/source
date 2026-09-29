@@ -731,8 +731,9 @@ class DistributedBattleBase(DistributedNode.DistributedNode, BattleBase):
     def removeLocalToon(self):
         if self._skippingRewardMovie:
             return
-        if base.cr.playGame.getPlace() != None:
-            base.cr.playGame.getPlace().setState('walk')
+        place = base.cr.playGame.getPlace()
+        if place != None and place.fsm.getCurrentState().getName() != 'walk':
+            place.setState('walk')
         base.localAvatar.earnedExperience = None
         self.localToonFsm.request('NoLocalToon')
         return

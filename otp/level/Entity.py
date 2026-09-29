@@ -32,7 +32,7 @@ class Entity(DirectObject):
             if self.level.isInitialized():
                 self.level.onEntityDestroy(self.entId)
             else:
-                Entity.notify.warning('Entity %s destroyed after level??' % self.entId)
+                Entity.notify.debug('Entity %s destroyed after level' % self.entId)
         self.ignoreAll()
         del self.level
         del self.entId

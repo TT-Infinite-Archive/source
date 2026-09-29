@@ -12,7 +12,7 @@ from toontown.parties import PartyGlobals
 from toontown.ai.ToonBarrier import ToonBarrier
 from toontown.parties.DistributedPartyActivityAI import DistributedPartyActivityAI
 from toontown.parties.activityFSMs import TrampolineActivityFSM
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
     notify = directNotify.newCategory("DistributedPartyTrampolineActivityAI")
@@ -23,7 +23,7 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
         self.activityFSM = TrampolineActivityFSM(self)
         # bestHeightInfo is a tuple of toon's name and their height
         self.bestHeightInfo = ("", 0)
-        self.accept("NewBestHeightInfo", self.newBestHeightInfo)
+        self.awarded = False
         
     def generate(self):
         DistributedPartyTrampolineActivityAI.notify.debug("generate")
@@ -62,10 +62,10 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
         DistributedPartyActivityAI._handleUnexpectedToonExit(self, toonId)
 
     def reportHeightInformation(self, height):
-        if height > self.bestHeightInfo[1]:
-            senderId = self.air.getAvatarIdFromSender()
-            sender = self.air.doId2do[senderId]
-            messenger.send("NewBestHeightInfo", [sender.getName(), height])
+        senderId = self.air.getAvatarIdFromSender()
+        sender = self.air.doId2do.get(senderId)
+        if sender and senderId in self.toonIds and height > self.bestHeightInfo[1]:
+            self.newBestHeightInfo(sender.getName(), height)
     
     def newBestHeightInfo(self, toonName, height):
         self.bestHeightInfo = (toonName, height)
@@ -76,9 +76,13 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
 
     def awardBeans(self, numBeansCollected, topHeight):
         senderId = self.air.getAvatarIdFromSender()
-        
+        if self.activityFSM.state != "Active" or senderId not in self.toonIds or self.awarded:
+            self.air.writeServerEvent("suspicious", senderId, "Trampoline awardBeans outside the player's own session.")
+            return
+
         if numBeansCollected > PartyGlobals.TrampolineNumJellyBeans:
             self.air.writeServerEvent("suspicious", senderId, "Player claims to have collected more jelly beans (%d) than possible." % numBeansCollected)
+            return
         else:
             numWon = numBeansCollected
             if numWon == PartyGlobals.TrampolineNumJellyBeans:
@@ -92,6 +96,7 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
                 resultsMessage = TTLocalizer.PartyTrampolineBeanResults % numBeansCollected
             resultsMessage += "\n\n" + TTLocalizer.PartyTrampolineTopHeightResults % topHeight
         
+        self.awarded = True
         self.toonIdsToJellybeanRewards = {senderId : numWon}
         self.sendUpdateToAvatarId(senderId, "showJellybeanReward", [numWon, self.air.doId2do[senderId].getBankMoney(), resultsMessage])
         # since we send the toon's current money in showJellybeanReward, that needs to happen before issueJellybeanRewards
@@ -134,6 +139,7 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
 
     def startActive(self):
         DistributedPartyTrampolineActivityAI.notify.debug("startActive")
+        self.awarded = False
         # put clients into this state
         self.sendUpdate( "setState", ["Active", # new state
                                       ClockDelta.globalClockDelta.getRealNetworkTime()] ) # start time
@@ -152,5 +158,4 @@ class DistributedPartyTrampolineActivityAI(DistributedPartyActivityAI):
         
     def delete(self):
         del self.activityFSM
-        self.ignore("NewBestHeightInfo")
         DistributedPartyActivityAI.delete(self)

@@ -1,6 +1,7 @@
 from panda3d.core import TextNode, VBase3
 from direct.distributed import DistributedObject
 from toontown.toonbase import ToontownGlobals
+from toontown.toonbase import ToontownClientGlobals
 from . import MailboxGlobals
 from toontown.catalog import CatalogItem
 from toontown.catalog import CatalogItemList
@@ -256,7 +257,7 @@ class DistributedMailbox(DistributedObject.DistributedObject):
             text = TextNode('nameText')
             text.setTextColor(*self.nameColor)
             text.setAlign(TextNode.ACenter)
-            text.setFont(ToontownGlobals.getToonFont())
+            text.setFont(ToontownClientGlobals.getToonFont())
             text.setWordwrap(7.5)
             text.setText(self.name)
             self.nameText = nameOrigin.attachNewNode(text)

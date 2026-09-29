@@ -4,18 +4,9 @@ import time
 import datetime
 from direct.directnotify import DirectNotifyGlobal
 from direct.interval.LerpInterval import LerpFunc
-from toontown.toonbase import TTLocalizer
-from toontown.toonbase.ToontownTimer import ToontownTimer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.parties import PartyGlobals
 notify = DirectNotifyGlobal.directNotify.newCategory('PartyUtils')
-
-def getNewToontownTimer():
-    timer = ToontownTimer()
-    timer.hide()
-    timer.posInTopRightCorner()
-    timer.setColor(1, 1, 1, 0.75)
-    return timer
-
 
 def getPartyActivityIcon(activityIconsModel, activityName):
     activityIconsDict = {'PartyValentineDance': 'tt_t_ara_pty_iconDanceFloorValentine',

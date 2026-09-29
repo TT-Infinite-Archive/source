@@ -21,6 +21,7 @@ from otp.otpbase import OTPGlobals
 from otp.otpbase import OTPLocalizer
 from toontown.chat.ChatGlobals import *
 from toontown.toonbase import ToontownGlobals, EventGlobals
+from toontown.toonbase import ToontownClientGlobals
 
 
 class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.DistributedSmoothNode):
@@ -61,6 +62,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.lockedDown = 0
         self.isPageUp = 0
         self.isPageDown = 0
+        self.isSprinting = 0
+        self.sprintForwardHeld = False
+        self.sprintLastTap = 0.0
         self.soundRun = None
         self.soundWalk = None
         self.sleepFlag = 0
@@ -140,7 +144,8 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         taskMgr.remove('posCamera')
         self.disableAvatarControls()
         self.stopTrackAnimToSpeed()
-        self.stopUpdateSmartCamera()
+        if self._smartCamEnabled:
+            self.stopUpdateSmartCamera()
         self.shutdownSmartCamera()
         self.deleteCollisions()
         self.controlManager.delete()
@@ -432,6 +437,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.avatarControlsEnabled = 1
         self.setupAnimationEvents()
         self.controlManager.enable()
+        self.startSprintWatch()
 
     def disableAvatarControls(self):
         if not self.avatarControlsEnabled and not self.controlManager.isEnabled:
@@ -439,13 +445,63 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.avatarControlsEnabled = 0
         self.ignoreAnimationEvents()
         self.controlManager.disable()
+        self.stopSprintWatch()
         self.clearPageUpDown()
 
     def setWalkSpeedNormal(self):
         self.controlManager.setSpeeds(OTPGlobals.ToonForwardSpeed, OTPGlobals.ToonJumpForce, OTPGlobals.ToonReverseSpeed, OTPGlobals.ToonRotateSpeed)
 
     def setWalkSpeedSlow(self):
+        self.stopSprint()
         self.controlManager.setSpeeds(OTPGlobals.ToonForwardSlowSpeed, OTPGlobals.ToonJumpSlowForce, OTPGlobals.ToonReverseSlowSpeed, OTPGlobals.ToonRotateSlowSpeed)
+
+    def startSprintWatch(self):
+        taskMgr.remove(self.taskName('sprintWatch'))
+        self.sprintForwardHeld = inputState.isSet('forward')
+        self.sprintLastTap = 0.0
+        taskMgr.add(self.__sprintWatch, self.taskName('sprintWatch'))
+
+    def stopSprintWatch(self):
+        taskMgr.remove(self.taskName('sprintWatch'))
+        self.stopSprint(snap=True)
+
+    def __sprintWatch(self, task):
+        forward = inputState.isSet('forward')
+        if forward and not self.sprintForwardHeld:
+            now = globalClock.getFrameTime()
+            if now - self.sprintLastTap <= OTPGlobals.ToonSprintTapWindow and self.hp > 0:
+                self.startSprint()
+            self.sprintLastTap = now
+        elif self.sprintForwardHeld and not forward:
+            self.stopSprint()
+        self.sprintForwardHeld = forward
+        return Task.cont
+
+    def startSprint(self):
+        if self.isSprinting:
+            return
+        self.isSprinting = 1
+        self.controlManager.setSprinting(True)
+        if not (self.isPageDown or self.isPageUp):
+            self.lerpCameraFov(self.getWalkCameraFov(), OTPGlobals.ToonSprintFovLerpTime)
+
+    def stopSprint(self, snap=False):
+        if not self.isSprinting:
+            return
+        self.isSprinting = 0
+        self.controlManager.setSprinting(False)
+        if self.isPageDown or self.isPageUp:
+            return
+        if snap:
+            taskMgr.remove('cam-fov-lerp-play')
+            base.camLens.setMinFov(self.fov/(4./3.))
+        else:
+            self.lerpCameraFov(self.fov, OTPGlobals.ToonSprintFovLerpTime)
+
+    def getWalkCameraFov(self):
+        if self.isSprinting:
+            return self.fov + OTPGlobals.ToonSprintFovBoost
+        return self.fov
 
     def pageUp(self):
         if not self.avatarControlsEnabled:
@@ -473,7 +529,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def clearPageUpDown(self):
         if self.isPageDown or self.isPageUp:
-            self.lerpCameraFov(self.fov, 0.6)
+            self.lerpCameraFov(self.getWalkCameraFov(), 0.6)
             self.isPageDown = 0
             self.isPageUp = 0
             self.setCameraPositionByIndex(self.cameraIndex)
@@ -873,7 +929,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def lerpCameraFov(self, fov, time):
         taskMgr.remove('cam-fov-lerp-play')
-        oldFov = base.camLens.getHfov()
+        oldFov = base.camLens.getMinFov() * (4./3.)
         if abs(fov - oldFov) > 0.1:
 
             def setCamFov(fov):
@@ -885,7 +941,8 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def setCameraFov(self, fov):
         self.fov = fov
         if not (self.isPageDown or self.isPageUp):
-            base.camLens.setMinFov(self.fov/(4./3.))
+            taskMgr.remove('cam-fov-lerp-play')
+            base.camLens.setMinFov(self.getWalkCameraFov()/(4./3.))
 
     def gotoNode(self, node, eyeHeight = 3):
         possiblePoints = (Point3(3, 6, 0),
@@ -956,7 +1013,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         # Spawn the reward text:
         rewardTextLine = OnscreenText(
             parent=base.a2dBottomRight, text=rewardText, scale=0.055,
-            align=TextNode.ACenter, font=ToontownGlobals.getMinnieFont(),
+            align=TextNode.ACenter, font=ToontownClientGlobals.getMinnieFont(),
             fg=(1, 1, 0, 1))
         rewardTextLine.setColorScale(Vec4(1, 1, 0, 0))
         self.rewardTextLines.append(rewardTextLine)
@@ -989,35 +1046,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def displayNextRewardText(self):
         if self.rewardTextQueue:
             self.displayRewardText(self.rewardTextQueue[0], enqueue=False)
-
-    def displayWhisper(self, fromId, chatString, whisperType):
-        sender = None
-        sfx = self.soundWhisper
-        if whisperType == WTNormal or whisperType == WTQuickTalker:
-            if sender == None:
-                return
-            chatString = sender.getName() + ': ' + chatString
-        whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
-        if sender != None:
-            whisper.setClickable(sender.getName(), fromId)
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
-
-    def displayWhisperPlayer(self, fromId, chatString, whisperType):
-        sender = None
-        playerInfo = None
-        sfx = self.soundWhisper
-        playerInfo = base.cr.playerFriendsManager.playerId2Info.get(fromId, None)
-        if playerInfo == None:
-            return
-        senderName = playerInfo.playerName
-        if whisperType == WTNormal or whisperType == WTQuickTalker:
-            chatString = senderName + ': ' + chatString
-        whisper = WhisperPopup(chatString, OTPGlobals.getInterfaceFont(), whisperType)
-        if sender != None:
-            whisper.setClickable(senderName, fromId)
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
 
     def setAnimMultiplier(self, value):
         self.animMultiplier = value
@@ -1223,7 +1251,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def startChat(self):
         self.chatMgr.start()
-        self.accept(OTPGlobals.WhisperIncomingEvent, self.handlePlayerFriendWhisper)
         self.accept(OTPGlobals.ThinkPosHotkey, self.thinkPos)
         self.accept(OTPGlobals.PrintCamPosHotkey, self.printCamPos)
         if self.__enableMarkerPlacement:
@@ -1231,7 +1258,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def stopChat(self):
         self.chatMgr.stop()
-        self.ignore(OTPGlobals.WhisperIncomingEvent)
         self.ignore(OTPGlobals.ThinkPosHotkey)
         self.ignore(OTPGlobals.PrintCamPosHotkey)
         if self.__enableMarkerPlacement:
@@ -1317,10 +1343,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
 
     def d_setParent(self, parentToken):
         DistributedSmoothNode.DistributedSmoothNode.d_setParent(self, parentToken)
-
-    def handlePlayerFriendWhisper(self, playerId, charMessage):
-        print('handlePlayerFriendWhisper')
-        self.displayWhisperPlayer(playerId, charMessage, WTNormal)
 
     def canChat(self):
         return 0

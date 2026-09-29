@@ -4,7 +4,7 @@ from direct.showbase import AppRunnerGlobal
 from direct.directnotify import DirectNotifyGlobal
 from toontown.pets import PetNameMasterEnglish
 from toontown.toonbase import ToontownGlobals
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 class PetNameGenerator:
     notify = DirectNotifyGlobal.directNotify.newCategory('PetNameGenerator')

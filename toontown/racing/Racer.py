@@ -1,4 +1,5 @@
 from direct.distributed.ClockDelta import *
+from . import RaceGlobals
 
 class Racer(object):
     def __init__(self,race,air,avId,zoneId):
@@ -33,9 +34,17 @@ class Racer(object):
         self.race.accept(self.exitEvent,race.unexpectedExit,extraArgs=[avId])
 
     def setLapT(self,numLaps,lapT,timestamp):
-        self.lapT=numLaps + lapT
+        # Laps come one at a time, timed by our clock with a second's grace
+        # for the client's own timestamp
+        if numLaps > self.maxLap + 1:
+            return
         if(numLaps>self.maxLap):
-            lapTime = globalClockDelta.networkToLocalTime(timestamp) - self.baseTime
+            now = globalClock.getFrameTime() - self.baseTime
+            lapTime = min(max(globalClockDelta.networkToLocalTime(timestamp) - self.baseTime, now - 1.0), now)
+            if lapTime - self.totalTime < RaceGlobals.getMinimumLapTime(self.race.trackId):
+                self.air.writeServerEvent('suspicious', self.avId, 'Racer.setLapT lap %s in %s' % (numLaps, lapTime - self.totalTime))
+                return
             self.maxLap=numLaps
             self.times.append(lapTime - self.totalTime)
             self.totalTime = lapTime
+        self.lapT=numLaps + lapT

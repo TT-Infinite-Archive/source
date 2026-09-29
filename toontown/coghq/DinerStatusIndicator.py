@@ -2,6 +2,7 @@ from panda3d.core import DecalEffect, NodePath, Texture, TextureStage, Transpare
 from direct.fsm import FSM
 from direct.gui.DirectGui import DirectFrame, DGG
 from direct.interval.IntervalGlobal import LerpScaleInterval, LerpColorScaleInterval, Parallel, Sequence, Wait
+from toontown.dna import DNAUtil
 
 class DinerStatusIndicator(NodePath, FSM.FSM):
 
@@ -50,6 +51,7 @@ class DinerStatusIndicator(NodePath, FSM.FSM):
         center.setPos(0, 0, ll[2])
         dark.wrtReparentTo(center)
         dark.setTexProjector(TextureStage.getDefault(), center, retVal)
+        DNAUtil.biasDecals(retVal)
         retVal.hide()
         return (retVal, center)
 

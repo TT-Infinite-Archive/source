@@ -11,8 +11,9 @@ from direct.fsm import ClassicFSM, State
 from direct.fsm import State
 from direct.directnotify import DirectNotifyGlobal
 from direct.distributed.ClockDelta import globalClockDelta
+from direct.showbase.RandomNumGen import RandomNumGen
 
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.toonbase import ToontownGlobals
 from toontown.parties import PartyGlobals
 from toontown.ai.ToonBarrier import ToonBarrier
@@ -30,6 +31,7 @@ class DistributedPartyCatchActivityAI(DistributedPartyActivityAI, DistributedPar
             self.startTime = startTime
             self.numPlayers = numPlayers
             self.caughtList = [0,] * 20
+            self.anvils = None
 
     def __init__(self, air, partyDoId, x, y, h):
         DistributedPartyActivityAI.__init__(self, air, partyDoId, x, y, h, PartyGlobals.EActivityId.PartyCatch, PartyGlobals.EActivityType.HOST_INITIATED)
@@ -57,6 +59,7 @@ class DistributedPartyCatchActivityAI(DistributedPartyActivityAI, DistributedPar
         DistributedPartyCatchActivityAI.notify.debug("delete")
         taskMgr.remove(self.conclusionCountdownTask)
         taskMgr.remove(self.conclusionFinishTask)
+        taskMgr.removeTasksMatching('schedNextGen-%s-*' % self.doId)
         del self.activityFSM
         self.ignore(self._partyEndedEvent)
         DistributedPartyActivityAI.delete(self)
@@ -92,6 +95,7 @@ class DistributedPartyCatchActivityAI(DistributedPartyActivityAI, DistributedPar
                 taskMgr.remove(item[1])
             del self._schedTasks[gen]
         self._schedTasks[nextGen] = (startT, task)
+        return task
 
     def getNumPlayers(self):
         return len(self._playerIds)
@@ -230,6 +234,17 @@ class DistributedPartyCatchActivityAI(DistributedPartyActivityAI, DistributedPar
         self._setUpNextGenScheduleTask(globalClock.getRealTime() - self.activityStartTime)
 
     # Distributed (clsend airecv)
+    def isAnvil(self, gen, objNum):
+        # The clients shuffle the same fruit and anvil list from the same seed,
+        # so what each drop was is known here without taking their word for it
+        if gen.anvils is None:
+            counts = DistributedPartyCatchActivityBase()
+            counts.calcDifficultyConstants(gen.numPlayers)
+            drops = [False] * counts.numFruits + [True] * counts.numAnvils
+            RandomNumGen(gen.generation + RandomNumGen(self.doId).randrange(1000)).shuffle(drops)
+            gen.anvils = drops
+        return objNum >= len(gen.anvils) or gen.anvils[objNum]
+
     def claimCatch(self, generation, objNum, DropObjTypeId):
         if self.activityFSM.state != 'Active':
             return
@@ -264,10 +279,8 @@ class DistributedPartyCatchActivityAI(DistributedPartyActivityAI, DistributedPar
             gen.caughtList[objNum] = 1
             self.sendUpdate('setObjectCaught', [avId, generation, objNum])
             # if it's a good obj, update the score
-            objName = PartyGlobals.DOTypeId2Name[DropObjTypeId]
-            DistributedPartyCatchActivityAI.notify.debug('avatar %s caught object %s: %s' %
-                              (avId, objNum, objName))
-            if PartyGlobals.Name2DropObjectType[objName].good:
+            DistributedPartyCatchActivityAI.notify.debug('avatar %s caught object %s' % (avId, objNum))
+            if not self.isAnvil(gen, objNum):
                 self.toonIdsToScores[avId] += 1
                 self.fruitsCaught += 1
 

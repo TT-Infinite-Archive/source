@@ -2,7 +2,7 @@ from panda3d.core import Datagram, Filename
 from . import CatalogAtticItem
 from . import CatalogItem
 import random
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer
 from toontown.toonbase import ToontownGlobals
 
 FTModelName = 0
@@ -930,11 +930,11 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
 
     def getYourOldDesc(self):
         if self.getFlags() & FLCloset:
-            return TTLocalizer.FurnitureYourOldCloset
+            return TTLocalizerServer.FurnitureYourOldCloset
         elif self.getFlags() & FLBank:
-            return TTLocalizer.FurnitureYourOldBank
+            return TTLocalizerServer.FurnitureYourOldBank
         elif self.getFlags() & FLTrunk:
-            return TTLocalizer.FurnitureYourOldTrunk
+            return TTLocalizerServer.FurnitureYourOldTrunk
         return None
 
     def notOfferedTo(self, avatar):
@@ -993,12 +993,12 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
     def getTypeName(self):
         flags = self.getFlags()
         if flags & FLPainting:
-            return TTLocalizer.PaintingTypeName
+            return TTLocalizerServer.PaintingTypeName
         else:
-            return TTLocalizer.FurnitureTypeName
+            return TTLocalizerServer.FurnitureTypeName
 
     def getName(self):
-        return TTLocalizer.FurnitureNames[self.furnitureType]
+        return TTLocalizerServer.FurnitureNames[self.furnitureType]
 
     def getFlags(self):
         defn = FurnitureTypes[self.furnitureType]
@@ -1112,7 +1112,7 @@ class CatalogFurnitureItem(CatalogAtticItem.CatalogAtticItem):
 
     def getAcceptItemErrorText(self, retcode):
         if retcode == ToontownGlobals.P_AlreadyOwnBiggerCloset:
-            return TTLocalizer.CatalogAcceptClosetError
+            return TTLocalizerServer.CatalogAcceptClosetError
         return CatalogAtticItem.CatalogAtticItem.getAcceptItemErrorText(self, retcode)
 
 

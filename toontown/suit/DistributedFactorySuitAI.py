@@ -4,7 +4,7 @@ from direct.directnotify import DirectNotifyGlobal
 from toontown.suit import DistributedSuitBaseAI
 from toontown.suit import SuitDialog
 from toontown.toonbase.ToontownGlobals import cogDept2index, SellbotFactoryInt
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from toontown.suit import SuitBuffGlobals
 import random
 
@@ -115,7 +115,7 @@ class DistributedFactorySuitAI(DistributedSuitBaseAI.DistributedSuitBaseAI):
 
     def requestTreasure(self, pos, grabberId=0):
         if self.treasureId:
-            self.notify.warning('Suit %s tried to make a treasure, but he already generated a treasure.' % self.doId)
+            self.notify.debug('Suit %s already generated a treasure.' % self.doId)
             return
         if self.inSellbotFactory():
             factory = self.air.doId2do.get(self.levelDoId)

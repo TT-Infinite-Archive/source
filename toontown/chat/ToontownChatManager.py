@@ -355,8 +355,9 @@ class ToontownChatManager(ChatManager.ChatManager):
         if playerId:
             playerInfo = base.cr.playerFriendsManager.getFriendInfo(playerId)
         if avatarId:
-            self.enterWhisperChat(avatarName, avatarId)
-        self.whisperFrame.hide()
+            self.fsm.request('whisperChat', [avatarName, avatarId])
+        else:
+            self.whisperFrame.hide()
 
     def enterNormalChat(self):
         result = ChatManager.ChatManager.enterNormalChat(self)

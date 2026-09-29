@@ -84,6 +84,7 @@ class PurchaseManagerAI(DistributedObjectAI.DistributedObjectAI):
                     extraBeans = self.votesArray[avIndex] * TravelGameGlobals.PercentOfVotesConverted[numPlayers] / 100.0
                     if self.air.holidayManager.isHolidayRunning(ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY) or self.air.holidayManager.isHolidayRunning(ToontownGlobals.JELLYBEAN_TROLLEY_HOLIDAY_MONTH):
                         extraBeans *= MinigameGlobals.JellybeanTrolleyHolidayScoreMultiplier
+                    extraBeans = int(extraBeans)
                     av.addMoney(extraBeans)
                     self.air.writeServerEvent('minigame_extraBeans', avId, '%s|%s|%s|%s' % (self.previousMinigameId,
                      self.trolleyZone,

@@ -9,6 +9,7 @@ class DistributedDistrict(DistributedObject):
         DistributedObject.__init__(self, cr)
         self.name = 'NotGiven'
         self.available = 0
+        self.draining = 0
         self.avatarCount = 0
         self.newAvatarCount = 0
 
@@ -33,3 +34,8 @@ class DistributedDistrict(DistributedObject):
     def setName(self, name):
         self.name = name
         messenger.send('shardInfoUpdated')
+
+    def setDraining(self, draining):
+        self.draining = draining
+        messenger.send('shardInfoUpdated')
+        messenger.send('shardDrainingChanged', [self.doId, draining])

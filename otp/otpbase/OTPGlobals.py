@@ -178,18 +178,10 @@ def setNametagFont(index, path):
 
 
 def getDialogClass():
-    global DialogClass
-    if DialogClass is None:
-        from otp.otpgui.OTPDialog import OTPDialog
-        DialogClass = OTPDialog
     return DialogClass
 
 
 def getGlobalDialogClass():
-    global GlobalDialogClass
-    if DialogClass is None:
-        from otp.otpgui.OTPDialog import GlobalDialog
-        GlobalDialogClass = GlobalDialog
     return GlobalDialogClass
 
 
@@ -219,7 +211,11 @@ REVERSE_INDEX = 3
 STRAFE_LEFT_INDEX = 4
 STRAFE_RIGHT_INDEX = 5
 ToonSpeedFactor = 1.25
-ToonForwardSpeed = 20.0 * ToonSpeedFactor
+ToonForwardSpeed = 16.0 * ToonSpeedFactor
+ToonSprintSpeed = 20.0 * ToonSpeedFactor
+ToonSprintTapWindow = 0.3
+ToonSprintFovBoost = 8.0
+ToonSprintFovLerpTime = 0.35
 ToonJumpForce = 24.0
 ToonReverseSpeed = 8.0 * ToonSpeedFactor
 ToonRotateSpeed = 80.0 * ToonSpeedFactor
@@ -343,9 +339,11 @@ PlayerFriendRejectRemoveEvent = 'playerFriendRejectRemoveEvent'
 PlayerFriendNewSecretEvent = 'playerFriendNewSecretEvent'
 PlayerFriendRejectNewSecretEvent = 'playerFriendRejectNewSecretEvent'
 PlayerFriendRejectUseSecretEvent = 'playerFriendRejectUseSecretEvent'
-WhisperIncomingEvent = 'whisperIncomingEvent'
 AccessUnknown = 0
 AccessVelvetRope = 1
 AccessFull = 2
 AccessInvalid = 3
-
+# Eject codes whose text the client shows as is. A ban also stops it
+# offering to reconnect
+BootKicked = 155
+BootBanned = 156

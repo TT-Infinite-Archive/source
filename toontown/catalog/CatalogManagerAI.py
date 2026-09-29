@@ -36,6 +36,8 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
         DistributedObjectAI.DistributedObjectAI.__init__(self, air)
         self.generator = CatalogGenerator.CatalogGenerator()
         self.uniqueIdToReturnCode = {} #cache for return phone calls
+        self.pendingGifts = {}
+        self.accept('giftPurchaseResult', self.giftPurchaseResult)
 
         self.notify.info(f"Catalog time scale {self.timeScale}.")
 
@@ -199,19 +201,14 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
 
         retcode = None
 
-        if item in avatar.monthlyCatalog:
-            catalogType = CatalogItem.CatalogTypeMonthly
-        elif item in avatar.weeklyCatalog:
-            catalogType = CatalogItem.CatalogTypeWeekly
-        elif item in avatar.backCatalog:
-            catalogType = CatalogItem.CatalogTypeBackorder
-        else:
+        catalogType, offered = self.matchOffered(avatar, item)
+        if offered is None:
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not in catalog')
             self.notify.warning(f"Avatar {avatar.doId} attempted to purchase {item}, not on catalog.")
             self.notify.warning(f"Avatar {avatar.doId} weekly: {avatar.weeklyCatalog}")
             return ToontownGlobals.P_NotInCatalog
 
-        price = item.getPrice(catalogType)
+        price = offered.getPrice(catalogType)
         if price > avatar.getTotalMoney():
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not enough money')
             self.notify.warning(f"Avatar {avatar.doId} attempted to purchase {item}, not enough money.")
@@ -235,6 +232,23 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
             self.deductMoney(avatar, price, item)
 
         return retcode
+
+    def matchOffered(self, avatar, item):
+        for catalogType, catalog in ((CatalogItem.CatalogTypeMonthly, avatar.monthlyCatalog),
+                                     (CatalogItem.CatalogTypeWeekly, avatar.weeklyCatalog),
+                                     (CatalogItem.CatalogTypeBackorder, avatar.backCatalog)):
+            for offered in catalog:
+                if offered == item:
+                    # The client's copy only picks among what was offered. Its
+                    # price and terms come from ours
+                    item.saleItem = offered.saleItem
+                    item.specialEventId = offered.specialEventId
+                    if offered.isRental():
+                        item.cost = offered.cost
+                        item.duration = offered.duration
+                    return catalogType, offered
+
+        return None, None
 
     def deductMoney(self, avatar, price, item):
         bankPrice = min(avatar.getBankMoney(), price)
@@ -287,28 +301,41 @@ class CatalogManagerAI(DistributedObjectAI.DistributedObjectAI):
 
     def payForGiftItem(self, avatar, item, retcode):
         self.notify.debug("in pay for Gift Item")
-        if item in avatar.monthlyCatalog:
-            catalogType = CatalogItem.CatalogTypeMonthly
-        elif item in avatar.weeklyCatalog:
-            catalogType = CatalogItem.CatalogTypeWeekly
-        elif item in avatar.backCatalog:
-            catalogType = CatalogItem.CatalogTypeBackorder
-        else:
+        catalogType, offered = self.matchOffered(avatar, item)
+        if offered is None:
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not in catalog')
             self.notify.warning("Avatar %s attempted to purchase %s, not on catalog." % (avatar.doId, item))
             self.notify.warning(f"Avatar {avatar.doId} weekly: {avatar.weeklyCatalog}")
             retcode = ToontownGlobals.P_NotInCatalog
-            return 0
+            return None
 
-        price = item.getPrice(catalogType)
+        price = offered.getPrice(catalogType)
         if price > avatar.getTotalMoney():
             self.air.writeServerEvent('suspicious', avatar.doId, f'purchaseItem {item} not enough money')
             self.notify.warning(f"Avatar {avatar.doId} attempted to purchase {item}, not enough money.")
             retcode = ToontownGlobals.P_NotEnoughMoney
-            return 0
+            return None
 
         self.deductMoney(avatar, price, item)
-        return 1
+        return price
+
+    def giftPurchaseResult(self, fromId, context, retcode):
+        # The UberDOG checks the giftee's mailbox after we have charged, so a
+        # gift it turns away is paid back here
+        price = self.pendingGifts.pop((fromId, context), None)
+        if price and retcode != ToontownGlobals.P_ItemAvailable:
+            self.refundGift(fromId, price)
+
+    def refundGift(self, avId, price):
+        avatar = self.air.doId2do.get(avId)
+        if not avatar:
+            self.air.writeServerEvent('gift-refund-lost', avId, price)
+            return
+        toWallet = min(price, avatar.getMaxMoney() - avatar.getMoney())
+        avatar.b_setMoney(avatar.getMoney() + toWallet)
+        if price > toWallet:
+            avatar.b_setBankMoney(avatar.getBankMoney() + price - toWallet)
+        self.air.writeServerEvent('refunded-money', avId, price)
 
 
     def startCatalog(self):

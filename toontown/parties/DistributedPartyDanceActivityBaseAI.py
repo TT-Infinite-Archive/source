@@ -24,7 +24,7 @@ class DistributedPartyDanceActivityBaseAI(DistributedPartyActivityAI):
         self.dancePatternToAnims = dancePatternToAnims
 
     def delete(self):
-        pass
+        DistributedPartyActivityAI.delete(self)
 
     # Distributed (clsend airecv)
     def toonJoinRequest(self):

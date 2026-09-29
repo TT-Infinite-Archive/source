@@ -14,7 +14,7 @@ from toontown.suit import Suit
 from toontown.suit import SuitDNA
 import random
 from toontown.battle import BattleProps
-from toontown.toon import NPCToons
+from toontown.toon import NPCToonFactory
 
 class DistributedLawbotChair(DistributedObject.DistributedObject, FSM.FSM):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedLawbotChair')
@@ -344,7 +344,7 @@ class DistributedLawbotChair(DistributedObject.DistributedObject, FSM.FSM):
 
     def loadToonJuror(self):
         self.cleanupToonJuror()
-        self.toonJuror = NPCToons.createLocalNPC(ToontownGlobals.LawbotBossBaseJurorNpcId + self.toonJurorIndex)
+        self.toonJuror = NPCToonFactory.createLocalNPC(ToontownGlobals.LawbotBossBaseJurorNpcId + self.toonJurorIndex)
         self.toonJuror.hide()
 
     def setToonJurorIndex(self, newVal):

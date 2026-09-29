@@ -1,4 +1,4 @@
-from toontown.toonbase import TTLocalizer
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 from math import ceil, pow
 import random
 from toontown.toonbase import ToontownGlobals

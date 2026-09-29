@@ -21,6 +21,7 @@ from toontown.parties import PartyGlobals
 from toontown.parties.DistributedPartyActivity import DistributedPartyActivity
 from toontown.parties.activityFSMs import TrampolineActivityFSM
 from toontown.parties import PartyUtils
+from toontown.toonbase import ToontownTimer
 
 class DistributedPartyTrampolineActivity(DistributedPartyActivity):
     notify = DirectNotifyGlobal.directNotify.newCategory('DistributedPartyTrampolineActivity')
@@ -160,7 +161,7 @@ class DistributedPartyTrampolineActivity(DistributedPartyActivity):
         self.quitEarlyButton = DirectButton(parent=base.a2dTopRight, relief=None, text=TTLocalizer.PartyTrampolineQuitEarlyButton, text_fg=(1, 1, 0.65, 1), text_pos=(0, -0.23), text_scale=0.7, image=(quitEarlyUp, quitEarlyDown, quitEarlyRollover), image_color=(1, 0, 0, 1), image_scale=(20, 1, 11), pos=(-0.183, 0, -0.4), scale=0.09, command=self.leaveTrampoline)
         self.quitEarlyButton.stash()
         self.flashText = OnscreenText(text='', pos=(0.0, -0.45), scale=0.2, fg=(1.0, 1.0, 0.65, 1.0), align=TextNode.ACenter, font=ToontownGlobals.getSignFont(), mayChange=True)
-        self.timer = PartyUtils.getNewToontownTimer()
+        self.timer = ToontownTimer.getNewToontownTimer()
         self.timer.posInTopRightCorner()
         return
 

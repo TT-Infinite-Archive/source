@@ -59,7 +59,7 @@ class StretchingArrow(DirectFrame):
         if self.ratioDrawn >= 1.0:
             result = StretchingArrow.arrowComplete
             self.ratioDrawn = -downTime
-        if cmp(oldRatio, 0) != cmp(self.ratioDrawn, 0) and result != StretchingArrow.arrowComplete:
+        if (oldRatio > 0) != (self.ratioDrawn > 0) and result != StretchingArrow.arrowComplete:
             result = StretchingArrow.arrowBegin
         if not animate:
             self.ratioDrawn = 1.0

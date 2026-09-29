@@ -469,7 +469,7 @@ class DistributedPairingGame(DistributedMinigame):
             perfectText = hidden.attachNewNode('perfectText')
             perfectTextSubnode.reparentTo(perfectText)
             frame = self.__textGen.getCardActual()
-            offsetY = -abs(frame[2] + frame[3]) // 2.0
+            offsetY = -abs(frame[2] + frame[3]) / 2.0
             perfectTextSubnode.setPos(0, 0, offsetY)
             perfectText.setColor(1, 0.1, 0.1, 1)
 

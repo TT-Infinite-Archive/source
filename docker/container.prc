@@ -1,5 +1,5 @@
 # Art location for the containerised stack, loaded last:
-model-path /resources
+model-path /app/resources
 
 # Where the rest of the stack is on the compose network:
 air-connect astrond:7010

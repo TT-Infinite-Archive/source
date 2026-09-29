@@ -36,17 +36,23 @@ if __debug__:
         builtins.injector = Injector()
 
 
-builtins.version = ConfigVariableString('server-version', 'n/a').getValue()
+from toontown.toonbase import VersionGlobals
+
+builtins.version = VersionGlobals.protocol()
+builtins.buildVersion = VersionGlobals.build()
 
 
 from otp.settings.Settings import Settings
 from toontown.toonbase import ToontownGlobals
+from toontown.toontowngui import TTDialog
+
+ToontownGlobals.setDialogClasses(TTDialog.TTDialog, TTDialog.TTGlobalDialog)
 
 # The launcher gives each signed-in account a preferences file of its own
 preferencesPath = os.environ.get('TTI_PREFERENCES') or os.path.join(ToontownGlobals.CurrentDirectory, ConfigVariableString('preferences-path', 'preferences.json').getValue())
 notify.info('Reading %s...' % preferencesPath)
 builtins.settings = Settings(preferencesPath)
-from toontown.toonbase import SettingsGlobals
+from toontown.toonbase import GraphicsSettings, SettingsGlobals
 SettingsGlobals.loadInitialSettings()
 
 # The Hosting screen's settings. Not the status file the district writes:
@@ -72,12 +78,15 @@ def retinaModeScale():
 
 resolution = tuple(settings.get(SettingsGlobals.Resolution, (800, 600)))
 
-if SettingsGlobals.retinaModeAvailable() and settings.get(SettingsGlobals.RetinaMode, True):
+if SettingsGlobals.retinaModeAvailable() and settings[SettingsGlobals.RetinaMode]:
     loadPrcFileData('Settings: retina-mode', 'dpi-aware #t')
     scale = retinaModeScale()
     resolution = (int(resolution[0] * scale), int(resolution[1] * scale))
     notify.info('Retina Mode: display zoom %.1fx, rendering at %dx%d'
                 % (scale, resolution[0], resolution[1]))
+
+if sys.platform == 'darwin':
+    loadPrcFileData('Cursor', 'cursor-filename phase_3/etc/toonmono.png')
 
 loadPrcFileData('Settings: res', 'win-size %d %d' % resolution)
 loadPrcFileData('Settings: fullscreen',
@@ -96,17 +105,29 @@ loadPrcFileData('Settings: vsync',
 loadPrcFileData('Settings: animationSmoothing',
                 'interpolate-frames %s' % (1 if settings[SettingsGlobals.AnimationSmoothing] else 0))
 loadPrcFileData('Settings: Texture Quality',
-                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings.get(SettingsGlobals.TextureQuality)])
+                'max-texture-dimension %d' % SettingsGlobals.TextureOptionToDimension[settings[SettingsGlobals.TextureQuality]])
 loadPrcFileData('Settings: Texture Compression',
                 'compressed-textures #%s' % ('t' if settings[SettingsGlobals.CompressTextures] else 'f'))
 if settings[SettingsGlobals.ThreadedRender]:
     loadPrcFileData('Settings: Experimental Threaded Rendering',
                     'threading-model Cull/Draw')
     notify.warning("Experimental Threaded Rendering is enabled! The game may crash randomly! You have been warned!")
-loadPrcFileData('Settings: Anti Aliasing',
-                'framebuffer-multisample %s' % ('1' if settings[SettingsGlobals.AntiAliasing] else '0')) 
-loadPrcFileData('Settings: Anti Aliasing Amount',
-                    'multisamples %s' % ('4' if settings[SettingsGlobals.AntiAliasing] else '0'))
+samples = GraphicsSettings.antiAliasingSamples()
+if samples:
+    loadPrcFileData('Settings: Anti Aliasing',
+                    'framebuffer-multisample 1')
+    loadPrcFileData('Settings: Anti Aliasing Amount',
+                    'multisamples %d' % samples)
+loadPrcFileData('Settings: Anisotropic Filtering',
+                'texture-anisotropic-degree %d' % settings[SettingsGlobals.AnisotropicFiltering])
+loadPrcFileData('Settings: Font Quality',
+                GraphicsSettings.fontConfig(settings[SettingsGlobals.FontQuality]))
+frameRateLimit = settings[SettingsGlobals.FrameRateLimit]
+if frameRateLimit:
+    loadPrcFileData('Settings: Frame Rate Limit',
+                    'clock-mode limited')
+    loadPrcFileData('Settings: Frame Rate Limit Amount',
+                    'clock-frame-rate %d' % frameRateLimit)
 
 from toontown.toonbase.ContentPacksManager import ContentPacksManager
 
@@ -143,6 +164,9 @@ ToonBase.ToonBase()
 if base.win is None:
     notify.error('Unable to open window; aborting.')
 
+GraphicsSettings.applyLodScale(settings[SettingsGlobals.LodDistance])
+GraphicsSettings.startFontLodBias()
+
 launcher.setPandaErrorCode(0)
 
 
@@ -178,7 +202,7 @@ introduction = Introduction()
 
 from toontown.toontowngui.ClickToStart import ClickToStart
 
-clickToStart = ClickToStart(version=version)
+clickToStart = ClickToStart(version=buildVersion)
 clickToStart.setColorScale(0, 0, 0, 0)
 
 from toontown.toonbase import TTLocalizer
