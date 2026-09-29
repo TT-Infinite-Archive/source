@@ -12,7 +12,7 @@ set -e
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOGS="$ROOT/logs"
-mkdir -p "$LOGS" "$ROOT/astron/logs"
+mkdir -p "$LOGS" "$ROOT/astron/logs" "$ROOT/astron/data"
 
 # Secrets reach a server process as environment variables. Infisical hands it over:
 #
