@@ -1311,6 +1311,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     # A client refreshes its reconnect token roughly hourly, so anything
     # more often than this is a retry rather than a new session.
     RECONNECT_REQUEST_DELAY = 300
+    AUTH_TOKEN_LIFETIME = 60
 
     def __init__(self, air):
         DistributedObjectGlobalUD.__init__(self, air)
@@ -1454,7 +1455,8 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         sender = self.air.getAccountIdFromSender()
 
         if not sender:
-            self.killAccount(sender, 'Client is not logged in.')
+            self.killConnection(self.air.getMsgSender(), 'Client is not logged in.')
+            return
 
         if sender in self.account2fsm:
             self.killAccountFSM(sender)
@@ -1466,10 +1468,19 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
     def requestAuthToken(self):
         sender = self.air.getMsgSender()
 
+        if isinstance(self.accountDB, WebAccountDB):
+            self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_CREDENTIALS_INVALID])
+            return
+
+        now = time.time()
+        for otherId, (token, stamp) in list(self.authTokens.items()):
+            if now - stamp > self.AUTH_TOKEN_LIFETIME:
+                del self.authTokens[otherId]
+
         authToken = ''.join([hex(random.randint(0, 254)) for _ in range(25)])
 
         lookupTable = generateLookupTable(authToken[::2])
-        self.authTokens[sender] = encodeHexString(lookupTable, authToken)
+        self.authTokens[sender] = (encodeHexString(lookupTable, authToken), now)
         del lookupTable
 
         self.sendUpdateToChannel(sender, 'receiveAuthToken', [authToken])
@@ -1479,7 +1490,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         sender = self.air.getMsgSender()
 
         # Time to check this login to see if its authentic
-        if authToken == self.authTokens.get(sender):
+        if authToken == self.authTokens.get(sender, (None, 0))[0]:
             # This login is authentic!
             del self.authTokens[sender]
         else:
@@ -1506,6 +1517,10 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def loginToken(self, token):
         sender = self.air.getMsgSender()
+
+        if not isinstance(self.accountDB, WebAccountDB):
+            self.sendUpdateToChannel(sender, 'loginError', [ToontownGlobals.CSM_LOGIN_ERROR_TOKEN_INVALID])
+            return
 
         if sender >> 32:
             self.killConnection(sender, 'Client is already logged in.')
