@@ -5,6 +5,7 @@ from direct.showbase.DirectObject import DirectObject
 
 from otp.distributed import OtpDoGlobals
 from otp.otpbase import OTPGlobals
+from toontown.web.AccountPurge import AccountPurge
 from toontown.web.ChatLog import ChatLog
 from toontown.web.GatewaySocket import openSocket
 from toontown.web.ReportLog import ReportLog
@@ -40,6 +41,7 @@ class GameGateway(DirectObject):
             'denyGuildName': lambda args, done: self.decideGuildName(args, done, False),
             'claimLegacyAccount': self.claimLegacyAccount,
             'kickAccount': self.kickAccount,
+            'deleteAccount': self.deleteAccount,
         }
 
         self.socket = socket if socket is not None else openSocket(onCommand=self.apply)
@@ -167,6 +169,12 @@ class GameGateway(DirectObject):
         if accountId:
             self.air.csm.killAccount(accountId, str(args['reason']), OTPGlobals.BootBanned)
         done(True, {'online': bool(accountId)})
+
+    def deleteAccount(self, args, done):
+        """
+        Permanently deletes a website user's game data.
+        """
+        AccountPurge(self.air, str(args['userId']), done).start()
 
     def claimLegacyAccount(self, args, done):
         """
