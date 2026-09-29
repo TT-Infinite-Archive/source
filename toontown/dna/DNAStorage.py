@@ -23,9 +23,9 @@ class DNAModelCache:
         if path in self.models:
             modelNode = self.models[path]
             if node:
-                np = modelNode.find('**/'+node).copyTo(hidden)
+                np = modelNode.find('**/'+node).copyTo(NodePath())
             else:
-                np = modelNode.copyTo(hidden)
+                np = modelNode.copyTo(NodePath())
             np.setTag('DNACode', code)
             np.setTag('DNARoot', node)
             return np

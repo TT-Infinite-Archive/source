@@ -165,6 +165,10 @@ class Street(BattlePlace.BattlePlace):
         self.loader.geom.reparentTo(hidden)
         self._telemLimiter.destroy()
         del self._telemLimiter
+        for node in self.tunnelOriginList:
+            node.removeNode()
+
+        self.tunnelOriginList = []
 
         def __lightDecorationOff__():
             for light in self.halloweenLights:

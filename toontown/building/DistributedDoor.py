@@ -368,7 +368,8 @@ class DistributedDoor(DistributedObject.DistributedObject, DelayDeletable):
                         self.enterText.setColorScale(VBase4(1, 1, 1, 0))
                         self.colorSeq = Sequence(
                             LerpColorScaleInterval(self.enterText, .4, VBase4(1, 1, 1, 1), blendType = 'easeInOut'),
-                            LerpColorScaleInterval(self.enterText, .4, VBase4(.8, .8, .8, .8), blendType = 'easeInOut')).loop()
+                            LerpColorScaleInterval(self.enterText, .4, VBase4(.8, .8, .8, .8), blendType = 'easeInOut'))
+                        self.colorSeq.loop()
                 else:
                     self.enterDoor()
             else:

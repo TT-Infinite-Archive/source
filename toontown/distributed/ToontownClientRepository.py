@@ -582,16 +582,14 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self._removeLocalAvFromStateServer()
 
     def handleCloseShard(self, msgType, di):
-        if msgType == CLIENT_ENTER_OBJECT_REQUIRED:
-            parentId = di.getUint32()
-            if self._doIdIsOnCurrentShard(parentId):
-                return
-        elif msgType == CLIENT_ENTER_OBJECT_REQUIRED_OTHER:
-            parentId = di.getUint32()
+        if msgType in (CLIENT_ENTER_OBJECT_REQUIRED, CLIENT_ENTER_OBJECT_REQUIRED_OTHER):
+            di2 = PyDatagramIterator(di)
+            di2.getUint32()
+            parentId = di2.getUint32()
             if self._doIdIsOnCurrentShard(parentId):
                 return
         elif msgType == CLIENT_OBJECT_SET_FIELD:
-            doId = di.getUint32()
+            doId = PyDatagramIterator(di).getUint32()
             if self._doIdIsOnCurrentShard(doId):
                 return
         self.handleMessageType(msgType, di)
