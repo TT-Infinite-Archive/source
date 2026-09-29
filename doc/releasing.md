@@ -30,7 +30,7 @@ A revision is only allowed if nothing the servers load has changed since its ful
 
 `server-version` in `[config/distribution/live.prc](../config/distribution/live.prc)` is the protocol version, e.g. `tti-live-p1`. Clients and servers only connect if their protocols match. The Astron image is tagged with the protocol, so it's only published once per protocol.
 
-**Bump the protocol whenever** `astron/dclass/` **changes.** A full release fails if the DC file changed but the protocol still matches an earlier release.
+**Bump the protocol whenever anything in the Astron image changes:** `astron/dclass/`, `astron/astrond-linux` or `docker/astron/`. A full release fails if any of them changed but the protocol still matches an earlier release.
 
 ## Cutting a release
 

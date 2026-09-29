@@ -83,9 +83,9 @@ jobs:
 
           echo "value=$VALUE" >> "$GITHUB_OUTPUT"
 
-      # astrond carries the DC file, and its image is published once per
-      # protocol, so a DC change under an old protocol would never reach it.
-      - name: Check the DC file has not moved under this protocol
+      # The astrond image is published once per protocol, so anything baked
+      # into it that changes under an old protocol would never reach it.
+      - name: Check the Astron image has not moved under this protocol
         if: steps.version.outputs.revision != 'true'
         shell: bash
         env:
@@ -103,8 +103,8 @@ jobs:
                        | awk '$1 == "server-version" { print $2; exit }')
 
               if [ "$served" = "$PROTOCOL" ]; then
-                  if ! git diff --quiet "$tag" HEAD -- astron/dclass; then
-                      echo "::error::astron/dclass has changed since $tag shipped" \
+                  if ! git diff --quiet "$tag" HEAD -- astron/dclass astron/astrond-linux docker/astron; then
+                      echo "::error::The Astron image's contents have changed since $tag shipped" \
                            "protocol $PROTOCOL. Bump server-version in" \
                            "config/distribution/live.prc."
                       exit 1

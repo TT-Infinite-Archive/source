@@ -10,6 +10,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Needs no secrets, so it runs on pull requests from forks too
+  compile:
+    name: Python compiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Compile
+        run: python -m compileall -q otp toontown scripts
+
   server:
     name: Game server image
     if: >-
