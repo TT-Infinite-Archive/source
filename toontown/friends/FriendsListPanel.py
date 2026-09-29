@@ -493,7 +493,7 @@ class FriendsListPanel(DirectFrame, StateData.StateData):
                     petFriends.append(friendPair)
 
         if self.panelType == FLPEnemies:
-            for ignored in base.cr.ttiFriendsManager.ignoreList:
+            for ignored in base.cr.ttiFriendsManager.ignored:
                 newFriends.append((ignored, 0))
 
         if self.panelType == FLPAll or self.panelType == FLPOnline:
