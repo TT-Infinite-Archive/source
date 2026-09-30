@@ -13,6 +13,8 @@ if sys.platform == 'android':
 else:
     CurrentDirectory = os.getcwd()
 
+InstallDirectory = getattr(sys, 'installDirectory', CurrentDirectory)
+
 WantPromotion = 0
 PendingPromotion = 1
 CeilingBitmask = BitMask32(256)

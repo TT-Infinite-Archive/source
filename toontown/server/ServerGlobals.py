@@ -8,15 +8,23 @@ import sys
 
 from toontown.toonbase import ServerSettingsGlobals, TTLocalizerServer as TTLocalizer, ToontownGlobals
 
-LogsPath = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
+LogsPath = os.environ.get('TTI_LOG_DIRECTORY') or os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
+
+if os.path.samefile(ToontownGlobals.CurrentDirectory, ToontownGlobals.InstallDirectory):
+    DatabasePath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data')
+else:
+    DatabasePath = os.path.join(ToontownGlobals.CurrentDirectory, 'database')
+
+AstronPath = os.path.join(ToontownGlobals.InstallDirectory, 'astron')
+
 if sys.platform == 'android':
     UberdogTarget = []
     AITarget = []
 elif getattr(sys, 'frozen', False):
-    # The engine runs the server too, from game/server.zip, an optional download.
+    # The engine runs the server too, from server.zip
     # Installs from before the engine carry their own server binary
     ServerBinary = os.path.join(
-        ToontownGlobals.CurrentDirectory, 'bin', 'server',
+        ToontownGlobals.InstallDirectory, 'bin', 'server',
         'Toontown Infinite Server' + ('.exe' if sys.platform == 'win32' else ''))
 
     if not os.path.isfile(ServerBinary):
@@ -128,7 +136,7 @@ def getProcesses(districtName=DefaultDistrict, mongo=True, config=()):
     if mongo:
         processes.append([
             ['mongod'],
-            'astron',
+            AstronPath,
             TTLocalizer.MongoDB,
             'shutting down',
             'Waiting for connections'
@@ -137,7 +145,7 @@ def getProcesses(districtName=DefaultDistrict, mongo=True, config=()):
     return processes + [
         [
             [os.path.join('.', AstronBinary)],
-            'astron',
+            AstronPath,
             TTLocalizer.Astron,
             'FATAL',
             'Opened new log.'
@@ -220,7 +228,7 @@ AstronConfig = {
         {
             'type': 'eventlogger',
             'bind': '127.0.0.1:7021',
-            'output': 'logs/events-%y%m%d_%H%M%S.log'
+            'output': os.path.join(LogsPath, 'events-%y%m%d_%H%M%S.log')
         }
     ]
 }

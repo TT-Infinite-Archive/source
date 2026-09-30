@@ -1,9 +1,10 @@
 """
 The startup both compiled entry points share.
 """
-from panda3d.core import Filename, VirtualFileSystem
+from panda3d.core import Filename, VirtualFileSystem, loadPrcFileData
 import os
 import sys
+import zipfile
 
 from toontown.toonbase import ConfigFiles
 
@@ -34,16 +35,30 @@ def findRoot(start):
     sys.exit('No installed resources above %s.' % start)
 
 
+def loadPacked(paths):
+    """
+    Load PRC files packed into the archive the game runs from.
+    """
+    with zipfile.ZipFile(__loader__.archive) as archive:
+        for path in paths:
+            try:
+                data = archive.read(path)
+            except KeyError:
+                sys.exit('%s carries no %s. Please run the installer again.'
+                         % (os.path.basename(archive.filename), path))
+
+            loadPrcFileData(path, data.decode('utf-8'))
+
+
 def prepare(config):
     """
-    Enter the install root, mount the phase files, and load `config`.
+    Mount the phase files and load `config`.
     """
     sys.frozen = True
     sys.executable = os.path.abspath(sys.argv[0])
 
     root = findRoot(os.path.dirname(sys.executable))
-
-    os.chdir(root)
+    sys.installDirectory = root
 
     vfs = VirtualFileSystem.getGlobalPtr()
 
@@ -55,6 +70,11 @@ def prepare(config):
         if not vfs.mount(multifile, '/', 0):
             sys.exit('Failed to mount %s.' % multifile)
 
-    ConfigFiles.load(config)
+    loadPacked(config)
+
+    data = os.environ.get('TTI_DATA_DIRECTORY') or root
+
+    os.makedirs(data, exist_ok=True)
+    os.chdir(data)
 
     return root

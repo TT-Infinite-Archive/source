@@ -34,7 +34,7 @@ class LocalServerStarter(FSM):
         self.mdPort = MessageDirectorPort
         self.logPort = EventLoggerPort
         self.mongoPort = MongoPort
-        self.mongoPath = os.path.join(ToontownGlobals.CurrentDirectory, 'astron', 'data')
+        self.mongoPath = DatabasePath
         self.astronConfig = os.path.join(base.tempDir, 'server.yml')
 
     def enterOff(self):

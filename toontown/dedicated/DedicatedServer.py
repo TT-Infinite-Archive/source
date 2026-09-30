@@ -10,7 +10,7 @@ from direct.directnotify.DirectNotifyGlobal import *
 from direct.fsm.FSM import FSM
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
-from toontown.toonbase import TTLocalizerServer as TTLocalizer, ToontownGlobals
+from toontown.toonbase import TTLocalizerServer as TTLocalizer
 
 
 class DedicatedServer(FSM):
@@ -36,8 +36,7 @@ class DedicatedServer(FSM):
         # anyone running more than one server instance will want it:
         self.mongoUrl = mongoUrl
         self.mongoPort = MongoPort
-        self.mongoPath = os.path.join(
-            ToontownGlobals.CurrentDirectory, 'astron', 'data')
+        self.mongoPath = DatabasePath
 
         self.processes = getProcesses(
             districtName=districtName, mongo=mongoUrl is None, config=config)

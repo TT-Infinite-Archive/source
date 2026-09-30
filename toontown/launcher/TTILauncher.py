@@ -37,11 +37,9 @@ class TTILauncher:
         logSuffix = '%02d%02d%02d_%02d%02d%02d' % (ltime[0] - 2000,  ltime[1], ltime[2],
                                                    ltime[3], ltime[4], ltime[5])
 
-        folder = os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
-        
-        if not os.path.exists(folder):
-            os.mkdir(folder)
-            self.notify.info('Made new directory to save logs.')
+        folder = os.environ.get('TTI_LOG_DIRECTORY') or os.path.join(ToontownGlobals.CurrentDirectory, 'logs')
+
+        os.makedirs(folder, exist_ok=True)
 
         logfile = os.path.join(folder, self.logPrefix + logSuffix + '.log')
 
