@@ -218,12 +218,18 @@ jobs:
       version: ${{ needs.version.outputs.value }}
       channel: ${{ needs.version.outputs.channel }}
       promote: false
+      # A revision runs against the servers already up
+      early: ${{ needs.version.outputs.revision == 'true' }}
     secrets: inherit
 
   deploy:
     name: Deploy
     needs: [version, server, client]
-    if: needs.version.outputs.revision != 'true'
+    if: >-
+      !cancelled()
+      && needs.version.outputs.revision != 'true'
+      && needs.server.result == 'success'
+      && needs.client.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
       tag: tti-${{ needs.version.outputs.channel }}-v${{ needs.version.outputs.value }}
@@ -240,7 +246,7 @@ jobs:
       !cancelled()
       && (needs.server.result == 'success' || needs.server.result == 'skipped')
       && needs.client.result == 'success'
-      && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
+      && (needs.deploy.result == 'success' || (needs.deploy.result == 'skipped' && needs.version.outputs.revision == 'true'))
     runs-on: ubuntu-latest
     env:
       BUCKET: ttiwebsite
@@ -271,16 +277,21 @@ jobs:
           set -euo pipefail
 
           echo "{\"version\":\"$VERSION\"}" > latest.json
-          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/$CHANNEL/latest.json" \
-              --cache-control "no-cache" --content-type application/json
+          roots=("s3://$BUCKET/$PREFIX/$CHANNEL")
 
           if [ "$CHANNEL" = live ]; then
               aws s3 sync "s3://$BUCKET/$PREFIX/live/$VERSION/" \
                   "s3://$BUCKET/$PREFIX/$VERSION/" \
                   --cache-control "no-cache" --content-type application/json
-              aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
-                  --cache-control "no-cache" --content-type application/json
+              roots+=("s3://$BUCKET/$PREFIX")
           fi
+
+          for root in "${roots[@]}"; do
+              for name in latest latest-mac-arm64 latest-mac-x64 latest-win-x64 latest-linux-x64; do
+                  aws s3 cp latest.json "$root/$name.json" \
+                      --cache-control "no-cache" --content-type application/json
+              done
+          done
 
       - name: Tell the webserver
         if: env.CHANNEL == 'live'

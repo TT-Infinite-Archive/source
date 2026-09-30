@@ -1,0 +1,53 @@
+name: Panda3D wheels
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - scripts/build_panda3d.py
+      - .github/actions/panda3d/**
+      - .github/workflows/panda3d.yml
+  workflow_dispatch:
+
+concurrency:
+  group: panda3d-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wheel:
+    name: ${{ matrix.target }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      BUCKET: ttiwebsite
+      INDEX: release-index
+      AWS_DEFAULT_REGION: auto
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: mac-arm64
+            os: macos-26
+          - target: mac-x64
+            os: macos-26-intel
+          - target: win-x64
+            os: windows-2025
+          - target: linux-x64
+            os: ubuntu-22.04
+          - target: linux-x64
+            os: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Fetch Panda3D
+        uses: ./.github/actions/panda3d
+        with:
+          target: ${{ matrix.target }}

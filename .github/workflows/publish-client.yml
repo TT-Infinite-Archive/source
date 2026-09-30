@@ -13,6 +13,10 @@ on:
         description: "Point latest.json at this version when the build lands."
         default: true
         type: boolean
+      early:
+        description: "Point each platform at this version as soon as its build lands."
+        default: false
+        type: boolean
   workflow_dispatch:
     inputs:
       version:
@@ -27,6 +31,10 @@ on:
       promote:
         description: "Point latest.json at this version when the build lands."
         default: true
+        type: boolean
+      early:
+        description: "Point each platform at this version as soon as its build lands."
+        default: false
         type: boolean
 
 env:
@@ -43,7 +51,7 @@ env:
 jobs:
   resources:
     name: Pack the resources
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
         with:
@@ -209,186 +217,94 @@ jobs:
                   --cache-control "no-cache" --content-type application/json
           done
 
-  # Python, Panda3D and the libraries the game imports. Rebuilt only when its
-  # key moves, which is rare, so most releases reuse the last one:
-  engine:
-    name: Engine ${{ matrix.target }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: mac-arm64
-            os: macos-latest
-          - target: mac-x64
-            os: macos-26-intel
-          - target: win-x64
-            os: windows-2025
-          - target: linux-x64
-            os: ubuntu-22.04
+  engine-mac-arm64:
+    name: Engine mac-arm64
+    uses: ./.github/workflows/publish-engine.yml
+    with:
+      target: mac-arm64
+      os: macos-26
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+    secrets: inherit
 
-    steps:
-      - uses: actions/checkout@v5
+  engine-mac-x64:
+    name: Engine mac-x64
+    uses: ./.github/workflows/publish-engine.yml
+    with:
+      target: mac-x64
+      os: macos-26-intel
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+    secrets: inherit
 
-      - name: Check out the build tools
-        uses: ./.github/actions/build-tools
-        with:
-          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+  engine-win-x64:
+    name: Engine win-x64
+    uses: ./.github/workflows/publish-engine.yml
+    with:
+      target: win-x64
+      os: windows-2025
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+    secrets: inherit
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-          cache: pip
+  engine-linux-x64:
+    name: Engine linux-x64
+    uses: ./.github/workflows/publish-engine.yml
+    with:
+      target: linux-x64
+      os: ubuntu-22.04
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+    secrets: inherit
 
-      # The Panda3D the engine needs is not on PyPI, so it is built once per
-      # pin and kept:
-      - name: Fetch Panda3D
-        uses: ./.github/actions/panda3d
-        with:
-          target: ${{ matrix.target }}
+  platform-mac-arm64:
+    name: Platform mac-arm64
+    needs: [resources, game, engine-mac-arm64]
+    uses: ./.github/workflows/publish-platform.yml
+    with:
+      target: mac-arm64
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      early: ${{ inputs.early }}
+    secrets: inherit
 
-      - name: Install Panda3D
-        shell: bash
-        run: |
-          if [ -z "$(ls wheels/*.whl 2>/dev/null)" ]; then
-              echo "::error::No Panda3D wheel for ${{ matrix.target }}."
-              exit 1
-          fi
+  platform-mac-x64:
+    name: Platform mac-x64
+    needs: [resources, game, engine-mac-x64]
+    uses: ./.github/workflows/publish-platform.yml
+    with:
+      target: mac-x64
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      early: ${{ inputs.early }}
+    secrets: inherit
 
-          pip install --disable-pip-version-check wheels/*.whl
+  platform-win-x64:
+    name: Platform win-x64
+    needs: [resources, game, engine-win-x64]
+    uses: ./.github/workflows/publish-platform.yml
+    with:
+      target: win-x64
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      early: ${{ inputs.early }}
+    secrets: inherit
 
-      - name: Install dependencies
-        run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
-
-      # Nuitka rewrites the library paths of what it bundles:
-      - name: Ensure patchelf is present
-        if: runner.os == 'Linux'
-        run: command -v patchelf || (sudo apt-get update && sudo apt-get install -y patchelf)
-
-      - name: Look for an identical engine
-        id: engine
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          key=$(python tools/build_engine.py --print-key)
-          echo "key=$key" >> "$GITHUB_OUTPUT"
-          echo "Engine key \`$key\`." >> "$GITHUB_STEP_SUMMARY"
-
-          if aws s3 cp "s3://$BUCKET/$INDEX/engine-${{ matrix.target }}-$key.json" recorded.json \
-                  --only-show-errors 2> /dev/null; then
-              # The sweep may have taken the blobs of a pack no kept release uses:
-              missing=$(jq -r '.files[].sha256' recorded.json | sort -u | while read -r sha; do
-                  aws s3api head-object --bucket "$BUCKET" --key "$PREFIX/blob/$sha" \
-                      > /dev/null 2>&1 || echo "$sha"
-              done)
-
-              if [ -n "$missing" ]; then
-                  echo "::warning::The recorded engine lost $(echo "$missing" | wc -l) blob(s) to the sweep; rebuilding it."
-                  echo "hit=false" >> "$GITHUB_OUTPUT"
-              else
-                  echo "hit=true" >> "$GITHUB_OUTPUT"
-              fi
-          else
-              echo "hit=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Build it
-        if: steps.engine.outputs.hit != 'true'
-        run: python tools/build_engine.py
-
-      - name: Describe it
-        if: steps.engine.outputs.hit != 'true'
-        shell: bash
-        run: |
-          python tools/build_manifest.py \
-              --tree build/engine/install \
-              --section engine-${{ matrix.target }} \
-              --version ${{ inputs.version }} \
-              --manifest build/manifest/engine-${{ matrix.target }}.json \
-              --blobs build/blobs
-
-      - name: Keep the compilation report
-        if: always() && steps.engine.outputs.hit != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuitka-report-engine-${{ matrix.target }}
-          path: build/engine/report-engine.xml
-          if-no-files-found: ignore
-
-      - name: Upload it
-        if: steps.engine.outputs.hit != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
-              --cache-control "public, max-age=31536000, immutable"
-
-          manifest=build/manifest/engine-${{ matrix.target }}.json
-
-          aws s3 cp "$manifest" \
-              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/$(basename "$manifest")" \
-              --cache-control "no-cache" --content-type application/json
-          aws s3 cp "$manifest" \
-              "s3://$BUCKET/$INDEX/engine-${{ matrix.target }}-${{ steps.engine.outputs.key }}.json" \
-              --cache-control "no-cache" --content-type application/json
-
-          echo "Built a new engine." >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Reuse the recorded engine
-        if: steps.engine.outputs.hit == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          jq --arg v "${{ inputs.version }}" '.version = $v' \
-              recorded.json > engine.json
-
-          aws s3 cp engine.json \
-              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/engine-${{ matrix.target }}.json" \
-              --cache-control "no-cache" --content-type application/json
-
-          echo "Nothing the engine carries has moved; reused it." >> "$GITHUB_STEP_SUMMARY"
-
-  # The launchers already installed read one section per platform:
-  legacy:
-    name: Compose the manifests installed launchers read
-    needs: [game, engine]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Check out the build tools
-        uses: ./.github/actions/build-tools
-        with:
-          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-
-      - name: Compose
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          release="s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}"
-
-          aws s3 sync "$release/" manifests/ --only-show-errors
-          python tools/legacy_manifests.py --manifests manifests --version ${{ inputs.version }}
-
-          for target in mac-arm64 mac-x64 win-x64 linux-x64; do
-              for section in "$target" "host-$target"; do
-                  aws s3 cp "manifests/$section.json" "$release/$section.json" \
-                      --cache-control "no-cache" --content-type application/json
-              done
-          done
+  platform-linux-x64:
+    name: Platform linux-x64
+    needs: [resources, game, engine-linux-x64]
+    uses: ./.github/workflows/publish-platform.yml
+    with:
+      target: linux-x64
+      version: ${{ inputs.version }}
+      channel: ${{ inputs.channel }}
+      early: ${{ inputs.early }}
+    secrets: inherit
 
   publish:
     name: Publish the release
     if: inputs.promote
-    needs: [resources, game, engine, legacy]
+    needs: [platform-mac-arm64, platform-mac-x64, platform-win-x64, platform-linux-x64]
     runs-on: ubuntu-latest
     steps:
       - name: Point latest.json at tti-${{ inputs.channel }}-v${{ inputs.version }}
@@ -397,13 +313,18 @@ jobs:
           set -euo pipefail
 
           echo '{"version":"${{ inputs.version }}"}' > latest.json
-          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/latest.json" \
-              --cache-control "no-cache" --content-type application/json
+          roots=("s3://$BUCKET/$PREFIX/${{ inputs.channel }}")
 
           if [ "${{ inputs.channel }}" = live ]; then
               aws s3 sync "s3://$BUCKET/$PREFIX/live/${{ inputs.version }}/" \
                   "s3://$BUCKET/$PREFIX/${{ inputs.version }}/" \
                   --cache-control "no-cache" --content-type application/json
-              aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest.json" \
-                  --cache-control "no-cache" --content-type application/json
+              roots+=("s3://$BUCKET/$PREFIX")
           fi
+
+          for root in "${roots[@]}"; do
+              for name in latest latest-mac-arm64 latest-mac-x64 latest-win-x64 latest-linux-x64; do
+                  aws s3 cp latest.json "$root/$name.json" \
+                      --cache-control "no-cache" --content-type application/json
+              done
+          done
