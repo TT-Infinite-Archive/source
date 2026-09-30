@@ -299,7 +299,8 @@ class ToonBase(OTPBase.OTPBase):
         searchPath.appendDirectory(Filename('/phase_3/etc'))
 
         cursor = 'toonmono.png' if sys.platform == 'darwin' else 'toonmono.cur'
-        for filename in [cursor, 'icon.ico']:
+        icon = 'icon.ico' if sys.platform == 'win32' else 'icon.png'
+        for filename in [cursor, icon]:
             p3filename = Filename(filename)
             found = vfs.resolveFilename(p3filename, searchPath)
             if not found:
@@ -312,7 +313,7 @@ class ToonBase(OTPBase.OTPBase):
         wp.setCursorFilename(
             Filename.fromOsSpecific(os.path.join(self.tempDir, cursor)))
         wp.setIconFilename(
-            Filename.fromOsSpecific(os.path.join(self.tempDir, 'icon.ico')))
+            Filename.fromOsSpecific(os.path.join(self.tempDir, icon)))
         self.win.requestProperties(wp)
 
     def addCullBins(self):
