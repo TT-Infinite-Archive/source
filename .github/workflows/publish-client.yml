@@ -299,6 +299,7 @@ jobs:
 
       - name: Describe it
         if: steps.engine.outputs.hit != 'true'
+        shell: bash
         run: |
           python tools/build_manifest.py \
               --tree build/engine/install \
