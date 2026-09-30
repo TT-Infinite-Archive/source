@@ -1,0 +1,154 @@
+name: Publish an engine
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      os:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      channel:
+        default: live
+        type: string
+
+env:
+  BUCKET: ttiwebsite
+  PREFIX: releases
+  INDEX: release-index
+  AWS_DEFAULT_REGION: auto
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+
+jobs:
+  # Python, Panda3D and the libraries the game imports. Rebuilt only when its
+  # key moves, which is rare, most releases reuse the last one:
+  engine:
+    name: Build
+    runs-on: ${{ inputs.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check out the build tools
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Fetch Panda3D
+        uses: ./.github/actions/panda3d
+        with:
+          target: ${{ inputs.target }}
+
+      - name: Install Panda3D
+        shell: bash
+        run: |
+          if [ -z "$(ls wheels/*.whl 2>/dev/null)" ]; then
+              echo "::error::No Panda3D wheel for ${{ inputs.target }}."
+              exit 1
+          fi
+
+          pip install --disable-pip-version-check wheels/*.whl
+
+      - name: Install dependencies
+        run: pip install --disable-pip-version-check -r requirements.txt -r requirements-build.txt
+
+      - name: Ensure patchelf is present
+        if: runner.os == 'Linux'
+        run: command -v patchelf || (sudo apt-get update && sudo apt-get install -y patchelf)
+
+      - name: Look for an identical engine
+        id: engine
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          key=$(python tools/build_engine.py --print-key)
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+          echo "Engine key \`$key\`." >> "$GITHUB_STEP_SUMMARY"
+
+          if aws s3 cp "s3://$BUCKET/$INDEX/engine-${{ inputs.target }}-$key.json" recorded.json \
+                  --only-show-errors 2> /dev/null; then
+              # The sweep may have taken the blobs of a pack no kept release uses:
+              missing=$(jq -r '.files[].sha256' recorded.json | sort -u | while read -r sha; do
+                  aws s3api head-object --bucket "$BUCKET" --key "$PREFIX/blob/$sha" \
+                      > /dev/null 2>&1 || echo "$sha"
+              done)
+
+              if [ -n "$missing" ]; then
+                  echo "::warning::The recorded engine lost $(echo "$missing" | wc -l) blob(s) to the sweep; rebuilding it."
+                  echo "hit=false" >> "$GITHUB_OUTPUT"
+              else
+                  echo "hit=true" >> "$GITHUB_OUTPUT"
+              fi
+          else
+              echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build it
+        if: steps.engine.outputs.hit != 'true'
+        run: python tools/build_engine.py
+
+      - name: Describe it
+        if: steps.engine.outputs.hit != 'true'
+        shell: bash
+        run: |
+          python tools/build_manifest.py \
+              --tree build/engine/install \
+              --section engine-${{ inputs.target }} \
+              --version ${{ inputs.version }} \
+              --manifest build/manifest/engine-${{ inputs.target }}.json \
+              --blobs build/blobs
+
+      - name: Keep the compilation report
+        if: always() && steps.engine.outputs.hit != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuitka-report-engine-${{ inputs.target }}
+          path: build/engine/report-engine.xml
+          if-no-files-found: ignore
+
+      - name: Upload it
+        if: steps.engine.outputs.hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          aws s3 sync build/blobs "s3://$BUCKET/$PREFIX/blob/" --size-only \
+              --cache-control "public, max-age=31536000, immutable"
+
+          manifest=build/manifest/engine-${{ inputs.target }}.json
+
+          aws s3 cp "$manifest" \
+              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/$(basename "$manifest")" \
+              --cache-control "no-cache" --content-type application/json
+          aws s3 cp "$manifest" \
+              "s3://$BUCKET/$INDEX/engine-${{ inputs.target }}-${{ steps.engine.outputs.key }}.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          echo "Built a new engine." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reuse the recorded engine
+        if: steps.engine.outputs.hit == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          jq --arg v "${{ inputs.version }}" '.version = $v' \
+              recorded.json > engine.json
+
+          aws s3 cp engine.json \
+              "s3://$BUCKET/$PREFIX/${{ inputs.channel }}/${{ inputs.version }}/engine-${{ inputs.target }}.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          echo "Nothing the engine carries has moved; reused it." >> "$GITHUB_STEP_SUMMARY"

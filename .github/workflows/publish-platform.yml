@@ -1,0 +1,82 @@
+name: Publish a platform
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      channel:
+        default: live
+        type: string
+      early:
+        description: "Point this platform at the version as soon as it lands."
+        default: false
+        type: boolean
+
+env:
+  BUCKET: ttiwebsite
+  PREFIX: releases
+  TARGET: ${{ inputs.target }}
+  VERSION: ${{ inputs.version }}
+  CHANNEL: ${{ inputs.channel }}
+  AWS_DEFAULT_REGION: auto
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_ENDPOINT_URL: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+
+jobs:
+  compose:
+    name: Compose
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check out the build tools
+        uses: ./.github/actions/build-tools
+        with:
+          token: ${{ secrets.BUILD_TOOLS_TOKEN }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Compose
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          release="s3://$BUCKET/$PREFIX/$CHANNEL/$VERSION"
+
+          aws s3 sync "$release/" manifests/ --only-show-errors
+
+          python tools/legacy_manifests.py --manifests manifests --version "$VERSION" --target "$TARGET"
+
+          for section in "$TARGET" "host-$TARGET"; do
+              aws s3 cp "manifests/$section.json" "$release/$section.json" \
+                  --cache-control "no-cache" --content-type application/json
+          done
+
+      - name: Point ${{ inputs.target }} at ${{ inputs.version }}
+        if: inputs.early
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "{\"version\":\"$VERSION\"}" > latest.json
+          aws s3 cp latest.json "s3://$BUCKET/$PREFIX/$CHANNEL/latest-$TARGET.json" \
+              --cache-control "no-cache" --content-type application/json
+
+          if [ "$CHANNEL" = live ]; then
+              aws s3 sync "s3://$BUCKET/$PREFIX/live/$VERSION/" "s3://$BUCKET/$PREFIX/$VERSION/" \
+                  --exclude "*" --include resources.json --include "$TARGET.json" --include "host-$TARGET.json" \
+                  --cache-control "no-cache" --content-type application/json
+              aws s3 cp latest.json "s3://$BUCKET/$PREFIX/latest-$TARGET.json" \
+                  --cache-control "no-cache" --content-type application/json
+          fi
+
+          echo "$TARGET launchers now get $VERSION." >> "$GITHUB_STEP_SUMMARY"
