@@ -7,6 +7,8 @@ from toontown.toonbase.ToontownBattleGlobals import *
 from .SuitBattleGlobals import *
 from . import BattleExperienceAI
 from direct.distributed import DistributedObjectAI
+from direct.distributed.MsgTypes import STATESERVER_OBJECT_DELETE_RAM
+from direct.distributed.PyDatagram import PyDatagram
 from direct.fsm import ClassicFSM, State
 from direct.task import Task
 from direct.directnotify import DirectNotifyGlobal
@@ -74,6 +76,7 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
         self.numNPCAttacks = 0
         self.npcAttacks = {}
         self.pets = {}
+        self.pendingPetReads = set()
         self.fsm = ClassicFSM.ClassicFSM('DistributedBattleAI', [State.State('FaceOff', self.enterFaceOff, self.exitFaceOff, ['WaitForInput', 'Resume']),
          State.State('WaitForJoin', self.enterWaitForJoin, self.exitWaitForJoin, ['WaitForInput', 'Resume']),
          State.State('WaitForInput', self.enterWaitForInput, self.exitWaitForInput, ['MakeMovie', 'Resume']),
@@ -1092,39 +1095,50 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
             self.notify.warning('requestPetProxy() - no toon: %d' % toonId)
             return
         petId = toon.getPetId()
-        zoneId = self.zoneId
-        if petId == av:
-            if toonId not in self.pets:
+        if petId != av:
+            return
+        if toonId in self.pets and not self.pets[toonId].isDeleted():
+            return
+        if toonId in self.pendingPetReads:
+            return
+        self.pendingPetReads.add(toonId)
+        self.air.dbInterface.queryObject(self.air.dbId, petId,
+                                         lambda dclass, fields: self.__handlePetRead(toonId, petId, dclass, fields))
 
-                def handleGetPetProxy(success, petProxy, petId = petId, zoneId = zoneId, toonId = toonId):
-                    if success:
-                        if petId not in simbase.air.doId2do:
-                            simbase.air.requestDeleteDoId(petId)
-                        else:
-                            petProxy = DistributedPetProxyAI.DistributedPetProxyAI(self.air)
-                            petDO = simbase.air.doId2do[petId]
-                            for field in FIELD_LIST:
-                                # Less ugly way to initialize the petProxy's fields.
-                                setter = petDO.getSetterName(field, 'set')
-                                getter = petDO.getSetterName(field, 'get')
-                                getattr(petProxy, setter)(getattr(petDO, getter)())
-                            petDO.requestDelete()
+    def __handlePetRead(self, toonId, petId, dclass, fields):
+        self.pendingPetReads.discard(toonId)
+        if self.isDeleted() or toonId not in self.activeToons:
+            return
+        if dclass != self.air.dclassesByName['DistributedPetAI']:
+            self.notify.warning('failed to read pet %s from the database' % petId)
+            return
+        petProxy = DistributedPetProxyAI.DistributedPetProxyAI(self.air)
+        for field in FIELD_LIST:
+            setter = petProxy.getSetterName(field, 'set')
+            if setter in fields:
+                getattr(petProxy, setter)(*fields[setter])
 
-                        def onDelete(task):
-                            petProxy.doNotDeallocateChannel = True
-                            petProxy.generateWithRequiredAndId(petId, self.air.districtId, self.zoneId)
-                            petProxy.broadcastDominantMood()
-                            self.pets[toonId] = petProxy
-                            return task.done
+        def generateProxy(task=None):
+            if self.isDeleted() or toonId not in self.activeToons:
+                return Task.done
+            petProxy.doNotDeallocateChannel = True
+            petProxy.generateWithRequiredAndId(petId, self.air.districtId, self.zoneId)
+            petProxy.broadcastDominantMood()
+            self.pets[toonId] = petProxy
+            return Task.done
 
-                        self.acceptOnce(self.air.getAvatarExitEvent(petId),
-                                        lambda: taskMgr.doMethodLater(0,
-                                                onDelete, self.uniqueName('petdel-%d' % petId)))
-                    else:
-                        self.notify.warning('error generating petProxy: %s' % petId)
-
-                self.getPetProxyObject(petId, handleGetPetProxy)
-        return
+        petDO = self.air.doId2do.get(petId)
+        if petDO:
+            self.acceptOnce(self.air.getAvatarExitEvent(petId),
+                            lambda: taskMgr.doMethodLater(0, generateProxy, self.uniqueName('petdel-%d' % petId)))
+            petDO.requestDelete()
+        else:
+            # The pet may still be live on another district (e.g. left behind at an estate).
+            dg = PyDatagram()
+            dg.addServerHeader(petId, self.air.ourChannel, STATESERVER_OBJECT_DELETE_RAM)
+            dg.addUint32(petId)
+            self.air.send(dg)
+            generateProxy()
 
     def suitCanJoin(self):
         return len(self.suits) < self.maxSuits and self.isJoinable()
@@ -1812,12 +1826,6 @@ class DistributedBattleBaseAI(DistributedObjectAI.DistributedObjectAI, BattleBas
 
     def exitNotAdjusting(self):
         return None
-
-    def getPetProxyObject(self, petId, callback):
-        def handlePetProxyRead(pet):
-            callback(1, pet)
-        self.air.sendActivate(petId, self.air.districtId, 0)
-        self.acceptOnce('generate-%d' % petId, handlePetProxyRead)
 
     def _getNextSerialNum(self):
         num = self.serialNum
