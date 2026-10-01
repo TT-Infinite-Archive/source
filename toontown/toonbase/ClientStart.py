@@ -165,6 +165,7 @@ if base.win is None:
     notify.error('Unable to open window; aborting.')
 
 GraphicsSettings.applyLodScale(settings[SettingsGlobals.LodDistance])
+GraphicsSettings.applyAntiAliasing()
 GraphicsSettings.startFontLodBias()
 
 launcher.setPandaErrorCode(0)

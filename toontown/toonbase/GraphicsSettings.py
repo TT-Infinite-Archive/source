@@ -1,6 +1,6 @@
 import sys
 
-from panda3d.core import ClockObject, ConfigVariableBool, DynamicTextFont, SamplerState, TextNode, TexturePool, loadPrcFileData
+from panda3d.core import AntialiasAttrib, ClockObject, ConfigVariableBool, DynamicTextFont, SamplerState, TextNode, TexturePool, loadPrcFileData
 
 from toontown.toonbase import SettingsGlobals
 
@@ -23,6 +23,11 @@ def setAntiAliasingSamples(samples):
     settings[SettingsGlobals.AntiAliasing] = bool(samples)
     if samples:
         settings[SettingsGlobals.AntiAliasingSamples] = samples
+
+
+def applyAntiAliasing():
+    if antiAliasingSamples():
+        render.setAntialias(AntialiasAttrib.MMultisample)
 
 
 def applyAnisotropicDegree(degree):
