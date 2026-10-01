@@ -21,7 +21,7 @@ class ArrowKeys(DirectObject):
         self.__enabled = 0
         self.setPressHandlers(self.NULL_HANDLERS)
         self.setReleaseHandlers(self.NULL_HANDLERS)
-        self.origMb = base.buttonThrowers[0].node().getModifierButtons()
+        self.origMb = ModifierButtons(base.buttonThrowers[0].node().getModifierButtons())
         base.buttonThrowers[0].node().setModifierButtons(ModifierButtons())
         
         self.enable()

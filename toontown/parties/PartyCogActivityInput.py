@@ -19,7 +19,8 @@ class PartyCogActivityInput(DirectObject):
     def __init__(self, exitActivityCallback):
         DirectObject.__init__(self)
         self.exitActivityCallback = exitActivityCallback
-        self._prevModifierButtons = base.mouseWatcherNode.getModifierButtons()
+        self._prevMouseModifierButtons = ModifierButtons(base.mouseWatcherNode.getModifierButtons())
+        self._prevThrowerModifierButtons = ModifierButtons(base.buttonThrowers[0].node().getModifierButtons())
 
     def enable(self):
         self.enableAimKeys()
@@ -84,8 +85,8 @@ class PartyCogActivityInput(DirectObject):
         self.ignore(self.ROTATE_RIGHT_KEY + '-up')
         self.ignore(self.FORWARD_KEY + '-up')
         self.ignore(self.BACKWARDS_KEY + '-up')
-        base.mouseWatcherNode.setModifierButtons(self._prevModifierButtons)
-        base.buttonThrowers[0].node().setModifierButtons(self._prevModifierButtons)
+        base.mouseWatcherNode.setModifierButtons(self._prevMouseModifierButtons)
+        base.buttonThrowers[0].node().setModifierButtons(self._prevThrowerModifierButtons)
 
     def __handleLeftKeyPressed(self):
         self.ignore(self.ROTATE_LEFT_KEY)
