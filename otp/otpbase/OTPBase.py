@@ -18,7 +18,7 @@ class OTPBase(ShowBase):
             self.tempDir = ''
         else:
             self.tempDir = tempfile.mkdtemp()
-            atexit.register(shutil.rmtree, self.tempDir)
+            atexit.register(shutil.rmtree, self.tempDir, True)
 
         self.wantEnviroDR = False
         ShowBase.__init__(self, windowType=windowType)

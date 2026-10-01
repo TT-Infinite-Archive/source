@@ -1,4 +1,5 @@
 import os
+import queue
 import threading
 import time
 import sys
@@ -15,8 +16,15 @@ CreationFlags = subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0
 class ProcessThread(threading.Thread):
     notify = DirectNotifyGlobal.directNotify.newCategory('ProcessThread')
 
+    # Panda can't be called from a thread it didn't create (Windows asserts),
+    # so events are handed to the main thread to send:
+    events = queue.Queue()
+
     def __init__(self, defaultPath, process):
         threading.Thread.__init__(self)
+
+        if not taskMgr.hasTaskNamed('processThreadEvents'):
+            taskMgr.add(ProcessThread.sendEvents, 'processThreadEvents')
 
         self.daemon = True
         self.killed = False
@@ -38,13 +46,22 @@ class ProcessThread(threading.Thread):
     def getPid(self):
         return self.process.pid
 
+    @staticmethod
+    def sendEvents(task):
+        while True:
+            try:
+                event, name = ProcessThread.events.get_nowait()
+            except queue.Empty:
+                return task.cont
+            messenger.send(event, [name])
+
     def failed(self):
         self.killed = True
-        messenger.send('processFailed', [self.name])
+        self.events.put(('processFailed', self.name))
 
     def started(self):
-        messenger.send('processStarted', [self.name])
-    
+        self.events.put(('processStarted', self.name))
+
     def kill(self):
         if hasattr(self, 'process') and self.process and not self.killed:
             self.process.kill()
