@@ -423,11 +423,13 @@ class ToonBase(OTPBase.OTPBase):
         if hasattr(self, 'notificationPopup') and self.notificationPopup:
             self.notificationPopup.destroy()
             taskMgr.remove('clearScreenshot')
-        if not os.path.exists('screenshots/'):
-            os.mkdir('screenshots/')
+        screenshotDir = os.path.join(ToontownGlobals.CurrentDirectory, 'screenshots')
+        if not os.path.exists(screenshotDir):
+            os.makedirs(screenshotDir)
             self.notify.info('Made new directory to save screenshots.')
         self.screenshotSfx.play()
-        namePrefix = 'screenshots/' + launcher.logPrefix + 'screenshot-%i.png' % time.time()
+        namePrefix = Filename.fromOsSpecific(os.path.join(
+            screenshotDir, launcher.logPrefix + 'screenshot-%i.png' % time.time())).getFullpath()
         timedif = globalClock.getRealTime() - self.lastScreenShotTime
         if self.glitchCount > 10 and self.walking:
             return
@@ -468,8 +470,7 @@ class ToonBase(OTPBase.OTPBase):
             self.notify.warning('Failed to save screenshot %s' % namePrefix)
             self.showNotification("Screenshot Failed")
         else:
-            pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
-            self.showNotification("Screenshot Saved" + ':\n' + pandafile.toOsSpecific())
+            self.showNotification("Screenshot Saved" + ':\n' + screenshot.toOsSpecific())
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
