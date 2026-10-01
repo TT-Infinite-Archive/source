@@ -10,7 +10,7 @@ from direct.directnotify.DirectNotifyGlobal import *
 from direct.fsm.FSM import FSM
 from toontown.server.ProcessThread import ProcessThread
 from toontown.server.ServerGlobals import *
-from toontown.toonbase import TTLocalizerServer as TTLocalizer
+from toontown.toonbase import ServerSettingsGlobals, TTLocalizerServer as TTLocalizer
 
 
 class DedicatedServer(FSM):
@@ -122,7 +122,13 @@ class DedicatedServer(FSM):
             thread.processInfo += [
                 '--astron-ip', '127.0.0.1:%d' % self.mdPort,
                 '--eventlogger-ip', '127.0.0.1:%d' % self.logPort,
-                '--mongodb-ip', self.databaseUrl()]
+                '--mongodb-ip', self.databaseUrl(),
+                '--settings-file', ServerSettingsGlobals.settingsPath()]
+
+            statusPath = ServerSettingsGlobals.statusPath()
+
+            if statusPath:
+                thread.processInfo += ['--status-file', statusPath]
 
         thread.start()
         self.threads.append(thread)

@@ -18,6 +18,7 @@ parser.add_argument('--stateserver', help="The control channel of this UD's desi
 parser.add_argument('--astron-ip', help="The IP address of the Astron Message Director to connect to.")
 parser.add_argument('--eventlogger-ip', help="The IP address of the Astron Event Logger to log to.")
 parser.add_argument('--mongodb-ip', help="The IP address of the MongoDB server to connect to.")
+parser.add_argument('--settings-file', help="The JSON settings this server runs with.")
 parser.add_argument('--singleplayer', help="If passed, the server will start in singleplayer mode.", action='store_true')
 parser.add_argument('--cheats', help="If passed, the server will start in with cheats enabled.", action='store_true')
 parser.add_argument('--accountdb', choices=('developer', 'offline', 'production'),
@@ -53,6 +54,7 @@ if args.stateserver: localconfig += 'air-stateserver %s\n' % args.stateserver
 if args.astron_ip: localconfig += 'air-connect %s\n' % args.astron_ip
 if args.eventlogger_ip: localconfig += 'eventlog-host %s\n' % args.eventlogger_ip
 if args.mongodb_ip: localconfig += 'mongodb-url %s\n' % args.mongodb_ip
+if args.settings_file: localconfig += 'host-settings-file %s\n' % args.settings_file
 if args.singleplayer: localconfig += 'want-singleplayer #t\n'
 if args.cheats: localconfig += 'want-cheats #f\n'
 if args.accountdb: localconfig += 'accountdb-type %s\n' % args.accountdb
