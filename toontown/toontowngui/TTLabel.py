@@ -36,6 +36,9 @@ class TTLabel(DirectLabel):
 
 
 def fitText(label, width):
+    # Panda leaves an empty TextNode's bounds uninitialized, so its width can be NaN:
+    if not label['text']:
+        return 0
     node = label.component('text0').textNode
     scale = label['text_scale']
     if not isinstance(scale, (int, float)):
