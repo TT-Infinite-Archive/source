@@ -1,4 +1,6 @@
-from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, TextProperties, TextPropertiesManager, URLSpec, VBase4, VirtualFileSystem, WindowProperties
+from panda3d.core import ConfigVariableBool, ConfigVariableDouble, ConfigVariableInt, ConfigVariableString, Connection, CullBinManager, DSearchPath, Filename, PNMImage, TextProperties, TextPropertiesManager, Texture, URLSpec, VBase4, VirtualFileSystem, WindowProperties
+import array
+import ctypes
 import os
 import random
 import sys
@@ -315,6 +317,47 @@ class ToonBase(OTPBase.OTPBase):
         wp.setIconFilename(
             Filename.fromOsSpecific(os.path.join(self.tempDir, icon)))
         self.win.requestProperties(wp)
+
+        # Panda3D ignores the icon filename on X11:
+        if sys.platform.startswith('linux'):
+            self.setX11Icon(os.path.join(self.tempDir, icon))
+
+    def setX11Icon(self, path):
+        handle = self.win.getWindowHandle()
+        image = PNMImage()
+        if not handle or not image.read(Filename.fromOsSpecific(path)):
+            return
+
+        try:
+            xlib = ctypes.CDLL('libX11.so.6')
+        except OSError:
+            return
+
+        xlib.XOpenDisplay.argtypes = [ctypes.c_char_p]
+        xlib.XOpenDisplay.restype = ctypes.c_void_p
+        xlib.XInternAtom.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int]
+        xlib.XInternAtom.restype = ctypes.c_ulong
+        xlib.XChangeProperty.argtypes = [
+            ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong,
+            ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]
+        xlib.XCloseDisplay.argtypes = [ctypes.c_void_p]
+
+        display = xlib.XOpenDisplay(None)
+        if not display:
+            return
+
+        image.addAlpha()
+        image.flip(False, True, False)
+        texture = Texture()
+        texture.load(image)
+        pixels = array.array('I', bytes(texture.getRamImageAs('BGRA')))
+        data = array.array('L', (texture.getXSize(), texture.getYSize(), *pixels))
+
+        address, length = data.buffer_info()
+        xlib.XChangeProperty(
+            display, handle.getIntHandle(), xlib.XInternAtom(display, b'_NET_WM_ICON', False),
+            6, 32, 0, address, length)  # XA_CARDINAL, PropModeReplace
+        xlib.XCloseDisplay(display)
 
     def addCullBins(self):
         cbm = CullBinManager.getGlobalPtr()
