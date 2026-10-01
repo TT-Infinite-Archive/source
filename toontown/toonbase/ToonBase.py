@@ -421,9 +421,12 @@ class ToonBase(OTPBase.OTPBase):
         screenshot = self.screenshot(namePrefix=namePrefix, 
                                      defaultFilename=0, imageComment=ctext + ' ' + self.screenshotStr)
         self.lastScreenShotTime = globalClock.getRealTime()
-        pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
-        winfile = pandafile.toOsSpecific()
-        self.showNotification("Screenshot Saved" + ':\n' + winfile)
+        if screenshot is None:
+            self.notify.warning('Failed to save screenshot %s' % namePrefix)
+            self.showNotification("Screenshot Failed")
+        else:
+            pandafile = Filename(os.path.join(ToontownGlobals.CurrentDirectory, str(screenshot)))
+            self.showNotification("Screenshot Saved" + ':\n' + pandafile.toOsSpecific())
         if coordOnScreen:
             if strTextLabel is not None:
                 strTextLabel.destroy()
