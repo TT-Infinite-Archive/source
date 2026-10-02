@@ -61,12 +61,13 @@ class FactoryExterior(BattlePlace.BattlePlace):
 
     def enter(self, requestStatus):
         self.zoneId = requestStatus['zoneId']
+        branchZoneId = ZoneUtil.getBranchZone(self.zoneId)
 
         # Load the CogHQ DNA file:
         dnaStore = DNAStorage()
-        dnaFileName = self.genDNAFileName(self.zoneId)
+        dnaFileName = self.genDNAFileName(branchZoneId)
 
-        if not dnaFileName.endswith('13200.pdna'):
+        if branchZoneId != ToontownGlobals.LawbotOfficeExt:
 
             loadDNAFileAI(dnaStore, dnaFileName)
 
