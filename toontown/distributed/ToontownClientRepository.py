@@ -582,14 +582,16 @@ class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
         self._removeLocalAvFromStateServer()
 
     def handleCloseShard(self, msgType, di):
+        # Due to a silly oversight in PyDatagramIterator, the copy constructor isn't supported.
+        # We can use DatagramIterator directly since we don't need any of PyDatagramIterator's functionality.
         if msgType in (CLIENT_ENTER_OBJECT_REQUIRED, CLIENT_ENTER_OBJECT_REQUIRED_OTHER):
-            di2 = PyDatagramIterator(di)
+            di2 = DatagramIterator(di)
             di2.getUint32()
             parentId = di2.getUint32()
             if self._doIdIsOnCurrentShard(parentId):
                 return
         elif msgType == CLIENT_OBJECT_SET_FIELD:
-            doId = PyDatagramIterator(di).getUint32()
+            doId = DatagramIterator(di).getUint32()
             if self._doIdIsOnCurrentShard(doId):
                 return
         self.handleMessageType(msgType, di)
