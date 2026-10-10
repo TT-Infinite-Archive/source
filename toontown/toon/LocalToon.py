@@ -898,6 +898,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         return pie and pie.getT() < 15.0 / 24.0
 
     def __toonMoved(self, isSet):
+        return
         if isSet:
             self.interruptPie()
 
