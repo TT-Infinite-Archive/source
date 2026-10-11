@@ -6,9 +6,6 @@ from toontown.distributed.ToontownInternalRepository import \
     ToontownInternalRepository
 from otp.distributed import OtpDoGlobals
 
-if ConfigVariableBool('want-game-gateway', False).getValue():
-    from toontown.web.GameGateway import GameGateway
-
 from toontown.parties.ToontownTimeManager import ToontownTimeManager
 from toontown.server import Readiness
 
@@ -54,11 +51,11 @@ class ToontownUberRepository(ToontownInternalRepository):
                 self.remoteGlobalObjects[dcname] = \
                     RemoteGlobalObject(self, dcname, doId)
 
-        # Last, so the globals its commands reach are already active
-        if self._pendingGatewaySocket is not None:
+        # Last, so the globals its commands reach are already active.
+        if ConfigVariableBool('want-game-gateway', False).getValue():
+            from toontown.web.GameGateway import GameGateway
+            # Passing None for the socket argument is safe.
             self.gateway = GameGateway(self, socket=self._pendingGatewaySocket)
-        elif ConfigVariableBool('want-game-gateway', False).getValue():
-            self.gateway = GameGateway(self)
 
         self.notify.info('Done.')
         Readiness.markReady()
