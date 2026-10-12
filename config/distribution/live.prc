@@ -7,7 +7,7 @@
 distribution live
 
 # Server:
-server-version tti-live-p1
+server-version tti-live-p2
 build-version BUILD_VERSION
 
 # Art assets:
