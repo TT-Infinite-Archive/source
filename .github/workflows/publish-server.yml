@@ -116,9 +116,17 @@ jobs:
               version="tti-${{ inputs.channel }}-v${{ inputs.version }}"
           fi
 
+          if [ "${{ matrix.image }}" = astron ]; then
+              inputs=$(git ls-tree HEAD astron docker/astron | git hash-object --stdin)
+              echo "build=$repo:$version-${inputs:0:12}" >> "$GITHUB_OUTPUT"
+          fi
+
           {
               echo "tags<<TAGS"
               echo "$repo:$version"
+              if [ "${{ matrix.image }}" = astron ]; then
+                  echo "$repo:$version-${inputs:0:12}"
+              fi
               # :latest is whatever is live:
               if [ "${{ inputs.channel }}" = live ]; then
                   echo "$repo:latest"
@@ -131,12 +139,11 @@ jobs:
         if: matrix.image == 'astron'
         shell: bash
         run: |
-          tag="${{ steps.image.outputs.repo }}:${{ steps.protocol.outputs.value }}"
+          tag="${{ steps.image.outputs.build }}"
 
           if docker buildx imagetools inspect "$tag" > /dev/null 2>&1; then
               echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "Protocol \`${{ steps.protocol.outputs.value }}\` is already published; keeping it." \
-                  >> "$GITHUB_STEP_SUMMARY"
+              echo "\`$tag\` is already published; keeping it." >> "$GITHUB_STEP_SUMMARY"
           else
               echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
