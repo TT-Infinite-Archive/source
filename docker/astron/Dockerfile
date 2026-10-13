@@ -4,10 +4,10 @@
 #
 # Rebuilding astrond means running that workflow and committing the artifact,
 # not editing this file.
-FROM debian:12-slim AS runtime
+FROM debian:13-slim AS runtime
 
-# astrond carries its own libraries, so the runtime needs nothing but a
-# trust store for TLS
+# astrond links glibc dynamically and is built on ubuntu-latest, so the base
+# needs a glibc at least as new as that runner's
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
