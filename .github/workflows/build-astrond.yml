@@ -43,6 +43,7 @@ jobs:
           python-version: "3.14"
 
       - name: Install the system dependencies
+        if: matrix.target != 'linux'
         shell: bash
         run: python tools/build_astrond.py --install-deps --target ${{ matrix.target }}
 
@@ -50,7 +51,8 @@ jobs:
         shell: bash
         run: |
           python tools/build_astrond.py --target ${{ matrix.target }} \
-              --arch ${{ matrix.arch }} --output out
+              --arch ${{ matrix.arch }} --output out \
+              ${{ matrix.target == 'linux' && '--docker' || '' }}
 
       - name: Show what it links
         shell: bash
