@@ -14,17 +14,16 @@ class ClickToStart(DirectObject):
 
     def __init__(self, version='n/a'):
         DirectObject.__init__(self)
+        if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
+            bgImage = 'phase_3/maps/tti_click_to_start_bg_halloween.jpg'
+        else:
+            bgImage = 'phase_3/maps/tti_click_to_start_bg.jpg'
         self.backgroundNodePath = render2d.attachNewNode('background', 0)
         self.background = OnscreenImage(
             parent=self.backgroundNodePath,
-            image='phase_3/maps/tti_click_to_start_bg.jpg'
+            image=bgImage
         )
         self.background.setTransparency(TransparencyAttrib.MAlpha)
-        if ToontownGlobals.HALLOWEEN_PROPS in base.clientHolidayIdList:
-            bgTex = loader.loadTexture(
-                'phase_3/maps/tti_click_to_start_bg_halloween.jpg')
-            self.backgroundNodePath.find('**/bg').setTexture(bgTex, 1)
-            self.backgroundNodePath.setScale(1, 1, 1)
 
         self.logo = OnscreenImage(
             parent=base.a2dTopCenter, image='phase_3/maps/toontown_infinite_logo.png',
