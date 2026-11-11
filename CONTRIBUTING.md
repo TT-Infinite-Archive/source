@@ -81,3 +81,7 @@ Only [master](https://github.com/TT-Infinite-Archive/source/tree/master) is acti
 - Write commit messages in [Conventional Commits](https://www.conventionalcommits.org/) style: `type(scope): lowercase summary`, e.g. `fix(minigames): stop the trolley from leaving without toons`.
 - Follow the [Python style guide](doc/style-guide/python-style.md).
 - Keep each pull request to one change, and explain what it fixes and how you tested it.
+
+## License
+
+By opening a pull request, you agree to license your contribution under the [GNU AGPL-3.0](LICENSE) with the additional terms in [NOTICE.md](NOTICE.md).

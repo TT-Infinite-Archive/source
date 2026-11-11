@@ -27,6 +27,10 @@ Please ask for help with installing, logging in or starting the game on [Discord
 
 Want to fix a bug or run the game from source? Read [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## License
+
+Original Toontown Infinite code is licensed under the [GNU AGPL-3.0](LICENSE), with an attribution requirement: if you use any of this code, you must visibly credit Toontown Infinite. Disney-derived code and assets are not covered. See [NOTICE.md](NOTICE.md) for the full terms.
+
 ---
 
 Toontown Infinite is a fan project. It is not affiliated with, endorsed by or sponsored by The Walt Disney Company. *Toontown Online* and its characters belong to their respective owners.
